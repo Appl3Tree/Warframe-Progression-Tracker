@@ -28,7 +28,36 @@ export default function Diagnostics() {
     const stats = FULL_CATALOG.stats;
 
     const counts = stats.countsBySource;
+    const displayableCounts = stats.displayableCountsBySource;
     const missing = stats.missingNameBySource;
+
+    const firstDisplayableCurrency =
+        FULL_CATALOG.displayableCurrencyItemIds.length > 0
+            ? FULL_CATALOG.recordsById[
+                  FULL_CATALOG.displayableCurrencyItemIds[0]
+              ].displayName
+            : "None";
+
+    const firstDisplayableInventoryItem =
+        FULL_CATALOG.displayableInventoryItemIds.length > 0
+            ? FULL_CATALOG.recordsById[
+                  FULL_CATALOG.displayableInventoryItemIds[0]
+              ].displayName
+            : "None";
+
+    const firstDisplayableMod =
+        FULL_CATALOG.displayableIdsBySource.mods.length > 0
+            ? FULL_CATALOG.recordsById[
+                  FULL_CATALOG.displayableIdsBySource.mods[0]
+              ].displayName
+            : "None";
+
+    const firstDisplayableModSet =
+        FULL_CATALOG.displayableIdsBySource.modsets.length > 0
+            ? FULL_CATALOG.recordsById[
+                  FULL_CATALOG.displayableIdsBySource.modsets[0]
+              ].displayName
+            : "None";
 
     return (
         <div className="space-y-6">
@@ -44,13 +73,59 @@ export default function Diagnostics() {
 
             <Section title="Catalog Sanity">
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    <StatRow label="Total records (all sources)" value={stats.totalCount} />
-                    <StatRow label="Currency-classified item records" value={stats.currencyItemCount} />
+                    <StatRow
+                        label="Total records (all sources)"
+                        value={stats.totalCount}
+                    />
+                    <StatRow
+                        label="Total displayable records"
+                        value={stats.totalDisplayableCount}
+                    />
+
                     <StatRow label="Items (items.json)" value={counts.items} />
+                    <StatRow
+                        label="Items displayable"
+                        value={displayableCounts.items}
+                    />
+
                     <StatRow label="Mods (mods.json)" value={counts.mods} />
-                    <StatRow label="Mod Sets (modsets.json)" value={counts.modsets} />
+                    <StatRow
+                        label="Mods displayable"
+                        value={displayableCounts.mods}
+                    />
+
+                    <StatRow
+                        label="Mod Sets (modsets.json)"
+                        value={counts.modsets}
+                    />
+                    <StatRow
+                        label="Mod Sets displayable"
+                        value={displayableCounts.modsets}
+                    />
+
                     <StatRow label="Rivens (rivens.json)" value={counts.rivens} />
-                    <StatRow label="Mod Descriptions (moddescriptions.json)" value={counts.moddescriptions} />
+                    <StatRow
+                        label="Rivens displayable"
+                        value={displayableCounts.rivens}
+                    />
+
+                    <StatRow
+                        label="Mod Descriptions (moddescriptions.json)"
+                        value={counts.moddescriptions}
+                    />
+                    <StatRow
+                        label="Mod Descriptions displayable"
+                        value={displayableCounts.moddescriptions}
+                    />
+
+                    <StatRow
+                        label="Currency-classified item records"
+                        value={stats.currencyItemCount}
+                    />
+                    <StatRow
+                        label="Currency-classified displayable items"
+                        value={stats.displayableCurrencyItemCount}
+                    />
                 </div>
 
                 <div className="mt-5">
@@ -63,71 +138,58 @@ export default function Diagnostics() {
                         <StatRow label="Mods missing name" value={missing.mods} />
                         <StatRow label="Mod Sets missing name" value={missing.modsets} />
                         <StatRow label="Rivens missing name" value={missing.rivens} />
-                        <StatRow label="Mod Descriptions missing name" value={missing.moddescriptions} />
+                        <StatRow
+                            label="Mod Descriptions missing name"
+                            value={missing.moddescriptions}
+                        />
                     </div>
 
                     <div className="mt-4 text-sm text-slate-400">
                         Notes:
                         <ul className="ml-5 mt-1 list-disc space-y-1">
                             <li>
-                                Currency classification is derived from the source
-                                dataset’s icon-path substring rule: <span className="font-mono">/StoreIcons/Currency/</span>.
-                                Icons are not rendered anywhere in the UI.
+                                Icons are not rendered. Icon-paths are only read
+                                to classify currencies via{" "}
+                                <span className="font-mono">
+                                    /StoreIcons/Currency/
+                                </span>
+                                .
                             </li>
                             <li>
-                                Catalog IDs are namespaced (<span className="font-mono">source:path</span>) to avoid collisions across datasets.
+                                Catalog IDs are namespaced (
+                                <span className="font-mono">source:path</span>)
+                                to avoid collisions across datasets.
+                            </li>
+                            <li>
+                                Records without names are intentionally excluded
+                                from user-facing lists (
+                                <span className="font-mono">isDisplayable=false</span>
+                                ).
                             </li>
                         </ul>
                     </div>
                 </div>
             </Section>
 
-            <Section title="Catalog Quick Spot-Checks">
+            <Section title="Catalog Quick Spot-Checks (displayable only)">
                 <div className="text-sm text-slate-300">
-                    These are intentionally limited samples, useful for confirming the catalog is usable without dumping
-                    huge lists into the UI.
+                    These are intentionally limited samples, useful for confirming
+                    the catalog is usable without dumping huge lists into the UI.
                 </div>
 
                 <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                     <StatRow
                         label="First currency item (alphabetical)"
-                        value={
-                            FULL_CATALOG.currencyItemIds.length
-                                ? FULL_CATALOG.recordsById[
-                                      FULL_CATALOG.currencyItemIds[0]
-                                  ].displayName
-                                : "None"
-                        }
+                        value={firstDisplayableCurrency}
                     />
                     <StatRow
                         label="First inventory item (alphabetical)"
-                        value={
-                            FULL_CATALOG.inventoryItemIds.length
-                                ? FULL_CATALOG.recordsById[
-                                      FULL_CATALOG.inventoryItemIds[0]
-                                  ].displayName
-                                : "None"
-                        }
+                        value={firstDisplayableInventoryItem}
                     />
-                    <StatRow
-                        label="First mod (alphabetical)"
-                        value={
-                            FULL_CATALOG.idsBySource.mods.length
-                                ? FULL_CATALOG.recordsById[
-                                      FULL_CATALOG.idsBySource.mods[0]
-                                  ].displayName
-                                : "None"
-                        }
-                    />
+                    <StatRow label="First mod (alphabetical)" value={firstDisplayableMod} />
                     <StatRow
                         label="First mod set (alphabetical)"
-                        value={
-                            FULL_CATALOG.idsBySource.modsets.length
-                                ? FULL_CATALOG.recordsById[
-                                      FULL_CATALOG.idsBySource.modsets[0]
-                                  ].displayName
-                                : "None"
-                        }
+                        value={firstDisplayableModSet}
                     />
                 </div>
             </Section>

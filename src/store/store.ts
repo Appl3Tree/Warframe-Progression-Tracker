@@ -6,6 +6,7 @@ import { toYMD } from "../domain/ymd";
 import type { DailyTask } from "../domain/types";
 import { SEED_INVENTORY, SEED_RESERVES, SEED_SYNDICATES } from "../domain/seed";
 import type { PageKey, UserStateV2 } from "../domain/models/userState";
+import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
 
 function nowIso(): string {
     return new Date().toISOString();
@@ -64,6 +65,27 @@ function uid(prefix: string): string {
     return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now()}`;
 }
 
+function isCatalogId(key: string): key is CatalogId {
+    // Fast check, then validate existence
+    const colon = key.indexOf(":");
+    if (colon <= 0) return false;
+    const src = key.slice(0, colon);
+    if (
+        src !== "items" &&
+        src !== "mods" &&
+        src !== "modsets" &&
+        src !== "rivens" &&
+        src !== "moddescriptions"
+    ) {
+        return false;
+    }
+    return Boolean((FULL_CATALOG.recordsById as any)[key]);
+}
+
+function getDisplayNameForCatalogId(id: CatalogId): string {
+    return FULL_CATALOG.recordsById[id]?.displayName ?? id;
+}
+
 export interface TrackerStore {
     state: UserStateV2;
 
@@ -75,6 +97,8 @@ export interface TrackerStore {
     setCredits: (credits: number) => void;
     setVoidTraces: (traces: number) => void;
     setAya: (aya: number) => void;
+
+    // key can be a legacy string name OR a catalogId (recommended going forward)
     setItemCount: (key: string, count: number) => void;
 
     upsertDailyTask: (dateYmd: string, label: string, syndicate?: string, details?: string) => void;
@@ -122,40 +146,71 @@ export const useTrackerStore = create<TrackerStore>()(
 
             setCredits: (credits) => {
                 set((s) => {
-                    s.state.inventory.credits = credits;
-                    s.state.inventory.items["credits"] = credits;
+                    const v = Number.isFinite(credits) ? Math.max(0, credits) : 0;
+                    s.state.inventory.credits = v;
+
+                    // Keep legacy key for existing logic
+                    s.state.inventory.items["credits"] = v;
+
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
 
             setVoidTraces: (traces) => {
                 set((s) => {
-                    s.state.inventory.voidTraces = traces;
-                    s.state.inventory.items["Void Traces"] = traces;
+                    const v = Number.isFinite(traces) ? Math.max(0, traces) : 0;
+                    s.state.inventory.voidTraces = v;
+
+                    // Keep legacy key for existing logic
+                    s.state.inventory.items["Void Traces"] = v;
+
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
 
             setAya: (aya) => {
                 set((s) => {
-                    s.state.inventory.aya = aya;
-                    s.state.inventory.items["Aya"] = aya;
+                    const v = Number.isFinite(aya) ? Math.max(0, aya) : 0;
+                    s.state.inventory.aya = v;
+
+                    // Keep legacy key for existing logic
+                    s.state.inventory.items["Aya"] = v;
+
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
 
             setItemCount: (key, count) => {
                 set((s) => {
-                    s.state.inventory.items[key] = count;
+                    const v = Number.isFinite(count) ? Math.max(0, count) : 0;
 
+                    // Always store by the key provided (could be legacy name or catalogId)
+                    s.state.inventory.items[key] = v;
+
+                    // If the key is a catalogId, ALSO store under its displayName for backward compatibility
+                    // with any logic that still references plain names (reserves/requirements/etc.).
+                    if (isCatalogId(key)) {
+                        const name = getDisplayNameForCatalogId(key);
+                        s.state.inventory.items[name] = v;
+
+                        // Keep special fields in sync if applicable
+                        if (name === "Void Traces") {
+                            s.state.inventory.voidTraces = v;
+                        }
+                        if (name === "Aya") {
+                            s.state.inventory.aya = v;
+                        }
+                    }
+
+                    // Legacy name-based special-case sync (for existing callers)
                     if (key === "Void Traces") {
-                        s.state.inventory.voidTraces = count;
+                        s.state.inventory.voidTraces = v;
                     }
                     if (key === "Aya" || key === "aya") {
-                        s.state.inventory.aya = count;
+                        s.state.inventory.aya = v;
                     }
                     if (key === "credits") {
-                        s.state.inventory.credits = count;
+                        s.state.inventory.credits = v;
                     }
 
                     s.state.meta.updatedAtIso = nowIso();
