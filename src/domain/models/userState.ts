@@ -11,26 +11,36 @@ export type PageKey =
     | "settings"
     | "diagnostics";
 
-export interface UserMetaV1 {
-    schemaVersion: 1;
+export interface UserMetaV2 {
+    schemaVersion: 2;
     createdAtIso: string;
     updatedAtIso: string;
 }
 
-export interface UserPlayerV1 {
+export interface UserPlayerV2 {
     platform: "PC";
     displayName: string;
     masteryRank: number | null;
 }
 
-export interface UserUiV1 {
+export interface UserUiV2 {
     activePage: PageKey;
 }
 
-export interface UserStateV1 {
-    meta: UserMetaV1;
-    player: UserPlayerV1;
-    ui: UserUiV1;
+export interface UserPrereqsV2 {
+    /**
+     * Sparse boolean map:
+     * - missing key = false (unknown => assume not completed)
+     */
+    completed: Record<string, boolean>;
+}
+
+export interface UserStateV2 {
+    meta: UserMetaV2;
+    player: UserPlayerV2;
+    ui: UserUiV2;
+
+    prereqs: UserPrereqsV2;
 
     inventory: Inventory;
     syndicates: SyndicateState[];
