@@ -43,7 +43,7 @@ export default function ExportImport() {
                         downloadText(`wf-progress-pack-v2-${stamp}.json`, json);
                     }}
                 >
-                    Download JSON
+                    Download File
                 </button>
 
                 <button
@@ -100,7 +100,7 @@ export default function ExportImport() {
                 className="mt-3 w-full min-h-[220px] rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 font-mono text-xs"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="Export will appear here. Paste a v2 Progress Pack JSON here to import."
+                placeholder="Export will appear here. Paste a v2 Progress Pack text here to import."
             />
         </div>
     );

@@ -1,50 +1,61 @@
 import type { Inventory, ReserveRule, SyndicateState } from "./types";
 
+/**
+ * BRAND-NEW PLAYER SEED (NO PERSONAL PROGRESS)
+ * - All inventory counts = 0
+ * - All standings/ranks = 0 / neutral
+ * - All reserves disabled
+ *
+ * Any player-specific data must only live in localStorage and/or exported progress JSON.
+ */
+
 export const SEED_INVENTORY: Inventory = {
-    credits: 26629,
+    credits: 0,
     items: {
-        "Aya": 27,
-        "Void Traces": 448,
-        // Entrati (screenshot)
-        "Sly Vulpaphyla Tag": 8,
-        "Vizier Predasite Tag": 6,
-        "Mother Token": 462,
-        "Son Token": 3,
+        // Currencies / universal
+        "Aya": 0,
+        "Void Traces": 0,
 
-        // Necraloid (screenshot)
-        "Orokin Orientation Matrix": 2,
+        // Entrati (examples used by rank-up requirements)
+        "Sly Vulpaphyla Tag": 0,
+        "Vizier Predasite Tag": 0,
+        "Mother Token": 0,
+        "Son Token": 0,
+
+        // Necraloid
+        "Orokin Orientation Matrix": 0,
         "Zymos Barrel Blueprint": 0,
-        "Father Token": 30,
+        "Father Token": 0,
 
-        // Ostron (screenshot)
-        "Maprico": 139,
-        "Cetus Wisp": 19,
+        // Ostron
+        "Maprico": 0,
+        "Cetus Wisp": 0,
 
-        // Quills (screenshot)
-        "Eidolon Shard": 4,
+        // Quills
+        "Eidolon Shard": 0,
 
-        // Solaris United (screenshot)
+        // Solaris United
         "Training Debt-Bond": 0,
 
-        // Vox Solaris (screenshot)
-        "Vega Toroid": 2,
-        "Calda Toroid": 3,
+        // Vox Solaris
+        "Vega Toroid": 0,
+        "Calda Toroid": 0,
         "Sola Toroid": 0,
 
-        // Holdfasts (screenshot)
-        "Voidplume Down": 2,
-        "Ferrite": 57978,
-        "Alloy Plate": 526495,
+        // Holdfasts
+        "Voidplume Down": 0,
+        "Ferrite": 0,
+        "Alloy Plate": 0,
 
-        // Cavia (screenshot)
+        // Cavia
         "Shrill Voca": 0,
-        "Entrati Obols": 2712,
-        "Rubedo": 54149,
+        "Entrati Obols": 0,
+        "Rubedo": 0,
 
-        // The Hex (screenshot)
-        "Efervon Sample": 3,
+        // The Hex (1999)
+        "Efervon Sample": 0,
         "Höllvanian Pitchweave Fragment": 0,
-        "Hollars": 26629
+        "Hollars": 0
     }
 };
 
@@ -52,7 +63,7 @@ export const SEED_RESERVES: ReserveRule[] = [
     {
         id: "reserve-entrati-r3",
         label: "Reserve for Entrati Rank 3",
-        isEnabled: true,
+        isEnabled: false,
         items: [
             { key: "Sly Vulpaphyla Tag", minKeep: 3 },
             { key: "Vizier Predasite Tag", minKeep: 3 },
@@ -63,7 +74,7 @@ export const SEED_RESERVES: ReserveRule[] = [
     {
         id: "reserve-necraloid-r1",
         label: "Reserve for Necraloid Rank 1",
-        isEnabled: true,
+        isEnabled: false,
         items: [
             { key: "Orokin Orientation Matrix", minKeep: 10 },
             { key: "Father Token", minKeep: 20 },
@@ -73,16 +84,23 @@ export const SEED_RESERVES: ReserveRule[] = [
     }
 ];
 
+/**
+ * NOTE ON CAPS:
+ * Daily standing caps are account-dependent (MR) and syndicate-dependent.
+ * Seed should not bake in MR18 numbers. Use a separate setting (e.g., MR) to compute caps.
+ *
+ * For now we initialize dailyCap to 0 and let the app compute/display an "Unknown until MR set" state.
+ */
 export const SEED_SYNDICATES: SyndicateState[] = [
     {
         id: "entrati",
         name: "Entrati",
-        rankLabel: "Rank 2 (Acquaintance)",
+        rankLabel: "Rank 0",
         standingCurrent: 0,
-        standingMaxForRank: 44000,
-        dailyCap: 25000,
+        standingMaxForRank: 5000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Associate",
+            title: "Next Rank",
             requirements: [
                 { key: "Sly Vulpaphyla Tag", need: 3 },
                 { key: "Vizier Predasite Tag", need: 3 },
@@ -90,17 +108,17 @@ export const SEED_SYNDICATES: SyndicateState[] = [
                 { key: "Son Token", need: 1 }
             ]
         },
-        notes: "Echo-Lures: already spent 2,500 standing earlier (tracked as historical overhead)."
+        notes: ""
     },
     {
         id: "necraloid",
         name: "Necraloid",
         rankLabel: "Rank 0",
-        standingCurrent: 5000,
+        standingCurrent: 0,
         standingMaxForRank: 5000,
-        dailyCap: 25000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Clearance: Agnesis",
+            title: "Next Rank",
             requirements: [
                 { key: "Orokin Orientation Matrix", need: 10 },
                 { key: "Void Traces", need: 150 },
@@ -113,12 +131,12 @@ export const SEED_SYNDICATES: SyndicateState[] = [
     {
         id: "ostron",
         name: "Ostron",
-        rankLabel: "Rank 2 (Visitor)",
-        standingCurrent: 41755,
-        standingMaxForRank: 44000,
-        dailyCap: 25000,
+        rankLabel: "Rank 0",
+        standingCurrent: 0,
+        standingMaxForRank: 5000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Trusted",
+            title: "Next Rank",
             requirements: [
                 { key: "Maprico", need: 5 },
                 { key: "Cetus Wisp", need: 1 },
@@ -130,12 +148,12 @@ export const SEED_SYNDICATES: SyndicateState[] = [
     {
         id: "quills",
         name: "The Quills",
-        rankLabel: "Rank 2 (Observer)",
+        rankLabel: "Rank 0",
         standingCurrent: 0,
-        standingMaxForRank: 44000,
-        dailyCap: 25000,
+        standingMaxForRank: 5000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Adherent",
+            title: "Next Rank",
             requirements: [
                 { key: "Eidolon Shard", need: 10 },
                 { key: "credits", need: 100000 }
@@ -147,11 +165,11 @@ export const SEED_SYNDICATES: SyndicateState[] = [
         id: "solaris-united",
         name: "Solaris United",
         rankLabel: "Rank 0",
-        standingCurrent: 300,
+        standingCurrent: 0,
         standingMaxForRank: 5000,
-        dailyCap: 25000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Outworlder",
+            title: "Next Rank",
             requirements: [
                 { key: "Training Debt-Bond", need: 2 },
                 { key: "credits", need: 10000 }
@@ -165,9 +183,9 @@ export const SEED_SYNDICATES: SyndicateState[] = [
         rankLabel: "Rank 0",
         standingCurrent: 0,
         standingMaxForRank: 5000,
-        dailyCap: 25000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Operative",
+            title: "Next Rank",
             requirements: [
                 { key: "Vega Toroid", need: 1 },
                 { key: "Calda Toroid", need: 1 },
@@ -183,9 +201,9 @@ export const SEED_SYNDICATES: SyndicateState[] = [
         rankLabel: "Rank 0",
         standingCurrent: 0,
         standingMaxForRank: 5000,
-        dailyCap: 25000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Fallen",
+            title: "Next Rank",
             requirements: [
                 { key: "Voidplume Down", need: 5 },
                 { key: "Ferrite", need: 2000 },
@@ -199,11 +217,11 @@ export const SEED_SYNDICATES: SyndicateState[] = [
         id: "cavia",
         name: "Cavia",
         rankLabel: "Rank 0",
-        standingCurrent: 500,
+        standingCurrent: 0,
         standingMaxForRank: 5000,
-        dailyCap: 25000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Assistant",
+            title: "Next Rank",
             requirements: [
                 { key: "Shrill Voca", need: 3 },
                 { key: "Entrati Obols", need: 300 },
@@ -216,12 +234,12 @@ export const SEED_SYNDICATES: SyndicateState[] = [
     {
         id: "ventkids",
         name: "Ventkids",
-        rankLabel: "Rank 1 (Glinty)",
-        standingCurrent: 2557,
-        standingMaxForRank: 22000,
-        dailyCap: 25000,
+        rankLabel: "Rank 0",
+        standingCurrent: 0,
+        standingMaxForRank: 5000,
+        dailyCap: 0,
         nextRankUp: undefined,
-        notes: "Next rank requirements not captured in the screenshot (in-game showed 'Insufficient Standing')."
+        notes: ""
     },
     {
         id: "hex",
@@ -229,9 +247,9 @@ export const SEED_SYNDICATES: SyndicateState[] = [
         rankLabel: "Rank 0",
         standingCurrent: 0,
         standingMaxForRank: 5000,
-        dailyCap: 25000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Leftovers",
+            title: "Next Rank",
             requirements: [
                 { key: "Efervon Sample", need: 15 },
                 { key: "Höllvanian Pitchweave Fragment", need: 15 },
@@ -243,14 +261,14 @@ export const SEED_SYNDICATES: SyndicateState[] = [
     {
         id: "arbiters",
         name: "Arbiters of Hexis",
-        rankLabel: "Rank 3 (Lawful)",
-        standingCurrent: 15440,
-        standingMaxForRank: 70000,
-        dailyCap: 8247,
+        rankLabel: "Rank 0",
+        standingCurrent: 0,
+        standingMaxForRank: 5000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Crusader",
+            title: "Next Rank",
             requirements: [
-                { key: "aya", need: 2 },
+                { key: "Aya", need: 2 },
                 { key: "credits", need: 250000 }
             ]
         },
@@ -259,14 +277,14 @@ export const SEED_SYNDICATES: SyndicateState[] = [
     {
         id: "suda",
         name: "Cephalon Suda",
-        rankLabel: "Rank 3 (Intelligent)",
-        standingCurrent: 12720,
-        standingMaxForRank: 70000,
-        dailyCap: 8247,
+        rankLabel: "Rank 0",
+        standingCurrent: 0,
+        standingMaxForRank: 5000,
+        dailyCap: 0,
         nextRankUp: {
-            title: "Wise",
+            title: "Next Rank",
             requirements: [
-                { key: "aya", need: 2 },
+                { key: "Aya", need: 2 },
                 { key: "credits", need: 250000 }
             ]
         },
@@ -275,18 +293,18 @@ export const SEED_SYNDICATES: SyndicateState[] = [
     {
         id: "steel-meridian",
         name: "Steel Meridian",
-        rankLabel: "Rank 5",
-        standingCurrent: 3124,
-        standingMaxForRank: 132000,
-        dailyCap: 8247,
+        rankLabel: "Rank 0",
+        standingCurrent: 0,
+        standingMaxForRank: 5000,
+        dailyCap: 0,
         nextRankUp: undefined,
-        notes: "Next rank requirements not captured yet."
+        notes: ""
     },
     {
         id: "simaris",
         name: "Cephalon Simaris",
         rankLabel: "No ranks (standing only)",
-        standingCurrent: 38789,
+        standingCurrent: 0,
         standingMaxForRank: 0,
         dailyCap: 0,
         nextRankUp: undefined,
@@ -296,10 +314,11 @@ export const SEED_SYNDICATES: SyndicateState[] = [
         id: "conclave",
         name: "Conclave",
         rankLabel: "Rank 0",
-        standingCurrent: 2310,
+        standingCurrent: 0,
         standingMaxForRank: 5000,
         dailyCap: 0,
         nextRankUp: undefined,
         notes: ""
     }
 ];
+

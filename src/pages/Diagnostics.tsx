@@ -1,17 +1,136 @@
-import { useTrackerStore } from "../store/store";
+// src/pages/Diagnostics.tsx
+
+import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
+
+function StatRow(props: { label: string; value: string | number }) {
+    return (
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-800 bg-slate-950 px-3 py-2">
+            <div className="text-sm text-slate-300">{props.label}</div>
+            <div className="text-sm font-semibold text-slate-100">
+                {props.value}
+            </div>
+        </div>
+    );
+}
+
+function Section(props: { title: string; children: React.ReactNode }) {
+    return (
+        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+            <div className="mb-3 text-lg font-semibold text-slate-100">
+                {props.title}
+            </div>
+            {props.children}
+        </div>
+    );
+}
 
 export default function Diagnostics() {
-    const state = useTrackerStore((s) => s.state);
+    const stats = FULL_CATALOG.stats;
+
+    const counts = stats.countsBySource;
+    const missing = stats.missingNameBySource;
+
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-            <div className="text-lg font-semibold">Diagnostics</div>
-            <div className="text-sm text-slate-400 mt-1">
-                Shows the current state envelope (Phase A). This is for debugging only.
+        <div className="space-y-6">
+            <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+                <div className="text-xl font-semibold text-slate-100">
+                    Diagnostics
+                </div>
+                <div className="mt-1 text-sm text-slate-400">
+                    This page reports reference-catalog loading and internal
+                    sanity checks. It must not reflect user progress.
+                </div>
             </div>
 
-            <pre className="mt-4 whitespace-pre-wrap break-words rounded-xl bg-slate-900 border border-slate-700 p-3 text-xs text-slate-100">
-                {JSON.stringify(state, null, 2)}
-            </pre>
+            <Section title="Catalog Sanity">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <StatRow label="Total records (all sources)" value={stats.totalCount} />
+                    <StatRow label="Currency-classified item records" value={stats.currencyItemCount} />
+                    <StatRow label="Items (items.json)" value={counts.items} />
+                    <StatRow label="Mods (mods.json)" value={counts.mods} />
+                    <StatRow label="Mod Sets (modsets.json)" value={counts.modsets} />
+                    <StatRow label="Rivens (rivens.json)" value={counts.rivens} />
+                    <StatRow label="Mod Descriptions (moddescriptions.json)" value={counts.moddescriptions} />
+                </div>
+
+                <div className="mt-5">
+                    <div className="mb-2 text-sm font-semibold text-slate-200">
+                        Missing display names (record.name absent)
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <StatRow label="Items missing name" value={missing.items} />
+                        <StatRow label="Mods missing name" value={missing.mods} />
+                        <StatRow label="Mod Sets missing name" value={missing.modsets} />
+                        <StatRow label="Rivens missing name" value={missing.rivens} />
+                        <StatRow label="Mod Descriptions missing name" value={missing.moddescriptions} />
+                    </div>
+
+                    <div className="mt-4 text-sm text-slate-400">
+                        Notes:
+                        <ul className="ml-5 mt-1 list-disc space-y-1">
+                            <li>
+                                Currency classification is derived from the source
+                                dataset’s icon-path substring rule: <span className="font-mono">/StoreIcons/Currency/</span>.
+                                Icons are not rendered anywhere in the UI.
+                            </li>
+                            <li>
+                                Catalog IDs are namespaced (<span className="font-mono">source:path</span>) to avoid collisions across datasets.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </Section>
+
+            <Section title="Catalog Quick Spot-Checks">
+                <div className="text-sm text-slate-300">
+                    These are intentionally limited samples, useful for confirming the catalog is usable without dumping
+                    huge lists into the UI.
+                </div>
+
+                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <StatRow
+                        label="First currency item (alphabetical)"
+                        value={
+                            FULL_CATALOG.currencyItemIds.length
+                                ? FULL_CATALOG.recordsById[
+                                      FULL_CATALOG.currencyItemIds[0]
+                                  ].displayName
+                                : "None"
+                        }
+                    />
+                    <StatRow
+                        label="First inventory item (alphabetical)"
+                        value={
+                            FULL_CATALOG.inventoryItemIds.length
+                                ? FULL_CATALOG.recordsById[
+                                      FULL_CATALOG.inventoryItemIds[0]
+                                  ].displayName
+                                : "None"
+                        }
+                    />
+                    <StatRow
+                        label="First mod (alphabetical)"
+                        value={
+                            FULL_CATALOG.idsBySource.mods.length
+                                ? FULL_CATALOG.recordsById[
+                                      FULL_CATALOG.idsBySource.mods[0]
+                                  ].displayName
+                                : "None"
+                        }
+                    />
+                    <StatRow
+                        label="First mod set (alphabetical)"
+                        value={
+                            FULL_CATALOG.idsBySource.modsets.length
+                                ? FULL_CATALOG.recordsById[
+                                      FULL_CATALOG.idsBySource.modsets[0]
+                                  ].displayName
+                                : "None"
+                        }
+                    />
+                </div>
+            </Section>
         </div>
     );
 }
