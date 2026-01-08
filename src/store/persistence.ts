@@ -1,45 +1,33 @@
 import type { UserStateV2 } from "../domain/models/userState";
 import { migrateToUserStateV2 } from "./migrations";
 
-export const STORAGE_KEY_V2 = "wf_tracker_state_v2";
-export const STORAGE_KEY_V1 = "wf_tracker_state_v1";
-export const STORAGE_KEY_LEGACY = "wf_roadmap_tracker_v1";
+export const STORAGE_KEY = "wf_tracker_state_v3";
 
+/**
+ * Compatibility helper. Prefer zustand persist for actual app behavior.
+ * This is safe for debugging / manual exports / future tooling.
+ */
 export function loadState(): UserStateV2 | null {
-    const v2Raw = localStorage.getItem(STORAGE_KEY_V2);
-    if (v2Raw) {
-        try {
-            const parsed = JSON.parse(v2Raw);
-            return migrateToUserStateV2(parsed);
-        } catch {
-            return null;
-        }
-    }
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
 
-    const v1Raw = localStorage.getItem(STORAGE_KEY_V1);
-    if (v1Raw) {
-        try {
-            const parsed = JSON.parse(v1Raw);
-            return migrateToUserStateV2(parsed);
-        } catch {
-            return null;
-        }
-    }
+    try {
+        const parsed = JSON.parse(raw);
 
-    const legacyRaw = localStorage.getItem(STORAGE_KEY_LEGACY);
-    if (legacyRaw) {
-        try {
-            const parsed = JSON.parse(legacyRaw);
-            return migrateToUserStateV2(parsed);
-        } catch {
-            return null;
-        }
+        // Zustand persists as { state: ..., version: ... }
+        const inner = parsed?.state ?? parsed;
+        return migrateToUserStateV2(inner);
+    } catch {
+        return null;
     }
-
-    return null;
 }
 
 export function saveState(state: UserStateV2): void {
-    localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(state));
+    // Mirror zustand persist envelope shape for consistency.
+    const payload = {
+        state,
+        version: 3
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 

@@ -1,6 +1,8 @@
 import type { Inventory, ReserveRule, SyndicateState } from "./types";
 
 export const SEED_INVENTORY: Inventory = {
+    credits: 0,
+    platinum: 0,
     counts: {}
 };
 
