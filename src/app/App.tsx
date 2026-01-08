@@ -1,6 +1,7 @@
 import Shell from "./layout/Shell";
 import { useTrackerStore } from "../store/store";
 import Dashboard from "../pages/Dashboard";
+import Inventory from "../pages/Inventory";
 import Prerequisites from "../pages/Prerequisites";
 import Syndicates from "../pages/Syndicates";
 import Goals from "../pages/Goals";
@@ -17,6 +18,7 @@ export default function App() {
         <div className="min-h-screen bg-slate-950 text-slate-100">
             <Shell>
                 {activePage === "dashboard" && <Dashboard />}
+                {activePage === "inventory" && <Inventory />}
                 {activePage === "prereqs" && <Prerequisites />}
                 {activePage === "syndicates" && <Syndicates />}
                 {activePage === "goals" && <Goals />}
