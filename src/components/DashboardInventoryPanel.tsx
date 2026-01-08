@@ -1,82 +1,132 @@
-import { useMemo, useState } from "react";
-import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
+import { useMemo } from "react";
 import { useTrackerStore } from "../store/store";
+import { canAccessItemByName } from "../domain/logic/plannerEngine";
+import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
+
+type NeedLine = {
+    catalogId: CatalogId;
+    itemName: string;
+    totalNeed: number;
+    have: number;
+    remaining: number;
+    neededFor: Array<{ syndicateName: string; rankTitle: string; need: number }>;
+};
 
 function normalize(s: string): string {
     return s.trim().toLowerCase();
 }
 
-function NumberInput(props: { value: number; onChange: (next: number) => void }) {
-    return (
-        <input
-            type="number"
-            className="w-28 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-slate-100 text-sm"
-            value={Number(props.value ?? 0)}
-            onChange={(e) => props.onChange(parseInt(e.target.value || "0", 10))}
-            min={0}
-        />
-    );
-}
-
 export default function DashboardInventoryPanel() {
-    const inventory = useTrackerStore((s) => s.state.inventory);
-    const setItemCount = useTrackerStore((s) => s.setItemCount);
     const setActivePage = useTrackerStore((s) => s.setActivePage);
+    const syndicates = useTrackerStore((s) => s.state.syndicates ?? []);
+    const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
+    const counts = useTrackerStore((s) => s.state.inventory?.counts ?? {});
 
-    const [query, setQuery] = useState("");
-    const [hideZero, setHideZero] = useState(false);
+    const accessibleLines = useMemo<NeedLine[]>(() => {
+        /**
+         * Syndicate requirements currently come in as names (r.key).
+         * Dashboard inventory must be keyed by catalog id, so we resolve:
+         *   name -> catalog id (first match).
+         *
+         * If not found in catalog, we skip it for now (catalog is the source of truth).
+         */
+        const needMap: Record<
+            string,
+            {
+                catalogId: CatalogId;
+                itemName: string;
+                totalNeed: number;
+                neededFor: Array<{ syndicateName: string; rankTitle: string; need: number }>;
+            }
+        > = {};
 
-    const rows = useMemo(() => {
-        const q = normalize(query);
+        for (const syn of syndicates) {
+            const reqs = syn?.nextRankUp?.requirements ?? [];
+            const rankTitle = syn?.nextRankUp?.title ?? "Next Rank";
 
-        const ids = FULL_CATALOG.displayableInventoryItemIds;
+            for (const r of reqs) {
+                const itemName = String(r.key ?? "").trim();
+                const need = Number(r.need ?? 0);
 
-        const filtered = ids
-            .map((id) => {
-                const rec = FULL_CATALOG.recordsById[id as CatalogId];
-                const cats = rec.categories ?? [];
-                const isResourceOrComponent =
-                    cats.includes("resource") || cats.includes("component");
-
-                if (!isResourceOrComponent) {
-                    return null;
+                if (!itemName || !Number.isFinite(need) || need <= 0) {
+                    continue;
                 }
 
-                const label = rec.displayName;
-                const value =
-                    inventory.items[id] ??
-                    inventory.items[label] ??
-                    0;
+                // Only include items that are accessible now (Phase B conservative gate).
+                const access = canAccessItemByName(itemName, completedPrereqs);
+                if (!access.allowed) {
+                    continue;
+                }
 
-                return {
-                    id,
-                    label,
-                    value: Number(value ?? 0)
-                };
-            })
-            .filter((x): x is { id: string; label: string; value: number } => Boolean(x));
+                // Resolve to catalog id
+                const nameKey = normalize(itemName);
+                const matches = FULL_CATALOG.nameIndex?.[nameKey] ?? [];
+                const cid = (matches[0] as CatalogId | undefined);
 
-        const filtered2 = filtered.filter((r) => {
-            if (!q) return true;
-            return normalize(r.label).includes(q);
+                if (!cid) {
+                    continue;
+                }
+
+                const rec = FULL_CATALOG.recordsById[cid];
+                if (!rec?.displayName) {
+                    continue;
+                }
+
+                // Dashboard is "resources/components", not currencies.
+                if (rec.isCurrency) {
+                    continue;
+                }
+
+                const mapKey = String(cid);
+                if (!needMap[mapKey]) {
+                    needMap[mapKey] = {
+                        catalogId: cid,
+                        itemName: rec.displayName,
+                        totalNeed: 0,
+                        neededFor: []
+                    };
+                }
+
+                needMap[mapKey].totalNeed += need;
+                needMap[mapKey].neededFor.push({
+                    syndicateName: syn.name,
+                    rankTitle,
+                    need
+                });
+            }
+        }
+
+        const out: NeedLine[] = Object.values(needMap).map((agg) => {
+            const have = Number(counts[String(agg.catalogId)] ?? 0);
+            return {
+                catalogId: agg.catalogId,
+                itemName: agg.itemName,
+                totalNeed: agg.totalNeed,
+                have,
+                remaining: Math.max(0, agg.totalNeed - have),
+                neededFor: agg.neededFor
+            };
         });
 
-        const filtered3 = filtered2.filter((r) => {
-            if (!hideZero) return true;
-            return r.value !== 0;
+        out.sort((a, b) => {
+            if (a.remaining !== b.remaining) {
+                return b.remaining - a.remaining;
+            }
+            return a.itemName.localeCompare(b.itemName);
         });
 
-        filtered3.sort((a, b) => a.label.localeCompare(b.label));
-        return filtered3;
-    }, [inventory.items, query, hideZero]);
+        // "Work on next" should only show missing items.
+        return out.filter((l) => l.remaining > 0);
+    }, [syndicates, completedPrereqs, counts]);
 
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <div className="text-lg font-semibold">Inventory (Resources & Components)</div>
+                    <div className="text-lg font-semibold">Inventory (Work on Next)</div>
                     <div className="text-sm text-slate-400 mt-1">
-                        Quick entry for common materials used by requirements and goals.
+                        Only shows non-currency resources/components needed for accessible next-rank steps.
+                        Items you cannot access yet are not shown.
                     </div>
                 </div>
 
@@ -84,55 +134,69 @@ export default function DashboardInventoryPanel() {
                     className="rounded-lg bg-slate-100 px-3 py-2 text-slate-900 text-sm font-semibold"
                     onClick={() => setActivePage("inventory")}
                 >
-                    Open Full Inventory
+                    Full Inventory
                 </button>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-[1fr_220px] gap-3">
-                <div>
-                    <div className="text-xs text-slate-400 mb-1">Search</div>
-                    <input
-                        className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500"
-                        placeholder="Search resources/components..."
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                    />
-                </div>
-
-                <div className="flex items-end">
-                    <label className="flex items-center gap-2 text-sm text-slate-300">
-                        <input
-                            type="checkbox"
-                            checked={hideZero}
-                            onChange={(e) => setHideZero(e.target.checked)}
-                        />
-                        Hide zero counts
-                    </label>
-                </div>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-                {rows.map((r) => (
-                    <div
-                        key={r.id}
-                        className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2"
-                    >
-                        <div className="flex items-center justify-between gap-3">
-                            <div className="text-sm font-semibold break-words">{r.label}</div>
-                            <NumberInput
-                                value={r.value}
-                                onChange={(n) => setItemCount(r.id, n)}
-                            />
-                        </div>
+            {accessibleLines.length === 0 ? (
+                <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                    <div className="text-sm font-semibold">Nothing actionable right now</div>
+                    <div className="mt-1 text-sm text-slate-400">
+                        This happens when either:
+                        (1) you already have enough of every accessible progression item tracked, or
+                        (2) the next required items are gated by prerequisites you have not marked complete.
                     </div>
-                ))}
-
-                {rows.length === 0 && (
-                    <div className="text-sm text-slate-400">
-                        No matching resources/components.
+                    <div className="mt-3">
+                        <button
+                            className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-200 text-sm hover:bg-slate-800"
+                            onClick={() => setActivePage("prereqs")}
+                        >
+                            Review prerequisites to unlock more
+                        </button>
                     </div>
-                )}
-            </div>
+                </div>
+            ) : (
+                <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                    <div className="text-sm font-semibold">Actionable items</div>
+
+                    <div className="mt-2 grid grid-cols-1 gap-2">
+                        {accessibleLines.map((l) => (
+                            <div
+                                key={String(l.catalogId)}
+                                className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2"
+                            >
+                                <div className="flex flex-wrap items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <div className="text-sm font-semibold break-words">{l.itemName}</div>
+                                        <div className="text-xs text-slate-400 mt-1">
+                                            Need {l.totalNeed.toLocaleString()} total · Have {l.have.toLocaleString()} ·
+                                            Remaining {l.remaining.toLocaleString()}
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-800"
+                                        onClick={() => setActivePage("syndicates")}
+                                    >
+                                        View details
+                                    </button>
+                                </div>
+
+                                <div className="mt-2 text-xs text-slate-400">
+                                    Needed for:
+                                    <ul className="mt-1 list-disc pl-5">
+                                        {l.neededFor.map((n, idx) => (
+                                            <li key={`${String(l.catalogId)}_${idx}`}>
+                                                {n.syndicateName}: {n.rankTitle} ({n.need})
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

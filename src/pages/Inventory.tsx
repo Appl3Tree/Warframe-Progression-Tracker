@@ -2,8 +2,6 @@ import { useMemo, useState } from "react";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
 import { useTrackerStore } from "../store/store";
 
-type Toggle = "all" | "currencies" | "noncurrencies";
-
 function normalize(s: string): string {
     return s.trim().toLowerCase();
 }
@@ -29,126 +27,157 @@ function NumberInput(props: { value: number; onChange: (next: number) => void })
     );
 }
 
+function Pill(props: { label: string; selected: boolean; onClick: () => void }) {
+    return (
+        <button
+            type="button"
+            className={[
+                "rounded-full px-3 py-1 text-xs border transition",
+                props.selected
+                    ? "bg-slate-100 text-slate-900 border-slate-100"
+                    : "bg-transparent text-slate-200 border-slate-700 hover:border-slate-500"
+            ].join(" ")}
+            onClick={props.onClick}
+        >
+            {props.label}
+        </button>
+    );
+}
+
+type Row = {
+    id: CatalogId;
+    label: string;
+    value: number;
+    isCurrency: boolean;
+    categories: string[];
+};
+
 export default function Inventory() {
-    const inventory = useTrackerStore((s) => s.state.inventory);
-    const setItemCount = useTrackerStore((s) => s.setItemCount);
-    const setCredits = useTrackerStore((s) => s.setCredits);
-    const setAya = useTrackerStore((s) => s.setAya);
-    const setVoidTraces = useTrackerStore((s) => s.setVoidTraces);
+    const counts = useTrackerStore((s) => s.state.inventory?.counts ?? {});
+    const setCount = useTrackerStore((s) => s.setCount);
 
     const [query, setQuery] = useState("");
-    const [category, setCategory] = useState<string>("__ALL__");
-    const [toggle, setToggle] = useState<Toggle>("all");
     const [hideZero, setHideZero] = useState<boolean>(false);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
     const allCategories = useMemo(() => {
         const set = new Set<string>();
-        for (const id of FULL_CATALOG.displayableItemIds) {
-            const rec = FULL_CATALOG.recordsById[id as CatalogId];
-            for (const c of rec.categories) {
+        for (const id of FULL_CATALOG.displayableItemIds as CatalogId[]) {
+            const rec = FULL_CATALOG.recordsById[id];
+            if (!rec?.displayName) continue;
+            for (const c of rec.categories ?? []) {
                 set.add(c);
             }
         }
         return Array.from(set).sort((a, b) => a.localeCompare(b));
     }, []);
 
-    const pinnedCurrencies = useMemo(() => {
-        return [
-            { id: "credits", label: "Credits", value: Number(inventory.credits ?? 0) },
-            { id: "Void Traces", label: "Void Traces", value: Number(inventory.voidTraces ?? 0) },
-            { id: "Aya", label: "Aya", value: Number(inventory.aya ?? 0) }
-        ];
-    }, [inventory.credits, inventory.voidTraces, inventory.aya]);
+    const currencyRows = useMemo<Row[]>(() => {
+        const rows: Row[] = [];
 
-    const catalogItemRows = useMemo(() => {
-        const q = normalize(query);
+        for (const id of FULL_CATALOG.displayableCurrencyItemIds as CatalogId[]) {
+            const rec = FULL_CATALOG.recordsById[id];
+            if (!rec?.displayName) continue;
 
-        const rows = FULL_CATALOG.displayableItemIds.map((id) => {
-            const rec = FULL_CATALOG.recordsById[id as CatalogId];
-            const label = rec.displayName;
-            const value =
-                inventory.items[id] ??
-                inventory.items[label] ??
-                0;
-
-            return {
+            rows.push({
                 id,
-                label,
-                value: Number(value ?? 0),
-                isCurrency: Boolean(rec.isCurrency),
-                categories: rec.categories
-            };
+                label: rec.displayName,
+                value: Number(counts[String(id)] ?? 0),
+                isCurrency: true,
+                categories: rec.categories ?? []
+            });
+        }
+
+        rows.sort((a, b) => a.label.localeCompare(b.label));
+        return rows;
+    }, [counts]);
+
+    const itemRows = useMemo<Row[]>(() => {
+        const q = normalize(query);
+        const selected = new Set(selectedCategories);
+
+        const base: Row[] = (FULL_CATALOG.displayableItemIds as CatalogId[])
+            .map((id) => {
+                const rec = FULL_CATALOG.recordsById[id];
+                if (!rec?.displayName) {
+                    return null;
+                }
+
+                return {
+                    id,
+                    label: rec.displayName,
+                    value: Number(counts[String(id)] ?? 0),
+                    isCurrency: Boolean(rec.isCurrency),
+                    categories: rec.categories ?? []
+                } as Row;
+            })
+            .filter(Boolean) as Row[];
+
+        const filtered1 = base.filter((r) => {
+            // Inventory page shows everything; currencies get their own section below.
+            return !r.isCurrency;
         });
 
-        // Filter: currency toggle
-        const filtered1 = rows.filter((r) => {
-            if (toggle === "currencies") return r.isCurrency;
-            if (toggle === "noncurrencies") return !r.isCurrency;
-            return true;
-        });
-
-        // Filter: category
         const filtered2 = filtered1.filter((r) => {
-            if (category === "__ALL__") return true;
-            return r.categories.includes(category);
+            if (selected.size === 0) return true;
+            return r.categories.some((c) => selected.has(c));
         });
 
-        // Filter: search
         const filtered3 = filtered2.filter((r) => {
             if (!q) return true;
             return normalize(r.label).includes(q);
         });
 
-        // Filter: hide zeros
         const filtered4 = filtered3.filter((r) => {
             if (!hideZero) return true;
-            return Number(r.value ?? 0) !== 0;
+            return r.value !== 0;
         });
 
-        // Sort by label, stable
         filtered4.sort((a, b) => a.label.localeCompare(b.label));
         return filtered4;
-    }, [inventory.items, query, category, toggle, hideZero]);
+    }, [counts, query, hideZero, selectedCategories]);
 
-    const grouped = useMemo(() => {
-        // When category is "__ALL__", group by category sections.
-        // An item can appear in multiple categories. We will show it under each category it belongs to.
-        // This avoids arbitrary "primary category" decisions.
-        const groups: Record<string, typeof catalogItemRows> = {};
+    const groupedByCategory = useMemo(() => {
+        const selected = new Set(selectedCategories);
+        const groups: Record<string, Row[]> = {};
 
-        if (category !== "__ALL__") {
-            groups[category] = catalogItemRows;
-            return groups;
+        const categoriesToUse = selected.size > 0 ? Array.from(selected) : allCategories;
+
+        for (const c of categoriesToUse) {
+            groups[c] = [];
         }
 
-        for (const row of catalogItemRows) {
-            const cats = row.categories.length ? row.categories : ["uncategorized"];
-            for (const c of cats) {
-                if (!groups[c]) groups[c] = [];
-                groups[c].push(row);
+        for (const r of itemRows) {
+            for (const c of r.categories) {
+                if (selected.size === 0) {
+                    if (!groups[c]) groups[c] = [];
+                    groups[c].push(r);
+                } else if (selected.has(c)) {
+                    groups[c].push(r);
+                }
             }
         }
 
-        // Sort each group
         for (const k of Object.keys(groups)) {
             groups[k].sort((a, b) => a.label.localeCompare(b.label));
         }
 
         return groups;
-    }, [catalogItemRows, category]);
+    }, [itemRows, selectedCategories, allCategories]);
 
     const groupKeys = useMemo(() => {
-        return Object.keys(grouped).sort((a, b) => a.localeCompare(b));
-    }, [grouped]);
+        return Object.keys(groupedByCategory).sort((a, b) => a.localeCompare(b));
+    }, [groupedByCategory]);
 
     return (
         <div className="space-y-6">
             <Section title="Inventory">
                 <div className="text-sm text-slate-400">
-                    Full catalog view grouped by category. Unnamed records are excluded by design.
+                    Full catalog grouped by category. Categories are toggle pills. Hide zero is supported.
+                    Unnamed records are excluded.
                 </div>
 
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div className="md:col-span-2">
                         <div className="text-xs text-slate-400 mb-1">Search</div>
                         <input
@@ -159,88 +188,92 @@ export default function Inventory() {
                         />
                     </div>
 
-                    <div>
-                        <div className="text-xs text-slate-400 mb-1">Category</div>
-                        <select
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100"
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value)}
-                        >
-                            <option value="__ALL__">All categories</option>
-                            {allCategories.map((c) => (
-                                <option key={c} value={c}>
-                                    {c}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <div className="text-xs text-slate-400 mb-1">View</div>
-                        <select
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100"
-                            value={toggle}
-                            onChange={(e) => setToggle(e.target.value as Toggle)}
-                        >
-                            <option value="all">All</option>
-                            <option value="currencies">Currencies</option>
-                            <option value="noncurrencies">Non-currencies</option>
-                        </select>
+                    <div className="flex items-end">
+                        <label className="flex items-center gap-2 text-sm text-slate-300">
+                            <input
+                                type="checkbox"
+                                checked={hideZero}
+                                onChange={(e) => setHideZero(e.target.checked)}
+                            />
+                            Hide zero counts
+                        </label>
                     </div>
                 </div>
 
-                <div className="mt-3 flex items-center gap-3">
-                    <label className="flex items-center gap-2 text-sm text-slate-300">
-                        <input
-                            type="checkbox"
-                            checked={hideZero}
-                            onChange={(e) => setHideZero(e.target.checked)}
-                        />
-                        Hide zero counts
-                    </label>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <div className="text-xs text-slate-400 mr-2">Categories</div>
+
+                    <Pill
+                        label={selectedCategories.length === 0 ? "All" : "Clear"}
+                        selected={selectedCategories.length === 0}
+                        onClick={() => setSelectedCategories([])}
+                    />
+
+                    {allCategories.map((c) => {
+                        const selected = selectedCategories.includes(c);
+                        return (
+                            <Pill
+                                key={c}
+                                label={c}
+                                selected={selected}
+                                onClick={() => {
+                                    setSelectedCategories((prev) => {
+                                        if (prev.includes(c)) {
+                                            return prev.filter((x) => x !== c);
+                                        }
+                                        return [...prev, c];
+                                    });
+                                }}
+                            />
+                        );
+                    })}
                 </div>
             </Section>
 
-            <Section title="Pinned Currencies">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {pinnedCurrencies.map((r) => (
-                        <div
-                            key={r.id}
-                            className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2"
-                        >
-                            <div className="flex items-center justify-between gap-3">
-                                <div className="text-sm font-semibold break-words">{r.label}</div>
-                                {r.id === "credits" ? (
-                                    <NumberInput value={r.value} onChange={(n) => setCredits(n)} />
-                                ) : r.id === "Void Traces" ? (
-                                    <NumberInput value={r.value} onChange={(n) => setVoidTraces(n)} />
-                                ) : (
-                                    <NumberInput value={r.value} onChange={(n) => setAya(n)} />
-                                )}
-                            </div>
-                        </div>
-                    ))}
+            <Section title="Currencies">
+                <div className="text-sm text-slate-400">
+                    Currencies are defined strictly by catalog (<span className="font-mono">/StoreIcons/Currency/</span>).
+                    Nothing is hardcoded as “special”.
                 </div>
+
+                {currencyRows.length === 0 ? (
+                    <div className="mt-3 text-sm text-slate-400">No catalog currencies detected.</div>
+                ) : (
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {currencyRows.map((r) => (
+                            <div
+                                key={String(r.id)}
+                                className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2"
+                            >
+                                <div className="flex items-center justify-between gap-3">
+                                    <div className="text-sm font-semibold break-words">{r.label}</div>
+                                    <NumberInput
+                                        value={r.value}
+                                        onChange={(n) => setCount(String(r.id), n)}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </Section>
 
             {groupKeys.map((k) => (
                 <Section key={k} title={k}>
-                    {grouped[k].length === 0 ? (
+                    {groupedByCategory[k].length === 0 ? (
                         <div className="text-sm text-slate-400">No matches.</div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {grouped[k].map((r) => (
+                            {groupedByCategory[k].map((r) => (
                                 <div
-                                    key={`${k}:${r.id}`}
+                                    key={`${k}:${String(r.id)}`}
                                     className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2"
                                 >
                                     <div className="flex items-center justify-between gap-3">
-                                        <div className="text-sm font-semibold break-words">
-                                            {r.label}
-                                        </div>
+                                        <div className="text-sm font-semibold break-words">{r.label}</div>
                                         <NumberInput
                                             value={r.value}
-                                            onChange={(n) => setItemCount(r.id, n)}
+                                            onChange={(n) => setCount(String(r.id), n)}
                                         />
                                     </div>
                                 </div>
