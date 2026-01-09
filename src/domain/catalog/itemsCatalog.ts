@@ -24,15 +24,12 @@ export interface CatalogItem {
     name: string;             // display name (already uppercased in many records)
     categories: string[];     // from source; used for grouping/filtering
     icon: string | null;      // prefer data.Icon, else texture_new, else texture
-    isCurrency: boolean;      // derived from icon path rule
     raw: RawItemRecord;       // keep original for future expansion
 }
 
 export interface ItemsCatalog {
     byKey: Record<string, CatalogItem>;
     allKeys: string[];
-    currencyKeys: string[];
-    itemKeys: string[];
     byCategory: Record<string, string[]>; // category -> keys
     nameIndex: Record<string, string[]>;  // normalized name -> keys (handles duplicates)
 }
@@ -44,11 +41,6 @@ const RAW_MAP = rawItems as Record<string, RawItemRecord>;
 
 function pickIcon(rec: RawItemRecord): string | null {
     return rec.data?.Icon ?? rec.texture_new ?? rec.texture ?? null;
-}
-
-function isCurrencyByIcon(icon: string | null): boolean {
-    if (!icon) return false;
-    return icon.includes("/StoreIcons/Currency/");
 }
 
 function normalizeName(name: string): string {
@@ -70,7 +62,6 @@ export function buildItemsCatalog(): ItemsCatalog {
             name,
             categories,
             icon,
-            isCurrency: isCurrencyByIcon(icon),
             raw: rec
         };
 
@@ -88,18 +79,9 @@ export function buildItemsCatalog(): ItemsCatalog {
 
     const allKeys = Object.keys(byKey);
 
-    const currencyKeys = allKeys.filter((k) => byKey[k].isCurrency);
-    const itemKeys = allKeys.filter((k) => !byKey[k].isCurrency);
-
-    // Keep deterministic ordering for UI.
-    currencyKeys.sort((a, b) => byKey[a].name.localeCompare(byKey[b].name));
-    itemKeys.sort((a, b) => byKey[a].name.localeCompare(byKey[b].name));
-
     return {
         byKey,
         allKeys,
-        currencyKeys,
-        itemKeys,
         byCategory,
         nameIndex
     };

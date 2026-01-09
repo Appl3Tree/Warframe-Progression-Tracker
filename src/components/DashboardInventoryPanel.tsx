@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useTrackerStore } from "../store/store";
-import { canAccessItemByName } from "../domain/logic/plannerEngine";
+import { canAccessCatalogItem } from "../domain/logic/plannerEngine";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
 
 type NeedLine = {
@@ -16,6 +16,23 @@ function normalize(s: string): string {
     return s.trim().toLowerCase();
 }
 
+function resolveToCatalogId(keyOrName: string): CatalogId | null {
+    const raw = String(keyOrName ?? "").trim();
+    if (!raw) return null;
+
+    // 1) If it's already a catalog id, accept it.
+    if (FULL_CATALOG.recordsById[raw as CatalogId]) {
+        return raw as CatalogId;
+    }
+
+    // 2) Otherwise treat it like a display name and resolve via name index.
+    const nameKey = normalize(raw);
+    const matches = FULL_CATALOG.nameIndex?.[nameKey] ?? [];
+    const cid = matches[0] as CatalogId | undefined;
+
+    return cid ?? null;
+}
+
 export default function DashboardInventoryPanel() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
     const syndicates = useTrackerStore((s) => s.state.syndicates ?? []);
@@ -23,13 +40,6 @@ export default function DashboardInventoryPanel() {
     const counts = useTrackerStore((s) => s.state.inventory?.counts ?? {});
 
     const accessibleLines = useMemo<NeedLine[]>(() => {
-        /**
-         * Syndicate requirements currently come in as names (r.key).
-         * Dashboard inventory must be keyed by catalog id, so we resolve:
-         *   name -> catalog id (first match).
-         *
-         * If not found in catalog, we skip it for now (catalog is the source of truth).
-         */
         const needMap: Record<
             string,
             {
@@ -41,39 +51,31 @@ export default function DashboardInventoryPanel() {
         > = {};
 
         for (const syn of syndicates) {
-            const reqs = syn?.nextRankUp?.requirements ?? [];
-            const rankTitle = syn?.nextRankUp?.title ?? "Next Rank";
+            const reqs = syn?.nextRankUp?.items ?? [];
+            const rankTitle = syn?.rankLabel ?? "Next Rank";
 
             for (const r of reqs) {
-                const itemName = String(r.key ?? "").trim();
-                const need = Number(r.need ?? 0);
+                // Prefer label for display-name resolution; fall back to key.
+                const labelOrKey = String(r.label ?? r.key ?? "").trim();
+                const need = Number(r.count ?? 0);
 
-                if (!itemName || !Number.isFinite(need) || need <= 0) {
+                if (!labelOrKey || !Number.isFinite(need) || need <= 0) {
                     continue;
                 }
 
-                // Only include items that are accessible now (Phase B conservative gate).
-                const access = canAccessItemByName(itemName, completedPrereqs);
-                if (!access.allowed) {
-                    continue;
-                }
-
-                // Resolve to catalog id
-                const nameKey = normalize(itemName);
-                const matches = FULL_CATALOG.nameIndex?.[nameKey] ?? [];
-                const cid = (matches[0] as CatalogId | undefined);
-
+                const cid = resolveToCatalogId(labelOrKey);
                 if (!cid) {
+                    continue;
+                }
+
+                // Only include items that are accessible now (fail-closed via acquisition/source catalogs).
+                const access = canAccessCatalogItem(cid, completedPrereqs);
+                if (!access.allowed) {
                     continue;
                 }
 
                 const rec = FULL_CATALOG.recordsById[cid];
                 if (!rec?.displayName) {
-                    continue;
-                }
-
-                // Dashboard is "resources/components", not currencies.
-                if (rec.isCurrency) {
                     continue;
                 }
 
@@ -115,7 +117,6 @@ export default function DashboardInventoryPanel() {
             return a.itemName.localeCompare(b.itemName);
         });
 
-        // "Work on next" should only show missing items.
         return out.filter((l) => l.remaining > 0);
     }, [syndicates, completedPrereqs, counts]);
 

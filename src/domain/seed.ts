@@ -1,4 +1,4 @@
-import type { Inventory, ReserveRule, SyndicateState } from "./types";
+import type { Inventory, SyndicateState } from "./types";
 
 export const SEED_INVENTORY: Inventory = {
     credits: 0,
@@ -6,11 +6,18 @@ export const SEED_INVENTORY: Inventory = {
     counts: {}
 };
 
-export const SEED_RESERVES: ReserveRule[] = [];
-
 /**
  * Brand-new user: no personal progress.
  * Phase E will populate from syndicate catalogs.
  */
 export const SEED_SYNDICATES: SyndicateState[] = [];
+
+export const SEED_MASTERY = {
+    xpByItem: {} as Record<string, number>,
+    mastered: {} as Record<string, boolean>
+};
+
+export const SEED_MISSIONS = {
+    completesByTag: {} as Record<string, number>
+};
 

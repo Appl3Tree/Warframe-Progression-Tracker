@@ -3,10 +3,7 @@
 // Loads all reference datasets from src/data/* and builds a unified catalog.
 //
 // Important:
-// - These source JSONs contain a small number of invalid JSON escape sequences (e.g. \\' in names).
-//   We import them as raw text and sanitize before JSON.parse.
-// - Icons are NOT used for UI. Icon paths are only read to classify items as "currency" via the
-//   /StoreIcons/Currency/ substring rule.
+// - Icons are NOT used for UI.
 // - Display rule: if record has no name, we set displayName to the path key, and mark isDisplayable=false.
 //   UI must filter to isDisplayable===true for user-facing lists.
 
@@ -32,7 +29,6 @@ export interface CatalogRecordBase {
     displayName: string;       // rec.name if present, else path
     isDisplayable: boolean;    // true only when a real name exists
     categories: string[];      // rec.categories if present, else []
-    isCurrency?: boolean;      // only for items
     raw: unknown;              // full raw record for future features
 }
 
@@ -47,12 +43,10 @@ export interface FullCatalog {
 
     // Convenience subsets (ALL items, includes non-displayable)
     itemIds: CatalogId[];
-    currencyItemIds: CatalogId[];
     inventoryItemIds: CatalogId[];
 
     // Convenience subsets (DISPLAYABLE ONLY)
     displayableItemIds: CatalogId[];
-    displayableCurrencyItemIds: CatalogId[];
     displayableInventoryItemIds: CatalogId[];
 
     // Search/index helpers (includes non-displayable by design; UI filters after)
@@ -64,34 +58,17 @@ export interface FullCatalog {
         countsBySource: Record<CatalogSource, number>;
         displayableCountsBySource: Record<CatalogSource, number>;
         missingNameBySource: Record<CatalogSource, number>;
-        currencyItemCount: number;
-        displayableCurrencyItemCount: number;
         totalCount: number;
         totalDisplayableCount: number;
     };
-}
-
-/**
- * The raw files contain some invalid JSON escape sequences, commonly of the form:
- *   Sevagoth\\\'s Shadow
- * which breaks JSON.parse.
- *
- * We sanitize narrowly:
- * - Replace "\\\\\'" (3 backslashes + apostrophe in the raw text) with "'".
- *
- * This avoids touching valid escapes like \" or \\n.
- */
-function sanitizeJsonText(input: string): string {
-    return input.replace(/\\\\\\'/g, "'");
 }
 
 function parseJsonMap<T extends Record<string, unknown>>(
     source: CatalogSource,
     rawText: string
 ): T {
-    const cleaned = sanitizeJsonText(rawText);
     try {
-        const parsed = JSON.parse(cleaned) as T;
+        const parsed = JSON.parse(rawText) as T;
         if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
             throw new Error(
                 `Expected top-level object map but got ${Array.isArray(parsed) ? "array" : typeof parsed}`
@@ -128,22 +105,6 @@ function getCategories(rec: any): string[] {
     return c.filter((x: any) => typeof x === "string");
 }
 
-function getCurrencyProbe(rec: any): string {
-    // Icons are not used for UI, but we read these fields to classify currency items.
-    // Prefer data.Icon; then texture_new; then texture.
-    return (
-        safeString(rec?.data?.Icon) ??
-        safeString(rec?.texture_new) ??
-        safeString(rec?.texture) ??
-        ""
-    );
-}
-
-function isCurrencyItem(rec: any): boolean {
-    const probe = getCurrencyProbe(rec);
-    return probe.includes("/StoreIcons/Currency/");
-}
-
 function pushIndex(
     index: Record<string, CatalogId[]>,
     key: string,
@@ -156,15 +117,9 @@ function pushIndex(
 export function buildFullCatalog(): FullCatalog {
     const itemsMap = parseJsonMap<Record<string, any>>("items", itemsText);
     const modsMap = parseJsonMap<Record<string, any>>("mods", modsText);
-    const modsetsMap = parseJsonMap<Record<string, any>>(
-        "modsets",
-        modsetsText
-    );
+    const modsetsMap = parseJsonMap<Record<string, any>>("modsets", modsetsText);
     const rivensMap = parseJsonMap<Record<string, any>>("rivens", rivensText);
-    const moddescriptionsMap = parseJsonMap<Record<string, any>>(
-        "moddescriptions",
-        moddescriptionsText
-    );
+    const moddescriptionsMap = parseJsonMap<Record<string, any>>("moddescriptions", moddescriptionsText);
 
     const recordsById: Record<CatalogId, CatalogRecordBase> = {};
     const idsBySource: Record<CatalogSource, CatalogId[]> = {
@@ -217,10 +172,6 @@ export function buildFullCatalog(): FullCatalog {
                 raw: rec
             };
 
-            if (source === "items") {
-                record.isCurrency = isCurrencyItem(rec);
-            }
-
             recordsById[id] = record;
             idsBySource[source].push(id);
 
@@ -228,16 +179,13 @@ export function buildFullCatalog(): FullCatalog {
                 displayableIdsBySource[source].push(id);
             }
 
-            // Name index (exact normalized name; includes non-displayable for internal lookup)
             pushIndex(nameIndex, normalizeName(displayName), id);
 
-            // Category index (includes non-displayable)
             for (const cat of categories) {
                 pushIndex(categoryIndex, cat, id);
             }
         }
 
-        // Deterministic ordering (stable UI)
         idsBySource[source].sort((a, b) => {
             const ra = recordsById[a];
             const rb = recordsById[b];
@@ -258,18 +206,12 @@ export function buildFullCatalog(): FullCatalog {
     ingestMap("moddescriptions", moddescriptionsMap);
 
     const itemIds = idsBySource.items.slice();
-    const currencyItemIds = itemIds.filter((id) => recordsById[id].isCurrency);
-    const inventoryItemIds = itemIds.filter(
-        (id) => !recordsById[id].isCurrency
-    );
+
+    // New rule: everything in items.json is a normal item.
+    const inventoryItemIds = itemIds.slice();
 
     const displayableItemIds = displayableIdsBySource.items.slice();
-    const displayableCurrencyItemIds = displayableItemIds.filter(
-        (id) => recordsById[id].isCurrency
-    );
-    const displayableInventoryItemIds = displayableItemIds.filter(
-        (id) => !recordsById[id].isCurrency
-    );
+    const displayableInventoryItemIds = displayableItemIds.slice();
 
     const countsBySource: Record<CatalogSource, number> = {
         items: idsBySource.items.length,
@@ -307,11 +249,9 @@ export function buildFullCatalog(): FullCatalog {
         displayableIdsBySource,
 
         itemIds,
-        currencyItemIds,
         inventoryItemIds,
 
         displayableItemIds,
-        displayableCurrencyItemIds,
         displayableInventoryItemIds,
 
         nameIndex,
@@ -321,8 +261,6 @@ export function buildFullCatalog(): FullCatalog {
             countsBySource,
             displayableCountsBySource,
             missingNameBySource,
-            currencyItemCount: currencyItemIds.length,
-            displayableCurrencyItemCount: displayableCurrencyItemIds.length,
             totalCount,
             totalDisplayableCount
         }

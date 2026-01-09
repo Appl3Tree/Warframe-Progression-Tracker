@@ -1,4 +1,4 @@
-import type { DailyTask, Inventory, ReserveRule, SyndicateState } from "../types";
+import type { DailyTask, Inventory, SyndicateState } from "../types";
 
 export type PageKey =
     | "dashboard"
@@ -9,7 +9,8 @@ export type PageKey =
     | "systems"
     | "imports"
     | "settings"
-    | "diagnostics";
+    | "diagnostics"
+    | "inventory";
 
 export interface UserMetaV2 {
     schemaVersion: 2;
@@ -17,10 +18,19 @@ export interface UserMetaV2 {
     updatedAtIso: string;
 }
 
+export type PlatformKey = "PC" | "PlayStation" | "Xbox" | "Switch" | "Mobile";
+
 export interface UserPlayerV2 {
-    platform: "PC";
+    platform: PlatformKey;
+
+    accountId: string;
     displayName: string;
     masteryRank: number | null;
+
+    clanName?: string;
+    clanTier?: number;
+    clanClass?: number;
+    clanXp?: number;
 }
 
 export interface UserUiV2 {
@@ -44,7 +54,15 @@ export interface UserStateV2 {
 
     inventory: Inventory;
     syndicates: SyndicateState[];
-    reserves: ReserveRule[];
     dailyTasks: DailyTask[];
+
+    mastery: {
+        xpByItem: Record<string, number>;
+        mastered: Record<string, boolean>;
+    };
+
+    missions: {
+        completesByTag: Record<string, number>;
+    };
 }
 

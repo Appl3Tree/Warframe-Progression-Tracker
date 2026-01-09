@@ -1,7 +1,14 @@
+// src/domain/logic/plannerEngine.ts
+
 import { PR } from "../ids/prereqIds";
 import type { PrereqId } from "../ids/prereqIds";
 import { PREREQ_REGISTRY } from "../../catalog/prereqs/prereqRegistry";
 import { computeUnlockGraphSnapshot } from "./unlockGraph";
+
+import { FULL_CATALOG, type CatalogId } from "../catalog/loadFullCatalog";
+import { SOURCE_INDEX } from "../../catalog/sources/sourceCatalog";
+import { getAcquisitionByDisplayName } from "../../catalog/items/itemAcquisition";
+import type { SourceId } from "../ids/sourceIds";
 
 export interface ProgressionStep {
     id: string;
@@ -92,7 +99,6 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
 
     // 2) If user has completed everything, return the (empty) actionable set (valid empty state).
     if (allComplete) {
-        // Optional: you can add a single celebratory/terminal step instead of returning empty.
         return { steps };
     }
 
@@ -131,8 +137,6 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
                 }
             }
 
-            // Convert into actionable steps (even if those prereqs themselves are locked deeper,
-            // they are still “next” because they are explicitly missing).
             const nextSteps: ProgressionStep[] = [];
             for (const id of Array.from(nextIds)) {
                 nextSteps.push(makeActionableStepForPrereqId(id, "Closest Missing"));
@@ -140,7 +144,6 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
 
             nextSteps.sort((a, b) => a.title.localeCompare(b.title));
 
-            // If we successfully found fallback steps, return them.
             if (nextSteps.length > 0) {
                 return { steps: nextSteps };
             }
@@ -159,8 +162,7 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
             };
         }
 
-        // 5) If we got here, something is structurally wrong (empty registry or inconsistent snapshot).
-        // Return a single actionable “fix config” step so the UI is never blank.
+        // 5) Structural issue fallback so UI is never blank.
         return {
             steps: [
                 {
@@ -180,141 +182,131 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
     return { steps };
 }
 
-/**
- * Item gating for Phase B:
- * We must not show “progression inventory” items that the user cannot access yet.
- *
- * Since acquisition mapping is not implemented yet, this is a conservative bridge:
- * - We gate a small set of known items behind hub prereqs.
- * - Later, this will be replaced/augmented by itemAcquisition + sourceCatalog.
- */
-const ITEM_ACCESS_GATES: Array<{
-    matchName: string;
-    requiredPrereqs: PrereqId[];
-    reason: string;
-}> = [
-    // Cetus / Quills / Eidolon-related
-    {
-        matchName: "Eidolon Shard",
-        requiredPrereqs: [PR.HUB_CETUS],
-        reason: "Requires Cetus/Plains access."
-    },
-
-    // Fortuna / Solaris United / Vox Solaris-related
-    {
-        matchName: "Training Debt-Bond",
-        requiredPrereqs: [PR.HUB_FORTUNA],
-        reason: "Requires Fortuna/Orb Vallis access."
-    },
-    {
-        matchName: "Vega Toroid",
-        requiredPrereqs: [PR.HUB_FORTUNA],
-        reason: "Requires Fortuna/Orb Vallis access."
-    },
-    {
-        matchName: "Calda Toroid",
-        requiredPrereqs: [PR.HUB_FORTUNA],
-        reason: "Requires Fortuna/Orb Vallis access."
-    },
-    {
-        matchName: "Sola Toroid",
-        requiredPrereqs: [PR.HUB_FORTUNA],
-        reason: "Requires Fortuna/Orb Vallis access."
-    },
-
-    // Deimos / Entrati / Necraloid items
-    {
-        matchName: "Mother Token",
-        requiredPrereqs: [PR.HUB_NECRALISK],
-        reason: "Requires Deimos/Necralisk access."
-    },
-    {
-        matchName: "Father Token",
-        requiredPrereqs: [PR.HUB_NECRALISK],
-        reason: "Requires Deimos/Necralisk access."
-    },
-    {
-        matchName: "Son Token",
-        requiredPrereqs: [PR.HUB_NECRALISK],
-        reason: "Requires Deimos/Necralisk access."
-    },
-    {
-        matchName: "Sly Vulpaphyla Tag",
-        requiredPrereqs: [PR.HUB_NECRALISK],
-        reason: "Requires Deimos/Necralisk access."
-    },
-    {
-        matchName: "Vizier Predasite Tag",
-        requiredPrereqs: [PR.HUB_NECRALISK],
-        reason: "Requires Deimos/Necralisk access."
-    },
-    {
-        matchName: "Orokin Orientation Matrix",
-        requiredPrereqs: [PR.HUB_NECRALISK],
-        reason: "Requires Deimos/Necralisk access."
-    },
-
-    // Zariman / Holdfasts
-    {
-        matchName: "Voidplume Down",
-        requiredPrereqs: [PR.HUB_ZARIMAN],
-        reason: "Requires Zariman access."
-    },
-
-    // Sanctum / Cavia
-    {
-        matchName: "Entrati Obols",
-        requiredPrereqs: [PR.HUB_SANCTUM],
-        reason: "Requires Sanctum Anatomica access."
-    },
-    {
-        matchName: "Shrill Voca",
-        requiredPrereqs: [PR.HUB_SANCTUM],
-        reason: "Requires Sanctum Anatomica access."
-    }
-];
-
 export interface ItemAccessResult {
     allowed: boolean;
     missingPrereqs: PrereqId[];
     reasons: string[];
 }
 
-/**
- * Returns whether an item is accessible given current prereq completion.
- * Fail-closed: if no mapping exists, we do NOT claim it is accessible.
- */
-export function canAccessItemByName(
-    itemName: string,
+function isSourceAccessible(
+    sourceId: SourceId,
     completedMap: Record<string, boolean>
-): ItemAccessResult {
-    const normalized = itemName.trim().toLowerCase();
-
-    const gate = ITEM_ACCESS_GATES.find(
-        (g) => g.matchName.trim().toLowerCase() === normalized
-    );
-
-    if (!gate) {
+): { ok: boolean; missing: PrereqId[]; reason?: string } {
+    const src = SOURCE_INDEX[sourceId];
+    if (!src) {
+        // Unknown source => fail-closed
         return {
-            allowed: false,
-            missingPrereqs: [],
-            reasons: [
-                "Access mapping missing for this item (will be resolved when acquisition/source catalogs are populated)."
-            ]
+            ok: false,
+            missing: [],
+            reason: `Unknown source (${sourceId})`
         };
     }
 
     const missing: PrereqId[] = [];
-    for (const p of gate.requiredPrereqs) {
+    for (const p of src.prereqIds) {
         if (completedMap[p] !== true) {
             missing.push(p);
         }
     }
 
     return {
-        allowed: missing.length === 0,
-        missingPrereqs: missing,
-        reasons: missing.length === 0 ? [] : [gate.reason]
+        ok: missing.length === 0,
+        missing,
+        reason: missing.length === 0 ? undefined : `Requires: ${missing.join(", ")}`
     };
+}
+
+/**
+ * Canonical gating:
+ * - Uses CatalogId as the stable key.
+ * - Uses acquisition->sources mapping (currently bridged via displayName).
+ *
+ * Fail-closed:
+ * - Unknown catalogId or missing displayName => not accessible
+ * - Missing acquisition mapping => not accessible
+ * - Unknown source => not accessible
+ */
+export function canAccessCatalogItem(
+    catalogId: CatalogId,
+    completedMap: Record<string, boolean>
+): ItemAccessResult {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    const name = rec?.displayName;
+
+    if (!name) {
+        return {
+            allowed: false,
+            missingPrereqs: [],
+            reasons: ["Unknown catalog record or missing display name."]
+        };
+    }
+
+    const acq = getAcquisitionByDisplayName(name);
+    if (!acq) {
+        return {
+            allowed: false,
+            missingPrereqs: [],
+            reasons: ["Access mapping missing for this item (acquisition unknown, fail-closed)."]
+        };
+    }
+
+    const aggregateMissing = new Set<PrereqId>();
+    const reasons: string[] = [];
+
+    for (const s of acq.sources) {
+        const check = isSourceAccessible(s, completedMap);
+        if (check.ok) {
+            return { allowed: true, missingPrereqs: [], reasons: [] };
+        }
+        for (const m of check.missing) {
+            aggregateMissing.add(m);
+        }
+        if (check.reason) {
+            reasons.push(`${s}: ${check.reason}`);
+        } else {
+            reasons.push(`${s}: not accessible yet`);
+        }
+    }
+
+    return {
+        allowed: false,
+        missingPrereqs: Array.from(aggregateMissing),
+        reasons: reasons.length > 0 ? reasons : ["Item sources are not accessible yet."]
+    };
+}
+
+/**
+ * Compatibility bridge (older call sites):
+ * - Resolves display name -> CatalogId (first match)
+ * - Then applies CatalogId gating
+ *
+ * Fail-closed:
+ * - No catalog match => not accessible
+ */
+export function canAccessItemByName(
+    itemName: string,
+    completedMap: Record<string, boolean>
+): ItemAccessResult {
+    const normalized = String(itemName ?? "").trim().toLowerCase();
+    if (!normalized) {
+        return {
+            allowed: false,
+            missingPrereqs: [],
+            reasons: ["Missing item name."]
+        };
+    }
+
+    const matches = FULL_CATALOG.nameIndex?.[normalized] ?? [];
+    const cid = (matches[0] as CatalogId | undefined);
+
+    if (!cid) {
+        return {
+            allowed: false,
+            missingPrereqs: [],
+            reasons: ["No catalog match for this item name (fail-closed)."]
+        };
+    }
+
+    return canAccessCatalogItem(cid, completedMap);
 }
 

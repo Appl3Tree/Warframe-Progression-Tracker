@@ -26,18 +26,6 @@ export interface DailyTask {
     isDone: boolean;
 }
 
-export interface ReserveRule {
-    id: Id;
-    label: string;
-
-    /**
-     * Reserve items by canonical key (catalog path/id).
-     */
-    items: Array<{ key: string; minKeep: number }>;
-
-    isEnabled: boolean;
-}
-
 /**
  * Minimal syndicate state shape. Phase E will replace/extend this with a
  * fully-typed syndicate catalog model.
@@ -69,6 +57,7 @@ export interface SyndicateState {
 
     /**
      * Optional rank-up requirements when defined by embedded ladder data.
+     * NOTE: Reserves are derived from this data when it exists.
      */
     nextRankUp?: {
         standingRequired?: number;

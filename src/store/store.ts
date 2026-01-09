@@ -1,12 +1,16 @@
+// ===== FILE: src/store/store.ts =====
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 import { z } from "zod";
 import { toYMD } from "../domain/ymd";
 import type { DailyTask } from "../domain/types";
-import { SEED_INVENTORY, SEED_RESERVES, SEED_SYNDICATES } from "../domain/seed";
+import { SEED_INVENTORY, SEED_MASTERY, SEED_MISSIONS, SEED_SYNDICATES } from "../domain/seed";
 import type { PageKey, UserStateV2 } from "../domain/models/userState";
 import { migrateToUserStateV2 } from "./migrations";
+import { parseProfileViewingData } from "../utils/profileImport";
+import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
+import { canAccessItemByName } from "../domain/logic/plannerEngine";
 
 function nowIso(): string {
     return new Date().toISOString();
@@ -22,8 +26,13 @@ function makeDefaultState(): UserStateV2 {
         },
         player: {
             platform: "PC",
+            accountId: "",
             displayName: "",
-            masteryRank: null
+            masteryRank: null,
+            clanName: undefined,
+            clanTier: undefined,
+            clanClass: undefined,
+            clanXp: undefined
         },
         ui: {
             activePage: "dashboard"
@@ -33,39 +42,61 @@ function makeDefaultState(): UserStateV2 {
         },
         inventory: SEED_INVENTORY,
         syndicates: SEED_SYNDICATES,
-        reserves: SEED_RESERVES,
-        dailyTasks: []
+        dailyTasks: [],
+        mastery: SEED_MASTERY,
+        missions: SEED_MISSIONS
     };
 }
+
+const PlatformSchema = z.enum(["PC", "PlayStation", "Xbox", "Switch", "Mobile"]);
 
 const InventorySchema = z.object({
     credits: z.number().int().min(0),
     platinum: z.number().int().min(0),
-    counts: z.record(z.number().nonnegative())
+    counts: z.record(z.string(), z.number().nonnegative())
 });
 
-const ProgressPackSchemaV2 = z.object({
-    meta: z.object({
-        schemaVersion: z.literal(2),
-        createdAtIso: z.string(),
-        updatedAtIso: z.string()
-    }),
-    player: z.object({
-        platform: z.literal("PC"),
-        displayName: z.string(),
-        masteryRank: z.number().nullable()
-    }),
-    ui: z.object({
-        activePage: z.string()
-    }),
-    prereqs: z.object({
-        completed: z.record(z.boolean())
-    }),
-    inventory: InventorySchema.optional(),
-    syndicates: z.any().optional(),
-    reserves: z.any().optional(),
-    dailyTasks: z.any().optional()
-});
+const ProgressPackSchemaV2 = z
+    .object({
+        meta: z
+            .object({
+                schemaVersion: z.literal(2),
+                createdAtIso: z.string(),
+                updatedAtIso: z.string()
+            })
+            .passthrough(),
+        player: z
+            .object({
+                platform: PlatformSchema.optional(),
+                accountId: z.string().optional(),
+                displayName: z.string().optional(),
+                masteryRank: z.number().nullable().optional(),
+                clanName: z.string().optional(),
+                clanTier: z.number().optional(),
+                clanClass: z.number().optional(),
+                clanXp: z.number().optional()
+            })
+            .passthrough()
+            .optional(),
+        ui: z
+            .object({
+                activePage: z.string()
+            })
+            .passthrough()
+            .optional(),
+        prereqs: z
+            .object({
+                completed: z.record(z.string(), z.boolean())
+            })
+            .passthrough()
+            .optional(),
+        inventory: InventorySchema.optional(),
+        syndicates: z.any().optional(),
+        dailyTasks: z.any().optional(),
+        mastery: z.any().optional(),
+        missions: z.any().optional()
+    })
+    .passthrough();
 
 function uid(prefix: string): string {
     return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now()}`;
@@ -130,15 +161,134 @@ function mergeProgressPackIntoState(current: UserStateV2, incoming: any): UserSt
         next.syndicates = incoming.syndicates;
     }
 
-    if (incoming.reserves !== undefined) {
-        next.reserves = incoming.reserves;
-    }
-
     if (incoming.dailyTasks !== undefined) {
         next.dailyTasks = incoming.dailyTasks;
     }
 
+    if (incoming.mastery !== undefined) {
+        next.mastery = incoming.mastery;
+    }
+
+    if (incoming.missions !== undefined) {
+        next.missions = incoming.missions;
+    }
+
     return next;
+}
+
+type ReserveSource = {
+    syndicateId: string;
+    syndicateName: string;
+    amount: number;
+    label?: string;
+};
+
+type DerivedReserveLine = {
+    key: string; // "credits" | "platinum" | catalogId
+    minKeep: number;
+    sources: ReserveSource[];
+};
+
+function isAccessibleReserveKey(key: string, completedPrereqs: Record<string, boolean>): boolean {
+    if (key === "credits" || key === "platinum") {
+        return true;
+    }
+
+    const rec = FULL_CATALOG.recordsById[key as any];
+    const name = typeof rec?.displayName === "string" ? rec.displayName : "";
+    if (!name) {
+        // Fail-closed: if we can't resolve the catalog record name, we do not claim it's accessible.
+        return false;
+    }
+
+    const access = canAccessItemByName(name, completedPrereqs);
+    return access.allowed;
+}
+
+function computeDerivedReservesFromSyndicates(
+    syndicates: any[],
+    completedPrereqs: Record<string, boolean>
+): DerivedReserveLine[] {
+    const byKey: Record<string, { minKeep: number; sources: ReserveSource[] }> = {};
+
+    for (const syn of syndicates ?? []) {
+        const syndicateId = typeof syn?.id === "string" ? syn.id : "";
+        const syndicateName = typeof syn?.name === "string" ? syn.name : syndicateId || "Unknown Syndicate";
+        const nr = syn?.nextRankUp;
+        if (!nr || typeof nr !== "object") continue;
+
+        // Credits / Platinum
+        const credits = Number(nr.credits ?? 0);
+        if (Number.isFinite(credits) && credits > 0) {
+            const key = "credits";
+            if (isAccessibleReserveKey(key, completedPrereqs)) {
+                if (!byKey[key]) byKey[key] = { minKeep: 0, sources: [] };
+                byKey[key].minKeep += Math.floor(credits);
+                byKey[key].sources.push({
+                    syndicateId,
+                    syndicateName,
+                    amount: Math.floor(credits),
+                    label: "Credits"
+                });
+            }
+        }
+
+        const platinum = Number(nr.platinum ?? 0);
+        if (Number.isFinite(platinum) && platinum > 0) {
+            const key = "platinum";
+            if (isAccessibleReserveKey(key, completedPrereqs)) {
+                if (!byKey[key]) byKey[key] = { minKeep: 0, sources: [] };
+                byKey[key].minKeep += Math.floor(platinum);
+                byKey[key].sources.push({
+                    syndicateId,
+                    syndicateName,
+                    amount: Math.floor(platinum),
+                    label: "Platinum"
+                });
+            }
+        }
+
+        // Items (expected: catalogId keys)
+        const items = Array.isArray(nr.items) ? nr.items : [];
+        for (const it of items) {
+            const key = typeof it?.key === "string" ? it.key : "";
+            if (!key) continue;
+
+            const count = Number(it?.count ?? 0);
+            if (!Number.isFinite(count) || count <= 0) continue;
+
+            if (!isAccessibleReserveKey(key, completedPrereqs)) {
+                continue;
+            }
+
+            if (!byKey[key]) byKey[key] = { minKeep: 0, sources: [] };
+            byKey[key].minKeep += Math.floor(count);
+            byKey[key].sources.push({
+                syndicateId,
+                syndicateName,
+                amount: Math.floor(count),
+                label: typeof it?.label === "string" ? it.label : undefined
+            });
+        }
+    }
+
+    const out: DerivedReserveLine[] = Object.entries(byKey)
+        .map(([key, v]) => ({
+            key,
+            minKeep: Math.max(0, Math.floor(v.minKeep)),
+            sources: v.sources
+        }))
+        .filter((x) => x.minKeep > 0);
+
+    out.sort((a, b) => {
+        if (a.key === "credits" && b.key !== "credits") return -1;
+        if (a.key !== "credits" && b.key === "credits") return 1;
+        if (a.key === "platinum" && b.key !== "platinum") return -1;
+        if (a.key !== "platinum" && b.key === "platinum") return 1;
+        return a.key.localeCompare(b.key);
+    });
+
+    return out;
 }
 
 export interface TrackerStore {
@@ -149,46 +299,53 @@ export interface TrackerStore {
     setPrereqCompleted: (prereqId: string, completed: boolean) => void;
     bulkOverwritePrereqs: (patch: Record<string, boolean>) => void;
 
-    /**
-     * Canonical inventory mutation.
-     * key must be a catalog key (id from items.json).
-     */
     setCount: (key: string, count: number) => void;
 
     setCredits: (credits: number) => void;
     setPlatinum: (platinum: number) => void;
     setMasteryRank: (masteryRank: number | null) => void;
 
+    setAccountId: (accountId: string) => void;
+    setPlatform: (platform: "PC" | "PlayStation" | "Xbox" | "Switch" | "Mobile") => void;
+
+    /**
+     * Imports a profileViewingData payload saved as JSON or as an HTML file from the browser.
+     * Updates:
+     * - player name + mastery rank + clan fields
+     * - syndicates
+     * - missions completion snapshot
+     * - mastery XP + mastered map
+     *
+     * NOTE: We do not fetch automatically (CORS/rate-limit constraints).
+     */
+    importProfileViewingDataJson: (text: string) => { ok: boolean; error?: string };
+
     upsertDailyTask: (dateYmd: string, label: string, syndicate?: string, details?: string) => void;
     toggleDailyTask: (taskId: string) => void;
     deleteDailyTask: (taskId: string) => void;
 
     setSyndicateNotes: (id: string, notes: string) => void;
-    setReserveEnabled: (reserveId: string, enabled: boolean) => void;
 
     exportProgressPackJson: () => string;
     importProgressPackJson: (json: string) => { ok: boolean; error?: string };
 
-    /**
-     * Soft reset (overwrites state, but leaves the persisted key in place).
-     */
     resetToDefaults: () => void;
-
-    /**
-     * Hard reset (clears localStorage for the persisted key, then restores defaults).
-     * Use this for seed validation and “start over” behavior.
-     */
     resetAllLocalData: () => void;
 
     getTodayTasks: () => DailyTask[];
 
+    /**
+     * Derived reserves (read-only).
+     */
+    getDerivedReserves: () => DerivedReserveLine[];
+
+    /**
+     * Checks whether spending an amount would drop below a derived reserve floor.
+     */
     isBelowReserve: (key: string, spendAmount: number) => { blocked: boolean; reasons: string[] };
 }
 
 const PERSIST_KEY = "wf_tracker_state_v3";
-
-// Use explicit storage so we can hard-clear it reliably.
-const storage = createJSONStorage(() => localStorage);
 
 export const useTrackerStore = create<TrackerStore>()(
     persist(
@@ -228,20 +385,14 @@ export const useTrackerStore = create<TrackerStore>()(
 
             setCredits: (credits) => {
                 set((s) => {
-                    s.state.inventory.credits = Math.max(
-                        0,
-                        Number.isFinite(credits) ? Math.floor(credits) : 0
-                    );
+                    s.state.inventory.credits = Math.max(0, Number.isFinite(credits) ? Math.floor(credits) : 0);
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
 
             setPlatinum: (platinum) => {
                 set((s) => {
-                    s.state.inventory.platinum = Math.max(
-                        0,
-                        Number.isFinite(platinum) ? Math.floor(platinum) : 0
-                    );
+                    s.state.inventory.platinum = Math.max(0, Number.isFinite(platinum) ? Math.floor(platinum) : 0);
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
@@ -256,6 +407,47 @@ export const useTrackerStore = create<TrackerStore>()(
                     }
                     s.state.meta.updatedAtIso = nowIso();
                 });
+            },
+
+            setAccountId: (accountId) => {
+                set((s) => {
+                    s.state.player.accountId = String(accountId ?? "").trim();
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setPlatform: (platform) => {
+                set((s) => {
+                    s.state.player.platform = platform;
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            importProfileViewingDataJson: (text) => {
+                try {
+                    const parsed = parseProfileViewingData(text);
+
+                    set((s) => {
+                        s.state.player.displayName = parsed.displayName || s.state.player.displayName;
+                        s.state.player.masteryRank = parsed.masteryRank;
+
+                        s.state.player.clanName = parsed.clan?.name;
+                        s.state.player.clanTier = parsed.clan?.tier;
+                        s.state.player.clanClass = parsed.clan?.clanClass;
+                        s.state.player.clanXp = parsed.clan?.xp;
+
+                        s.state.syndicates = parsed.syndicates;
+                        s.state.mastery = parsed.mastery;
+                        s.state.missions = parsed.missions;
+
+                        s.state.meta.updatedAtIso = nowIso();
+                    });
+
+                    return { ok: true };
+                } catch (e: any) {
+                    const msg = typeof e?.message === "string" ? e.message : "Invalid profileViewingData file.";
+                    return { ok: false, error: msg };
+                }
             },
 
             upsertDailyTask: (dateYmd, label, syndicate, details) => {
@@ -310,16 +502,6 @@ export const useTrackerStore = create<TrackerStore>()(
                 });
             },
 
-            setReserveEnabled: (reserveId, enabled) => {
-                set((s) => {
-                    const r = s.state.reserves.find((x) => x.id === reserveId);
-                    if (r) {
-                        r.isEnabled = enabled;
-                        s.state.meta.updatedAtIso = nowIso();
-                    }
-                });
-            },
-
             exportProgressPackJson: () => {
                 const payload = get().state;
                 return JSON.stringify(payload, null, 2);
@@ -348,8 +530,11 @@ export const useTrackerStore = create<TrackerStore>()(
             },
 
             resetAllLocalData: () => {
-                // Clear persisted payload, then restore defaults.
-                storage.removeItem(PERSIST_KEY);
+                try {
+                    localStorage.removeItem(PERSIST_KEY);
+                } catch {
+                    // ignore
+                }
                 set(() => ({ state: makeDefaultState() }));
             },
 
@@ -358,34 +543,62 @@ export const useTrackerStore = create<TrackerStore>()(
                 return get().state.dailyTasks.filter((t) => t.dateYmd === today);
             },
 
+            getDerivedReserves: () => {
+                const syndicates = get().state.syndicates ?? [];
+                const completed = get().state.prereqs?.completed ?? {};
+                return computeDerivedReservesFromSyndicates(syndicates as any[], completed);
+            },
+
             isBelowReserve: (key, spendAmount) => {
-                const { inventory, reserves } = get().state;
-                const reasons: string[] = [];
+                const { inventory } = get().state;
 
-                const current = inventory.counts?.[key] ?? 0;
-                const afterSpend = current - spendAmount;
+                const completed = get().state.prereqs?.completed ?? {};
+                const derived = computeDerivedReservesFromSyndicates((get().state.syndicates ?? []) as any[], completed);
 
-                for (const rule of reserves) {
-                    if (!rule.isEnabled) continue;
-
-                    for (const item of rule.items) {
-                        if (item.key === key && afterSpend < item.minKeep) {
-                            reasons.push(
-                                `${rule.label}: keep at least ${item.minKeep} (would drop to ${afterSpend}).`
-                            );
-                        }
-                    }
+                const rule = derived.find((r) => r.key === key);
+                if (!rule) {
+                    return { blocked: false, reasons: [] };
                 }
 
-                return { blocked: reasons.length > 0, reasons };
+                const current =
+                    key === "credits"
+                        ? (inventory.credits ?? 0)
+                        : key === "platinum"
+                            ? (inventory.platinum ?? 0)
+                            : (inventory.counts?.[key] ?? 0);
+
+                const spend = Number.isFinite(spendAmount) ? spendAmount : 0;
+                const afterSpend = current - spend;
+
+                if (afterSpend >= rule.minKeep) {
+                    return { blocked: false, reasons: [] };
+                }
+
+                const reasons: string[] = [];
+                const topSources = [...(rule.sources ?? [])];
+                topSources.sort((a, b) => (b.amount ?? 0) - (a.amount ?? 0));
+
+                reasons.push(
+                    `Keep at least ${rule.minKeep.toLocaleString()} (would drop to ${afterSpend.toLocaleString()}).`
+                );
+
+                for (const s of topSources.slice(0, 10)) {
+                    reasons.push(
+                        `${s.syndicateName}: requires ${s.amount.toLocaleString()}${s.label ? ` (${s.label})` : ""}`
+                    );
+                }
+
+                if (topSources.length > 10) {
+                    reasons.push(`…and ${topSources.length - 10} more sources.`);
+                }
+
+                return { blocked: true, reasons };
             }
         })),
         {
             name: PERSIST_KEY,
             version: 3,
-            storage,
             migrate: (persistedState: any) => {
-                // Zustand wraps state in { state: ... } for persisted payloads.
                 const raw = persistedState?.state ?? persistedState;
                 const migrated = migrateToUserStateV2(raw);
                 if (!migrated) {
