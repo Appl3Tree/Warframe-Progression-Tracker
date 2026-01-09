@@ -328,7 +328,7 @@ export type HiddenFarmingItem = {
     key: CatalogId;
     name: string;
     remaining: number;
-    reason: "unknown-acquisition" | "no-accessible-sources";
+    reason: "unknown-acquisition" | "missing-prereqs" | "no-accessible-sources";
 };
 
 export type FarmingSnapshot = {
@@ -338,6 +338,7 @@ export type FarmingSnapshot = {
     stats: {
         actionableItemsWithKnownAcquisition: number;
         hiddenForUnknownAcquisition: number;
+        hiddenForMissingPrereqs: number;
         hiddenForNoAccessibleSources: number;
         overlapSourceCount: number;
     };
@@ -348,11 +349,58 @@ function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, bo
     if (!def) return false; // fail-closed
 
     const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
+
+    // HARD RULE (fail-closed for accessibility):
+    // Data-derived sources are "known labels" but have unknown gating until curated.
+    // Treat as NOT accessible unless they have at least one prereqId (curated) or are non-data sources.
+    const isDataDerived = String(sourceId).startsWith("data:");
+    if (isDataDerived && prereqs.length === 0) {
+        return false;
+    }
+
     for (const pr of prereqs) {
         if (!completedPrereqs[String(pr)]) return false;
     }
 
     return true;
+}
+
+function classifyInaccessibleSources(
+    sourceIds: SourceId[],
+    completedPrereqs: Record<string, boolean>
+): "missing-prereqs" | "no-accessible-sources" {
+    let sawUnknownGate = false;
+    let sawMissingPrereq = false;
+
+    for (const sid of sourceIds) {
+        const def = SOURCE_INDEX[sid];
+        if (!def) {
+            // Fail-closed: treat as unknown gate, not “missing prereq”.
+            sawUnknownGate = true;
+            continue;
+        }
+
+        const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
+        const isDataDerived = String(sid).startsWith("data:");
+
+        // This is your explicit fail-closed rule for data-derived sources without gating info.
+        if (isDataDerived && prereqs.length === 0) {
+            sawUnknownGate = true;
+            continue;
+        }
+
+        // If the source *does* declare prereqs, and any are unmet, this is a real “missing prereq”.
+        for (const pr of prereqs) {
+            if (!completedPrereqs[String(pr)]) {
+                sawMissingPrereq = true;
+                break;
+            }
+        }
+    }
+
+    // Prefer “missing-prereqs” when both are present, because it’s actionable guidance.
+    if (sawMissingPrereq) return "missing-prereqs";
+    return "no-accessible-sources";
 }
 
 function getAcquisitionSourcesForCatalogId(catalogId: CatalogId): SourceId[] | null {
@@ -391,14 +439,14 @@ export function buildFarmingSnapshot(args: {
             }));
 
         if (accessible.length === 0) {
-            hidden.push({
-                key: line.key,
-                name: line.name,
-                remaining: line.remaining,
-                reason: "no-accessible-sources"
-            });
-            continue;
-        }
+	    hidden.push({
+		key: line.key,
+		name: line.name,
+		remaining: line.remaining,
+		reason: classifyInaccessibleSources(sources, completedPrereqs)
+	    });
+	    continue;
+	}
 
         targeted.push({
             key: line.key,
@@ -466,8 +514,9 @@ export function buildFarmingSnapshot(args: {
         });
 
     const hiddenForUnknownAcquisition = hidden.filter((h) => h.reason === "unknown-acquisition").length;
+    const hiddenForMissingPrereqs = hidden.filter((h) => h.reason === "missing-prereqs").length;
     const hiddenForNoAccessibleSources = hidden.filter((h) => h.reason === "no-accessible-sources").length;
-
+    
     return {
         targeted,
         overlap,
@@ -475,9 +524,9 @@ export function buildFarmingSnapshot(args: {
         stats: {
             actionableItemsWithKnownAcquisition: targeted.length,
             hiddenForUnknownAcquisition,
+            hiddenForMissingPrereqs,
             hiddenForNoAccessibleSources,
             overlapSourceCount: overlap.length
         }
     };
 }
-

@@ -63,21 +63,24 @@ export interface FullCatalog {
     };
 }
 
-function parseJsonMap<T extends Record<string, unknown>>(
-    source: CatalogSource,
-    rawText: string
-): T {
+function parseJsonMap(source: string, raw: unknown): Record<string, any> {
     try {
-        const parsed = JSON.parse(rawText) as T;
+        const parsed =
+            typeof raw === "string"
+                ? (JSON.parse(raw) as unknown)
+                : raw;
+
         if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-            throw new Error(
-                `Expected top-level object map but got ${Array.isArray(parsed) ? "array" : typeof parsed}`
-            );
+            throw new Error("Root must be an object map.");
         }
-        return parsed;
-    } catch (err) {
+
+        return parsed as Record<string, any>;
+    } catch (e: any) {
         const msg =
-            err instanceof Error ? err.message : "Unknown JSON.parse error";
+            typeof e?.message === "string"
+                ? e.message
+                : String(e);
+
         throw new Error(`Failed to parse ${source}.json: ${msg}`);
     }
 }

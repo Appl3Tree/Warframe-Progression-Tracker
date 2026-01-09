@@ -89,19 +89,80 @@ const CURATED_SOURCE_CATALOG: SourceDef[] = [
         label: "Cavia (Sanctum Anatomica)",
         type: "Vendor",
         prereqIds: [PR.HUB_SANCTUM]
+    },
+
+    // -----------------------------
+    // Curated data-derived sources
+    // -----------------------------
+    // These IDs are produced by sourceIdFromLabel(label) from sources.json.
+    // Curating them here provides real gating; curated entries win on collision.
+
+    {
+        id: "data:tusk_thumper",
+        label: "Tusk Thumper",
+        type: "Mission",
+        prereqIds: [PR.HUB_CETUS],
+        notes: "Open-world bounty/encounter on Plains of Eidolon."
+    },
+    {
+        id: "data:tusk_thumper_bull",
+        label: "Tusk Thumper Bull",
+        type: "Mission",
+        prereqIds: [PR.HUB_CETUS],
+        notes: "Open-world bounty/encounter on Plains of Eidolon."
+    },
+    {
+        id: "data:tusk_thumper_doma",
+        label: "Tusk Thumper Doma",
+        type: "Mission",
+        prereqIds: [PR.HUB_CETUS],
+        notes: "Open-world bounty/encounter on Plains of Eidolon."
+    },
+    {
+        id: "data:exploiter_orb",
+        label: "Exploiter Orb",
+        type: "Mission",
+        prereqIds: [PR.HUB_FORTUNA],
+        notes: "Boss encounter associated with Orb Vallis / Fortuna."
     }
 ];
 
 function buildDataSourceCatalog(): SourceDef[] {
     // Each distinct sources.json "source" label becomes a known SourceDef.
-    // We do not guess prereqs for these yet.
+    // We do not guess prereqs broadly, except for a few safe system-gates where
+    // the game itself hard-requires the feature (e.g., Void Relics require the Relic segment).
+
     const labels = getAllSourceLabels();
+
+    function prereqsForLabel(label: string): PrereqId[] {
+        const s = String(label ?? "").trim();
+
+        // Void Relic labels commonly look like:
+        // "Lith A1 Relic", "Axi B3 Relic (Radiant)", etc.
+        // If you don’t have the Void Relic segment, “farm this relic” is not actionable.
+        const isRelic =
+            /^(Lith|Meso|Neo|Axi)\s+[A-Za-z0-9]+\s+Relic(\s+\((Exceptional|Flawless|Radiant)\))?$/.test(s);
+
+        if (isRelic) {
+            // You already modeled this as a gate in prereqRegistry.ts.
+            // If you want to be stricter, also require PR.JUNCTION_EARTH_MARS.
+            return [PR.SYSTEM_ORBITER_VOID_RELICS];
+        }
+
+        return [];
+    }
+
+    function typeForLabel(label: string): SourceType {
+        const s = String(label ?? "").trim();
+        if (/Relic/.test(s)) return "Mission";
+        return "Mission";
+    }
 
     return labels.map((label) => ({
         id: sourceIdFromLabel(label) as SourceId,
         label,
-        type: "Mission",
-        prereqIds: []
+        type: typeForLabel(label),
+        prereqIds: prereqsForLabel(label)
     }));
 }
 

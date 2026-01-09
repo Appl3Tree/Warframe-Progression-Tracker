@@ -1,8 +1,8 @@
 // src/catalog/items/itemAcquisition.ts
 
+import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import type { SourceId } from "../../domain/ids/sourceIds";
 import { SRC } from "../../domain/ids/sourceIds";
-import { FULL_CATALOG, type CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { deriveAcquisitionByCatalogIdFromSourcesJson } from "./acquisitionFromSources";
 
 export interface AcquisitionDef {
@@ -10,12 +10,15 @@ export interface AcquisitionDef {
 }
 
 /**
- * Legacy acquisition map keyed by *display name*.
- * Kept for convenience while acquisition authoring is still evolving.
+ * Hand-authored acquisition map keyed by *display name*.
  *
  * IMPORTANT:
- * - This is NOT the canonical key long-term.
- * - The canonical key is CatalogId (see ACQUISITION_BY_CATALOG_ID below).
+ * - This is allowed only as a hand-authored convenience surface.
+ * - It MUST NOT be used to “resolve” dataset acquisition.
+ * - It MUST NOT attempt display-name -> CatalogId matching (no heuristics).
+ *
+ * Canonical join for dataset-derived acquisition is by raw "/Lotus/..." path only
+ * (see acquisitionFromSources.ts and sources.json contract).
  */
 export const ACQUISITION_BY_DISPLAY_NAME: Record<string, AcquisitionDef> = {
     "Mother Token": { sources: [SRC.VENDOR_ENTRATI] },
@@ -39,45 +42,10 @@ export const ACQUISITION_BY_DISPLAY_NAME: Record<string, AcquisitionDef> = {
 };
 
 /**
- * Canonical acquisition map keyed by CatalogId.
+ * Hand-authored acquisition map keyed by CatalogId.
  *
- * Data sources:
- * 1) sources.json derived mapping (broad coverage)
- * 2) derived from ACQUISITION_BY_DISPLAY_NAME when name -> exactly one CatalogId
- * 3) explicit overrides you author here
- *
- * Precedence:
- * explicit overrides > display-name derived > sources.json derived
- */
-const DERIVED_FROM_SOURCES_JSON: Record<string, AcquisitionDef> =
-    deriveAcquisitionByCatalogIdFromSourcesJson();
-
-const DERIVED_FROM_DISPLAY_NAME: Record<string, AcquisitionDef> = (() => {
-    const out: Record<string, AcquisitionDef> = {};
-
-    for (const [displayName, def] of Object.entries(ACQUISITION_BY_DISPLAY_NAME)) {
-        const norm = String(displayName ?? "").trim().toLowerCase();
-        if (!norm) continue;
-
-        const matches = FULL_CATALOG.nameIndex?.[norm] ?? [];
-        if (matches.length !== 1) {
-            // Fail-closed: if the name maps to 0 or >1 catalog ids, do not guess.
-            continue;
-        }
-
-        const cid = String(matches[0]);
-        out[cid] = def;
-    }
-
-    return out;
-})();
-
-/**
- * Explicit CatalogId acquisition entries belong here.
- * These override derived entries.
- *
- * Note: Keeping this as Record<string, AcquisitionDef> avoids type headaches
- * when authoring raw ids.
+ * These entries are the canonical hand-authored overrides and MUST take precedence
+ * over dataset-derived acquisition.
  */
 const EXPLICIT_ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
     // Put explicit CatalogId mappings here when you have them.
@@ -85,9 +53,26 @@ const EXPLICIT_ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
     // "items:/Lotus/Types/Items/MiscItems/SomeItem": { sources: [SRC.HUB_CETUS] }
 };
 
+/**
+ * Dataset-derived acquisition map keyed by CatalogId.
+ *
+ * Built from sources.json using the ONLY permitted join:
+ * - sources.json keys: "/Lotus/..."
+ * - CatalogId: "items:/Lotus/..."
+ */
+const DERIVED_FROM_SOURCES_JSON: Record<string, AcquisitionDef> =
+    deriveAcquisitionByCatalogIdFromSourcesJson();
+
+/**
+ * Canonical acquisition resolution hierarchy (HARD RULE):
+ * 1) Hand-authored (this file): EXPLICIT_ACQUISITION_BY_CATALOG_ID
+ * 2) Dataset-derived (sources.json): DERIVED_FROM_SOURCES_JSON
+ * 3) Unknown => null (fail-closed)
+ *
+ * Note: No display-name -> CatalogId matching is allowed in canonical resolution.
+ */
 export const ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
     ...DERIVED_FROM_SOURCES_JSON,
-    ...DERIVED_FROM_DISPLAY_NAME,
     ...EXPLICIT_ACQUISITION_BY_CATALOG_ID
 };
 
@@ -96,33 +81,26 @@ export function getAcquisitionByCatalogId(catalogId: CatalogId): AcquisitionDef 
     if (!raw) return null;
 
     // Normalize legacy/raw keys:
-    // - "/Lotus/..."          -> "items:/Lotus/..."
-    // - "items:/Lotus/..."    -> unchanged
-    // Fail-closed: do not attempt to guess other prefixes.
+    // - "/Lotus/..."       -> "items:/Lotus/..."
+    // - "items:/Lotus/..." -> unchanged
+    // Fail-closed: do not guess other prefixes.
     const key = raw.startsWith("items:") ? raw : raw.startsWith("/") ? `items:${raw}` : raw;
 
-    return ACQUISITION_BY_CATALOG_ID[key] ?? null;
+    // 1) Hand-authored explicit override
+    const explicit = EXPLICIT_ACQUISITION_BY_CATALOG_ID[key];
+    if (explicit) return explicit;
+
+    // 2) Dataset-derived acquisition
+    return DERIVED_FROM_SOURCES_JSON[key] ?? null;
 }
 
 /**
  * Legacy lookup by display name:
- * - First checks exact display-name mapping
- * - Then attempts display-name -> CatalogId resolution -> CatalogId mapping
- *
- * Fail-closed:
- * - If name maps to 0 or >1 catalog ids, returns null.
+ * - Only checks the hand-authored display-name mapping.
+ * - No name->CatalogId resolution is permitted (no heuristics).
  */
 export function getAcquisitionByDisplayName(name: string): AcquisitionDef | null {
     const key = String(name ?? "").trim();
     if (!key) return null;
-
-    const direct = ACQUISITION_BY_DISPLAY_NAME[key];
-    if (direct) return direct;
-
-    const norm = key.toLowerCase();
-    const matches = FULL_CATALOG.nameIndex?.[norm] ?? [];
-    if (matches.length !== 1) return null;
-
-    return getAcquisitionByCatalogId(String(matches[0]) as CatalogId);
+    return ACQUISITION_BY_DISPLAY_NAME[key] ?? null;
 }
-

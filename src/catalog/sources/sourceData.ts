@@ -20,11 +20,16 @@ export type RawSourcesMap = Record<string, RawSourceEntry[]>;
 
 function parseSources(): RawSourcesMap {
     try {
-        const parsed = JSON.parse(sourcesText) as RawSourcesMap;
+        const parsed =
+            typeof sourcesText === "string"
+                ? (JSON.parse(sourcesText) as unknown)
+                : (sourcesText as unknown);
+
         if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
             return {};
         }
-        return parsed;
+
+        return parsed as RawSourcesMap;
     } catch {
         return {};
     }

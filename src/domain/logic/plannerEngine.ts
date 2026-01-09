@@ -45,7 +45,6 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
     const completedCount = snap.completed.length;
     const allComplete = total > 0 && completedCount === total;
 
-    // --- Helper: safe def lookup (may be undefined for unknown prereq ids)
     function defById(id: PrereqId) {
         return snap.index[id];
     }
@@ -54,8 +53,6 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
         const def = defById(id);
 
         if (!def) {
-            // Unknown prereq id: per your rule it is "missing".
-            // We still surface it so the user is never stuck with an empty plan.
             return {
                 id: `unknown_${id}`,
                 prereqId: id,
@@ -79,7 +76,6 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
         };
     }
 
-    // 1) Standard actionable unlock steps (frontier)
     const actionableDefs = snap.actionable
         .map((s) => snap.index[s.id])
         .filter(Boolean)
@@ -97,15 +93,11 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
         });
     }
 
-    // 2) If user has completed everything, return the (empty) actionable set (valid empty state).
     if (allComplete) {
         return { steps };
     }
 
-    // 3) HARD INVARIANT ENFORCEMENT:
-    // If actionable is empty but not all complete, compute fallback “closest missing prerequisites”.
     if (steps.length === 0) {
-        // Consider locked prereqs that are not completed.
         const locked = snap.blocked
             .filter((s) => !s.completed)
             .map((s) => ({
@@ -115,7 +107,6 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
             .filter((x) => x.missing.length > 0);
 
         if (locked.length > 0) {
-            // Choose prereqs with the fewest missing prerequisites (closest frontier).
             let minMissing = Infinity;
             for (const l of locked) {
                 if (l.missing.length < minMissing) {
@@ -125,11 +116,9 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
 
             const closest = locked.filter((l) => l.missing.length === minMissing);
 
-            // Union of their missing prereqs becomes “work on next”.
             const nextIds = new Set<PrereqId>();
             for (const c of closest) {
                 for (const m of c.missing) {
-                    // If already complete, skip
                     if (completedMap[m] === true) {
                         continue;
                     }
@@ -149,8 +138,6 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
             }
         }
 
-        // 4) Final fallback: if registry exists but we still can't derive anything,
-        // pick any not-completed prereq (deterministic) and surface it.
         const anyIncomplete = snap.statuses
             .filter((s) => !s.completed)
             .map((s) => s.id)
@@ -162,7 +149,6 @@ export function buildProgressionPlan(completedMap: Record<string, boolean>): Pro
             };
         }
 
-        // 5) Structural issue fallback so UI is never blank.
         return {
             steps: [
                 {
@@ -194,7 +180,6 @@ function isSourceAccessible(
 ): { ok: boolean; missing: PrereqId[]; reason?: string } {
     const src = SOURCE_INDEX[sourceId];
     if (!src) {
-        // Unknown source => fail-closed
         return {
             ok: false,
             missing: [],
@@ -202,8 +187,22 @@ function isSourceAccessible(
         };
     }
 
+    // HARD RULE (fail-closed for accessibility):
+    // Data-derived sources are "known labels" but have unknown gating until curated.
+    // Treat as NOT accessible unless they have at least one prereqId (curated) or are non-data sources.
+    const isDataDerived = String(sourceId).startsWith("data:");
+    const prereqs = Array.isArray(src.prereqIds) ? src.prereqIds : [];
+
+    if (isDataDerived && prereqs.length === 0) {
+        return {
+            ok: false,
+            missing: [],
+            reason: "Source accessibility is not curated yet (data-derived, fail-closed)"
+        };
+    }
+
     const missing: PrereqId[] = [];
-    for (const p of src.prereqIds) {
+    for (const p of prereqs) {
         if (completedMap[p] !== true) {
             missing.push(p);
         }
@@ -309,4 +308,3 @@ export function canAccessItemByName(
 
     return canAccessCatalogItem(cid, completedMap);
 }
-

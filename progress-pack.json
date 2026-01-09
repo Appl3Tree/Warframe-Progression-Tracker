@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "schemaVersion": 2,
+    "createdAtIso": "2026-01-09T20:20:16.484Z",
+    "updatedAtIso": "2026-01-09T20:50:58.985Z"
+  },
+  "player": {
+    "platform": "PC",
+    "accountId": "",
+    "displayName": "",
+    "masteryRank": null
+  },
+  "ui": {
+    "activePage": "imports"
+  },
+  "prereqs": {
+    "completed": {}
+  },
+  "inventory": {
+    "credits": 0,
+    "platinum": 0,
+    "counts": {}
+  },
+  "syndicates": [],
+  "dailyTasks": [],
+  "goals": [
+    {
+      "id": "goal_417e557ffa23b8_1767990533228",
+      "type": "item",
+      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZhugePrimeString",
+      "qty": 2,
+      "isActive": true,
+      "createdAtIso": "2026-01-09T20:28:53.228Z",
+      "updatedAtIso": "2026-01-09T20:28:53.228Z"
+    },
+    {
+      "id": "goal_073d1a9b228de_1767990598570",
+      "type": "item",
+      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZhugePrimeBarrel",
+      "qty": 1,
+      "isActive": true,
+      "createdAtIso": "2026-01-09T20:29:58.570Z",
+      "updatedAtIso": "2026-01-09T20:29:58.570Z"
+    },
+    {
+      "id": "goal_f78b5558b851c_1767990599276",
+      "type": "item",
+      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZhugePrimeStock",
+      "qty": 2,
+      "isActive": true,
+      "createdAtIso": "2026-01-09T20:29:59.276Z",
+      "updatedAtIso": "2026-01-09T20:29:59.276Z"
+    },
+    {
+      "id": "goal_3d1b8341b2c76_1767990599908",
+      "type": "item",
+      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZhugePrimeReceiver",
+      "qty": 3,
+      "isActive": true,
+      "createdAtIso": "2026-01-09T20:29:59.908Z",
+      "updatedAtIso": "2026-01-09T20:29:59.908Z"
+    }
+  ],
+  "mastery": {
+    "xpByItem": {},
+    "mastered": {}
+  },
+  "missions": {
+    "completesByTag": {}
+  }
+}
