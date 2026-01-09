@@ -48,9 +48,14 @@ export const ACQUISITION_BY_DISPLAY_NAME: Record<string, AcquisitionDef> = {
  * over dataset-derived acquisition.
  */
 const EXPLICIT_ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
-    // Put explicit CatalogId mappings here when you have them.
-    // Example:
-    // "items:/Lotus/Types/Items/MiscItems/SomeItem": { sources: [SRC.HUB_CETUS] }
+    // Warframes (explicit CatalogId mappings)
+    // Verified sources:
+    // - Ash components: Manics
+    // - Atlas components: Jordas Golem (Archwing boss)
+    "items:/Lotus/Powersuits/Ninja/Ninja": { sources: ["enemy:manics" as SourceId] },
+    "items:/Lotus/Powersuits/Brawler/Brawler": { sources: ["boss:jordas_golem" as SourceId] }
+
+    // Add additional explicit CatalogId mappings here as you verify them.
 };
 
 /**

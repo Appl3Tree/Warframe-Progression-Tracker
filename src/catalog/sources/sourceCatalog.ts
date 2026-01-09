@@ -92,6 +92,27 @@ const CURATED_SOURCE_CATALOG: SourceDef[] = [
     },
 
     // -----------------------------
+    // Curated non-data sources (hand-authored)
+    // -----------------------------
+    // These IDs are NOT data-derived ("data:*"), so they may be accessible with prereqIds=[]
+    // unless you explicitly gate them. Keep gating conservative but real.
+
+    {
+        id: "enemy:manics",
+        label: "Manics",
+        type: "Mission",
+        prereqIds: [],
+        notes: "Enemy drop source (used for Warframe component acquisition)."
+    },
+    {
+        id: "boss:jordas_golem",
+        label: "Jordas Golem (Assassination)",
+        type: "Mission",
+        prereqIds: [PR.ARCHWING],
+        notes: "Archwing boss encounter. Gated by Archwing availability."
+    },
+
+    // -----------------------------
     // Curated data-derived sources
     // -----------------------------
     // These IDs are produced by sourceIdFromLabel(label) from sources.json.
@@ -136,17 +157,19 @@ function buildDataSourceCatalog(): SourceDef[] {
 
     function prereqsForLabel(label: string): PrereqId[] {
         const s = String(label ?? "").trim();
-    
-        // Be tolerant: sources.json labels vary a lot (parentheses, extra suffixes, spacing, etc.)
-        // We only need to detect “this is a relic label” reliably.
+
+        // Void Relic labels commonly look like:
+        // "Lith A1 Relic", "Axi B3 Relic (Radiant)", etc.
+        // If you don’t have the Void Relic segment, “farm this relic” is not actionable.
         const isRelic =
-            /^(Lith|Meso|Neo|Axi)\b/i.test(s) &&
-            /\bRelic\b/i.test(s);
-    
+            /^(Lith|Meso|Neo|Axi)\s+[A-Za-z0-9]+\s+Relic(\s+\((Exceptional|Flawless|Radiant)\))?$/.test(s);
+
         if (isRelic) {
+            // You already modeled this as a gate in prereqRegistry.ts.
+            // If you want to be stricter, also require PR.JUNCTION_EARTH_MARS.
             return [PR.SYSTEM_ORBITER_VOID_RELICS];
         }
-    
+
         return [];
     }
 
