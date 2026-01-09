@@ -1,1 +1,2078 @@
-{"/Lotus/Powersuits/Alchemist/Alchemist":{"variants":["/Lotus/Powersuits/Alchemist/LavosPrime"]},"/Lotus/Powersuits/AntiMatter/Anti":{"variants":["/Lotus/Powersuits/AntiMatter/NovaPrime"]},"/Lotus/Powersuits/Archwing/StandardJetPack/StandardJetPack":{"variants":["/Lotus/Powersuits/Archwing/PrimeJetPack/PrimeJetPack"]},"/Lotus/Powersuits/Banshee/Banshee":{"variants":["/Lotus/Powersuits/Banshee/BansheePrime"]},"/Lotus/Powersuits/Bard/Bard":{"variants":["/Lotus/Powersuits/Bard/OctaviaPrime"]},"/Lotus/Powersuits/Berserker/Berserker":{"variants":["/Lotus/Powersuits/Berserker/ValkyrPrime"]},"/Lotus/Powersuits/Brawler/AtlasPunchWeapon":{"variants":["/Lotus/Powersuits/Brawler/AtlasPunchWeaponPrime"]},"/Lotus/Powersuits/Brawler/Brawler":{"variants":["/Lotus/Powersuits/Brawler/AtlasPrime"]},"/Lotus/Powersuits/BrokenFrame/BrokenFrame":{"variants":["/Lotus/Powersuits/BrokenFrame/XakuPrime"]},"/Lotus/Powersuits/Cowgirl/Cowgirl":{"variants":["/Lotus/Powersuits/Cowgirl/MesaPrime"]},"/Lotus/Powersuits/Cowgirl/SlingerPistols":{"variants":["/Lotus/Powersuits/Cowgirl/PrimeSlingerPistols"]},"/Lotus/Powersuits/Devourer/Devourer":{"variants":["/Lotus/Powersuits/Devourer/GrendelPrime"]},"/Lotus/Powersuits/Dragon/Dragon":{"variants":["/Lotus/Powersuits/Dragon/ChromaPrime"]},"/Lotus/Powersuits/Ember/Ember":{"variants":["/Lotus/Powersuits/Ember/EmberPrime"]},"/Lotus/Powersuits/Excalibur/Excalibur":{"variants":["/Lotus/Powersuits/Excalibur/ExcaliburPrime","/Lotus/Powersuits/Excalibur/ExcaliburUmbra"]},"/Lotus/Powersuits/Fairy/Fairy":{"variants":["/Lotus/Powersuits/Fairy/TitaniaPrime"]},"/Lotus/Powersuits/Fairy/FlightPistols":{"variants":["/Lotus/Powersuits/Fairy/PrimeFlightPistols"]},"/Lotus/Powersuits/Fairy/FlightSword":{"variants":["/Lotus/Powersuits/Fairy/PrimeFlightSword"]},"/Lotus/Powersuits/Frost/Frost":{"variants":["/Lotus/Powersuits/Frost/FrostPrime"]},"/Lotus/Powersuits/Garuda/Garuda":{"variants":["/Lotus/Powersuits/Garuda/GarudaPrime"]},"/Lotus/Powersuits/Glass/GaraShankWeapon":{"variants":["/Lotus/Powersuits/Glass/GaraShankWeaponPrime"]},"/Lotus/Powersuits/Glass/Glass":{"variants":["/Lotus/Powersuits/Glass/GaraPrime"]},"/Lotus/Powersuits/Gyre/Gyre":{"variants":["/Lotus/Powersuits/Gyre/GyrePrime"]},"/Lotus/Powersuits/Harlequin/Harlequin":{"variants":["/Lotus/Powersuits/Harlequin/MiragePrime"]},"/Lotus/Powersuits/Infestation/Infestation":{"variants":["/Lotus/Powersuits/Infestation/InfestationPrime"]},"/Lotus/Powersuits/IronFrame/BlastWeapon":{"variants":["/Lotus/Powersuits/IronFrame/BlastWeaponPrime"]},"/Lotus/Powersuits/IronFrame/IronFrame":{"variants":["/Lotus/Powersuits/IronFrame/IronFramePrime"]},"/Lotus/Powersuits/Jade/Jade":{"variants":["/Lotus/Powersuits/Jade/NyxPrime"]},"/Lotus/Powersuits/Khora/Kavat/KhoraKavatPowerSuit":{"variants":["/Lotus/Powersuits/Khora/Kavat/KhoraPrimeKavatPowerSuit"]},"/Lotus/Powersuits/Khora/Khora":{"variants":["/Lotus/Powersuits/Khora/KhoraPrime"]},"/Lotus/Powersuits/Khora/KhoraWhipclawWeapon":{"variants":["/Lotus/Powersuits/Khora/KhoraWhipclawWeaponPrime"]},"/Lotus/Powersuits/Loki/Loki":{"variants":["/Lotus/Powersuits/Loki/LokiPrime"]},"/Lotus/Powersuits/Mag/Mag":{"variants":["/Lotus/Powersuits/Mag/MagPrime"]},"/Lotus/Powersuits/Magician/Magician":{"variants":["/Lotus/Powersuits/Magician/LimboPrime"]},"/Lotus/Powersuits/MonkeyKing/MonkeyKing":{"variants":["/Lotus/Powersuits/MonkeyKing/WukongPrime"]},"/Lotus/Powersuits/MonkeyKing/MonkeyKingStaff":{"variants":["/Lotus/Powersuits/MonkeyKing/WukongPrimeStaff"]},"/Lotus/Powersuits/Necro/Necro":{"variants":["/Lotus/Powersuits/Necro/NekrosPrime"]},"/Lotus/Powersuits/Nezha/Nezha":{"variants":["/Lotus/Powersuits/Nezha/NezhaPrime"]},"/Lotus/Powersuits/Ninja/Ninja":{"variants":["/Lotus/Powersuits/Ninja/AshPrime"]},"/Lotus/Powersuits/Ninja/NinjaStormWeapon":{"variants":["/Lotus/Powersuits/Ninja/NinjaStormWeaponPrime"]},"/Lotus/Powersuits/Odalisk/Odalisk":{"variants":["/Lotus/Powersuits/Odalisk/ProteaPrime"]},"/Lotus/Powersuits/Pacifist/Pacifist":{"variants":["/Lotus/Powersuits/Pacifist/BaruukPrime"]},"/Lotus/Powersuits/Pacifist/PacifistFist":{"variants":["/Lotus/Powersuits/Pacifist/PacifistFistPrime"]},"/Lotus/Powersuits/Paladin/Paladin":{"variants":["/Lotus/Powersuits/Paladin/PaladinPrime"]},"/Lotus/Powersuits/Pirate/Pirate":{"variants":["/Lotus/Powersuits/Pirate/HydroidPrime"]},"/Lotus/Powersuits/Priest/Priest":{"variants":["/Lotus/Powersuits/Priest/HarrowPrime"]},"/Lotus/Powersuits/Ranger/ExaltedBow":{"variants":["/Lotus/Powersuits/Ranger/PrimeExaltedBow"]},"/Lotus/Powersuits/Ranger/Ranger":{"variants":["/Lotus/Powersuits/Ranger/IvaraPrime"]},"/Lotus/Powersuits/Revenant/Revenant":{"variants":["/Lotus/Powersuits/Revenant/RevenantPrime"]},"/Lotus/Powersuits/Rhino/Rhino":{"variants":["/Lotus/Powersuits/Rhino/RhinoPrime"]},"/Lotus/Powersuits/Runner/Runner":{"variants":["/Lotus/Powersuits/Runner/GaussPrime"]},"/Lotus/Powersuits/Sandman/Sandman":{"variants":["/Lotus/Powersuits/Sandman/InarosPrime"]},"/Lotus/Powersuits/Saryn/Saryn":{"variants":["/Lotus/Powersuits/Saryn/SarynPrime"]},"/Lotus/Powersuits/Sentient/Sentient":{"variants":["/Lotus/Powersuits/Sentient/CalibanPrime"]},"/Lotus/Powersuits/Tengu/Tengu":{"variants":["/Lotus/Powersuits/Tengu/ZephyrPrime"]},"/Lotus/Powersuits/Trapper/Trapper":{"variants":["/Lotus/Powersuits/Trapper/TrapperPrime"]},"/Lotus/Powersuits/Trinity/Trinity":{"variants":["/Lotus/Powersuits/Trinity/TrinityPrime"]},"/Lotus/Powersuits/Volt/Volt":{"variants":["/Lotus/Powersuits/Volt/VoltPrime"]},"/Lotus/Powersuits/Wisp/Wisp":{"variants":["/Lotus/Powersuits/Wisp/WispPrime"]},"/Lotus/Powersuits/Wraith/ReaperMeleeWeapon":{"variants":["/Lotus/Powersuits/Wraith/SevagothShadowPrimeClawsWeapon"]},"/Lotus/Powersuits/Wraith/Wraith":{"variants":["/Lotus/Powersuits/Wraith/SevagothPrime"]},"/Lotus/Powersuits/Yareli/Yareli":{"variants":["/Lotus/Powersuits/Yareli/YareliPrime"]},"/Lotus/Powersuits/YinYang/YinYang":{"variants":["/Lotus/Powersuits/YinYang/EquinoxPrime"]},"/Lotus/Types/Sentinels/SentinelPowersuits/CarrierPowerSuit":{"variants":["/Lotus/Types/Sentinels/SentinelPowersuits/PrimeCarrierPowerSuit"]},"/Lotus/Types/Sentinels/SentinelPowersuits/DethCubePowerSuit":{"variants":["/Lotus/Types/Sentinels/SentinelPowersuits/PrimeDethCubePowerSuit"]},"/Lotus/Types/Sentinels/SentinelPowersuits/EmpyreanSentinelPowerSuit":{"variants":["/Lotus/Types/Sentinels/SentinelPowersuits/NautilusPrimeSentinelPowerSuit"]},"/Lotus/Types/Sentinels/SentinelPowersuits/MeleePetPowerSuit":{"variants":["/Lotus/Types/Sentinels/SentinelPowersuits/PrimeHeliosPowerSuit"]},"/Lotus/Types/Sentinels/SentinelPowersuits/ShadePowerSuit":{"variants":["/Lotus/Types/Sentinels/SentinelPowersuits/PrimeShadePowerSuit","/Lotus/Types/Sentinels/SentinelPowersuits/PrismaShadePowerSuit"]},"/Lotus/Types/Sentinels/SentinelPowersuits/WyrmPowerSuit":{"variants":["/Lotus/Types/Sentinels/SentinelPowersuits/PrimeWyrmPowerSuit"]},"/Lotus/Types/Sentinels/SentinelWeapons/BurstLaserPistol":{"variants":["/Lotus/Types/Sentinels/SentinelWeapons/PrimeBurstLaserPistol","/Lotus/Types/Sentinels/SentinelWeapons/PrismaBurstLaserPistol"]},"/Lotus/Types/Sentinels/SentinelWeapons/DethMachineRifle":{"variants":["/Lotus/Types/Sentinels/SentinelWeapons/PrimeDethMachineRifle"]},"/Lotus/Types/Sentinels/SentinelWeapons/LaserRifle":{"variants":["/Lotus/Types/Sentinels/SentinelWeapons/PrimeLaserRifle"]},"/Lotus/Types/Sentinels/SentinelWeapons/SentGlaiveWeapon":{"variants":["/Lotus/Types/Sentinels/SentinelWeapons/DeconstructorPrime/PrimeHeliosGlaiveWeapon"]},"/Lotus/Types/Sentinels/SentinelWeapons/SentShotgun":{"variants":["/Lotus/Types/Sentinels/SentinelWeapons/PrimeSentShotgun"]},"/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayRifle":{"variants":["/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayPrimeRifle"]},"/Lotus/Weapons/Cephalon/Melee/Hammer/CephHammerWeapon":{"variants":["/Lotus/Weapons/Syndicates/CephalonSuda/Melee/CSHeliocor"]},"/Lotus/Weapons/Cephalon/Primary/CephPrimary/CephPrimary":{"variants":["/Lotus/Weapons/Syndicates/CephalonSuda/LongGuns/CSSimulor"]},"/Lotus/Weapons/ClanTech/Chemical/FlameThrower":{"variants":["/Lotus/Weapons/ClanTech/Chemical/FlameThrowerWraith"]},"/Lotus/Weapons/ClanTech/Chemical/RocketLauncher":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Ogris/KuvaOgris"]},"/Lotus/Weapons/ClanTech/Energy/CrpHeavyRifle":{"variants":["/Lotus/Weapons/Corpus/LongGuns/Machinegun/SupraVandal"]},"/Lotus/Weapons/ClanTech/Energy/CrpLaserPistol":{"variants":["/Lotus/Weapons/Corpus/Pistols/CorpusModularPistol/Vandal/CrpLaserPistolVandal"]},"/Lotus/Weapons/ClanTech/Energy/CrpLaserRifle":{"variants":["/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEFluxRifle/CrpBEFluxRifle"]},"/Lotus/Weapons/ClanTech/Energy/ElectroProd":{"variants":["/Lotus/Weapons/ClanTech/Energy/VandalElectroProd"]},"/Lotus/Weapons/ClanTech/Energy/EnergyRifle":{"variants":["/Lotus/Weapons/ClanTech/Energy/DeraVandal"]},"/Lotus/Weapons/Corpus/Bow/Longbow/CrpBow":{"variants":["/Lotus/Weapons/Corpus/Bow/Longbow/PrismaLenz/PrismaLenzWeapon"]},"/Lotus/Weapons/Corpus/LongGuns/CorpusUMP/CorpusUMP":{"variants":["/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBETetra/CrpBETetra","/Lotus/Weapons/Corpus/LongGuns/CorpusUMP/PrismaCorpusUMP"]},"/Lotus/Weapons/Corpus/LongGuns/CrpBFG/CrpBFG":{"variants":["/Lotus/Weapons/Corpus/LongGuns/CrpBFG/Vandal/VandalCrpBFG"]},"/Lotus/Weapons/Corpus/LongGuns/CrpFreezeRay/CrpFreezeRayRifle":{"variants":["/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEGlaxion/CrpBEGlaxion","/Lotus/Weapons/Corpus/LongGuns/CrpFreezeRay/Vandal/CrpFreezeRayVandalRifle"]},"/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/CrpShockRifle":{"variants":["/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/QuantaVandal","/Lotus/Weapons/Infested/LongGuns/InfCrpShockSwarm/InfCrpShockSwarmRifle"]},"/Lotus/Weapons/Corpus/LongGuns/CrpShotgun/CrpShotgun":{"variants":["/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEArcaPlasmor/CrpBEArcaPlasmor"]},"/Lotus/Weapons/Corpus/LongGuns/GrenadeLauncher/GrenadeLauncher":{"variants":["/Lotus/Weapons/Corpus/LongGuns/GrenadeLauncher/CarminePenta","/Lotus/Weapons/Syndicates/PerrinSequence/LongGuns/PSPenta"]},"/Lotus/Weapons/Corpus/LongGuns/Spears/Railgun/CorpusRailgun":{"variants":["/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEFerrox/CrpBEFerrox"]},"/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpTonfa":{"variants":["/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpPrismaTonfa"]},"/Lotus/Weapons/Corpus/Melee/KickAndPunch/KickPunchWeapon":{"variants":["/Lotus/Weapons/Corpus/Melee/KickAndPunch/PrismaObex"]},"/Lotus/Weapons/Corpus/Melee/Whip/CorpusWhipWeapon":{"variants":["/Lotus/Weapons/Syndicates/PerrinSequence/Melee/PSLecta"]},"/Lotus/Weapons/Corpus/Pistols/CorpusHandShotgun/CorpusHandCannon":{"variants":["/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBEDetron/CrpBEDetron","/Lotus/Weapons/VoidTrader/VTDetron"]},"/Lotus/Weapons/Corpus/Pistols/CorpusMinigun/DualCorpusMinigun":{"variants":["/Lotus/Weapons/Syndicates/PerrinSequence/Pistols/PSDualCestra"]},"/Lotus/Weapons/Corpus/Pistols/CrpChargeGun/CrpChargeGun":{"variants":["/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBECycron/CrpBECycron"]},"/Lotus/Weapons/Corpus/Pistols/CrpHandRL/CorpusHandRocketLauncher":{"variants":["/Lotus/Weapons/Corpus/Pistols/CrpHandRL/PrismaAngstrum"]},"/Lotus/Weapons/Corpus/Pistols/CrpSonificBlastor/CrpBlastorWeapon":{"variants":["/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBEPlinx/CrpBEPlinxWeapon"]},"/Lotus/Weapons/Grineer/GrineerPistol/GrineerAkimboPistol":{"variants":["/Lotus/Weapons/Grineer/Pistols/GrineerBulbousSMG/Prisma/PrismaTwinGremlinsWeapon"]},"/Lotus/Weapons/Grineer/GrineerPistol/GrineerLightPistol":{"variants":["/Lotus/Weapons/Grineer/Pistols/WraithSingleViper/WraithSingleViper"]},"/Lotus/Weapons/Grineer/GrineerPistol/GrnHeavyPistol":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Kraken/KuvaKraken"]},"/Lotus/Weapons/Grineer/GrineerPistol/GrnScopedPistolPlayer":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Seer/KuvaSeer"]},"/Lotus/Weapons/Grineer/LongGuns/BurstRifle/GrnBurstRifle":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Hind/KuvaHind"]},"/Lotus/Weapons/Grineer/LongGuns/GrineerAssaultRifle/GrnAssaultRifle":{"variants":["/Lotus/Weapons/VoidTrader/PrismaGrakata"]},"/Lotus/Weapons/Grineer/LongGuns/GrineerFlakCannon/FlakCannon":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Drakgoon/KuvaDrakgoon"]},"/Lotus/Weapons/Grineer/LongGuns/GrineerLeverActionRifle/GLARifle":{"variants":["/Lotus/Weapons/Grineer/LongGuns/GrineerLeverActionRifle/PrismaGrinlokWeapon"]},"/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/GrineerM16Rifle":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Karak/KuvaKarak","/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/KarakWraith"]},"/Lotus/Weapons/Grineer/LongGuns/GrineerSniperRifle/GrnSniperRifle":{"variants":["/Lotus/Weapons/Grineer/LongGuns/GrineerSniperRifle/VulkarWraith"]},"/Lotus/Weapons/Grineer/LongGuns/GrnCannon/GrnCannonWeapon":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Zarr/KuvaZarr"]},"/Lotus/Weapons/Grineer/LongGuns/GrnFourBarrelRifle/GrnFourBarrelRifleWeapon":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Quartakk/KuvaQuartakk"]},"/Lotus/Weapons/Grineer/LongGuns/GrnGrenadeLauncher/GrnGrenadeLauncher":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Tonkor/KuvaTonkor"]},"/Lotus/Weapons/Grineer/LongGuns/GrnSpark/GrnSparkRifle":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Kohm/KuvaKohm"]},"/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/DualCleaverWeapon":{"variants":["/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/PrismaDualCleavers"]},"/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete":{"variants":["/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/PrismaMachete","/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/WraithMacheteWeapon","/Lotus/Weapons/Tenno/Melee/PersianMachete/DjinnMachete"]},"/Lotus/Weapons/Grineer/Melee/GrnBoomerang/GrnBoomerang":{"variants":["/Lotus/Weapons/Grineer/Melee/GrnBoomerang/HalikarWraithWeapon"]},"/Lotus/Weapons/Grineer/Melee/GrnTrident/GrnTridentWeapon":{"variants":["/Lotus/Weapons/Syndicates/SteelMeridian/Melee/SMSydon"]},"/Lotus/Weapons/Grineer/Pistols/GrineerHandShotgun/GrineerHandCannon":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Brakk/KuvaBrakk"]},"/Lotus/Weapons/Grineer/Pistols/GrineerLeverActionPistol/GLAPistol":{"variants":["/Lotus/Weapons/Syndicates/SteelMeridian/Pistols/SMMarelok"]},"/Lotus/Weapons/Grineer/Pistols/GrineerMicrowavegun/GrnMicrowavePistol":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Nukor/KuvaNukor"]},"/Lotus/Weapons/Infested/LongGuns/InfSniperRifle/InfSniperRifle":{"variants":["/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaSporothrix"]},"/Lotus/Weapons/Infested/LongGuns/InfWFAccompanyingPri/InfestedBurstRifle":{"variants":["/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaHema"]},"/Lotus/Weapons/Infested/LongGuns/InfestedRifle":{"variants":["/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaSynapse"]},"/Lotus/Weapons/Infested/Melee/InfBoomerang/InfBoomerangWeapon":{"variants":["/Lotus/Weapons/Infested/InfestedLich/Melee/CodaPathocyst/CodaPathocyst"]},"/Lotus/Weapons/Infested/Melee/InfEmbolistScythe/InfestedScythe":{"variants":["/Lotus/Weapons/Infested/InfestedLich/Melee/CodaCaustacyst/CodaCaustacyst"]},"/Lotus/Weapons/Infested/Melee/InfWFAccompanyingSparring/InfestedKogake":{"variants":["/Lotus/Weapons/Infested/InfestedLich/Melee/CodaHirudo"]},"/Lotus/Weapons/Infested/Melee/Swords/Mire/MireSword":{"variants":["/Lotus/Weapons/Infested/InfestedLich/Melee/CodaMire"]},"/Lotus/Weapons/Infested/Pistols/InfBeamPistol/InfBeamPistol":{"variants":["/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaCatabolyst"]},"/Lotus/Weapons/Infested/Pistols/InfProximityStars/InfProximityStars":{"variants":["/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaPox"]},"/Lotus/Weapons/Infested/Pistols/InfestedDartPistol/InfestedDartPistol":{"variants":["/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaTysis"]},"/Lotus/Weapons/Sentients/SentJointedScythe/SentJointedScytheWeapon":{"variants":["/Lotus/Weapons/Tenno/Melee/Scythe/PrimeVento/PrimeVentoScythe"]},"/Lotus/Weapons/Syndicates/CephalonSuda/Pistols/CSDroidArray":{"variants":["/Lotus/Weapons/Syndicates/CephalonSuda/Pistols/CSSynoidGammacor"]},"/Lotus/Weapons/Tenno/Akimbo/AkLexPistols":{"variants":["/Lotus/Weapons/Tenno/Akimbo/AkLexPrimePistols"]},"/Lotus/Weapons/Tenno/Akimbo/AkimboAutoPistols":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeAfuris/PrimeAFurisWeapon"]},"/Lotus/Weapons/Tenno/Akimbo/AkimboBolto":{"variants":["/Lotus/Weapons/Syndicates/ArbitersOfHexis/Pistols/AHAkbolto","/Lotus/Weapons/Tenno/Pistols/PrimeAkbolto/PrimeAkBoltoWeapon"]},"/Lotus/Weapons/Tenno/Akimbo/AkimboShotGun":{"variants":["/Lotus/Weapons/Tenno/Akimbo/PrimeAkimboShotGun"]},"/Lotus/Weapons/Tenno/Akimbo/AkimboViperPistols":{"variants":["/Lotus/Weapons/Grineer/Pistols/WraithTwinVipers/WraithTwinVipers"]},"/Lotus/Weapons/Tenno/Akimbo/DualMagnus":{"variants":["/Lotus/Weapons/Tenno/Akimbo/DualMagnusPrime"]},"/Lotus/Weapons/Tenno/Akimbo/DualVastos":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeVasto/AkPrimeVasto/AkPrimeVastoPistol"]},"/Lotus/Weapons/Tenno/Archwing/Melee/Archsword/ArchSwordWeapon":{"variants":["/Lotus/Weapons/Tenno/Archwing/Melee/VoidTraderArchsword/VTArchSwordWeapon"]},"/Lotus/Weapons/Tenno/Archwing/Primary/FoldingMachineGun/ArchMachineGun":{"variants":["/Lotus/Weapons/Tenno/Archwing/Primary/FoldingMachineGun/ArchMachineGunVandal"]},"/Lotus/Weapons/Tenno/Archwing/Primary/LaunchGrenade/ArchCannon":{"variants":["/Lotus/Weapons/Tenno/Archwing/Primary/PrimeCorvas/PrimeCorvasWeapon"]},"/Lotus/Weapons/Tenno/Archwing/Primary/RepurposedGrineerAntiAircraftGun/ArchGRNAAGun":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/HeavyWeapons/Grattler/KuvaGrattler"]},"/Lotus/Weapons/Tenno/Archwing/Primary/TnShieldframeArchGun/TnShieldFrameArchGun":{"variants":["/Lotus/Weapons/Tenno/Archwing/Primary/PrimeLarkspur/PrimeLarkspurWeapon"]},"/Lotus/Weapons/Tenno/Bows/AntlerBow/AntlerBow":{"variants":["/Lotus/Weapons/Infested/Bow/InfCernosBow/InfCernos","/Lotus/Weapons/Syndicates/RedVeil/Bows/RVCernos","/Lotus/Weapons/Tenno/Bows/PrimeCernos/PrimeCernos","/Lotus/Weapons/Tenno/Bows/PrimeDerelictCernos/DerelictCernos"]},"/Lotus/Weapons/Tenno/Bows/AsymetricalBow/AsymetricalBow":{"variants":["/Lotus/Weapons/Tenno/Bows/PrimeDaikyu/PrimeDaikyuBow"]},"/Lotus/Weapons/Tenno/Bows/HuntingBow":{"variants":["/Lotus/Weapons/MK1Series/MK1Paris","/Lotus/Weapons/Tenno/Bows/PrimeHuntingBow"]},"/Lotus/Weapons/Tenno/LongGuns/DoubleBarrelShotgun/TennoDoubleBarrelShotgun":{"variants":["/Lotus/Weapons/Syndicates/NewLoka/LongGuns/NLTigris","/Lotus/Weapons/Tenno/LongGuns/PrimeTigris/PrimeTigris"]},"/Lotus/Weapons/Tenno/LongGuns/DrakeRifle/DrakeRifle":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeTiberon/PrimeTiberonRifle"]},"/Lotus/Weapons/Tenno/LongGuns/FiveShotSniper/FiveShotSniper":{"variants":["/Lotus/Weapons/Tenno/LongGuns/RubicoPrime/RubicoPrimeWeapon"]},"/Lotus/Weapons/Tenno/LongGuns/GarudaCrossbow/GarudaCrossbow":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeNagantaka/PrimeNagantakaWeapon"]},"/Lotus/Weapons/Tenno/LongGuns/GyreRifle/GyreRifleWeapon":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeAlternox/PrimeAlternoxWeapon"]},"/Lotus/Weapons/Tenno/LongGuns/Miter/TnoMiter":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimePanthera/PrimePanthera"]},"/Lotus/Weapons/Tenno/LongGuns/RepeatingCrossbow/RepeatingCrossbow":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeZhuge/PrimeZhugeCrossbow"]},"/Lotus/Weapons/Tenno/LongGuns/RevenantShotgun/RevenantShotgun":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimePhantasma/PhantasmaPrimeShotgun"]},"/Lotus/Weapons/Tenno/LongGuns/SapientPrimary/SapientPrimaryWeapon":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeAcceltra/PrimeAcceltraWeapon"]},"/Lotus/Weapons/Tenno/LongGuns/TennoTommyGun/TennoTommyGunRifle":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeStradavar/PrimeStradavarGun"]},"/Lotus/Weapons/Tenno/LongGuns/TnAlchemistShotgun/TnAlchemistShotgun":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeCedo/PrimeCedoWeapon"]},"/Lotus/Weapons/Tenno/LongGuns/TnBardRifle/TnBardRifle":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeTenora/TenoraPrimeWeapon"]},"/Lotus/Weapons/Tenno/LongGuns/TnGlassShotgun/TnGlassShotgunGun":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeAstilla/AstillaPrimeWeapon"]},"/Lotus/Weapons/Tenno/LongGuns/TnHeavyShotgun/TnHeavyShotgunGun":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeCorinth/PrimeCorinth"]},"/Lotus/Weapons/Tenno/LongGuns/TnPriestSpear/TnPriestSpearGun":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeScourge/PrimeScourgeWeapon"]},"/Lotus/Weapons/Tenno/LongGuns/TnSMG/TnSMGWeapon":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeBaza/PrimeBazaGun"]},"/Lotus/Weapons/Tenno/LongGuns/TnWispRifle/TnWispRifle":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeFulmin/PrimeFulmin"]},"/Lotus/Weapons/Tenno/LongGuns/TnoLeverAction/TnoLeverActionRifle":{"variants":["/Lotus/Weapons/Tenno/LongGuns/DexTheThird/DexTheThird","/Lotus/Weapons/Tenno/LongGuns/PrimeSybaris/PrimeSybarisRifle"]},"/Lotus/Weapons/Tenno/Melee/Axe/AxeWeapon":{"variants":["/Lotus/Weapons/Tenno/Melee/Axe/PrimeScindo/PrimeScindoWeapon"]},"/Lotus/Weapons/Tenno/Melee/Axe/DualAxeWeapon":{"variants":["/Lotus/Weapons/Tenno/Melee/Axe/PrimeZoren/PrimeZorenAxeWeapon"]},"/Lotus/Weapons/Tenno/Melee/BrassKnuckles/BrassKnuckles":{"variants":["/Lotus/Weapons/Tenno/Melee/PrimeKogake/KogakePrimeKnuckles"]},"/Lotus/Weapons/Tenno/Melee/Claws/TennoClaws":{"variants":["/Lotus/Weapons/Tenno/Melee/PrimeVenKa/PrimeVenkaClaws"]},"/Lotus/Weapons/Tenno/Melee/Dagger/DarkDagger":{"variants":["/Lotus/Weapons/Syndicates/RedVeil/Melee/RVDarkDagger"]},"/Lotus/Weapons/Tenno/Melee/DualDagger/DualDagger":{"variants":["/Lotus/Weapons/Tenno/Melee/DualDagger/FangPrimeDagger"]},"/Lotus/Weapons/Tenno/Melee/DualKamas/DualKamas":{"variants":["/Lotus/Weapons/Tenno/Melee/PrimeDualKamas/PrimeDualKamas"]},"/Lotus/Weapons/Tenno/Melee/Fist/Fist":{"variants":["/Lotus/Weapons/MK1Series/MK1Furax","/Lotus/Weapons/Tenno/Melee/Fist/FuraxWraith"]},"/Lotus/Weapons/Tenno/Melee/Gauntlet/BrawlerKnuckles/BrawlerKnuckles":{"variants":["/Lotus/Weapons/Tenno/Melee/PrimeTekko/PrimeTekko"]},"/Lotus/Weapons/Tenno/Melee/Gauntlet/Gauntlet":{"variants":["/Lotus/Weapons/Tenno/Melee/Gauntlet/PrimeAnkyros/PrimeAnkyros"]},"/Lotus/Weapons/Tenno/Melee/Glaives/Boomerang/BoomerangWeapon":{"variants":["/Lotus/Weapons/Tenno/Melee/Glaives/PrimeKestrel/PrimeKestrel"]},"/Lotus/Weapons/Tenno/Melee/Glaives/LightGlaive/LightGlaiveWeapon":{"variants":["/Lotus/Weapons/Tenno/Melee/Glaives/PrimeGlaive/PrimeGlaiveWeapon"]},"/Lotus/Weapons/Tenno/Melee/GreatSword/GreatSword":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/PrimeGram/PrimeGram"]},"/Lotus/Weapons/Tenno/Melee/Gunblade/TnoGunblade":{"variants":["/Lotus/Weapons/Tenno/Melee/Gunblade/RedeemerPrime/RedeemerPrimeWep"]},"/Lotus/Weapons/Tenno/Melee/Hammer/GlassHammer/GlassHammer":{"variants":["/Lotus/Weapons/Tenno/Melee/PrimeVolnus/VolnusPrimeWeapon"]},"/Lotus/Weapons/Tenno/Melee/Hammer/HammerWeapon":{"variants":["/Lotus/Weapons/Tenno/Melee/PrimeFragor/PrimeFragor"]},"/Lotus/Weapons/Tenno/Melee/LongSword/LongSword":{"variants":["/Lotus/Weapons/Tenno/Melee/LongSword/SkanaPrime","/Lotus/Weapons/VoidTrader/PrismaSkana"]},"/Lotus/Weapons/Tenno/Melee/Maces/PaladinMace/PaladinMaceWeapon":{"variants":["/Lotus/Weapons/Syndicates/NewLoka/Melee/NLMagistar"]},"/Lotus/Weapons/Tenno/Melee/Nunchaku/Nunchaku/Nunchaku":{"variants":["/Lotus/Weapons/Tenno/Melee/PrimeNinkondi/PrimeNikondi"]},"/Lotus/Weapons/Tenno/Melee/Polearms/PolearmWeapon":{"variants":["/Lotus/Weapons/Tenno/Melee/Polearms/PrimePolearmWeapon"]},"/Lotus/Weapons/Tenno/Melee/Polearms/TnGuandaoPolearm/TnGuandaoPolearmWeapon":{"variants":["/Lotus/Weapons/Tenno/Melee/Polearms/PrimeGuandao/PrimeGuandaoWeapon"]},"/Lotus/Weapons/Tenno/Melee/Staff/MonkSpade/TnoMonkStaff":{"variants":["/Lotus/Weapons/Tenno/Melee/Staff/TipedoPrime/TipedoPrimeWeapon"]},"/Lotus/Weapons/Tenno/Melee/Staff/Staff":{"variants":["/Lotus/Weapons/MK1Series/MK1Bo","/Lotus/Weapons/Tenno/Melee/Staff/PrimeBo/PrimeBoWeapon"]},"/Lotus/Weapons/Tenno/Melee/Swords/CutlassAndPoignard/CutlassPoignardSwords":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/PrimeNamiSkyla/PrimeNamiSkyla"]},"/Lotus/Weapons/Tenno/Melee/Swords/GreatSword/TennoGreatSword":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/PrimeGalatine/PrimeGalatine"]},"/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Dex2023Nikana/Dex2023Nikana","/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/LowKatana","/Lotus/Weapons/Tenno/Melee/Swords/PrimeKatana/PrimeNikana"]},"/Lotus/Weapons/Tenno/Melee/Swords/KrisDagger/KrisDagger":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/PrimeKaryst/PrimeKrisDagger"]},"/Lotus/Weapons/Tenno/Melee/Swords/QuillSword/QuillDualSwords":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/PrimeDualKeres/PrimeDualKeresWeapon"]},"/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/StalkerMios":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/OperationsLacera"]},"/Lotus/Weapons/Tenno/Melee/Swords/TennoSai/TennoSais":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/PrimeOkina/PrimeOkina"]},"/Lotus/Weapons/Tenno/Melee/Swords/TnChiselKanabo/TnChiselKanabo":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/PrimeMasseter/PrimeMasseter"]},"/Lotus/Weapons/Tenno/Melee/Swords/TnTwoHandedKatana/TnTwoHandedKatana":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/PrimeTatsu/PrimeTatsuWeapon"]},"/Lotus/Weapons/Tenno/Melee/Swords/TnoRapier/TnoRapier":{"variants":["/Lotus/Weapons/Tenno/Melee/Swords/PRapier/DestrezaPrime"]},"/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/MeleeContestWinnerOne/TennoSwordShield":{"variants":["/Lotus/Weapons/Tenno/Melee/PrimeSilvaAegis/PrimeSilvaAegis"]},"/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PacifistShieldAndSword/PacifistShieldSword":{"variants":["/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PrimeCobraAndCrane/PrimeCobraAndCraneWeapon"]},"/Lotus/Weapons/Tenno/Melee/Tonfa/Boltonfa/Boltonfa":{"variants":["/Lotus/Weapons/Syndicates/ArbitersOfHexis/Melee/AHBoltace"]},"/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinner/TennoTonfa":{"variants":["/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinnerPrime/TonfaContestWinnerPrimeWeapon"]},"/Lotus/Weapons/Tenno/Melee/Warfan/TnBrokenFrameWarfan/TnBrokenFrameWarfanWeapon":{"variants":["/Lotus/Weapons/Tenno/Melee/Warfan/PrimeQuassus/PrimeQuassusWeapon"]},"/Lotus/Weapons/Tenno/Melee/Warfan/WarfanWeapon":{"variants":["/Lotus/Weapons/Tenno/Melee/Warfan/PrimeGunsen/PrimeGunsenWeapon"]},"/Lotus/Weapons/Tenno/Pistol/AutoPistol":{"variants":["/Lotus/Weapons/MK1Series/MK1Furis"]},"/Lotus/Weapons/Tenno/Pistol/BurstPistol":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeSicarus/PrimeSicarusPistol"]},"/Lotus/Weapons/Tenno/Pistol/HandShotGun":{"variants":["/Lotus/Weapons/Tenno/Pistol/BroncoPrime"]},"/Lotus/Weapons/Tenno/Pistol/HeavyPistol":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeLex/PrimeLex"]},"/Lotus/Weapons/Tenno/Pistol/Pistol":{"variants":["/Lotus/Weapons/Tenno/Pistol/LatoPrime","/Lotus/Weapons/Tenno/Pistol/LatoVandal"]},"/Lotus/Weapons/Tenno/Pistol/RevolverPistol":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeVasto/PrimeVastoPistol"]},"/Lotus/Weapons/Tenno/Pistols/AutomaticHandCrossbow/AutoCrossBow":{"variants":["/Lotus/Weapons/Syndicates/RedVeil/Pistols/RVBallistica","/Lotus/Weapons/Tenno/Pistols/PrimeBallistica/PrimeBallistica"]},"/Lotus/Weapons/Tenno/Pistols/ConclaveLeverPistol/ConclaveLeverPistol":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeZylok/ZylokPrimePistol"]},"/Lotus/Weapons/Tenno/Pistols/Magnum/Magnum":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeMagnus/PrimeMagnusWeapon"]},"/Lotus/Weapons/Tenno/Pistols/QuillDartgun/QuillDartGunWeapon":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeHystrix/PrimeHystrixWeapon"]},"/Lotus/Weapons/Tenno/Pistols/SapientPistol/SapientPistol":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeAkarius/PrimeAkariusWeapon"]},"/Lotus/Weapons/Tenno/Pistols/SawnOffShotgun/TennoHandShotgun":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimePyrana/PrimePyranaPistol"]},"/Lotus/Weapons/Tenno/Pistols/SomaSidearm/AkimboSomaPistols":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeAksomati/PrimeAksomati"]},"/Lotus/Weapons/Tenno/Pistols/TennoUzi/TennoUzi":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeAkstiletto/PrimeAkstiletto"]},"/Lotus/Weapons/Tenno/Pistols/TigrisRedeemerSetPistol/TnoBladedPistols":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeAkjagara/AkJagaraPrime"]},"/Lotus/Weapons/Tenno/Pistols/TnBardPistol/TnBardPistolGun":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimePandero/PanderoPrimeWeapon"]},"/Lotus/Weapons/Tenno/Pistols/TnGuandoPistol/TnGuandoPistolGun":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeZakti/PrimeZaktiPistol"]},"/Lotus/Weapons/Tenno/Pistols/TnOdaliskSmg/TnOdaliskSmgPistol":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeVelox/PrimeVeloxPistol"]},"/Lotus/Weapons/Tenno/Pistols/TnPriestPistolScope/TnPriestPistolWeapon":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeKnell/PrimeKnellWeapon"]},"/Lotus/Weapons/Tenno/Pistols/TnWraitheSidearm/TnWraitheSidearmWeapon":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeEpitaph/PrimeEpitaphSidearmWeapon"]},"/Lotus/Weapons/Tenno/Pistols/TnYareliPistol/TnYareliPistolWeapon":{"variants":["/Lotus/Weapons/Tenno/Pistols/PrimeKompressa/PrimeKompressa"]},"/Lotus/Weapons/Tenno/Rifle/BoltoRifle":{"variants":["/Lotus/Weapons/Syndicates/ArbitersOfHexis/LongGuns/AHBoltor","/Lotus/Weapons/Tenno/LongGuns/PrimeBoltor/PrimeBoltor"]},"/Lotus/Weapons/Tenno/Rifle/BurstRifle":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeBurston/PrimeBurston"]},"/Lotus/Weapons/Tenno/Rifle/HeavyRifle":{"variants":["/Lotus/Weapons/Grineer/LongGuns/VoidTraderGorgon/VTGorgon","/Lotus/Weapons/Grineer/LongGuns/WraithGorgon/WraithGorgon"]},"/Lotus/Weapons/Tenno/Rifle/Rifle":{"variants":["/Lotus/Weapons/Tenno/Rifle/BratonPrime","/Lotus/Weapons/Tenno/Rifle/StartingRifle","/Lotus/Weapons/Tenno/Rifle/VIPRifle"]},"/Lotus/Weapons/Tenno/Rifle/SemiAutoRifle":{"variants":["/Lotus/Weapons/Tenno/LongGuns/WraithLatron/WraithLatron","/Lotus/Weapons/Tenno/Rifle/LatronPrime"]},"/Lotus/Weapons/Tenno/Rifle/SniperRifle":{"variants":["/Lotus/Weapons/Tenno/Rifle/VandalSniperRifle"]},"/Lotus/Weapons/Tenno/Rifle/TennoAR":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeSoma/PrimeSomaRifle"]},"/Lotus/Weapons/Tenno/Rifle/TennoSniperRifle":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeVectis/PrimeVectisRifle"]},"/Lotus/Weapons/Tenno/Shotgun/DoubleBarrelShotgun":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Sobek/KuvaSobek"]},"/Lotus/Weapons/Tenno/Shotgun/FullAutoShotgun":{"variants":["/Lotus/Weapons/Tenno/Shotgun/PrimeBoar"]},"/Lotus/Weapons/Tenno/Shotgun/QuadShotgun":{"variants":["/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Hek/KuvaHekWeapon","/Lotus/Weapons/Syndicates/SteelMeridian/LongGuns/SMHek"]},"/Lotus/Weapons/Tenno/Shotgun/Shotgun":{"variants":["/Lotus/Weapons/MK1Series/MK1Strun","/Lotus/Weapons/Tenno/LongGuns/PrimeStrun/PrimeStrunWeapon","/Lotus/Weapons/Tenno/Shotgun/ShotgunVandal"]},"/Lotus/Weapons/Tenno/ThrowingWeapons/Kunai":{"variants":["/Lotus/Weapons/MK1Series/MK1Kunai"]},"/Lotus/Weapons/Tenno/ThrowingWeapons/LiDagger/LiDagger":{"variants":["/Lotus/Weapons/Tenno/ThrowingWeapons/PrimeLiDagger/PrimeLiDagger"]},"/Lotus/Weapons/Tenno/ThrowingWeapons/StickyBomb/StickyBombs":{"variants":["/Lotus/Weapons/Syndicates/NewLoka/Pistols/NLCastanas"]},"/Lotus/Weapons/Tenno/ThrowingWeapons/TennoStars":{"variants":["/Lotus/Weapons/Tenno/ThrowingWeapons/PrimeThrowingStar/PrimeHikou"]},"/Lotus/Weapons/Thanotech/ThanoRifle/ThanotechRifle":{"variants":["/Lotus/Weapons/Tenno/LongGuns/PrimeTrumna/PrimeTrumnaWeapon"]},"/Lotus/Powersuits/Alchemist/LavosPrime":{"baseVariant":"/Lotus/Powersuits/Alchemist/Alchemist"},"/Lotus/Powersuits/AntiMatter/NovaPrime":{"baseVariant":"/Lotus/Powersuits/AntiMatter/Anti"},"/Lotus/Powersuits/Archwing/PrimeJetPack/PrimeJetPack":{"baseVariant":"/Lotus/Powersuits/Archwing/StandardJetPack/StandardJetPack"},"/Lotus/Powersuits/Banshee/BansheePrime":{"baseVariant":"/Lotus/Powersuits/Banshee/Banshee"},"/Lotus/Powersuits/Bard/OctaviaPrime":{"baseVariant":"/Lotus/Powersuits/Bard/Bard"},"/Lotus/Powersuits/Berserker/ValkyrPrime":{"baseVariant":"/Lotus/Powersuits/Berserker/Berserker"},"/Lotus/Powersuits/Brawler/AtlasPunchWeaponPrime":{"baseVariant":"/Lotus/Powersuits/Brawler/AtlasPunchWeapon"},"/Lotus/Powersuits/Brawler/AtlasPrime":{"baseVariant":"/Lotus/Powersuits/Brawler/Brawler"},"/Lotus/Powersuits/BrokenFrame/XakuPrime":{"baseVariant":"/Lotus/Powersuits/BrokenFrame/BrokenFrame"},"/Lotus/Powersuits/Cowgirl/MesaPrime":{"baseVariant":"/Lotus/Powersuits/Cowgirl/Cowgirl"},"/Lotus/Powersuits/Cowgirl/PrimeSlingerPistols":{"baseVariant":"/Lotus/Powersuits/Cowgirl/SlingerPistols"},"/Lotus/Powersuits/Devourer/GrendelPrime":{"baseVariant":"/Lotus/Powersuits/Devourer/Devourer"},"/Lotus/Powersuits/Dragon/ChromaPrime":{"baseVariant":"/Lotus/Powersuits/Dragon/Dragon"},"/Lotus/Powersuits/Ember/EmberPrime":{"baseVariant":"/Lotus/Powersuits/Ember/Ember"},"/Lotus/Powersuits/Excalibur/ExcaliburPrime":{"baseVariant":"/Lotus/Powersuits/Excalibur/Excalibur"},"/Lotus/Powersuits/Excalibur/ExcaliburUmbra":{"baseVariant":"/Lotus/Powersuits/Excalibur/Excalibur"},"/Lotus/Powersuits/Fairy/TitaniaPrime":{"baseVariant":"/Lotus/Powersuits/Fairy/Fairy"},"/Lotus/Powersuits/Fairy/PrimeFlightPistols":{"baseVariant":"/Lotus/Powersuits/Fairy/FlightPistols"},"/Lotus/Powersuits/Fairy/PrimeFlightSword":{"baseVariant":"/Lotus/Powersuits/Fairy/FlightSword"},"/Lotus/Powersuits/Frost/FrostPrime":{"baseVariant":"/Lotus/Powersuits/Frost/Frost"},"/Lotus/Powersuits/Garuda/GarudaPrime":{"baseVariant":"/Lotus/Powersuits/Garuda/Garuda"},"/Lotus/Powersuits/Glass/GaraShankWeaponPrime":{"baseVariant":"/Lotus/Powersuits/Glass/GaraShankWeapon"},"/Lotus/Powersuits/Glass/GaraPrime":{"baseVariant":"/Lotus/Powersuits/Glass/Glass"},"/Lotus/Powersuits/Gyre/GyrePrime":{"baseVariant":"/Lotus/Powersuits/Gyre/Gyre"},"/Lotus/Powersuits/Harlequin/MiragePrime":{"baseVariant":"/Lotus/Powersuits/Harlequin/Harlequin"},"/Lotus/Powersuits/Infestation/InfestationPrime":{"baseVariant":"/Lotus/Powersuits/Infestation/Infestation"},"/Lotus/Powersuits/IronFrame/BlastWeaponPrime":{"baseVariant":"/Lotus/Powersuits/IronFrame/BlastWeapon"},"/Lotus/Powersuits/IronFrame/IronFramePrime":{"baseVariant":"/Lotus/Powersuits/IronFrame/IronFrame"},"/Lotus/Powersuits/Jade/NyxPrime":{"baseVariant":"/Lotus/Powersuits/Jade/Jade"},"/Lotus/Powersuits/Khora/Kavat/KhoraPrimeKavatPowerSuit":{"baseVariant":"/Lotus/Powersuits/Khora/Kavat/KhoraKavatPowerSuit"},"/Lotus/Powersuits/Khora/KhoraPrime":{"baseVariant":"/Lotus/Powersuits/Khora/Khora"},"/Lotus/Powersuits/Khora/KhoraWhipclawWeaponPrime":{"baseVariant":"/Lotus/Powersuits/Khora/KhoraWhipclawWeapon"},"/Lotus/Powersuits/Loki/LokiPrime":{"baseVariant":"/Lotus/Powersuits/Loki/Loki"},"/Lotus/Powersuits/Mag/MagPrime":{"baseVariant":"/Lotus/Powersuits/Mag/Mag"},"/Lotus/Powersuits/Magician/LimboPrime":{"baseVariant":"/Lotus/Powersuits/Magician/Magician"},"/Lotus/Powersuits/MonkeyKing/WukongPrime":{"baseVariant":"/Lotus/Powersuits/MonkeyKing/MonkeyKing"},"/Lotus/Powersuits/MonkeyKing/WukongPrimeStaff":{"baseVariant":"/Lotus/Powersuits/MonkeyKing/MonkeyKingStaff"},"/Lotus/Powersuits/Necro/NekrosPrime":{"baseVariant":"/Lotus/Powersuits/Necro/Necro"},"/Lotus/Powersuits/Nezha/NezhaPrime":{"baseVariant":"/Lotus/Powersuits/Nezha/Nezha"},"/Lotus/Powersuits/Ninja/AshPrime":{"baseVariant":"/Lotus/Powersuits/Ninja/Ninja"},"/Lotus/Powersuits/Ninja/NinjaStormWeaponPrime":{"baseVariant":"/Lotus/Powersuits/Ninja/NinjaStormWeapon"},"/Lotus/Powersuits/Odalisk/ProteaPrime":{"baseVariant":"/Lotus/Powersuits/Odalisk/Odalisk"},"/Lotus/Powersuits/Pacifist/BaruukPrime":{"baseVariant":"/Lotus/Powersuits/Pacifist/Pacifist"},"/Lotus/Powersuits/Pacifist/PacifistFistPrime":{"baseVariant":"/Lotus/Powersuits/Pacifist/PacifistFist"},"/Lotus/Powersuits/Paladin/PaladinPrime":{"baseVariant":"/Lotus/Powersuits/Paladin/Paladin"},"/Lotus/Powersuits/Pirate/HydroidPrime":{"baseVariant":"/Lotus/Powersuits/Pirate/Pirate"},"/Lotus/Powersuits/Priest/HarrowPrime":{"baseVariant":"/Lotus/Powersuits/Priest/Priest"},"/Lotus/Powersuits/Ranger/PrimeExaltedBow":{"baseVariant":"/Lotus/Powersuits/Ranger/ExaltedBow"},"/Lotus/Powersuits/Ranger/IvaraPrime":{"baseVariant":"/Lotus/Powersuits/Ranger/Ranger"},"/Lotus/Powersuits/Revenant/RevenantPrime":{"baseVariant":"/Lotus/Powersuits/Revenant/Revenant"},"/Lotus/Powersuits/Rhino/RhinoPrime":{"baseVariant":"/Lotus/Powersuits/Rhino/Rhino"},"/Lotus/Powersuits/Runner/GaussPrime":{"baseVariant":"/Lotus/Powersuits/Runner/Runner"},"/Lotus/Powersuits/Sandman/InarosPrime":{"baseVariant":"/Lotus/Powersuits/Sandman/Sandman"},"/Lotus/Powersuits/Saryn/SarynPrime":{"baseVariant":"/Lotus/Powersuits/Saryn/Saryn"},"/Lotus/Powersuits/Sentient/CalibanPrime":{"baseVariant":"/Lotus/Powersuits/Sentient/Sentient"},"/Lotus/Powersuits/Tengu/ZephyrPrime":{"baseVariant":"/Lotus/Powersuits/Tengu/Tengu"},"/Lotus/Powersuits/Trapper/TrapperPrime":{"baseVariant":"/Lotus/Powersuits/Trapper/Trapper"},"/Lotus/Powersuits/Trinity/TrinityPrime":{"baseVariant":"/Lotus/Powersuits/Trinity/Trinity"},"/Lotus/Powersuits/Volt/VoltPrime":{"baseVariant":"/Lotus/Powersuits/Volt/Volt"},"/Lotus/Powersuits/Wisp/WispPrime":{"baseVariant":"/Lotus/Powersuits/Wisp/Wisp"},"/Lotus/Powersuits/Wraith/SevagothShadowPrimeClawsWeapon":{"baseVariant":"/Lotus/Powersuits/Wraith/ReaperMeleeWeapon"},"/Lotus/Powersuits/Wraith/SevagothPrime":{"baseVariant":"/Lotus/Powersuits/Wraith/Wraith"},"/Lotus/Powersuits/Yareli/YareliPrime":{"baseVariant":"/Lotus/Powersuits/Yareli/Yareli"},"/Lotus/Powersuits/YinYang/EquinoxPrime":{"baseVariant":"/Lotus/Powersuits/YinYang/YinYang"},"/Lotus/Types/Sentinels/SentinelPowersuits/PrimeCarrierPowerSuit":{"baseVariant":"/Lotus/Types/Sentinels/SentinelPowersuits/CarrierPowerSuit"},"/Lotus/Types/Sentinels/SentinelPowersuits/PrimeDethCubePowerSuit":{"baseVariant":"/Lotus/Types/Sentinels/SentinelPowersuits/DethCubePowerSuit"},"/Lotus/Types/Sentinels/SentinelPowersuits/NautilusPrimeSentinelPowerSuit":{"baseVariant":"/Lotus/Types/Sentinels/SentinelPowersuits/EmpyreanSentinelPowerSuit"},"/Lotus/Types/Sentinels/SentinelPowersuits/PrimeHeliosPowerSuit":{"baseVariant":"/Lotus/Types/Sentinels/SentinelPowersuits/MeleePetPowerSuit"},"/Lotus/Types/Sentinels/SentinelPowersuits/PrimeShadePowerSuit":{"baseVariant":"/Lotus/Types/Sentinels/SentinelPowersuits/ShadePowerSuit"},"/Lotus/Types/Sentinels/SentinelPowersuits/PrismaShadePowerSuit":{"baseVariant":"/Lotus/Types/Sentinels/SentinelPowersuits/ShadePowerSuit"},"/Lotus/Types/Sentinels/SentinelPowersuits/PrimeWyrmPowerSuit":{"baseVariant":"/Lotus/Types/Sentinels/SentinelPowersuits/WyrmPowerSuit"},"/Lotus/Types/Sentinels/SentinelWeapons/PrimeBurstLaserPistol":{"baseVariant":"/Lotus/Types/Sentinels/SentinelWeapons/BurstLaserPistol"},"/Lotus/Types/Sentinels/SentinelWeapons/PrismaBurstLaserPistol":{"baseVariant":"/Lotus/Types/Sentinels/SentinelWeapons/BurstLaserPistol"},"/Lotus/Types/Sentinels/SentinelWeapons/PrimeDethMachineRifle":{"baseVariant":"/Lotus/Types/Sentinels/SentinelWeapons/DethMachineRifle"},"/Lotus/Types/Sentinels/SentinelWeapons/PrimeLaserRifle":{"baseVariant":"/Lotus/Types/Sentinels/SentinelWeapons/LaserRifle"},"/Lotus/Types/Sentinels/SentinelWeapons/DeconstructorPrime/PrimeHeliosGlaiveWeapon":{"baseVariant":"/Lotus/Types/Sentinels/SentinelWeapons/SentGlaiveWeapon"},"/Lotus/Types/Sentinels/SentinelWeapons/PrimeSentShotgun":{"baseVariant":"/Lotus/Types/Sentinels/SentinelWeapons/SentShotgun"},"/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayPrimeRifle":{"baseVariant":"/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayRifle"},"/Lotus/Weapons/Syndicates/CephalonSuda/Melee/CSHeliocor":{"baseVariant":"/Lotus/Weapons/Cephalon/Melee/Hammer/CephHammerWeapon"},"/Lotus/Weapons/Syndicates/CephalonSuda/LongGuns/CSSimulor":{"baseVariant":"/Lotus/Weapons/Cephalon/Primary/CephPrimary/CephPrimary"},"/Lotus/Weapons/ClanTech/Chemical/FlameThrowerWraith":{"baseVariant":"/Lotus/Weapons/ClanTech/Chemical/FlameThrower"},"/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Ogris/KuvaOgris":{"baseVariant":"/Lotus/Weapons/ClanTech/Chemical/RocketLauncher"},"/Lotus/Weapons/Corpus/LongGuns/Machinegun/SupraVandal":{"baseVariant":"/Lotus/Weapons/ClanTech/Energy/CrpHeavyRifle"},"/Lotus/Weapons/Corpus/Pistols/CorpusModularPistol/Vandal/CrpLaserPistolVandal":{"baseVariant":"/Lotus/Weapons/ClanTech/Energy/CrpLaserPistol"},"/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEFluxRifle/CrpBEFluxRifle":{"baseVariant":"/Lotus/Weapons/ClanTech/Energy/CrpLaserRifle"},"/Lotus/Weapons/ClanTech/Energy/VandalElectroProd":{"baseVariant":"/Lotus/Weapons/ClanTech/Energy/ElectroProd"},"/Lotus/Weapons/ClanTech/Energy/DeraVandal":{"baseVariant":"/Lotus/Weapons/ClanTech/Energy/EnergyRifle"},"/Lotus/Weapons/Corpus/Bow/Longbow/PrismaLenz/PrismaLenzWeapon":{"baseVariant":"/Lotus/Weapons/Corpus/Bow/Longbow/CrpBow"},"/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBETetra/CrpBETetra":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/CorpusUMP/CorpusUMP"},"/Lotus/Weapons/Corpus/LongGuns/CorpusUMP/PrismaCorpusUMP":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/CorpusUMP/CorpusUMP"},"/Lotus/Weapons/Corpus/LongGuns/CrpBFG/Vandal/VandalCrpBFG":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/CrpBFG/CrpBFG"},"/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEGlaxion/CrpBEGlaxion":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/CrpFreezeRay/CrpFreezeRayRifle"},"/Lotus/Weapons/Corpus/LongGuns/CrpFreezeRay/Vandal/CrpFreezeRayVandalRifle":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/CrpFreezeRay/CrpFreezeRayRifle"},"/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/QuantaVandal":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/CrpShockRifle"},"/Lotus/Weapons/Infested/LongGuns/InfCrpShockSwarm/InfCrpShockSwarmRifle":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/CrpShockRifle"},"/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEArcaPlasmor/CrpBEArcaPlasmor":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/CrpShotgun/CrpShotgun"},"/Lotus/Weapons/Corpus/LongGuns/GrenadeLauncher/CarminePenta":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/GrenadeLauncher/GrenadeLauncher"},"/Lotus/Weapons/Syndicates/PerrinSequence/LongGuns/PSPenta":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/GrenadeLauncher/GrenadeLauncher"},"/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEFerrox/CrpBEFerrox":{"baseVariant":"/Lotus/Weapons/Corpus/LongGuns/Spears/Railgun/CorpusRailgun"},"/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpPrismaTonfa":{"baseVariant":"/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpTonfa"},"/Lotus/Weapons/Corpus/Melee/KickAndPunch/PrismaObex":{"baseVariant":"/Lotus/Weapons/Corpus/Melee/KickAndPunch/KickPunchWeapon"},"/Lotus/Weapons/Syndicates/PerrinSequence/Melee/PSLecta":{"baseVariant":"/Lotus/Weapons/Corpus/Melee/Whip/CorpusWhipWeapon"},"/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBEDetron/CrpBEDetron":{"baseVariant":"/Lotus/Weapons/Corpus/Pistols/CorpusHandShotgun/CorpusHandCannon"},"/Lotus/Weapons/VoidTrader/VTDetron":{"baseVariant":"/Lotus/Weapons/Corpus/Pistols/CorpusHandShotgun/CorpusHandCannon"},"/Lotus/Weapons/Syndicates/PerrinSequence/Pistols/PSDualCestra":{"baseVariant":"/Lotus/Weapons/Corpus/Pistols/CorpusMinigun/DualCorpusMinigun"},"/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBECycron/CrpBECycron":{"baseVariant":"/Lotus/Weapons/Corpus/Pistols/CrpChargeGun/CrpChargeGun"},"/Lotus/Weapons/Corpus/Pistols/CrpHandRL/PrismaAngstrum":{"baseVariant":"/Lotus/Weapons/Corpus/Pistols/CrpHandRL/CorpusHandRocketLauncher"},"/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBEPlinx/CrpBEPlinxWeapon":{"baseVariant":"/Lotus/Weapons/Corpus/Pistols/CrpSonificBlastor/CrpBlastorWeapon"},"/Lotus/Weapons/Grineer/Pistols/GrineerBulbousSMG/Prisma/PrismaTwinGremlinsWeapon":{"baseVariant":"/Lotus/Weapons/Grineer/GrineerPistol/GrineerAkimboPistol"},"/Lotus/Weapons/Grineer/Pistols/WraithSingleViper/WraithSingleViper":{"baseVariant":"/Lotus/Weapons/Grineer/GrineerPistol/GrineerLightPistol"},"/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Kraken/KuvaKraken":{"baseVariant":"/Lotus/Weapons/Grineer/GrineerPistol/GrnHeavyPistol"},"/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Seer/KuvaSeer":{"baseVariant":"/Lotus/Weapons/Grineer/GrineerPistol/GrnScopedPistolPlayer"},"/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Hind/KuvaHind":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/BurstRifle/GrnBurstRifle"},"/Lotus/Weapons/VoidTrader/PrismaGrakata":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/GrineerAssaultRifle/GrnAssaultRifle"},"/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Drakgoon/KuvaDrakgoon":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/GrineerFlakCannon/FlakCannon"},"/Lotus/Weapons/Grineer/LongGuns/GrineerLeverActionRifle/PrismaGrinlokWeapon":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/GrineerLeverActionRifle/GLARifle"},"/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Karak/KuvaKarak":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/GrineerM16Rifle"},"/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/KarakWraith":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/GrineerM16Rifle"},"/Lotus/Weapons/Grineer/LongGuns/GrineerSniperRifle/VulkarWraith":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/GrineerSniperRifle/GrnSniperRifle"},"/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Zarr/KuvaZarr":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/GrnCannon/GrnCannonWeapon"},"/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Quartakk/KuvaQuartakk":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/GrnFourBarrelRifle/GrnFourBarrelRifleWeapon"},"/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Tonkor/KuvaTonkor":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/GrnGrenadeLauncher/GrnGrenadeLauncher"},"/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Kohm/KuvaKohm":{"baseVariant":"/Lotus/Weapons/Grineer/LongGuns/GrnSpark/GrnSparkRifle"},"/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/PrismaDualCleavers":{"baseVariant":"/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/DualCleaverWeapon"},"/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/PrismaMachete":{"baseVariant":"/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete"},"/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/WraithMacheteWeapon":{"baseVariant":"/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete"},"/Lotus/Weapons/Tenno/Melee/PersianMachete/DjinnMachete":{"baseVariant":"/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete"},"/Lotus/Weapons/Grineer/Melee/GrnBoomerang/HalikarWraithWeapon":{"baseVariant":"/Lotus/Weapons/Grineer/Melee/GrnBoomerang/GrnBoomerang"},"/Lotus/Weapons/Syndicates/SteelMeridian/Melee/SMSydon":{"baseVariant":"/Lotus/Weapons/Grineer/Melee/GrnTrident/GrnTridentWeapon"},"/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Brakk/KuvaBrakk":{"baseVariant":"/Lotus/Weapons/Grineer/Pistols/GrineerHandShotgun/GrineerHandCannon"},"/Lotus/Weapons/Syndicates/SteelMeridian/Pistols/SMMarelok":{"baseVariant":"/Lotus/Weapons/Grineer/Pistols/GrineerLeverActionPistol/GLAPistol"},"/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Nukor/KuvaNukor":{"baseVariant":"/Lotus/Weapons/Grineer/Pistols/GrineerMicrowavegun/GrnMicrowavePistol"},"/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaSporothrix":{"baseVariant":"/Lotus/Weapons/Infested/LongGuns/InfSniperRifle/InfSniperRifle"},"/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaHema":{"baseVariant":"/Lotus/Weapons/Infested/LongGuns/InfWFAccompanyingPri/InfestedBurstRifle"},"/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaSynapse":{"baseVariant":"/Lotus/Weapons/Infested/LongGuns/InfestedRifle"},"/Lotus/Weapons/Infested/InfestedLich/Melee/CodaPathocyst/CodaPathocyst":{"baseVariant":"/Lotus/Weapons/Infested/Melee/InfBoomerang/InfBoomerangWeapon"},"/Lotus/Weapons/Infested/InfestedLich/Melee/CodaCaustacyst/CodaCaustacyst":{"baseVariant":"/Lotus/Weapons/Infested/Melee/InfEmbolistScythe/InfestedScythe"},"/Lotus/Weapons/Infested/InfestedLich/Melee/CodaHirudo":{"baseVariant":"/Lotus/Weapons/Infested/Melee/InfWFAccompanyingSparring/InfestedKogake"},"/Lotus/Weapons/Infested/InfestedLich/Melee/CodaMire":{"baseVariant":"/Lotus/Weapons/Infested/Melee/Swords/Mire/MireSword"},"/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaCatabolyst":{"baseVariant":"/Lotus/Weapons/Infested/Pistols/InfBeamPistol/InfBeamPistol"},"/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaPox":{"baseVariant":"/Lotus/Weapons/Infested/Pistols/InfProximityStars/InfProximityStars"},"/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaTysis":{"baseVariant":"/Lotus/Weapons/Infested/Pistols/InfestedDartPistol/InfestedDartPistol"},"/Lotus/Weapons/Tenno/Melee/Scythe/PrimeVento/PrimeVentoScythe":{"baseVariant":"/Lotus/Weapons/Sentients/SentJointedScythe/SentJointedScytheWeapon"},"/Lotus/Weapons/Syndicates/CephalonSuda/Pistols/CSSynoidGammacor":{"baseVariant":"/Lotus/Weapons/Syndicates/CephalonSuda/Pistols/CSDroidArray"},"/Lotus/Weapons/Tenno/Akimbo/AkLexPrimePistols":{"baseVariant":"/Lotus/Weapons/Tenno/Akimbo/AkLexPistols"},"/Lotus/Weapons/Tenno/Pistols/PrimeAfuris/PrimeAFurisWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Akimbo/AkimboAutoPistols"},"/Lotus/Weapons/Syndicates/ArbitersOfHexis/Pistols/AHAkbolto":{"baseVariant":"/Lotus/Weapons/Tenno/Akimbo/AkimboBolto"},"/Lotus/Weapons/Tenno/Pistols/PrimeAkbolto/PrimeAkBoltoWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Akimbo/AkimboBolto"},"/Lotus/Weapons/Tenno/Akimbo/PrimeAkimboShotGun":{"baseVariant":"/Lotus/Weapons/Tenno/Akimbo/AkimboShotGun"},"/Lotus/Weapons/Grineer/Pistols/WraithTwinVipers/WraithTwinVipers":{"baseVariant":"/Lotus/Weapons/Tenno/Akimbo/AkimboViperPistols"},"/Lotus/Weapons/Tenno/Akimbo/DualMagnusPrime":{"baseVariant":"/Lotus/Weapons/Tenno/Akimbo/DualMagnus"},"/Lotus/Weapons/Tenno/Pistols/PrimeVasto/AkPrimeVasto/AkPrimeVastoPistol":{"baseVariant":"/Lotus/Weapons/Tenno/Akimbo/DualVastos"},"/Lotus/Weapons/Tenno/Archwing/Melee/VoidTraderArchsword/VTArchSwordWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Archwing/Melee/Archsword/ArchSwordWeapon"},"/Lotus/Weapons/Tenno/Archwing/Primary/FoldingMachineGun/ArchMachineGunVandal":{"baseVariant":"/Lotus/Weapons/Tenno/Archwing/Primary/FoldingMachineGun/ArchMachineGun"},"/Lotus/Weapons/Tenno/Archwing/Primary/PrimeCorvas/PrimeCorvasWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Archwing/Primary/LaunchGrenade/ArchCannon"},"/Lotus/Weapons/Grineer/KuvaLich/HeavyWeapons/Grattler/KuvaGrattler":{"baseVariant":"/Lotus/Weapons/Tenno/Archwing/Primary/RepurposedGrineerAntiAircraftGun/ArchGRNAAGun"},"/Lotus/Weapons/Tenno/Archwing/Primary/PrimeLarkspur/PrimeLarkspurWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Archwing/Primary/TnShieldframeArchGun/TnShieldFrameArchGun"},"/Lotus/Weapons/Infested/Bow/InfCernosBow/InfCernos":{"baseVariant":"/Lotus/Weapons/Tenno/Bows/AntlerBow/AntlerBow"},"/Lotus/Weapons/Syndicates/RedVeil/Bows/RVCernos":{"baseVariant":"/Lotus/Weapons/Tenno/Bows/AntlerBow/AntlerBow"},"/Lotus/Weapons/Tenno/Bows/PrimeCernos/PrimeCernos":{"baseVariant":"/Lotus/Weapons/Tenno/Bows/AntlerBow/AntlerBow"},"/Lotus/Weapons/Tenno/Bows/PrimeDerelictCernos/DerelictCernos":{"baseVariant":"/Lotus/Weapons/Tenno/Bows/AntlerBow/AntlerBow"},"/Lotus/Weapons/Tenno/Bows/PrimeDaikyu/PrimeDaikyuBow":{"baseVariant":"/Lotus/Weapons/Tenno/Bows/AsymetricalBow/AsymetricalBow"},"/Lotus/Weapons/MK1Series/MK1Paris":{"baseVariant":"/Lotus/Weapons/Tenno/Bows/HuntingBow"},"/Lotus/Weapons/Tenno/Bows/PrimeHuntingBow":{"baseVariant":"/Lotus/Weapons/Tenno/Bows/HuntingBow"},"/Lotus/Weapons/Syndicates/NewLoka/LongGuns/NLTigris":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/DoubleBarrelShotgun/TennoDoubleBarrelShotgun"},"/Lotus/Weapons/Tenno/LongGuns/PrimeTigris/PrimeTigris":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/DoubleBarrelShotgun/TennoDoubleBarrelShotgun"},"/Lotus/Weapons/Tenno/LongGuns/PrimeTiberon/PrimeTiberonRifle":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/DrakeRifle/DrakeRifle"},"/Lotus/Weapons/Tenno/LongGuns/RubicoPrime/RubicoPrimeWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/FiveShotSniper/FiveShotSniper"},"/Lotus/Weapons/Tenno/LongGuns/PrimeNagantaka/PrimeNagantakaWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/GarudaCrossbow/GarudaCrossbow"},"/Lotus/Weapons/Tenno/LongGuns/PrimeAlternox/PrimeAlternoxWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/GyreRifle/GyreRifleWeapon"},"/Lotus/Weapons/Tenno/LongGuns/PrimePanthera/PrimePanthera":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/Miter/TnoMiter"},"/Lotus/Weapons/Tenno/LongGuns/PrimeZhuge/PrimeZhugeCrossbow":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/RepeatingCrossbow/RepeatingCrossbow"},"/Lotus/Weapons/Tenno/LongGuns/PrimePhantasma/PhantasmaPrimeShotgun":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/RevenantShotgun/RevenantShotgun"},"/Lotus/Weapons/Tenno/LongGuns/PrimeAcceltra/PrimeAcceltraWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/SapientPrimary/SapientPrimaryWeapon"},"/Lotus/Weapons/Tenno/LongGuns/PrimeStradavar/PrimeStradavarGun":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/TennoTommyGun/TennoTommyGunRifle"},"/Lotus/Weapons/Tenno/LongGuns/PrimeCedo/PrimeCedoWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/TnAlchemistShotgun/TnAlchemistShotgun"},"/Lotus/Weapons/Tenno/LongGuns/PrimeTenora/TenoraPrimeWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/TnBardRifle/TnBardRifle"},"/Lotus/Weapons/Tenno/LongGuns/PrimeAstilla/AstillaPrimeWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/TnGlassShotgun/TnGlassShotgunGun"},"/Lotus/Weapons/Tenno/LongGuns/PrimeCorinth/PrimeCorinth":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/TnHeavyShotgun/TnHeavyShotgunGun"},"/Lotus/Weapons/Tenno/LongGuns/PrimeScourge/PrimeScourgeWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/TnPriestSpear/TnPriestSpearGun"},"/Lotus/Weapons/Tenno/LongGuns/PrimeBaza/PrimeBazaGun":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/TnSMG/TnSMGWeapon"},"/Lotus/Weapons/Tenno/LongGuns/PrimeFulmin/PrimeFulmin":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/TnWispRifle/TnWispRifle"},"/Lotus/Weapons/Tenno/LongGuns/DexTheThird/DexTheThird":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/TnoLeverAction/TnoLeverActionRifle"},"/Lotus/Weapons/Tenno/LongGuns/PrimeSybaris/PrimeSybarisRifle":{"baseVariant":"/Lotus/Weapons/Tenno/LongGuns/TnoLeverAction/TnoLeverActionRifle"},"/Lotus/Weapons/Tenno/Melee/Axe/PrimeScindo/PrimeScindoWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Axe/AxeWeapon"},"/Lotus/Weapons/Tenno/Melee/Axe/PrimeZoren/PrimeZorenAxeWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Axe/DualAxeWeapon"},"/Lotus/Weapons/Tenno/Melee/PrimeKogake/KogakePrimeKnuckles":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/BrassKnuckles/BrassKnuckles"},"/Lotus/Weapons/Tenno/Melee/PrimeVenKa/PrimeVenkaClaws":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Claws/TennoClaws"},"/Lotus/Weapons/Syndicates/RedVeil/Melee/RVDarkDagger":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Dagger/DarkDagger"},"/Lotus/Weapons/Tenno/Melee/DualDagger/FangPrimeDagger":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/DualDagger/DualDagger"},"/Lotus/Weapons/Tenno/Melee/PrimeDualKamas/PrimeDualKamas":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/DualKamas/DualKamas"},"/Lotus/Weapons/MK1Series/MK1Furax":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Fist/Fist"},"/Lotus/Weapons/Tenno/Melee/Fist/FuraxWraith":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Fist/Fist"},"/Lotus/Weapons/Tenno/Melee/PrimeTekko/PrimeTekko":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Gauntlet/BrawlerKnuckles/BrawlerKnuckles"},"/Lotus/Weapons/Tenno/Melee/Gauntlet/PrimeAnkyros/PrimeAnkyros":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Gauntlet/Gauntlet"},"/Lotus/Weapons/Tenno/Melee/Glaives/PrimeKestrel/PrimeKestrel":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Glaives/Boomerang/BoomerangWeapon"},"/Lotus/Weapons/Tenno/Melee/Glaives/PrimeGlaive/PrimeGlaiveWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Glaives/LightGlaive/LightGlaiveWeapon"},"/Lotus/Weapons/Tenno/Melee/Swords/PrimeGram/PrimeGram":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/GreatSword/GreatSword"},"/Lotus/Weapons/Tenno/Melee/Gunblade/RedeemerPrime/RedeemerPrimeWep":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Gunblade/TnoGunblade"},"/Lotus/Weapons/Tenno/Melee/PrimeVolnus/VolnusPrimeWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Hammer/GlassHammer/GlassHammer"},"/Lotus/Weapons/Tenno/Melee/PrimeFragor/PrimeFragor":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Hammer/HammerWeapon"},"/Lotus/Weapons/Tenno/Melee/LongSword/SkanaPrime":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/LongSword/LongSword"},"/Lotus/Weapons/VoidTrader/PrismaSkana":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/LongSword/LongSword"},"/Lotus/Weapons/Syndicates/NewLoka/Melee/NLMagistar":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Maces/PaladinMace/PaladinMaceWeapon"},"/Lotus/Weapons/Tenno/Melee/PrimeNinkondi/PrimeNikondi":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Nunchaku/Nunchaku/Nunchaku"},"/Lotus/Weapons/Tenno/Melee/Polearms/PrimePolearmWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Polearms/PolearmWeapon"},"/Lotus/Weapons/Tenno/Melee/Polearms/PrimeGuandao/PrimeGuandaoWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Polearms/TnGuandaoPolearm/TnGuandaoPolearmWeapon"},"/Lotus/Weapons/Tenno/Melee/Staff/TipedoPrime/TipedoPrimeWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Staff/MonkSpade/TnoMonkStaff"},"/Lotus/Weapons/MK1Series/MK1Bo":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Staff/Staff"},"/Lotus/Weapons/Tenno/Melee/Staff/PrimeBo/PrimeBoWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Staff/Staff"},"/Lotus/Weapons/Tenno/Melee/Swords/PrimeNamiSkyla/PrimeNamiSkyla":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/CutlassAndPoignard/CutlassPoignardSwords"},"/Lotus/Weapons/Tenno/Melee/Swords/PrimeGalatine/PrimeGalatine":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/GreatSword/TennoGreatSword"},"/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Dex2023Nikana/Dex2023Nikana":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana"},"/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/LowKatana":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana"},"/Lotus/Weapons/Tenno/Melee/Swords/PrimeKatana/PrimeNikana":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana"},"/Lotus/Weapons/Tenno/Melee/Swords/PrimeKaryst/PrimeKrisDagger":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/KrisDagger/KrisDagger"},"/Lotus/Weapons/Tenno/Melee/Swords/PrimeDualKeres/PrimeDualKeresWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/QuillSword/QuillDualSwords"},"/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/OperationsLacera":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/StalkerMios"},"/Lotus/Weapons/Tenno/Melee/Swords/PrimeOkina/PrimeOkina":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/TennoSai/TennoSais"},"/Lotus/Weapons/Tenno/Melee/Swords/PrimeMasseter/PrimeMasseter":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/TnChiselKanabo/TnChiselKanabo"},"/Lotus/Weapons/Tenno/Melee/Swords/PrimeTatsu/PrimeTatsuWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/TnTwoHandedKatana/TnTwoHandedKatana"},"/Lotus/Weapons/Tenno/Melee/Swords/PRapier/DestrezaPrime":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Swords/TnoRapier/TnoRapier"},"/Lotus/Weapons/Tenno/Melee/PrimeSilvaAegis/PrimeSilvaAegis":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/MeleeContestWinnerOne/TennoSwordShield"},"/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PrimeCobraAndCrane/PrimeCobraAndCraneWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PacifistShieldAndSword/PacifistShieldSword"},"/Lotus/Weapons/Syndicates/ArbitersOfHexis/Melee/AHBoltace":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Tonfa/Boltonfa/Boltonfa"},"/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinnerPrime/TonfaContestWinnerPrimeWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinner/TennoTonfa"},"/Lotus/Weapons/Tenno/Melee/Warfan/PrimeQuassus/PrimeQuassusWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Warfan/TnBrokenFrameWarfan/TnBrokenFrameWarfanWeapon"},"/Lotus/Weapons/Tenno/Melee/Warfan/PrimeGunsen/PrimeGunsenWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Melee/Warfan/WarfanWeapon"},"/Lotus/Weapons/MK1Series/MK1Furis":{"baseVariant":"/Lotus/Weapons/Tenno/Pistol/AutoPistol"},"/Lotus/Weapons/Tenno/Pistols/PrimeSicarus/PrimeSicarusPistol":{"baseVariant":"/Lotus/Weapons/Tenno/Pistol/BurstPistol"},"/Lotus/Weapons/Tenno/Pistol/BroncoPrime":{"baseVariant":"/Lotus/Weapons/Tenno/Pistol/HandShotGun"},"/Lotus/Weapons/Tenno/Pistols/PrimeLex/PrimeLex":{"baseVariant":"/Lotus/Weapons/Tenno/Pistol/HeavyPistol"},"/Lotus/Weapons/Tenno/Pistol/LatoPrime":{"baseVariant":"/Lotus/Weapons/Tenno/Pistol/Pistol"},"/Lotus/Weapons/Tenno/Pistol/LatoVandal":{"baseVariant":"/Lotus/Weapons/Tenno/Pistol/Pistol"},"/Lotus/Weapons/Tenno/Pistols/PrimeVasto/PrimeVastoPistol":{"baseVariant":"/Lotus/Weapons/Tenno/Pistol/RevolverPistol"},"/Lotus/Weapons/Syndicates/RedVeil/Pistols/RVBallistica":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/AutomaticHandCrossbow/AutoCrossBow"},"/Lotus/Weapons/Tenno/Pistols/PrimeBallistica/PrimeBallistica":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/AutomaticHandCrossbow/AutoCrossBow"},"/Lotus/Weapons/Tenno/Pistols/PrimeZylok/ZylokPrimePistol":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/ConclaveLeverPistol/ConclaveLeverPistol"},"/Lotus/Weapons/Tenno/Pistols/PrimeMagnus/PrimeMagnusWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/Magnum/Magnum"},"/Lotus/Weapons/Tenno/Pistols/PrimeHystrix/PrimeHystrixWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/QuillDartgun/QuillDartGunWeapon"},"/Lotus/Weapons/Tenno/Pistols/PrimeAkarius/PrimeAkariusWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/SapientPistol/SapientPistol"},"/Lotus/Weapons/Tenno/Pistols/PrimePyrana/PrimePyranaPistol":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/SawnOffShotgun/TennoHandShotgun"},"/Lotus/Weapons/Tenno/Pistols/PrimeAksomati/PrimeAksomati":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/SomaSidearm/AkimboSomaPistols"},"/Lotus/Weapons/Tenno/Pistols/PrimeAkstiletto/PrimeAkstiletto":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/TennoUzi/TennoUzi"},"/Lotus/Weapons/Tenno/Pistols/PrimeAkjagara/AkJagaraPrime":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/TigrisRedeemerSetPistol/TnoBladedPistols"},"/Lotus/Weapons/Tenno/Pistols/PrimePandero/PanderoPrimeWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/TnBardPistol/TnBardPistolGun"},"/Lotus/Weapons/Tenno/Pistols/PrimeZakti/PrimeZaktiPistol":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/TnGuandoPistol/TnGuandoPistolGun"},"/Lotus/Weapons/Tenno/Pistols/PrimeVelox/PrimeVeloxPistol":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/TnOdaliskSmg/TnOdaliskSmgPistol"},"/Lotus/Weapons/Tenno/Pistols/PrimeKnell/PrimeKnellWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/TnPriestPistolScope/TnPriestPistolWeapon"},"/Lotus/Weapons/Tenno/Pistols/PrimeEpitaph/PrimeEpitaphSidearmWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/TnWraitheSidearm/TnWraitheSidearmWeapon"},"/Lotus/Weapons/Tenno/Pistols/PrimeKompressa/PrimeKompressa":{"baseVariant":"/Lotus/Weapons/Tenno/Pistols/TnYareliPistol/TnYareliPistolWeapon"},"/Lotus/Weapons/Syndicates/ArbitersOfHexis/LongGuns/AHBoltor":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/BoltoRifle"},"/Lotus/Weapons/Tenno/LongGuns/PrimeBoltor/PrimeBoltor":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/BoltoRifle"},"/Lotus/Weapons/Tenno/LongGuns/PrimeBurston/PrimeBurston":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/BurstRifle"},"/Lotus/Weapons/Grineer/LongGuns/VoidTraderGorgon/VTGorgon":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/HeavyRifle"},"/Lotus/Weapons/Grineer/LongGuns/WraithGorgon/WraithGorgon":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/HeavyRifle"},"/Lotus/Weapons/Tenno/Rifle/BratonPrime":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/Rifle"},"/Lotus/Weapons/Tenno/Rifle/StartingRifle":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/Rifle"},"/Lotus/Weapons/Tenno/Rifle/VIPRifle":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/Rifle"},"/Lotus/Weapons/Tenno/LongGuns/WraithLatron/WraithLatron":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/SemiAutoRifle"},"/Lotus/Weapons/Tenno/Rifle/LatronPrime":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/SemiAutoRifle"},"/Lotus/Weapons/Tenno/Rifle/VandalSniperRifle":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/SniperRifle"},"/Lotus/Weapons/Tenno/LongGuns/PrimeSoma/PrimeSomaRifle":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/TennoAR"},"/Lotus/Weapons/Tenno/LongGuns/PrimeVectis/PrimeVectisRifle":{"baseVariant":"/Lotus/Weapons/Tenno/Rifle/TennoSniperRifle"},"/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Sobek/KuvaSobek":{"baseVariant":"/Lotus/Weapons/Tenno/Shotgun/DoubleBarrelShotgun"},"/Lotus/Weapons/Tenno/Shotgun/PrimeBoar":{"baseVariant":"/Lotus/Weapons/Tenno/Shotgun/FullAutoShotgun"},"/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Hek/KuvaHekWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Shotgun/QuadShotgun"},"/Lotus/Weapons/Syndicates/SteelMeridian/LongGuns/SMHek":{"baseVariant":"/Lotus/Weapons/Tenno/Shotgun/QuadShotgun"},"/Lotus/Weapons/MK1Series/MK1Strun":{"baseVariant":"/Lotus/Weapons/Tenno/Shotgun/Shotgun"},"/Lotus/Weapons/Tenno/LongGuns/PrimeStrun/PrimeStrunWeapon":{"baseVariant":"/Lotus/Weapons/Tenno/Shotgun/Shotgun"},"/Lotus/Weapons/Tenno/Shotgun/ShotgunVandal":{"baseVariant":"/Lotus/Weapons/Tenno/Shotgun/Shotgun"},"/Lotus/Weapons/MK1Series/MK1Kunai":{"baseVariant":"/Lotus/Weapons/Tenno/ThrowingWeapons/Kunai"},"/Lotus/Weapons/Tenno/ThrowingWeapons/PrimeLiDagger/PrimeLiDagger":{"baseVariant":"/Lotus/Weapons/Tenno/ThrowingWeapons/LiDagger/LiDagger"},"/Lotus/Weapons/Syndicates/NewLoka/Pistols/NLCastanas":{"baseVariant":"/Lotus/Weapons/Tenno/ThrowingWeapons/StickyBomb/StickyBombs"},"/Lotus/Weapons/Tenno/ThrowingWeapons/PrimeThrowingStar/PrimeHikou":{"baseVariant":"/Lotus/Weapons/Tenno/ThrowingWeapons/TennoStars"},"/Lotus/Weapons/Tenno/LongGuns/PrimeTrumna/PrimeTrumnaWeapon":{"baseVariant":"/Lotus/Weapons/Thanotech/ThanoRifle/ThanotechRifle"}}
+{
+    "/Lotus/Powersuits/Alchemist/Alchemist": {
+        "variants": [
+            "/Lotus/Powersuits/Alchemist/LavosPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Alchemist/LavosPrime": {
+        "baseVariant": "/Lotus/Powersuits/Alchemist/Alchemist"
+    },
+    "/Lotus/Powersuits/AntiMatter/Anti": {
+        "variants": [
+            "/Lotus/Powersuits/AntiMatter/NovaPrime"
+        ]
+    },
+    "/Lotus/Powersuits/AntiMatter/NovaPrime": {
+        "baseVariant": "/Lotus/Powersuits/AntiMatter/Anti"
+    },
+    "/Lotus/Powersuits/Archwing/PrimeJetPack/PrimeJetPack": {
+        "baseVariant": "/Lotus/Powersuits/Archwing/StandardJetPack/StandardJetPack"
+    },
+    "/Lotus/Powersuits/Archwing/StandardJetPack/StandardJetPack": {
+        "variants": [
+            "/Lotus/Powersuits/Archwing/PrimeJetPack/PrimeJetPack"
+        ]
+    },
+    "/Lotus/Powersuits/Banshee/Banshee": {
+        "variants": [
+            "/Lotus/Powersuits/Banshee/BansheePrime"
+        ]
+    },
+    "/Lotus/Powersuits/Banshee/BansheePrime": {
+        "baseVariant": "/Lotus/Powersuits/Banshee/Banshee"
+    },
+    "/Lotus/Powersuits/Bard/Bard": {
+        "variants": [
+            "/Lotus/Powersuits/Bard/OctaviaPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Bard/OctaviaPrime": {
+        "baseVariant": "/Lotus/Powersuits/Bard/Bard"
+    },
+    "/Lotus/Powersuits/Berserker/Berserker": {
+        "variants": [
+            "/Lotus/Powersuits/Berserker/ValkyrPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Berserker/ValkyrPrime": {
+        "baseVariant": "/Lotus/Powersuits/Berserker/Berserker"
+    },
+    "/Lotus/Powersuits/Brawler/AtlasPrime": {
+        "baseVariant": "/Lotus/Powersuits/Brawler/Brawler"
+    },
+    "/Lotus/Powersuits/Brawler/AtlasPunchWeapon": {
+        "variants": [
+            "/Lotus/Powersuits/Brawler/AtlasPunchWeaponPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Brawler/AtlasPunchWeaponPrime": {
+        "baseVariant": "/Lotus/Powersuits/Brawler/AtlasPunchWeapon"
+    },
+    "/Lotus/Powersuits/Brawler/Brawler": {
+        "variants": [
+            "/Lotus/Powersuits/Brawler/AtlasPrime"
+        ]
+    },
+    "/Lotus/Powersuits/BrokenFrame/BrokenFrame": {
+        "variants": [
+            "/Lotus/Powersuits/BrokenFrame/XakuPrime"
+        ]
+    },
+    "/Lotus/Powersuits/BrokenFrame/XakuPrime": {
+        "baseVariant": "/Lotus/Powersuits/BrokenFrame/BrokenFrame"
+    },
+    "/Lotus/Powersuits/Cowgirl/Cowgirl": {
+        "variants": [
+            "/Lotus/Powersuits/Cowgirl/MesaPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Cowgirl/MesaPrime": {
+        "baseVariant": "/Lotus/Powersuits/Cowgirl/Cowgirl"
+    },
+    "/Lotus/Powersuits/Cowgirl/PrimeSlingerPistols": {
+        "baseVariant": "/Lotus/Powersuits/Cowgirl/SlingerPistols"
+    },
+    "/Lotus/Powersuits/Cowgirl/SlingerPistols": {
+        "variants": [
+            "/Lotus/Powersuits/Cowgirl/PrimeSlingerPistols"
+        ]
+    },
+    "/Lotus/Powersuits/Devourer/Devourer": {
+        "variants": [
+            "/Lotus/Powersuits/Devourer/GrendelPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Devourer/GrendelPrime": {
+        "baseVariant": "/Lotus/Powersuits/Devourer/Devourer"
+    },
+    "/Lotus/Powersuits/Dragon/ChromaPrime": {
+        "baseVariant": "/Lotus/Powersuits/Dragon/Dragon"
+    },
+    "/Lotus/Powersuits/Dragon/Dragon": {
+        "variants": [
+            "/Lotus/Powersuits/Dragon/ChromaPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Ember/Ember": {
+        "variants": [
+            "/Lotus/Powersuits/Ember/EmberPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Ember/EmberPrime": {
+        "baseVariant": "/Lotus/Powersuits/Ember/Ember"
+    },
+    "/Lotus/Powersuits/Excalibur/Excalibur": {
+        "variants": [
+            "/Lotus/Powersuits/Excalibur/ExcaliburPrime",
+            "/Lotus/Powersuits/Excalibur/ExcaliburUmbra"
+        ]
+    },
+    "/Lotus/Powersuits/Excalibur/ExcaliburPrime": {
+        "baseVariant": "/Lotus/Powersuits/Excalibur/Excalibur"
+    },
+    "/Lotus/Powersuits/Excalibur/ExcaliburUmbra": {
+        "baseVariant": "/Lotus/Powersuits/Excalibur/Excalibur"
+    },
+    "/Lotus/Powersuits/Fairy/Fairy": {
+        "variants": [
+            "/Lotus/Powersuits/Fairy/TitaniaPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Fairy/FlightPistols": {
+        "variants": [
+            "/Lotus/Powersuits/Fairy/PrimeFlightPistols"
+        ]
+    },
+    "/Lotus/Powersuits/Fairy/FlightSword": {
+        "variants": [
+            "/Lotus/Powersuits/Fairy/PrimeFlightSword"
+        ]
+    },
+    "/Lotus/Powersuits/Fairy/PrimeFlightPistols": {
+        "baseVariant": "/Lotus/Powersuits/Fairy/FlightPistols"
+    },
+    "/Lotus/Powersuits/Fairy/PrimeFlightSword": {
+        "baseVariant": "/Lotus/Powersuits/Fairy/FlightSword"
+    },
+    "/Lotus/Powersuits/Fairy/TitaniaPrime": {
+        "baseVariant": "/Lotus/Powersuits/Fairy/Fairy"
+    },
+    "/Lotus/Powersuits/Frost/Frost": {
+        "variants": [
+            "/Lotus/Powersuits/Frost/FrostPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Frost/FrostPrime": {
+        "baseVariant": "/Lotus/Powersuits/Frost/Frost"
+    },
+    "/Lotus/Powersuits/Garuda/Garuda": {
+        "variants": [
+            "/Lotus/Powersuits/Garuda/GarudaPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Garuda/GarudaPrime": {
+        "baseVariant": "/Lotus/Powersuits/Garuda/Garuda"
+    },
+    "/Lotus/Powersuits/Glass/GaraPrime": {
+        "baseVariant": "/Lotus/Powersuits/Glass/Glass"
+    },
+    "/Lotus/Powersuits/Glass/GaraShankWeapon": {
+        "variants": [
+            "/Lotus/Powersuits/Glass/GaraShankWeaponPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Glass/GaraShankWeaponPrime": {
+        "baseVariant": "/Lotus/Powersuits/Glass/GaraShankWeapon"
+    },
+    "/Lotus/Powersuits/Glass/Glass": {
+        "variants": [
+            "/Lotus/Powersuits/Glass/GaraPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Gyre/Gyre": {
+        "variants": [
+            "/Lotus/Powersuits/Gyre/GyrePrime"
+        ]
+    },
+    "/Lotus/Powersuits/Gyre/GyrePrime": {
+        "baseVariant": "/Lotus/Powersuits/Gyre/Gyre"
+    },
+    "/Lotus/Powersuits/Harlequin/Harlequin": {
+        "variants": [
+            "/Lotus/Powersuits/Harlequin/MiragePrime"
+        ]
+    },
+    "/Lotus/Powersuits/Harlequin/MiragePrime": {
+        "baseVariant": "/Lotus/Powersuits/Harlequin/Harlequin"
+    },
+    "/Lotus/Powersuits/Infestation/Infestation": {
+        "variants": [
+            "/Lotus/Powersuits/Infestation/InfestationPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Infestation/InfestationPrime": {
+        "baseVariant": "/Lotus/Powersuits/Infestation/Infestation"
+    },
+    "/Lotus/Powersuits/IronFrame/BlastWeapon": {
+        "variants": [
+            "/Lotus/Powersuits/IronFrame/BlastWeaponPrime"
+        ]
+    },
+    "/Lotus/Powersuits/IronFrame/BlastWeaponPrime": {
+        "baseVariant": "/Lotus/Powersuits/IronFrame/BlastWeapon"
+    },
+    "/Lotus/Powersuits/IronFrame/IronFrame": {
+        "variants": [
+            "/Lotus/Powersuits/IronFrame/IronFramePrime"
+        ]
+    },
+    "/Lotus/Powersuits/IronFrame/IronFramePrime": {
+        "baseVariant": "/Lotus/Powersuits/IronFrame/IronFrame"
+    },
+    "/Lotus/Powersuits/Jade/Jade": {
+        "variants": [
+            "/Lotus/Powersuits/Jade/NyxPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Jade/NyxPrime": {
+        "baseVariant": "/Lotus/Powersuits/Jade/Jade"
+    },
+    "/Lotus/Powersuits/Khora/Kavat/KhoraKavatPowerSuit": {
+        "variants": [
+            "/Lotus/Powersuits/Khora/Kavat/KhoraPrimeKavatPowerSuit"
+        ]
+    },
+    "/Lotus/Powersuits/Khora/Kavat/KhoraPrimeKavatPowerSuit": {
+        "baseVariant": "/Lotus/Powersuits/Khora/Kavat/KhoraKavatPowerSuit"
+    },
+    "/Lotus/Powersuits/Khora/Khora": {
+        "variants": [
+            "/Lotus/Powersuits/Khora/KhoraPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Khora/KhoraPrime": {
+        "baseVariant": "/Lotus/Powersuits/Khora/Khora"
+    },
+    "/Lotus/Powersuits/Khora/KhoraWhipclawWeapon": {
+        "variants": [
+            "/Lotus/Powersuits/Khora/KhoraWhipclawWeaponPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Khora/KhoraWhipclawWeaponPrime": {
+        "baseVariant": "/Lotus/Powersuits/Khora/KhoraWhipclawWeapon"
+    },
+    "/Lotus/Powersuits/Loki/Loki": {
+        "variants": [
+            "/Lotus/Powersuits/Loki/LokiPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Loki/LokiPrime": {
+        "baseVariant": "/Lotus/Powersuits/Loki/Loki"
+    },
+    "/Lotus/Powersuits/Mag/Mag": {
+        "variants": [
+            "/Lotus/Powersuits/Mag/MagPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Mag/MagPrime": {
+        "baseVariant": "/Lotus/Powersuits/Mag/Mag"
+    },
+    "/Lotus/Powersuits/Magician/LimboPrime": {
+        "baseVariant": "/Lotus/Powersuits/Magician/Magician"
+    },
+    "/Lotus/Powersuits/Magician/Magician": {
+        "variants": [
+            "/Lotus/Powersuits/Magician/LimboPrime"
+        ]
+    },
+    "/Lotus/Powersuits/MonkeyKing/MonkeyKing": {
+        "variants": [
+            "/Lotus/Powersuits/MonkeyKing/WukongPrime"
+        ]
+    },
+    "/Lotus/Powersuits/MonkeyKing/MonkeyKingStaff": {
+        "variants": [
+            "/Lotus/Powersuits/MonkeyKing/WukongPrimeStaff"
+        ]
+    },
+    "/Lotus/Powersuits/MonkeyKing/WukongPrime": {
+        "baseVariant": "/Lotus/Powersuits/MonkeyKing/MonkeyKing"
+    },
+    "/Lotus/Powersuits/MonkeyKing/WukongPrimeStaff": {
+        "baseVariant": "/Lotus/Powersuits/MonkeyKing/MonkeyKingStaff"
+    },
+    "/Lotus/Powersuits/Necro/Necro": {
+        "variants": [
+            "/Lotus/Powersuits/Necro/NekrosPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Necro/NekrosPrime": {
+        "baseVariant": "/Lotus/Powersuits/Necro/Necro"
+    },
+    "/Lotus/Powersuits/Nezha/Nezha": {
+        "variants": [
+            "/Lotus/Powersuits/Nezha/NezhaPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Nezha/NezhaPrime": {
+        "baseVariant": "/Lotus/Powersuits/Nezha/Nezha"
+    },
+    "/Lotus/Powersuits/Ninja/AshPrime": {
+        "baseVariant": "/Lotus/Powersuits/Ninja/Ninja"
+    },
+    "/Lotus/Powersuits/Ninja/Ninja": {
+        "variants": [
+            "/Lotus/Powersuits/Ninja/AshPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Ninja/NinjaStormWeapon": {
+        "variants": [
+            "/Lotus/Powersuits/Ninja/NinjaStormWeaponPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Ninja/NinjaStormWeaponPrime": {
+        "baseVariant": "/Lotus/Powersuits/Ninja/NinjaStormWeapon"
+    },
+    "/Lotus/Powersuits/Odalisk/Odalisk": {
+        "variants": [
+            "/Lotus/Powersuits/Odalisk/ProteaPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Odalisk/ProteaPrime": {
+        "baseVariant": "/Lotus/Powersuits/Odalisk/Odalisk"
+    },
+    "/Lotus/Powersuits/Pacifist/BaruukPrime": {
+        "baseVariant": "/Lotus/Powersuits/Pacifist/Pacifist"
+    },
+    "/Lotus/Powersuits/Pacifist/Pacifist": {
+        "variants": [
+            "/Lotus/Powersuits/Pacifist/BaruukPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Pacifist/PacifistFist": {
+        "variants": [
+            "/Lotus/Powersuits/Pacifist/PacifistFistPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Pacifist/PacifistFistPrime": {
+        "baseVariant": "/Lotus/Powersuits/Pacifist/PacifistFist"
+    },
+    "/Lotus/Powersuits/Paladin/Paladin": {
+        "variants": [
+            "/Lotus/Powersuits/Paladin/PaladinPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Paladin/PaladinPrime": {
+        "baseVariant": "/Lotus/Powersuits/Paladin/Paladin"
+    },
+    "/Lotus/Powersuits/Pirate/HydroidPrime": {
+        "baseVariant": "/Lotus/Powersuits/Pirate/Pirate"
+    },
+    "/Lotus/Powersuits/Pirate/Pirate": {
+        "variants": [
+            "/Lotus/Powersuits/Pirate/HydroidPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Priest/HarrowPrime": {
+        "baseVariant": "/Lotus/Powersuits/Priest/Priest"
+    },
+    "/Lotus/Powersuits/Priest/Priest": {
+        "variants": [
+            "/Lotus/Powersuits/Priest/HarrowPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Ranger/ExaltedBow": {
+        "variants": [
+            "/Lotus/Powersuits/Ranger/PrimeExaltedBow"
+        ]
+    },
+    "/Lotus/Powersuits/Ranger/IvaraPrime": {
+        "baseVariant": "/Lotus/Powersuits/Ranger/Ranger"
+    },
+    "/Lotus/Powersuits/Ranger/PrimeExaltedBow": {
+        "baseVariant": "/Lotus/Powersuits/Ranger/ExaltedBow"
+    },
+    "/Lotus/Powersuits/Ranger/Ranger": {
+        "variants": [
+            "/Lotus/Powersuits/Ranger/IvaraPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Revenant/Revenant": {
+        "variants": [
+            "/Lotus/Powersuits/Revenant/RevenantPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Revenant/RevenantPrime": {
+        "baseVariant": "/Lotus/Powersuits/Revenant/Revenant"
+    },
+    "/Lotus/Powersuits/Rhino/Rhino": {
+        "variants": [
+            "/Lotus/Powersuits/Rhino/RhinoPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Rhino/RhinoPrime": {
+        "baseVariant": "/Lotus/Powersuits/Rhino/Rhino"
+    },
+    "/Lotus/Powersuits/Runner/GaussPrime": {
+        "baseVariant": "/Lotus/Powersuits/Runner/Runner"
+    },
+    "/Lotus/Powersuits/Runner/Runner": {
+        "variants": [
+            "/Lotus/Powersuits/Runner/GaussPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Sandman/InarosPrime": {
+        "baseVariant": "/Lotus/Powersuits/Sandman/Sandman"
+    },
+    "/Lotus/Powersuits/Sandman/Sandman": {
+        "variants": [
+            "/Lotus/Powersuits/Sandman/InarosPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Saryn/Saryn": {
+        "variants": [
+            "/Lotus/Powersuits/Saryn/SarynPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Saryn/SarynPrime": {
+        "baseVariant": "/Lotus/Powersuits/Saryn/Saryn"
+    },
+    "/Lotus/Powersuits/Sentient/CalibanPrime": {
+        "baseVariant": "/Lotus/Powersuits/Sentient/Sentient"
+    },
+    "/Lotus/Powersuits/Sentient/Sentient": {
+        "variants": [
+            "/Lotus/Powersuits/Sentient/CalibanPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Tengu/Tengu": {
+        "variants": [
+            "/Lotus/Powersuits/Tengu/ZephyrPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Tengu/ZephyrPrime": {
+        "baseVariant": "/Lotus/Powersuits/Tengu/Tengu"
+    },
+    "/Lotus/Powersuits/Trapper/Trapper": {
+        "variants": [
+            "/Lotus/Powersuits/Trapper/TrapperPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Trapper/TrapperPrime": {
+        "baseVariant": "/Lotus/Powersuits/Trapper/Trapper"
+    },
+    "/Lotus/Powersuits/Trinity/Trinity": {
+        "variants": [
+            "/Lotus/Powersuits/Trinity/TrinityPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Trinity/TrinityPrime": {
+        "baseVariant": "/Lotus/Powersuits/Trinity/Trinity"
+    },
+    "/Lotus/Powersuits/Volt/Volt": {
+        "variants": [
+            "/Lotus/Powersuits/Volt/VoltPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Volt/VoltPrime": {
+        "baseVariant": "/Lotus/Powersuits/Volt/Volt"
+    },
+    "/Lotus/Powersuits/Wisp/Wisp": {
+        "variants": [
+            "/Lotus/Powersuits/Wisp/WispPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Wisp/WispPrime": {
+        "baseVariant": "/Lotus/Powersuits/Wisp/Wisp"
+    },
+    "/Lotus/Powersuits/Wraith/ReaperMeleeWeapon": {
+        "variants": [
+            "/Lotus/Powersuits/Wraith/SevagothShadowPrimeClawsWeapon"
+        ]
+    },
+    "/Lotus/Powersuits/Wraith/SevagothPrime": {
+        "baseVariant": "/Lotus/Powersuits/Wraith/Wraith"
+    },
+    "/Lotus/Powersuits/Wraith/SevagothShadowPrimeClawsWeapon": {
+        "baseVariant": "/Lotus/Powersuits/Wraith/ReaperMeleeWeapon"
+    },
+    "/Lotus/Powersuits/Wraith/Wraith": {
+        "variants": [
+            "/Lotus/Powersuits/Wraith/SevagothPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Yareli/Yareli": {
+        "variants": [
+            "/Lotus/Powersuits/Yareli/YareliPrime"
+        ]
+    },
+    "/Lotus/Powersuits/Yareli/YareliPrime": {
+        "baseVariant": "/Lotus/Powersuits/Yareli/Yareli"
+    },
+    "/Lotus/Powersuits/YinYang/EquinoxPrime": {
+        "baseVariant": "/Lotus/Powersuits/YinYang/YinYang"
+    },
+    "/Lotus/Powersuits/YinYang/YinYang": {
+        "variants": [
+            "/Lotus/Powersuits/YinYang/EquinoxPrime"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/CarrierPowerSuit": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelPowersuits/PrimeCarrierPowerSuit"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/DethCubePowerSuit": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelPowersuits/PrimeDethCubePowerSuit"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/EmpyreanSentinelPowerSuit": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelPowersuits/NautilusPrimeSentinelPowerSuit"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/MeleePetPowerSuit": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelPowersuits/PrimeHeliosPowerSuit"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/NautilusPrimeSentinelPowerSuit": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelPowersuits/EmpyreanSentinelPowerSuit"
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/PrimeCarrierPowerSuit": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelPowersuits/CarrierPowerSuit"
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/PrimeDethCubePowerSuit": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelPowersuits/DethCubePowerSuit"
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/PrimeHeliosPowerSuit": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelPowersuits/MeleePetPowerSuit"
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/PrimeShadePowerSuit": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelPowersuits/ShadePowerSuit"
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/PrimeWyrmPowerSuit": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelPowersuits/WyrmPowerSuit"
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/PrismaShadePowerSuit": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelPowersuits/ShadePowerSuit"
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/ShadePowerSuit": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelPowersuits/PrimeShadePowerSuit",
+            "/Lotus/Types/Sentinels/SentinelPowersuits/PrismaShadePowerSuit"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelPowersuits/WyrmPowerSuit": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelPowersuits/PrimeWyrmPowerSuit"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/BurstLaserPistol": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelWeapons/PrimeBurstLaserPistol",
+            "/Lotus/Types/Sentinels/SentinelWeapons/PrismaBurstLaserPistol"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/DeconstructorPrime/PrimeHeliosGlaiveWeapon": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelWeapons/SentGlaiveWeapon"
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/DethMachineRifle": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelWeapons/PrimeDethMachineRifle"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/LaserRifle": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelWeapons/PrimeLaserRifle"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/PrimeBurstLaserPistol": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelWeapons/BurstLaserPistol"
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/PrimeDethMachineRifle": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelWeapons/DethMachineRifle"
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/PrimeLaserRifle": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelWeapons/LaserRifle"
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/PrimeSentShotgun": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelWeapons/SentShotgun"
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/PrismaBurstLaserPistol": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelWeapons/BurstLaserPistol"
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/SentGlaiveWeapon": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelWeapons/DeconstructorPrime/PrimeHeliosGlaiveWeapon"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayPrimeRifle": {
+        "baseVariant": "/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayRifle"
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayRifle": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayPrimeRifle"
+        ]
+    },
+    "/Lotus/Types/Sentinels/SentinelWeapons/SentShotgun": {
+        "variants": [
+            "/Lotus/Types/Sentinels/SentinelWeapons/PrimeSentShotgun"
+        ]
+    },
+    "/Lotus/Weapons/Cephalon/Melee/Hammer/CephHammerWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/CephalonSuda/Melee/CSHeliocor"
+        ]
+    },
+    "/Lotus/Weapons/Cephalon/Primary/CephPrimary/CephPrimary": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/CephalonSuda/LongGuns/CSSimulor"
+        ]
+    },
+    "/Lotus/Weapons/ClanTech/Chemical/FlameThrower": {
+        "variants": [
+            "/Lotus/Weapons/ClanTech/Chemical/FlameThrowerWraith"
+        ]
+    },
+    "/Lotus/Weapons/ClanTech/Chemical/FlameThrowerWraith": {
+        "baseVariant": "/Lotus/Weapons/ClanTech/Chemical/FlameThrower"
+    },
+    "/Lotus/Weapons/ClanTech/Chemical/RocketLauncher": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Ogris/KuvaOgris"
+        ]
+    },
+    "/Lotus/Weapons/ClanTech/Energy/CrpHeavyRifle": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/LongGuns/Machinegun/SupraVandal"
+        ]
+    },
+    "/Lotus/Weapons/ClanTech/Energy/CrpLaserPistol": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/Pistols/CorpusModularPistol/Vandal/CrpLaserPistolVandal"
+        ]
+    },
+    "/Lotus/Weapons/ClanTech/Energy/CrpLaserRifle": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEFluxRifle/CrpBEFluxRifle"
+        ]
+    },
+    "/Lotus/Weapons/ClanTech/Energy/DeraVandal": {
+        "baseVariant": "/Lotus/Weapons/ClanTech/Energy/EnergyRifle"
+    },
+    "/Lotus/Weapons/ClanTech/Energy/ElectroProd": {
+        "variants": [
+            "/Lotus/Weapons/ClanTech/Energy/VandalElectroProd"
+        ]
+    },
+    "/Lotus/Weapons/ClanTech/Energy/EnergyRifle": {
+        "variants": [
+            "/Lotus/Weapons/ClanTech/Energy/DeraVandal"
+        ]
+    },
+    "/Lotus/Weapons/ClanTech/Energy/VandalElectroProd": {
+        "baseVariant": "/Lotus/Weapons/ClanTech/Energy/ElectroProd"
+    },
+    "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEArcaPlasmor/CrpBEArcaPlasmor": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/CrpShotgun/CrpShotgun"
+    },
+    "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEFerrox/CrpBEFerrox": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/Spears/Railgun/CorpusRailgun"
+    },
+    "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEFluxRifle/CrpBEFluxRifle": {
+        "baseVariant": "/Lotus/Weapons/ClanTech/Energy/CrpLaserRifle"
+    },
+    "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEGlaxion/CrpBEGlaxion": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/CrpFreezeRay/CrpFreezeRayRifle"
+    },
+    "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBETetra/CrpBETetra": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/CorpusUMP/CorpusUMP"
+    },
+    "/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBECycron/CrpBECycron": {
+        "baseVariant": "/Lotus/Weapons/Corpus/Pistols/CrpChargeGun/CrpChargeGun"
+    },
+    "/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBEDetron/CrpBEDetron": {
+        "baseVariant": "/Lotus/Weapons/Corpus/Pistols/CorpusHandShotgun/CorpusHandCannon"
+    },
+    "/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBEPlinx/CrpBEPlinxWeapon": {
+        "baseVariant": "/Lotus/Weapons/Corpus/Pistols/CrpSonificBlastor/CrpBlastorWeapon"
+    },
+    "/Lotus/Weapons/Corpus/Bow/Longbow/CrpBow": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/Bow/Longbow/PrismaLenz/PrismaLenzWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/Bow/Longbow/PrismaLenz/PrismaLenzWeapon": {
+        "baseVariant": "/Lotus/Weapons/Corpus/Bow/Longbow/CrpBow"
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/CorpusUMP/CorpusUMP": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBETetra/CrpBETetra",
+            "/Lotus/Weapons/Corpus/LongGuns/CorpusUMP/PrismaCorpusUMP"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/CorpusUMP/PrismaCorpusUMP": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/CorpusUMP/CorpusUMP"
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/CrpBFG/CrpBFG": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/LongGuns/CrpBFG/Vandal/VandalCrpBFG"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/CrpBFG/Vandal/VandalCrpBFG": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/CrpBFG/CrpBFG"
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/CrpFreezeRay/CrpFreezeRayRifle": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEGlaxion/CrpBEGlaxion",
+            "/Lotus/Weapons/Corpus/LongGuns/CrpFreezeRay/Vandal/CrpFreezeRayVandalRifle"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/CrpFreezeRay/Vandal/CrpFreezeRayVandalRifle": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/CrpFreezeRay/CrpFreezeRayRifle"
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/CrpShockRifle": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/QuantaVandal",
+            "/Lotus/Weapons/Infested/LongGuns/InfCrpShockSwarm/InfCrpShockSwarmRifle"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/QuantaVandal": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/CrpShockRifle"
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/CrpShotgun/CrpShotgun": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEArcaPlasmor/CrpBEArcaPlasmor"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/GrenadeLauncher/CarminePenta": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/GrenadeLauncher/GrenadeLauncher"
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/GrenadeLauncher/GrenadeLauncher": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/LongGuns/GrenadeLauncher/CarminePenta",
+            "/Lotus/Weapons/Syndicates/PerrinSequence/LongGuns/PSPenta"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/Machinegun/SupraVandal": {
+        "baseVariant": "/Lotus/Weapons/ClanTech/Energy/CrpHeavyRifle"
+    },
+    "/Lotus/Weapons/Corpus/LongGuns/Spears/Railgun/CorpusRailgun": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEFerrox/CrpBEFerrox"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpPrismaTonfa": {
+        "baseVariant": "/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpTonfa"
+    },
+    "/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpTonfa": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpPrismaTonfa"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/Melee/KickAndPunch/KickPunchWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/Melee/KickAndPunch/PrismaObex"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/Melee/KickAndPunch/PrismaObex": {
+        "baseVariant": "/Lotus/Weapons/Corpus/Melee/KickAndPunch/KickPunchWeapon"
+    },
+    "/Lotus/Weapons/Corpus/Melee/Whip/CorpusWhipWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/PerrinSequence/Melee/PSLecta"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/Pistols/CorpusHandShotgun/CorpusHandCannon": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBEDetron/CrpBEDetron",
+            "/Lotus/Weapons/VoidTrader/VTDetron"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/Pistols/CorpusMinigun/DualCorpusMinigun": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/PerrinSequence/Pistols/PSDualCestra"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/Pistols/CorpusModularPistol/Vandal/CrpLaserPistolVandal": {
+        "baseVariant": "/Lotus/Weapons/ClanTech/Energy/CrpLaserPistol"
+    },
+    "/Lotus/Weapons/Corpus/Pistols/CrpChargeGun/CrpChargeGun": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBECycron/CrpBECycron"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/Pistols/CrpHandRL/CorpusHandRocketLauncher": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/Pistols/CrpHandRL/PrismaAngstrum"
+        ]
+    },
+    "/Lotus/Weapons/Corpus/Pistols/CrpHandRL/PrismaAngstrum": {
+        "baseVariant": "/Lotus/Weapons/Corpus/Pistols/CrpHandRL/CorpusHandRocketLauncher"
+    },
+    "/Lotus/Weapons/Corpus/Pistols/CrpSonificBlastor/CrpBlastorWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Corpus/BoardExec/Secondary/CrpBEPlinx/CrpBEPlinxWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/GrineerPistol/GrineerAkimboPistol": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/Pistols/GrineerBulbousSMG/Prisma/PrismaTwinGremlinsWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/GrineerPistol/GrineerLightPistol": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/Pistols/WraithSingleViper/WraithSingleViper"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/GrineerPistol/GrnHeavyPistol": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Kraken/KuvaKraken"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/GrineerPistol/GrnScopedPistolPlayer": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Seer/KuvaSeer"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/HeavyWeapons/Grattler/KuvaGrattler": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Archwing/Primary/RepurposedGrineerAntiAircraftGun/ArchGRNAAGun"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Drakgoon/KuvaDrakgoon": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/GrineerFlakCannon/FlakCannon"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Hek/KuvaHekWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Shotgun/QuadShotgun"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Hind/KuvaHind": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/BurstRifle/GrnBurstRifle"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Karak/KuvaKarak": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/GrineerM16Rifle"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Kohm/KuvaKohm": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/GrnSpark/GrnSparkRifle"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Ogris/KuvaOgris": {
+        "baseVariant": "/Lotus/Weapons/ClanTech/Chemical/RocketLauncher"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Quartakk/KuvaQuartakk": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/GrnFourBarrelRifle/GrnFourBarrelRifleWeapon"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Sobek/KuvaSobek": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Shotgun/DoubleBarrelShotgun"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Tonkor/KuvaTonkor": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/GrnGrenadeLauncher/GrnGrenadeLauncher"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Zarr/KuvaZarr": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/GrnCannon/GrnCannonWeapon"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Brakk/KuvaBrakk": {
+        "baseVariant": "/Lotus/Weapons/Grineer/Pistols/GrineerHandShotgun/GrineerHandCannon"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Kraken/KuvaKraken": {
+        "baseVariant": "/Lotus/Weapons/Grineer/GrineerPistol/GrnHeavyPistol"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Nukor/KuvaNukor": {
+        "baseVariant": "/Lotus/Weapons/Grineer/Pistols/GrineerMicrowavegun/GrnMicrowavePistol"
+    },
+    "/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Seer/KuvaSeer": {
+        "baseVariant": "/Lotus/Weapons/Grineer/GrineerPistol/GrnScopedPistolPlayer"
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/BurstRifle/GrnBurstRifle": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Hind/KuvaHind"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrineerAssaultRifle/GrnAssaultRifle": {
+        "variants": [
+            "/Lotus/Weapons/VoidTrader/PrismaGrakata"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrineerFlakCannon/FlakCannon": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Drakgoon/KuvaDrakgoon"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrineerLeverActionRifle/GLARifle": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/LongGuns/GrineerLeverActionRifle/PrismaGrinlokWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrineerLeverActionRifle/PrismaGrinlokWeapon": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/GrineerLeverActionRifle/GLARifle"
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/GrineerM16Rifle": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Karak/KuvaKarak",
+            "/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/KarakWraith"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/KarakWraith": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/GrineerM16Rifle"
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrineerSniperRifle/GrnSniperRifle": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/LongGuns/GrineerSniperRifle/VulkarWraith"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrineerSniperRifle/VulkarWraith": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/GrineerSniperRifle/GrnSniperRifle"
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrnCannon/GrnCannonWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Zarr/KuvaZarr"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrnFourBarrelRifle/GrnFourBarrelRifleWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Quartakk/KuvaQuartakk"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrnGrenadeLauncher/GrnGrenadeLauncher": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Tonkor/KuvaTonkor"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/GrnSpark/GrnSparkRifle": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Kohm/KuvaKohm"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/VoidTraderGorgon/VTGorgon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/HeavyRifle"
+    },
+    "/Lotus/Weapons/Grineer/LongGuns/WraithGorgon/WraithGorgon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/HeavyRifle"
+    },
+    "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/DualCleaverWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/PrismaDualCleavers"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/PrismaMachete",
+            "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/WraithMacheteWeapon",
+            "/Lotus/Weapons/Tenno/Melee/PersianMachete/DjinnMachete"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/PrismaDualCleavers": {
+        "baseVariant": "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/DualCleaverWeapon"
+    },
+    "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/PrismaMachete": {
+        "baseVariant": "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete"
+    },
+    "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/WraithMacheteWeapon": {
+        "baseVariant": "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete"
+    },
+    "/Lotus/Weapons/Grineer/Melee/GrnBoomerang/GrnBoomerang": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/Melee/GrnBoomerang/HalikarWraithWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/Melee/GrnBoomerang/HalikarWraithWeapon": {
+        "baseVariant": "/Lotus/Weapons/Grineer/Melee/GrnBoomerang/GrnBoomerang"
+    },
+    "/Lotus/Weapons/Grineer/Melee/GrnTrident/GrnTridentWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/SteelMeridian/Melee/SMSydon"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/Pistols/GrineerBulbousSMG/Prisma/PrismaTwinGremlinsWeapon": {
+        "baseVariant": "/Lotus/Weapons/Grineer/GrineerPistol/GrineerAkimboPistol"
+    },
+    "/Lotus/Weapons/Grineer/Pistols/GrineerHandShotgun/GrineerHandCannon": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Brakk/KuvaBrakk"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/Pistols/GrineerLeverActionPistol/GLAPistol": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/SteelMeridian/Pistols/SMMarelok"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/Pistols/GrineerMicrowavegun/GrnMicrowavePistol": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Nukor/KuvaNukor"
+        ]
+    },
+    "/Lotus/Weapons/Grineer/Pistols/WraithSingleViper/WraithSingleViper": {
+        "baseVariant": "/Lotus/Weapons/Grineer/GrineerPistol/GrineerLightPistol"
+    },
+    "/Lotus/Weapons/Grineer/Pistols/WraithTwinVipers/WraithTwinVipers": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Akimbo/AkimboViperPistols"
+    },
+    "/Lotus/Weapons/Infested/Bow/InfCernosBow/InfCernos": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Bows/AntlerBow/AntlerBow"
+    },
+    "/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaHema": {
+        "baseVariant": "/Lotus/Weapons/Infested/LongGuns/InfWFAccompanyingPri/InfestedBurstRifle"
+    },
+    "/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaSporothrix": {
+        "baseVariant": "/Lotus/Weapons/Infested/LongGuns/InfSniperRifle/InfSniperRifle"
+    },
+    "/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaSynapse": {
+        "baseVariant": "/Lotus/Weapons/Infested/LongGuns/InfestedRifle"
+    },
+    "/Lotus/Weapons/Infested/InfestedLich/Melee/CodaCaustacyst/CodaCaustacyst": {
+        "baseVariant": "/Lotus/Weapons/Infested/Melee/InfEmbolistScythe/InfestedScythe"
+    },
+    "/Lotus/Weapons/Infested/InfestedLich/Melee/CodaHirudo": {
+        "baseVariant": "/Lotus/Weapons/Infested/Melee/InfWFAccompanyingSparring/InfestedKogake"
+    },
+    "/Lotus/Weapons/Infested/InfestedLich/Melee/CodaMire": {
+        "baseVariant": "/Lotus/Weapons/Infested/Melee/Swords/Mire/MireSword"
+    },
+    "/Lotus/Weapons/Infested/InfestedLich/Melee/CodaPathocyst/CodaPathocyst": {
+        "baseVariant": "/Lotus/Weapons/Infested/Melee/InfBoomerang/InfBoomerangWeapon"
+    },
+    "/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaCatabolyst": {
+        "baseVariant": "/Lotus/Weapons/Infested/Pistols/InfBeamPistol/InfBeamPistol"
+    },
+    "/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaPox": {
+        "baseVariant": "/Lotus/Weapons/Infested/Pistols/InfProximityStars/InfProximityStars"
+    },
+    "/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaTysis": {
+        "baseVariant": "/Lotus/Weapons/Infested/Pistols/InfestedDartPistol/InfestedDartPistol"
+    },
+    "/Lotus/Weapons/Infested/LongGuns/InfCrpShockSwarm/InfCrpShockSwarmRifle": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/CrpShockRifle"
+    },
+    "/Lotus/Weapons/Infested/LongGuns/InfestedRifle": {
+        "variants": [
+            "/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaSynapse"
+        ]
+    },
+    "/Lotus/Weapons/Infested/LongGuns/InfSniperRifle/InfSniperRifle": {
+        "variants": [
+            "/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaSporothrix"
+        ]
+    },
+    "/Lotus/Weapons/Infested/LongGuns/InfWFAccompanyingPri/InfestedBurstRifle": {
+        "variants": [
+            "/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaHema"
+        ]
+    },
+    "/Lotus/Weapons/Infested/Melee/InfBoomerang/InfBoomerangWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Infested/InfestedLich/Melee/CodaPathocyst/CodaPathocyst"
+        ]
+    },
+    "/Lotus/Weapons/Infested/Melee/InfEmbolistScythe/InfestedScythe": {
+        "variants": [
+            "/Lotus/Weapons/Infested/InfestedLich/Melee/CodaCaustacyst/CodaCaustacyst"
+        ]
+    },
+    "/Lotus/Weapons/Infested/Melee/InfWFAccompanyingSparring/InfestedKogake": {
+        "variants": [
+            "/Lotus/Weapons/Infested/InfestedLich/Melee/CodaHirudo"
+        ]
+    },
+    "/Lotus/Weapons/Infested/Melee/Swords/Mire/MireSword": {
+        "variants": [
+            "/Lotus/Weapons/Infested/InfestedLich/Melee/CodaMire"
+        ]
+    },
+    "/Lotus/Weapons/Infested/Pistols/InfBeamPistol/InfBeamPistol": {
+        "variants": [
+            "/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaCatabolyst"
+        ]
+    },
+    "/Lotus/Weapons/Infested/Pistols/InfestedDartPistol/InfestedDartPistol": {
+        "variants": [
+            "/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaTysis"
+        ]
+    },
+    "/Lotus/Weapons/Infested/Pistols/InfProximityStars/InfProximityStars": {
+        "variants": [
+            "/Lotus/Weapons/Infested/InfestedLich/Pistols/CodaPox"
+        ]
+    },
+    "/Lotus/Weapons/MK1Series/MK1Bo": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Staff/Staff"
+    },
+    "/Lotus/Weapons/MK1Series/MK1Furax": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Fist/Fist"
+    },
+    "/Lotus/Weapons/MK1Series/MK1Furis": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistol/AutoPistol"
+    },
+    "/Lotus/Weapons/MK1Series/MK1Kunai": {
+        "baseVariant": "/Lotus/Weapons/Tenno/ThrowingWeapons/Kunai"
+    },
+    "/Lotus/Weapons/MK1Series/MK1Paris": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Bows/HuntingBow"
+    },
+    "/Lotus/Weapons/MK1Series/MK1Strun": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Shotgun/Shotgun"
+    },
+    "/Lotus/Weapons/Sentients/SentJointedScythe/SentJointedScytheWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Scythe/PrimeVento/PrimeVentoScythe"
+        ]
+    },
+    "/Lotus/Weapons/Syndicates/ArbitersOfHexis/LongGuns/AHBoltor": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/BoltoRifle"
+    },
+    "/Lotus/Weapons/Syndicates/ArbitersOfHexis/Melee/AHBoltace": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Tonfa/Boltonfa/Boltonfa"
+    },
+    "/Lotus/Weapons/Syndicates/ArbitersOfHexis/Pistols/AHAkbolto": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Akimbo/AkimboBolto"
+    },
+    "/Lotus/Weapons/Syndicates/CephalonSuda/LongGuns/CSSimulor": {
+        "baseVariant": "/Lotus/Weapons/Cephalon/Primary/CephPrimary/CephPrimary"
+    },
+    "/Lotus/Weapons/Syndicates/CephalonSuda/Melee/CSHeliocor": {
+        "baseVariant": "/Lotus/Weapons/Cephalon/Melee/Hammer/CephHammerWeapon"
+    },
+    "/Lotus/Weapons/Syndicates/CephalonSuda/Pistols/CSDroidArray": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/CephalonSuda/Pistols/CSSynoidGammacor"
+        ]
+    },
+    "/Lotus/Weapons/Syndicates/CephalonSuda/Pistols/CSSynoidGammacor": {
+        "baseVariant": "/Lotus/Weapons/Syndicates/CephalonSuda/Pistols/CSDroidArray"
+    },
+    "/Lotus/Weapons/Syndicates/NewLoka/LongGuns/NLTigris": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/DoubleBarrelShotgun/TennoDoubleBarrelShotgun"
+    },
+    "/Lotus/Weapons/Syndicates/NewLoka/Melee/NLMagistar": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Maces/PaladinMace/PaladinMaceWeapon"
+    },
+    "/Lotus/Weapons/Syndicates/NewLoka/Pistols/NLCastanas": {
+        "baseVariant": "/Lotus/Weapons/Tenno/ThrowingWeapons/StickyBomb/StickyBombs"
+    },
+    "/Lotus/Weapons/Syndicates/PerrinSequence/LongGuns/PSPenta": {
+        "baseVariant": "/Lotus/Weapons/Corpus/LongGuns/GrenadeLauncher/GrenadeLauncher"
+    },
+    "/Lotus/Weapons/Syndicates/PerrinSequence/Melee/PSLecta": {
+        "baseVariant": "/Lotus/Weapons/Corpus/Melee/Whip/CorpusWhipWeapon"
+    },
+    "/Lotus/Weapons/Syndicates/PerrinSequence/Pistols/PSDualCestra": {
+        "baseVariant": "/Lotus/Weapons/Corpus/Pistols/CorpusMinigun/DualCorpusMinigun"
+    },
+    "/Lotus/Weapons/Syndicates/RedVeil/Bows/RVCernos": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Bows/AntlerBow/AntlerBow"
+    },
+    "/Lotus/Weapons/Syndicates/RedVeil/Melee/RVDarkDagger": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Dagger/DarkDagger"
+    },
+    "/Lotus/Weapons/Syndicates/RedVeil/Pistols/RVBallistica": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/AutomaticHandCrossbow/AutoCrossBow"
+    },
+    "/Lotus/Weapons/Syndicates/SteelMeridian/LongGuns/SMHek": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Shotgun/QuadShotgun"
+    },
+    "/Lotus/Weapons/Syndicates/SteelMeridian/Melee/SMSydon": {
+        "baseVariant": "/Lotus/Weapons/Grineer/Melee/GrnTrident/GrnTridentWeapon"
+    },
+    "/Lotus/Weapons/Syndicates/SteelMeridian/Pistols/SMMarelok": {
+        "baseVariant": "/Lotus/Weapons/Grineer/Pistols/GrineerLeverActionPistol/GLAPistol"
+    },
+    "/Lotus/Weapons/Tenno/Akimbo/AkimboAutoPistols": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeAfuris/PrimeAFurisWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Akimbo/AkimboBolto": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/ArbitersOfHexis/Pistols/AHAkbolto",
+            "/Lotus/Weapons/Tenno/Pistols/PrimeAkbolto/PrimeAkBoltoWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Akimbo/AkimboShotGun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Akimbo/PrimeAkimboShotGun"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Akimbo/AkimboViperPistols": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/Pistols/WraithTwinVipers/WraithTwinVipers"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Akimbo/AkLexPistols": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Akimbo/AkLexPrimePistols"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Akimbo/AkLexPrimePistols": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Akimbo/AkLexPistols"
+    },
+    "/Lotus/Weapons/Tenno/Akimbo/DualMagnus": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Akimbo/DualMagnusPrime"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Akimbo/DualMagnusPrime": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Akimbo/DualMagnus"
+    },
+    "/Lotus/Weapons/Tenno/Akimbo/DualVastos": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeVasto/AkPrimeVasto/AkPrimeVastoPistol"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Akimbo/PrimeAkimboShotGun": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Akimbo/AkimboShotGun"
+    },
+    "/Lotus/Weapons/Tenno/Archwing/Melee/Archsword/ArchSwordWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Archwing/Melee/VoidTraderArchsword/VTArchSwordWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Archwing/Melee/VoidTraderArchsword/VTArchSwordWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Archwing/Melee/Archsword/ArchSwordWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Archwing/Primary/FoldingMachineGun/ArchMachineGun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Archwing/Primary/FoldingMachineGun/ArchMachineGunVandal"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Archwing/Primary/FoldingMachineGun/ArchMachineGunVandal": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Archwing/Primary/FoldingMachineGun/ArchMachineGun"
+    },
+    "/Lotus/Weapons/Tenno/Archwing/Primary/LaunchGrenade/ArchCannon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Archwing/Primary/PrimeCorvas/PrimeCorvasWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Archwing/Primary/PrimeCorvas/PrimeCorvasWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Archwing/Primary/LaunchGrenade/ArchCannon"
+    },
+    "/Lotus/Weapons/Tenno/Archwing/Primary/PrimeLarkspur/PrimeLarkspurWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Archwing/Primary/TnShieldframeArchGun/TnShieldFrameArchGun"
+    },
+    "/Lotus/Weapons/Tenno/Archwing/Primary/RepurposedGrineerAntiAircraftGun/ArchGRNAAGun": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/HeavyWeapons/Grattler/KuvaGrattler"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Archwing/Primary/TnShieldframeArchGun/TnShieldFrameArchGun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Archwing/Primary/PrimeLarkspur/PrimeLarkspurWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Bows/AntlerBow/AntlerBow": {
+        "variants": [
+            "/Lotus/Weapons/Infested/Bow/InfCernosBow/InfCernos",
+            "/Lotus/Weapons/Syndicates/RedVeil/Bows/RVCernos",
+            "/Lotus/Weapons/Tenno/Bows/PrimeCernos/PrimeCernos",
+            "/Lotus/Weapons/Tenno/Bows/PrimeDerelictCernos/DerelictCernos"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Bows/AsymetricalBow/AsymetricalBow": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Bows/PrimeDaikyu/PrimeDaikyuBow"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Bows/HuntingBow": {
+        "variants": [
+            "/Lotus/Weapons/MK1Series/MK1Paris",
+            "/Lotus/Weapons/Tenno/Bows/PrimeHuntingBow"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Bows/PrimeCernos/PrimeCernos": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Bows/AntlerBow/AntlerBow"
+    },
+    "/Lotus/Weapons/Tenno/Bows/PrimeDaikyu/PrimeDaikyuBow": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Bows/AsymetricalBow/AsymetricalBow"
+    },
+    "/Lotus/Weapons/Tenno/Bows/PrimeDerelictCernos/DerelictCernos": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Bows/AntlerBow/AntlerBow"
+    },
+    "/Lotus/Weapons/Tenno/Bows/PrimeHuntingBow": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Bows/HuntingBow"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/DexTheThird/DexTheThird": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/TnoLeverAction/TnoLeverActionRifle"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/DoubleBarrelShotgun/TennoDoubleBarrelShotgun": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/NewLoka/LongGuns/NLTigris",
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeTigris/PrimeTigris"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/DrakeRifle/DrakeRifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeTiberon/PrimeTiberonRifle"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/FiveShotSniper/FiveShotSniper": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/RubicoPrime/RubicoPrimeWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/GarudaCrossbow/GarudaCrossbow": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeNagantaka/PrimeNagantakaWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/GyreRifle/GyreRifleWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeAlternox/PrimeAlternoxWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/Miter/TnoMiter": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimePanthera/PrimePanthera"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeAcceltra/PrimeAcceltraWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/SapientPrimary/SapientPrimaryWeapon"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeAlternox/PrimeAlternoxWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/GyreRifle/GyreRifleWeapon"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeAstilla/AstillaPrimeWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/TnGlassShotgun/TnGlassShotgunGun"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeBaza/PrimeBazaGun": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/TnSMG/TnSMGWeapon"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeBoltor/PrimeBoltor": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/BoltoRifle"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeBurston/PrimeBurston": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/BurstRifle"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeCedo/PrimeCedoWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/TnAlchemistShotgun/TnAlchemistShotgun"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeCorinth/PrimeCorinth": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/TnHeavyShotgun/TnHeavyShotgunGun"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeFulmin/PrimeFulmin": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/TnWispRifle/TnWispRifle"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeNagantaka/PrimeNagantakaWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/GarudaCrossbow/GarudaCrossbow"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimePanthera/PrimePanthera": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/Miter/TnoMiter"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimePhantasma/PhantasmaPrimeShotgun": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/RevenantShotgun/RevenantShotgun"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeScourge/PrimeScourgeWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/TnPriestSpear/TnPriestSpearGun"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeSoma/PrimeSomaRifle": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/TennoAR"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeStradavar/PrimeStradavarGun": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/TennoTommyGun/TennoTommyGunRifle"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeStrun/PrimeStrunWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Shotgun/Shotgun"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeSybaris/PrimeSybarisRifle": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/TnoLeverAction/TnoLeverActionRifle"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeTenora/TenoraPrimeWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/TnBardRifle/TnBardRifle"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeTiberon/PrimeTiberonRifle": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/DrakeRifle/DrakeRifle"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeTigris/PrimeTigris": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/DoubleBarrelShotgun/TennoDoubleBarrelShotgun"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeTrumna/PrimeTrumnaWeapon": {
+        "baseVariant": "/Lotus/Weapons/Thanotech/ThanoRifle/ThanotechRifle"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeVectis/PrimeVectisRifle": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/TennoSniperRifle"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/PrimeZhuge/PrimeZhugeCrossbow": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/RepeatingCrossbow/RepeatingCrossbow"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/RepeatingCrossbow/RepeatingCrossbow": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeZhuge/PrimeZhugeCrossbow"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/RevenantShotgun/RevenantShotgun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimePhantasma/PhantasmaPrimeShotgun"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/RubicoPrime/RubicoPrimeWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/LongGuns/FiveShotSniper/FiveShotSniper"
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/SapientPrimary/SapientPrimaryWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeAcceltra/PrimeAcceltraWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/TennoTommyGun/TennoTommyGunRifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeStradavar/PrimeStradavarGun"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/TnAlchemistShotgun/TnAlchemistShotgun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeCedo/PrimeCedoWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/TnBardRifle/TnBardRifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeTenora/TenoraPrimeWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/TnGlassShotgun/TnGlassShotgunGun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeAstilla/AstillaPrimeWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/TnHeavyShotgun/TnHeavyShotgunGun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeCorinth/PrimeCorinth"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/TnoLeverAction/TnoLeverActionRifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/DexTheThird/DexTheThird",
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeSybaris/PrimeSybarisRifle"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/TnPriestSpear/TnPriestSpearGun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeScourge/PrimeScourgeWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/TnSMG/TnSMGWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeBaza/PrimeBazaGun"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/TnWispRifle/TnWispRifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeFulmin/PrimeFulmin"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/LongGuns/WraithLatron/WraithLatron": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/SemiAutoRifle"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Axe/AxeWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Axe/PrimeScindo/PrimeScindoWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Axe/DualAxeWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Axe/PrimeZoren/PrimeZorenAxeWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Axe/PrimeScindo/PrimeScindoWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Axe/AxeWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Axe/PrimeZoren/PrimeZorenAxeWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Axe/DualAxeWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Melee/BrassKnuckles/BrassKnuckles": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/PrimeKogake/KogakePrimeKnuckles"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Claws/TennoClaws": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/PrimeVenKa/PrimeVenkaClaws"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Dagger/DarkDagger": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/RedVeil/Melee/RVDarkDagger"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/DualDagger/DualDagger": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/DualDagger/FangPrimeDagger"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/DualDagger/FangPrimeDagger": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/DualDagger/DualDagger"
+    },
+    "/Lotus/Weapons/Tenno/Melee/DualKamas/DualKamas": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/PrimeDualKamas/PrimeDualKamas"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Fist/Fist": {
+        "variants": [
+            "/Lotus/Weapons/MK1Series/MK1Furax",
+            "/Lotus/Weapons/Tenno/Melee/Fist/FuraxWraith"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Fist/FuraxWraith": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Fist/Fist"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Gauntlet/BrawlerKnuckles/BrawlerKnuckles": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/PrimeTekko/PrimeTekko"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Gauntlet/Gauntlet": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Gauntlet/PrimeAnkyros/PrimeAnkyros"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Gauntlet/PrimeAnkyros/PrimeAnkyros": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Gauntlet/Gauntlet"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Glaives/Boomerang/BoomerangWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Glaives/PrimeKestrel/PrimeKestrel"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Glaives/LightGlaive/LightGlaiveWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Glaives/PrimeGlaive/PrimeGlaiveWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Glaives/PrimeGlaive/PrimeGlaiveWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Glaives/LightGlaive/LightGlaiveWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Glaives/PrimeKestrel/PrimeKestrel": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Glaives/Boomerang/BoomerangWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Melee/GreatSword/GreatSword": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/PrimeGram/PrimeGram"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Gunblade/RedeemerPrime/RedeemerPrimeWep": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Gunblade/TnoGunblade"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Gunblade/TnoGunblade": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Gunblade/RedeemerPrime/RedeemerPrimeWep"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Hammer/GlassHammer/GlassHammer": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/PrimeVolnus/VolnusPrimeWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Hammer/HammerWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/PrimeFragor/PrimeFragor"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/LongSword/LongSword": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/LongSword/SkanaPrime",
+            "/Lotus/Weapons/VoidTrader/PrismaSkana"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/LongSword/SkanaPrime": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/LongSword/LongSword"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Maces/PaladinMace/PaladinMaceWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/NewLoka/Melee/NLMagistar"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Nunchaku/Nunchaku/Nunchaku": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/PrimeNinkondi/PrimeNikondi"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/PersianMachete/DjinnMachete": {
+        "baseVariant": "/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Polearms/PolearmWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Polearms/PrimePolearmWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Polearms/PrimeGuandao/PrimeGuandaoWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Polearms/TnGuandaoPolearm/TnGuandaoPolearmWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Polearms/PrimePolearmWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Polearms/PolearmWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Polearms/TnGuandaoPolearm/TnGuandaoPolearmWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Polearms/PrimeGuandao/PrimeGuandaoWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/PrimeDualKamas/PrimeDualKamas": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/DualKamas/DualKamas"
+    },
+    "/Lotus/Weapons/Tenno/Melee/PrimeFragor/PrimeFragor": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Hammer/HammerWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Melee/PrimeKogake/KogakePrimeKnuckles": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/BrassKnuckles/BrassKnuckles"
+    },
+    "/Lotus/Weapons/Tenno/Melee/PrimeNinkondi/PrimeNikondi": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Nunchaku/Nunchaku/Nunchaku"
+    },
+    "/Lotus/Weapons/Tenno/Melee/PrimeSilvaAegis/PrimeSilvaAegis": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/MeleeContestWinnerOne/TennoSwordShield"
+    },
+    "/Lotus/Weapons/Tenno/Melee/PrimeTekko/PrimeTekko": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Gauntlet/BrawlerKnuckles/BrawlerKnuckles"
+    },
+    "/Lotus/Weapons/Tenno/Melee/PrimeVenKa/PrimeVenkaClaws": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Claws/TennoClaws"
+    },
+    "/Lotus/Weapons/Tenno/Melee/PrimeVolnus/VolnusPrimeWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Hammer/GlassHammer/GlassHammer"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Scythe/PrimeVento/PrimeVentoScythe": {
+        "baseVariant": "/Lotus/Weapons/Sentients/SentJointedScythe/SentJointedScytheWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Staff/MonkSpade/TnoMonkStaff": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Staff/TipedoPrime/TipedoPrimeWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Staff/PrimeBo/PrimeBoWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Staff/Staff"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Staff/Staff": {
+        "variants": [
+            "/Lotus/Weapons/MK1Series/MK1Bo",
+            "/Lotus/Weapons/Tenno/Melee/Staff/PrimeBo/PrimeBoWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Staff/TipedoPrime/TipedoPrimeWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Staff/MonkSpade/TnoMonkStaff"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/CutlassAndPoignard/CutlassPoignardSwords": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/PrimeNamiSkyla/PrimeNamiSkyla"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/GreatSword/TennoGreatSword": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/PrimeGalatine/PrimeGalatine"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Dex2023Nikana/Dex2023Nikana": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Dex2023Nikana/Dex2023Nikana",
+            "/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/LowKatana",
+            "/Lotus/Weapons/Tenno/Melee/Swords/PrimeKatana/PrimeNikana"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/LowKatana": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/KrisDagger/KrisDagger": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/PrimeKaryst/PrimeKrisDagger"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/PRapier/DestrezaPrime": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/TnoRapier/TnoRapier"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/PrimeDualKeres/PrimeDualKeresWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/QuillSword/QuillDualSwords"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/PrimeGalatine/PrimeGalatine": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/GreatSword/TennoGreatSword"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/PrimeGram/PrimeGram": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/GreatSword/GreatSword"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/PrimeKaryst/PrimeKrisDagger": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/KrisDagger/KrisDagger"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/PrimeKatana/PrimeNikana": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/PrimeMasseter/PrimeMasseter": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/TnChiselKanabo/TnChiselKanabo"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/PrimeNamiSkyla/PrimeNamiSkyla": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/CutlassAndPoignard/CutlassPoignardSwords"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/PrimeOkina/PrimeOkina": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/TennoSai/TennoSais"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/PrimeTatsu/PrimeTatsuWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/TnTwoHandedKatana/TnTwoHandedKatana"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/QuillSword/QuillDualSwords": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/PrimeDualKeres/PrimeDualKeresWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/OperationsLacera": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/StalkerMios"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/StalkerMios": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/OperationsLacera"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/TennoSai/TennoSais": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/PrimeOkina/PrimeOkina"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/TnChiselKanabo/TnChiselKanabo": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/PrimeMasseter/PrimeMasseter"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/TnoRapier/TnoRapier": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/PRapier/DestrezaPrime"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Swords/TnTwoHandedKatana/TnTwoHandedKatana": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Swords/PrimeTatsu/PrimeTatsuWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/MeleeContestWinnerOne/TennoSwordShield": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/PrimeSilvaAegis/PrimeSilvaAegis"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PacifistShieldAndSword/PacifistShieldSword": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PrimeCobraAndCrane/PrimeCobraAndCraneWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PrimeCobraAndCrane/PrimeCobraAndCraneWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PacifistShieldAndSword/PacifistShieldSword"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Tonfa/Boltonfa/Boltonfa": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/ArbitersOfHexis/Melee/AHBoltace"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinner/TennoTonfa": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinnerPrime/TonfaContestWinnerPrimeWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinnerPrime/TonfaContestWinnerPrimeWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinner/TennoTonfa"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Warfan/PrimeGunsen/PrimeGunsenWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Warfan/WarfanWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Warfan/PrimeQuassus/PrimeQuassusWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/Warfan/TnBrokenFrameWarfan/TnBrokenFrameWarfanWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Melee/Warfan/TnBrokenFrameWarfan/TnBrokenFrameWarfanWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Warfan/PrimeQuassus/PrimeQuassusWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Melee/Warfan/WarfanWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Melee/Warfan/PrimeGunsen/PrimeGunsenWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistol/AutoPistol": {
+        "variants": [
+            "/Lotus/Weapons/MK1Series/MK1Furis"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistol/BroncoPrime": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistol/HandShotGun"
+    },
+    "/Lotus/Weapons/Tenno/Pistol/BurstPistol": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeSicarus/PrimeSicarusPistol"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistol/HandShotGun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistol/BroncoPrime"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistol/HeavyPistol": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeLex/PrimeLex"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistol/LatoPrime": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistol/Pistol"
+    },
+    "/Lotus/Weapons/Tenno/Pistol/LatoVandal": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistol/Pistol"
+    },
+    "/Lotus/Weapons/Tenno/Pistol/Pistol": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistol/LatoPrime",
+            "/Lotus/Weapons/Tenno/Pistol/LatoVandal"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistol/RevolverPistol": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeVasto/PrimeVastoPistol"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/AutomaticHandCrossbow/AutoCrossBow": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/RedVeil/Pistols/RVBallistica",
+            "/Lotus/Weapons/Tenno/Pistols/PrimeBallistica/PrimeBallistica"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/ConclaveLeverPistol/ConclaveLeverPistol": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeZylok/ZylokPrimePistol"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/Magnum/Magnum": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeMagnus/PrimeMagnusWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeAfuris/PrimeAFurisWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Akimbo/AkimboAutoPistols"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeAkarius/PrimeAkariusWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/SapientPistol/SapientPistol"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeAkbolto/PrimeAkBoltoWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Akimbo/AkimboBolto"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeAkjagara/AkJagaraPrime": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/TigrisRedeemerSetPistol/TnoBladedPistols"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeAksomati/PrimeAksomati": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/SomaSidearm/AkimboSomaPistols"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeAkstiletto/PrimeAkstiletto": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/TennoUzi/TennoUzi"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeBallistica/PrimeBallistica": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/AutomaticHandCrossbow/AutoCrossBow"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeEpitaph/PrimeEpitaphSidearmWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/TnWraitheSidearm/TnWraitheSidearmWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeHystrix/PrimeHystrixWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/QuillDartgun/QuillDartGunWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeKnell/PrimeKnellWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/TnPriestPistolScope/TnPriestPistolWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeKompressa/PrimeKompressa": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/TnYareliPistol/TnYareliPistolWeapon"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeLex/PrimeLex": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistol/HeavyPistol"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeMagnus/PrimeMagnusWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/Magnum/Magnum"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimePandero/PanderoPrimeWeapon": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/TnBardPistol/TnBardPistolGun"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimePyrana/PrimePyranaPistol": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/SawnOffShotgun/TennoHandShotgun"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeSicarus/PrimeSicarusPistol": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistol/BurstPistol"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeVasto/AkPrimeVasto/AkPrimeVastoPistol": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Akimbo/DualVastos"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeVasto/PrimeVastoPistol": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistol/RevolverPistol"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeVelox/PrimeVeloxPistol": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/TnOdaliskSmg/TnOdaliskSmgPistol"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeZakti/PrimeZaktiPistol": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/TnGuandoPistol/TnGuandoPistolGun"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/PrimeZylok/ZylokPrimePistol": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Pistols/ConclaveLeverPistol/ConclaveLeverPistol"
+    },
+    "/Lotus/Weapons/Tenno/Pistols/QuillDartgun/QuillDartGunWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeHystrix/PrimeHystrixWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/SapientPistol/SapientPistol": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeAkarius/PrimeAkariusWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/SawnOffShotgun/TennoHandShotgun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimePyrana/PrimePyranaPistol"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/SomaSidearm/AkimboSomaPistols": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeAksomati/PrimeAksomati"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/TennoUzi/TennoUzi": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeAkstiletto/PrimeAkstiletto"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/TigrisRedeemerSetPistol/TnoBladedPistols": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeAkjagara/AkJagaraPrime"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/TnBardPistol/TnBardPistolGun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimePandero/PanderoPrimeWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/TnGuandoPistol/TnGuandoPistolGun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeZakti/PrimeZaktiPistol"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/TnOdaliskSmg/TnOdaliskSmgPistol": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeVelox/PrimeVeloxPistol"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/TnPriestPistolScope/TnPriestPistolWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeKnell/PrimeKnellWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/TnWraitheSidearm/TnWraitheSidearmWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeEpitaph/PrimeEpitaphSidearmWeapon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Pistols/TnYareliPistol/TnYareliPistolWeapon": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Pistols/PrimeKompressa/PrimeKompressa"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Rifle/BoltoRifle": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/ArbitersOfHexis/LongGuns/AHBoltor",
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeBoltor/PrimeBoltor"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Rifle/BratonPrime": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/Rifle"
+    },
+    "/Lotus/Weapons/Tenno/Rifle/BurstRifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeBurston/PrimeBurston"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Rifle/HeavyRifle": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/LongGuns/VoidTraderGorgon/VTGorgon",
+            "/Lotus/Weapons/Grineer/LongGuns/WraithGorgon/WraithGorgon"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Rifle/LatronPrime": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/SemiAutoRifle"
+    },
+    "/Lotus/Weapons/Tenno/Rifle/Rifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Rifle/BratonPrime",
+            "/Lotus/Weapons/Tenno/Rifle/StartingRifle",
+            "/Lotus/Weapons/Tenno/Rifle/VIPRifle"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Rifle/SemiAutoRifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/WraithLatron/WraithLatron",
+            "/Lotus/Weapons/Tenno/Rifle/LatronPrime"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Rifle/SniperRifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Rifle/VandalSniperRifle"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Rifle/StartingRifle": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/Rifle"
+    },
+    "/Lotus/Weapons/Tenno/Rifle/TennoAR": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeSoma/PrimeSomaRifle"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Rifle/TennoSniperRifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeVectis/PrimeVectisRifle"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Rifle/VandalSniperRifle": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/SniperRifle"
+    },
+    "/Lotus/Weapons/Tenno/Rifle/VIPRifle": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Rifle/Rifle"
+    },
+    "/Lotus/Weapons/Tenno/Shotgun/DoubleBarrelShotgun": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Sobek/KuvaSobek"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Shotgun/FullAutoShotgun": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/Shotgun/PrimeBoar"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Shotgun/PrimeBoar": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Shotgun/FullAutoShotgun"
+    },
+    "/Lotus/Weapons/Tenno/Shotgun/QuadShotgun": {
+        "variants": [
+            "/Lotus/Weapons/Grineer/KuvaLich/LongGuns/Hek/KuvaHekWeapon",
+            "/Lotus/Weapons/Syndicates/SteelMeridian/LongGuns/SMHek"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Shotgun/Shotgun": {
+        "variants": [
+            "/Lotus/Weapons/MK1Series/MK1Strun",
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeStrun/PrimeStrunWeapon",
+            "/Lotus/Weapons/Tenno/Shotgun/ShotgunVandal"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/Shotgun/ShotgunVandal": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Shotgun/Shotgun"
+    },
+    "/Lotus/Weapons/Tenno/ThrowingWeapons/Kunai": {
+        "variants": [
+            "/Lotus/Weapons/MK1Series/MK1Kunai"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/ThrowingWeapons/LiDagger/LiDagger": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/ThrowingWeapons/PrimeLiDagger/PrimeLiDagger"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/ThrowingWeapons/PrimeLiDagger/PrimeLiDagger": {
+        "baseVariant": "/Lotus/Weapons/Tenno/ThrowingWeapons/LiDagger/LiDagger"
+    },
+    "/Lotus/Weapons/Tenno/ThrowingWeapons/PrimeThrowingStar/PrimeHikou": {
+        "baseVariant": "/Lotus/Weapons/Tenno/ThrowingWeapons/TennoStars"
+    },
+    "/Lotus/Weapons/Tenno/ThrowingWeapons/StickyBomb/StickyBombs": {
+        "variants": [
+            "/Lotus/Weapons/Syndicates/NewLoka/Pistols/NLCastanas"
+        ]
+    },
+    "/Lotus/Weapons/Tenno/ThrowingWeapons/TennoStars": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/ThrowingWeapons/PrimeThrowingStar/PrimeHikou"
+        ]
+    },
+    "/Lotus/Weapons/Thanotech/ThanoRifle/ThanotechRifle": {
+        "variants": [
+            "/Lotus/Weapons/Tenno/LongGuns/PrimeTrumna/PrimeTrumnaWeapon"
+        ]
+    },
+    "/Lotus/Weapons/VoidTrader/PrismaGrakata": {
+        "baseVariant": "/Lotus/Weapons/Grineer/LongGuns/GrineerAssaultRifle/GrnAssaultRifle"
+    },
+    "/Lotus/Weapons/VoidTrader/PrismaSkana": {
+        "baseVariant": "/Lotus/Weapons/Tenno/Melee/LongSword/LongSword"
+    },
+    "/Lotus/Weapons/VoidTrader/VTDetron": {
+        "baseVariant": "/Lotus/Weapons/Corpus/Pistols/CorpusHandShotgun/CorpusHandCannon"
+    }
+}
