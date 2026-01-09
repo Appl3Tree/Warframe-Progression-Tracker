@@ -1,3 +1,4 @@
+// ===== FILE: src/domain/models/userState.ts =====
 import type { DailyTask, Inventory, SyndicateState } from "../types";
 
 export type PageKey =
@@ -45,6 +46,38 @@ export interface UserPrereqsV2 {
     completed: Record<string, boolean>;
 }
 
+export type GoalType = "item";
+
+export interface UserGoalV1 {
+    id: string;
+
+    type: GoalType;
+
+    /**
+     * Canonical catalog id (e.g. "items:/Lotus/Types/...")
+     * This must match inventory.counts keys.
+     */
+    catalogId: string;
+
+    /**
+     * How many the user wants.
+     */
+    qty: number;
+
+    /**
+     * Optional note for the goal.
+     */
+    note?: string;
+
+    /**
+     * Whether the goal is currently active.
+     */
+    isActive: boolean;
+
+    createdAtIso: string;
+    updatedAtIso: string;
+}
+
 export interface UserStateV2 {
     meta: UserMetaV2;
     player: UserPlayerV2;
@@ -55,6 +88,8 @@ export interface UserStateV2 {
     inventory: Inventory;
     syndicates: SyndicateState[];
     dailyTasks: DailyTask[];
+
+    goals: UserGoalV1[];
 
     mastery: {
         xpByItem: Record<string, number>;

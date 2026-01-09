@@ -7,6 +7,7 @@ import { toYMD } from "../domain/ymd";
 import type { DailyTask } from "../domain/types";
 import { SEED_INVENTORY, SEED_MASTERY, SEED_MISSIONS, SEED_SYNDICATES } from "../domain/seed";
 import type { PageKey, UserStateV2 } from "../domain/models/userState";
+import type { UserGoalV1 } from "../domain/models/userState";
 import { migrateToUserStateV2 } from "./migrations";
 import { parseProfileViewingData } from "../utils/profileImport";
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
@@ -14,6 +15,10 @@ import { canAccessItemByName } from "../domain/logic/plannerEngine";
 
 function nowIso(): string {
     return new Date().toISOString();
+}
+
+function uid(prefix: string): string {
+    return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now()}`;
 }
 
 function makeDefaultState(): UserStateV2 {
@@ -43,6 +48,7 @@ function makeDefaultState(): UserStateV2 {
         inventory: SEED_INVENTORY,
         syndicates: SEED_SYNDICATES,
         dailyTasks: [],
+        goals: [],
         mastery: SEED_MASTERY,
         missions: SEED_MISSIONS
     };
@@ -93,13 +99,15 @@ const ProgressPackSchemaV2 = z
         inventory: InventorySchema.optional(),
         syndicates: z.any().optional(),
         dailyTasks: z.any().optional(),
+        goals: z.any().optional(),
         mastery: z.any().optional(),
         missions: z.any().optional()
     })
     .passthrough();
 
-function uid(prefix: string): string {
-    return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now()}`;
+function ensureGoalsArray(state: any): void {
+    if (!state || typeof state !== "object") return;
+    if (!Array.isArray(state.goals)) state.goals = [];
 }
 
 /**
@@ -165,6 +173,10 @@ function mergeProgressPackIntoState(current: UserStateV2, incoming: any): UserSt
         next.dailyTasks = incoming.dailyTasks;
     }
 
+    if (incoming.goals !== undefined) {
+        next.goals = incoming.goals;
+    }
+
     if (incoming.mastery !== undefined) {
         next.mastery = incoming.mastery;
     }
@@ -172,6 +184,8 @@ function mergeProgressPackIntoState(current: UserStateV2, incoming: any): UserSt
     if (incoming.missions !== undefined) {
         next.missions = incoming.missions;
     }
+
+    ensureGoalsArray(next as any);
 
     return next;
 }
@@ -184,7 +198,7 @@ type ReserveSource = {
 };
 
 type DerivedReserveLine = {
-    key: string; // "credits" | "platinum" | catalogId
+    key: string;
     minKeep: number;
     sources: ReserveSource[];
 };
@@ -197,7 +211,6 @@ function isAccessibleReserveKey(key: string, completedPrereqs: Record<string, bo
     const rec = FULL_CATALOG.recordsById[key as any];
     const name = typeof rec?.displayName === "string" ? rec.displayName : "";
     if (!name) {
-        // Fail-closed: if we can't resolve the catalog record name, we do not claim it's accessible.
         return false;
     }
 
@@ -217,7 +230,6 @@ function computeDerivedReservesFromSyndicates(
         const nr = syn?.nextRankUp;
         if (!nr || typeof nr !== "object") continue;
 
-        // Credits / Platinum
         const credits = Number(nr.credits ?? 0);
         if (Number.isFinite(credits) && credits > 0) {
             const key = "credits";
@@ -248,7 +260,6 @@ function computeDerivedReservesFromSyndicates(
             }
         }
 
-        // Items (expected: catalogId keys)
         const items = Array.isArray(nr.items) ? nr.items : [];
         for (const it of items) {
             const key = typeof it?.key === "string" ? it.key : "";
@@ -308,16 +319,6 @@ export interface TrackerStore {
     setAccountId: (accountId: string) => void;
     setPlatform: (platform: "PC" | "PlayStation" | "Xbox" | "Switch" | "Mobile") => void;
 
-    /**
-     * Imports a profileViewingData payload saved as JSON or as an HTML file from the browser.
-     * Updates:
-     * - player name + mastery rank + clan fields
-     * - syndicates
-     * - missions completion snapshot
-     * - mastery XP + mastered map
-     *
-     * NOTE: We do not fetch automatically (CORS/rate-limit constraints).
-     */
     importProfileViewingDataJson: (text: string) => { ok: boolean; error?: string };
 
     upsertDailyTask: (dateYmd: string, label: string, syndicate?: string, details?: string) => void;
@@ -334,15 +335,15 @@ export interface TrackerStore {
 
     getTodayTasks: () => DailyTask[];
 
-    /**
-     * Derived reserves (read-only).
-     */
     getDerivedReserves: () => DerivedReserveLine[];
-
-    /**
-     * Checks whether spending an amount would drop below a derived reserve floor.
-     */
     isBelowReserve: (key: string, spendAmount: number) => { blocked: boolean; reasons: string[] };
+
+    addGoalItem: (catalogId: string, qty?: number) => void;
+    removeGoal: (goalId: string) => void;
+    setGoalQty: (goalId: string, qty: number) => void;
+    setGoalNote: (goalId: string, note: string) => void;
+    toggleGoalActive: (goalId: string) => void;
+    clearAllGoals: () => void;
 }
 
 const PERSIST_KEY = "wf_tracker_state_v3";
@@ -440,6 +441,8 @@ export const useTrackerStore = create<TrackerStore>()(
                         s.state.mastery = parsed.mastery;
                         s.state.missions = parsed.missions;
 
+                        ensureGoalsArray(s.state as any);
+
                         s.state.meta.updatedAtIso = nowIso();
                     });
 
@@ -517,6 +520,7 @@ export const useTrackerStore = create<TrackerStore>()(
 
                     set((s) => {
                         s.state = mergeProgressPackIntoState(s.state, ok.data);
+                        ensureGoalsArray(s.state as any);
                     });
 
                     return { ok: true };
@@ -533,7 +537,6 @@ export const useTrackerStore = create<TrackerStore>()(
                 try {
                     localStorage.removeItem(PERSIST_KEY);
                 } catch {
-                    // ignore
                 }
                 set(() => ({ state: makeDefaultState() }));
             },
@@ -593,17 +596,98 @@ export const useTrackerStore = create<TrackerStore>()(
                 }
 
                 return { blocked: true, reasons };
+            },
+
+            addGoalItem: (catalogId, qty) => {
+                const cid = String(catalogId ?? "").trim();
+                if (!cid) return;
+
+                const q = Number.isFinite(Number(qty)) ? Math.max(1, Math.floor(Number(qty))) : 1;
+
+                set((s) => {
+                    ensureGoalsArray(s.state as any);
+
+                    const existing = s.state.goals.find((g: any) => g.type === "item" && g.catalogId === cid);
+                    if (existing) {
+                        existing.qty = Math.max(1, existing.qty + q);
+                        existing.isActive = true;
+                        existing.updatedAtIso = nowIso();
+                    } else {
+                        const iso = nowIso();
+                        const goal: UserGoalV1 = {
+                            id: uid("goal"),
+                            type: "item",
+                            catalogId: cid,
+                            qty: q,
+                            isActive: true,
+                            createdAtIso: iso,
+                            updatedAtIso: iso
+                        };
+                        s.state.goals.push(goal);
+                    }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            removeGoal: (goalId) => {
+                set((s) => {
+                    ensureGoalsArray(s.state as any);
+                    s.state.goals = s.state.goals.filter((g: any) => g.id !== goalId);
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setGoalQty: (goalId, qty) => {
+                const q = Number.isFinite(Number(qty)) ? Math.max(1, Math.floor(Number(qty))) : 1;
+                set((s) => {
+                    ensureGoalsArray(s.state as any);
+                    const g = s.state.goals.find((x: any) => x.id === goalId);
+                    if (!g) return;
+                    g.qty = q;
+                    g.updatedAtIso = nowIso();
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setGoalNote: (goalId, note) => {
+                set((s) => {
+                    ensureGoalsArray(s.state as any);
+                    const g = s.state.goals.find((x: any) => x.id === goalId);
+                    if (!g) return;
+                    g.note = String(note ?? "");
+                    g.updatedAtIso = nowIso();
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            toggleGoalActive: (goalId) => {
+                set((s) => {
+                    ensureGoalsArray(s.state as any);
+                    const g = s.state.goals.find((x: any) => x.id === goalId);
+                    if (!g) return;
+                    g.isActive = !g.isActive;
+                    g.updatedAtIso = nowIso();
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            clearAllGoals: () => {
+                set((s) => {
+                    s.state.goals = [];
+                    s.state.meta.updatedAtIso = nowIso();
+                });
             }
         })),
         {
             name: PERSIST_KEY,
-            version: 3,
+            version: 4,
             migrate: (persistedState: any) => {
                 const raw = persistedState?.state ?? persistedState;
                 const migrated = migrateToUserStateV2(raw);
                 if (!migrated) {
                     return { state: makeDefaultState() } as any;
                 }
+                ensureGoalsArray(migrated as any);
                 return { state: migrated } as any;
             }
         }

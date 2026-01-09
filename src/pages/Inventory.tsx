@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+// src/pages/Inventory.tsx
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
 import { useTrackerStore } from "../store/store";
 
@@ -25,6 +26,12 @@ function titleCase(s: string): string {
         .filter(Boolean)
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(" ");
+}
+
+function safeInt(v: unknown, fallback = 0): number {
+    const n = typeof v === "number" ? v : Number(v);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.max(0, Math.floor(n));
 }
 
 function Section(props: { title: string; children: React.ReactNode }) {
@@ -130,8 +137,6 @@ function emptyClassification(): Classification {
     };
 }
 
-// Weapon "type-like" category mains that should be ignored as generic noise
-// when building type pills from "other categories".
 const WEAPON_TYPE_BLOCKLIST = new Set<string>([
     "weapon",
     "weapons",
@@ -141,13 +146,13 @@ const WEAPON_TYPE_BLOCKLIST = new Set<string>([
     "primary",
     "secondary",
     "archgun",
-    "archguns", // handled explicitly
+    "archguns",
     "tome",
-    "tomes", // handled explicitly
+    "tomes",
     "speargun",
-    "spearguns", // handled explicitly
+    "spearguns",
     "kitgun",
-    "kitguns" // handled explicitly
+    "kitguns"
 ]);
 
 function classifyFromCategories(categories: string[]): Classification {
@@ -159,9 +164,7 @@ function classifyFromCategories(categories: string[]): Classification {
 
     const mains = new Set<string>(metas.map((m) => m.main));
 
-    // -------------------------
     // Warframes & Vehicles
-    // -------------------------
     for (const m of metas) {
         if (m.main === "warframe" || m.main === "warframes") {
             cls.groups.add("warframesVehicles");
@@ -171,20 +174,13 @@ function classifyFromCategories(categories: string[]): Classification {
             cls.groups.add("warframesVehicles");
             cls.warframesVehiclesSub.add("archwings");
         }
-        if (
-            m.main === "necramech" ||
-            m.main === "necramechs" ||
-            m.main === "mech" ||
-            m.main === "mechs"
-        ) {
+        if (m.main === "necramech" || m.main === "necramechs" || m.main === "mech" || m.main === "mechs") {
             cls.groups.add("warframesVehicles");
             cls.warframesVehiclesSub.add("necramechs");
         }
     }
 
-    // -------------------------
-    // Companions (merge pet + sentinel + explicit labels)
-    // -------------------------
+    // Companions
     for (const m of metas) {
         if (m.main === "pet" && m.sub) {
             const first = normalize(m.sub).split("-")[0];
@@ -217,9 +213,7 @@ function classifyFromCategories(categories: string[]): Classification {
         }
     }
 
-    // -------------------------
     // Resources / Components (conservative)
-    // -------------------------
     for (const m of metas) {
         const main = m.main;
 
@@ -241,19 +235,7 @@ function classifyFromCategories(categories: string[]): Classification {
         }
     }
 
-    // -------------------------
-    // Weapons: class comes from `primary` / `secondary` / `melee`
-    // Types come from:
-    //  - explicit `primary-*` / `secondary-*` / `melee-*`
-    //  - and "other categories the item is part of" (e.g., kitgun + secondary)
-    // plus your explicit rules:
-    //  - kitgun => secondary
-    //  - tome => secondary
-    //  - speargun => primary
-    //  - archgun => primary
-    // -------------------------
-
-    // Detect weapon class from plain category presence.
+    // Weapons: class from plain category presence
     if (mains.has("primary")) cls.weaponClasses.add("primary");
     if (mains.has("secondary")) cls.weaponClasses.add("secondary");
     if (mains.has("melee")) cls.weaponClasses.add("melee");
@@ -262,7 +244,7 @@ function classifyFromCategories(categories: string[]): Classification {
         cls.groups.add("weapons");
     }
 
-    // Collect explicit weapon subtypes when present as `primary-*`, `secondary-*`, `melee-*`.
+    // Explicit structured weapon subtypes: `primary-*`, `secondary-*`, `melee-*`
     for (const m of metas) {
         if (m.main === "primary" || m.main === "secondary" || m.main === "melee") {
             const wc = m.main as WeaponClassTab;
@@ -272,28 +254,16 @@ function classifyFromCategories(categories: string[]): Classification {
         }
     }
 
-    // Add "type-like" categories based on the other categories the item is in.
-    // Only attach these types to a weapon class if the item is already in that class,
-    // except for your explicit coercions below.
+    // Add "type-like" categories based on other categories
     const otherTypeCandidates = new Set<string>();
 
     for (const m of metas) {
-        // Ignore structured categories `primary-*` etc (already captured above)
-        if (m.main === "primary" || m.main === "secondary" || m.main === "melee") {
-            continue;
-        }
-
-        // If it's a `pet-*`, it's a companion, not weapon type.
+        if (m.main === "primary" || m.main === "secondary" || m.main === "melee") continue;
         if (m.main === "pet") continue;
 
-        // Treat only the main token as a "type" candidate, e.g. kitgun, whip, shotgun, etc.
         const main = m.main;
+        if (!main || WEAPON_TYPE_BLOCKLIST.has(main)) continue;
 
-        if (!main || WEAPON_TYPE_BLOCKLIST.has(main)) {
-            continue;
-        }
-
-        // Exclude things we already consider non-weapon grouping buckets
         if (
             main === "warframe" ||
             main === "warframes" ||
@@ -326,16 +296,13 @@ function classifyFromCategories(categories: string[]): Classification {
         otherTypeCandidates.add(main);
     }
 
-    // Attach otherTypeCandidates to each weapon class the item belongs to.
-    // This is what makes `secondary + kitgun` generate a "Kitgun" type pill (after the explicit kitgun block below).
     for (const wc of cls.weaponClasses) {
         for (const t of otherTypeCandidates) {
             cls.weaponTypesByClass[wc].add(t);
         }
     }
 
-    // Explicit coercions / normalization rules (apply even if the item isn't already classed):
-    // These also ensure the type appears as a filter pill.
+    // Explicit coercions
     if (mains.has("archgun") || mains.has("archguns")) {
         cls.groups.add("weapons");
         cls.weaponClasses.add("primary");
@@ -354,12 +321,8 @@ function classifyFromCategories(categories: string[]): Classification {
         cls.weaponTypesByClass.secondary.add("tome");
     }
 
-    // Critical fix: kitgun as type derived from "other categories", attached to Secondary when `secondary` exists.
-    // If a kitgun item is tagged `secondary` + `kitgun`, it will now show under Weapons → Secondary,
-    // and "Kitgun" will appear as a Secondary type pill.
     if (mains.has("kitgun") || mains.has("kitguns")) {
         cls.groups.add("weapons");
-        // If it already has `secondary`, fine; if not, you said kitguns are secondary in-game.
         cls.weaponClasses.add("secondary");
         cls.weaponTypesByClass.secondary.add("kitgun");
     }
@@ -375,9 +338,32 @@ type Row = {
     cls: Classification;
 };
 
+type VirtualWindow = {
+    start: number;
+    end: number;
+    viewportH: number;
+    scrollTop: number;
+};
+
 export default function Inventory() {
     const counts = useTrackerStore((s) => s.state.inventory.counts) ?? {};
     const setCount = useTrackerStore((s) => s.setCount);
+
+    const goals = useTrackerStore((s) => s.state.goals ?? []);
+    const addGoalItem = useTrackerStore((s) => s.addGoalItem);
+    const removeGoal = useTrackerStore((s) => s.removeGoal);
+    const setGoalQty = useTrackerStore((s) => s.setGoalQty);
+
+    const goalByCatalogId = useMemo(() => {
+        const map = new Map<string, any>();
+        for (const g of goals ?? []) {
+            if (!g) continue;
+            if (g.type !== "item") continue;
+            if (g.isActive === false) continue;
+            map.set(String(g.catalogId), g);
+        }
+        return map;
+    }, [goals]);
 
     const [query, setQuery] = useState("");
     const [hideZero, setHideZero] = useState(false);
@@ -418,7 +404,7 @@ export default function Inventory() {
                 return {
                     id,
                     label: rec.displayName,
-                    value: Number(counts[String(id)] ?? 0),
+                    value: safeInt(counts[String(id)] ?? 0, 0),
                     categories,
                     cls
                 } as Row;
@@ -426,7 +412,6 @@ export default function Inventory() {
             .filter((r): r is Row => !!r)
             .filter((r) => {
                 if (!q) return true;
-                // Search by name; allow pasted ids as a power-user feature.
                 return normalize(r.label).includes(q) || normalize(String(r.id)).includes(q);
             })
             .filter((r) => {
@@ -492,11 +477,69 @@ export default function Inventory() {
         });
     }, [rows, primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters]);
 
+    // -------- Virtualization (manual, no deps) --------
+    const listRef = useRef<HTMLDivElement | null>(null);
+
+    // Fixed row height; keep consistent with the row layout below.
+    const ROW_H = 56;
+    const OVERSCAN = 10;
+
+    const [vw, setVw] = useState<VirtualWindow>({
+        start: 0,
+        end: 0,
+        viewportH: 0,
+        scrollTop: 0
+    });
+
+    function recomputeWindow() {
+        const el = listRef.current;
+        if (!el) return;
+
+        const viewportH = el.clientHeight;
+        const scrollTop = el.scrollTop;
+
+        const total = filtered.length;
+
+        const start = Math.max(0, Math.floor(scrollTop / ROW_H) - OVERSCAN);
+        const visibleCount = Math.ceil(viewportH / ROW_H) + OVERSCAN * 2;
+        const end = Math.min(total, start + visibleCount);
+
+        setVw({ start, end, viewportH, scrollTop });
+    }
+
+    useEffect(() => {
+        // After filters change, reset scroll and recompute.
+        const el = listRef.current;
+        if (el) el.scrollTop = 0;
+        // Next tick so layout is stable.
+        requestAnimationFrame(() => recomputeWindow());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters, query, hideZero]);
+
+    useEffect(() => {
+        // Recompute on data length changes.
+        requestAnimationFrame(() => recomputeWindow());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filtered.length]);
+
+    useEffect(() => {
+        const onResize = () => recomputeWindow();
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    // -----------------------------------------------
+
+    const totalHeight = filtered.length * ROW_H;
+    const slice = filtered.slice(vw.start, vw.end);
+    const translateY = vw.start * ROW_H;
+
     return (
         <div className="space-y-6">
             <Section title="Inventory">
                 <div className="text-sm text-slate-400">
                     Search and edit item counts here. Credits and Platinum are edited in the top-right Profile header.
+                    Set Personal Goals by entering a Goal Target (0 disables).
                 </div>
 
                 <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-3">
@@ -679,36 +722,95 @@ export default function Inventory() {
                         </div>
                     )}
 
-                    <div className="max-h-[65vh] overflow-auto">
-                        <table className="w-full text-sm">
-                            <thead className="sticky top-0 bg-slate-950/90">
-                                <tr className="border-b border-slate-800">
-                                    <th className="text-left px-3 py-2 text-slate-300 font-semibold">Item</th>
-                                    <th className="text-left px-3 py-2 text-slate-300 font-semibold w-[140px]">
-                                        Count
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filtered.map((r) => (
-                                    <tr key={String(r.id)} className="border-b border-slate-800/70">
-                                        <td className="px-3 py-2 text-slate-100">{r.label}</td>
-                                        <td className="px-3 py-2">
-                                            <input
-                                                className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100"
-                                                type="number"
-                                                min={0}
-                                                value={r.value}
-                                                onChange={(e) => {
-                                                    const n = Number(e.target.value);
-                                                    setCount(String(r.id), Number.isFinite(n) ? n : 0);
-                                                }}
-                                            />
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    {/* Virtualized list */}
+                    <div
+                        ref={listRef}
+                        className="max-h-[65vh] overflow-auto"
+                        onScroll={() => recomputeWindow()}
+                    >
+                        {/* Header */}
+                        <div className="sticky top-0 z-10 bg-slate-950/90 border-b border-slate-800">
+                            <div className="grid grid-cols-[1fr_140px_170px] gap-0 text-sm">
+                                <div className="px-3 py-2 text-slate-300 font-semibold">Item</div>
+                                <div className="px-3 py-2 text-slate-300 font-semibold">Count</div>
+                                <div className="px-3 py-2 text-slate-300 font-semibold">Goal Target</div>
+                            </div>
+                        </div>
+
+                        {/* Body spacer + window */}
+                        <div className="relative" style={{ height: totalHeight }}>
+                            <div
+                                className="absolute left-0 right-0"
+                                style={{ transform: `translateY(${translateY}px)` }}
+                            >
+                                {slice.map((r) => {
+                                    const goal = goalByCatalogId.get(String(r.id));
+                                    const goalTarget = goal ? safeInt(goal.qty ?? 1, 1) : 0;
+
+                                    return (
+                                        <div
+                                            key={String(r.id)}
+                                            className="grid grid-cols-[1fr_140px_170px] border-b border-slate-800/70 items-start"
+                                            style={{ height: ROW_H }}
+                                        >
+                                            <div className="px-3 py-2 text-slate-100 flex items-center">
+                                                {r.label}
+                                            </div>
+
+                                            <div className="px-3 py-2">
+                                                <input
+                                                    className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100"
+                                                    type="number"
+                                                    min={0}
+                                                    value={r.value}
+                                                    onChange={(e) => {
+                                                        const n = Number(e.target.value);
+                                                        setCount(String(r.id), Number.isFinite(n) ? n : 0);
+                                                    }}
+                                                />
+                                            </div>
+
+                                            <div className="px-3 py-2">
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        className={[
+                                                            "w-full rounded-lg border px-3 py-2 text-slate-100",
+                                                            goal
+                                                                ? "bg-slate-900 border-slate-700"
+                                                                : "bg-slate-950/40 border-slate-800 text-slate-300"
+                                                        ].join(" ")}
+                                                        type="number"
+                                                        min={0}
+                                                        value={goalTarget}
+                                                        onChange={(e) => {
+                                                            const next = safeInt(e.target.value, 0);
+
+                                                            if (next <= 0) {
+                                                                if (goal) {
+                                                                    removeGoal(goal.id);
+                                                                }
+                                                                return;
+                                                            }
+
+                                                            if (!goal) {
+                                                                addGoalItem(String(r.id), next);
+                                                                return;
+                                                            }
+
+                                                            setGoalQty(goal.id, next);
+                                                        }}
+                                                    />
+
+                                                    <div className="text-xs text-slate-500 whitespace-nowrap">
+                                                        {goal ? "Active" : "Off"}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
 
                         {filtered.length === 0 && (
                             <div className="px-3 py-3 text-sm text-slate-400">No matches.</div>

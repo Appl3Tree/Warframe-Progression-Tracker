@@ -1,3 +1,4 @@
+// ===== FILE: src/app/layout/Sidebar.tsx =====
 import { useTrackerStore } from "../../store/store";
 
 type PageKey =
@@ -18,7 +19,7 @@ const NAV: Array<{ key: PageKey; label: string; desc: string }> = [
     { key: "prereqs", label: "Prerequisites", desc: "Quest/system unlocks (Phase B)." },
     { key: "syndicates", label: "Syndicates", desc: "Standing/ranks (Phase E)." },
     { key: "goals", label: "Goals", desc: "Personal goal portfolio (Phase D)." },
-    { key: "requirements", label: "Requirements", desc: "Targeted vs Overlap farming (Phase C)." },
+    { key: "requirements", label: "Farming", desc: "Targeted vs Overlap across goals + syndicates." },
     { key: "systems", label: "Systems", desc: "Nightwave/Kahl etc. (separate section)." },
     { key: "imports", label: "Import / Export", desc: "Progress Pack tools." },
     { key: "settings", label: "Settings", desc: "App preferences." },

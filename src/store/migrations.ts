@@ -5,8 +5,9 @@ const LegacyPayloadSchema = z
     .object({
         inventory: z.any().optional(),
         syndicates: z.any().optional(),
-        reserves: z.any().optional(), // legacy only: ignored
-        dailyTasks: z.any().optional()
+        reserves: z.any().optional(),
+        dailyTasks: z.any().optional(),
+        goals: z.any().optional()
     })
     .passthrough();
 
@@ -38,8 +39,9 @@ const UserStateV1Schema = z
             .passthrough(),
         inventory: z.any().optional(),
         syndicates: z.any().optional(),
-        reserves: z.any().optional(), // legacy only: ignored
-        dailyTasks: z.any().optional()
+        reserves: z.any().optional(),
+        dailyTasks: z.any().optional(),
+        goals: z.any().optional()
     })
     .passthrough();
 
@@ -71,10 +73,11 @@ const UserStateV2Schema = z
             .passthrough(),
         inventory: z.any().optional(),
         syndicates: z.any().optional(),
-        reserves: z.any().optional(), // legacy only: ignored
+        reserves: z.any().optional(),
         dailyTasks: z.any().optional(),
         mastery: z.any().optional(),
-        missions: z.any().optional()
+        missions: z.any().optional(),
+        goals: z.any().optional()
     })
     .passthrough();
 
@@ -117,8 +120,7 @@ function normalizeInventory(raw: any): any {
 function normalizeMastery(raw: any): { xpByItem: Record<string, number>; mastered: Record<string, boolean> } {
     const m = raw && typeof raw === "object" ? raw : {};
     const xp = (m as any).xpByItem && typeof (m as any).xpByItem === "object" ? (m as any).xpByItem : {};
-    const mastered =
-        (m as any).mastered && typeof (m as any).mastered === "object" ? (m as any).mastered : {};
+    const mastered = (m as any).mastered && typeof (m as any).mastered === "object" ? (m as any).mastered : {};
 
     const xpByItem: Record<string, number> = {};
     for (const [k, v] of Object.entries(xp)) {
@@ -162,6 +164,11 @@ function normalizePrereqsCompleted(raw: any): Record<string, boolean> {
     return out;
 }
 
+function normalizeGoals(raw: any): any[] {
+    if (!Array.isArray(raw)) return [];
+    return raw.filter((g) => g && typeof g === "object");
+}
+
 export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
     const v2 = UserStateV2Schema.safeParse(raw);
     if (v2.success) {
@@ -170,23 +177,21 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
         data.mastery = normalizeMastery(data.mastery);
         data.missions = normalizeMissions(data.missions);
 
-        // Normalize prereqs into boolean map
         data.prereqs = {
             completed: normalizePrereqsCompleted(data.prereqs?.completed)
         };
 
-        // Ensure accountId exists (empty string by default).
         if (!data.player || typeof data.player !== "object") {
             data.player = { platform: "PC", displayName: "", masteryRank: null, accountId: "" };
         } else if (typeof data.player.accountId !== "string") {
             data.player.accountId = "";
         }
 
-        // Ensure required arrays exist
         if (!Array.isArray(data.syndicates)) data.syndicates = [];
         if (!Array.isArray(data.dailyTasks)) data.dailyTasks = [];
 
-        // NOTE: legacy `reserves` is intentionally ignored (derived system)
+        data.goals = normalizeGoals(data.goals);
+
         return data as UserStateV2;
     }
 
@@ -209,6 +214,7 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
             inventory: normalizeInventory(v1.data.inventory),
             syndicates: (v1.data as any).syndicates ?? [],
             dailyTasks: (v1.data as any).dailyTasks ?? [],
+            goals: normalizeGoals((v1.data as any).goals),
             mastery: normalizeMastery((v1.data as any).mastery),
             missions: normalizeMissions((v1.data as any).missions)
         };
@@ -222,6 +228,7 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
                 inventory: z.any(),
                 syndicates: z.any(),
                 dailyTasks: z.any(),
+                goals: z.any(),
                 mastery: z.any(),
                 missions: z.any()
             })
@@ -254,6 +261,7 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
             inventory: normalizeInventory(legacy.data.inventory),
             syndicates: legacy.data.syndicates ?? [],
             dailyTasks: legacy.data.dailyTasks ?? [],
+            goals: normalizeGoals((legacy.data as any).goals),
             mastery: normalizeMastery((legacy.data as any).mastery),
             missions: normalizeMissions((legacy.data as any).missions)
         };
@@ -267,6 +275,7 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
                 inventory: z.any(),
                 syndicates: z.any(),
                 dailyTasks: z.any(),
+                goals: z.any(),
                 mastery: z.any(),
                 missions: z.any()
             })
