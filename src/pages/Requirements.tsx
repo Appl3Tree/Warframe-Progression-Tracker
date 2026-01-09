@@ -149,7 +149,7 @@ export default function Requirements() {
                     </div>
                 </div>
 
-                <div className="mt-4 grid grid-cols-1 lg:grid-cols-6 gap-3">
+                <div className="mt-4 grid grid-cols-1 lg:grid-cols-7 gap-3">
                     <MiniStat
                         label="Items (req snapshot)"
                         value={requirements.stats.actionableItemCount.toLocaleString()}
@@ -163,7 +163,11 @@ export default function Requirements() {
                         value={farming.stats.hiddenForUnknownAcquisition.toLocaleString()}
                     />
                     <MiniStat
-                        label="Hidden (locked sources)"
+                        label="Hidden (missing prereqs)"
+                        value={farming.stats.hiddenForMissingPrereqs.toLocaleString()}
+                    />
+                    <MiniStat
+                        label="Hidden (no accessible sources)"
                         value={farming.stats.hiddenForNoAccessibleSources.toLocaleString()}
                     />
                     <MiniStat
@@ -236,7 +240,10 @@ export default function Requirements() {
                     ) : (
                         <div className="space-y-2">
                             {filteredHidden.map((h) => (
-                                <div key={String(h.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                                <div
+                                    key={String(h.key)}
+                                    className="rounded-xl border border-slate-800 bg-slate-950/30 p-3"
+                                >
                                     <div className="flex flex-wrap items-start justify-between gap-3">
                                         <div className="min-w-0">
                                             <div className="text-sm font-semibold break-words">{h.name}</div>
@@ -268,7 +275,10 @@ export default function Requirements() {
                     ) : (
                         <div className="space-y-2">
                             {filteredTargeted.map((l) => (
-                                <div key={String(l.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                                <div
+                                    key={String(l.key)}
+                                    className="rounded-xl border border-slate-800 bg-slate-950/30 p-3"
+                                >
                                     <div className="text-sm font-semibold break-words">{l.name}</div>
                                     <div className="text-xs text-slate-400 mt-1">
                                         Remaining {l.remaining.toLocaleString()}
@@ -313,7 +323,8 @@ export default function Requirements() {
                                 >
                                     <div className="text-sm font-semibold break-words">{g.sourceLabel}</div>
                                     <div className="text-xs text-slate-400 mt-1">
-                                        Items {g.itemCount.toLocaleString()} · Remaining (sum) {g.totalRemaining.toLocaleString()}
+                                        Items {g.itemCount.toLocaleString()} · Remaining (sum){" "}
+                                        {g.totalRemaining.toLocaleString()}
                                     </div>
                                     <div className="text-[11px] text-slate-500 mt-1 break-words">
                                         Source: <span className="font-mono">{String(g.sourceId)}</span>
@@ -343,4 +354,3 @@ export default function Requirements() {
         </div>
     );
 }
-

@@ -7,11 +7,12 @@
 // - Display rule: if record has no name, we set displayName to the path key, and mark isDisplayable=false.
 //   UI must filter to isDisplayable===true for user-facing lists.
 
-import itemsText from "../../data/items.json?raw";
-import modsText from "../../data/mods.json?raw";
-import modsetsText from "../../data/modsets.json?raw";
-import rivensText from "../../data/rivens.json?raw";
-import moddescriptionsText from "../../data/moddescriptions.json?raw";
+// Import JSON as modules (object maps). This avoids relying on Vite "?raw" behavior for large files.
+import itemsJson from "../../data/items.json";
+import modsJson from "../../data/mods.json";
+import modsetsJson from "../../data/modsets.json";
+import rivensJson from "../../data/rivens.json";
+import moddescriptionsJson from "../../data/moddescriptions.json";
 
 export type CatalogSource =
     | "items"
@@ -118,11 +119,11 @@ function pushIndex(
 }
 
 export function buildFullCatalog(): FullCatalog {
-    const itemsMap = parseJsonMap<Record<string, any>>("items", itemsText);
-    const modsMap = parseJsonMap<Record<string, any>>("mods", modsText);
-    const modsetsMap = parseJsonMap<Record<string, any>>("modsets", modsetsText);
-    const rivensMap = parseJsonMap<Record<string, any>>("rivens", rivensText);
-    const moddescriptionsMap = parseJsonMap<Record<string, any>>("moddescriptions", moddescriptionsText);
+    const itemsMap = parseJsonMap("items", itemsJson);
+    const modsMap = parseJsonMap("mods", modsJson);
+    const modsetsMap = parseJsonMap("modsets", modsetsJson);
+    const rivensMap = parseJsonMap("rivens", rivensJson);
+    const moddescriptionsMap = parseJsonMap("moddescriptions", moddescriptionsJson);
 
     const recordsById: Record<CatalogId, CatalogRecordBase> = {};
     const idsBySource: Record<CatalogSource, CatalogId[]> = {
@@ -271,4 +272,3 @@ export function buildFullCatalog(): FullCatalog {
 }
 
 export const FULL_CATALOG: FullCatalog = buildFullCatalog();
-

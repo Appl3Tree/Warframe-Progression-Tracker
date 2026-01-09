@@ -136,19 +136,17 @@ function buildDataSourceCatalog(): SourceDef[] {
 
     function prereqsForLabel(label: string): PrereqId[] {
         const s = String(label ?? "").trim();
-
-        // Void Relic labels commonly look like:
-        // "Lith A1 Relic", "Axi B3 Relic (Radiant)", etc.
-        // If you don’t have the Void Relic segment, “farm this relic” is not actionable.
+    
+        // Be tolerant: sources.json labels vary a lot (parentheses, extra suffixes, spacing, etc.)
+        // We only need to detect “this is a relic label” reliably.
         const isRelic =
-            /^(Lith|Meso|Neo|Axi)\s+[A-Za-z0-9]+\s+Relic(\s+\((Exceptional|Flawless|Radiant)\))?$/.test(s);
-
+            /^(Lith|Meso|Neo|Axi)\b/i.test(s) &&
+            /\bRelic\b/i.test(s);
+    
         if (isRelic) {
-            // You already modeled this as a gate in prereqRegistry.ts.
-            // If you want to be stricter, also require PR.JUNCTION_EARTH_MARS.
             return [PR.SYSTEM_ORBITER_VOID_RELICS];
         }
-
+    
         return [];
     }
 

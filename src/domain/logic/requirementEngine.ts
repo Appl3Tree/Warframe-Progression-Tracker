@@ -398,8 +398,17 @@ function classifyInaccessibleSources(
         }
     }
 
-    // Prefer “missing-prereqs” when both are present, because it’s actionable guidance.
-    if (sawMissingPrereq) return "missing-prereqs";
+    // Prefer “missing-prereqs” when present, because it’s actionable.
+    if (sawMissingPrereq) {
+        return "missing-prereqs";
+    }
+    
+    // If we saw only unknown / uncurated gates, report that explicitly.
+    if (sawUnknownGate) {
+        return "no-accessible-sources";
+    }
+    
+    // Defensive fallback (should not happen)
     return "no-accessible-sources";
 }
 
