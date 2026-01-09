@@ -7,7 +7,7 @@ import { computeUnlockGraphSnapshot } from "./unlockGraph";
 
 import { FULL_CATALOG, type CatalogId } from "../catalog/loadFullCatalog";
 import { SOURCE_INDEX } from "../../catalog/sources/sourceCatalog";
-import { getAcquisitionByDisplayName } from "../../catalog/items/itemAcquisition";
+import { getAcquisitionByCatalogId } from "../../catalog/items/itemAcquisition";
 import type { SourceId } from "../ids/sourceIds";
 
 export interface ProgressionStep {
@@ -219,7 +219,7 @@ function isSourceAccessible(
 /**
  * Canonical gating:
  * - Uses CatalogId as the stable key.
- * - Uses acquisition->sources mapping (currently bridged via displayName).
+ * - Uses acquisition->sources mapping keyed by CatalogId.
  *
  * Fail-closed:
  * - Unknown catalogId or missing displayName => not accessible
@@ -241,7 +241,7 @@ export function canAccessCatalogItem(
         };
     }
 
-    const acq = getAcquisitionByDisplayName(name);
+    const acq = getAcquisitionByCatalogId(catalogId);
     if (!acq) {
         return {
             allowed: false,
@@ -297,7 +297,7 @@ export function canAccessItemByName(
     }
 
     const matches = FULL_CATALOG.nameIndex?.[normalized] ?? [];
-    const cid = (matches[0] as CatalogId | undefined);
+    const cid = matches[0] as CatalogId | undefined;
 
     if (!cid) {
         return {

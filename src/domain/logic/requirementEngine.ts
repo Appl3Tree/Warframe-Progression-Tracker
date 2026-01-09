@@ -1,27 +1,35 @@
 // ===== FILE: src/domain/logic/requirementEngine.ts =====
 import type { CatalogId } from "../catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../catalog/loadFullCatalog";
-import { canAccessCatalogItem } from "./plannerEngine";
 import { getItemRequirements } from "../../catalog/items/itemRequirements";
-import { countUniqueSources, overlapSourceKey } from "./overlapEngine";
+import {
+    countUniqueSources,
+    overlapSourceKey,
+    groupBySource,
+    type OverlapGroup
+} from "./overlapEngine";
+
+import type { SourceId } from "../ids/sourceIds";
+import { SOURCE_INDEX } from "../../catalog/sources/sourceCatalog";
+import { getAcquisitionByCatalogId } from "../../catalog/items/itemAcquisition";
 
 export type RequirementViewMode = "targeted" | "overlap";
 
 export type RequirementSource =
     | {
-        type: "syndicate";
-        id: string;
-        name: string;
-        label: string;
-        need: number;
-    }
+          type: "syndicate";
+          id: string;
+          name: string;
+          label: string;
+          need: number;
+      }
     | {
-        type: "goal";
-        id: string;
-        name: string;
-        label: string;
-        need: number;
-    };
+          type: "goal";
+          id: string;
+          name: string;
+          label: string;
+          need: number;
+      };
 
 export type ItemRequirementLine = {
     key: CatalogId;
@@ -75,13 +83,18 @@ function safeInt(v: unknown, fallback: number): number {
     return Math.max(0, Math.floor(n));
 }
 
+/**
+ * IMPORTANT: This snapshot is "what you need", not "what is actionable".
+ * It must NOT filter based on acquisition knowledge.
+ * Actionability is handled by buildFarmingSnapshot().
+ */
 export function buildRequirementsSnapshot(args: {
     syndicates: any[];
     goals: GoalLike[];
     completedPrereqs: Record<string, boolean>;
     inventory: InventoryLike;
 }): RequirementsResult {
-    const { syndicates, goals, completedPrereqs, inventory } = args;
+    const { syndicates, goals, inventory } = args;
 
     const itemAgg: Record<
         string,
@@ -107,10 +120,8 @@ export function buildRequirementsSnapshot(args: {
     };
 
     function addItemNeed(catalogId: CatalogId, need: number, source: RequirementSource) {
+        // Still fail-closed on unknown catalog id (data integrity), but DO NOT gate by acquisition.
         if (!FULL_CATALOG.recordsById[catalogId]) return;
-
-        const access = canAccessCatalogItem(catalogId, completedPrereqs);
-        if (!access.allowed) return;
 
         const rec = FULL_CATALOG.recordsById[catalogId];
         const name = rec?.displayName || String(catalogId);
@@ -191,7 +202,6 @@ export function buildRequirementsSnapshot(args: {
         const rec = FULL_CATALOG.recordsById[cid];
         const goalName = rec?.displayName || cid;
 
-        // 2a) The goal itself is a farming requirement (direct acquisition).
         addItemNeed(cid, qty, {
             type: "goal",
             id: g.id,
@@ -200,7 +210,6 @@ export function buildRequirementsSnapshot(args: {
             need: qty
         });
 
-        // 2b) Optional recipe breakdown (only if you define it in registry).
         const comps = getItemRequirements(cid);
         for (const c of comps) {
             const cNeed = Math.max(1, safeInt(c.count ?? 0, 0)) * qty;
@@ -219,7 +228,6 @@ export function buildRequirementsSnapshot(args: {
         }
     }
 
-    // Build lines
     const itemLines: ItemRequirementLine[] = Object.values(itemAgg)
         .map((agg) => {
             const have = safeInt(inventory?.counts?.[String(agg.key)] ?? 0, 0);
@@ -287,6 +295,188 @@ export function buildRequirementsSnapshot(args: {
             totalRemainingItems,
             totalRemainingCredits,
             totalRemainingPlatinum
+        }
+    };
+}
+
+// ---------------- Farming (acquisition-based) ----------------
+
+export type FarmingItemSource = {
+    sourceId: SourceId;
+    sourceLabel: string;
+};
+
+export type FarmingItemLine = {
+    key: CatalogId;
+    name: string;
+    remaining: number;
+    sources: FarmingItemSource[];
+};
+
+export type FarmingOverlapItem = {
+    key: CatalogId;
+    name: string;
+    remaining: number;
+};
+
+export type FarmingSourceGroup = OverlapGroup<FarmingOverlapItem> & {
+    itemCount: number;
+    totalRemaining: number;
+};
+
+export type HiddenFarmingItem = {
+    key: CatalogId;
+    name: string;
+    remaining: number;
+    reason: "unknown-acquisition" | "no-accessible-sources";
+};
+
+export type FarmingSnapshot = {
+    targeted: FarmingItemLine[];
+    overlap: FarmingSourceGroup[];
+    hidden: HiddenFarmingItem[];
+    stats: {
+        actionableItemsWithKnownAcquisition: number;
+        hiddenForUnknownAcquisition: number;
+        hiddenForNoAccessibleSources: number;
+        overlapSourceCount: number;
+    };
+};
+
+function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, boolean>): boolean {
+    const def = SOURCE_INDEX[sourceId];
+    if (!def) return false; // fail-closed
+
+    const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
+    for (const pr of prereqs) {
+        if (!completedPrereqs[String(pr)]) return false;
+    }
+
+    return true;
+}
+
+function getAcquisitionSourcesForCatalogId(catalogId: CatalogId): SourceId[] | null {
+    const def = getAcquisitionByCatalogId(catalogId);
+    if (!def || !Array.isArray(def.sources) || def.sources.length === 0) return null;
+    return def.sources;
+}
+
+export function buildFarmingSnapshot(args: {
+    requirements: RequirementsResult;
+    completedPrereqs: Record<string, boolean>;
+}): FarmingSnapshot {
+    const { requirements, completedPrereqs } = args;
+
+    const targeted: FarmingItemLine[] = [];
+    const hidden: HiddenFarmingItem[] = [];
+
+    for (const line of requirements.itemLines) {
+        const sources = getAcquisitionSourcesForCatalogId(line.key);
+
+        if (!sources) {
+            hidden.push({
+                key: line.key,
+                name: line.name,
+                remaining: line.remaining,
+                reason: "unknown-acquisition"
+            });
+            continue;
+        }
+
+        const accessible = sources
+            .filter((sid) => canAccessSource(sid, completedPrereqs))
+            .map((sid) => ({
+                sourceId: sid,
+                sourceLabel: SOURCE_INDEX[sid]?.label ?? String(sid)
+            }));
+
+        if (accessible.length === 0) {
+            hidden.push({
+                key: line.key,
+                name: line.name,
+                remaining: line.remaining,
+                reason: "no-accessible-sources"
+            });
+            continue;
+        }
+
+        targeted.push({
+            key: line.key,
+            name: line.name,
+            remaining: line.remaining,
+            sources: accessible
+        });
+    }
+
+    targeted.sort((a, b) => {
+        if (a.remaining !== b.remaining) return b.remaining - a.remaining;
+        return a.name.localeCompare(b.name);
+    });
+
+    hidden.sort((a, b) => {
+        if (a.reason !== b.reason) return a.reason.localeCompare(b.reason);
+        if (a.remaining !== b.remaining) return b.remaining - a.remaining;
+        return a.name.localeCompare(b.name);
+    });
+
+    const overlapInputs: Array<{ sourceId: string; sourceLabel: string; item: FarmingOverlapItem }> = [];
+
+    for (const l of targeted) {
+        for (const s of l.sources) {
+            overlapInputs.push({
+                sourceId: String(s.sourceId),
+                sourceLabel: s.sourceLabel,
+                item: {
+                    key: l.key,
+                    name: l.name,
+                    remaining: l.remaining
+                }
+            });
+        }
+    }
+
+    const rawGroups = groupBySource({ items: overlapInputs });
+
+    const overlap: FarmingSourceGroup[] = rawGroups
+        .map((g) => {
+            const uniq = new Map<string, FarmingOverlapItem>();
+            for (const it of g.items) {
+                uniq.set(String(it.key), it);
+            }
+
+            const items = Array.from(uniq.values());
+            items.sort((a, b) => {
+                if (a.remaining !== b.remaining) return b.remaining - a.remaining;
+                return a.name.localeCompare(b.name);
+            });
+
+            return {
+                sourceId: g.sourceId,
+                sourceLabel: g.sourceLabel,
+                items,
+                itemCount: items.length,
+                totalRemaining: items.reduce((sum, x) => sum + Math.max(0, Math.floor(x.remaining ?? 0)), 0)
+            };
+        })
+        .filter((g) => g.itemCount >= 2)
+        .sort((a, b) => {
+            if (a.itemCount !== b.itemCount) return b.itemCount - a.itemCount;
+            if (a.totalRemaining !== b.totalRemaining) return b.totalRemaining - a.totalRemaining;
+            return a.sourceLabel.localeCompare(b.sourceLabel);
+        });
+
+    const hiddenForUnknownAcquisition = hidden.filter((h) => h.reason === "unknown-acquisition").length;
+    const hiddenForNoAccessibleSources = hidden.filter((h) => h.reason === "no-accessible-sources").length;
+
+    return {
+        targeted,
+        overlap,
+        hidden,
+        stats: {
+            actionableItemsWithKnownAcquisition: targeted.length,
+            hiddenForUnknownAcquisition,
+            hiddenForNoAccessibleSources,
+            overlapSourceCount: overlap.length
         }
     };
 }

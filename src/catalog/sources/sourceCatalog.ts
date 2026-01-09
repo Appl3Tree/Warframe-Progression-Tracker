@@ -5,6 +5,8 @@ import { PR } from "../../domain/ids/prereqIds";
 import type { SourceId } from "../../domain/ids/sourceIds";
 import { SRC } from "../../domain/ids/sourceIds";
 
+import { getAllSourceLabels, sourceIdFromLabel } from "./sourceData";
+
 export type SourceType =
     | "Hub"
     | "Vendor"
@@ -20,7 +22,7 @@ export interface SourceDef {
     notes?: string;
 }
 
-export const SOURCE_CATALOG: SourceDef[] = [
+const CURATED_SOURCE_CATALOG: SourceDef[] = [
     {
         id: SRC.HUB_CETUS,
         label: "Cetus / Plains of Eidolon",
@@ -90,7 +92,45 @@ export const SOURCE_CATALOG: SourceDef[] = [
     }
 ];
 
+function buildDataSourceCatalog(): SourceDef[] {
+    // Each distinct sources.json "source" label becomes a known SourceDef.
+    // We do not guess prereqs for these yet.
+    const labels = getAllSourceLabels();
+
+    return labels.map((label) => ({
+        id: sourceIdFromLabel(label) as SourceId,
+        label,
+        type: "Mission",
+        prereqIds: []
+    }));
+}
+
+export const SOURCE_CATALOG: SourceDef[] = (() => {
+    // Curated first, then data-derived.
+    // If there is any collision, curated should win.
+    const curated = CURATED_SOURCE_CATALOG;
+    const derived = buildDataSourceCatalog();
+
+    const seen = new Set<string>();
+    const out: SourceDef[] = [];
+
+    for (const s of curated) {
+        const k = String(s.id);
+        if (seen.has(k)) continue;
+        seen.add(k);
+        out.push(s);
+    }
+
+    for (const s of derived) {
+        const k = String(s.id);
+        if (seen.has(k)) continue;
+        seen.add(k);
+        out.push(s);
+    }
+
+    return out;
+})();
+
 export const SOURCE_INDEX: Record<SourceId, SourceDef> = Object.fromEntries(
     SOURCE_CATALOG.map((s) => [s.id, s])
 ) as Record<SourceId, SourceDef>;
-

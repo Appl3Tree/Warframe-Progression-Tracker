@@ -1,7 +1,11 @@
 // ===== FILE: src/pages/Requirements.tsx =====
 import { useMemo, useState } from "react";
 import { useTrackerStore } from "../store/store";
-import { buildRequirementsSnapshot, type RequirementViewMode } from "../domain/logic/requirementEngine";
+import {
+    buildRequirementsSnapshot,
+    buildFarmingSnapshot,
+    type RequirementViewMode
+} from "../domain/logic/requirementEngine";
 
 function normalize(s: string): string {
     return s.trim().toLowerCase();
@@ -35,8 +39,8 @@ function PillButton(props: { label: string; active: boolean; onClick: () => void
 
 function MiniStat(props: { label: string; value: string }) {
     return (
-        <div className="rounded-lg border border-slate-800 bg-slate-950/30 px-3 py-2">
-            <div className="text-xs text-slate-400">{props.label}</div>
+        <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+            <div className="text-[11px] uppercase tracking-wide text-slate-400">{props.label}</div>
             <div className="mt-0.5 font-mono text-sm text-slate-100">{props.value}</div>
         </div>
     );
@@ -52,8 +56,9 @@ export default function Requirements() {
 
     const [mode, setMode] = useState<RequirementViewMode>("targeted");
     const [query, setQuery] = useState("");
+    const [showHidden, setShowHidden] = useState(true);
 
-    const snapshot = useMemo(() => {
+    const requirements = useMemo(() => {
         return buildRequirementsSnapshot({
             syndicates,
             goals,
@@ -62,51 +67,72 @@ export default function Requirements() {
         });
     }, [syndicates, goals, completedPrereqs, inventory]);
 
-    const filteredItemLines = useMemo(() => {
+    const farming = useMemo(() => {
+        return buildFarmingSnapshot({
+            requirements,
+            completedPrereqs
+        });
+    }, [requirements, completedPrereqs]);
+
+    const filteredTargeted = useMemo(() => {
         const q = normalize(query);
-        const base = snapshot.itemLines;
+        if (!q) return farming.targeted;
 
-        if (!q) return base;
-
-        return base.filter((l) => {
+        return farming.targeted.filter((l) => {
             if (normalize(l.name).includes(q)) return true;
             if (normalize(String(l.key)).includes(q)) return true;
 
-            return l.sources.some((s) => {
-                if (normalize(s.name).includes(q)) return true;
-                if (normalize(s.label).includes(q)) return true;
-                return false;
-            });
+            return l.sources.some(
+                (s) => normalize(s.sourceLabel).includes(q) || normalize(String(s.sourceId)).includes(q)
+            );
         });
-    }, [snapshot.itemLines, query]);
+    }, [farming.targeted, query]);
 
-    const overlapLines = useMemo(() => {
-        const base = filteredItemLines.filter((x) => x.uniqueSourceCount >= 2);
+    const filteredOverlap = useMemo(() => {
+        const q = normalize(query);
+        if (!q) return farming.overlap;
 
-        base.sort((a, b) => {
-            if (a.uniqueSourceCount !== b.uniqueSourceCount) return b.uniqueSourceCount - a.uniqueSourceCount;
-            if (a.remaining !== b.remaining) return b.remaining - a.remaining;
-            return a.name.localeCompare(b.name);
+        return farming.overlap.filter((g) => {
+            if (normalize(g.sourceLabel).includes(q)) return true;
+            if (normalize(String(g.sourceId)).includes(q)) return true;
+
+            return g.items.some((it) => normalize(it.name).includes(q) || normalize(String(it.key)).includes(q));
         });
+    }, [farming.overlap, query]);
 
-        return base;
-    }, [filteredItemLines]);
+    const filteredHidden = useMemo(() => {
+        if (!showHidden) return [];
+        const q = normalize(query);
+        if (!q) return farming.hidden;
 
-    const visibleLines = mode === "targeted" ? filteredItemLines : overlapLines;
+        return farming.hidden.filter((h) => {
+            if (normalize(h.name).includes(q)) return true;
+            if (normalize(String(h.key)).includes(q)) return true;
+            return normalize(h.reason).includes(q);
+        });
+    }, [farming.hidden, query, showHidden]);
 
     return (
         <div className="space-y-6">
             <Section
                 title="Farming"
-                subtitle="Aggregates requirements from your Syndicate next-rank steps and your personal Goals. Targeted shows everything actionable now. Overlap highlights items that satisfy multiple sources."
+                subtitle="Targeted shows actionable sources for each needed item. Overlap groups items by a shared acquisition source. Actionable lists are fail-closed; missing mappings/unlocks are shown separately under Hidden."
             >
-                <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2">
-                        <PillButton label="Targeted Farming" active={mode === "targeted"} onClick={() => setMode("targeted")} />
-                        <PillButton label="Overlap Farming" active={mode === "overlap"} onClick={() => setMode("overlap")} />
+                        <PillButton
+                            label="Targeted Farming"
+                            active={mode === "targeted"}
+                            onClick={() => setMode("targeted")}
+                        />
+                        <PillButton
+                            label="Overlap Farming"
+                            active={mode === "overlap"}
+                            onClick={() => setMode("overlap")}
+                        />
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <button
                             className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-sm font-semibold hover:bg-slate-900/40"
                             onClick={() => setActivePage("goals")}
@@ -123,15 +149,32 @@ export default function Requirements() {
                     </div>
                 </div>
 
-                <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-3">
-                    <MiniStat label="Actionable items" value={snapshot.stats.actionableItemCount.toLocaleString()} />
-                    <MiniStat label="Overlap items" value={snapshot.stats.overlapItemCount.toLocaleString()} />
-                    <MiniStat label="Remaining items (sum)" value={snapshot.stats.totalRemainingItems.toLocaleString()} />
+                <div className="mt-4 grid grid-cols-1 lg:grid-cols-6 gap-3">
+                    <MiniStat
+                        label="Items (req snapshot)"
+                        value={requirements.stats.actionableItemCount.toLocaleString()}
+                    />
+                    <MiniStat
+                        label="Actionable (known + accessible)"
+                        value={farming.stats.actionableItemsWithKnownAcquisition.toLocaleString()}
+                    />
+                    <MiniStat
+                        label="Hidden (unknown acquisition)"
+                        value={farming.stats.hiddenForUnknownAcquisition.toLocaleString()}
+                    />
+                    <MiniStat
+                        label="Hidden (locked sources)"
+                        value={farming.stats.hiddenForNoAccessibleSources.toLocaleString()}
+                    />
+                    <MiniStat
+                        label="Overlap sources"
+                        value={farming.stats.overlapSourceCount.toLocaleString()}
+                    />
                     <MiniStat
                         label="Remaining currency"
                         value={[
-                            `Credits ${snapshot.stats.totalRemainingCredits.toLocaleString()}`,
-                            `Plat ${snapshot.stats.totalRemainingPlatinum.toLocaleString()}`
+                            `Credits ${requirements.stats.totalRemainingCredits.toLocaleString()}`,
+                            `Plat ${requirements.stats.totalRemainingPlatinum.toLocaleString()}`
                         ].join(" · ")}
                     />
                 </div>
@@ -144,100 +187,159 @@ export default function Requirements() {
                                 className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100"
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                placeholder="Search by item name, catalog id, source name, or label..."
+                                placeholder="Search item name/id, source label/id, or hidden reason..."
                             />
+                        </label>
+                    </div>
+
+                    <div className="flex items-end">
+                        <label className="flex items-center gap-2 text-sm text-slate-200">
+                            <input
+                                type="checkbox"
+                                checked={showHidden}
+                                onChange={(e) => setShowHidden(e.target.checked)}
+                            />
+                            Show Hidden
                         </label>
                     </div>
                 </div>
             </Section>
 
-            {snapshot.currencyLines.length > 0 && (
+            {requirements.currencyLines.length > 0 && (
                 <Section
                     title="Currency Requirements"
-                    subtitle="Credits and Platinum are treated as special currency. Everything else is an item requirement."
+                    subtitle="Credits and Platinum are tracked separately. Currency sources are contextual (syndicate/goal), not drop locations."
                 >
                     <div className="space-y-2">
-                        {snapshot.currencyLines.map((l) => (
+                        {requirements.currencyLines.map((l) => (
                             <div key={l.key} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                                <div className="flex flex-wrap items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <div className="text-sm font-semibold break-words">{l.name}</div>
-                                        <div className="text-xs text-slate-400 mt-1">
-                                            Need {l.totalNeed.toLocaleString()} · Have {l.have.toLocaleString()} · Remaining{" "}
-                                            {l.remaining.toLocaleString()}
-                                            {mode === "overlap" ? ` · Sources ${l.uniqueSourceCount}` : ""}
-                                        </div>
-                                    </div>
+                                <div className="text-sm font-semibold break-words">{l.name}</div>
+                                <div className="text-xs text-slate-400 mt-1">
+                                    Need {l.totalNeed.toLocaleString()} · Have {l.have.toLocaleString()} · Remaining{" "}
+                                    {l.remaining.toLocaleString()}
                                 </div>
-
-                                {l.sources.length > 0 && (
-                                    <div className="mt-2 text-xs text-slate-400">
-                                        Needed for:
-                                        <ul className="mt-1 list-disc pl-5 space-y-1">
-                                            {l.sources.slice(0, 10).map((s, idx) => (
-                                                <li key={`${l.key}_${idx}`}>
-                                                    {s.type === "syndicate" ? "Syndicate" : "Goal"}: {s.name} · {s.label} ({s.need.toLocaleString()})
-                                                </li>
-                                            ))}
-                                            {l.sources.length > 10 && <li>…and {l.sources.length - 10} more.</li>}
-                                        </ul>
-                                    </div>
-                                )}
                             </div>
                         ))}
                     </div>
                 </Section>
             )}
 
-            <Section
-                title={mode === "targeted" ? "Targeted Farming" : "Overlap Farming"}
-                subtitle={
-                    mode === "targeted"
-                        ? "Everything below is accessible now (gated items are excluded)."
-                        : "Only items that contribute to 2+ unique sources (syndicates and/or goals) are shown."
-                }
-            >
-                {visibleLines.length === 0 ? (
-                    <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
-                        No remaining requirements found for the current filters.
-                        {mode === "overlap" && <div className="mt-2">Overlap view will be empty if nothing overlaps.</div>}
-                    </div>
-                ) : (
-                    <div className="space-y-2">
-                        {visibleLines.map((l) => (
-                            <div key={String(l.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                                <div className="flex flex-wrap items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <div className="text-sm font-semibold break-words">{l.name}</div>
-                                        <div className="text-xs text-slate-400 mt-1">
-                                            Need {l.totalNeed.toLocaleString()} · Have {l.have.toLocaleString()} · Remaining{" "}
-                                            {l.remaining.toLocaleString()}
-                                            {mode === "overlap" ? ` · Sources ${l.uniqueSourceCount}` : ""}
-                                        </div>
-                                        <div className="text-[11px] text-slate-500 mt-1 break-words">
-                                            Key: <span className="font-mono">{String(l.key)}</span>
+            {showHidden && (
+                <Section
+                    title="Hidden Items"
+                    subtitle="These are required items that are not currently actionable due to missing acquisition mapping or locked sources. Add mappings in src/catalog/items/itemAcquisition.ts (do not guess)."
+                >
+                    {filteredHidden.length === 0 ? (
+                        <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
+                            No hidden items for the current filters.
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            {filteredHidden.map((h) => (
+                                <div key={String(h.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                                    <div className="flex flex-wrap items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <div className="text-sm font-semibold break-words">{h.name}</div>
+                                            <div className="text-xs text-slate-400 mt-1">
+                                                Remaining {h.remaining.toLocaleString()} · Reason{" "}
+                                                <span className="font-mono">{h.reason}</span>
+                                            </div>
+                                            <div className="text-[11px] text-slate-500 mt-1 break-words">
+                                                Key: <span className="font-mono">{String(h.key)}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                            ))}
+                        </div>
+                    )}
+                </Section>
+            )}
 
-                                {l.sources.length > 0 && (
+            {mode === "targeted" ? (
+                <Section
+                    title="Targeted Farming"
+                    subtitle="Only items with known acquisition AND at least one accessible-now source are shown."
+                >
+                    {filteredTargeted.length === 0 ? (
+                        <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
+                            No actionable items found for the current filters.
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            {filteredTargeted.map((l) => (
+                                <div key={String(l.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                                    <div className="text-sm font-semibold break-words">{l.name}</div>
+                                    <div className="text-xs text-slate-400 mt-1">
+                                        Remaining {l.remaining.toLocaleString()}
+                                    </div>
+                                    <div className="text-[11px] text-slate-500 mt-1 break-words">
+                                        Key: <span className="font-mono">{String(l.key)}</span>
+                                    </div>
+
                                     <div className="mt-2 text-xs text-slate-400">
-                                        Needed for:
+                                        Farm at:
                                         <ul className="mt-1 list-disc pl-5 space-y-1">
-                                            {l.sources.slice(0, 10).map((s, idx) => (
-                                                <li key={`${String(l.key)}_${idx}`}>
-                                                    {s.type === "syndicate" ? "Syndicate" : "Goal"}: {s.name} · {s.label} ({s.need.toLocaleString()})
+                                            {l.sources.map((s) => (
+                                                <li key={`${String(l.key)}_${String(s.sourceId)}`}>
+                                                    {s.sourceLabel}{" "}
+                                                    <span className="text-slate-500">
+                                                        (<span className="font-mono">{String(s.sourceId)}</span>)
+                                                    </span>
                                                 </li>
                                             ))}
-                                            {l.sources.length > 10 && <li>…and {l.sources.length - 10} more.</li>}
                                         </ul>
                                     </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </Section>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Section>
+            ) : (
+                <Section
+                    title="Overlap Farming"
+                    subtitle="Groups by acquisition source and shows sources that advance 2+ distinct items."
+                >
+                    {filteredOverlap.length === 0 ? (
+                        <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
+                            No overlapping sources found for the current filters.
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            {filteredOverlap.map((g) => (
+                                <div
+                                    key={`${g.sourceId}::${g.sourceLabel}`}
+                                    className="rounded-xl border border-slate-800 bg-slate-950/30 p-3"
+                                >
+                                    <div className="text-sm font-semibold break-words">{g.sourceLabel}</div>
+                                    <div className="text-xs text-slate-400 mt-1">
+                                        Items {g.itemCount.toLocaleString()} · Remaining (sum) {g.totalRemaining.toLocaleString()}
+                                    </div>
+                                    <div className="text-[11px] text-slate-500 mt-1 break-words">
+                                        Source: <span className="font-mono">{String(g.sourceId)}</span>
+                                    </div>
+
+                                    <div className="mt-2 text-xs text-slate-400">
+                                        Advances:
+                                        <ul className="mt-1 list-disc pl-5 space-y-1">
+                                            {g.items.slice(0, 20).map((it) => (
+                                                <li key={`${String(g.sourceId)}_${String(it.key)}`}>
+                                                    {it.name}{" "}
+                                                    <span className="text-slate-500">
+                                                        (Remaining {it.remaining.toLocaleString()} ·{" "}
+                                                        <span className="font-mono">{String(it.key)}</span>)
+                                                    </span>
+                                                </li>
+                                            ))}
+                                            {g.items.length > 20 && <li>…and {g.items.length - 20} more.</li>}
+                                        </ul>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Section>
+            )}
         </div>
     );
 }
