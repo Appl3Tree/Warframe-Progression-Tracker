@@ -1,15 +1,30 @@
 import fs from "fs";
 
 const labelsPath = "src/data/_generated/all-source-labels.json";
-const sourcesPath = "src/data/sources.json";
 
-function normalize(s) {
-    return String(s ?? "")
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ")
-        .replace(/[^a-z0-9 ]+/g, "")     // strip punctuation
-        .replace(/\s+/g, "");           // remove spaces for fuzzy key
+/**
+ * This project treats data-derived sources as stable, generated IDs.
+ * IMPORTANT: sources.json entries do NOT contain an "id" field; they contain a human label in `source`.
+ * So our "canonical SourceId" must be derived from the label deterministically.
+ *
+ * Contract used elsewhere in the app:
+ * - data-derived ids look like: "data:<slug>"
+ */
+function sourceIdFromLabel(label) {
+    const s = String(label ?? "").trim().toLowerCase();
+
+    // slugify:
+    // - keep alnum
+    // - convert other runs to underscores
+    // - collapse underscores
+    // - trim underscores
+    const slug = s
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_+|_+$/g, "");
+
+    // If the label becomes empty after slugify, still return something deterministic.
+    return `data:${slug || "unknown"}`;
 }
 
 function loadJson(p) {
@@ -17,51 +32,28 @@ function loadJson(p) {
 }
 
 const labels = loadJson(labelsPath);
-const sourcesRaw = loadJson(sourcesPath);
 
-// Collect all canonical source ids from sources.json (handles your object-of-arrays format).
-const ids = new Set();
-for (const entries of Object.values(sourcesRaw)) {
-    if (!Array.isArray(entries)) continue;
-    for (const e of entries) {
-        if (typeof e?.id === "string" && e.id.trim()) ids.add(e.id.trim());
-    }
-}
-
-const idList = Array.from(ids).sort();
-const idByNorm = new Map();
-for (const id of idList) {
-    idByNorm.set(normalize(id), id);
-}
-
-// Auto-map
+// Build mapping: every label becomes a SourceId
 const byLabel = {};
 const unresolved = [];
 
 for (const label of labels) {
     if (typeof label !== "string" || !label.trim()) continue;
 
-    // 1) Exact id match
-    if (ids.has(label)) {
-        byLabel[label] = label;
+    const id = sourceIdFromLabel(label);
+
+    if (!id || id === "data:unknown") {
+        unresolved.push(label);
         continue;
     }
 
-    // 2) Normalized id match (e.g., punctuation/spaces differences)
-    const n = normalize(label);
-    const hit = idByNorm.get(n);
-    if (hit) {
-        byLabel[label] = hit;
-        continue;
-    }
-
-    unresolved.push(label);
+    byLabel[label] = id;
 }
 
 // Write outputs
 const mapOut = {
     byLabel,
-    defaults: { fallbackSourceId: "unknown" }
+    defaults: { fallbackSourceId: "data:unknown" }
 };
 
 fs.writeFileSync(
@@ -75,6 +67,9 @@ fs.writeFileSync(
 );
 
 console.log("Labels total:", labels.length);
-console.log("Source IDs total:", idList.length);
 console.log("Auto-mapped:", Object.keys(byLabel).length);
 console.log("Unresolved:", unresolved.length);
+console.log("Sample 20 mappings:");
+for (const k of Object.keys(byLabel).slice(0, 20)) {
+    console.log(" ", JSON.stringify(k), "=>", byLabel[k]);
+}
