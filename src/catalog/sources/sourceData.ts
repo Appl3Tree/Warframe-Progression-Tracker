@@ -7,8 +7,13 @@
 // Important:
 // - This does not attempt to “understand” sources (planet, node, vendor).
 // - It only provides a stable ID + label so the UI can show it and the engine can treat it as known.
+//
+// Stability rule:
+// - Prefer the generated mapping (src/data/_generated/source-label-map.auto.json) when present.
+// - Fall back to deterministic slugification only if the label is missing from the map.
 
 import sourcesText from "../../data/sources.json?raw";
+import labelMapText from "../../data/_generated/source-label-map.auto.json?raw";
 
 export type RawSourceEntry = {
     source?: string;
@@ -18,24 +23,49 @@ export type RawSourceEntry = {
 
 export type RawSourcesMap = Record<string, RawSourceEntry[]>;
 
-function parseSources(): RawSourcesMap {
+type LabelMapFile = {
+    byLabel?: Record<string, string>;
+    defaults?: { fallbackSourceId?: string };
+};
+
+function loadJsonLoose(text: unknown): unknown {
     try {
-        const parsed =
-            typeof sourcesText === "string"
-                ? (JSON.parse(sourcesText) as unknown)
-                : (sourcesText as unknown);
-
-        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-            return {};
-        }
-
-        return parsed as RawSourcesMap;
+        if (typeof text === "string") return JSON.parse(text) as unknown;
+        return text as unknown;
     } catch {
-        return {};
+        return null;
     }
 }
 
+function parseSources(): RawSourcesMap {
+    const parsed = loadJsonLoose(sourcesText);
+
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return {};
+    }
+
+    return parsed as RawSourcesMap;
+}
+
+function parseLabelMap(): LabelMapFile {
+    const parsed = loadJsonLoose(labelMapText);
+
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return { byLabel: {}, defaults: { fallbackSourceId: "data:unknown" } };
+    }
+
+    const v = parsed as LabelMapFile;
+    return {
+        byLabel: v.byLabel && typeof v.byLabel === "object" ? v.byLabel : {},
+        defaults: v.defaults ?? { fallbackSourceId: "data:unknown" }
+    };
+}
+
 export const RAW_SOURCES_MAP: RawSourcesMap = parseSources();
+
+const LABEL_MAP: LabelMapFile = parseLabelMap();
+const BY_LABEL: Record<string, string> = LABEL_MAP.byLabel ?? {};
+const FALLBACK_SOURCE_ID: string = LABEL_MAP.defaults?.fallbackSourceId ?? "data:unknown";
 
 function normalizeLabel(s: unknown): string {
     const v = typeof s === "string" ? s.trim() : "";
@@ -56,7 +86,15 @@ function slugify(s: string): string {
 
 export function sourceIdFromLabel(label: string): string {
     const clean = normalizeLabel(label);
-    if (!clean) return "data:unknown";
+    if (!clean) return FALLBACK_SOURCE_ID;
+
+    // 1) Prefer generated stable map (strongest guarantee)
+    const mapped = BY_LABEL[clean];
+    if (typeof mapped === "string" && mapped.trim()) {
+        return mapped.trim();
+    }
+
+    // 2) Deterministic fallback (should be rare if map is current)
     return `data:${slugify(clean)}`;
 }
 
@@ -83,3 +121,4 @@ export function getRawSourcesForItemPath(itemPath: string): RawSourceEntry[] {
     const v = RAW_SOURCES_MAP[key];
     return Array.isArray(v) ? v : [];
 }
+
