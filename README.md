@@ -1,186 +1,141 @@
 ## Warframe Progression Tracker
 
-A **data-driven progression planning tool for Warframe** focused on helping players understand *what to work on next* and *why*.
+A **progression planning tool for Warframe** designed to help players decide *what to work on next* and understand *why it matters*.
 
-This project is intentionally **not** a stat tracker, build optimizer, or account mirror. Its purpose is to model Warframe’s interconnected systems and progression dependencies so players can make informed decisions without spreadsheets, wiki hopping, or guesswork.
+Warframe’s progression is spread across quests, the Star Chart, junctions, Mastery Rank, and item unlocks. This app brings those systems together into a single view so players can plan confidently without spreadsheets or constant wiki hopping.
 
 ---
 
 ## Purpose
 
-Warframe has a wide, non-linear progression structure. New and returning players are often overwhelmed by options without understanding which choices meaningfully unblock future content.
+Players usually get stuck for one of two reasons:
+1) they don’t know what will meaningfully unlock more content, or  
+2) they don’t know why something is blocked.
 
-This app exists to:
-
-- Surface **clear, actionable progression goals**
-- Explain **why** a goal matters and **what it unlocks**
-- Model dependencies between systems instead of presenting raw data
-- Help players prioritize efficiently without external tools
+This project exists to help players:
+- Identify **high-impact progression goals**
+- Understand **what is blocking them and why**
+- See **what each step unlocks**
+- Plan multiple goals without redundant work
 
 ---
 
 ## What This App Is
 
 - A **progression planner**
-- A **dependency-aware recommendation tool**
-- A **system-level view** of Warframe progression
-- A way to understand *bottlenecks*, not just content lists
+- A **dependency-aware guide**
+- A structured view of Warframe’s progression systems and unlock paths
 
 ## What This App Is Not
 
 - A DPS calculator
-- A build optimizer
+- A build or mod optimizer
 - A trading or economy tool
-- A full replacement for the official Warframe profile
+- A replacement for the official Warframe profile
 
 ---
 
-## Core Concepts
+## How It Works
 
-### Progression Goals
+### Goals and Planning
+You can add goals such as Warframes, weapons, quests, or system unlocks. The app then shows:
+- What is achievable right now
+- What is blocked and what unblocks it
+- The requirements chain for each goal
+- Shared requirements across multiple goals to avoid duplicate effort
 
-The primary output of the app is a ranked set of **progression goals**.
+### Systems and Dependencies
+The app models progression across connected systems, including:
+- Star Chart progression and junctions
+- Quests and quest chains
+- Item acquisition requirements
+- Mastery Rank gating and progression
 
-A goal represents a meaningful milestone, such as:
-- Unlocking a system (Arbitrations, Steel Path, Helminth)
-- Completing prerequisite quests
-- Crafting a key item or Warframe
-- Reaching an important Mastery breakpoint
-
-Each goal:
-- Has explicit requirements
-- Can depend on other goals
-- Is evaluated deterministically based on the player’s state
-
-The app answers:
-- What is currently achievable
-- What is blocked and why
-- Which goals unlock the most future paths
+The emphasis is on **unlock paths**: what leads to what, and why.
 
 ---
 
-### Systems
+## Planned Features
 
-Progression is modeled through discrete **systems**, such as:
-- Star Chart
-- Quests
-- Mods
-- Foundry crafting
-- Resources
-- Mastery Rank
+### Star Chart Progression
+- Interactive Star Chart map with planet navigation and zoom
+- Node-level completion tracking
+- Junction requirements and unlock visualization
+- Node and junction impact: what completing something unlocks
 
-Each system defines:
-- Unlock conditions
-- What it enables downstream
-- How it feeds into multiple goals
+### Inventory and Item Progression
+- Full item catalog coverage (Warframes, weapons, variants, companions, vehicles)
+- Item availability state based on your progress
+- Clear acquisition and requirement breakdown per item
+- Bulk updates for faster progress marking
 
-Systems are surfaced independently so players can understand *where* they are blocked.
+### Mastery-Aware Planning
+- Track mastered vs unmastered items
+- Mastery backlog view (owned but not mastered)
+- Mastery forecasting (“If I master these, I reach MR X”)
+- Planning views that surface Mastery-efficient next steps
 
----
+### Goal-Driven Recommendations
+- Add Warframes/weapons/items as goals
+- “Available now” filtering for goal selection and planning
+- Multi-goal planning with shared dependency merging
+- “Almost there” surfacing for near-term unlocks
+- Ordering assistance for parallel progress where paths overlap
 
-### Requirements & Dependencies
+### “What Should I Do Next?”
+- Suggested next actions based on:
+  - unlock impact
+  - goal proximity
+  - Mastery progression
+- “If I do this, what changes?” impact previews
+- Session planning modes (short play sessions vs longer sessions)
+- Passive callouts when new items/goals become reachable
 
-At the core of the app is a deterministic logic layer:
+### Profile Import (Optional)
+- Platform selection and public profile import
+- Ownership and mastery awareness from imported data
+- Import preview before applying changes
+- Merge options and full reversibility through restore points
 
-- **Requirement evaluation** determines whether conditions are met
-- **Overlap detection** identifies shared dependencies between goals
+### Safety and Recovery
+- Revision history with restore capability
+- Named restore points for safe experimentation
+- Read-only planning mode
+- What-if planning (simulate progress without committing changes)
 
-This allows the app to:
-- Avoid redundant recommendations
-- Prefer goals that unblock multiple paths
-- Clearly explain missing prerequisites
-
-There are no heuristics or randomness. Every recommendation is explainable.
-
----
-
-## Architecture Overview
-
-The project is structured with a strict separation between **data**, **logic**, and **UI**.
-
-### Frontend
-- React
-- Vite
-- TypeScript
-- Tailwind CSS
-- Zustand for state management
-
-### Domain Logic
-- Pure TypeScript
-- No React dependencies
-- Deterministic, testable functions
-
-Key areas include:
-- Requirement evaluation
-- Dependency overlap analysis
-- Acquisition and source modeling
-
-This structure allows the app to scale by **adding data**, not rewriting logic.
-
----
-
-## Data Philosophy
-
-All behavior is driven by explicit data definitions:
-- Items define how they are acquired
-- Sources define where content comes from
-- Goals define what matters and why
-
-Nothing is hidden behind UI conditionals or hard-coded rules. This keeps the system transparent and maintainable as Warframe evolves.
-
----
-
-## Account Data
-
-The app is designed to be usable **without** any account or profile data.
-
-Future enhancements may optionally include:
-- Public profile imports
-- Ownership and mastery awareness
-- Dynamic re-scoring based on progress
-
-These will remain optional and non-blocking.
+### Usability Features
+- Global search across items, quests, planets, and nodes
+- Pins/bookmarks for quick access to active goals and frequently referenced content
+- Keyboard navigation support
+- Density controls for compact vs spacious layouts
+- Export options for plans (checklists / markdown / JSON) and screenshot-friendly views
 
 ---
 
 ## Running Locally
 
-To run the app locally:
-
 ```bash
 npm install
 npm run dev
-````
 
 This starts the Vite development server with hot reload enabled.
 
----
+⸻
 
-## Project Status
+Project Status
 
-This project is under active development.
+The project is under active development.
 
-Core architecture and logic are in place. Content coverage, refinement of systems, and UI polish are ongoing.
+Core systems and planning logic are in place. Current work focuses on:
+	•	Completing progression data coverage
+	•	Building the interactive Star Chart and goal planning UX
+	•	Refining navigation, search, and presentation
 
----
+⸻
 
-## End Goal
-
-The long-term vision is a tool that:
-
-* A brand-new player can use on day one
-* Continues to provide value hundreds of hours later
-* Explains Warframe’s complexity without overwhelming the user
-
-Ultimately, this serves as:
-
-* A single source of truth for progression planning
-* A foundation for future planning and guide tools
-* A reference implementation for modeling complex game systems cleanly
-
----
-
-## License
+License
 
 Warframe and all related assets are property of Digital Extremes.
 This project is provided for personal and educational use.
+
+---
