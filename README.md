@@ -117,6 +117,7 @@ The emphasis is on **unlock paths**: what leads to what, and why.
 ```bash
 npm install
 npm run dev
+```
 
 This starts the Vite development server with hot reload enabled.
 
