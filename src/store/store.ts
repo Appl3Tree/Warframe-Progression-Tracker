@@ -12,6 +12,9 @@ import { migrateToUserStateV2 } from "./migrations";
 import { parseProfileViewingData } from "../utils/profileImport";
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
 import { canAccessItemByName } from "../domain/logic/plannerEngine";
+import { validateDataOrThrow } from "../domain/logic/startupValidation";
+
+validateDataOrThrow();
 
 function nowIso(): string {
     return new Date().toISOString();
@@ -203,7 +206,11 @@ type DerivedReserveLine = {
     sources: ReserveSource[];
 };
 
-function isAccessibleReserveKey(key: string, completedPrereqs: Record<string, boolean>): boolean {
+function isAccessibleReserveKey(
+    key: string,
+    completedPrereqs: Record<string, boolean>,
+    masteryRank: number | null
+): boolean {
     if (key === "credits" || key === "platinum") {
         return true;
     }
@@ -214,13 +221,14 @@ function isAccessibleReserveKey(key: string, completedPrereqs: Record<string, bo
         return false;
     }
 
-    const access = canAccessItemByName(name, completedPrereqs);
+    const access = canAccessItemByName(name, completedPrereqs, masteryRank);
     return access.allowed;
 }
 
 function computeDerivedReservesFromSyndicates(
     syndicates: any[],
-    completedPrereqs: Record<string, boolean>
+    completedPrereqs: Record<string, boolean>,
+    masteryRank: number | null
 ): DerivedReserveLine[] {
     const byKey: Record<string, { minKeep: number; sources: ReserveSource[] }> = {};
 
@@ -233,7 +241,7 @@ function computeDerivedReservesFromSyndicates(
         const credits = Number(nr.credits ?? 0);
         if (Number.isFinite(credits) && credits > 0) {
             const key = "credits";
-            if (isAccessibleReserveKey(key, completedPrereqs)) {
+            if (isAccessibleReserveKey(key, completedPrereqs, masteryRank)) {
                 if (!byKey[key]) byKey[key] = { minKeep: 0, sources: [] };
                 byKey[key].minKeep += Math.floor(credits);
                 byKey[key].sources.push({
@@ -248,7 +256,7 @@ function computeDerivedReservesFromSyndicates(
         const platinum = Number(nr.platinum ?? 0);
         if (Number.isFinite(platinum) && platinum > 0) {
             const key = "platinum";
-            if (isAccessibleReserveKey(key, completedPrereqs)) {
+            if (isAccessibleReserveKey(key, completedPrereqs, masteryRank)) {
                 if (!byKey[key]) byKey[key] = { minKeep: 0, sources: [] };
                 byKey[key].minKeep += Math.floor(platinum);
                 byKey[key].sources.push({
@@ -268,7 +276,7 @@ function computeDerivedReservesFromSyndicates(
             const count = Number(it?.count ?? 0);
             if (!Number.isFinite(count) || count <= 0) continue;
 
-            if (!isAccessibleReserveKey(key, completedPrereqs)) {
+            if (!isAccessibleReserveKey(key, completedPrereqs, masteryRank)) {
                 continue;
             }
 
@@ -549,14 +557,16 @@ export const useTrackerStore = create<TrackerStore>()(
             getDerivedReserves: () => {
                 const syndicates = get().state.syndicates ?? [];
                 const completed = get().state.prereqs?.completed ?? {};
-                return computeDerivedReservesFromSyndicates(syndicates as any[], completed);
+                const mr = get().state.player?.masteryRank ?? null;
+                return computeDerivedReservesFromSyndicates(syndicates as any[], completed, mr);
             },
 
             isBelowReserve: (key, spendAmount) => {
                 const { inventory } = get().state;
 
                 const completed = get().state.prereqs?.completed ?? {};
-                const derived = computeDerivedReservesFromSyndicates((get().state.syndicates ?? []) as any[], completed);
+                const mr = get().state.player?.masteryRank ?? null;
+                const derived = computeDerivedReservesFromSyndicates((get().state.syndicates ?? []) as any[], completed, mr);
 
                 const rule = derived.find((r) => r.key === key);
                 if (!rule) {

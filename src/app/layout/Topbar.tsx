@@ -1,5 +1,5 @@
 // src/app/layout/Topbar.tsx
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTrackerStore } from "../../store/store";
 
 type PlatformKey = "pc" | "ps" | "xb" | "swi" | "mob";
@@ -37,12 +37,16 @@ function normalizePlatformKey(raw: unknown): PlatformKey {
     if (s === "xb" || s === "xbox" || s === "xb1" || s === "xbsx") return "xb";
     if (s === "swi" || s === "switch") return "swi";
     if (s === "mob" || s === "mobile") return "mob";
-    // Default to PC to match your app’s baseline.
     return "pc";
 }
 
-function platformLabel(key: PlatformKey): string {
-    return PLATFORM_OPTIONS.find((p) => p.key === key)?.label ?? "PC";
+function platformLabel(key: PlatformKey): "PC" | "PlayStation" | "Xbox" | "Switch" | "Mobile" {
+    const label = PLATFORM_OPTIONS.find((p) => p.key === key)?.label ?? "PC";
+    if (label === "PlayStation") return "PlayStation";
+    if (label === "Xbox") return "Xbox";
+    if (label === "Switch") return "Switch";
+    if (label === "Mobile") return "Mobile";
+    return "PC";
 }
 
 function buildProfileUrl(accountId: string, platform: PlatformKey): string {
@@ -50,10 +54,6 @@ function buildProfileUrl(accountId: string, platform: PlatformKey): string {
     return `${base}${encodeURIComponent(accountId)}`;
 }
 
-/**
- * Simple inline SVG icon set (no external deps).
- * These are intentionally “generic platform-ish” glyphs.
- */
 function PlatformIcon(props: { platform: PlatformKey; className?: string }) {
     const cls = props.className ?? "h-4 w-4";
     const common = {
@@ -112,9 +112,7 @@ export default function Topbar() {
     const masteryRank = useTrackerStore((s) => s.state.player.masteryRank);
     const displayName = useTrackerStore((s) => s.state.player.displayName);
     const accountId = useTrackerStore((s) => s.state.player.accountId ?? "");
-
-    // Platform is stored in state; this assumes you’ve expanded it beyond "PC" already.
-    const platformRaw = useTrackerStore((s) => (s.state.player as any).platform);
+    const platformRaw = useTrackerStore((s) => s.state.player.platform);
     const platform = normalizePlatformKey(platformRaw);
 
     const credits = useTrackerStore((s) => s.state.inventory.credits);
@@ -123,12 +121,8 @@ export default function Topbar() {
     const setMasteryRank = useTrackerStore((s) => s.setMasteryRank);
     const setCredits = useTrackerStore((s) => s.setCredits);
     const setPlatinum = useTrackerStore((s) => s.setPlatinum);
-
     const setAccountId = useTrackerStore((s) => s.setAccountId);
-
-    // Store platform via a generic setter if you have one; if not, we patch via setState in store later.
-    const setPlatform = useTrackerStore((s) => (s as any).setPlatform) as ((p: string) => void) | undefined;
-
+    const setPlatform = useTrackerStore((s) => s.setPlatform);
     const importProfileViewingDataJson = useTrackerStore((s) => s.importProfileViewingDataJson);
 
     const [editing, setEditing] = useState(false);
@@ -142,19 +136,32 @@ export default function Topbar() {
 
     const fileRef = useRef<HTMLInputElement | null>(null);
 
-    // Dropdown state for platform icon button
     const [platformOpen, setPlatformOpen] = useState(false);
+    const platformDropdownRef = useRef<HTMLDivElement | null>(null);
 
-    // Keep drafts in sync when not editing (e.g., after import/reset).
-    useMemo(() => {
+    useEffect(() => {
         if (!editing) {
             setMrDraft(masteryRank === null ? "" : String(masteryRank));
             setCreditsDraft(String(credits ?? 0));
             setPlatDraft(String(platinum ?? 0));
             setAccountDraft(String(accountId ?? ""));
         }
-        return null;
     }, [editing, masteryRank, credits, platinum, accountId]);
+
+    useEffect(() => {
+        if (!platformOpen) return;
+
+        function onMouseDown(e: MouseEvent) {
+            const el = platformDropdownRef.current;
+            if (!el) return;
+            if (!el.contains(e.target as Node)) {
+                setPlatformOpen(false);
+            }
+        }
+
+        document.addEventListener("mousedown", onMouseDown);
+        return () => document.removeEventListener("mousedown", onMouseDown);
+    }, [platformOpen]);
 
     function save() {
         if (mrDraft.trim() === "") {
@@ -164,9 +171,7 @@ export default function Topbar() {
         }
         setCredits(clampInt(creditsDraft, 0));
         setPlatinum(clampInt(platDraft, 0));
-
         setAccountId(accountDraft.trim());
-
         setEditing(false);
     }
 
@@ -191,14 +196,8 @@ export default function Topbar() {
 
     function choosePlatform(next: PlatformKey) {
         setPlatformOpen(false);
-
-        // Prefer a real store setter if you have it; otherwise no-op (you can add setPlatform to store).
-        if (setPlatform) {
-            setPlatform(platformLabel(next));
-        } else {
-            // If you do not have setPlatform yet, this at least communicates what needs adding.
-            setProfileStatus("Missing store action: add setPlatform(platform) to persist this selection.");
-        }
+        setPlatform(platformLabel(next));
+        setProfileStatus("");
     }
 
     return (
@@ -211,7 +210,6 @@ export default function Topbar() {
                     </div>
                 </div>
 
-                {/* Constrain width so it doesn't stretch across the whole section */}
                 <div className="w-full md:w-[460px] lg:w-[520px] max-w-full shrink-0 rounded-xl border border-slate-800 bg-slate-950/30 px-3 py-2">
                     <div className="flex items-center justify-between gap-3">
                         <div className="text-xs font-semibold text-slate-300">Profile</div>
@@ -292,8 +290,7 @@ export default function Topbar() {
                                     Import JSON/HTML
                                 </button>
 
-                                {/* Platform icon dropdown */}
-                                <div className="relative">
+                                <div className="relative" ref={platformDropdownRef}>
                                     <button
                                         className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-700 bg-slate-950/40 text-slate-200 hover:bg-slate-900"
                                         onClick={() => setPlatformOpen((v) => !v)}

@@ -1,3 +1,4 @@
+// ===== FILE: src/domain/logic/unlockGraph.ts =====
 import type { PrereqDef } from "../../catalog/prereqs/prereqRegistry";
 import { PREREQ_REGISTRY } from "../../catalog/prereqs/prereqRegistry";
 import type { PrereqId } from "../ids/prereqIds";
@@ -13,6 +14,11 @@ export interface UnlockGraphSnapshot {
     index: Record<string, PrereqDef>;
     statuses: UnlockNodeStatus[];
     byId: Record<string, UnlockNodeStatus>;
+
+    // Availability ordering rank (lower == earlier / sooner).
+    // Computed from prereq dependency depth.
+    rankById: Record<string, number>;
+
     actionable: UnlockNodeStatus[]; // not complete, unlocked
     blocked: UnlockNodeStatus[];    // not complete, locked
     completed: UnlockNodeStatus[];  // complete
@@ -34,11 +40,68 @@ export function buildPrereqIndex(defs: PrereqDef[] = PREREQ_REGISTRY): Record<st
     return index;
 }
 
+/**
+ * Compute a stable "availability order" rank using dependency depth:
+ * - rank = 0 for roots (no prerequisites)
+ * - rank = 1 + max(rank(prereq)) otherwise
+ * Unknown prereqs contribute +1_000_000 (pushes the node late, fail-closed).
+ * Cycles are handled fail-closed by assigning a large rank.
+ */
+function computeRankById(index: Record<string, PrereqDef>, defs: PrereqDef[]): Record<string, number> {
+    const memo: Record<string, number> = {};
+    const visiting = new Set<string>();
+
+    const UNKNOWN_RANK = 1_000_000;
+    const CYCLE_RANK = 2_000_000;
+
+    function rankOf(id: string): number {
+        if (memo[id] !== undefined) return memo[id];
+
+        if (visiting.has(id)) {
+            memo[id] = CYCLE_RANK;
+            return memo[id];
+        }
+
+        const def = index[id];
+        if (!def) {
+            memo[id] = UNKNOWN_RANK;
+            return memo[id];
+        }
+
+        visiting.add(id);
+
+        const prereqs = Array.isArray(def.prerequisites) ? def.prerequisites : [];
+        if (prereqs.length === 0) {
+            memo[id] = 0;
+            visiting.delete(id);
+            return memo[id];
+        }
+
+        let maxChild = 0;
+        for (const p of prereqs) {
+            const child = index[p] ? rankOf(p) : UNKNOWN_RANK;
+            maxChild = Math.max(maxChild, child);
+        }
+
+        memo[id] = maxChild + 1;
+
+        visiting.delete(id);
+        return memo[id];
+    }
+
+    for (const d of defs) {
+        rankOf(d.id);
+    }
+
+    return memo;
+}
+
 export function computeUnlockGraphSnapshot(
     completedMap: Record<string, boolean>,
     defs: PrereqDef[] = PREREQ_REGISTRY
 ): UnlockGraphSnapshot {
     const index = buildPrereqIndex(defs);
+    const rankById = computeRankById(index, defs);
 
     const statuses: UnlockNodeStatus[] = defs.map((d) => {
         const completed = isCompleted(completedMap, d.id);
@@ -64,22 +127,35 @@ export function computeUnlockGraphSnapshot(
         byId[s.id] = s;
     }
 
+    const rankOf = (id: string) => {
+        const v = rankById[id];
+        return Number.isFinite(v) ? v : 1_000_000;
+    };
+
+    function compare(a: UnlockNodeStatus, b: UnlockNodeStatus): number {
+        const ra = rankOf(a.id);
+        const rb = rankOf(b.id);
+        if (ra !== rb) return ra - rb;
+        return String(a.id).localeCompare(String(b.id));
+    }
+
     const actionable = statuses
         .filter((s) => !s.completed && s.unlocked)
-        .sort((a, b) => a.id.localeCompare(b.id));
+        .sort(compare);
 
     const blocked = statuses
         .filter((s) => !s.completed && !s.unlocked)
-        .sort((a, b) => a.id.localeCompare(b.id));
+        .sort(compare);
 
     const completed = statuses
         .filter((s) => s.completed)
-        .sort((a, b) => a.id.localeCompare(b.id));
+        .sort(compare);
 
     return {
         index,
         statuses,
         byId,
+        rankById,
         actionable,
         blocked,
         completed
@@ -98,7 +174,12 @@ export function getActionablePrereqs(
     return snap.actionable
         .map((s) => snap.index[s.id])
         .filter(Boolean)
-        .sort((a, b) => a.label.localeCompare(b.label));
+        .sort((a, b) => {
+            const ra = snap.rankById[a.id] ?? 1_000_000;
+            const rb = snap.rankById[b.id] ?? 1_000_000;
+            if (ra !== rb) return ra - rb;
+            return a.label.localeCompare(b.label);
+        });
 }
 
 /**

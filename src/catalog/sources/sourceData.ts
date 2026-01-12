@@ -1,6 +1,6 @@
 // src/catalog/sources/sourceData.ts
 //
-// Loads and normalizes src/data/sources.json into:
+// Loads and normalizes src/data/sources.json and src/data/sources_wiki.json into:
 // - a list of unique source labels
 // - stable SourceIds for each source label
 //
@@ -13,6 +13,7 @@
 // - Fall back to deterministic slugification only if the label is missing from the map.
 
 import sourcesText from "../../data/sources.json?raw";
+import wikiSourcesText from "../../data/sources_wiki.json?raw";
 import labelMapText from "../../data/_generated/source-label-map.auto.json?raw";
 
 export type RawSourceEntry = {
@@ -37,14 +38,34 @@ function loadJsonLoose(text: unknown): unknown {
     }
 }
 
-function parseSources(): RawSourcesMap {
-    const parsed = loadJsonLoose(sourcesText);
+function parseSources(text: unknown): RawSourcesMap {
+    const parsed = loadJsonLoose(text);
 
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
         return {};
     }
 
     return parsed as RawSourcesMap;
+}
+
+function mergeSources(a: RawSourcesMap, b: RawSourcesMap): RawSourcesMap {
+    // Merge by concatenating entry arrays.
+    // This is deterministic and does not dedupe by chance/rarity; acquisition only needs labels.
+    const out: RawSourcesMap = { ...a };
+
+    for (const [k, entries] of Object.entries(b)) {
+        if (!Array.isArray(entries) || entries.length === 0) continue;
+
+        const existing = out[k];
+        if (!Array.isArray(existing) || existing.length === 0) {
+            out[k] = entries.slice();
+            continue;
+        }
+
+        out[k] = existing.concat(entries);
+    }
+
+    return out;
 }
 
 function parseLabelMap(): LabelMapFile {
@@ -61,7 +82,11 @@ function parseLabelMap(): LabelMapFile {
     };
 }
 
-export const RAW_SOURCES_MAP: RawSourcesMap = parseSources();
+const BASE_SOURCES_MAP: RawSourcesMap = parseSources(sourcesText);
+const WIKI_SOURCES_MAP: RawSourcesMap = parseSources(wikiSourcesText);
+
+// Runtime merged map used everywhere else.
+export const RAW_SOURCES_MAP: RawSourcesMap = mergeSources(BASE_SOURCES_MAP, WIKI_SOURCES_MAP);
 
 const LABEL_MAP: LabelMapFile = parseLabelMap();
 const BY_LABEL: Record<string, string> = LABEL_MAP.byLabel ?? {};

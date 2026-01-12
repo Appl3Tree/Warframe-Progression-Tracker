@@ -13,6 +13,8 @@ import type { SourceId } from "../ids/sourceIds";
 import { SOURCE_INDEX } from "../../catalog/sources/sourceCatalog";
 import { getAcquisitionByCatalogId } from "../../catalog/items/itemAcquisition";
 
+import type { PrereqId } from "../ids/prereqIds";
+
 export type RequirementViewMode = "targeted" | "overlap";
 
 export type RequirementSource =
@@ -329,6 +331,10 @@ export type HiddenFarmingItem = {
     name: string;
     remaining: number;
     reason: "unknown-acquisition" | "missing-prereqs" | "no-accessible-sources";
+
+    // New: actionable diagnostics payload
+    missingPrereqs?: PrereqId[];
+    blockedBySources?: SourceId[];
 };
 
 export type FarmingSnapshot = {
@@ -365,51 +371,54 @@ function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, bo
     return true;
 }
 
-function classifyInaccessibleSources(
-    sourceIds: SourceId[],
-    completedPrereqs: Record<string, boolean>
-): "missing-prereqs" | "no-accessible-sources" {
-    let sawUnknownGate = false;
-    let sawMissingPrereq = false;
+function getMissingPrereqsForSources(args: {
+    sourceIds: SourceId[];
+    completedPrereqs: Record<string, boolean>;
+}): { missingPrereqs: PrereqId[]; blockedBySources: SourceId[]; hasUncuratedGate: boolean } {
+    const { sourceIds, completedPrereqs } = args;
+
+    const missing = new Set<PrereqId>();
+    const blockedSources: SourceId[] = [];
+
+    let hasUncuratedGate = false;
 
     for (const sid of sourceIds) {
         const def = SOURCE_INDEX[sid];
         if (!def) {
-            // Fail-closed: treat as unknown gate, not “missing prereq”.
-            sawUnknownGate = true;
+            hasUncuratedGate = true;
+            blockedSources.push(sid);
             continue;
         }
 
         const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
         const isDataDerived = String(sid).startsWith("data:");
 
-        // This is your explicit fail-closed rule for data-derived sources without gating info.
+        // Uncurated gate: known label, unknown gating.
         if (isDataDerived && prereqs.length === 0) {
-            sawUnknownGate = true;
+            hasUncuratedGate = true;
+            blockedSources.push(sid);
             continue;
         }
 
-        // If the source *does* declare prereqs, and any are unmet, this is a real “missing prereq”.
+        // Curated prereqs: record missing
+        let thisSourceBlocked = false;
         for (const pr of prereqs) {
             if (!completedPrereqs[String(pr)]) {
-                sawMissingPrereq = true;
-                break;
+                missing.add(String(pr) as PrereqId);
+                thisSourceBlocked = true;
             }
+        }
+
+        if (thisSourceBlocked) {
+            blockedSources.push(sid);
         }
     }
 
-    // Prefer “missing-prereqs” when present, because it’s actionable.
-    if (sawMissingPrereq) {
-        return "missing-prereqs";
-    }
-    
-    // If we saw only unknown / uncurated gates, report that explicitly.
-    if (sawUnknownGate) {
-        return "no-accessible-sources";
-    }
-    
-    // Defensive fallback (should not happen)
-    return "no-accessible-sources";
+    return {
+        missingPrereqs: Array.from(missing),
+        blockedBySources: blockedSources,
+        hasUncuratedGate
+    };
 }
 
 function getAcquisitionSourcesForCatalogId(catalogId: CatalogId): SourceId[] | null {
@@ -448,14 +457,21 @@ export function buildFarmingSnapshot(args: {
             }));
 
         if (accessible.length === 0) {
-	    hidden.push({
-		key: line.key,
-		name: line.name,
-		remaining: line.remaining,
-		reason: classifyInaccessibleSources(sources, completedPrereqs)
-	    });
-	    continue;
-	}
+            const diag = getMissingPrereqsForSources({
+                sourceIds: sources,
+                completedPrereqs
+            });
+
+            hidden.push({
+                key: line.key,
+                name: line.name,
+                remaining: line.remaining,
+                reason: diag.missingPrereqs.length > 0 ? "missing-prereqs" : "no-accessible-sources",
+                missingPrereqs: diag.missingPrereqs,
+                blockedBySources: diag.blockedBySources
+            });
+            continue;
+        }
 
         targeted.push({
             key: line.key,
@@ -525,7 +541,7 @@ export function buildFarmingSnapshot(args: {
     const hiddenForUnknownAcquisition = hidden.filter((h) => h.reason === "unknown-acquisition").length;
     const hiddenForMissingPrereqs = hidden.filter((h) => h.reason === "missing-prereqs").length;
     const hiddenForNoAccessibleSources = hidden.filter((h) => h.reason === "no-accessible-sources").length;
-    
+
     return {
         targeted,
         overlap,
@@ -539,3 +555,4 @@ export function buildFarmingSnapshot(args: {
         }
     };
 }
+

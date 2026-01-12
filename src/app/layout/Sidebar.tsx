@@ -1,30 +1,6 @@
 // ===== FILE: src/app/layout/Sidebar.tsx =====
 import { useTrackerStore } from "../../store/store";
-
-type PageKey =
-    | "dashboard"
-    | "inventory"
-    | "prereqs"
-    | "syndicates"
-    | "goals"
-    | "requirements"
-    | "systems"
-    | "imports"
-    | "settings"
-    | "diagnostics";
-
-const NAV: Array<{ key: PageKey; label: string; desc: string }> = [
-    { key: "dashboard", label: "Dashboard", desc: "Today’s checklist and quick status." },
-    { key: "inventory", label: "Inventory", desc: "Full catalog by category with filters." },
-    { key: "prereqs", label: "Prerequisites", desc: "Quest/system unlocks (Phase B)." },
-    { key: "syndicates", label: "Syndicates", desc: "Standing/ranks (Phase E)." },
-    { key: "goals", label: "Goals", desc: "Personal goal portfolio (Phase D)." },
-    { key: "requirements", label: "Farming", desc: "Targeted vs Overlap across goals + syndicates." },
-    { key: "systems", label: "Systems", desc: "Nightwave/Kahl etc. (separate section)." },
-    { key: "imports", label: "Import / Export", desc: "Progress Pack tools." },
-    { key: "settings", label: "Settings", desc: "App preferences." },
-    { key: "diagnostics", label: "Diagnostics", desc: "Validation and debug output." }
-];
+import { NAV_ROUTES } from "../routes";
 
 export default function Sidebar() {
     const activePage = useTrackerStore((s) => s.state.ui.activePage);
@@ -32,10 +8,12 @@ export default function Sidebar() {
 
     return (
         <aside className="rounded-2xl border border-slate-800 bg-slate-950/40 p-3">
-            <div className="text-sm font-semibold text-slate-200 px-2 pb-2">Navigation</div>
+            <div className="text-sm font-semibold text-slate-200 px-2 pb-2">
+                Navigation
+            </div>
 
             <div className="flex flex-col gap-1">
-                {NAV.map((n) => {
+                {NAV_ROUTES.map((n) => {
                     const active = n.key === activePage;
                     return (
                         <button

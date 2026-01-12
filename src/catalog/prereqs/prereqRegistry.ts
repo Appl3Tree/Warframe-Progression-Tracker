@@ -1,3 +1,5 @@
+// ===== FILE: src/catalog/prereqs/prereqRegistry.ts =====
+
 import type { PrereqId } from "../../domain/ids/prereqIds";
 import { PR } from "../../domain/ids/prereqIds";
 
@@ -14,6 +16,12 @@ export interface PrereqDef {
     prerequisites: PrereqId[];
 }
 
+/**
+ * IMPORTANT RULE:
+ * - Mastery Rank is NOT modeled as a prereq registry item.
+ * - MR is a requirement attribute that is only surfaced when it blocks a specific target
+ *   (items now; later weapons/goals).
+ */
 export const PREREQ_REGISTRY: PrereqDef[] = [
     // -----------------------------
     // Quests (major progression spine)
@@ -150,14 +158,14 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.RISING_TIDE,
         label: "Rising Tide",
         category: "Quests",
-        description: "Introduces Railjack ownership and progression (Railjack missions, Intrinsics).",
+        description: "Introduces Railjack ownership and progression.",
         prerequisites: [PR.SECOND_DREAM]
     },
     {
         id: PR.DUVIRI_PARADOX,
         label: "The Duviri Paradox",
         category: "Quests",
-        description: "Duviri access gate. Modeled here as a quest prereq for Duviri-sourced items/systems.",
+        description: "Duviri access gate (modeled as quest prereq for Duviri-sourced items/systems).",
         prerequisites: [PR.JUNCTION_SATURN_URANUS]
     },
 
@@ -240,7 +248,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
 
     // -----------------------------
-    // Star Chart junction prereqs (modeled explicitly so other systems can lock behind them)
+    // Star Chart junction prereqs
     // -----------------------------
     {
         id: PR.JUNCTION_EARTH_MARS,
@@ -258,7 +266,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
 
     // -----------------------------
-    // Orbiter Segments (milestones that gate features and should be modeled explicitly)
+    // Orbiter Segments
     // -----------------------------
     {
         id: PR.SYSTEM_ORBITER_VOID_RELICS,
@@ -278,32 +286,32 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.SYSTEM_ORBITER_MELEE_UPGRADE,
         label: "Orbiter: Melee Upgrade Segment Installed",
         category: "Systems",
-        description: "Melee Exilus and Melee Arcane slots are available (Tennokai-related feature gate).",
+        description: "Melee Exilus and Melee Arcane slots are available.",
         prerequisites: [PR.WHISPERS_WALL]
     },
 
     // -----------------------------
-    // Helminth upgrade segments (separate from just “Helminth unlocked”)
+    // Helminth upgrade segments
     // -----------------------------
     {
         id: PR.SYSTEM_HELMINTH_INVIGORATIONS,
         label: "Helminth: Invigoration Segment Installed",
         category: "Systems",
-        description: "Invigorations are available (requires Helminth unlocked plus its acquisition constraints).",
+        description: "Invigorations are available (requires Helminth unlocked).",
         prerequisites: [PR.SYSTEM_HELMINTH]
     },
     {
         id: PR.SYSTEM_HELMINTH_ARCHON_SHARDS,
         label: "Helminth: Archon Shard Segment Installed",
         category: "Systems",
-        description: "Helminth Archon Shard operations are available (segment tied to post-New War progression).",
+        description: "Helminth Archon Shard operations are available.",
         prerequisites: [PR.SYSTEM_HELMINTH, PR.VEILBREAKER]
     },
     {
         id: PR.SYSTEM_HELMINTH_COALESCENT,
         label: "Helminth: Coalescent Segment Installed",
         category: "Systems",
-        description: "Helminth Coalescent segment is available after Sanctum/Cavia progression (modeled as a gate).",
+        description: "Helminth Coalescent segment is available after Sanctum/Cavia progression.",
         prerequisites: [PR.SYSTEM_HELMINTH, PR.HUB_SANCTUM]
     },
 

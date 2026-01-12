@@ -1,3 +1,5 @@
+// ===== FILE: src/domain/ids/prereqIds.ts =====
+
 export const PR = {
     // -----------------------------
     // Quests (major arcs; extend later)
@@ -41,7 +43,7 @@ export const PR = {
     HUB_SANCTUM: "hub_sanctum_anatomica",
 
     // -----------------------------
-    // Systems (high-level gates; these are “player-confirmed” prerequisites)
+    // Systems (high-level gates; player-confirmed)
     // -----------------------------
     SYSTEM_OPERATOR: "system_operator_unlocked",
     SYSTEM_RAILJACK: "system_railjack_unlocked",
@@ -50,21 +52,21 @@ export const PR = {
     SYSTEM_ARCHON_HUNTS: "system_archon_hunts_unlocked",
 
     // -----------------------------
-    // Orbiter segments (treated as system prereqs)
+    // Orbiter segments
     // -----------------------------
     SYSTEM_ORBITER_VOID_RELICS: "system_orbiter_void_relic_segment",
     SYSTEM_ORBITER_PERSONAL_QUARTERS: "system_orbiter_personal_quarters_segment",
     SYSTEM_ORBITER_MELEE_UPGRADE: "system_orbiter_melee_upgrade_segment",
 
     // -----------------------------
-    // Helminth upgrade segments (treated as system prereqs)
+    // Helminth upgrade segments
     // -----------------------------
     SYSTEM_HELMINTH_INVIGORATIONS: "system_helminth_invigoration_segment",
     SYSTEM_HELMINTH_ARCHON_SHARDS: "system_helminth_archon_shard_segment",
     SYSTEM_HELMINTH_COALESCENT: "system_helminth_coalescent_segment",
 
     // -----------------------------
-    // Kahl / Veilbreaker systems (separate section but still gateable)
+    // Kahl / Veilbreaker systems
     // -----------------------------
     SYSTEM_KAHL_GARRISON: "system_kahl_garrison_available"
 } as const;

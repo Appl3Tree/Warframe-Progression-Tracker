@@ -1,6 +1,8 @@
+// ===== FILE: src/pages/Prerequisites.tsx =====
 import { useMemo, useState } from "react";
 import { PREREQ_REGISTRY } from "../catalog/prereqs/prereqRegistry";
 import { computePrereqStatuses, buildPrereqIndex } from "../domain/logic/prereqEngine";
+import { computeUnlockGraphSnapshot } from "../domain/logic/unlockGraph";
 import { useTrackerStore } from "../store/store";
 
 export default function Prerequisites() {
@@ -10,7 +12,15 @@ export default function Prerequisites() {
     const [filter, setFilter] = useState("");
 
     const index = useMemo(() => buildPrereqIndex(PREREQ_REGISTRY), []);
-    const statuses = useMemo(() => computePrereqStatuses(PREREQ_REGISTRY, completedMap), [completedMap]);
+    const statuses = useMemo(
+        () => computePrereqStatuses(PREREQ_REGISTRY, completedMap),
+        [completedMap]
+    );
+
+    const snap = useMemo(
+        () => computeUnlockGraphSnapshot(completedMap, PREREQ_REGISTRY),
+        [completedMap]
+    );
 
     const statusById = useMemo(() => {
         const map: Record<string, { completed: boolean; isUnlocked: boolean; missingPrereqs: string[] }> = {};
@@ -24,27 +34,33 @@ export default function Prerequisites() {
         const f = filter.trim().toLowerCase();
 
         const items = PREREQ_REGISTRY.filter((d) => {
-            if (!f) {
-                return true;
-            }
+            if (!f) return true;
             const hay = `${d.label} ${d.description} ${d.category} ${d.id}`.toLowerCase();
             return hay.includes(f);
         });
 
         const groups: Record<string, typeof items> = {};
         for (const d of items) {
-            if (!groups[d.category]) {
-                groups[d.category] = [];
-            }
+            if (!groups[d.category]) groups[d.category] = [];
             groups[d.category].push(d);
         }
 
+        const rankOf = (id: string) => {
+            const v = snap.rankById?.[id];
+            return Number.isFinite(v) ? (v as number) : 1_000_000;
+        };
+
         for (const k of Object.keys(groups)) {
-            groups[k].sort((a, b) => a.label.localeCompare(b.label));
+            groups[k].sort((a, b) => {
+                const ra = rankOf(a.id);
+                const rb = rankOf(b.id);
+                if (ra !== rb) return ra - rb;
+                return a.label.localeCompare(b.label);
+            });
         }
 
         return groups;
-    }, [filter]);
+    }, [filter, snap.rankById]);
 
     const totals = useMemo(() => {
         const total = PREREQ_REGISTRY.length;

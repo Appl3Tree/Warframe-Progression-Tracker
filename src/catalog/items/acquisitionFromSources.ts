@@ -1,15 +1,9 @@
 // src/catalog/items/acquisitionFromSources.ts
-//
-// Derives acquisition sources for CatalogIds from src/data/sources.json.
-//
-// Contract:
-// - Input keys in sources.json look like "/Lotus/Types/..."
-// - Your CatalogId for items is "items:/Lotus/Types/..."
-// - We map each entry's "source" string to a data-derived SourceId "data:<slug>"
 
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
 import type { SourceId } from "../../domain/ids/sourceIds";
+import { isSourceId } from "../../domain/ids/sourceIds";
 import type { AcquisitionDef } from "./itemAcquisition";
 import { RAW_SOURCES_MAP, sourceIdFromLabel } from "../sources/sourceData";
 
@@ -33,7 +27,13 @@ export function deriveAcquisitionByCatalogIdFromSourcesJson(): Record<string, Ac
         for (const e of entries) {
             const label = typeof e?.source === "string" ? e.source.trim() : "";
             if (!label) continue;
-            sourceIds.push(sourceIdFromLabel(label) as SourceId);
+
+            const sid = sourceIdFromLabel(label);
+            if (!isSourceId(sid)) {
+                continue;
+            }
+
+            sourceIds.push(sid);
         }
 
         const uniq = Array.from(new Set(sourceIds));
