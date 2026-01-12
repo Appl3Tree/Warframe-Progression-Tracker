@@ -1,20 +1,24 @@
+// ===== FILE: src/catalog/sources/sourceData.ts =====
 // src/catalog/sources/sourceData.ts
 //
-// Loads and normalizes src/data/sources.json and src/data/sources_wiki.json into:
+// Loads and normalizes sources into:
 // - a list of unique source labels
 // - stable SourceIds for each source label
 //
-// Important:
-// - This does not attempt to “understand” sources (planet, node, vendor).
-// - It only provides a stable ID + label so the UI can show it and the engine can treat it as known.
+// Sources of truth:
+// 1) src/data/_generated/source-label-map.auto.json (label -> id mapping, preferred for stability)
+// 2) src/data/_generated/wfcd-source-label-map.auto.json (id -> label mapping; we reverse it to label -> id)
+//
+// Also loads src/data/sources.json to gather labels present in your legacy drop table dataset.
 //
 // Stability rule:
-// - Prefer the generated mapping (src/data/_generated/source-label-map.auto.json) when present.
-// - Fall back to deterministic slugification only if the label is missing from the map.
+// - Prefer the generated mapping (source-label-map.auto.json) when present.
+// - Use WFCD map as an additional mapping layer.
+// - Fall back to deterministic slugification only if label is missing from both maps.
 
 import sourcesText from "../../data/sources.json?raw";
-import wikiSourcesText from "../../data/sources_wiki.json?raw";
 import labelMapText from "../../data/_generated/source-label-map.auto.json?raw";
+import wfcdLabelMapText from "../../data/_generated/wfcd-source-label-map.auto.json?raw";
 
 export type RawSourceEntry = {
     source?: string;
@@ -38,34 +42,14 @@ function loadJsonLoose(text: unknown): unknown {
     }
 }
 
-function parseSources(text: unknown): RawSourcesMap {
-    const parsed = loadJsonLoose(text);
+function parseSources(): RawSourcesMap {
+    const parsed = loadJsonLoose(sourcesText);
 
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
         return {};
     }
 
     return parsed as RawSourcesMap;
-}
-
-function mergeSources(a: RawSourcesMap, b: RawSourcesMap): RawSourcesMap {
-    // Merge by concatenating entry arrays.
-    // This is deterministic and does not dedupe by chance/rarity; acquisition only needs labels.
-    const out: RawSourcesMap = { ...a };
-
-    for (const [k, entries] of Object.entries(b)) {
-        if (!Array.isArray(entries) || entries.length === 0) continue;
-
-        const existing = out[k];
-        if (!Array.isArray(existing) || existing.length === 0) {
-            out[k] = entries.slice();
-            continue;
-        }
-
-        out[k] = existing.concat(entries);
-    }
-
-    return out;
 }
 
 function parseLabelMap(): LabelMapFile {
@@ -82,18 +66,58 @@ function parseLabelMap(): LabelMapFile {
     };
 }
 
-const BASE_SOURCES_MAP: RawSourcesMap = parseSources(sourcesText);
-const WIKI_SOURCES_MAP: RawSourcesMap = parseSources(wikiSourcesText);
+type WfcdSourceIdToLabel = Record<string, string>;
 
-// Runtime merged map used everywhere else.
-export const RAW_SOURCES_MAP: RawSourcesMap = mergeSources(BASE_SOURCES_MAP, WIKI_SOURCES_MAP);
+function parseWfcdSourceIdToLabel(): WfcdSourceIdToLabel {
+    const parsed = loadJsonLoose(wfcdLabelMapText);
+
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return {};
+    }
+
+    return parsed as Record<string, string>;
+}
+
+export const RAW_SOURCES_MAP: RawSourcesMap = parseSources();
 
 const LABEL_MAP: LabelMapFile = parseLabelMap();
-const BY_LABEL: Record<string, string> = LABEL_MAP.byLabel ?? {};
 const FALLBACK_SOURCE_ID: string = LABEL_MAP.defaults?.fallbackSourceId ?? "data:unknown";
 
+/**
+ * Map: label -> sourceId
+ * - primary: generated stable map (source-label-map.auto.json)
+ * - secondary: WFCD reverse map (wfcd-source-label-map.auto.json)
+ */
+const BY_LABEL: Record<string, string> = (() => {
+    const out: Record<string, string> = {};
+
+    // 1) primary stable label->id mapping
+    const primary = LABEL_MAP.byLabel ?? {};
+    for (const [label, id] of Object.entries(primary)) {
+        if (typeof label !== "string" || typeof id !== "string") continue;
+        const l = label.trim();
+        const i = id.trim();
+        if (!l || !i) continue;
+        out[l] = i;
+    }
+
+    // 2) WFCD id->label mapping, reverse it into label->id
+    const wfcd = parseWfcdSourceIdToLabel();
+    for (const [id, label] of Object.entries(wfcd)) {
+        if (typeof id !== "string" || typeof label !== "string") continue;
+        const i = id.trim();
+        const l = label.replace(/\s+/g, " ").trim();
+        if (!i || !l) continue;
+
+        // Do NOT override primary mapping for the same label (primary is “more stable”).
+        if (!out[l]) out[l] = i;
+    }
+
+    return out;
+})();
+
 function normalizeLabel(s: unknown): string {
-    const v = typeof s === "string" ? s.trim() : "";
+    const v = typeof s === "string" ? s.replace(/\s+/g, " ").trim() : "";
     return v;
 }
 
@@ -119,13 +143,14 @@ export function sourceIdFromLabel(label: string): string {
         return mapped.trim();
     }
 
-    // 2) Deterministic fallback (should be rare if map is current)
+    // 2) Deterministic fallback (should be rare if maps are current)
     return `data:${slugify(clean)}`;
 }
 
 export function getAllSourceLabels(): string[] {
     const labels = new Set<string>();
 
+    // A) legacy dataset labels from sources.json
     for (const entries of Object.values(RAW_SOURCES_MAP)) {
         if (!Array.isArray(entries)) continue;
 
@@ -134,6 +159,14 @@ export function getAllSourceLabels(): string[] {
             if (!label) continue;
             labels.add(label);
         }
+    }
+
+    // B) WFCD labels (id->label map values)
+    const wfcd = parseWfcdSourceIdToLabel();
+    for (const label of Object.values(wfcd)) {
+        const l = normalizeLabel(label);
+        if (!l) continue;
+        labels.add(l);
     }
 
     return Array.from(labels.values()).sort((a, b) => a.localeCompare(b));

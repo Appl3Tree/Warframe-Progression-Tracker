@@ -1,9 +1,13 @@
+// ===== FILE: src/catalog/items/itemAcquisition.ts =====
 // src/catalog/items/itemAcquisition.ts
 
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import type { SourceId } from "../../domain/ids/sourceIds";
 import { SRC } from "../../domain/ids/sourceIds";
 import { deriveAcquisitionByCatalogIdFromSourcesJson } from "./acquisitionFromSources";
+
+import wfcdAcqJson from "../../data/_generated/wfcd-acquisition.byCatalogId.auto.json";
+import wikiAcqJson from "../../data/_generated/wiki-acquisition.byCatalogId.auto.json";
 
 export interface AcquisitionDef {
     sources: SourceId[];
@@ -89,6 +93,62 @@ const EXPLICIT_ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
     }
 };
 
+function normalizeIncomingAcqMap(raw: unknown): Record<string, AcquisitionDef> {
+    const v = (raw ?? {}) as Record<string, any>;
+    const out: Record<string, AcquisitionDef> = {};
+
+    for (const [k, def] of Object.entries(v)) {
+        const key = String(k ?? "").trim();
+        if (!key.startsWith("items:")) continue;
+
+        const sourcesRaw = Array.isArray(def?.sources) ? def.sources : [];
+        const sources: SourceId[] = [];
+
+        for (const s of sourcesRaw) {
+            const sid = String(s ?? "").trim();
+            if (!sid) continue;
+            sources.push(sid as SourceId);
+        }
+
+        if (sources.length === 0) continue;
+
+        // de-dupe + stable sort
+        const uniq = Array.from(new Set(sources)).sort((a, b) => String(a).localeCompare(String(b)));
+        out[key] = { sources: uniq };
+    }
+
+    return out;
+}
+
+function unionAcqMaps(...maps: Array<Record<string, AcquisitionDef>>): Record<string, AcquisitionDef> {
+    const out: Record<string, AcquisitionDef> = {};
+
+    for (const m of maps) {
+        for (const [k, def] of Object.entries(m ?? {})) {
+            const key = String(k ?? "").trim();
+            if (!key.startsWith("items:")) continue;
+
+            const sources = Array.isArray(def?.sources) ? def.sources : [];
+            if (sources.length === 0) continue;
+
+            if (!out[key]) out[key] = { sources: [] };
+
+            const merged = new Set<string>(out[key].sources.map((x) => String(x)));
+            for (const s of sources) {
+                const sid = String(s ?? "").trim();
+                if (!sid) continue;
+                merged.add(sid);
+            }
+
+            out[key].sources = Array.from(merged)
+                .sort((a, b) => a.localeCompare(b))
+                .map((x) => x as SourceId);
+        }
+    }
+
+    return out;
+}
+
 /**
  * Dataset-derived acquisition (sources.json).
  */
@@ -96,13 +156,30 @@ const DERIVED_FROM_SOURCES_JSON: Record<string, AcquisitionDef> =
     deriveAcquisitionByCatalogIdFromSourcesJson();
 
 /**
+ * WFCD-derived acquisition (raw WFCD json drops).
+ */
+const DERIVED_FROM_WFCD: Record<string, AcquisitionDef> =
+    normalizeIncomingAcqMap(wfcdAcqJson);
+
+/**
+ * Wiki table-derived acquisition (your parsed wiki drops).
+ */
+const DERIVED_FROM_WIKI: Record<string, AcquisitionDef> =
+    normalizeIncomingAcqMap(wikiAcqJson);
+
+/**
  * Canonical resolution:
- * 1) Explicit
- * 2) Dataset-derived
- * 3) Unknown → null
+ * - Union known datasets (sources.json + wfcd + wiki)
+ * - Explicit overrides are still applied last (and can narrow/replace in the future if you want)
+ *
+ * For now, explicit is merged last so it cannot be “lost”.
  */
 export const ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
-    ...DERIVED_FROM_SOURCES_JSON,
+    ...unionAcqMaps(
+        DERIVED_FROM_SOURCES_JSON,
+        DERIVED_FROM_WFCD,
+        DERIVED_FROM_WIKI
+    ),
     ...EXPLICIT_ACQUISITION_BY_CATALOG_ID
 };
 

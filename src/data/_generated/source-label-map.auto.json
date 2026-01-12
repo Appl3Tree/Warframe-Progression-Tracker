@@ -1788,7 +1788,20 @@
     "Zealoid Prelate": "data:zealoid_prelate",
     "Zealot Baptizer": "data:zealot_baptizer",
     "Zealot Herald": "data:zealot_herald",
-    "Zealot Proselytizer": "data:zealot_proselytizer"
+    "Zealot Proselytizer": "data:zealot_proselytizer",
+    "Mercury/Apollodorus (Survival)": "data:mercury_apollodorus_survival",
+    "Axi A1 Relic (Intact)": "data:axi_a1_relic_intact",
+    "Recover The Orokin Archive": "data:recover_the_orokin_archive",
+    "Arbitrations": "data:arbitrations",
+    "Sortie": "data:sortie",
+    "Scaldra Screamer": "data:scaldra_screamer",
+    "Target Acquired": "data:target_acquired",
+    "H-09 Apex": "data:h_09_apex",
+    "Lavan Glazio Mk Iii": "data:lavan_glazio_mk_iii",
+    "Techrot Motherboard Cluster": "data:techrot_motherboard_cluster",
+    "Sharrac Teeth": "data:sharrac_teeth",
+    "Scaldra Harbinger Gas Carrier": "data:scaldra_harbinger_gas_carrier",
+    "Hemocyte": "data:hemocyte"
   },
   "defaults": {
     "fallbackSourceId": "data:unknown"

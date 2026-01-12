@@ -94,7 +94,6 @@ export function buildProgressionPlan(
                 return aIsMilestone ? -1 : 1;
             }
 
-            // Availability ordering (earlier depth first)
             const ra = rankOf(a);
             const rb = rankOf(b);
             if (ra !== rb) return ra - rb;
@@ -192,8 +191,6 @@ export interface ItemAccessResult {
     allowed: boolean;
     missingPrereqs: PrereqId[];
 
-    // Only present when MR is actually required and not met.
-    // This should NOT be shown as a standalone “goal” unless it blocks the user’s target.
     missingMr: number | null;
 
     reasons: string[];
@@ -204,6 +201,27 @@ function normalizeMr(value: number | null | undefined): number | null {
     const n = Number(value);
     if (!Number.isFinite(n)) return null;
     return Math.max(0, Math.floor(n));
+}
+
+/**
+ * Policy:
+ * - data-derived sources with no prereqs are fail-closed by default
+ * - EXCEPT: WFCD/Wiki-generated drop sources are treated as actionable even without curated gating
+ *
+ * Rationale: drop tables must be usable, and you already accept that their gating is not curated.
+ */
+function isAutoDropSourceId(sourceId: SourceId): boolean {
+    const sid = String(sourceId);
+
+    // Accept a few reasonable prefixes; keep it strict enough to avoid “everything data:* becomes accessible”.
+    return (
+        sid.startsWith("data:wfcd:") ||
+        sid.startsWith("data:wfcd_") ||
+        sid.startsWith("wfcd:") ||
+        sid.startsWith("data:wiki:") ||
+        sid.startsWith("data:wikidrops:") ||
+        sid.startsWith("wiki:")
+    );
 }
 
 function isSourceAccessible(
@@ -219,7 +237,7 @@ function isSourceAccessible(
     const isDataDerived = String(sourceId).startsWith("data:");
     const prereqs = Array.isArray(src.prereqIds) ? src.prereqIds : [];
 
-    if (isDataDerived && prereqs.length === 0) {
+    if (isDataDerived && prereqs.length === 0 && !isAutoDropSourceId(sourceId)) {
         return {
             ok: false,
             missing: [],

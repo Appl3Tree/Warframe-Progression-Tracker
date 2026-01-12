@@ -9,7 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
-    "predeploy": "npm run build"
+    "predeploy": "npm run build",
+    "gen:wfcd": "tsx scripts/build-wfcd-items-and-requirements.ts",
+    "gen:wfcd:acq": "tsx scripts/build-wfcd-acquisition-from-items.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
@@ -40,6 +42,8 @@
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "warframe-items": "^1.1180.0"
   }
 }
+

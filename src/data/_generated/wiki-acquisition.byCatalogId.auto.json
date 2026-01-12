@@ -1,0 +1,2248 @@
+{
+  "items:/Lotus/Types/Friendly/Pets/MoaPets/MoaPetPowerSuit": {
+    "sources": [
+      "data:sharrac_teeth",
+      "data:target_acquired"
+    ]
+  },
+  "items:/Lotus/Types/Game/CatbrowPet/CatbrowGeneticSignature": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/1999Wf/Resources/1999ResourceRareA": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/1999Wf/Resources/1999ResourceUncommonA": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/1999Wf/Resources/1999ResourceUncommonB": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriEnemyDropItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriFractalItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemA": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemB": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemC": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemD": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemF": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Eidolon/Resources/EidolonFruitItem": {
+    "sources": [
+      "data:h_09_apex",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Eidolon/Resources/ForestRodentPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Eidolon/Resources/GrokdrulItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Eidolon/Resources/IraditeItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Eidolon/Resources/QuillsDogTag": {
+    "sources": [
+      "data:scaldra_harbinger_gas_carrier",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Eidolon/Resources/SentientShards/SentientShardSynthesizedItem": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/EntratiLab/Resources/EntratiLabDogTagCommon": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Tau/Resources/TwelveBossResourceDactolystItem": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Tau/Resources/TwelveBossResourceHunhullusItem": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Tau/Resources/TwelveBossResourcePrimesItem": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Venus/Resources/ArachnoidHungerItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Venus/Resources/ArachnoidMicroidItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Venus/Resources/ArachnoidWraithItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Venus/Resources/CoolantItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Zariman/Resources/ZarimanMiscItemA": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Gameplay/Zariman/Resources/ZarimanMiscItemB": {
+    "sources": [
+      "data:mercury_apollodorus_survival",
+      "data:scaldra_harbinger_gas_carrier"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/BothCommonFishAPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/BothCommonFishBPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/BothRareFishAPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/BothUncommonFishAPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/BothUncommonFishBPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayCommonFishAPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayCommonFishBPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayCommonFishCPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayUncommonFishAPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayUncommonFishBPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/NightLegendaryFishAPartItem": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/NightRareFishAPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/NightRareFishBPartItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Solaris/FishParts/OrokinFishEcosynthAnalyzerItem": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Solaris/FishParts/OrokinFishEntroplasmaItem": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Solaris/FishParts/OrokinFishSaganModuleItem": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Items/Fish/Solaris/FishParts/SolarisFishLatheCoogulantItem": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Eidolon/CommonGemAItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Eidolon/CommonGemBItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Eidolon/EidolonGemAItem": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Eidolon/EidolonGemBItem": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Eidolon/RareGemAItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Eidolon/RareOreAItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Eidolon/UncommonGemAItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Solaris/SolarisEidolonGemAItem": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Items/Gems/Solaris/SolarisEidolonGemBItem": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/Alertium": {
+    "sources": [
+      "data:arbitrations",
+      "data:mercury_apollodorus_survival",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/ArgonCrystal": {
+    "sources": [
+      "data:arbitrations",
+      "data:mercury_apollodorus_survival",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/ConcentratedGas": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/ControlModule": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/Eidolonium": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/Elitium": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/Forma": {
+    "sources": [
+      "data:mercury_apollodorus_survival",
+      "data:sortie",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/FormaAura": {
+    "sources": [
+      "data:arbitrations",
+      "data:scaldra_harbinger_gas_carrier"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/Gallium": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/InfestedAladCoordinate": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/JuggernautPartA": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/JuggernautPartB": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/JuggernautPartC": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/JuggernautPartD": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/Kuva": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/MemoryCryptoFragment": {
+    "sources": [
+      "data:mercury_apollodorus_survival",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/Morphic": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/NavCode": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/NeuralSensor": {
+    "sources": [
+      "data:mercury_apollodorus_survival",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/Neurode": {
+    "sources": [
+      "data:mercury_apollodorus_survival",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/OrokinCell": {
+    "sources": [
+      "data:arbitrations",
+      "data:mercury_apollodorus_survival",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/OxiumAlloy": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/RivenFragment": {
+    "sources": [
+      "data:axi_a1_relic_intact",
+      "data:mercury_apollodorus_survival",
+      "data:scaldra_harbinger_gas_carrier",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/SchismKey": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/SpecterParticleResidue": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/SteelEssence": {
+    "sources": [
+      "data:h_09_apex",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/Tellurium": {
+    "sources": [
+      "data:mercury_apollodorus_survival",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/UtilityUnlocker": {
+    "sources": [
+      "data:scaldra_harbinger_gas_carrier",
+      "data:sortie"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/ValenceAdapter": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Items/MiscItems/WeaponUtilityUnlocker": {
+    "sources": [
+      "data:scaldra_harbinger_gas_carrier"
+    ]
+  },
+  "items:/Lotus/Types/Items/RailjackMiscItems/AsteriteRailjackItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/RailjackMiscItems/AucruxRailjackItem": {
+    "sources": [
+      "data:mercury_apollodorus_survival",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/RailjackMiscItems/CarbidesRailjackItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/RailjackMiscItems/CubicsRailjackItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/RailjackMiscItems/GallosRailjackItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/RailjackMiscItems/IsosRailjackItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/RailjackMiscItems/KommsRailjackItem": {
+    "sources": [
+      "data:mercury_apollodorus_survival",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/RailjackMiscItems/NullstonesRailjackItem": {
+    "sources": [
+      "data:mercury_apollodorus_survival",
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/RailjackMiscItems/TitaniumRailjackItem": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Research/BioComponent": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Items/Research/ChemComponent": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/Research/ChemFragment": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Items/Research/EnergyComponent": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Items/SyndicateDogTags/UniversalSyndicateDogTag": {
+    "sources": [
+      "data:arbitrations",
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Kubrow/Collars/PrimeKubrowCollarABandComponent": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Kubrow/Collars/PrimeKubrowCollarABuckleComponent": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AcceltraPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AcceltraPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AcceltraPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AfurisPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AfurisPrimeLink": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AfurisPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkariusPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkariusPrimeLink": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkariusPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkboltoPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkboltoPrimeLink": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkboltoPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkbroncoPrimeLink": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkjagaraPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkjagaraPrimeLink": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkjagaraPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AklexPrimeLink": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkmagnusPrimeLink": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AksomatiPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AksomatiPrimeLink": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AksomatiPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkstilettoPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkstilettoPrimeLink": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkstilettoPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AkvastoPrimeLink": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AlternoxPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AlternoxPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AlternoxPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AnkyrosPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AnkyrosPrimeGauntlet": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchLongRifleReceiver": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AstillaPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AstillaPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AstillaPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AthodaiPistolBarrel": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AthodaiPistolReceiver": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BazaPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BazaPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BazaPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BoarPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BoarPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BoarPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BoltorPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BoltorPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BoltorPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BrakkBarrel": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BrakkReceiver": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BratonPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BratonPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BratonPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BratonVandalBarrel": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BratonVandalReceiver": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BratonVandalStock": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BroncoPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BroncoPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BurstonPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BurstonPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/BurstonPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CarminePentaBarrel": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CarminePentaReceiver": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CarminePentaStock": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CedoPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CedoPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CedoPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CobraCranePrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CobraCranePrimeGuard": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CobraCranePrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CorinthPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CorinthPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CorinthPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CorvasPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CorvasPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CorvasPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGhostCatcherGlaivePartBlade": {
+    "sources": [
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGhostCatcherGlaivePartCore": {
+    "sources": [
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGhostCatcherGlaivePartHandle": {
+    "sources": [
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGunbladeBarrel": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGunbladeBlade": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGunbladeReceiver": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGunbladeStock": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpRubanRifleBarrel": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpRubanRifleReceiver": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpRubanRifleStock": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DestrezaPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DestrezaPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DetronBarrel": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DetronReceiver": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DualKeresPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DualKeresPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DualZorenPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DualZorenPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EmpyreanSentinelCarapace": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EmpyreanSentinelCerebrum": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EmpyreanSentinelSystems": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EpitaphPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EpitaphPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/FragorPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/FragorPrimeHead": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/FulminPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/FulminPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/FulminPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GlaivePrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GlaivePrimeDisc": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GorgonWraithBarrel": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GorgonWraithReceiver": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GorgonWraithStock": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GramPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GramPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrnChainSawTonfaBlade": {
+    "sources": [
+      "data:h_09_apex",
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrnChainSawTonfaHandle": {
+    "sources": [
+      "data:h_09_apex",
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GuandaoPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GuandaoPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GunScytheBlade": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GunScytheHandle": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GunScytheReceiver": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GunsenPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GunsenPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/HystrixPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/HystrixPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ImperatorVandalBarrel": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ImperatorVandalReceiver": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/InfBoomerangBlade": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/InfBoomerangDisc": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KarystPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KarystPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KestrelPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KestrelPrimeGrip": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KnellPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KnellPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KogakePrimeBoot": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KogakePrimeGauntlet": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KompressaPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KompressaPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KronenPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KronenPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LarkspurPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LarkspurPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LarkspurPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LatoVandalBarrel": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LatoVandalReceiver": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LatronPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LatronPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LatronPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LexPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LexPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MagnusPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MagnusPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MasseterPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MasseterPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MiterBarrel": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MiterBlade": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MiterChassis": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MiterHandle": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MortiforShieldAndSwordBlade": {
+    "sources": [
+      "data:h_09_apex",
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MortiforShieldAndSwordGuard": {
+    "sources": [
+      "data:h_09_apex",
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MortiforShieldAndSwordHandle": {
+    "sources": [
+      "data:h_09_apex",
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NagantakaPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NagantakaPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NagantakaPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NautilusPrimeCarapace": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NautilusPrimeCerebrum": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NautilusPrimeSystems": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NinkondiPrimeChain": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NinkondiPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/OkinaPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/OkinaPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PanderoPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PanderoPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PangolinPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PangolinPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PantheraPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PantheraPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PantheraPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PhantasmaPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PhantasmaPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PhantasmaPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/Prime1HShotgunBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/Prime1HShotgunReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBallisticaLowerLimb": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBallisticaReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBallisticaString": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBallisticaUpperLimb": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBoHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBoOrnament": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBowGrip": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBowLowerLimb": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBowString": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBowUpperLimb": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCarrierCarapace": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCarrierCerebrum": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCarrierSystems": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCernosGrip": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCernosLowerLimb": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCernosString": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCernosUpperLimb": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCronusLongSwordBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCronusLongSwordHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDaikyuGrip": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDaikyuLowerLimb": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDaikyuString": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDaikyuUpperLimb": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDethcubeCarapace": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDethcubeCerebrum": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDethcubeSystems": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDualKamasBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDualKamasHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeFangBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeFangHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeGalatineBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeGalatineHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeHeliosCarapace": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeHeliosCerebrum": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeHeliosSystems": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeHikouHolster": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeHikouStars": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeLiDaggerBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeLiDaggerHolster": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeLightningGunBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeLightningGunReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeLightningGunStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeNamiSkylaBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeNamiSkylaHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeNikanaBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeNikanaHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimePolearmBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimePolearmHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeScindoBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeScindoHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeScytheBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeScytheHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeTigrisBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeTigrisReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeTigrisStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeVenkaClawsBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeVenkaClawsGauntlet": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeWyrmCarapace": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeWyrmCerebrum": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeWyrmSystems": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ProteaSMGBarrel": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ProteaSMGReceiver": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PyranaPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PyranaPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/QuassusPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/QuassusPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/RedeemerPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/RedeemerPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/RubicoPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/RubicoPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/RubicoPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ScourgePrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ScourgePrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ScourgePrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ShadePrimeCarapace": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ShadePrimeCerebrum": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ShadePrimeSystems": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SheduHeavyWeaponBarrel": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SheduHeavyWeaponChassis": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SheduHeavyWeaponHandle": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SheduHeavyWeaponReceiver": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SicarusPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SicarusPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SilvaAegisPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SilvaAegisPrimeGuard": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SilvaAegisPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SomaPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SomaPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SomaPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SpectraVandalBarrel": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SpectraVandalChassis": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SpectraVandalHandle": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/StradavarPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/StradavarPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/StradavarPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/StrunPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/StrunPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/StrunPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SybarisPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SybarisPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SybarisPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TatsuPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TatsuPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TekkoPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TekkoPrimeGauntlet": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TenoraPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TenoraPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TenoraPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TeshinGlaiveBlade": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TeshinGlaiveDisc": {
+    "sources": [
+      "data:techrot_motherboard_cluster"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ThrowingHammerHandle": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ThrowingHammerHead": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ThrowingHammerMotor": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TiberonPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TiberonPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TiberonPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TipedoPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TipedoPrimeOrnament": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnAlchemistShotgunBarrel": {
+    "sources": [
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnAlchemistShotgunReceiver": {
+    "sources": [
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnAlchemistShotgunStock": {
+    "sources": [
+      "data:recover_the_orokin_archive"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnConcreteArchgunBarrel": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnConcreteArchgunReceiver": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnConcreteArchgunStock": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnoLotusPodShotgunBarrel": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnoLotusPodShotgunReceiver": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnoLotusPodShotgunStock": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnQuadSniperRifleBarrel": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnQuadSniperRifleReceiver": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnQuadSniperRifleStock": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TrumnaPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TrumnaPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TrumnaPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VastoPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VastoPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VectisPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VectisPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VectisPrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VeloxPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VeloxPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VentoPrimeBlade": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VentoPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VolnusPrimeHandle": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VolnusPrimeHead": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VorsPistolBarrel": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VorsPistolReceiver": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WarBlade": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WarHilt": {
+    "sources": [
+      "data:h_09_apex"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WolfFrameAxeWeaponBlade": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WolfFrameAxeWeaponHandle": {
+    "sources": [
+      "data:mercury_apollodorus_survival"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WraithSidearmBarrel": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WraithSidearmReceiver": {
+    "sources": [
+      "data:arbitrations"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZaktiPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZaktiPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZhugePrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZhugePrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZhugePrimeStock": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZhugePrimeString": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZylokPrimeBarrel": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ZylokPrimeReceiver": {
+    "sources": [
+      "data:axi_a1_relic_intact"
+    ]
+  }
+}

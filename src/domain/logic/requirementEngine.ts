@@ -1,4 +1,5 @@
 // ===== FILE: src/domain/logic/requirementEngine.ts =====
+// src/domain/logic/requirementEngine.ts
 import type { CatalogId } from "../catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../catalog/loadFullCatalog";
 import { getItemRequirements } from "../../catalog/items/itemRequirements";
@@ -122,7 +123,6 @@ export function buildRequirementsSnapshot(args: {
     };
 
     function addItemNeed(catalogId: CatalogId, need: number, source: RequirementSource) {
-        // Still fail-closed on unknown catalog id (data integrity), but DO NOT gate by acquisition.
         if (!FULL_CATALOG.recordsById[catalogId]) return;
 
         const rec = FULL_CATALOG.recordsById[catalogId];
@@ -142,7 +142,6 @@ export function buildRequirementsSnapshot(args: {
         currencyAgg[key].sources.push(source);
     }
 
-    // 1) Syndicate next-rank requirements
     for (const syn of syndicates ?? []) {
         const syndicateId = typeof syn?.id === "string" ? syn.id : "";
         const syndicateName = typeof syn?.name === "string" ? syn.name : syndicateId || "Unknown Syndicate";
@@ -193,7 +192,6 @@ export function buildRequirementsSnapshot(args: {
         }
     }
 
-    // 2) Goals (direct item goals + optional breakdown via registry)
     for (const g of goals ?? []) {
         if (!g || g.isActive === false) continue;
         if (g.type !== "item") continue;
@@ -332,9 +330,14 @@ export type HiddenFarmingItem = {
     remaining: number;
     reason: "unknown-acquisition" | "missing-prereqs" | "no-accessible-sources";
 
-    // New: actionable diagnostics payload
     missingPrereqs?: PrereqId[];
     blockedBySources?: SourceId[];
+
+    blockedByRecipeComponents?: Array<{
+        catalogId: CatalogId;
+        name: string;
+        reason: "unknown-acquisition" | "missing-prereqs" | "no-accessible-sources";
+    }>;
 };
 
 export type FarmingSnapshot = {
@@ -350,17 +353,31 @@ export type FarmingSnapshot = {
     };
 };
 
+/**
+ * Same policy as plannerEngine:
+ * - data-derived sources with no prereqs are fail-closed by default
+ * - EXCEPT WFCD/Wiki auto drop sources (actionable)
+ */
+function isAutoDropSourceId(sourceId: SourceId): boolean {
+    const sid = String(sourceId);
+    return (
+        sid.startsWith("data:wfcd:") ||
+        sid.startsWith("data:wfcd_") ||
+        sid.startsWith("wfcd:") ||
+        sid.startsWith("data:wiki:") ||
+        sid.startsWith("data:wikidrops:") ||
+        sid.startsWith("wiki:")
+    );
+}
+
 function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, boolean>): boolean {
     const def = SOURCE_INDEX[sourceId];
-    if (!def) return false; // fail-closed
+    if (!def) return false;
 
     const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
 
-    // HARD RULE (fail-closed for accessibility):
-    // Data-derived sources are "known labels" but have unknown gating until curated.
-    // Treat as NOT accessible unless they have at least one prereqId (curated) or are non-data sources.
     const isDataDerived = String(sourceId).startsWith("data:");
-    if (isDataDerived && prereqs.length === 0) {
+    if (isDataDerived && prereqs.length === 0 && !isAutoDropSourceId(sourceId)) {
         return false;
     }
 
@@ -393,14 +410,13 @@ function getMissingPrereqsForSources(args: {
         const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
         const isDataDerived = String(sid).startsWith("data:");
 
-        // Uncurated gate: known label, unknown gating.
-        if (isDataDerived && prereqs.length === 0) {
+        // Treat WFCD/Wiki auto drop sources as actionable even without curated prereqs.
+        if (isDataDerived && prereqs.length === 0 && !isAutoDropSourceId(sid)) {
             hasUncuratedGate = true;
             blockedSources.push(sid);
             continue;
         }
 
-        // Curated prereqs: record missing
         let thisSourceBlocked = false;
         for (const pr of prereqs) {
             if (!completedPrereqs[String(pr)]) {
@@ -409,9 +425,7 @@ function getMissingPrereqsForSources(args: {
             }
         }
 
-        if (thisSourceBlocked) {
-            blockedSources.push(sid);
-        }
+        if (thisSourceBlocked) blockedSources.push(sid);
     }
 
     return {
@@ -427,6 +441,189 @@ function getAcquisitionSourcesForCatalogId(catalogId: CatalogId): SourceId[] | n
     return def.sources;
 }
 
+type AcquireAnalysis =
+    | {
+          kind: "ok";
+          sources: FarmingItemSource[];
+      }
+    | {
+          kind: "hidden";
+          hidden: HiddenFarmingItem;
+      };
+
+function analyzeCatalogIdForFarming(args: {
+    catalogId: CatalogId;
+    name: string;
+    remaining: number;
+    completedPrereqs: Record<string, boolean>;
+    visited: Set<string>;
+    depth: number;
+}): AcquireAnalysis {
+    const { catalogId, name, remaining, completedPrereqs, visited, depth } = args;
+
+    const visitKey = String(catalogId);
+    if (visited.has(visitKey)) {
+        return {
+            kind: "hidden",
+            hidden: {
+                key: catalogId,
+                name,
+                remaining,
+                reason: "unknown-acquisition"
+            }
+        };
+    }
+
+    if (depth > 25) {
+        return {
+            kind: "hidden",
+            hidden: {
+                key: catalogId,
+                name,
+                remaining,
+                reason: "unknown-acquisition"
+            }
+        };
+    }
+
+    const directSources = getAcquisitionSourcesForCatalogId(catalogId);
+    if (directSources && directSources.length > 0) {
+        const accessible = directSources
+            .filter((sid) => canAccessSource(sid, completedPrereqs))
+            .map((sid) => ({
+                sourceId: sid,
+                sourceLabel: SOURCE_INDEX[sid]?.label ?? String(sid)
+            }));
+
+        if (accessible.length > 0) {
+            return { kind: "ok", sources: accessible };
+        }
+
+        const comps = getItemRequirements(catalogId);
+        if (!Array.isArray(comps) || comps.length === 0) {
+            const diag = getMissingPrereqsForSources({ sourceIds: directSources, completedPrereqs });
+            return {
+                kind: "hidden",
+                hidden: {
+                    key: catalogId,
+                    name,
+                    remaining,
+                    reason: diag.missingPrereqs.length > 0 ? "missing-prereqs" : "no-accessible-sources",
+                    missingPrereqs: diag.missingPrereqs,
+                    blockedBySources: diag.blockedBySources
+                }
+            };
+        }
+    }
+
+    const recipe = getItemRequirements(catalogId);
+    if (!Array.isArray(recipe) || recipe.length === 0) {
+        return {
+            kind: "hidden",
+            hidden: {
+                key: catalogId,
+                name,
+                remaining,
+                reason: "unknown-acquisition"
+            }
+        };
+    }
+
+    visited.add(visitKey);
+
+    const missingPrereqs = new Set<PrereqId>();
+    let anyNoAccessibleSources = false;
+
+    const blockedByRecipeComponents: HiddenFarmingItem["blockedByRecipeComponents"] = [];
+
+    for (const c of recipe) {
+        const compId = c.catalogId as CatalogId;
+        const compRec = FULL_CATALOG.recordsById[compId];
+        const compName = compRec?.displayName ?? String(compId);
+
+        const r = analyzeCatalogIdForFarming({
+            catalogId: compId,
+            name: compName,
+            remaining: 1,
+            completedPrereqs,
+            visited,
+            depth: depth + 1
+        });
+
+        if (r.kind === "ok") {
+            continue;
+        }
+
+        const reason = r.hidden.reason;
+
+        blockedByRecipeComponents.push({
+            catalogId: compId,
+            name: compName,
+            reason
+        });
+
+        if (reason === "missing-prereqs") {
+            for (const p of r.hidden.missingPrereqs ?? []) {
+                missingPrereqs.add(p);
+            }
+        } else if (reason === "no-accessible-sources") {
+            anyNoAccessibleSources = true;
+        }
+    }
+
+    visited.delete(visitKey);
+
+    if (blockedByRecipeComponents.some((x) => x.reason === "unknown-acquisition")) {
+        return {
+            kind: "hidden",
+            hidden: {
+                key: catalogId,
+                name,
+                remaining,
+                reason: "unknown-acquisition",
+                blockedByRecipeComponents
+            }
+        };
+    }
+
+    if (missingPrereqs.size > 0) {
+        return {
+            kind: "hidden",
+            hidden: {
+                key: catalogId,
+                name,
+                remaining,
+                reason: "missing-prereqs",
+                missingPrereqs: Array.from(missingPrereqs),
+                blockedByRecipeComponents
+            }
+        };
+    }
+
+    if (anyNoAccessibleSources) {
+        return {
+            kind: "hidden",
+            hidden: {
+                key: catalogId,
+                name,
+                remaining,
+                reason: "no-accessible-sources",
+                blockedByRecipeComponents
+            }
+        };
+    }
+
+    return {
+        kind: "ok",
+        sources: [
+            {
+                sourceId: "system:crafting" as SourceId,
+                sourceLabel: "Crafting (Foundry)"
+            }
+        ]
+    };
+}
+
 export function buildFarmingSnapshot(args: {
     requirements: RequirementsResult;
     completedPrereqs: Record<string, boolean>;
@@ -437,48 +634,25 @@ export function buildFarmingSnapshot(args: {
     const hidden: HiddenFarmingItem[] = [];
 
     for (const line of requirements.itemLines) {
-        const sources = getAcquisitionSourcesForCatalogId(line.key);
-
-        if (!sources) {
-            hidden.push({
-                key: line.key,
-                name: line.name,
-                remaining: line.remaining,
-                reason: "unknown-acquisition"
-            });
-            continue;
-        }
-
-        const accessible = sources
-            .filter((sid) => canAccessSource(sid, completedPrereqs))
-            .map((sid) => ({
-                sourceId: sid,
-                sourceLabel: SOURCE_INDEX[sid]?.label ?? String(sid)
-            }));
-
-        if (accessible.length === 0) {
-            const diag = getMissingPrereqsForSources({
-                sourceIds: sources,
-                completedPrereqs
-            });
-
-            hidden.push({
-                key: line.key,
-                name: line.name,
-                remaining: line.remaining,
-                reason: diag.missingPrereqs.length > 0 ? "missing-prereqs" : "no-accessible-sources",
-                missingPrereqs: diag.missingPrereqs,
-                blockedBySources: diag.blockedBySources
-            });
-            continue;
-        }
-
-        targeted.push({
-            key: line.key,
+        const analysis = analyzeCatalogIdForFarming({
+            catalogId: line.key,
             name: line.name,
             remaining: line.remaining,
-            sources: accessible
+            completedPrereqs,
+            visited: new Set<string>(),
+            depth: 0
         });
+
+        if (analysis.kind === "ok") {
+            targeted.push({
+                key: line.key,
+                name: line.name,
+                remaining: line.remaining,
+                sources: analysis.sources
+            });
+        } else {
+            hidden.push(analysis.hidden);
+        }
     }
 
     targeted.sort((a, b) => {

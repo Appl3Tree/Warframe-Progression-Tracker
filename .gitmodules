@@ -1,0 +1,3 @@
+[submodule "external/warframe-items"]
+	path = external/warframe-items
+	url = https://github.com/WFCD/warframe-items

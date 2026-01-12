@@ -1,4 +1,5 @@
-// src/catalog/sources/sourceCatalog.ts
+// ===== FILE: src/catalog/sources/sourceCatalog.ts =====
+// Full file replacement with SYSTEM_CRAFTING integrated into the curated catalog.
 
 import type { PrereqId } from "../../domain/ids/prereqIds";
 import { PR } from "../../domain/ids/prereqIds";
@@ -98,57 +99,66 @@ const CURATED_SOURCE_CATALOG: SourceDef[] = [
 
     // -----------------------------
     // Curated SYSTEM sources (first-class)
-    // These are not "drops" or "missions"; they represent gated systems that unlock
-    // acquisition paths.
     // -----------------------------
     {
-        id: "system:archwing",
+        id: SRC.SYSTEM_ARCHWING,
         label: "System: Archwing Unlocked",
         type: "System",
         prereqIds: [PR.ARCHWING]
     },
     {
-        id: "system:railjack",
+        id: SRC.SYSTEM_RAILJACK,
         label: "System: Railjack Owned",
         type: "System",
         prereqIds: [PR.SYSTEM_RAILJACK]
     },
     {
-        id: "system:necramech",
+        id: SRC.SYSTEM_NECRAMECH,
         label: "System: Necramech Owned",
         type: "System",
         prereqIds: [PR.SYSTEM_NECRAMECH]
     },
     {
-        id: "system:helminth",
+        id: SRC.SYSTEM_HELMINTH,
         label: "System: Helminth Unlocked",
         type: "System",
         prereqIds: [PR.SYSTEM_HELMINTH]
     },
     {
-        id: "system:veilbreaker",
+        id: SRC.SYSTEM_VEILBREAKER,
         label: "System: Veilbreaker / Kahl Content",
         type: "System",
         prereqIds: [PR.VEILBREAKER]
     },
     {
-        id: "system:duviri",
+        id: SRC.SYSTEM_DUVIRI,
         label: "System: Duviri Access",
         type: "System",
         prereqIds: [PR.DUVIRI_PARADOX]
     },
     {
-        id: "system:archon_hunts",
+        id: SRC.SYSTEM_ARCHON_HUNTS,
         label: "System: Archon Hunts",
         type: "System",
         prereqIds: [PR.SYSTEM_ARCHON_HUNTS]
     },
     {
-        id: "system:clan_research",
+        id: SRC.SYSTEM_CLAN_RESEARCH,
         label: "System: Dojo Research (Clan Tech)",
         type: "System",
         prereqIds: [],
         notes: "Dojo access/lab modeling will be handled as explicit prereqs later (PHASE 1.4)."
+    },
+
+    // NEW: Crafting (Foundry) source
+    // NOTE: Using PR.VORS_PRIZE as the minimal “you have the ship/foundry available” gate.
+    // If you later add a dedicated Foundry prereq id, swap it here.
+    {
+        id: SRC.SYSTEM_CRAFTING,
+        label: "Crafting (Foundry)",
+        type: "System",
+        prereqIds: [PR.VORS_PRIZE],
+        notes: "Represents crafting the output item in Foundry once all components are obtainable."
     },
 
     // -----------------------------

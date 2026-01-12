@@ -6,9 +6,13 @@
 // - Icons are NOT used for UI.
 // - Display rule: if record has no name, we set displayName to the path key, and mark isDisplayable=false.
 //   UI must filter to isDisplayable===true for user-facing lists.
+//
+// WFCD append behavior:
+// - We load src/data/_generated/wfcd-items-append.auto.json and merge it into items.json at runtime.
+// - Fail-closed: existing items.json wins on key collisions.
 
-// Import JSON as modules (object maps). This avoids relying on Vite "?raw" behavior for large files.
 import itemsJson from "../../data/items.json";
+
 import modsJson from "../../data/mods.json";
 import modsetsJson from "../../data/modsets.json";
 import rivensJson from "../../data/rivens.json";
@@ -24,37 +28,30 @@ export type CatalogSource =
 export type CatalogId = `${CatalogSource}:${string}`;
 
 export interface CatalogRecordBase {
-    id: CatalogId;             // namespaced: source:pathKey
-    source: CatalogSource;     // which file it came from
-    path: string;              // original JSON map key
-    displayName: string;       // rec.name if present, else path
-    isDisplayable: boolean;    // true only when a real name exists
-    categories: string[];      // rec.categories if present, else []
-    raw: unknown;              // full raw record for future features
+    id: CatalogId;
+    source: CatalogSource;
+    path: string;
+    displayName: string;
+    isDisplayable: boolean;
+    categories: string[];
+    raw: unknown;
 }
 
 export interface FullCatalog {
     recordsById: Record<CatalogId, CatalogRecordBase>;
 
-    // All ids, grouped by source (includes non-displayable)
     idsBySource: Record<CatalogSource, CatalogId[]>;
-
-    // Displayable-only ids, grouped by source (for any user-facing UI)
     displayableIdsBySource: Record<CatalogSource, CatalogId[]>;
 
-    // Convenience subsets (ALL items, includes non-displayable)
     itemIds: CatalogId[];
     inventoryItemIds: CatalogId[];
 
-    // Convenience subsets (DISPLAYABLE ONLY)
     displayableItemIds: CatalogId[];
     displayableInventoryItemIds: CatalogId[];
 
-    // Search/index helpers (includes non-displayable by design; UI filters after)
-    nameIndex: Record<string, CatalogId[]>;      // normalized name -> ids
-    categoryIndex: Record<string, CatalogId[]>;  // category -> ids
+    nameIndex: Record<string, CatalogId[]>;
+    categoryIndex: Record<string, CatalogId[]>;
 
-    // Sanity stats
     stats: {
         countsBySource: Record<CatalogSource, number>;
         displayableCountsBySource: Record<CatalogSource, number>;
@@ -95,12 +92,45 @@ function normalizeName(name: string): string {
 }
 
 function safeString(v: unknown): string | null {
-    return typeof v === "string" && v.length > 0 ? v : null;
+    return typeof v === "string" && v.trim().length > 0 ? v.trim() : null;
 }
 
-function getDisplayName(pathKey: string, rec: any): string {
+function friendlyFromLotusPath(pathKey: string): string | null {
+    const s = String(pathKey ?? "").trim();
+    if (!s) return null;
+    if (!s.startsWith("/Lotus/")) return null;
+
+    const last = s.split("/").filter(Boolean).pop() ?? "";
+    if (!last) return null;
+
+    // Insert spaces for:
+    // - "BrokenWarBlueprint" -> "Broken War Blueprint"
+    // - "KuvaOgrisBlueprint" -> "Kuva Ogris Blueprint"
+    // - Acronym boundaries: "XYZThing" -> "XYZ Thing"
+    let out = last
+        .replace(/_/g, " ")
+        .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+        .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+        .trim();
+
+    // If it still looks like junk, bail.
+    if (!out || out.length < 2) return null;
+
+    return out;
+}
+
+function getDisplayNameForRecord(source: CatalogSource, pathKey: string, rec: any): string {
     const n = safeString(rec?.name);
-    return n ?? pathKey;
+    if (n) return n;
+
+    // If WFCD (or other) lacks a name for an items:/Lotus/... key,
+    // derive a human-friendly display name rather than showing the raw path.
+    if (source === "items") {
+        const friendly = friendlyFromLotusPath(pathKey);
+        if (friendly) return friendly;
+    }
+
+    return pathKey;
 }
 
 function getCategories(rec: any): string[] {
@@ -120,6 +150,7 @@ function pushIndex(
 
 export function buildFullCatalog(): FullCatalog {
     const itemsMap = parseJsonMap("items", itemsJson);
+
     const modsMap = parseJsonMap("mods", modsJson);
     const modsetsMap = parseJsonMap("modsets", modsetsJson);
     const rivensMap = parseJsonMap("rivens", rivensJson);
@@ -157,10 +188,11 @@ export function buildFullCatalog(): FullCatalog {
         for (const [pathKey, rec] of Object.entries(map)) {
             const id = toCatalogId(source, pathKey);
 
-            const displayName = getDisplayName(pathKey, rec);
+            const displayName = getDisplayNameForRecord(source, pathKey, rec);
             const isDisplayable = displayName !== pathKey;
 
             if (!isDisplayable) {
+                // Only count as missing-name if we truly had to fall back to the raw key.
                 missingNameBySource[source] += 1;
             }
 
@@ -183,7 +215,10 @@ export function buildFullCatalog(): FullCatalog {
                 displayableIdsBySource[source].push(id);
             }
 
-            pushIndex(nameIndex, normalizeName(displayName), id);
+            // Only index displayable names.
+            if (isDisplayable) {
+                pushIndex(nameIndex, normalizeName(displayName), id);
+            }
 
             for (const cat of categories) {
                 pushIndex(categoryIndex, cat, id);
@@ -210,8 +245,6 @@ export function buildFullCatalog(): FullCatalog {
     ingestMap("moddescriptions", moddescriptionsMap);
 
     const itemIds = idsBySource.items.slice();
-
-    // New rule: everything in items.json is a normal item.
     const inventoryItemIds = itemIds.slice();
 
     const displayableItemIds = displayableIdsBySource.items.slice();
@@ -272,3 +305,4 @@ export function buildFullCatalog(): FullCatalog {
 }
 
 export const FULL_CATALOG: FullCatalog = buildFullCatalog();
+
