@@ -6,13 +6,8 @@ import type { SourceId } from "../../domain/ids/sourceIds";
 import { SRC } from "../../domain/ids/sourceIds";
 import { deriveAcquisitionByCatalogIdFromSourcesJson } from "./acquisitionFromSources";
 
-<<<<<<< HEAD
 import wfcdAcqJson from "../../data/_generated/wfcd-acquisition.byCatalogId.auto.json";
 import wikiAcqJson from "../../data/_generated/wiki-acquisition.byCatalogId.auto.json";
-=======
-// Generated overlay from official drop tables (scripts/genWikiDrops.ts)
-import wikiAcqByCatalogId from "../../data/_generated/wiki-acquisition-by-catalog-id.auto.json";
->>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
 
 export interface AcquisitionDef {
     sources: SourceId[];
@@ -43,7 +38,6 @@ const EXPLICIT_ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
     // Core system unlocks
     // -----------------------------
     "items:/Lotus/Powersuits/Archwing/StandardArchwing": {
-<<<<<<< HEAD
         sources: ["system:archwing"]
     },
     "items:/Lotus/Types/Vehicles/Railjack/Railjack": {
@@ -53,90 +47,49 @@ const EXPLICIT_ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
         sources: ["system:necramech"]
     },
 
-=======
-        sources: ["system:archwing" as SourceId]
-    },
-
-    "items:/Lotus/Types/Vehicles/Railjack/Railjack": {
-        sources: ["system:railjack" as SourceId]
-    },
-
-    "items:/Lotus/Powersuits/EntratiMech/EntratiMech": {
-        sources: ["system:necramech" as SourceId]
-    },
-
->>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
     // -----------------------------
     // Helminth system
     // -----------------------------
     "items:/Lotus/Types/Items/Helminth/HelminthResource": {
-<<<<<<< HEAD
         sources: ["system:helminth"]
-=======
-        sources: ["system:helminth" as SourceId]
->>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
     },
 
     // -----------------------------
     // Veilbreaker (Kahl)
     // -----------------------------
     "items:/Lotus/Types/Items/Kahl/KahlResource": {
-<<<<<<< HEAD
         sources: ["system:veilbreaker"]
-=======
-        sources: ["system:veilbreaker" as SourceId]
->>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
     },
 
     // -----------------------------
     // Duviri
     // -----------------------------
     "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriResourceItem": {
-<<<<<<< HEAD
         sources: ["system:duviri"]
-=======
-        sources: ["system:duviri" as SourceId]
->>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
     },
 
     // -----------------------------
     // Archon Hunts
     // -----------------------------
     "items:/Lotus/Types/Items/Archon/ArchonShard": {
-<<<<<<< HEAD
         sources: ["system:archon_hunts"]
-=======
-        sources: ["system:archon_hunts" as SourceId]
->>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
     },
 
     // -----------------------------
     // Explicit non-drop Warframes
     // -----------------------------
     "items:/Lotus/Powersuits/Ninja/Ninja": {
-<<<<<<< HEAD
         sources: ["enemy:manics"]
     },
     "items:/Lotus/Powersuits/Brawler/Brawler": {
         sources: ["boss:jordas_golem"]
-=======
-        sources: ["enemy:manics" as SourceId]
-    },
-
-    "items:/Lotus/Powersuits/Brawler/Brawler": {
-        sources: ["boss:jordas_golem" as SourceId]
->>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
     },
 
     // -----------------------------
     // Clan Tech (Dojo Research)
     // -----------------------------
     "items:/Lotus/Weapons/ClanTech/Bio/AcidDartPistol": {
-<<<<<<< HEAD
         sources: ["system:clan_research"]
-=======
-        sources: ["system:clan_research" as SourceId]
->>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
     }
 };
 
@@ -203,7 +156,6 @@ const DERIVED_FROM_SOURCES_JSON: Record<string, AcquisitionDef> =
     deriveAcquisitionByCatalogIdFromSourcesJson();
 
 /**
-<<<<<<< HEAD
  * WFCD-derived acquisition (raw WFCD json drops).
  */
 const DERIVED_FROM_WFCD: Record<string, AcquisitionDef> =
@@ -228,23 +180,6 @@ export const ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
         DERIVED_FROM_WFCD,
         DERIVED_FROM_WIKI
     ),
-=======
- * Wiki-derived acquisition overlay (generated).
- * Fail-closed: only includes items that resolved uniquely to a CatalogId during generation.
- */
-const WIKI_DERIVED_BY_CATALOG_ID: Record<string, AcquisitionDef> =
-    (wikiAcqByCatalogId as Record<string, AcquisitionDef>) ?? {};
-
-/**
- * Canonical resolution:
- * 1) Explicit overrides
- * 2) Dataset-derived (sources.json)
- * 3) Wiki-derived overlay (only for items missing in dataset)
- */
-export const ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
-    ...WIKI_DERIVED_BY_CATALOG_ID,
-    ...DERIVED_FROM_SOURCES_JSON,
->>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
     ...EXPLICIT_ACQUISITION_BY_CATALOG_ID
 };
 
