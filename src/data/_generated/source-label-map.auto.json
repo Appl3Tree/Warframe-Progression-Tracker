@@ -1,5 +1,6 @@
 {
   "byLabel": {
+<<<<<<< HEAD
     "Aerolyst": "data:aerolyst",
     "Alad V": "data:alad_v",
     "Amalgam Alkonost": "data:amalgam_alkonost",
@@ -1802,6 +1803,18 @@
     "Sharrac Teeth": "data:sharrac_teeth",
     "Scaldra Harbinger Gas Carrier": "data:scaldra_harbinger_gas_carrier",
     "Hemocyte": "data:hemocyte"
+=======
+    "1": "data:1",
+    "2": "data:2",
+    "5.": "data:5",
+    "Uncommon (": "data:uncommon",
+    "Common (": "data:common",
+    "4.": "data:4",
+    "3.": "data:3",
+    "Ultra Rare (": "data:ultra_rare",
+    "Very Common (": "data:very_common",
+    "1.": "data:1"
+>>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
   },
   "defaults": {
     "fallbackSourceId": "data:unknown"
