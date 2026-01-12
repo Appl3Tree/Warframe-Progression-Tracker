@@ -5,20 +5,16 @@ import type { SourceId } from "../../domain/ids/sourceIds";
 import { SRC } from "../../domain/ids/sourceIds";
 import { deriveAcquisitionByCatalogIdFromSourcesJson } from "./acquisitionFromSources";
 
+// Generated overlay from official drop tables (scripts/genWikiDrops.ts)
+import wikiAcqByCatalogId from "../../data/_generated/wiki-acquisition-by-catalog-id.auto.json";
+
 export interface AcquisitionDef {
     sources: SourceId[];
 }
 
 /**
- * Hand-authored acquisition map keyed by *display name*.
- *
- * IMPORTANT:
- * - This is allowed only as a hand-authored convenience surface.
- * - It MUST NOT be used to “resolve” dataset acquisition.
- * - It MUST NOT attempt display-name -> CatalogId matching (no heuristics).
- *
- * Canonical join for dataset-derived acquisition is by raw "/Lotus/..." path only
- * (see acquisitionFromSources.ts and sources.json contract).
+ * Display-name convenience only.
+ * Never used for canonical resolution.
  */
 export const ACQUISITION_BY_DISPLAY_NAME: Record<string, AcquisitionDef> = {
     "Mother Token": { sources: [SRC.VENDOR_ENTRATI] },
@@ -26,15 +22,7 @@ export const ACQUISITION_BY_DISPLAY_NAME: Record<string, AcquisitionDef> = {
     "Son Token": { sources: [SRC.VENDOR_ENTRATI] },
     "Daughter Token": { sources: [SRC.VENDOR_ENTRATI] },
 
-    "Sly Vulpaphyla Tag": { sources: [SRC.HUB_NECRALISK] },
-    "Vizier Predasite Tag": { sources: [SRC.HUB_NECRALISK] },
-
-    "Orokin Orientation Matrix": { sources: [SRC.VENDOR_NECRALOID] },
-
     "Training Debt-Bond": { sources: [SRC.VENDOR_SOLARIS_UNITED] },
-    "Vega Toroid": { sources: [SRC.HUB_FORTUNA] },
-    "Calda Toroid": { sources: [SRC.HUB_FORTUNA] },
-    "Sola Toroid": { sources: [SRC.HUB_FORTUNA] },
 
     "Voidplume Down": { sources: [SRC.VENDOR_HOLDFASTS] },
     "Entrati Obols": { sources: [SRC.VENDOR_CAVIA] },
@@ -42,41 +30,92 @@ export const ACQUISITION_BY_DISPLAY_NAME: Record<string, AcquisitionDef> = {
 };
 
 /**
- * Hand-authored acquisition map keyed by CatalogId.
- *
- * These entries are the canonical hand-authored overrides and MUST take precedence
- * over dataset-derived acquisition.
+ * Explicit, verified, non-guess overrides.
  */
 const EXPLICIT_ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
-    // Warframes (explicit CatalogId mappings)
-    // Verified sources:
-    // - Ash components: Manics
-    // - Atlas components: Jordas Golem (Archwing boss)
-    "items:/Lotus/Powersuits/Ninja/Ninja": { sources: ["enemy:manics" as SourceId] },
-    "items:/Lotus/Powersuits/Brawler/Brawler": { sources: ["boss:jordas_golem" as SourceId] }
+    // -----------------------------
+    // Core system unlocks
+    // -----------------------------
+    "items:/Lotus/Powersuits/Archwing/StandardArchwing": {
+        sources: ["system:archwing" as SourceId]
+    },
 
-    // Add additional explicit CatalogId mappings here as you verify them.
+    "items:/Lotus/Types/Vehicles/Railjack/Railjack": {
+        sources: ["system:railjack" as SourceId]
+    },
+
+    "items:/Lotus/Powersuits/EntratiMech/EntratiMech": {
+        sources: ["system:necramech" as SourceId]
+    },
+
+    // -----------------------------
+    // Helminth system
+    // -----------------------------
+    "items:/Lotus/Types/Items/Helminth/HelminthResource": {
+        sources: ["system:helminth" as SourceId]
+    },
+
+    // -----------------------------
+    // Veilbreaker (Kahl)
+    // -----------------------------
+    "items:/Lotus/Types/Items/Kahl/KahlResource": {
+        sources: ["system:veilbreaker" as SourceId]
+    },
+
+    // -----------------------------
+    // Duviri
+    // -----------------------------
+    "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriResourceItem": {
+        sources: ["system:duviri" as SourceId]
+    },
+
+    // -----------------------------
+    // Archon Hunts
+    // -----------------------------
+    "items:/Lotus/Types/Items/Archon/ArchonShard": {
+        sources: ["system:archon_hunts" as SourceId]
+    },
+
+    // -----------------------------
+    // Explicit non-drop Warframes
+    // -----------------------------
+    "items:/Lotus/Powersuits/Ninja/Ninja": {
+        sources: ["enemy:manics" as SourceId]
+    },
+
+    "items:/Lotus/Powersuits/Brawler/Brawler": {
+        sources: ["boss:jordas_golem" as SourceId]
+    },
+
+    // -----------------------------
+    // Clan Tech (Dojo Research)
+    // -----------------------------
+    "items:/Lotus/Weapons/ClanTech/Bio/AcidDartPistol": {
+        sources: ["system:clan_research" as SourceId]
+    }
 };
 
 /**
- * Dataset-derived acquisition map keyed by CatalogId.
- *
- * Built from sources.json using the ONLY permitted join:
- * - sources.json keys: "/Lotus/..."
- * - CatalogId: "items:/Lotus/..."
+ * Dataset-derived acquisition (sources.json).
  */
 const DERIVED_FROM_SOURCES_JSON: Record<string, AcquisitionDef> =
     deriveAcquisitionByCatalogIdFromSourcesJson();
 
 /**
- * Canonical acquisition resolution hierarchy (HARD RULE):
- * 1) Hand-authored (this file): EXPLICIT_ACQUISITION_BY_CATALOG_ID
- * 2) Dataset-derived (sources.json): DERIVED_FROM_SOURCES_JSON
- * 3) Unknown => null (fail-closed)
- *
- * Note: No display-name -> CatalogId matching is allowed in canonical resolution.
+ * Wiki-derived acquisition overlay (generated).
+ * Fail-closed: only includes items that resolved uniquely to a CatalogId during generation.
+ */
+const WIKI_DERIVED_BY_CATALOG_ID: Record<string, AcquisitionDef> =
+    (wikiAcqByCatalogId as Record<string, AcquisitionDef>) ?? {};
+
+/**
+ * Canonical resolution:
+ * 1) Explicit overrides
+ * 2) Dataset-derived (sources.json)
+ * 3) Wiki-derived overlay (only for items missing in dataset)
  */
 export const ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = {
+    ...WIKI_DERIVED_BY_CATALOG_ID,
     ...DERIVED_FROM_SOURCES_JSON,
     ...EXPLICIT_ACQUISITION_BY_CATALOG_ID
 };
@@ -85,25 +124,15 @@ export function getAcquisitionByCatalogId(catalogId: CatalogId): AcquisitionDef 
     const raw = String(catalogId ?? "").trim();
     if (!raw) return null;
 
-    // Normalize legacy/raw keys:
-    // - "/Lotus/..."       -> "items:/Lotus/..."
-    // - "items:/Lotus/..." -> unchanged
-    // Fail-closed: do not guess other prefixes.
-    const key = raw.startsWith("items:") ? raw : raw.startsWith("/") ? `items:${raw}` : raw;
+    const key = raw.startsWith("items:")
+        ? raw
+        : raw.startsWith("/")
+            ? `items:${raw}`
+            : raw;
 
-    // 1) Hand-authored explicit override
-    const explicit = EXPLICIT_ACQUISITION_BY_CATALOG_ID[key];
-    if (explicit) return explicit;
-
-    // 2) Dataset-derived acquisition
-    return DERIVED_FROM_SOURCES_JSON[key] ?? null;
+    return ACQUISITION_BY_CATALOG_ID[key] ?? null;
 }
 
-/**
- * Legacy lookup by display name:
- * - Only checks the hand-authored display-name mapping.
- * - No name->CatalogId resolution is permitted (no heuristics).
- */
 export function getAcquisitionByDisplayName(name: string): AcquisitionDef | null {
     const key = String(name ?? "").trim();
     if (!key) return null;
