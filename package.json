@@ -10,8 +10,13 @@
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
     "predeploy": "npm run build",
+<<<<<<< HEAD
     "gen:wfcd": "tsx scripts/build-wfcd-items-and-requirements.ts",
     "gen:wfcd:acq": "tsx scripts/build-wfcd-acquisition-from-items.ts"
+=======
+    "gen:wikidrops": "tsx scripts/genWikiDrops.ts",
+    "debug:drops": "tsx scripts/debugDropsDom.ts"
+>>>>>>> cb230193c88a1a29f90a17c00ae76ad10088aa40
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
@@ -46,4 +51,3 @@
     "warframe-items": "^1.1180.0"
   }
 }
-
