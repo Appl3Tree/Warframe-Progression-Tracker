@@ -1,69 +1,65 @@
 // ===== FILE: src/domain/ids/sourceIds.ts =====
-// Full file replacement: restores `isSourceId` while keeping SYSTEM_CRAFTING.
+// src/domain/ids/sourceIds.ts
 
-export const SRC = {
-    // -----------------------------
-    // Hubs
-    // -----------------------------
-    HUB_CETUS: "hub:cetus",
-    HUB_FORTUNA: "hub:fortuna",
-    HUB_NECRALISK: "hub:necralisk",
-    HUB_ZARIMAN: "hub:zariman",
-    HUB_SANCTUM: "hub:sanctum",
-
-    // -----------------------------
-    // Vendors
-    // -----------------------------
-    VENDOR_QUILLS: "vendor:quills",
-    VENDOR_SOLARIS_UNITED: "vendor:solaris_united",
-    VENDOR_ENTRATI: "vendor:entrati",
-    VENDOR_NECRALOID: "vendor:necraloid",
-    VENDOR_HOLDFASTS: "vendor:holdfasts",
-    VENDOR_CAVIA: "vendor:cavia",
-
-    // -----------------------------
-    // Systems (curated)
-    // -----------------------------
-    SYSTEM_ARCHWING: "system:archwing",
-    SYSTEM_RAILJACK: "system:railjack",
-    SYSTEM_NECRAMECH: "system:necramech",
-    SYSTEM_HELMINTH: "system:helminth",
-    SYSTEM_VEILBREAKER: "system:veilbreaker",
-    SYSTEM_DUVIRI: "system:duviri",
-    SYSTEM_ARCHON_HUNTS: "system:archon_hunts",
-    SYSTEM_CLAN_RESEARCH: "system:clan_research",
-
-    // NEW: Foundry crafting as a first-class acquisition path
-    SYSTEM_CRAFTING: "system:crafting"
-} as const;
-
-export type SourceId =
-    | (typeof SRC)[keyof typeof SRC]
-    | `data:${string}`
-    | `enemy:${string}`
-    | `boss:${string}`
-    | `system:${string}`;
+export type SourceId = string & { readonly __brand: "SourceId" };
 
 /**
- * Runtime guard used by acquisition loaders.
- * Must be conservative (fail-closed).
+ * Canonical SourceId formats supported:
+ *  - "src:<token>"              (curated app-defined sources)
+ *  - "lotus:/Lotus/..."         (normalized Warframe Lotus type paths)
+ *  - "data:<token...>"          (generated/derived sources, e.g. "data:drop:<hash>")
+ *
+ * NOTE:
+ * We normalize raw "/Lotus/..." values into "lotus:/Lotus/..." so the rest of the
+ * codebase never has to deal with multiple representations.
  */
-export function isSourceId(v: unknown): v is SourceId {
-    if (typeof v !== "string") return false;
-    const s = v.trim();
-    if (!s) return false;
 
-    // Known curated SRC values
-    for (const val of Object.values(SRC)) {
-        if (s === val) return true;
+// Curated app IDs. Keep restrictive.
+const SRC_ID_REGEX = /^src:[a-z0-9][a-z0-9._/-]*$/i;
+
+// Raw Lotus and canonical Lotus forms.
+const LOTUS_PATH_REGEX = /^\/Lotus\/[A-Za-z0-9._/-]+$/;
+const LOTUS_ID_REGEX = /^lotus:\/Lotus\/[A-Za-z0-9._/-]+$/;
+
+// Generated/derived sources (WFCD, scripts, etc).
+// Must allow additional namespaces after "data:" (e.g. "data:drop:<hash>", "data:vendor:...").
+// Deliberately excludes whitespace.
+const DATA_ID_REGEX = /^data:[a-z0-9][a-z0-9._:/-]*$/i;
+
+export function isValidSourceId(value: string): boolean {
+    if (typeof value !== "string") return false;
+    return SRC_ID_REGEX.test(value) || LOTUS_ID_REGEX.test(value) || DATA_ID_REGEX.test(value);
+}
+
+export function normalizeSourceId(raw: string): SourceId {
+    if (typeof raw !== "string" || raw.trim().length === 0) {
+        throw new Error(`normalizeSourceId(): expected non-empty string, got: ${String(raw)}`);
     }
 
-    // Allow structured ids (used for data-derived sources and future expansion)
-    if (s.startsWith("data:") && s.length > "data:".length) return true;
-    if (s.startsWith("enemy:") && s.length > "enemy:".length) return true;
-    if (s.startsWith("boss:") && s.length > "boss:".length) return true;
-    if (s.startsWith("system:") && s.length > "system:".length) return true;
+    const v = raw.trim();
 
-    return false;
+    // If already canonical, accept.
+    if (isValidSourceId(v)) {
+        return v as SourceId;
+    }
+
+    // If it's a raw Lotus path, canonicalize it.
+    if (LOTUS_PATH_REGEX.test(v)) {
+        return (`lotus:${v}` as unknown) as SourceId;
+    }
+
+    // Otherwise invalid.
+    throw new Error(`Invalid SourceId format: ${raw}`);
+}
+
+/**
+ * Use this when you need a non-throwing check for raw input.
+ */
+export function tryNormalizeSourceId(raw: string): { ok: true; id: SourceId } | { ok: false; reason: string } {
+    try {
+        return { ok: true, id: normalizeSourceId(raw) };
+    } catch (e) {
+        return { ok: false, reason: e instanceof Error ? e.message : String(e) };
+    }
 }
 

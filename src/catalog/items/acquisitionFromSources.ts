@@ -1,47 +1,40 @@
-// src/catalog/items/acquisitionFromSources.ts
-
+// ===== FILE: src/catalog/items/acquisitionFromSources.ts =====
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
-import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
-import type { SourceId } from "../../domain/ids/sourceIds";
-import { isSourceId } from "../../domain/ids/sourceIds";
-import type { AcquisitionDef } from "./itemAcquisition";
-import { RAW_SOURCES_MAP, sourceIdFromLabel } from "../sources/sourceData";
 
-function toItemCatalogId(pathKey: string): CatalogId {
-    return `items:${pathKey}` as CatalogId;
+import wfcdAcqJson from "../../data/_generated/wfcd-acquisition.byCatalogId.auto.json";
+
+/**
+ * Acquisition definition:
+ * - sources[] are SourceIds that exist in SOURCE_INDEX (sourceCatalog.ts).
+ */
+export type AcquisitionDef = {
+    sources: string[];
+};
+
+function parseMap(raw: unknown): Record<string, any> {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+    return raw as Record<string, any>;
 }
 
 export function deriveAcquisitionByCatalogIdFromSourcesJson(): Record<string, AcquisitionDef> {
+    const raw = parseMap(wfcdAcqJson);
+
     const out: Record<string, AcquisitionDef> = {};
 
-    for (const [pathKey, entries] of Object.entries(RAW_SOURCES_MAP)) {
-        if (!Array.isArray(entries) || entries.length === 0) continue;
+    for (const [cid, rec] of Object.entries(raw)) {
+        const sources = Array.isArray((rec as any)?.sources) ? (rec as any).sources : [];
+        const norm = sources.filter((x: any) => typeof x === "string" && x.trim().length > 0);
 
-        const cid = toItemCatalogId(pathKey);
+        if (norm.length === 0) continue;
 
-        // Fail-closed on unknown catalog id.
-        if (!FULL_CATALOG.recordsById[cid]) continue;
-
-        const sourceIds: SourceId[] = [];
-
-        for (const e of entries) {
-            const label = typeof e?.source === "string" ? e.source.trim() : "";
-            if (!label) continue;
-
-            const sid = sourceIdFromLabel(label);
-            if (!isSourceId(sid)) {
-                continue;
-            }
-
-            sourceIds.push(sid);
-        }
-
-        const uniq = Array.from(new Set(sourceIds));
-        if (uniq.length === 0) continue;
-
-        out[String(cid)] = { sources: uniq };
+        out[String(cid)] = { sources: norm };
     }
 
     return out;
+}
+
+export function getAcquisitionDefFromSources(catalogId: CatalogId): AcquisitionDef | null {
+    const all = deriveAcquisitionByCatalogIdFromSourcesJson();
+    return all[String(catalogId)] ?? null;
 }
 
