@@ -1,17 +1,18 @@
+// ===== FILE: src/domain/catalog/loadFullCatalog.ts =====
 // src/domain/catalog/loadFullCatalog.ts
 //
-// Loads all reference datasets from src/data/* and builds a unified catalog.
+// Unified catalog loader.
 //
-// Important:
-// - Icons are NOT used for UI.
-// - Display rule: if record has no name, we set displayName to the path key, and mark isDisplayable=false.
+// Canonical rules (WFCD-first):
+// - Items come from src/data/_generated/wfcd-items.byCatalogId.auto.json (authoritative).
+// - Legacy src/data/items.json is no longer ingested to avoid duplicates and category drift.
+// - Other datasets (mods, rivens, etc.) remain as-is until explicitly migrated.
+//
+// Display rule:
+// - If record has no name, we set displayName to the path key, and mark isDisplayable=false.
 //   UI must filter to isDisplayable===true for user-facing lists.
-//
-// WFCD append behavior:
-// - We load src/data/_generated/wfcd-items-append.auto.json and merge it into items.json at runtime.
-// - Fail-closed: existing items.json wins on key collisions.
 
-import itemsJson from "../../data/items.json";
+import wfcdItemsJson from "../../data/_generated/wfcd-items.byCatalogId.auto.json";
 
 import modsJson from "../../data/mods.json";
 import modsetsJson from "../../data/modsets.json";
@@ -95,48 +96,28 @@ function safeString(v: unknown): string | null {
     return typeof v === "string" && v.trim().length > 0 ? v.trim() : null;
 }
 
-function friendlyFromLotusPath(pathKey: string): string | null {
-    const s = String(pathKey ?? "").trim();
-    if (!s) return null;
-    if (!s.startsWith("/Lotus/")) return null;
-
-    const last = s.split("/").filter(Boolean).pop() ?? "";
-    if (!last) return null;
-
-    // Insert spaces for:
-    // - "BrokenWarBlueprint" -> "Broken War Blueprint"
-    // - "KuvaOgrisBlueprint" -> "Kuva Ogris Blueprint"
-    // - Acronym boundaries: "XYZThing" -> "XYZ Thing"
-    let out = last
-        .replace(/_/g, " ")
-        .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
-        .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-        .trim();
-
-    // If it still looks like junk, bail.
-    if (!out || out.length < 2) return null;
-
-    return out;
-}
-
-function getDisplayNameForRecord(source: CatalogSource, pathKey: string, rec: any): string {
+function getDisplayName(pathKey: string, rec: any): string {
     const n = safeString(rec?.name);
-    if (n) return n;
-
-    // If WFCD (or other) lacks a name for an items:/Lotus/... key,
-    // derive a human-friendly display name rather than showing the raw path.
-    if (source === "items") {
-        const friendly = friendlyFromLotusPath(pathKey);
-        if (friendly) return friendly;
-    }
-
-    return pathKey;
+    return n ?? pathKey;
 }
 
 function getCategories(rec: any): string[] {
+    // WFCD items use "category" (singular) primarily.
+    // We store a normalized categories array with at least that value when present.
+    const out: string[] = [];
+
+    const single = safeString(rec?.category);
+    if (single) out.push(single);
+
     const c = rec?.categories;
-    if (!Array.isArray(c)) return [];
-    return c.filter((x: any) => typeof x === "string");
+    if (Array.isArray(c)) {
+        for (const x of c) {
+            if (typeof x === "string" && x.trim()) out.push(x.trim());
+        }
+    }
+
+    // Stable unique
+    return Array.from(new Set(out));
 }
 
 function pushIndex(
@@ -149,14 +130,25 @@ function pushIndex(
 }
 
 export function buildFullCatalog(): FullCatalog {
-    const itemsMap = parseJsonMap("items", itemsJson);
+    // Items: WFCD authoritative map is already keyed by "items:<uniqueName>".
+    // We need to ingest it into the catalog under source "items" but preserve the full path key.
+    const wfcdMapRaw = parseJsonMap("_generated/wfcd-items.byCatalogId.auto", wfcdItemsJson);
+
+    // Convert "items:<path>" -> path key "<path>" for catalog storage
+    const itemsMap: Record<string, any> = {};
+    for (const [cid, rec] of Object.entries(wfcdMapRaw)) {
+        const k = String(cid);
+        if (!k.startsWith("items:")) continue;
+        const pathKey = k.slice("items:".length);
+        itemsMap[pathKey] = rec;
+    }
 
     const modsMap = parseJsonMap("mods", modsJson);
     const modsetsMap = parseJsonMap("modsets", modsetsJson);
     const rivensMap = parseJsonMap("rivens", rivensJson);
     const moddescriptionsMap = parseJsonMap("moddescriptions", moddescriptionsJson);
 
-    const recordsById: Record<CatalogId, CatalogRecordBase> = {};
+    const recordsById: Record<CatalogId, CatalogRecordBase> = {} as any;
     const idsBySource: Record<CatalogSource, CatalogId[]> = {
         items: [],
         mods: [],
@@ -188,11 +180,10 @@ export function buildFullCatalog(): FullCatalog {
         for (const [pathKey, rec] of Object.entries(map)) {
             const id = toCatalogId(source, pathKey);
 
-            const displayName = getDisplayNameForRecord(source, pathKey, rec);
+            const displayName = getDisplayName(pathKey, rec);
             const isDisplayable = displayName !== pathKey;
 
             if (!isDisplayable) {
-                // Only count as missing-name if we truly had to fall back to the raw key.
                 missingNameBySource[source] += 1;
             }
 
@@ -215,27 +206,15 @@ export function buildFullCatalog(): FullCatalog {
                 displayableIdsBySource[source].push(id);
             }
 
-            // Only index displayable names.
-            if (isDisplayable) {
-                pushIndex(nameIndex, normalizeName(displayName), id);
-            }
+            pushIndex(nameIndex, normalizeName(displayName), id);
 
             for (const cat of categories) {
                 pushIndex(categoryIndex, cat, id);
             }
         }
 
-        idsBySource[source].sort((a, b) => {
-            const ra = recordsById[a];
-            const rb = recordsById[b];
-            return ra.displayName.localeCompare(rb.displayName);
-        });
-
-        displayableIdsBySource[source].sort((a, b) => {
-            const ra = recordsById[a];
-            const rb = recordsById[b];
-            return ra.displayName.localeCompare(rb.displayName);
-        });
+        idsBySource[source].sort((a, b) => recordsById[a].displayName.localeCompare(recordsById[b].displayName));
+        displayableIdsBySource[source].sort((a, b) => recordsById[a].displayName.localeCompare(recordsById[b].displayName));
     }
 
     ingestMap("items", itemsMap);

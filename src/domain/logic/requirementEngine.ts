@@ -123,6 +123,7 @@ export function buildRequirementsSnapshot(args: {
     };
 
     function addItemNeed(catalogId: CatalogId, need: number, source: RequirementSource) {
+        // Still fail-closed on unknown catalog id (data integrity), but DO NOT gate by acquisition.
         if (!FULL_CATALOG.recordsById[catalogId]) return;
 
         const rec = FULL_CATALOG.recordsById[catalogId];
@@ -142,6 +143,7 @@ export function buildRequirementsSnapshot(args: {
         currencyAgg[key].sources.push(source);
     }
 
+    // 1) Syndicate next-rank requirements
     for (const syn of syndicates ?? []) {
         const syndicateId = typeof syn?.id === "string" ? syn.id : "";
         const syndicateName = typeof syn?.name === "string" ? syn.name : syndicateId || "Unknown Syndicate";
@@ -192,6 +194,7 @@ export function buildRequirementsSnapshot(args: {
         }
     }
 
+    // 2) Goals (direct item goals + optional breakdown via registry)
     for (const g of goals ?? []) {
         if (!g || g.isActive === false) continue;
         if (g.type !== "item") continue;
@@ -330,9 +333,11 @@ export type HiddenFarmingItem = {
     remaining: number;
     reason: "unknown-acquisition" | "missing-prereqs" | "no-accessible-sources";
 
+    // Diagnostics payload
     missingPrereqs?: PrereqId[];
     blockedBySources?: SourceId[];
 
+    // Recipe diagnostics (optional)
     blockedByRecipeComponents?: Array<{
         catalogId: CatalogId;
         name: string;
@@ -353,40 +358,25 @@ export type FarmingSnapshot = {
     };
 };
 
-/**
- * Same policy as plannerEngine:
- * - data-derived sources with no prereqs are fail-closed by default
- * - EXCEPT WFCD/Wiki auto drop sources (actionable)
- */
-function isAutoDropSourceId(sourceId: SourceId): boolean {
-    const sid = String(sourceId);
-    return (
-        sid.startsWith("data:wfcd:") ||
-        sid.startsWith("data:wfcd_") ||
-        sid.startsWith("wfcd:") ||
-        sid.startsWith("data:wiki:") ||
-        sid.startsWith("data:wikidrops:") ||
-        sid.startsWith("wiki:")
-    );
-}
-
 function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, boolean>): boolean {
+    const sidStr = String(sourceId);
+
+    // Drop-table sources are always accessible
+    if (sidStr.startsWith("data:drop:")) {
+        return true;
+    }
+
     const def = SOURCE_INDEX[sourceId];
     if (!def) return false;
 
     const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
-
-    const isDataDerived = String(sourceId).startsWith("data:");
-    if (isDataDerived && prereqs.length === 0 && !isAutoDropSourceId(sourceId)) {
-        return false;
-    }
-
     for (const pr of prereqs) {
         if (!completedPrereqs[String(pr)]) return false;
     }
 
     return true;
 }
+
 
 function getMissingPrereqsForSources(args: {
     sourceIds: SourceId[];
@@ -400,6 +390,13 @@ function getMissingPrereqsForSources(args: {
     let hasUncuratedGate = false;
 
     for (const sid of sourceIds) {
+        const sidStr = String(sid);
+
+        // Drop-table sources are actionable locations by default; never count as blocked.
+        if (sidStr.startsWith("data:drop:")) {
+            continue;
+        }
+
         const def = SOURCE_INDEX[sid];
         if (!def) {
             hasUncuratedGate = true;
@@ -408,15 +405,16 @@ function getMissingPrereqsForSources(args: {
         }
 
         const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
-        const isDataDerived = String(sid).startsWith("data:");
+        const isDataDerived = sidStr.startsWith("data:");
 
-        // Treat WFCD/Wiki auto drop sources as actionable even without curated prereqs.
-        if (isDataDerived && prereqs.length === 0 && !isAutoDropSourceId(sid)) {
+        // Uncurated gate: known label, unknown gating.
+        if (isDataDerived && prereqs.length === 0) {
             hasUncuratedGate = true;
             blockedSources.push(sid);
             continue;
         }
 
+        // Curated prereqs: record missing
         let thisSourceBlocked = false;
         for (const pr of prereqs) {
             if (!completedPrereqs[String(pr)]) {
@@ -425,7 +423,9 @@ function getMissingPrereqsForSources(args: {
             }
         }
 
-        if (thisSourceBlocked) blockedSources.push(sid);
+        if (thisSourceBlocked) {
+            blockedSources.push(sid);
+        }
     }
 
     return {
@@ -486,6 +486,7 @@ function analyzeCatalogIdForFarming(args: {
         };
     }
 
+    // 1) Try direct acquisition
     const directSources = getAcquisitionSourcesForCatalogId(catalogId);
     if (directSources && directSources.length > 0) {
         const accessible = directSources
@@ -499,6 +500,7 @@ function analyzeCatalogIdForFarming(args: {
             return { kind: "ok", sources: accessible };
         }
 
+        // Direct exists but is currently blocked; we will still consider crafting as an alternate path if recipe exists.
         const comps = getItemRequirements(catalogId);
         if (!Array.isArray(comps) || comps.length === 0) {
             const diag = getMissingPrereqsForSources({ sourceIds: directSources, completedPrereqs });
@@ -514,10 +516,13 @@ function analyzeCatalogIdForFarming(args: {
                 }
             };
         }
+        // else: fall through to crafting analysis
     }
 
+    // 2) Crafting path (Foundry) if recipe exists
     const recipe = getItemRequirements(catalogId);
     if (!Array.isArray(recipe) || recipe.length === 0) {
+        // No direct sources, no recipe
         return {
             kind: "hidden",
             hidden: {
@@ -554,6 +559,7 @@ function analyzeCatalogIdForFarming(args: {
             continue;
         }
 
+        // Component blocked
         const reason = r.hidden.reason;
 
         blockedByRecipeComponents.push({
@@ -568,12 +574,15 @@ function analyzeCatalogIdForFarming(args: {
             }
         } else if (reason === "no-accessible-sources") {
             anyNoAccessibleSources = true;
+        } else {
+            // unknown-acquisition dominates
         }
     }
 
     visited.delete(visitKey);
 
-    if (blockedByRecipeComponents.some((x) => x.reason === "unknown-acquisition")) {
+    // If any component is unknown-acquisition, the crafted item is effectively unknown too (fail-closed)
+    if ((blockedByRecipeComponents ?? []).some((x) => x.reason === "unknown-acquisition")) {
         return {
             kind: "hidden",
             hidden: {
@@ -586,6 +595,7 @@ function analyzeCatalogIdForFarming(args: {
         };
     }
 
+    // If any component is missing-prereqs, bubble missing prereqs
     if (missingPrereqs.size > 0) {
         return {
             kind: "hidden",
@@ -600,6 +610,7 @@ function analyzeCatalogIdForFarming(args: {
         };
     }
 
+    // If any component is only uncurated gated / no accessible, bubble that
     if (anyNoAccessibleSources) {
         return {
             kind: "hidden",
@@ -613,11 +624,12 @@ function analyzeCatalogIdForFarming(args: {
         };
     }
 
+    // Otherwise, crafting is a known actionable path
     return {
         kind: "ok",
         sources: [
             {
-                sourceId: "system:crafting" as SourceId,
+                sourceId: "data:crafting" as SourceId,
                 sourceLabel: "Crafting (Foundry)"
             }
         ]

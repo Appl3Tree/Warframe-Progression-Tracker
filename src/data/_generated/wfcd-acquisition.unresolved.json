@@ -1,0 +1,4858 @@
+{
+  "5x roller specter": {
+    "itemName": "5x Roller Specter",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Brave)"
+    ]
+  },
+  "syndicate relic pack (3 x random void relics)": {
+    "itemName": "Syndicate Relic Pack (3 X Random Void Relics)",
+    "count": 6,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Valiant)",
+      "Syndicate Vendor: Red Veil (Red Veil, Honored)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Senior Associate)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Authentic)",
+      "Syndicate Vendor: New Loka (New Loka, Bountiful)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Intriguing)"
+    ]
+  },
+  "kaszas handle": {
+    "itemName": "Kaszas Handle",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Valiant)"
+    ]
+  },
+  "velocitus receiver": {
+    "itemName": "Velocitus Receiver",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Valiant)"
+    ]
+  },
+  "corvas stock": {
+    "itemName": "Corvas Stock",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Valiant)"
+    ]
+  },
+  "agkuza guard": {
+    "itemName": "Agkuza Guard",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Defender)"
+    ]
+  },
+  "fluctus stock": {
+    "itemName": "Fluctus Stock",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Defender)"
+    ]
+  },
+  "squad health restore (large)  blueprint": {
+    "itemName": "Squad Health Restore (Large)  Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Defender)"
+    ]
+  },
+  "scattered justice (hek)": {
+    "itemName": "Scattered Justice (Hek)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Protector)"
+    ]
+  },
+  "justice blades (dual cleavers)": {
+    "itemName": "Justice Blades (Dual Cleavers)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Protector)"
+    ]
+  },
+  "neutralizing justice (miter)": {
+    "itemName": "Neutralizing Justice (Miter)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Protector)"
+    ]
+  },
+  "shattering justice (sobek)": {
+    "itemName": "Shattering Justice (Sobek)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, Protector)"
+    ]
+  },
+  "path of statues (atlas)": {
+    "itemName": "Path of Statues (Atlas)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "tectonic fracture (atlas)": {
+    "itemName": "Tectonic Fracture (Atlas)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "ore gaze (atlas)": {
+    "itemName": "Ore Gaze (Atlas)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "titanic rumbler (atlas)": {
+    "itemName": "Titanic Rumbler (Atlas)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "rubble heap (atlas)": {
+    "itemName": "Rubble Heap (Atlas)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "recrystalize (citrine)": {
+    "itemName": "Recrystalize (Citrine)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "fireball frenzy (ember)": {
+    "itemName": "Fireball Frenzy (Ember)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "immolated radiance (ember)": {
+    "itemName": "Immolated Radiance (Ember)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "healing flame (ember)": {
+    "itemName": "Healing Flame (Ember)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "exothermic (ember)": {
+    "itemName": "Exothermic (Ember)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "surging dash (excalibur)": {
+    "itemName": "Surging Dash (Excalibur)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "radiant finish (excalibur)": {
+    "itemName": "Radiant Finish (Excalibur)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "furious javelin (excalibur)": {
+    "itemName": "Furious Javelin (Excalibur)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "chromatic blade (excalibur)": {
+    "itemName": "Chromatic Blade (Excalibur)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "freeze force (frost)": {
+    "itemName": "Freeze Force (Frost)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "ice wave impedance (frost)": {
+    "itemName": "Ice Wave Impedance (Frost)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "chilling globe (frost)": {
+    "itemName": "Chilling Globe (Frost)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "icy avalanche (frost)": {
+    "itemName": "Icy Avalanche (Frost)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "biting frost (frost)": {
+    "itemName": "Biting Frost (Frost)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "dread ward (garuda)": {
+    "itemName": "Dread Ward (Garuda)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "blood forge (garuda)": {
+    "itemName": "Blood Forge (Garuda)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "blending talons (garuda)": {
+    "itemName": "Blending Talons (Garuda)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "gourmand (grendel)": {
+    "itemName": "Gourmand (Grendel)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "hearty nourishment (grendel)": {
+    "itemName": "Hearty Nourishment (Grendel)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "catapult (grendel)": {
+    "itemName": "Catapult (Grendel)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "accumulating whipclaw (khora)": {
+    "itemName": "Accumulating Whipclaw (Khora)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "venari bodyguard (khora)": {
+    "itemName": "Venari Bodyguard (Khora)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "pilfering strangledome (khora)": {
+    "itemName": "Pilfering Strangledome (Khora)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "wrath of ukko (kullervo)": {
+    "itemName": "Wrath of Ukko (Kullervo)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "ballistic bullseye (mesa)": {
+    "itemName": "Ballistic Bullseye (Mesa)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "staggering shield (mesa)": {
+    "itemName": "Staggering Shield (Mesa)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "muzzle flash (mesa)": {
+    "itemName": "Muzzle Flash (Mesa)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "mesa's waltz (mesa)": {
+    "itemName": "Mesa's Waltz (Mesa)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "pyroclastic flow (nezha)": {
+    "itemName": "Pyroclastic Flow (Nezha)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "reaping chakram (nezha)": {
+    "itemName": "Reaping Chakram (Nezha)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "safeguard (nezha)": {
+    "itemName": "Safeguard (Nezha)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "divine retribution (nezha)": {
+    "itemName": "Divine Retribution (Nezha)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "controlled slide (nezha)": {
+    "itemName": "Controlled Slide (Nezha)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "teeming virulence (nidus)": {
+    "itemName": "Teeming Virulence (Nidus)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "larva burst (nidus)": {
+    "itemName": "Larva Burst (Nidus)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "parasitic vitality (nidus)": {
+    "itemName": "Parasitic Vitality (Nidus)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "insatiable (nidus)": {
+    "itemName": "Insatiable (Nidus)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "abundant mutation (nidus)": {
+    "itemName": "Abundant Mutation (Nidus)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "neutron star (nova)": {
+    "itemName": "Neutron Star (Nova)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "antimatter absorb (nova)": {
+    "itemName": "Antimatter Absorb (Nova)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "escape velocity (nova)": {
+    "itemName": "Escape Velocity (Nova)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "molecular fission (nova)": {
+    "itemName": "Molecular Fission (Nova)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "smite infusion (oberon)": {
+    "itemName": "Smite Infusion (Oberon)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "hallowed eruption (oberon)": {
+    "itemName": "Hallowed Eruption (Oberon)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "phoenix renewal (oberon)": {
+    "itemName": "Phoenix Renewal (Oberon)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "hallowed reckoning (oberon)": {
+    "itemName": "Hallowed Reckoning (Oberon)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "ironclad charge (rhino)": {
+    "itemName": "Ironclad Charge (Rhino)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "iron shrapnel (rhino)": {
+    "itemName": "Iron Shrapnel (Rhino)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "piercing roar (rhino)": {
+    "itemName": "Piercing Roar (Rhino)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "reinforcing stomp (rhino)": {
+    "itemName": "Reinforcing Stomp (Rhino)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "venom dose (saryn)": {
+    "itemName": "Venom Dose (Saryn)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "revealing spores (saryn)": {
+    "itemName": "Revealing Spores (Saryn)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "regenerative molt (saryn)": {
+    "itemName": "Regenerative Molt (Saryn)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "contagion cloud (saryn)": {
+    "itemName": "Contagion Cloud (Saryn)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "ulfrun's endurance (voruna)": {
+    "itemName": "Ulfrun's Endurance (Voruna)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "vampiric grasp (xaku)": {
+    "itemName": "Vampiric Grasp (Xaku)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "the relentless lost (xaku)": {
+    "itemName": "The Relentless Lost (Xaku)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "exilus weapon adapter blueprint": {
+    "itemName": "Exilus Weapon Adapter Blueprint",
+    "count": 6,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "meridian armor set": {
+    "itemName": "Meridian Armor Set",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)"
+    ]
+  },
+  "vosfor cache (200x)": {
+    "itemName": "Vosfor Cache (200x)",
+    "count": 6,
+    "examples": [
+      "Syndicate Vendor: Steel Meridian (Steel Meridian, General)",
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "5x charger specter": {
+    "itemName": "5x Charger Specter",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Respected)"
+    ]
+  },
+  "kaszas blade": {
+    "itemName": "Kaszas Blade",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Honored)"
+    ]
+  },
+  "velocitus stock": {
+    "itemName": "Velocitus Stock",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Honored)"
+    ]
+  },
+  "rathbone handle": {
+    "itemName": "Rathbone Handle",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Honored)"
+    ]
+  },
+  "agkuza handle": {
+    "itemName": "Agkuza Handle",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Esteemed)"
+    ]
+  },
+  "fluctus limb": {
+    "itemName": "Fluctus Limb",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Esteemed)"
+    ]
+  },
+  "squad ammo restore (large) blueprint": {
+    "itemName": "Squad Ammo Restore (Large) Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Esteemed)"
+    ]
+  },
+  "gleaming blight (dark dagger)": {
+    "itemName": "Gleaming Blight (Dark Dagger)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Revered)"
+    ]
+  },
+  "eroding blight (embolist)": {
+    "itemName": "Eroding Blight (Embolist)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Revered)"
+    ]
+  },
+  "stockpiled blight (kunai)": {
+    "itemName": "Stockpiled Blight (Kunai)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Revered)"
+    ]
+  },
+  "toxic blight (mire)": {
+    "itemName": "Toxic Blight (Mire)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Revered)"
+    ]
+  },
+  "seeking shuriken (ash)": {
+    "itemName": "Seeking Shuriken (Ash)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "smoke shadow (ash)": {
+    "itemName": "Smoke Shadow (Ash)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "fatal teleport (ash)": {
+    "itemName": "Fatal Teleport (Ash)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "rising storm (ash)": {
+    "itemName": "Rising Storm (Ash)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "warrior's rest (excalibur umbra)": {
+    "itemName": "Warrior's Rest (Excalibur Umbra)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "tribunal (harrow)": {
+    "itemName": "Tribunal (Harrow)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "warding thurible (harrow)": {
+    "itemName": "Warding Thurible (Harrow)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "lasting covenant (harrow)": {
+    "itemName": "Lasting Covenant (Harrow)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "swift bite (lavos)": {
+    "itemName": "Swift Bite (Lavos)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "valence formation (lavos)": {
+    "itemName": "Valence Formation (Lavos)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "savior decoy (loki)": {
+    "itemName": "Savior Decoy (Loki)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "damage decoy (loki)": {
+    "itemName": "Damage Decoy (Loki)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "hushed invisibility (loki)": {
+    "itemName": "Hushed Invisibility (Loki)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "safeguard switch (loki)": {
+    "itemName": "Safeguard Switch (Loki)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "irradiating disarm (loki)": {
+    "itemName": "Irradiating Disarm (Loki)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "soul survivor (nekros)": {
+    "itemName": "Soul Survivor (Nekros)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "creeping terrify (nekros)": {
+    "itemName": "Creeping Terrify (Nekros)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "despoil (nekros)": {
+    "itemName": "Despoil (Nekros)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "shield of shadows (nekros)": {
+    "itemName": "Shield of Shadows (Nekros)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "spellbound harvest (titania)": {
+    "itemName": "Spellbound Harvest (Titania)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Exalted)"
+    ]
+  },
+  "beguiling lantern (titania)": {
+    "itemName": "Beguiling Lantern (Titania)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "razorwing blitz (titania)": {
+    "itemName": "Razorwing Blitz (Titania)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "ironclad flight (titania)": {
+    "itemName": "Ironclad Flight (Titania)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "shock trooper (volt)": {
+    "itemName": "Shock Trooper (Volt)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "shocking speed (volt)": {
+    "itemName": "Shocking Speed (Volt)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "transistor shield (volt)": {
+    "itemName": "Transistor Shield (Volt)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "capacitance (volt)": {
+    "itemName": "Capacitance (Volt)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "target fixation (zephyr)": {
+    "itemName": "Target Fixation (Zephyr)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "airburst rounds (zephyr)": {
+    "itemName": "Airburst Rounds (Zephyr)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "jet stream (zephyr)": {
+    "itemName": "Jet Stream (Zephyr)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "funnel clouds (zephyr)": {
+    "itemName": "Funnel Clouds (Zephyr)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "anchored glide (zephyr)": {
+    "itemName": "Anchored Glide (Zephyr)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "red veil armor set": {
+    "itemName": "Red Veil Armor Set",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Red Veil (Red Veil, Exalted)"
+    ]
+  },
+  "5x moa specter": {
+    "itemName": "5x Moa Specter",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Associate)"
+    ]
+  },
+  "onorix handle": {
+    "itemName": "Onorix Handle",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Senior Associate)"
+    ]
+  },
+  "phaedra receiver": {
+    "itemName": "Phaedra Receiver",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Senior Associate)"
+    ]
+  },
+  "centaur blade": {
+    "itemName": "Centaur Blade",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Executive)"
+    ]
+  },
+  "cyngas stock": {
+    "itemName": "Cyngas Stock",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Executive)"
+    ]
+  },
+  "squad energy restore (large) blueprint": {
+    "itemName": "Squad Energy Restore (Large) Blueprint",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Executive)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Lawful)"
+    ]
+  },
+  "toxic sequence (acrid)": {
+    "itemName": "Toxic Sequence (Acrid)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Senior Executive)"
+    ]
+  },
+  "deadly sequence (grinlok)": {
+    "itemName": "Deadly Sequence (Grinlok)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Senior Executive)"
+    ]
+  },
+  "voltage sequence (lanka)": {
+    "itemName": "Voltage Sequence (Lanka)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Senior Executive)"
+    ]
+  },
+  "sequence burn (spectra)": {
+    "itemName": "Sequence Burn (Spectra)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Senior Executive)"
+    ]
+  },
+  "sonic fracture (banshee)": {
+    "itemName": "Sonic Fracture (Banshee)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "resonance (banshee)": {
+    "itemName": "Resonance (Banshee)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "savage silence (banshee)": {
+    "itemName": "Savage Silence (Banshee)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "resonating quake (banshee)": {
+    "itemName": "Resonating Quake (Banshee)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "afterburn (chroma)": {
+    "itemName": "Afterburn (Chroma)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "everlasting ward (chroma)": {
+    "itemName": "Everlasting Ward (Chroma)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "vexing retaliation (chroma)": {
+    "itemName": "Vexing Retaliation (Chroma)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "guardian armor (chroma)": {
+    "itemName": "Guardian Armor (Chroma)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "guided effigy (chroma)": {
+    "itemName": "Guided Effigy (Chroma)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "mach crash (gauss)": {
+    "itemName": "Mach Crash (Gauss)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "thermal transfer (gauss)": {
+    "itemName": "Thermal Transfer (Gauss)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "cathode current (gyre)": {
+    "itemName": "Cathode Current (Gyre)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "balefire surge (hildryn)": {
+    "itemName": "Balefire Surge (Hildryn)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "blazing pillage (hildryn)": {
+    "itemName": "Blazing Pillage (Hildryn)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "desiccation's curse (inaros)": {
+    "itemName": "Desiccation's Curse (Inaros)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "elemental sandstorm (inaros)": {
+    "itemName": "Elemental Sandstorm (Inaros)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "negation armor (inaros)": {
+    "itemName": "Negation Armor (Inaros)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "empowered quiver (ivara)": {
+    "itemName": "Empowered Quiver (Ivara)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "piercing navigator (ivara)": {
+    "itemName": "Piercing Navigator (Ivara)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "infiltrate (ivara)": {
+    "itemName": "Infiltrate (Ivara)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "concentrated arrow (ivara)": {
+    "itemName": "Concentrated Arrow (Ivara)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "greedy pull (mag)": {
+    "itemName": "Greedy Pull (Mag)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "magnetized discharge (mag)": {
+    "itemName": "Magnetized Discharge (Mag)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "counter pulse (mag)": {
+    "itemName": "Counter Pulse (Mag)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "fracturing crush (mag)": {
+    "itemName": "Fracturing Crush (Mag)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "repair dispensary (protea)": {
+    "itemName": "Repair Dispensary (Protea)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "temporal erosion (protea)": {
+    "itemName": "Temporal Erosion (Protea)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "thrall pact (revenant)": {
+    "itemName": "Thrall Pact (Revenant)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "mesmer shield (revenant)": {
+    "itemName": "Mesmer Shield (Revenant)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "blinding reave (revenant)": {
+    "itemName": "Blinding Reave (Revenant)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "pool of life (trinity)": {
+    "itemName": "Pool Of Life (Trinity)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "vampire leech (trinity)": {
+    "itemName": "Vampire Leech (Trinity)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "abating link (trinity)": {
+    "itemName": "Abating Link (Trinity)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "champion's blessing (trinity)": {
+    "itemName": "Champion's Blessing (Trinity)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "swing line (valkyr)": {
+    "itemName": "Swing Line (Valkyr)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "eternal war (valkyr)": {
+    "itemName": "Eternal War (Valkyr)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "prolonged paralysis (valkyr)": {
+    "itemName": "Prolonged Paralysis (Valkyr)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "hysterical assault (valkyr)": {
+    "itemName": "Hysterical Assault (Valkyr)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "enraged (valkyr)": {
+    "itemName": "Enraged (Valkyr)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "tesla bank (vauban)": {
+    "itemName": "Tesla Bank (Vauban)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "repelling bastille (vauban)": {
+    "itemName": "Repelling Bastille (Vauban)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "photon repeater (vauban)": {
+    "itemName": "Photon Repeater (Vauban)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "shadow haze (sevagoth)": {
+    "itemName": "Shadow Haze (Sevagoth)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "the perrin sequence stencil": {
+    "itemName": "The Perrin Sequence Stencil",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "perrin armor set": {
+    "itemName": "Perrin Armor Set",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Perrin Sequence (The Perrin Sequence, Partner)"
+    ]
+  },
+  "5x corrupted lancer specter": {
+    "itemName": "5x Corrupted Lancer Specter",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Principled)"
+    ]
+  },
+  "decurion barrel": {
+    "itemName": "Decurion Barrel",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Authentic)"
+    ]
+  },
+  "phaedra barrel": {
+    "itemName": "Phaedra Barrel",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Authentic)"
+    ]
+  },
+  "corvas barrel": {
+    "itemName": "Corvas Barrel",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Authentic)"
+    ]
+  },
+  "cyngas barrel": {
+    "itemName": "Cyngas Barrel",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Lawful)"
+    ]
+  },
+  "centaur aegis": {
+    "itemName": "Centaur Aegis",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Lawful)"
+    ]
+  },
+  "gilded truth (burston prime)": {
+    "itemName": "Gilded Truth (Burston Prime)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Crusader)"
+    ]
+  },
+  "blade of truth (jaw sword)": {
+    "itemName": "Blade of Truth (Jaw Sword)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Crusader)"
+    ]
+  },
+  "avenging truth (silva & aegis)": {
+    "itemName": "Avenging Truth (Silva & Aegis)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Crusader)"
+    ]
+  },
+  "stinging truth (viper)": {
+    "itemName": "Stinging Truth (Viper)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Crusader)"
+    ]
+  },
+  "elusive retribution (baruuk)": {
+    "itemName": "Elusive Retribution (Baruuk)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "endless lullaby (baruuk)": {
+    "itemName": "Endless Lullaby (Baruuk)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "reactive storm (baruuk)": {
+    "itemName": "Reactive Storm (Baruuk)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "duality (equinox)": {
+    "itemName": "Duality (Equinox)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "calm & frenzy (equinox)": {
+    "itemName": "Calm & Frenzy (Equinox)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "peaceful provocation (equinox)": {
+    "itemName": "Peaceful Provocation (Equinox)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "energy transfer (equinox)": {
+    "itemName": "Energy Transfer (Equinox)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "shattered storm (gara)": {
+    "itemName": "Shattered Storm (Gara)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "mending splinters (gara)": {
+    "itemName": "Mending Splinters (Gara)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "spectrosiphon (gara)": {
+    "itemName": "Spectrosiphon (Gara)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "rift haven (limbo)": {
+    "itemName": "Rift Haven (Limbo)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "rift torrent (limbo)": {
+    "itemName": "Rift Torrent (Limbo)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "cataclysmic continuum (limbo)": {
+    "itemName": "Cataclysmic Continuum (Limbo)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "hall of malevolence (mirage)": {
+    "itemName": "Hall of Malevolence (Mirage)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "explosive legerdemain (mirage)": {
+    "itemName": "Explosive Legerdemain (Mirage)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "total eclipse (mirage)": {
+    "itemName": "Total Eclipse (Mirage)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "mind freak (nyx)": {
+    "itemName": "Mind Freak (Nyx)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "pacifying bolts (nyx)": {
+    "itemName": "Pacifying Bolts (Nyx)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "chaos sphere (nyx)": {
+    "itemName": "Chaos Sphere (Nyx)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "assimilate (nyx)": {
+    "itemName": "Assimilate (Nyx)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "axios javelineers (styanax)": {
+    "itemName": "Axios Javelineers (Styanax)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "intrepid stand (styanax)": {
+    "itemName": "Intrepid Stand (Styanax)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "celestial stomp (wukong)": {
+    "itemName": "Celestial Stomp (Wukong)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "enveloping cloud (wukong)": {
+    "itemName": "Enveloping Cloud (Wukong)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "primal rage (wukong)": {
+    "itemName": "Primal Rage (Wukong)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)",
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "hexis armor set": {
+    "itemName": "Hexis Armor Set",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Arbiters of Hexis (Arbiters of Hexis, Maxim)"
+    ]
+  },
+  "5x ancient healer specter": {
+    "itemName": "5x Ancient Healer Specter",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Humane)"
+    ]
+  },
+  "onorix blade": {
+    "itemName": "Onorix Blade",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Bountiful)"
+    ]
+  },
+  "phaedra stock": {
+    "itemName": "Phaedra Stock",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Bountiful)"
+    ]
+  },
+  "rathbone head": {
+    "itemName": "Rathbone Head",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Bountiful)"
+    ]
+  },
+  "agkuza blade": {
+    "itemName": "Agkuza Blade",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Benevolent)"
+    ]
+  },
+  "centaur handle": {
+    "itemName": "Centaur Handle",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Benevolent)"
+    ]
+  },
+  "squad health restore (large) blueprint": {
+    "itemName": "Squad Health Restore (Large) Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Benevolent)"
+    ]
+  },
+  "winds of purity (furis)": {
+    "itemName": "Winds of Purity (Furis)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Pure)"
+    ]
+  },
+  "disarming purity (panthera)": {
+    "itemName": "Disarming Purity (Panthera)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Pure)"
+    ]
+  },
+  "bright purity (skana)": {
+    "itemName": "Bright Purity (Skana)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Pure)"
+    ]
+  },
+  "lasting purity (vulkar)": {
+    "itemName": "Lasting Purity (Vulkar)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Pure)"
+    ]
+  },
+  "viral tempest (hydroid)": {
+    "itemName": "Viral Tempest (Hydroid)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "tidal impunity (hydroid)": {
+    "itemName": "Tidal Impunity (Hydroid)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "rousing plunder (hydroid)": {
+    "itemName": "Rousing Plunder (Hydroid)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "pilfering swarm (hydroid)": {
+    "itemName": "Pilfering Swarm (Hydroid)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "partitioned mallet (octavia)": {
+    "itemName": "Partitioned Mallet (Octavia)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "conductor (octavia)": {
+    "itemName": "Conductor (Octavia)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "fused reservoir (wisp)": {
+    "itemName": "Fused Reservoir (Wisp)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "critical surge (wisp)": {
+    "itemName": "Critical Surge (Wisp)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "merulina guardian (yareli)": {
+    "itemName": "Merulina Guardian (Yareli)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "loyal merulina (yareli)": {
+    "itemName": "Loyal Merulina (Yareli)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "surging blades (yareli)": {
+    "itemName": "Surging Blades (Yareli)",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)",
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "lokan armor set": {
+    "itemName": "Lokan Armor Set",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: New Loka (New Loka, Flawless)"
+    ]
+  },
+  "5x shield osprey specter": {
+    "itemName": "5x Shield Osprey Specter",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Competent)"
+    ]
+  },
+  "decurion receiver": {
+    "itemName": "Decurion Receiver",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Rank 2:Intriguing)"
+    ]
+  },
+  "velocitus barrel": {
+    "itemName": "Velocitus Barrel",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Intriguing)"
+    ]
+  },
+  "corvas receiver": {
+    "itemName": "Corvas Receiver",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Intriguing)"
+    ]
+  },
+  "cyngas receiver": {
+    "itemName": "Cyngas Receiver",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Intelligent)"
+    ]
+  },
+  "fluctus barrel": {
+    "itemName": "Fluctus Barrel",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Intelligent)"
+    ]
+  },
+  "squad shield restore (large) blueprint": {
+    "itemName": "Squad Shield Restore (Large) Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Intelligent)"
+    ]
+  },
+  "entropy spike (bolto)": {
+    "itemName": "Entropy Spike (Bolto)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Wise)"
+    ]
+  },
+  "entropy flight (kestrel)": {
+    "itemName": "Entropy Flight (Kestrel)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Wise)"
+    ]
+  },
+  "entropy detonation (obex)": {
+    "itemName": "Entropy Detonation (Obex)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Wise)"
+    ]
+  },
+  "entropy burst (supra)": {
+    "itemName": "Entropy Burst (Supra)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Wise)"
+    ]
+  },
+  "suda armor set": {
+    "itemName": "Suda Armor Set",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Suda (Cephalon Suda, Genius)"
+    ]
+  },
+  "synthesis scanner x 25": {
+    "itemName": "Synthesis Scanner x 25",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Synthesis Scanner x 25)"
+    ]
+  },
+  "kinetic siphon trap x 10": {
+    "itemName": "Kinetic Siphon Trap x 10",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Kinetic Siphon Trap x 10)"
+    ]
+  },
+  "simaris helios skin": {
+    "itemName": "Simaris Helios Skin",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Simaris Helios Skin\n)"
+    ]
+  },
+  "simulor blueprint": {
+    "itemName": "Simulor Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris)"
+    ]
+  },
+  "heliocor blueprint": {
+    "itemName": "Heliocor Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris)"
+    ]
+  },
+  "exilus warframe adapter blueprint": {
+    "itemName": "Exilus Warframe Adapter Blueprint",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Natah (Quest))",
+      "Syndicate Vendor: Conclave (Conclave, Typhoon)"
+    ]
+  },
+  "orvius blueprint": {
+    "itemName": "Orvius Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The War Within)"
+    ]
+  },
+  "simaris offerings console": {
+    "itemName": "Simaris Offerings Console",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Simaris Offerings Console\n)"
+    ]
+  },
+  "simaris research console": {
+    "itemName": "Simaris Research Console",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Simaris Research Console\n)"
+    ]
+  },
+  "gara blueprint": {
+    "itemName": "Gara Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Saya's Vigil)"
+    ]
+  },
+  "limbo chassis blueprint": {
+    "itemName": "Limbo Chassis Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Limbo Theorem)"
+    ]
+  },
+  "limbo neuroptics blueprint": {
+    "itemName": "Limbo Neuroptics Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Limbo Theorem)"
+    ]
+  },
+  "limbo systems blueprint": {
+    "itemName": "Limbo Systems Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Limbo Theorem)"
+    ]
+  },
+  "chroma blueprint": {
+    "itemName": "Chroma Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The New Strange)"
+    ]
+  },
+  "chroma chassis blueprint": {
+    "itemName": "Chroma Chassis Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Neptune Junction)"
+    ]
+  },
+  "chroma neuroptics blueprint": {
+    "itemName": "Chroma Neuroptics Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Uranus Junction)"
+    ]
+  },
+  "chroma systems blueprint": {
+    "itemName": "Chroma Systems Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Pluto Junction)"
+    ]
+  },
+  "mirage chassis blueprint": {
+    "itemName": "Mirage Chassis Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Hidden Messages)"
+    ]
+  },
+  "mirage neuroptics blueprint": {
+    "itemName": "Mirage Neuroptics Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Hidden Messages)"
+    ]
+  },
+  "mirage systems blueprint": {
+    "itemName": "Mirage Systems Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Hidden Messages)"
+    ]
+  },
+  "harrow blueprint": {
+    "itemName": "Harrow Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Chains of Harrow)"
+    ]
+  },
+  "yareli blueprint": {
+    "itemName": "Yareli Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Waverider)"
+    ]
+  },
+  "inaros blueprint": {
+    "itemName": "Inaros Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Sands of Inaros)"
+    ]
+  },
+  "inaros chassis blueprint": {
+    "itemName": "Inaros Chassis Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Sands of Inaros)"
+    ]
+  },
+  "inaros neuroptics blueprint": {
+    "itemName": "Inaros Neuroptics Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Sands of Inaros)"
+    ]
+  },
+  "inaros systems blueprint": {
+    "itemName": "Inaros Systems Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Sands of Inaros)"
+    ]
+  },
+  "titania blueprint": {
+    "itemName": "Titania Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Silver Grove)"
+    ]
+  },
+  "titania chassis blueprint": {
+    "itemName": "Titania Chassis Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Silver Grove)"
+    ]
+  },
+  "titania neuroptics blueprint": {
+    "itemName": "Titania Neuroptics Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Silver Grove)"
+    ]
+  },
+  "titania systems blueprint": {
+    "itemName": "Titania Systems Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Silver Grove)"
+    ]
+  },
+  "nidus blueprint": {
+    "itemName": "Nidus Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Glast Gambit)"
+    ]
+  },
+  "octavia blueprint": {
+    "itemName": "Octavia Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Octavia's Anthem)"
+    ]
+  },
+  "atlas blueprint": {
+    "itemName": "Atlas Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Jordas Precept)"
+    ]
+  },
+  "broken scepter blueprint": {
+    "itemName": "Broken Scepter Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The War Within)"
+    ]
+  },
+  "odonata blueprint": {
+    "itemName": "Odonata Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Archwing (Quest))"
+    ]
+  },
+  "odonata harness blueprint": {
+    "itemName": "Odonata Harness Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Archwing (Quest))"
+    ]
+  },
+  "odonata systems blueprint": {
+    "itemName": "Odonata Systems Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Archwing (Quest))"
+    ]
+  },
+  "odonata wings blueprint": {
+    "itemName": "Odonata Wings Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Archwing (Quest))"
+    ]
+  },
+  "imperator blueprint": {
+    "itemName": "Imperator Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Archwing (Quest))"
+    ]
+  },
+  "veritux blueprint": {
+    "itemName": "Veritux Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Archwing (Quest))"
+    ]
+  },
+  "revenant blueprint": {
+    "itemName": "Revenant Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Mask of the Revenant)"
+    ]
+  },
+  "garuda blueprint": {
+    "itemName": "Garuda Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Vox Solaris (Quest))"
+    ]
+  },
+  "protea blueprint": {
+    "itemName": "Protea Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Deadlock Protocol)"
+    ]
+  },
+  "sevagoth blueprint": {
+    "itemName": "Sevagoth Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Call of the Tempestarii)"
+    ]
+  },
+  "xaku blueprint": {
+    "itemName": "Xaku Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Heart of Deimos)"
+    ]
+  },
+  "mandachord blueprint": {
+    "itemName": "Mandachord Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Octavia's Anthem)"
+    ]
+  },
+  "shedu blueprint": {
+    "itemName": "Shedu Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete Erra (Quest))"
+    ]
+  },
+  "xoris blueprint": {
+    "itemName": "Xoris Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Unlock through The Deadlock Protocol)"
+    ]
+  },
+  "xoris blade": {
+    "itemName": "Xoris Blade",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Unlock through The Deadlock Protocol)"
+    ]
+  },
+  "xoris core": {
+    "itemName": "Xoris Core",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Unlock through The Deadlock Protocol)"
+    ]
+  },
+  "ether daggers blueprint": {
+    "itemName": "Ether Daggers Blueprint",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Unlock through Stolen Dreams)",
+      "Syndicate Vendor: Operational Supply (Operational Supply, Collaborator)"
+    ]
+  },
+  "xoris handle": {
+    "itemName": "Xoris Handle",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Unlock through The Deadlock Protocol)"
+    ]
+  },
+  "zenistar blueprint": {
+    "itemName": "Zenistar Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Unlock through Daily Tribute)"
+    ]
+  },
+  "azima blueprint": {
+    "itemName": "Azima Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Unlock through Daily Tribute)"
+    ]
+  },
+  "zenith blueprint": {
+    "itemName": "Zenith Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Unlock through Daily Tribute)"
+    ]
+  },
+  "sigma & octantis blueprint": {
+    "itemName": "Sigma & Octantis Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Unlock through Daily Tribute)"
+    ]
+  },
+  "vitrica blueprint": {
+    "itemName": "Vitrica Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Defeat the Glassmaker)"
+    ]
+  },
+  "machete blueprint": {
+    "itemName": "Machete Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Unlock through Daily Tribute)"
+    ]
+  },
+  "war hilt": {
+    "itemName": "War Hilt",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Second Dream)"
+    ]
+  },
+  "war blade": {
+    "itemName": "War Blade",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Cephalon Simaris (Cephalon Simaris, Complete The Second Dream)"
+    ]
+  },
+  "mote amp blueprint": {
+    "itemName": "Mote Amp Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Neutral)"
+    ]
+  },
+  "exceptional sentient core conversion": {
+    "itemName": "Exceptional Sentient Core Conversion",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Neutral)"
+    ]
+  },
+  "raplak prism blueprint": {
+    "itemName": "Raplak Prism Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Mote)"
+    ]
+  },
+  "pencha scaffold blueprint": {
+    "itemName": "Pencha Scaffold Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Mote)"
+    ]
+  },
+  "clapkra brace blueprint": {
+    "itemName": "Clapkra Brace Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Mote)"
+    ]
+  },
+  "ceno cuirass blueprint": {
+    "itemName": "Ceno Cuirass Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Mote)"
+    ]
+  },
+  "ceno apparel blueprint": {
+    "itemName": "Ceno Apparel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Mote)"
+    ]
+  },
+  "vahd cuirass blueprint": {
+    "itemName": "Vahd Cuirass Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Mote)"
+    ]
+  },
+  "vahd apparel blueprint": {
+    "itemName": "Vahd Apparel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Mote)"
+    ]
+  },
+  "shwaak prism blueprint": {
+    "itemName": "Shwaak Prism Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Observer)"
+    ]
+  },
+  "shraksun scaffold blueprint": {
+    "itemName": "Shraksun Scaffold Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Observer)"
+    ]
+  },
+  "juttni brace blueprint": {
+    "itemName": "Juttni Brace Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Observer)"
+    ]
+  },
+  "ceno pauldrons blueprint": {
+    "itemName": "Ceno Pauldrons Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Observer)"
+    ]
+  },
+  "vahd pauldrons blueprint": {
+    "itemName": "Vahd Pauldrons Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Observer)"
+    ]
+  },
+  "granmu prism blueprint": {
+    "itemName": "Granmu Prism Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Adherent)"
+    ]
+  },
+  "klebrik scaffold blueprint": {
+    "itemName": "Klebrik Scaffold Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Adherent)"
+    ]
+  },
+  "lohrin brace blueprint": {
+    "itemName": "Lohrin Brace Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Adherent)"
+    ]
+  },
+  "ceno greaves blueprint": {
+    "itemName": "Ceno Greaves Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Adherent)"
+    ]
+  },
+  "vahd greaves blueprint": {
+    "itemName": "Vahd Greaves Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Adherent)"
+    ]
+  },
+  "rahn prism blueprint": {
+    "itemName": "Rahn Prism Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Instrument)"
+    ]
+  },
+  "phahd scaffold blueprint": {
+    "itemName": "Phahd Scaffold Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Instrument)"
+    ]
+  },
+  "anspatha brace blueprint": {
+    "itemName": "Anspatha Brace Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Instrument)"
+    ]
+  },
+  "ceno helmet blueprint": {
+    "itemName": "Ceno Helmet Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Instrument)"
+    ]
+  },
+  "vahd mask blueprint": {
+    "itemName": "Vahd Mask Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Instrument)"
+    ]
+  },
+  "glowing sentient core": {
+    "itemName": "Glowing Sentient Core",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Instrument)"
+    ]
+  },
+  "hood display black": {
+    "itemName": "Hood Display Black",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Architect)"
+    ]
+  },
+  "hood display teal": {
+    "itemName": "Hood Display Teal",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Architect)"
+    ]
+  },
+  "hood display grey": {
+    "itemName": "Hood Display Grey",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Quills (The Quills, Architect)"
+    ]
+  },
+  "bad baby blueprint": {
+    "itemName": "Bad Baby Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "coldfusor blueprint": {
+    "itemName": "Coldfusor Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "beaky blueprint": {
+    "itemName": "Beaky Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "twin kavats blueprint": {
+    "itemName": "Twin Kavats Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "vent pobber ventikid pauldrons blueprint": {
+    "itemName": "Vent Pobber Ventikid Pauldrons Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "vent pobber ventikid cuirass blueprint": {
+    "itemName": "Vent Pobber Ventikid Cuirass Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "vent pobber ventikid mask blueprint": {
+    "itemName": "Vent Pobber Ventikid Mask Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "vent pobber ventikid apparel blueprint": {
+    "itemName": "Vent Pobber Ventikid Apparel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "vent pobber ventikid greaves blueprint": {
+    "itemName": "Vent Pobber Ventikid Greaves Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "kubrodon ventikid pauldrons blueprint": {
+    "itemName": "Kubrodon Ventikid Pauldrons Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "kubrodon ventikid cuirass blueprint": {
+    "itemName": "Kubrodon Ventikid Cuirass Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "kubrodon ventikid mask blueprint": {
+    "itemName": "Kubrodon Ventikid Mask Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "kubrodon ventikid apparel blueprint": {
+    "itemName": "Kubrodon Ventikid Apparel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "kubrodon ventikid greaves blueprint": {
+    "itemName": "Kubrodon Ventikid Greaves Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Neutral)"
+    ]
+  },
+  "ventkids ginty sigil": {
+    "itemName": "Ventkids Ginty Sigil",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Glinty)"
+    ]
+  },
+  "flatbelly blueprint": {
+    "itemName": "Flatbelly Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Whozit)"
+    ]
+  },
+  "arc twelve blueprint": {
+    "itemName": "Arc Twelve Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Whozit)"
+    ]
+  },
+  "wingnut blueprint": {
+    "itemName": "Wingnut Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Whozit)"
+    ]
+  },
+  "step tens blueprint": {
+    "itemName": "Step Tens Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Whozit)"
+    ]
+  },
+  "needlenose blueprint": {
+    "itemName": "Needlenose Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Primo)"
+    ]
+  },
+  "hothead blueprint": {
+    "itemName": "Hothead Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Primo)"
+    ]
+  },
+  "dink-a-donk blueprint": {
+    "itemName": "Dink-A-Donk Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Primo)"
+    ]
+  },
+  "fatboys blueprint": {
+    "itemName": "Fatboys Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Primo)"
+    ]
+  },
+  "runway blueprint": {
+    "itemName": "Runway Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Logical)"
+    ]
+  },
+  "highbrow blueprint": {
+    "itemName": "Highbrow Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Logical)"
+    ]
+  },
+  "two-sloops blueprint": {
+    "itemName": "Two-Sloops Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Logical)"
+    ]
+  },
+  "thugs blueprint": {
+    "itemName": "Thugs Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ventkids (Ventkids, Logical)"
+    ]
+  },
+  "haztech pauldrons blueprint": {
+    "itemName": "Haztech Pauldrons Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Neutral)"
+    ]
+  },
+  "haztech cuirass blueprint": {
+    "itemName": "Haztech Cuirass Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Neutral)"
+    ]
+  },
+  "haztech apparel blueprint": {
+    "itemName": "Haztech Apparel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Neutral)"
+    ]
+  },
+  "haztech mask blueprint": {
+    "itemName": "Haztech Mask Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Neutral)"
+    ]
+  },
+  "haztech greaves blueprint": {
+    "itemName": "Haztech Greaves Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Neutral)"
+    ]
+  },
+  "smelter pauldrons blueprint": {
+    "itemName": "Smelter Pauldrons Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Neutral)"
+    ]
+  },
+  "smelter cuirass blueprint": {
+    "itemName": "Smelter Cuirass Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Neutral)"
+    ]
+  },
+  "smelter apparel blueprint": {
+    "itemName": "Smelter Apparel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Neutral)"
+    ]
+  },
+  "smelter mask blueprint": {
+    "itemName": "Smelter Mask Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Neutral)"
+    ]
+  },
+  "smelter greaves blueprint": {
+    "itemName": "Smelter Greaves Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Neutral)"
+    ]
+  },
+  "outrider pauldrons blueprint": {
+    "itemName": "Outrider Pauldrons Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Operative)"
+    ]
+  },
+  "outrider cuirass blueprint": {
+    "itemName": "Outrider Cuirass Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Operative)"
+    ]
+  },
+  "outrider mask blueprint": {
+    "itemName": "Outrider Mask Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Operative)"
+    ]
+  },
+  "outrider greaves blueprint": {
+    "itemName": "Outrider Greaves Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Operative)"
+    ]
+  },
+  "vent rat pauldrons blueprint": {
+    "itemName": "Vent Rat Pauldrons Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Operative)"
+    ]
+  },
+  "vent rat cuirass blueprint": {
+    "itemName": "Vent Rat Cuirass Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Operative)"
+    ]
+  },
+  "vent rat mask blueprint": {
+    "itemName": "Vent Rat Mask Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Operative)"
+    ]
+  },
+  "vent rat greaves blueprint": {
+    "itemName": "Vent Rat Greaves Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Operative)"
+    ]
+  },
+  "cantic prism blueprint": {
+    "itemName": "Cantic Prism Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Agent)"
+    ]
+  },
+  "exard scaffold blueprint": {
+    "itemName": "Exard Scaffold Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Agent)"
+    ]
+  },
+  "suo brace blueprint": {
+    "itemName": "Suo Brace Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Agent)"
+    ]
+  },
+  "baruuk blueprint": {
+    "itemName": "Baruuk Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Agent)"
+    ]
+  },
+  "hildryn blueprint": {
+    "itemName": "Hildryn Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Agent)"
+    ]
+  },
+  "lega prism blueprint": {
+    "itemName": "Lega Prism Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Hand)"
+    ]
+  },
+  "dissic scaffold blueprint": {
+    "itemName": "Dissic Scaffold Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Hand)"
+    ]
+  },
+  "plaga brace blueprint": {
+    "itemName": "Plaga Brace Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Hand)"
+    ]
+  },
+  "baruuk chassis blueprint": {
+    "itemName": "Baruuk Chassis Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Hand)"
+    ]
+  },
+  "baruuk neuroptics blueprint": {
+    "itemName": "Baruuk Neuroptics Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Hand)"
+    ]
+  },
+  "baruuk systems blueprint": {
+    "itemName": "Baruuk Systems Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Hand)"
+    ]
+  },
+  "klamora prism blueprint": {
+    "itemName": "Klamora Prism Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Instrument)"
+    ]
+  },
+  "propa scaffold blueprint": {
+    "itemName": "Propa Scaffold Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Instrument)"
+    ]
+  },
+  "certus brace blueprint": {
+    "itemName": "Certus Brace Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Vox Solaris (Vox Solaris, Instrument)"
+    ]
+  },
+  "catchmoon blueprint": {
+    "itemName": "Catchmoon Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Neutral)"
+    ]
+  },
+  "tombfinger blueprint": {
+    "itemName": "Tombfinger Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Neutral)"
+    ]
+  },
+  "rattleguts blueprint": {
+    "itemName": "Rattleguts Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Neutral)"
+    ]
+  },
+  "gaze blueprint": {
+    "itemName": "Gaze Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Neutral)"
+    ]
+  },
+  "ramble blueprint": {
+    "itemName": "Ramble Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Neutral)"
+    ]
+  },
+  "lovetap blueprint": {
+    "itemName": "Lovetap Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Neutral)"
+    ]
+  },
+  "deepbreath blueprint": {
+    "itemName": "Deepbreath Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Neutral)"
+    ]
+  },
+  "slap blueprint": {
+    "itemName": "Slap Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Neutral)"
+    ]
+  },
+  "haymaker blueprint": {
+    "itemName": "Haymaker Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Outworlder)"
+    ]
+  },
+  "gibber blueprint": {
+    "itemName": "Gibber Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Outworlder)"
+    ]
+  },
+  "brash blueprint": {
+    "itemName": "Brash Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Outworlder)"
+    ]
+  },
+  "shrewd blueprint": {
+    "itemName": "Shrewd Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Outworlder)"
+    ]
+  },
+  "bellows blueprint": {
+    "itemName": "Bellows Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Outworlder)"
+    ]
+  },
+  "zip blueprint": {
+    "itemName": "Zip Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Outworlder)"
+    ]
+  },
+  "bashrack blueprint": {
+    "itemName": "Bashrack Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Rapscallion)"
+    ]
+  },
+  "slapneedle blueprint": {
+    "itemName": "Slapneedle Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Rapscallion)"
+    ]
+  },
+  "sparkfire blueprint": {
+    "itemName": "Sparkfire Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Rapscallion)"
+    ]
+  },
+  "swiftfire blueprint": {
+    "itemName": "Swiftfire Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Rapscallion)"
+    ]
+  },
+  "steadyslam blueprint": {
+    "itemName": "Steadyslam Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Rapscallion)"
+    ]
+  },
+  "tremor blueprint": {
+    "itemName": "Tremor Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Rapscallion)"
+    ]
+  },
+  "stitch blueprint": {
+    "itemName": "Stitch Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Doer)"
+    ]
+  },
+  "zipneedle blueprint": {
+    "itemName": "Zipneedle Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Doer)"
+    ]
+  },
+  "thunderdrum blueprint": {
+    "itemName": "Thunderdrum Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Doer)"
+    ]
+  },
+  "zipfire blueprint": {
+    "itemName": "Zipfire Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Doer)"
+    ]
+  },
+  "splat blueprint": {
+    "itemName": "Splat Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Cove)"
+    ]
+  },
+  "killstream blueprint": {
+    "itemName": "Killstream Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Cove)"
+    ]
+  },
+  "ramflare blueprint": {
+    "itemName": "Ramflare Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Cove)"
+    ]
+  },
+  "flutterfire blueprint": {
+    "itemName": "Flutterfire Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Cove)"
+    ]
+  },
+  "solaris armor set": {
+    "itemName": "Solaris Armor Set",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Rude Zuud), Old Mate)"
+    ]
+  },
+  "drimper bracket blueprint": {
+    "itemName": "Drimper Bracket Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Neutral)"
+    ]
+  },
+  "tian bracket blueprint": {
+    "itemName": "Tian Bracket Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Neutral)"
+    ]
+  },
+  "para moa blueprint": {
+    "itemName": "Para Moa Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Neutral)"
+    ]
+  },
+  "drex core blueprint": {
+    "itemName": "Drex Core Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Neutral)"
+    ]
+  },
+  "trux gyro blueprint": {
+    "itemName": "Trux Gyro Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Neutral)"
+    ]
+  },
+  "lambeo moa blueprint": {
+    "itemName": "Lambeo Moa Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Outworlder)"
+    ]
+  },
+  "krisys core blueprint": {
+    "itemName": "Krisys Core Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Outworlder)"
+    ]
+  },
+  "jonsin bracket blueprint": {
+    "itemName": "Jonsin Bracket Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Outworlder)"
+    ]
+  },
+  "harpen gyro blueprint": {
+    "itemName": "Harpen Gyro Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Outworlder)"
+    ]
+  },
+  "oloro moa blueprint": {
+    "itemName": "Oloro Moa Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Rapscallion)"
+    ]
+  },
+  "alcrom core blueprint": {
+    "itemName": "Alcrom Core Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Rapscallion)"
+    ]
+  },
+  "gauth bracket blueprint": {
+    "itemName": "Gauth Bracket Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Rapscallion)"
+    ]
+  },
+  "aegron gyro blueprint": {
+    "itemName": "Aegron Gyro Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Rapscallion)"
+    ]
+  },
+  "nychus moa blueprint": {
+    "itemName": "Nychus Moa Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Doer)"
+    ]
+  },
+  "munit gyro blueprint": {
+    "itemName": "Munit Gyro Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Doer)"
+    ]
+  },
+  "hona bracket blueprint": {
+    "itemName": "Hona Bracket Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Doer)"
+    ]
+  },
+  "hextra gyro blueprint": {
+    "itemName": "Hextra Gyro Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Doer)"
+    ]
+  },
+  "lehan core blueprint": {
+    "itemName": "Lehan Core Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Cove)"
+    ]
+  },
+  "phazor gyro blueprint": {
+    "itemName": "Phazor Gyro Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Cove)"
+    ]
+  },
+  "atheca gyro blueprint": {
+    "itemName": "Atheca Gyro Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Cove)"
+    ]
+  },
+  "tyli gyro blueprint": {
+    "itemName": "Tyli Gyro Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Cove)"
+    ]
+  },
+  "cryotra blueprint": {
+    "itemName": "Cryotra Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Old Mate)"
+    ]
+  },
+  "tazicor blueprint": {
+    "itemName": "Tazicor Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Old Mate)"
+    ]
+  },
+  "vulcax blueprint": {
+    "itemName": "Vulcax Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Old Mate)"
+    ]
+  },
+  "helstrum blueprint": {
+    "itemName": "Helstrum Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Legs), Old Mate)"
+    ]
+  },
+  "sapcaddy trophy blueprint": {
+    "itemName": "Sapcaddy Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Outworlder)"
+    ]
+  },
+  "echowinder trophy blueprint": {
+    "itemName": "Echowinder Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Outworlder)"
+    ]
+  },
+  "brickie trophy blueprint": {
+    "itemName": "Brickie Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Outworlder)"
+    ]
+  },
+  "scrubber trophy blueprint": {
+    "itemName": "Scrubber Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Outworlder)"
+    ]
+  },
+  "tink trophy blueprint": {
+    "itemName": "Tink Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Outworlder)"
+    ]
+  },
+  "eye-eye trophy blueprint": {
+    "itemName": "Eye-Eye Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Rapscallion)"
+    ]
+  },
+  "kriller trophy blueprint": {
+    "itemName": "Kriller Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Rapscallion)"
+    ]
+  },
+  "recaster trophy blueprint": {
+    "itemName": "Recaster Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Rapscallion)"
+    ]
+  },
+  "reinforced bond (companion)": {
+    "itemName": "Reinforced Bond (companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Doer)"
+    ]
+  },
+  "aerial bond (companion)": {
+    "itemName": "Aerial Bond (companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Doer)"
+    ]
+  },
+  "momentous bond (companion)": {
+    "itemName": "Momentous Bond (companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Doer)"
+    ]
+  },
+  "tenacious bond (companion)": {
+    "itemName": "Tenacious Bond (companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Doer)"
+    ]
+  },
+  "astralbond (companion)": {
+    "itemName": "AstralBond (companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Doer)"
+    ]
+  },
+  "mirewinder trophy blueprint": {
+    "itemName": "Mirewinder Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Doer)"
+    ]
+  },
+  "longwinder trophy blueprint": {
+    "itemName": "Longwinder Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Doer)"
+    ]
+  },
+  "charamote trophy blueprint": {
+    "itemName": "Charamote Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Cove)"
+    ]
+  },
+  "tromyzon trophy blueprint": {
+    "itemName": "Tromyzon Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Cove)"
+    ]
+  },
+  "boot trophy blueprint": {
+    "itemName": "Boot Trophy Blueprint",
+    "count": 2,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Cove)",
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Surah)"
+    ]
+  },
+  "synathid trophy blueprint": {
+    "itemName": "Synathid Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Old Mate)"
+    ]
+  },
+  "oxylus blueprint": {
+    "itemName": "Oxylus Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (The Business), Old Mate)"
+    ]
+  },
+  "smooth phasmin x10 blueprint": {
+    "itemName": "Smooth Phasmin X10 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Neutral)"
+    ]
+  },
+  "travocyte alloy x20 blueprint": {
+    "itemName": "Travocyte Alloy X20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Neutral)"
+    ]
+  },
+  "heart noctrul x10 blueprint": {
+    "itemName": "Heart Noctrul X10 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Neutral)"
+    ]
+  },
+  "axidrol alloy x20 blueprint": {
+    "itemName": "Axidrol Alloy X20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Neutral)"
+    ]
+  },
+  "goblite tears x10 blueprint": {
+    "itemName": "Goblite Tears X10 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Outworlder)"
+    ]
+  },
+  "venerdo alloy x20 blueprint": {
+    "itemName": "Venerdo Alloy X20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Outworlder)"
+    ]
+  },
+  "star amarast x6 blueprint": {
+    "itemName": "Star Amarast X6 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Rapscallion)"
+    ]
+  },
+  "hespazym alloy x20 blueprint": {
+    "itemName": "Hespazym Alloy X20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Rapscallion)"
+    ]
+  },
+  "relic pack (3 x random void relics)": {
+    "itemName": "Relic Pack (3 x Random Void Relics)",
+    "count": 3,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Rapscallion)",
+      "Syndicate Vendor: Entrati (Entrati (Otak), Acquaintance)",
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Trusted)"
+    ]
+  },
+  "radiant zodian x3 blueprint": {
+    "itemName": "Radiant Zodian X3 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Doer)"
+    ]
+  },
+  "marquise thyst x3 blueprint": {
+    "itemName": "Marquise Thyst X3 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Solaris United (Solaris United (Smokefinger), Cove)"
+    ]
+  },
+  "styanax systems blueprint": {
+    "itemName": "Styanax Systems Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Kahl's Garrison (Kahl's Garrison (Chipper), Encampment)"
+    ]
+  },
+  "slaytra blueprint": {
+    "itemName": "Slaytra Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Kahl's Garrison (Kahl's Garrison (Chipper), Encampment)"
+    ]
+  },
+  "styanax neuroptics blueprint": {
+    "itemName": "Styanax Neuroptics Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Kahl's Garrison (Kahl's Garrison (Chipper), Fort)"
+    ]
+  },
+  "styanax chassis blueprint": {
+    "itemName": "Styanax Chassis Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Kahl's Garrison (Kahl's Garrison (Chipper), Settlement)"
+    ]
+  },
+  "aegrit blueprint": {
+    "itemName": "Aegrit Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Kahl's Garrison (Kahl's Garrison (Chipper), Settlement)"
+    ]
+  },
+  "styanax blueprint": {
+    "itemName": "Styanax Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Kahl's Garrison (Kahl's Garrison (Chipper), Home)"
+    ]
+  },
+  "afentis blueprint": {
+    "itemName": "Afentis Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Kahl's Garrison (Kahl's Garrison (Chipper), Home)"
+    ]
+  },
+  "voidrig casing blueprint": {
+    "itemName": "Voidrig Casing Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Agnesis)"
+    ]
+  },
+  "voidrig engine blueprint": {
+    "itemName": "Voidrig Engine Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Agnesis)"
+    ]
+  },
+  "voidrig capsule blueprint": {
+    "itemName": "Voidrig Capsule Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Agnesis)"
+    ]
+  },
+  "voidrig weapon pod blueprint": {
+    "itemName": "Voidrig Weapon Pod Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Agnesis)"
+    ]
+  },
+  "voidrig necramech blueprint": {
+    "itemName": "Voidrig Necramech Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "bonewidow casing blueprint": {
+    "itemName": "Bonewidow Casing Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "bonewidow engine blueprint": {
+    "itemName": "Bonewidow Engine Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "bonewidow capsule blueprint": {
+    "itemName": "Bonewidow Capsule Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "bonewidow weapon pod blueprint": {
+    "itemName": "Bonewidow Weapon Pod Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "cortege barrel blueprint": {
+    "itemName": "Cortege Barrel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "cortege receiver blueprint": {
+    "itemName": "Cortege Receiver Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "cortege stock blueprint": {
+    "itemName": "Cortege Stock Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "morgha barrel blueprint": {
+    "itemName": "Morgha Barrel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "morgha receiver blueprint": {
+    "itemName": "Morgha Receiver Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "morgha stock blueprint": {
+    "itemName": "Morgha Stock Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Modus)"
+    ]
+  },
+  "bonewidow blueprint": {
+    "itemName": "Bonewidow Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Odima)"
+    ]
+  },
+  "cortege blueprint": {
+    "itemName": "Cortege Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Odima)"
+    ]
+  },
+  "morgha blueprint": {
+    "itemName": "Morgha Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: NecraLoid (NecraLoid (Loid), Clearance Odima)"
+    ]
+  },
+  "fosfor blau (x20) blueprint": {
+    "itemName": "Fosfor Blau (x20) Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Neutral)"
+    ]
+  },
+  "fosfor rahd (x20) blueprint": {
+    "itemName": "Fosfor Rahd (x20) Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Neutral)"
+    ]
+  },
+  "eidolon phylaxis (x5) blueprint": {
+    "itemName": "Eidolon Phylaxis (x5) Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Collaborator)"
+    ]
+  },
+  "snipetron blueprint": {
+    "itemName": "Snipetron Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Collaborator)"
+    ]
+  },
+  "ghoulsaw blueprint": {
+    "itemName": "Ghoulsaw Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Champion)"
+    ]
+  },
+  "ghoulsaw blade blueprint": {
+    "itemName": "Ghoulsaw Blade Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Champion)"
+    ]
+  },
+  "ghoulsaw chassis blueprint": {
+    "itemName": "Ghoulsaw Chassis Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Champion)"
+    ]
+  },
+  "ghoulsaw engine blueprint": {
+    "itemName": "Ghoulsaw Engine Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Champion)"
+    ]
+  },
+  "ghoulsaw grip blueprint": {
+    "itemName": "Ghoulsaw Grip Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Champion)"
+    ]
+  },
+  "plague akwin blueprint": {
+    "itemName": "Plague Akwin Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Champion)"
+    ]
+  },
+  "plague keewar blueprint": {
+    "itemName": "Plague Keewar Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Champion)"
+    ]
+  },
+  "plague bokwin blueprint": {
+    "itemName": "Plague Bokwin Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Champion)"
+    ]
+  },
+  "plague kripath blueprint": {
+    "itemName": "Plague Kripath Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Operational Supply (Operational Supply, Champion)"
+    ]
+  },
+  "syndicate void relic pack (3 x random void relics)": {
+    "itemName": "Syndicate Void Relic Pack (3 X Random Void Relics)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Conclave (Conclave, Mistral)"
+    ]
+  },
+  "conclave loadout slot": {
+    "itemName": "Conclave Loadout Slot",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Conclave (Conclave, Typhoon)"
+    ]
+  },
+  "vermisplicer blueprint": {
+    "itemName": "Vermisplicer Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Neutral)"
+    ]
+  },
+  "sporelacer blueprint": {
+    "itemName": "Sporelacer Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Neutral)"
+    ]
+  },
+  "macro arcroid blueprint": {
+    "itemName": "Macro Arcroid Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Neutral)"
+    ]
+  },
+  "thymoid blueprint": {
+    "itemName": "Thymoid Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Neutral)"
+    ]
+  },
+  "palmaris blueprint": {
+    "itemName": "Palmaris Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Neutral)"
+    ]
+  },
+  "ulnaris blueprint": {
+    "itemName": "Ulnaris Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Neutral)"
+    ]
+  },
+  "keratinos blueprint": {
+    "itemName": "Keratinos Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Neutral)"
+    ]
+  },
+  "keratinos blade blueprint": {
+    "itemName": "Keratinos Blade Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Neutral)"
+    ]
+  },
+  "keratinos gauntlet blueprint": {
+    "itemName": "Keratinos Gauntlet Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Neutral)"
+    ]
+  },
+  "macro thymoid blueprint": {
+    "itemName": "Macro Thymoid Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Stranger)"
+    ]
+  },
+  "arcroid blueprint": {
+    "itemName": "Arcroid Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Stranger)"
+    ]
+  },
+  "zymos blueprint": {
+    "itemName": "Zymos Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Stranger)"
+    ]
+  },
+  "zymos barrel blueprint": {
+    "itemName": "Zymos Barrel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Stranger)"
+    ]
+  },
+  "zymos receiver blueprint": {
+    "itemName": "Zymos Receiver Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Stranger)"
+    ]
+  },
+  "sepulcrum blueprint": {
+    "itemName": "Sepulcrum Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Acquaintance)"
+    ]
+  },
+  "sepulcrum barrel blueprint": {
+    "itemName": "Sepulcrum Barrel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Acquaintance)"
+    ]
+  },
+  "sepulcrum receiver blueprint": {
+    "itemName": "Sepulcrum Receiver Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Acquaintance)"
+    ]
+  },
+  "lavos blueprint": {
+    "itemName": "Lavos Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Acquaintance)"
+    ]
+  },
+  "trumna blueprint": {
+    "itemName": "Trumna Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Associate)"
+    ]
+  },
+  "trumna barrel blueprint": {
+    "itemName": "Trumna Barrel Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Associate)"
+    ]
+  },
+  "trumna receiver blueprint": {
+    "itemName": "Trumna Receiver Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Associate)"
+    ]
+  },
+  "trumna stock blueprint": {
+    "itemName": "Trumna Stock Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Associate)"
+    ]
+  },
+  "lavos chassis": {
+    "itemName": "Lavos Chassis",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Associate)"
+    ]
+  },
+  "lavos neuroptics": {
+    "itemName": "Lavos Neuroptics",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Associate)"
+    ]
+  },
+  "lavos systems": {
+    "itemName": "Lavos Systems",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Associate)"
+    ]
+  },
+  "damzav-vati (akbronco prime)": {
+    "itemName": "Damzav-Vati (Akbronco Prime)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Friend)"
+    ]
+  },
+  "zazvat-kar (akstiletto prime)": {
+    "itemName": "Zazvat-Kar (Akstiletto Prime)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Friend)"
+    ]
+  },
+  "bhisaj-bal(paris prime)": {
+    "itemName": "Bhisaj-Bal(Paris Prime)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Friend)"
+    ]
+  },
+  "hata-satya (soma prime)": {
+    "itemName": "Hata-Satya (Soma Prime)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Friend)"
+    ]
+  },
+  "cedo blueprint": {
+    "itemName": "Cedo Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Friend)"
+    ]
+  },
+  "cedo barrel": {
+    "itemName": "Cedo Barrel",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Family)"
+    ]
+  },
+  "cedo receiver": {
+    "itemName": "Cedo Receiver",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Family)"
+    ]
+  },
+  "cedo stock": {
+    "itemName": "Cedo Stock",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Father), Family)"
+    ]
+  },
+  "cryptosuctus trophy blueprint": {
+    "itemName": "Cryptosuctus Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Stranger)"
+    ]
+  },
+  "barbisteo trophy blueprint": {
+    "itemName": "Barbisteo Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Stranger)"
+    ]
+  },
+  "kymaeros trophy blueprint": {
+    "itemName": "Kymaeros Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Stranger)"
+    ]
+  },
+  "amniophysi trophy blueprint": {
+    "itemName": "Amniophysi Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Stranger)"
+    ]
+  },
+  "lobotriscid trophy blueprint": {
+    "itemName": "Lobotriscid Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Stranger)"
+    ]
+  },
+  "glutinox trophy blueprint": {
+    "itemName": "Glutinox Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Acquaintance)"
+    ]
+  },
+  "ostimyr trophy blueprint": {
+    "itemName": "Ostimyr Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Acquaintance)"
+    ]
+  },
+  "vitreospina trophy blueprint": {
+    "itemName": "Vitreospina Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Acquaintance)"
+    ]
+  },
+  "chondricord trophy blueprint": {
+    "itemName": "Chondricord Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Associate)"
+    ]
+  },
+  "duroid trophy blueprint": {
+    "itemName": "Duroid Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Associate)"
+    ]
+  },
+  "aquapulmo trophy blueprint": {
+    "itemName": "Aquapulmo Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Friend)"
+    ]
+  },
+  "flagellocanth trophy blueprint": {
+    "itemName": "Flagellocanth Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Friend)"
+    ]
+  },
+  "myxostomata trophy blueprint": {
+    "itemName": "Myxostomata Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Daughter), Family)"
+    ]
+  },
+  "desus antigen blueprint": {
+    "itemName": "Desus Antigen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Stranger)"
+    ]
+  },
+  "iranon antigen blueprint": {
+    "itemName": "Iranon Antigen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Stranger)"
+    ]
+  },
+  "adra mutagen blueprint": {
+    "itemName": "Adra Mutagen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Stranger)"
+    ]
+  },
+  "leptosam mutagen blueprint": {
+    "itemName": "Leptosam Mutagen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Stranger)"
+    ]
+  },
+  "virox antigen blueprint": {
+    "itemName": "Virox Antigen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Acquaintance)"
+    ]
+  },
+  "elasmun antigen blueprint": {
+    "itemName": "Elasmun Antigen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Acquaintance)"
+    ]
+  },
+  "elsa mutagen blueprint": {
+    "itemName": "Elsa Mutagen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Acquaintance)"
+    ]
+  },
+  "chiten mutagen blueprint": {
+    "itemName": "Chiten Mutagen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Acquaintance)"
+    ]
+  },
+  "plagen antigen blueprint": {
+    "itemName": "Plagen Antigen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Associate)"
+    ]
+  },
+  "ibexan antigen blueprint": {
+    "itemName": "Ibexan Antigen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Associate)"
+    ]
+  },
+  "zarim mutagen blueprint": {
+    "itemName": "Zarim Mutagen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Associate)"
+    ]
+  },
+  "arioli mutagen blueprint": {
+    "itemName": "Arioli Mutagen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Associate)"
+    ]
+  },
+  "helminth segment blueprint": {
+    "itemName": "Helminth Segment Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Associate)"
+    ]
+  },
+  "vicious bond (companion)": {
+    "itemName": "Vicious Bond (Companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Associate)"
+    ]
+  },
+  "seismic bond (companion)": {
+    "itemName": "Seismic Bond (Companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Associate)"
+    ]
+  },
+  "contagious bond (companion)": {
+    "itemName": "Contagious Bond (Companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Associate)"
+    ]
+  },
+  "duplex bond (companion)": {
+    "itemName": "Duplex Bond (Companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Associate)"
+    ]
+  },
+  "poxi antigen blueprint": {
+    "itemName": "Poxi Antigen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Friend)"
+    ]
+  },
+  "tethron antigen blueprint": {
+    "itemName": "Tethron Antigen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Friend)"
+    ]
+  },
+  "phijar mutagen blueprint": {
+    "itemName": "Phijar Mutagen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Friend)"
+    ]
+  },
+  "monachod mutagen blueprint": {
+    "itemName": "Monachod Mutagen Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Friend)"
+    ]
+  },
+  "martyr symbiosis (vulpaphyla)": {
+    "itemName": "Martyr Symbiosis (Vulpaphyla)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Friend)"
+    ]
+  },
+  "volatile parasite (predasite)": {
+    "itemName": "Volatile Parasite (Predasite)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Friend)"
+    ]
+  },
+  "helminth invigoration segment blueprint": {
+    "itemName": "Helminth Invigoration Segment Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Son), Family)"
+    ]
+  },
+  "faceted tiametrite x10 blueprint": {
+    "itemName": "Faceted Tiametrite X10 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Otak), Neutral)"
+    ]
+  },
+  "purged dagonic x10 blueprint": {
+    "itemName": "Purged Dagonic X10 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Otak), Neutral)"
+    ]
+  },
+  "adramal alloy x20 blueprint": {
+    "itemName": "Adramal Alloy X20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Otak), Neutral)"
+    ]
+  },
+  "tempered bapholite x20 blueprint": {
+    "itemName": "Tempered Bapholite X20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Otak), Neutral)"
+    ]
+  },
+  "purified heciphron x10 blueprint": {
+    "itemName": "Purified Heciphron X10 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Otak), Stranger)"
+    ]
+  },
+  "devolved namalon x20 blueprint": {
+    "itemName": "Devolved Namalon X20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Otak), Stranger)"
+    ]
+  },
+  "stellated necrathene x10 blueprint": {
+    "itemName": "Stellated Necrathene X10 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Otak), Acquaintance)"
+    ]
+  },
+  "thaumic distillate x20 blueprint": {
+    "itemName": "Thaumic Distillate X20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Otak), Acquaintance)"
+    ]
+  },
+  "trapezium xenorhast x3 blueprint": {
+    "itemName": "Trapezium Xenorhast X3 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Otak), Associate)"
+    ]
+  },
+  "cabochon embolos x3 blueprint": {
+    "itemName": "Cabochon Embolos X3 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Entrati (Entrati (Otak), Associate)"
+    ]
+  },
+  "ruhang blueprint": {
+    "itemName": "Ruhang Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "jai blueprint": {
+    "itemName": "Jai Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "peye blueprint": {
+    "itemName": "Peye Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "seekalla blueprint": {
+    "itemName": "Seekalla Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "laka blueprint": {
+    "itemName": "Laka Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "jayap blueprint": {
+    "itemName": "Jayap Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "kwath blueprint": {
+    "itemName": "Kwath Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "kroostra blueprint": {
+    "itemName": "Kroostra Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "korb blueprint": {
+    "itemName": "Korb Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "shtung blueprint": {
+    "itemName": "Shtung Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "balla blueprint": {
+    "itemName": "Balla Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "ooltha blueprint": {
+    "itemName": "Ooltha Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "kronsh blueprint": {
+    "itemName": "Kronsh Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "dehtat blueprint": {
+    "itemName": "Dehtat Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "mewan blueprint": {
+    "itemName": "Mewan Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "cyath blueprint": {
+    "itemName": "Cyath Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "sepfahn blueprint": {
+    "itemName": "Sepfahn Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "rabvee blueprint": {
+    "itemName": "Rabvee Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "dokrahm blueprint": {
+    "itemName": "Dokrahm Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Neutral)"
+    ]
+  },
+  "ruhang ii blueprint": {
+    "itemName": "Ruhang Ii Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Offworlder)"
+    ]
+  },
+  "jai ii blueprint": {
+    "itemName": "Jai Ii Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Offworlder)"
+    ]
+  },
+  "vargeet ruhang blueprint": {
+    "itemName": "Vargeet Ruhang Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Visitor)"
+    ]
+  },
+  "ekwana ruhang blueprint": {
+    "itemName": "Ekwana Ruhang Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Visitor)"
+    ]
+  },
+  "vargeet jai blueprint": {
+    "itemName": "Vargeet Jai Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Visitor)"
+    ]
+  },
+  "ekwana jai blueprint": {
+    "itemName": "Ekwana Jai Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Visitor)"
+    ]
+  },
+  "vargeet ii ruhang blueprint": {
+    "itemName": "Vargeet II Ruhang Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Trusted)"
+    ]
+  },
+  "ekwana ii ruhang blueprint": {
+    "itemName": "Ekwana II Ruhang Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Trusted)"
+    ]
+  },
+  "vargeet ii jai blueprint": {
+    "itemName": "Vargeet II Jai Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Trusted)"
+    ]
+  },
+  "ekwana ii jai blueprint": {
+    "itemName": "Ekwana II Jai Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Trusted)"
+    ]
+  },
+  "vargeet ruhang ii blueprint": {
+    "itemName": "Vargeet Ruhang II Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Surah)"
+    ]
+  },
+  "ekwana ruhang ii blueprint": {
+    "itemName": "Ekwana Ruhang II Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Surah)"
+    ]
+  },
+  "vargeet jai ii blueprint": {
+    "itemName": "Vargeet Jai II Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Surah)"
+    ]
+  },
+  "ekwana jai ii blueprint": {
+    "itemName": "Ekwana Jai II Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Surah)"
+    ]
+  },
+  "ostron armor set": {
+    "itemName": "Ostron Armor Set",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Hok), Kin)"
+    ]
+  },
+  "tear azurite x10 blueprint": {
+    "itemName": "Tear Azurite x10 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Neutral)"
+    ]
+  },
+  "pyrotic alloy x20 blueprint": {
+    "itemName": "Pyrotic Alloy x20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Neutral)"
+    ]
+  },
+  "esher devar x10 blueprint": {
+    "itemName": "Esher Devar x10 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Offworlder)"
+    ]
+  },
+  "coprite alloy x20 blueprint": {
+    "itemName": "Coprite Alloy x20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Offworlder)"
+    ]
+  },
+  "marquise veridos x10 blueprint": {
+    "itemName": "Marquise Veridos x10 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Visitor)"
+    ]
+  },
+  "fersteel alloy x20 blueprint": {
+    "itemName": "Fersteel Alloy x20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Visitor)"
+    ]
+  },
+  "star crimzian x6 blueprint": {
+    "itemName": "Star Crimzian x6 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Trusted)"
+    ]
+  },
+  "auroxium alloy x20 blueprint": {
+    "itemName": "Auroxium Alloy x20 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Trusted)"
+    ]
+  },
+  "radian sentirum x3 blueprint": {
+    "itemName": "Radian Sentirum x3 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Surah)"
+    ]
+  },
+  "heart nyth x3 blueprint": {
+    "itemName": "Heart Nyth x3 Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Old Man Suumbaat), Surah)"
+    ]
+  },
+  "mawfish trophy blueprint": {
+    "itemName": "Mawfish Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Offworlder)"
+    ]
+  },
+  "khut-khut trophy blueprint": {
+    "itemName": "Khut-Khut Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Offworlder)"
+    ]
+  },
+  "yogwun trophy blueprint": {
+    "itemName": "Yogwun Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Offworlder)"
+    ]
+  },
+  "charc eel trophy blueprint": {
+    "itemName": "Charc Eel Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Offworlder)"
+    ]
+  },
+  "goopolla trophy blueprint": {
+    "itemName": "Goopolla Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Offworlder)"
+    ]
+  },
+  "tralok trophy blueprint": {
+    "itemName": "Tralok Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Visitor)"
+    ]
+  },
+  "mortus lungfish trophy blueprint": {
+    "itemName": "Mortus Lungfish Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Visitor)"
+    ]
+  },
+  "sharrac trophy blueprint": {
+    "itemName": "Sharrac Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Trusted)"
+    ]
+  },
+  "karkina trophy blueprint": {
+    "itemName": "Karkina Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Trusted)"
+    ]
+  },
+  "murkray trophy blueprint": {
+    "itemName": "Murkray Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Surah)"
+    ]
+  },
+  "norg trophy blueprint": {
+    "itemName": "Norg Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Surah)"
+    ]
+  },
+  "cuthol trophy blueprint": {
+    "itemName": "Cuthol Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Surah)"
+    ]
+  },
+  "glappid trophy blueprint": {
+    "itemName": "Glappid Trophy Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Fisher Hai-Luk), Kin)"
+    ]
+  },
+  "restorative bond (companion)": {
+    "itemName": "Restorative Bond (Companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Master Teasonai), Trusted)"
+    ]
+  },
+  "manifold bond (robotic)": {
+    "itemName": "Manifold Bond (Robotic)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Master Teasonai), Trusted)"
+    ]
+  },
+  "covert bond (companion)": {
+    "itemName": "Covert Bond (Companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Master Teasonai), Trusted)"
+    ]
+  },
+  "mystic bond (companion)": {
+    "itemName": "Mystic Bond (Companion)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Master Teasonai), Trusted)"
+    ]
+  },
+  "tandem bond (beast)": {
+    "itemName": "Tandem Bond (Beast)",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: Ostron (Ostron (Master Teasonai), Trusted)"
+    ]
+  },
+  "laetum blueprint": {
+    "itemName": "Laetum Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Holdfasts (The Holdfasts (Cavalero), Neutral)"
+    ]
+  },
+  "innodem blueprint": {
+    "itemName": "Innodem Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Holdfasts (The Holdfasts (Cavalero), Fallen)"
+    ]
+  },
+  "phenmor blueprint": {
+    "itemName": "Phenmor Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Holdfasts (The Holdfasts (Cavalero), Watcher)"
+    ]
+  },
+  "felarx blueprint": {
+    "itemName": "Felarx Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Holdfasts (The Holdfasts (Cavalero), Guardian)"
+    ]
+  },
+  "praedos blueprint": {
+    "itemName": "Praedos Blueprint",
+    "count": 1,
+    "examples": [
+      "Syndicate Vendor: The Holdfasts (The Holdfasts (Cavalero), Seraph)"
+    ]
+  }
+}
