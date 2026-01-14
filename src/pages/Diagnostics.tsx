@@ -1,3 +1,5 @@
+// ===== FILE: src/app/Diagnostics.tsx =====
+
 import { useMemo } from "react";
 import { useTrackerStore } from "../store/store";
 import { buildRequirementsSnapshot, buildFarmingSnapshot } from "../domain/logic/requirementEngine";
@@ -280,6 +282,34 @@ export default function Diagnostics() {
         overlapSourceCount: 0
     };
 
+    const completenessExportObject = useMemo(() => {
+        // This is the object that will be written to catalog-completeness.json.
+        // Keep it as an object (not a pre-stringified JSON blob) so jq sees the extra keys.
+        let dropDataJoinDiagnostics: any = null;
+
+        try {
+            // Prefer the memoized value if available, but do not assume it exists.
+            dropDataJoinDiagnostics = dropJoinDiag ?? deriveDropDataJoinDiagnostics();
+        } catch {
+            dropDataJoinDiagnostics = null;
+        }
+
+        return {
+            stats: {
+                displayableInventoryCount: completeness.displayableInventoryCount,
+                missingAcquisitionCount: completeness.missingAcquisitionCount,
+                unknownSourceRefCount: completeness.unknownSourceRefCount
+            },
+            missingAcquisition: completeness.missingAcq.map((x) => ({ catalogId: x.catalogId, name: x.name })),
+            unknownSourceRefs: completeness.unknownSourceRefs.map((x) => ({
+                catalogId: x.catalogId,
+                name: x.name,
+                sources: x.sources ?? []
+            })),
+            dropDataJoinDiagnostics
+        };
+    }, [completeness, dropJoinDiag]);
+
     return (
         <div className="space-y-6">
             <Section
@@ -360,7 +390,7 @@ export default function Diagnostics() {
                         </div>
                         <button
                             className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
-                            onClick={() => downloadJson("catalog-completeness.json", JSON.parse(completeness.issuesJson))}
+                            onClick={() => downloadJson("catalog-completeness.json", completenessExportObject)}
                         >
                             Download catalog completeness JSON
                         </button>
@@ -369,7 +399,7 @@ export default function Diagnostics() {
                     <details className="mt-3">
                         <summary className="cursor-pointer text-xs text-slate-300">Show JSON</summary>
                         <pre className="mt-2 whitespace-pre-wrap break-words text-xs text-slate-200 font-mono">
-                            {completeness.issuesJson}
+                            {JSON.stringify(completenessExportObject, null, 2)}
                         </pre>
                     </details>
                 </div>

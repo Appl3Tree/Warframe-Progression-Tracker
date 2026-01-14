@@ -17,6 +17,10 @@ function isNonEmptyString(v: unknown): v is string {
     return typeof v === "string" && v.trim().length > 0;
 }
 
+function isSrcSourceId(id: string): boolean {
+    return id.startsWith("src:");
+}
+
 function isCuratedLikeSourceId(id: string): boolean {
     return (
         id.startsWith("system:") ||
@@ -89,7 +93,6 @@ export function validateDataOrThrow(): void {
             seen.add(id);
         }
 
-        // unified format check first
         if (!isValidSourceIdFormat(id)) {
             issues.push({
                 code: "SOURCE_ID_INVALID",
@@ -98,7 +101,11 @@ export function validateDataOrThrow(): void {
             continue;
         }
 
-        // namespace check: either data-derived, or curated-like namespaces
+        // Allowed namespaces:
+        // - canonical app SourceIds: src:...
+        // - data-derived legacy ids: data:...
+        // - curated-like legacy ids: node:, vendor:, etc
+        if (isSrcSourceId(id)) continue;
         if (isDataDerivedSourceId(id)) continue;
 
         if (!isCuratedLikeSourceId(id)) {
