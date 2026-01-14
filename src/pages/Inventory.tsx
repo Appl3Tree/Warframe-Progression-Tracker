@@ -13,7 +13,15 @@ type PrimaryTab =
     | "weapons";
 
 type WarframesVehiclesTab = "all" | "warframes" | "archwings" | "necramechs";
-type CompanionsTab = "all" | "hound" | "kavat" | "kubrow" | "moa" | "sentinel";
+type CompanionsTab =
+    | "all"
+    | "hound"
+    | "kavat"
+    | "kubrow"
+    | "moa"
+    | "sentinel"
+    | "predasite"
+    | "vulpaphyla";
 type WeaponClassTab = "primary" | "secondary" | "melee";
 
 function normalize(s: string): string {
@@ -219,15 +227,23 @@ function classifyFromCategories(categories: string[]): Classification {
             } else if (first === "sentinel") {
                 cls.groups.add("companions");
                 cls.companionsSub.add("sentinel");
+            } else if (first === "vulpaphyla") {
+                cls.groups.add("companions");
+                cls.companionsSub.add("vulpaphyla");
+            } else if (first === "predasite") {
+                cls.groups.add("companions");
+                cls.companionsSub.add("predasite");
             }
         }
 
-        if (m.main === "sentinel" || m.main === "sentinels") {
-            cls.groups.add("companions");
-            cls.companionsSub.add("sentinel");
-        }
-
-        if (m.main === "kavat" || m.main === "kubrow" || m.main === "moa" || m.main === "hound") {
+        if (
+            m.main === "kavat" ||
+            m.main === "kubrow" ||
+            m.main === "moa" ||
+            m.main === "hound" ||
+            m.main === "vulpaphyla" ||
+            m.main === "predasite"
+        ) {
             cls.groups.add("companions");
             cls.companionsSub.add(m.main as Exclude<CompanionsTab, "all">);
         }
@@ -350,14 +366,150 @@ function classifyFromCategories(categories: string[]): Classification {
     return cls;
 }
 
+function getRawStringsForHeuristics(id: CatalogId, rec: any): string {
+    const parts: string[] = [];
+
+    parts.push(String(id));
+
+    const raw: any = rec?.raw ?? {};
+    const wfcd: any = raw?.rawWfcd ?? null;
+    const lotus: any = raw?.rawLotus ?? null;
+
+    // Common names in various merges
+    const uniq =
+        typeof wfcd?.uniqueName === "string"
+            ? wfcd.uniqueName
+            : typeof lotus?.uniqueName === "string"
+                ? lotus.uniqueName
+                : typeof raw?.uniqueName === "string"
+                    ? raw.uniqueName
+                    : "";
+
+    const type =
+        typeof wfcd?.type === "string"
+            ? wfcd.type
+            : typeof lotus?.type === "string"
+                ? lotus.type
+                : typeof raw?.type === "string"
+                    ? raw.type
+                    : "";
+
+    const productCategory =
+        typeof wfcd?.productCategory === "string"
+            ? wfcd.productCategory
+            : typeof lotus?.productCategory === "string"
+                ? lotus.productCategory
+                : "";
+
+    const category =
+        typeof wfcd?.category === "string"
+            ? wfcd.category
+            : typeof lotus?.category === "string"
+                ? lotus.category
+                : "";
+
+    parts.push(uniq, type, productCategory, category);
+
+    return normalize(parts.filter(Boolean).join(" | "));
+}
+
+function isCompanionLikeByRawHeuristic(h: string): boolean {
+    // Be strict. Do NOT match generic words like "vulpaphyla" or "predasite" here,
+    // because many non-companion items contain those words (tags, floofs, lures, glyphs).
+    return (
+        h.includes("/types/friendly/pets/") ||
+        h.includes("catbrowpetpowersuit") ||
+        h.includes("kubrowpetpowersuit") ||
+        h.includes("petpowersuit") ||
+        h.includes("sentinel") ||
+        h.includes("moa") ||
+        h.includes("hound")
+    );
+}
+
+function coerceCompanionSubtypeFromHeuristic(catalogId: string, rec: any): Exclude<CompanionsTab, "all"> | null {
+    const idh = normalize(String(catalogId));
+    const name = normalize(String(rec?.displayName ?? ""));
+
+    // Vulpaphylas: internally "InfestedCatbrowPetPowerSuit" (and BaseInfestedCatbrowPetPowerSuit)
+    // The sample shows these live under: /Types/Friendly/Pets/CreaturePets/*InfestedCatbrowPetPowerSuit
+    if (
+        (idh.includes("/types/friendly/pets/") && idh.includes("infestedcatbrowpetpowersuit")) ||
+        (idh.includes("/types/friendly/pets/creaturepets/") && idh.includes("catbrow") && idh.includes("powersuit")) ||
+        (name.includes("vulpaphyla") && idh.includes("/types/friendly/pets/") && idh.includes("powersuit"))
+    ) {
+        return "vulpaphyla";
+    }
+
+    // Predasites: internally "InfestedKubrowPetPowerSuit" (common pattern)
+    if (
+        (idh.includes("/types/friendly/pets/") && idh.includes("infestedkubrowpetpowersuit")) ||
+        (name.includes("predasite") && idh.includes("/types/friendly/pets/") && idh.includes("powersuit"))
+    ) {
+        return "predasite";
+    }
+
+    // Normal buckets (avoid name-only matches unless it’s clearly a pet powersuit)
+    if (idh.includes("catbrow") && idh.includes("powersuit")) return "kavat";
+    if (idh.includes("kubrow") && idh.includes("powersuit")) return "kubrow";
+    if (idh.includes("moa") && idh.includes("powersuit")) return "moa";
+    if (idh.includes("hound") && idh.includes("powersuit")) return "hound";
+    if (idh.includes("sentinel")) return "sentinel";
+
+    return null;
+}
+
+function isCompanionWeaponByCatalogId(catalogId: string): boolean {
+    const h = normalize(String(catalogId));
+
+    // Common internal buckets for companion weapons
+    if (h.includes("/types/friendly/pets/") && h.includes("/beastweapons/")) return true;
+    if (h.includes("/types/friendly/pets/") && h.includes("/robotweapons/")) return true;
+    if (h.includes("/types/friendly/pets/") && h.includes("/sentinelweapons/")) return true;
+
+    // Common naming fragments
+    if (h.includes("petweapon")) return true;
+
+    return false;
+}
+
+function isBaseTemplateCompanion(catalogId: string, rec: any): boolean {
+    const idh = normalize(String(catalogId));
+    const name = String(rec?.displayName ?? "");
+    const isAllCaps = name.length > 0 && name === name.toUpperCase();
+
+    // Only consider pet powersuits; avoids floofs/tags/lures/glyphs etc.
+    const isPetPowerSuit = idh.includes("/types/friendly/pets/") && idh.includes("powersuit");
+
+    // Common base/template naming
+    const looksLikeBaseById = /\/base[a-z0-9_]*powersuit$/i.test(String(catalogId));
+    const hasBaseFragment = idh.includes("baseinfested") || idh.includes("/base") || idh.includes("basepredasite");
+
+    return isPetPowerSuit && (looksLikeBaseById || (hasBaseFragment && isAllCaps));
+}
+
 /**
  * Minimal fallback classifier:
  * If WFCD categories aren’t sufficient (common for Resources/Components),
  * also use rec.raw.type to bucket.
  */
-function classifyFromRecord(rec: any): Classification {
+function classifyFromRecord(catalogId: string, rec: any): Classification {
     const categories = Array.isArray(rec?.categories) ? (rec.categories as string[]) : [];
     const cls = classifyFromCategories(categories);
+
+    // Companion weapons should be treated as weapons only (not companions).
+    if (isCompanionWeaponByCatalogId(catalogId)) {
+        cls.groups.delete("companions");
+        cls.companionsSub.clear();
+
+        cls.groups.add("weapons");
+
+        // Companion weapons behave like melee for UI bucketing.
+        cls.weaponClasses.add("melee");
+        cls.weaponTypesByClass.melee.add("companion");
+
+        return cls;
+    }
 
     const rawType = typeof rec?.raw?.type === "string" ? normalize(rec.raw.type) : "";
 
@@ -376,6 +528,31 @@ function classifyFromRecord(rec: any): Classification {
     if (!cls.isResource && rawType === "misc" && mains.has("misc")) {
         cls.groups.add("resources");
         cls.isResource = true;
+    }
+
+    // Heuristic companion detection + subtype fix-ups.
+    // Needed because some companion entities have weak/empty categories (e.g. base VULPAPHYLA powersuit).
+    {
+        const h = getRawStringsForHeuristics(catalogId, rec);
+
+        const cid = normalize(String(catalogId));
+        const isPetEntity =
+            cid.includes("/types/friendly/pets/") &&
+            (cid.includes("powersuit") || h.includes("petpowersuit"));
+
+        // If it is clearly a pet entity, ensure it is in Companions even if categories were empty.
+        if (isPetEntity && isCompanionLikeByRawHeuristic(h)) {
+            cls.groups.add("companions");
+        }
+
+        if (cls.groups.has("companions")) {
+            const sub = coerceCompanionSubtypeFromHeuristic(catalogId, rec);
+            if (sub) {
+                // If it was previously classified as kavat via `pet-kavat`, replace it.
+                cls.companionsSub.delete("kavat");
+                cls.companionsSub.add(sub);
+            }
+        }
     }
 
     return cls;
@@ -450,7 +627,13 @@ export default function Inventory() {
                 if (!rec?.displayName) return null;
 
                 const categories = rec.categories ?? [];
-                const cls = classifyFromRecord(rec);
+                const cls = classifyFromRecord(String(id), rec);
+
+                // Hide base/template companion records like "VULPAPHYLA" / "PREDASITE" (Base*PowerSuit).
+                // Keep real companions and non-companion items that mention these words (tags, floofs, lures, glyphs).
+                if (cls.groups.has("companions") && isBaseTemplateCompanion(String(id), rec)) {
+                    return null;
+                }
 
                 return {
                     id,
@@ -755,36 +938,14 @@ export default function Inventory() {
                         <div className="px-3 py-3 border-b border-slate-800">
                             <div className="text-xs text-slate-400">Refine Companions</div>
                             <div className="mt-2 flex flex-wrap gap-2">
-                                <SubTabButton
-                                    label="All"
-                                    active={companionsTab === "all"}
-                                    onClick={() => setCompanionsTab("all")}
-                                />
-                                <SubTabButton
-                                    label="Hound"
-                                    active={companionsTab === "hound"}
-                                    onClick={() => setCompanionsTab("hound")}
-                                />
-                                <SubTabButton
-                                    label="Kavat"
-                                    active={companionsTab === "kavat"}
-                                    onClick={() => setCompanionsTab("kavat")}
-                                />
-                                <SubTabButton
-                                    label="Kubrow"
-                                    active={companionsTab === "kubrow"}
-                                    onClick={() => setCompanionsTab("kubrow")}
-                                />
-                                <SubTabButton
-                                    label="Moa"
-                                    active={companionsTab === "moa"}
-                                    onClick={() => setCompanionsTab("moa")}
-                                />
-                                <SubTabButton
-                                    label="Sentinel"
-                                    active={companionsTab === "sentinel"}
-                                    onClick={() => setCompanionsTab("sentinel")}
-                                />
+                                <SubTabButton label="All" active={companionsTab === "all"} onClick={() => setCompanionsTab("all")} />
+                                <SubTabButton label="Hound" active={companionsTab === "hound"} onClick={() => setCompanionsTab("hound")} />
+                                <SubTabButton label="Kavat" active={companionsTab === "kavat"} onClick={() => setCompanionsTab("kavat")} />
+                                <SubTabButton label="Kubrow" active={companionsTab === "kubrow"} onClick={() => setCompanionsTab("kubrow")} />
+                                <SubTabButton label="Predasite" active={companionsTab === "predasite"} onClick={() => setCompanionsTab("predasite")} />
+                                <SubTabButton label="Vulpaphyla" active={companionsTab === "vulpaphyla"} onClick={() => setCompanionsTab("vulpaphyla")} />
+                                <SubTabButton label="Moa" active={companionsTab === "moa"} onClick={() => setCompanionsTab("moa")} />
+                                <SubTabButton label="Sentinel" active={companionsTab === "sentinel"} onClick={() => setCompanionsTab("sentinel")} />
                             </div>
                         </div>
                     )}

@@ -53,14 +53,17 @@ export type DropDataJoinDiagnostics = {
         excludedNonCatalogRewardNames: number;
 
         avatarResourceRows: number;
-        avatarResourceRowsUsingFallback: number;
+        avatarResourceRowsSkippedMissingSource: number;
         avatarAdditionalRows: number;
-        avatarAdditionalRowsUsingFallback: number;
+        avatarAdditionalRowsSkippedMissingSource: number;
     };
     samples: {
         unmatchedDropNames: string[];
         ambiguousDropNames: Array<{ dropName: string; matchedCatalogIds: string[] }>;
         excludedNonCatalogRewardNames: string[];
+
+        avatarResourceMissingSourceSamples: Array<{ _id?: string; source?: unknown }>;
+        avatarAdditionalMissingSourceSamples: Array<{ _id?: string; source?: unknown }>;
     };
 };
 
@@ -110,11 +113,6 @@ function srcId(parts: string[]): string {
 function stripLeadingQuantityPrefix(s: string): string {
     const raw = s.trim();
 
-    // Examples:
-    // "750X Alloy Plate"
-    // "750x Alloy Plate"
-    // "750 x Alloy Plate"
-    // "5x Ancient Healer Specter"
     const m = raw.match(/^\s*\d[\d,]*\s*[xX]\s*(.+)\s*$/);
     if (m && m[1]) return m[1].trim();
 
@@ -131,13 +129,8 @@ function stripLeadingQuantityPrefix(s: string): string {
 function stripTrailingQuantitySuffix(s: string): string {
     let out = s.trim();
 
-    // "(x20) Blueprint" / "(x5) Blueprint" etc.
     out = out.replace(/\s*\(\s*[xX]\s*\d+\s*\)\s*(Blueprint)\s*$/i, " $1").trim();
-
-    // "X20 Blueprint" / "x20 Blueprint"
     out = out.replace(/\s+[xX]\s*\d+\s*(Blueprint)\s*$/i, " $1").trim();
-
-    // Standalone: "x 25" / "x25"
     out = out.replace(/\s+[xX]\s*\d+\s*$/i, "").trim();
 
     return out;
@@ -348,9 +341,12 @@ type JoinState = {
     uniqueSourceIds: Set<string>;
 
     avatarResourceRows: number;
-    avatarResourceRowsUsingFallback: number;
+    avatarResourceRowsSkippedMissingSource: number;
     avatarAdditionalRows: number;
-    avatarAdditionalRowsUsingFallback: number;
+    avatarAdditionalRowsSkippedMissingSource: number;
+
+    avatarResourceMissingSourceSamples: Array<{ _id?: string; source?: unknown }>;
+    avatarAdditionalMissingSourceSamples: Array<{ _id?: string; source?: unknown }>;
 };
 
 function createJoinState(): JoinState {
@@ -367,9 +363,12 @@ function createJoinState(): JoinState {
         uniqueSourceIds: new Set<string>(),
 
         avatarResourceRows: 0,
-        avatarResourceRowsUsingFallback: 0,
+        avatarResourceRowsSkippedMissingSource: 0,
         avatarAdditionalRows: 0,
-        avatarAdditionalRowsUsingFallback: 0
+        avatarAdditionalRowsSkippedMissingSource: 0,
+
+        avatarResourceMissingSourceSamples: [],
+        avatarAdditionalMissingSourceSamples: []
     };
 }
 
@@ -679,17 +678,25 @@ function buildJoinStateFromAllDropData(): JoinState {
 
     // ---------- Resource by avatar ----------
     // resourceByAvatar.json rows use `source` as the source name.
+    // Policy: fail-closed. If `source` is missing/empty, SKIP the row and record it for diagnostics.
     const rbaArr = (resourceByAvatarJson as any)?.resourceByAvatar ?? (resourceByAvatarJson as any);
     if (Array.isArray(rbaArr)) {
         for (const row of rbaArr) {
             state.avatarResourceRows += 1;
 
             const srcName = safeString((row as any)?.source);
-            if (!srcName) state.avatarResourceRowsUsingFallback += 1;
+            if (!srcName) {
+                state.avatarResourceRowsSkippedMissingSource += 1;
+                if (state.avatarResourceMissingSourceSamples.length < 50) {
+                    state.avatarResourceMissingSourceSamples.push({
+                        _id: safeString((row as any)?._id) ?? undefined,
+                        source: (row as any)?.source
+                    });
+                }
+                continue;
+            }
 
-            const sourceId = srcName
-                ? srcId(["resource-by-avatar", srcName])
-                : srcId(["resource-by-avatar", "avatar"]);
+            const sourceId = srcId(["resource-by-avatar", srcName]);
 
             const items = Array.isArray((row as any)?.items) ? (row as any).items : [];
             for (const it of items) {
@@ -702,17 +709,25 @@ function buildJoinStateFromAllDropData(): JoinState {
 
     // ---------- Additional item by avatar ----------
     // additionalItemByAvatar.json rows use `source` as the source name.
+    // Policy: fail-closed. If `source` is missing/empty, SKIP the row and record it for diagnostics.
     const aibaArr = (additionalItemByAvatarJson as any)?.additionalItemByAvatar ?? (additionalItemByAvatarJson as any);
     if (Array.isArray(aibaArr)) {
         for (const row of aibaArr) {
             state.avatarAdditionalRows += 1;
 
             const srcName = safeString((row as any)?.source);
-            if (!srcName) state.avatarAdditionalRowsUsingFallback += 1;
+            if (!srcName) {
+                state.avatarAdditionalRowsSkippedMissingSource += 1;
+                if (state.avatarAdditionalMissingSourceSamples.length < 50) {
+                    state.avatarAdditionalMissingSourceSamples.push({
+                        _id: safeString((row as any)?._id) ?? undefined,
+                        source: (row as any)?.source
+                    });
+                }
+                continue;
+            }
 
-            const sourceId = srcName
-                ? srcId(["additional-by-avatar", srcName])
-                : srcId(["additional-by-avatar", "avatar"]);
+            const sourceId = srcId(["additional-by-avatar", srcName]);
 
             const items = Array.isArray((row as any)?.items) ? (row as any).items : [];
             for (const it of items) {
@@ -769,14 +784,17 @@ export function deriveDropDataJoinDiagnostics(): DropDataJoinDiagnostics {
             excludedNonCatalogRewardNames: state.excludedNonCatalogRewardNames.size,
 
             avatarResourceRows: state.avatarResourceRows,
-            avatarResourceRowsUsingFallback: state.avatarResourceRowsUsingFallback,
+            avatarResourceRowsSkippedMissingSource: state.avatarResourceRowsSkippedMissingSource,
             avatarAdditionalRows: state.avatarAdditionalRows,
-            avatarAdditionalRowsUsingFallback: state.avatarAdditionalRowsUsingFallback
+            avatarAdditionalRowsSkippedMissingSource: state.avatarAdditionalRowsSkippedMissingSource
         },
         samples: {
             unmatchedDropNames: unmatched.slice(0, 200),
             ambiguousDropNames: ambiguous.slice(0, 200),
-            excludedNonCatalogRewardNames: excluded.slice(0, 200)
+            excludedNonCatalogRewardNames: excluded.slice(0, 200),
+
+            avatarResourceMissingSourceSamples: state.avatarResourceMissingSourceSamples,
+            avatarAdditionalMissingSourceSamples: state.avatarAdditionalMissingSourceSamples
         }
     };
 }
