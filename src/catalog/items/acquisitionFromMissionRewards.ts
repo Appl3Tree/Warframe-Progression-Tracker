@@ -51,7 +51,6 @@ function parseMissionRewards(raw: unknown): MissionRewardsRoot {
 }
 
 function buildCatalogNameToIds(): Record<string, CatalogId[]> {
-    // Use FULL_CATALOG records and map displayName -> ids
     const out: Record<string, CatalogId[]> = {};
     for (const rec of Object.values(FULL_CATALOG.recordsById)) {
         const key = normalizeName(rec.displayName);
@@ -68,7 +67,7 @@ const NAME_TO_IDS = buildCatalogNameToIds();
  * Creates SourceIds for mission nodes, and a best-effort acquisition map:
  * item displayName -> sources[] where the item appears in mission reward rotations.
  *
- * This intentionally does NOT encode rotations/chances yet; the goal is eliminating "unknown-acquisition".
+ * All node sources MUST be under "data:drop:*" so they are actionable by default.
  */
 export function deriveMissionRewardAcquisitionByCatalogId(): Record<string, { sources: SourceId[] }> {
     const parsed = parseMissionRewards(missionRewardsJson);
@@ -76,13 +75,13 @@ export function deriveMissionRewardAcquisitionByCatalogId(): Record<string, { so
 
     if (!mr || typeof mr !== "object") return {};
 
-    // Collect itemName -> set(sourceId)
     const itemToSources = new Map<string, Set<string>>();
 
     for (const [planetNameRaw, planetObj] of Object.entries(mr)) {
         if (!planetObj || typeof planetObj !== "object") continue;
 
-        const planetToken = slugifyToken(String(planetNameRaw ?? ""));
+        const planetName = String(planetNameRaw ?? "").trim();
+        const planetToken = slugifyToken(planetName);
         if (!planetToken) continue;
 
         for (const [nodeNameRaw, node] of Object.entries(planetObj as Record<string, any>)) {
@@ -92,10 +91,8 @@ export function deriveMissionRewardAcquisitionByCatalogId(): Record<string, { so
             const nodeToken = slugifyToken(nodeName);
             if (!nodeToken) continue;
 
-            const gameMode = safeString((node as MissionNode)?.gameMode);
-            const sourceId = `node:${planetToken}:${nodeToken}`; // curated-like namespace
+            const sourceId = `data:drop:node:${planetToken}:${nodeToken}`;
 
-            // Determine rewards
             const rewards = (node as MissionNode)?.rewards;
             if (!rewards || typeof rewards !== "object") continue;
 
@@ -112,28 +109,23 @@ export function deriveMissionRewardAcquisitionByCatalogId(): Record<string, { so
                     if (!itemToSources.has(key)) itemToSources.set(key, new Set<string>());
                     itemToSources.get(key)!.add(sourceId);
 
-                    // Also add a slightly normalized variant for common mismatches (e.g., extra punctuation)
                     const relaxed = normalizeName(itemName.replace(/[^\w\s]/g, " "));
                     if (relaxed && relaxed !== key) {
                         if (!itemToSources.has(relaxed)) itemToSources.set(relaxed, new Set<string>());
                         itemToSources.get(relaxed)!.add(sourceId);
                     }
-
-                    // gameMode is not used for ID stability, but could be used for labels in sourceCatalog
-                    void gameMode;
                 }
             }
         }
     }
 
-    // Convert itemName matches into catalogId -> sources
     const out: Record<string, { sources: SourceId[] }> = {};
 
     for (const [itemKey, sourcesSet] of itemToSources.entries()) {
         const ids = NAME_TO_IDS[itemKey];
         if (!ids || ids.length === 0) continue;
 
-        const sources = Array.from(sourcesSet.values()).sort() as SourceId[];
+        const sources = Array.from(sourcesSet.values()).sort((a, b) => a.localeCompare(b)) as SourceId[];
 
         for (const cid of ids) {
             out[String(cid)] = { sources };
@@ -145,7 +137,6 @@ export function deriveMissionRewardAcquisitionByCatalogId(): Record<string, { so
 
 /**
  * Expose mission node sources for sourceCatalog.ts (labels and presence).
- * This is used to populate SOURCE_INDEX with node:* sources referenced by acquisitions.
  */
 export function deriveMissionNodeSources(): Array<{ id: SourceId; label: string; kind: string }> {
     const parsed = parseMissionRewards(missionRewardsJson);
@@ -170,7 +161,7 @@ export function deriveMissionNodeSources(): Array<{ id: SourceId; label: string;
             const nodeToken = slugifyToken(nodeName);
             if (!nodeToken) continue;
 
-            const id = `node:${planetToken}:${nodeToken}`;
+            const id = `data:drop:node:${planetToken}:${nodeToken}`;
             if (seen.has(id)) continue;
             seen.add(id);
 
@@ -187,7 +178,6 @@ export function deriveMissionNodeSources(): Array<{ id: SourceId; label: string;
         }
     }
 
-    // Stable ordering
     out.sort((a, b) => a.label.localeCompare(b.label));
     return out;
 }

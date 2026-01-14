@@ -358,11 +358,23 @@ export type FarmingSnapshot = {
     };
 };
 
+/**
+ * Accessibility policy:
+ * - Any data:* source is actionable by default (we have a known acquisition path).
+ * - If a data:* source is present in SOURCE_INDEX with prereqs, those prereqs gate it.
+ * - Non-data sources require SOURCE_INDEX and prereqs satisfied.
+ */
 function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, boolean>): boolean {
     const sidStr = String(sourceId);
 
-    // Drop-table sources are always accessible
-    if (sidStr.startsWith("data:drop:")) {
+    if (sidStr.startsWith("data:")) {
+        const def = SOURCE_INDEX[sourceId];
+        if (!def) return true;
+
+        const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
+        for (const pr of prereqs) {
+            if (!completedPrereqs[String(pr)]) return false;
+        }
         return true;
     }
 
@@ -376,7 +388,6 @@ function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, bo
 
     return true;
 }
-
 
 function getMissingPrereqsForSources(args: {
     sourceIds: SourceId[];
@@ -392,27 +403,41 @@ function getMissingPrereqsForSources(args: {
     for (const sid of sourceIds) {
         const sidStr = String(sid);
 
-        // Drop-table sources are actionable locations by default; never count as blocked.
-        if (sidStr.startsWith("data:drop:")) {
+        // Data-derived sources are known acquisitions by default.
+        // Only treat them as blocked if we explicitly curated prereqs in SOURCE_INDEX and they are unmet.
+        if (sidStr.startsWith("data:")) {
+            const def = SOURCE_INDEX[sid];
+            if (!def) {
+                continue;
+            }
+
+            const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
+            let thisSourceBlocked = false;
+
+            for (const pr of prereqs) {
+                if (!completedPrereqs[String(pr)]) {
+                    missing.add(String(pr) as PrereqId);
+                    thisSourceBlocked = true;
+                }
+            }
+
+            if (thisSourceBlocked) {
+                blockedSources.push(sid);
+            }
+
             continue;
         }
 
         const def = SOURCE_INDEX[sid];
         if (!def) {
+            // We have a sourceId, but we don't have curated metadata for it.
+            // Treat as "uncurated gating" (do not mislabel as "no accessible sources").
             hasUncuratedGate = true;
             blockedSources.push(sid);
             continue;
         }
 
         const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
-        const isDataDerived = sidStr.startsWith("data:");
-
-        // Uncurated gate: known label, unknown gating.
-        if (isDataDerived && prereqs.length === 0) {
-            hasUncuratedGate = true;
-            blockedSources.push(sid);
-            continue;
-        }
 
         // Curated prereqs: record missing
         let thisSourceBlocked = false;
@@ -438,7 +463,7 @@ function getMissingPrereqsForSources(args: {
 function getAcquisitionSourcesForCatalogId(catalogId: CatalogId): SourceId[] | null {
     const def = getAcquisitionByCatalogId(catalogId);
     if (!def || !Array.isArray(def.sources) || def.sources.length === 0) return null;
-    return def.sources;
+    return def.sources as SourceId[];
 }
 
 type AcquireAnalysis =
@@ -504,13 +529,24 @@ function analyzeCatalogIdForFarming(args: {
         const comps = getItemRequirements(catalogId);
         if (!Array.isArray(comps) || comps.length === 0) {
             const diag = getMissingPrereqsForSources({ sourceIds: directSources, completedPrereqs });
+
+            // IMPORTANT:
+            // If the sources are data-derived but we haven't curated gating metadata (or missing SOURCE_INDEX),
+            // do not misclassify that as "no-accessible-sources". That is an acquisition-knowledge gap.
+            const inferredReason: HiddenFarmingItem["reason"] =
+                diag.missingPrereqs.length > 0
+                    ? "missing-prereqs"
+                    : diag.hasUncuratedGate
+                        ? "unknown-acquisition"
+                        : "no-accessible-sources";
+
             return {
                 kind: "hidden",
                 hidden: {
                     key: catalogId,
                     name,
                     remaining,
-                    reason: diag.missingPrereqs.length > 0 ? "missing-prereqs" : "no-accessible-sources",
+                    reason: inferredReason,
                     missingPrereqs: diag.missingPrereqs,
                     blockedBySources: diag.blockedBySources
                 }

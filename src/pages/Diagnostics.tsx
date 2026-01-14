@@ -1,13 +1,14 @@
-// ===== FILE: src/pages/Diagnostics.tsx =====
 import { useMemo } from "react";
 import { useTrackerStore } from "../store/store";
-import {
-    buildRequirementsSnapshot,
-    buildFarmingSnapshot
-} from "../domain/logic/requirementEngine";
+import { buildRequirementsSnapshot, buildFarmingSnapshot } from "../domain/logic/requirementEngine";
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
+
+import {
+    deriveDropDataAcquisitionByCatalogId,
+    deriveDropDataJoinDiagnostics
+} from "../catalog/items/acquisitionFromDropData";
 
 function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {
     return (
@@ -19,7 +20,7 @@ function Section(props: { title: string; subtitle?: string; children: React.Reac
     );
 }
 
-function StatCard(props: { label: string; value: number }) {
+function StatCard(props: { label: string; value: string }) {
     return (
         <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
             <div className="text-[11px] uppercase tracking-wide text-slate-400">{props.label}</div>
@@ -41,6 +42,39 @@ type CompletenessIssueRow = {
     issue: "missing-acquisition" | "unknown-source";
     sources?: string[];
 };
+
+function isFiniteNumber(v: unknown): v is number {
+    return typeof v === "number" && Number.isFinite(v);
+}
+
+function fmtN(v: unknown): string {
+    if (isFiniteNumber(v)) return v.toLocaleString();
+    const n = Number(v);
+    if (Number.isFinite(n)) return n.toLocaleString();
+    return "0";
+}
+
+function fmtI(v: unknown): string {
+    if (isFiniteNumber(v)) return Math.floor(v).toLocaleString();
+    const n = Number(v);
+    if (Number.isFinite(n)) return Math.floor(n).toLocaleString();
+    return "0";
+}
+
+function downloadJson(filename: string, obj: unknown) {
+    const json = JSON.stringify(obj, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+}
 
 export default function Diagnostics() {
     const syndicates = useTrackerStore((s) => s.state.syndicates ?? []);
@@ -64,7 +98,10 @@ export default function Diagnostics() {
         });
     }, [requirements, completedPrereqs]);
 
-    const unknownAcquisition = farming.hidden.filter((h) => h.reason === "unknown-acquisition");
+    const unknownAcquisition = useMemo(() => {
+        const hidden = Array.isArray(farming?.hidden) ? farming.hidden : [];
+        return hidden.filter((h) => h?.reason === "unknown-acquisition");
+    }, [farming]);
 
     const blocking = useMemo(() => {
         const rows = new Map<
@@ -72,10 +109,11 @@ export default function Diagnostics() {
             { blockedItemCount: number; blockedRemainingTotal: number; items: Array<{ name: string; remaining: number }> }
         >();
 
-        const blockedItems = farming.hidden.filter((h) => h.reason === "missing-prereqs");
+        const hidden = Array.isArray(farming?.hidden) ? farming.hidden : [];
+        const blockedItems = hidden.filter((h) => h?.reason === "missing-prereqs");
 
         for (const it of blockedItems) {
-            const missing = Array.isArray(it.missingPrereqs) ? it.missingPrereqs : [];
+            const missing = Array.isArray(it?.missingPrereqs) ? it.missingPrereqs : [];
             for (const pr of missing) {
                 const key = String(pr);
                 if (!rows.has(key)) {
@@ -83,8 +121,11 @@ export default function Diagnostics() {
                 }
                 const agg = rows.get(key)!;
                 agg.blockedItemCount += 1;
-                agg.blockedRemainingTotal += Math.max(0, Math.floor(it.remaining ?? 0));
-                agg.items.push({ name: it.name, remaining: Math.max(0, Math.floor(it.remaining ?? 0)) });
+                agg.blockedRemainingTotal += Math.max(0, Math.floor(Number(it?.remaining ?? 0) || 0));
+                agg.items.push({
+                    name: String(it?.name ?? "Unknown"),
+                    remaining: Math.max(0, Math.floor(Number(it?.remaining ?? 0) || 0))
+                });
             }
         }
 
@@ -110,7 +151,7 @@ export default function Diagnostics() {
         });
 
         return out.slice(0, 15);
-    }, [farming.hidden]);
+    }, [farming]);
 
     const completeness = useMemo(() => {
         const displayableInventoryIds = FULL_CATALOG.displayableInventoryItemIds;
@@ -125,21 +166,13 @@ export default function Diagnostics() {
             const acq = getAcquisitionByCatalogId(id);
 
             if (!acq) {
-                missingAcq.push({
-                    catalogId: String(id),
-                    name,
-                    issue: "missing-acquisition"
-                });
+                missingAcq.push({ catalogId: String(id), name, issue: "missing-acquisition" });
                 continue;
             }
 
             const srcs = Array.isArray(acq.sources) ? acq.sources : [];
             if (srcs.length === 0) {
-                missingAcq.push({
-                    catalogId: String(id),
-                    name,
-                    issue: "missing-acquisition"
-                });
+                missingAcq.push({ catalogId: String(id), name, issue: "missing-acquisition" });
                 continue;
             }
 
@@ -160,7 +193,23 @@ export default function Diagnostics() {
         missingAcq.sort((a, b) => a.name.localeCompare(b.name));
         unknownSourceRefs.sort((a, b) => a.name.localeCompare(b.name));
 
-        const issues: CompletenessIssueRow[] = [...missingAcq, ...unknownSourceRefs];
+        const issuesJson = JSON.stringify(
+            {
+                stats: {
+                    displayableInventoryCount: displayableInventoryIds.length,
+                    missingAcquisitionCount: missingAcq.length,
+                    unknownSourceRefCount: unknownSourceRefs.length
+                },
+                missingAcquisition: missingAcq.map((x) => ({ catalogId: x.catalogId, name: x.name })),
+                unknownSourceRefs: unknownSourceRefs.map((x) => ({
+                    catalogId: x.catalogId,
+                    name: x.name,
+                    sources: x.sources ?? []
+                }))
+            },
+            null,
+            2
+        );
 
         return {
             displayableInventoryCount: displayableInventoryIds.length,
@@ -168,26 +217,68 @@ export default function Diagnostics() {
             unknownSourceRefCount: unknownSourceRefs.length,
             missingAcq,
             unknownSourceRefs,
-            issues,
-            issuesJson: JSON.stringify(
-                {
-                    stats: {
-                        displayableInventoryCount: displayableInventoryIds.length,
-                        missingAcquisitionCount: missingAcq.length,
-                        unknownSourceRefCount: unknownSourceRefs.length
-                    },
-                    missingAcquisition: missingAcq.map((x) => ({ catalogId: x.catalogId, name: x.name })),
-                    unknownSourceRefs: unknownSourceRefs.map((x) => ({
-                        catalogId: x.catalogId,
-                        name: x.name,
-                        sources: x.sources ?? []
-                    }))
-                },
-                null,
-                2
-            )
+            issuesJson
         };
     }, []);
+
+    const dropJoinDiag = useMemo(() => {
+        try {
+            return deriveDropDataJoinDiagnostics();
+        } catch {
+            return null;
+        }
+    }, []);
+
+    const dropAcqMapStats = useMemo(() => {
+        try {
+            const m = deriveDropDataAcquisitionByCatalogId();
+            return {
+                catalogIdsWithSources: Object.keys(m).length
+            };
+        } catch {
+            return { catalogIdsWithSources: 0 };
+        }
+    }, []);
+
+    // NEW: price coverage debug stats (no console needed)
+    const priceCoverage = useMemo(() => {
+        const ids = FULL_CATALOG.displayableInventoryItemIds;
+
+        let withBuildPrice = 0;
+        let withMarketCost = 0;
+
+        for (const id of ids) {
+            const rec: any = FULL_CATALOG.recordsById[id];
+            const raw: any = rec?.raw;
+
+            const wfcd = raw?.rawWfcd ?? null;
+            const lotus = raw?.rawLotus ?? null;
+
+            const buildPrice = wfcd?.buildPrice ?? lotus?.buildPrice ?? null;
+            const marketCost = wfcd?.marketCost ?? lotus?.marketCost ?? null;
+
+            if (typeof buildPrice === "number" && Number.isFinite(buildPrice) && buildPrice > 0) {
+                withBuildPrice += 1;
+            }
+            if (typeof marketCost === "number" && Number.isFinite(marketCost) && marketCost > 0) {
+                withMarketCost += 1;
+            }
+        }
+
+        return {
+            displayableInventory: ids.length,
+            withBuildPrice,
+            withMarketCost
+        };
+    }, []);
+
+    const farmingStats = farming?.stats ?? {
+        actionableItemsWithKnownAcquisition: 0,
+        hiddenForUnknownAcquisition: 0,
+        hiddenForMissingPrereqs: 0,
+        hiddenForNoAccessibleSources: 0,
+        overlapSourceCount: 0
+    };
 
     return (
         <div className="space-y-6">
@@ -196,12 +287,12 @@ export default function Diagnostics() {
                 subtitle="Strict checks for Phase 1.2 data coverage. This does not guess."
             >
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <StatCard label="Displayable inventory items" value={completeness.displayableInventoryCount} />
-                    <StatCard label="Missing acquisition" value={completeness.missingAcquisitionCount} />
-                    <StatCard label="Unknown source references" value={completeness.unknownSourceRefCount} />
+                    <StatCard label="Displayable inventory items" value={fmtI(completeness.displayableInventoryCount)} />
+                    <StatCard label="Missing acquisition" value={fmtI(completeness.missingAcquisitionCount)} />
+                    <StatCard label="Unknown source references" value={fmtI(completeness.unknownSourceRefCount)} />
                     <StatCard
                         label="Total completeness issues"
-                        value={completeness.missingAcquisitionCount + completeness.unknownSourceRefCount}
+                        value={fmtI(completeness.missingAcquisitionCount + completeness.unknownSourceRefCount)}
                     />
                 </div>
 
@@ -224,7 +315,7 @@ export default function Diagnostics() {
                         )}
                         {completeness.missingAcq.length > 50 && (
                             <div className="mt-2 text-xs text-slate-500">
-                                Showing 50 of {completeness.missingAcq.length.toLocaleString()}.
+                                Showing 50 of {fmtI(completeness.missingAcq.length)}.
                             </div>
                         )}
                     </div>
@@ -256,43 +347,147 @@ export default function Diagnostics() {
                         )}
                         {completeness.unknownSourceRefs.length > 50 && (
                             <div className="mt-2 text-xs text-slate-500">
-                                Showing 50 of {completeness.unknownSourceRefs.length.toLocaleString()}.
+                                Showing 50 of {fmtI(completeness.unknownSourceRefs.length)}.
                             </div>
                         )}
                     </div>
                 </div>
 
                 <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                    <div className="text-[11px] uppercase tracking-wide text-slate-500 mb-2">
-                        Completeness export (JSON)
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                        <div className="text-[11px] uppercase tracking-wide text-slate-500">
+                            Completeness export (JSON)
+                        </div>
+                        <button
+                            className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
+                            onClick={() => downloadJson("catalog-completeness.json", JSON.parse(completeness.issuesJson))}
+                        >
+                            Download catalog completeness JSON
+                        </button>
                     </div>
-                    <pre className="whitespace-pre-wrap break-words text-xs text-slate-200 font-mono">
-                        {completeness.issuesJson}
-                    </pre>
+
+                    <details className="mt-3">
+                        <summary className="cursor-pointer text-xs text-slate-300">Show JSON</summary>
+                        <pre className="mt-2 whitespace-pre-wrap break-words text-xs text-slate-200 font-mono">
+                            {completeness.issuesJson}
+                        </pre>
+                    </details>
                 </div>
+            </Section>
+
+            <Section
+                title="Catalog Price Coverage (Debug)"
+                subtitle="Counts how many displayable inventory items actually have buildPrice and/or marketCost available in the merged catalog record."
+            >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <StatCard label="Displayable inventory" value={fmtI(priceCoverage.displayableInventory)} />
+                    <StatCard label="With buildPrice" value={fmtI(priceCoverage.withBuildPrice)} />
+                    <StatCard label="With marketCost" value={fmtI(priceCoverage.withMarketCost)} />
+                </div>
+            </Section>
+
+            <Section
+                title="Drop-data join diagnostics"
+                subtitle="This evaluates how well drop-data names join onto catalog IDs (including ambiguity and misses)."
+            >
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <StatCard label="Unique drop names" value={fmtI(dropJoinDiag?.stats?.uniqueDropNames ?? 0)} />
+                    <StatCard label="Matched unique drop names" value={fmtI(dropJoinDiag?.stats?.matchedUniqueDropNames ?? 0)} />
+                    <StatCard label="Unmatched unique drop names" value={fmtI(dropJoinDiag?.stats?.unmatchedUniqueDropNames ?? 0)} />
+                    <StatCard label="Ambiguous unique drop names" value={fmtI(dropJoinDiag?.stats?.ambiguousUniqueDropNames ?? 0)} />
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
+                        onClick={() => {
+                            const diag = deriveDropDataJoinDiagnostics();
+                            downloadJson("drop-data-join-diagnostics.json", diag);
+                        }}
+                    >
+                        Download drop-data join diagnostics (JSON)
+                    </button>
+
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
+                        onClick={() => {
+                            const m = deriveDropDataAcquisitionByCatalogId();
+                            downloadJson("drop-data-acquisition-map.json", m);
+                        }}
+                    >
+                        Download drop-data acquisition map (JSON)
+                    </button>
+                </div>
+
+                <div className="mt-3 text-xs text-slate-400">
+                    CatalogIds with any sources from drop-data:{" "}
+                    <span className="font-mono">{fmtI(dropAcqMapStats.catalogIdsWithSources)}</span>
+                </div>
+
+                {dropJoinDiag && (
+                    <details className="mt-3 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                        <summary className="cursor-pointer text-xs text-slate-300">
+                            Show samples (unmatched + ambiguous)
+                        </summary>
+
+                        <div className="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
+                            <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                                <div className="text-[11px] uppercase tracking-wide text-slate-500 mb-2">
+                                    Unmatched drop names (sample)
+                                </div>
+                                {(dropJoinDiag.samples?.unmatchedDropNames ?? []).length === 0 ? (
+                                    <div className="text-sm text-slate-400">None.</div>
+                                ) : (
+                                    <ul className="list-disc pl-5 space-y-0.5 text-sm text-slate-200">
+                                        {(dropJoinDiag.samples?.unmatchedDropNames ?? []).slice(0, 100).map((n) => (
+                                            <li key={`unmatched:${n}`} className="break-words">
+                                                {n}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+
+                            <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                                <div className="text-[11px] uppercase tracking-wide text-slate-500 mb-2">
+                                    Ambiguous drop names (sample)
+                                </div>
+                                {(dropJoinDiag.samples?.ambiguousDropNames ?? []).length === 0 ? (
+                                    <div className="text-sm text-slate-400">None.</div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {(dropJoinDiag.samples?.ambiguousDropNames ?? []).slice(0, 50).map((x) => (
+                                            <div
+                                                key={`amb:${x.dropName}`}
+                                                className="rounded-xl border border-slate-800 bg-slate-950/30 p-3"
+                                            >
+                                                <div className="text-sm font-semibold break-words">{x.dropName}</div>
+                                                <div className="text-xs text-slate-400 mt-1 break-words">
+                                                    Matches:{" "}
+                                                    <span className="font-mono">
+                                                        {(x.matchedCatalogIds ?? []).slice(0, 20).join(", ")}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </details>
+                )}
             </Section>
 
             <Section
                 title="Diagnostics"
                 subtitle="Fail-closed analysis of what is blocking progress. This page does not guess."
             >
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <StatCard
-                        label="Hidden (unknown acquisition)"
-                        value={farming.stats.hiddenForUnknownAcquisition}
-                    />
-                    <StatCard
-                        label="Hidden (missing prereqs)"
-                        value={farming.stats.hiddenForMissingPrereqs}
-                    />
-                    <StatCard
-                        label="Hidden (no accessible sources)"
-                        value={farming.stats.hiddenForNoAccessibleSources}
-                    />
-                    <StatCard
-                        label="Actionable items"
-                        value={farming.stats.actionableItemsWithKnownAcquisition}
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <StatCard label="Hidden (unknown acquisition)" value={fmtI(farmingStats.hiddenForUnknownAcquisition)} />
+                    <StatCard label="Hidden (missing prereqs)" value={fmtI(farmingStats.hiddenForMissingPrereqs)} />
+                    <StatCard label="Hidden (no accessible sources)" value={fmtI(farmingStats.hiddenForNoAccessibleSources)} />
+                    <StatCard label="Actionable items" value={fmtI(farmingStats.actionableItemsWithKnownAcquisition)} />
+                    <StatCard label="Overlap sources" value={fmtI(farmingStats.overlapSourceCount)} />
                 </div>
             </Section>
 
@@ -307,17 +502,11 @@ export default function Diagnostics() {
                 ) : (
                     <div className="space-y-2">
                         {blocking.map((b) => (
-                            <div
-                                key={b.prereqId}
-                                className="rounded-xl border border-slate-800 bg-slate-950/30 p-3"
-                            >
+                            <div key={b.prereqId} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                                 <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2">
-                                    <div className="text-sm font-semibold break-words">
-                                        {b.prereqId}
-                                    </div>
+                                    <div className="text-sm font-semibold break-words">{b.prereqId}</div>
                                     <div className="text-xs text-slate-400">
-                                        Blocks {b.blockedItemCount.toLocaleString()} items,{" "}
-                                        {b.blockedRemainingTotal.toLocaleString()} remaining total
+                                        Blocks {fmtI(b.blockedItemCount)} items, {fmtI(b.blockedRemainingTotal)} remaining total
                                     </div>
                                 </div>
 
@@ -329,7 +518,7 @@ export default function Diagnostics() {
                                         <ul className="list-disc pl-5 space-y-0.5">
                                             {b.sampleItems.map((x) => (
                                                 <li key={`${b.prereqId}:${x.name}`} className="break-words">
-                                                    {x.name} (remaining {x.remaining.toLocaleString()})
+                                                    {x.name} (remaining {fmtI(x.remaining)})
                                                 </li>
                                             ))}
                                         </ul>
@@ -351,23 +540,22 @@ export default function Diagnostics() {
                     </div>
                 ) : (
                     <div className="space-y-2">
-                        {unknownAcquisition.map((h) => (
-                            <div
-                                key={String(h.key)}
-                                className="rounded-xl border border-slate-800 bg-slate-950/30 p-3"
-                            >
-                                <div className="text-sm font-semibold break-words">
-                                    {h.name}
-                                </div>
-                                <div className="text-xs text-slate-400 mt-1">
-                                    Remaining {h.remaining.toLocaleString()}
-                                </div>
+                        {unknownAcquisition.slice(0, 500).map((h) => (
+                            <div key={String(h.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                                <div className="text-sm font-semibold break-words">{String(h.name ?? "Unknown")}</div>
+                                <div className="text-xs text-slate-400 mt-1">Remaining {fmtN(h.remaining)}</div>
                                 <div className="text-[11px] text-slate-500 mt-1 break-words">
-                                    CatalogId:{" "}
-                                    <span className="font-mono">{String(h.key)}</span>
+                                    CatalogId: <span className="font-mono">{String(h.key)}</span>
                                 </div>
                             </div>
                         ))}
+
+                        {unknownAcquisition.length > 500 && (
+                            <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-xs text-slate-400">
+                                Rendering capped at 500 items to keep the page responsive. Use the download buttons above for full
+                                exports.
+                            </div>
+                        )}
                     </div>
                 )}
             </Section>

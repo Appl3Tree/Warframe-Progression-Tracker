@@ -1,5 +1,8 @@
-// ===== FILE: src/catalog/items/itemAcquisition.ts =====
+// src/catalog/items/itemAcquisition.ts
+
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
+import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
+
 import {
     deriveAcquisitionByCatalogIdFromSourcesJson,
     type AcquisitionDef
@@ -11,9 +14,12 @@ import { deriveDropDataAcquisitionByCatalogId } from "./acquisitionFromDropData"
  * Central acquisition accessor.
  *
  * Rules:
- * - WFCD drop-data acquisition is used when present.
- * - warframe-drop-data/raw ingestion is an augment layer to eliminate unknown-acquisition.
+ * - WFCD acquisition is used when present.
+ * - warframe-drop-data/raw ingestion is an augment layer.
  * - When both exist: union the sources.
+ * - Strict fallback (non-guess):
+ *      - buildPrice:number => Crafting (Foundry)
+ *      - marketCost:number => Market purchase
  */
 
 const WFCD_ACQ: Record<string, AcquisitionDef> = deriveAcquisitionByCatalogIdFromSourcesJson();
@@ -30,16 +36,55 @@ function unionSources(a: string[] | undefined, b: string[] | undefined): string[
     return Array.from(set.values()).sort((x, y) => x.localeCompare(y));
 }
 
+function isFiniteNumber(v: unknown): v is number {
+    return typeof v === "number" && Number.isFinite(v);
+}
+
+function deriveStrictFallbackSources(catalogId: CatalogId): string[] {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    const raw = rec?.raw as any;
+
+    // Our merged items record keeps rawWfcd/rawLotus.
+    const wfcd = raw?.rawWfcd ?? null;
+    const lotus = raw?.rawLotus ?? null;
+
+    const buildPrice =
+        wfcd?.buildPrice ??
+        lotus?.buildPrice ??
+        null;
+
+    const marketCost =
+        wfcd?.marketCost ??
+        lotus?.marketCost ??
+        null;
+
+    const out: string[] = [];
+
+    if (isFiniteNumber(buildPrice) && buildPrice > 0) {
+        out.push("data:crafting");
+    }
+
+    if (isFiniteNumber(marketCost) && marketCost > 0) {
+        out.push("data:market");
+    }
+
+    return out;
+}
+
 export function getAcquisitionByCatalogId(catalogId: CatalogId): AcquisitionDef | null {
     const key = String(catalogId);
 
     const wfcd = WFCD_ACQ[key];
     const dd = DROP_DATA_ACQ[key];
 
-    if (!wfcd && !dd) return null;
-
     const sources = unionSources(wfcd?.sources, dd?.sources);
-    if (sources.length === 0) return null;
+
+    // Strict fallback only if no sources exist so far.
+    if (sources.length === 0) {
+        const fallback = deriveStrictFallbackSources(catalogId);
+        if (fallback.length === 0) return null;
+        return { sources: fallback };
+    }
 
     return { sources };
 }

@@ -1,464 +1,333 @@
-// ===== FILE: src/catalog/items/acquisitionFromDropData.ts =====
+/* ===== FILE: src/catalog/items/acquisitionFromDropData.ts ===== */
+
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
-import type { SourceId } from "../../domain/ids/sourceIds";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
 
 /**
+ * WF drop-data ingestion layer.
+ *
+ * Goal:
+ * - Eliminate "unknown-acquisition" by mapping *display names* from drop-data to catalog item IDs.
+ *
+ * Constraints:
+ * - Drop-data is not canonical. We treat it as an augment layer only.
+ * - Name matching must be resilient (whitespace/punctuation/quantity prefixes/suffixes).
+ * - Fail-closed: if a drop name maps to multiple plausible catalog IDs, DO NOT guess.
+ *
  * IMPORTANT:
- * These imports assume the files exist under src/data/warframe-drop-data/raw/.
- * If your repo currently has them outside src/, move/copy them there (recommended),
- * or adjust the import paths accordingly.
+ * - SourceIds emitted here MUST be valid per normalizeSourceId() rules.
+ *   This code emits ONLY "src:<token>" style ids (no "data:" namespace).
  */
+
 import missionRewardsJson from "../../../external/warframe-drop-data/raw/missionRewards.json";
 import relicsJson from "../../../external/warframe-drop-data/raw/relics.json";
-import transientRewardsJson from "../../../external/warframe-drop-data/raw/transientRewards.json";
-import sortieRewardsJson from "../../../external/warframe-drop-data/raw/sortieRewards.json";
+import blueprintLocationsJson from "../../../external/warframe-drop-data/raw/blueprintLocations.json";
+import enemyBlueprintTablesJson from "../../../external/warframe-drop-data/raw/enemyBlueprintTables.json";
 import modLocationsJson from "../../../external/warframe-drop-data/raw/modLocations.json";
 import enemyModTablesJson from "../../../external/warframe-drop-data/raw/enemyModTables.json";
-import enemyBlueprintTablesJson from "../../../external/warframe-drop-data/raw/enemyBlueprintTables.json";
-import blueprintLocationsJson from "../../../external/warframe-drop-data/raw/blueprintLocations.json";
+import transientRewardsJson from "../../../external/warframe-drop-data/raw/transientRewards.json";
+import sortieRewardsJson from "../../../external/warframe-drop-data/raw/sortieRewards.json";
 import cetusBountyRewardsJson from "../../../external/warframe-drop-data/raw/cetusBountyRewards.json";
 import zarimanRewardsJson from "../../../external/warframe-drop-data/raw/zarimanRewards.json";
 import syndicatesJson from "../../../external/warframe-drop-data/raw/syndicates.json";
 import miscItemsJson from "../../../external/warframe-drop-data/raw/miscItems.json";
+import keyRewardsJson from "../../../external/warframe-drop-data/raw/keyRewards.json";
+import solarisBountyRewardsJson from "../../../external/warframe-drop-data/raw/solarisBountyRewards.json";
+import deimosRewardsJson from "../../../external/warframe-drop-data/raw/deimosRewards.json";
+import entratiLabRewardsJson from "../../../external/warframe-drop-data/raw/entratiLabRewards.json";
+import hexRewardsJson from "../../../external/warframe-drop-data/raw/hexRewards.json";
+import resourceByAvatarJson from "../../../external/warframe-drop-data/raw/resourceByAvatar.json";
+import additionalItemByAvatarJson from "../../../external/warframe-drop-data/raw/additionalItemByAvatar.json";
 
-export type AcquisitionDef = {
-    sources: SourceId[];
+export type AcquisitionDef = { sources: string[] };
+
+export type DropDataJoinDiagnostics = {
+    stats: {
+        dropNameOccurrences: number;
+        uniqueDropNames: number;
+        matchedUniqueDropNames: number;
+        unmatchedUniqueDropNames: number;
+        ambiguousUniqueDropNames: number;
+        catalogIdsWithAnySources: number;
+        uniqueSourceIds: number;
+        excludedNonCatalogRewardNames: number;
+
+        avatarResourceRows: number;
+        avatarResourceRowsUsingFallback: number;
+        avatarAdditionalRows: number;
+        avatarAdditionalRowsUsingFallback: number;
+    };
+    samples: {
+        unmatchedDropNames: string[];
+        ambiguousDropNames: Array<{ dropName: string; matchedCatalogIds: string[] }>;
+        excludedNonCatalogRewardNames: string[];
+    };
 };
-
-export type DerivedSourceDef = {
-    id: SourceId;
-    label: string;
-    kind: string;
-};
-
-function normalizeName(s: string): string {
-    return s.replace(/\s+/g, " ").trim().toLowerCase();
-}
 
 function safeString(v: unknown): string | null {
     return typeof v === "string" && v.trim().length > 0 ? v.trim() : null;
 }
 
-function toInt(v: unknown): number | null {
-    if (typeof v === "number" && Number.isFinite(v)) return Math.floor(v);
-    if (typeof v === "string" && v.trim()) {
-        const n = Number(v);
-        if (Number.isFinite(n)) return Math.floor(n);
-    }
-    return null;
-}
-
-function slugifyToken(s: string): string {
-    return s
-        .trim()
-        .toLowerCase()
-        .replace(/['"]/g, "")
-        .replace(/[^a-z0-9]+/g, "_")
-        .replace(/^_+|_+$/g, "")
-        .slice(0, 80);
-}
-
-function buildCatalogNameToIds(): Record<string, CatalogId[]> {
-    const out: Record<string, CatalogId[]> = {};
-    for (const rec of Object.values(FULL_CATALOG.recordsById)) {
-        const key = normalizeName(rec.displayName);
-        if (!key) continue;
-        if (!out[key]) out[key] = [];
-        out[key].push(rec.id);
-    }
-    return out;
-}
-
-const NAME_TO_IDS = buildCatalogNameToIds();
-
-function addItemSource(
-    itemName: string,
-    sourceId: string,
-    itemToSources: Map<string, Set<string>>
-): void {
-    const raw = safeString(itemName);
-    if (!raw) return;
-
-    const key = normalizeName(raw);
-    if (!key) return;
-
-    if (!itemToSources.has(key)) itemToSources.set(key, new Set<string>());
-    itemToSources.get(key)!.add(sourceId);
-
-    // relaxed variant: remove punctuation
-    const relaxed = normalizeName(raw.replace(/[^\w\s]/g, " "));
-    if (relaxed && relaxed !== key) {
-        if (!itemToSources.has(relaxed)) itemToSources.set(relaxed, new Set<string>());
-        itemToSources.get(relaxed)!.add(sourceId);
-    }
-}
-
-function sourcesSetToArray(set: Set<string>): SourceId[] {
-    return Array.from(set.values()).sort((a, b) => a.localeCompare(b)) as SourceId[];
+function normalizeName(s: string): string {
+    return s.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 /**
- * Parse + derive a best-effort acquisition layer from warframe-drop-data.
- * Goal: eliminate unknown-acquisition where the dataset provides *any* actionable provenance.
- *
- * The output is intentionally simple (sources only). Chances/rotations can be modeled later.
+ * Removes punctuation to make matches resilient:
+ * - "Hell's Chamber" -> "hells chamber"
+ * - "1,500 Credits"  -> "1500 credits"
  */
-export function deriveDropDataAcquisitionByCatalogId(): Record<string, AcquisitionDef> {
-    const itemToSources = new Map<string, Set<string>>();
+function normalizeNameNoPunct(s: string): string {
+    return normalizeName(s).replace(/[^a-z0-9 ]+/g, "").replace(/\s+/g, " ").trim();
+}
 
-    // ---------------------------
-    // missionRewards.json
-    // ---------------------------
-    // Structure:
-    // { "missionRewards": { "Sedna": { "Hydron": { rewards: { A: [ { itemName } ] }}}}}
-    try {
-        const root: any = missionRewardsJson as any;
-        const mr = root?.missionRewards;
-        if (mr && typeof mr === "object") {
-            for (const [planetRaw, planetObj] of Object.entries(mr)) {
-                if (!planetObj || typeof planetObj !== "object") continue;
+function toToken(s: string): string {
+    return normalizeNameNoPunct(s).replace(/\s+/g, "-");
+}
 
-                const planetName = String(planetRaw ?? "").trim();
-                const planetToken = slugifyToken(planetName);
-                if (!planetToken) continue;
+/**
+ * Build a valid src: SourceId payload segment (no extra colons).
+ * Example: src:node/ceres/bode
+ */
+function srcId(parts: string[]): string {
+    const cleaned = parts
+        .map((p) => safeString(p) ?? "")
+        .filter((p) => p.length > 0)
+        .map((p) => toToken(p))
+        .filter((p) => p.length > 0);
 
-                for (const [placeRaw, node] of Object.entries(planetObj as Record<string, any>)) {
-                    const placeName = String(placeRaw ?? "").trim();
-                    if (!placeName) continue;
+    // Fail-safe: never return an invalid-looking src id string.
+    if (cleaned.length === 0) return "src:unknown";
+    return `src:${cleaned.join("/")}`;
+}
 
-                    const placeToken = slugifyToken(placeName);
-                    if (!placeToken) continue;
+/**
+ * Strip leading quantity prefixes commonly present in drop-data:
+ * - "750X Alloy Plate" -> "Alloy Plate"
+ * - "10 x Salvage"     -> "Salvage"
+ * - "5x Ancient Healer Specter" -> "Ancient Healer Specter"
+ */
+function stripLeadingQuantityPrefix(s: string): string {
+    const raw = s.trim();
 
-                    const gameMode = safeString((node as any)?.gameMode);
-                    const sourceId = `node:${planetToken}:${placeToken}`;
-                    // Rewards
-                    const rewards = (node as any)?.rewards;
-                    if (!rewards || typeof rewards !== "object") continue;
+    // Examples:
+    // "750X Alloy Plate"
+    // "750x Alloy Plate"
+    // "750 x Alloy Plate"
+    // "5x Ancient Healer Specter"
+    const m = raw.match(/^\s*\d[\d,]*\s*[xX]\s*(.+)\s*$/);
+    if (m && m[1]) return m[1].trim();
 
-                    for (const entries of Object.values(rewards)) {
-                        if (!Array.isArray(entries)) continue;
-                        for (const e of entries as any[]) {
-                            addItemSource(e?.itemName, sourceId, itemToSources);
-                        }
-                    }
+    return raw;
+}
 
-                    void gameMode;
+/**
+ * Strip trailing stack/count suffixes commonly present for blueprint/crafting bundle names:
+ * - "Adramal Alloy X20 Blueprint" -> "Adramal Alloy Blueprint"
+ * - "Fosfor Blau (x20) Blueprint" -> "Fosfor Blau Blueprint"
+ * - "Synthesis Scanner x 25"      -> "Synthesis Scanner"
+ * - "Kinetic Siphon Trap x 10"    -> "Kinetic Siphon Trap"
+ */
+function stripTrailingQuantitySuffix(s: string): string {
+    let out = s.trim();
+
+    // "(x20) Blueprint" / "(x5) Blueprint" etc.
+    out = out.replace(/\s*\(\s*[xX]\s*\d+\s*\)\s*(Blueprint)\s*$/i, " $1").trim();
+
+    // "X20 Blueprint" / "x20 Blueprint"
+    out = out.replace(/\s+[xX]\s*\d+\s*(Blueprint)\s*$/i, " $1").trim();
+
+    // Standalone: "x 25" / "x25"
+    out = out.replace(/\s+[xX]\s*\d+\s*$/i, "").trim();
+
+    return out;
+}
+
+/**
+ * Strip refinement state suffix from relic strings:
+ * - "Lith D7 Relic (Radiant)" -> "Lith D7 Relic"
+ */
+function stripRelicRefinementSuffix(s: string): string {
+    return s.replace(/\s*\((Intact|Exceptional|Flawless|Radiant)\)\s*$/i, "").trim();
+}
+
+/**
+ * Drop-data appends parenthetical qualifiers for many mods:
+ * - "Abating Link (Trinity)" -> "Abating Link"
+ * - "Reinforced Bond (companion)" -> "Reinforced Bond"
+ */
+function stripTrailingParenthetical(s: string): string {
+    return s.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+}
+
+/**
+ * Some drop-data has missing spaces:
+ * - "AstralBond (companion)" -> "Astral Bond (companion)"
+ *
+ * Conservative: only split a camel-case boundary if it is a single token
+ * and the result is two words.
+ */
+function maybeSplitSimpleCamelCaseToken(s: string): string {
+    const raw = s.trim();
+    const m = raw.match(/^([A-Za-z]{6,})(\s*\([^)]*\)\s*)?$/);
+    if (!m) return raw;
+
+    const token = m[1] ?? "";
+    const rest = m[2] ?? "";
+
+    const split = token.replace(/([a-z])([A-Z])/g, "$1 $2");
+    if (split === token) return raw;
+    if (split.split(/\s+/g).length !== 2) return raw;
+
+    return `${split}${rest}`.trim();
+}
+
+function expandNameKeys(rawName: string): string[] {
+    const out = new Set<string>();
+
+    const a = safeString(rawName);
+    if (!a) return [];
+
+    const stage0 = a;
+    const stage1 = maybeSplitSimpleCamelCaseToken(stage0);
+    const stage2 = stripRelicRefinementSuffix(stage1);
+    const stage3 = stripLeadingQuantityPrefix(stage2);
+    const stage4 = stripTrailingQuantitySuffix(stage3);
+    const stage5 = stripTrailingParenthetical(stage4);
+
+    out.add(normalizeName(stage0));
+    out.add(normalizeNameNoPunct(stage0));
+
+    out.add(normalizeName(stage1));
+    out.add(normalizeNameNoPunct(stage1));
+
+    out.add(normalizeName(stage2));
+    out.add(normalizeNameNoPunct(stage2));
+
+    out.add(normalizeName(stage3));
+    out.add(normalizeNameNoPunct(stage3));
+
+    out.add(normalizeName(stage4));
+    out.add(normalizeNameNoPunct(stage4));
+
+    out.add(normalizeName(stage5));
+    out.add(normalizeNameNoPunct(stage5));
+
+    return Array.from(out.values());
+}
+
+function buildCatalogNameToIds(): Record<string, CatalogId[]> {
+    const map: Record<string, CatalogId[]> = {};
+
+    for (const id of FULL_CATALOG.displayableItemIds) {
+        const rec = FULL_CATALOG.recordsById[id];
+        const name = rec?.displayName;
+        if (!name) continue;
+
+        for (const key of expandNameKeys(name)) {
+            if (!map[key]) map[key] = [];
+            map[key].push(id);
+        }
+    }
+
+    for (const k of Object.keys(map)) {
+        map[k].sort((a, b) => String(a).localeCompare(String(b)));
+    }
+
+    return map;
+}
+
+function isNonCatalogRewardName(raw: string): boolean {
+    const s = raw.trim();
+
+    if (/^\s*Return:\s*[\d,]+\s*$/i.test(s)) return true;
+    if (/credits\s*cache\s*$/i.test(s)) return true;
+    if (/^\s*[\d,]+\s*credits\s*$/i.test(s)) return true;
+    if (/^\s*[\d,]+\s*endo\s*$/i.test(s)) return true;
+
+    if (/booster\s*$/i.test(s)) return true;
+    if (/^\s*\d+\s*day\s+.*booster\s*$/i.test(s)) return true;
+
+    if (/\bducats?\b/i.test(s)) return true;
+
+    if (/\b(lith|meso|neo|axi)\b.*\brelic\b/i.test(s)) return true;
+    if (/\brequiem\b.*\brelic\b/i.test(s)) return true;
+    if (/\beidolon\b.*\brelic\b/i.test(s)) return true;
+
+    if (/\brelic pack\b/i.test(s)) return true;
+    if (/\bvoid relic pack\b/i.test(s)) return true;
+    if (/\brandom void relics?\b/i.test(s)) return true;
+
+    if (/\bresource bundle\b/i.test(s)) return true;
+    if (/\barmor set\b/i.test(s)) return true;
+    if (/\bloadout slot\b/i.test(s)) return true;
+    if (/\bstencil\b/i.test(s)) return true;
+    if (/\bsigil\b/i.test(s)) return true;
+    if (/\bskin\b/i.test(s)) return true;
+    if (/\bconsole\b/i.test(s)) return true;
+    if (/\bhood display\b/i.test(s)) return true;
+
+    if (/^\s*region resource\s*$/i.test(s)) return true;
+    if (/^\s*powercell\s*$/i.test(s)) return true;
+
+    return false;
+}
+
+function pickBestCatalogId(candidates: CatalogId[]): { picked: CatalogId | null; ambiguous: boolean } {
+    if (candidates.length === 0) return { picked: null, ambiguous: false };
+    if (candidates.length === 1) return { picked: candidates[0], ambiguous: false };
+
+    const scored = candidates.map((id) => {
+        const s = String(id);
+        let score = 0;
+
+        if (s.includes("/Beginner/")) score += 100;
+        if (s.includes("/Intermediate/")) score += 80;
+        if (s.includes("/Expert/")) score += 60;
+
+        score += Math.min(30, Math.floor(s.length / 20));
+
+        return { id, score, s };
+    });
+
+    scored.sort((a, b) => {
+        if (a.score !== b.score) return a.score - b.score;
+        return a.s.localeCompare(b.s);
+    });
+
+    const best = scored[0];
+    const second = scored[1];
+
+    if (second && second.score === best.score) {
+        return { picked: null, ambiguous: true };
+    }
+
+    return { picked: best.id, ambiguous: false };
+}
+
+function coerceRewardArray(v: any): Array<{ itemName?: string; modName?: string; item?: string }> {
+    if (!Array.isArray(v)) return [];
+    return v as any[];
+}
+
+function extractRewardItemNames(rewards: any): string[] {
+    const out: string[] = [];
+
+    if (Array.isArray(rewards)) {
+        for (const r of coerceRewardArray(rewards)) {
+            const n = safeString((r as any)?.itemName) ?? safeString((r as any)?.modName) ?? safeString((r as any)?.item);
+            if (n) out.push(n);
+        }
+        return out;
+    }
+
+    if (rewards && typeof rewards === "object") {
+        for (const v of Object.values(rewards)) {
+            if (Array.isArray(v)) {
+                for (const r of coerceRewardArray(v)) {
+                    const n = safeString((r as any)?.itemName) ?? safeString((r as any)?.modName) ?? safeString((r as any)?.item);
+                    if (n) out.push(n);
                 }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // relics.json
-    // ---------------------------
-    // Structure:
-    // { "relics": [ { tier, relicName, state, rewards: [ { itemName } ] } ] }
-    try {
-        const root: any = relicsJson as any;
-        const relics = root?.relics;
-        if (Array.isArray(relics)) {
-            for (const r of relics as any[]) {
-                const tier = safeString(r?.tier);
-                const relicName = safeString(r?.relicName);
-                const state = safeString(r?.state) ?? "Intact";
-                if (!tier || !relicName) continue;
-
-                const id = `relic:${slugifyToken(tier)}:${slugifyToken(relicName)}:${slugifyToken(state)}`;
-                const rewards = r?.rewards;
-                if (!Array.isArray(rewards)) continue;
-
-                for (const e of rewards as any[]) {
-                    addItemSource(e?.itemName, id, itemToSources);
-                }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // transientRewards.json
-    // ---------------------------
-    // { "transientRewards": [ { objectiveName, rewards: [ { itemName } ] } ] }
-    try {
-        const root: any = transientRewardsJson as any;
-        const trs = root?.transientRewards;
-        if (Array.isArray(trs)) {
-            for (const t of trs as any[]) {
-                const obj = safeString(t?.objectiveName);
-                if (!obj) continue;
-
-                const id = `transient:${slugifyToken(obj)}`;
-                const rewards = t?.rewards;
-                if (!Array.isArray(rewards)) continue;
-
-                for (const e of rewards as any[]) {
-                    addItemSource(e?.itemName, id, itemToSources);
-                }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // sortieRewards.json
-    // ---------------------------
-    // { "sortieRewards": [ { itemName } ] }
-    try {
-        const root: any = sortieRewardsJson as any;
-        const sr = root?.sortieRewards;
-        if (Array.isArray(sr)) {
-            const id = "activity:sortie";
-            for (const e of sr as any[]) {
-                addItemSource(e?.itemName, id, itemToSources);
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // cetusBountyRewards.json
-    // ---------------------------
-    // { "cetusBountyRewards": [ { bountyLevel, rewards: { A:[{itemName,stage}], ... } } ] }
-    try {
-        const root: any = cetusBountyRewardsJson as any;
-        const br = root?.cetusBountyRewards;
-        if (Array.isArray(br)) {
-            for (const b of br as any[]) {
-                const level = safeString(b?.bountyLevel);
-                if (!level) continue;
-
-                const id = `bounty:cetus:${slugifyToken(level)}`;
-                const rewards = b?.rewards;
-                if (!rewards || typeof rewards !== "object") continue;
-
-                for (const entries of Object.values(rewards)) {
-                    if (!Array.isArray(entries)) continue;
-                    for (const e of entries as any[]) {
-                        addItemSource(e?.itemName, id, itemToSources);
-                    }
-                }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // zarimanRewards.json
-    // ---------------------------
-    // { "zarimanRewards": [ { bountyLevel, rewards: { C:[{itemName}], ... } } ] }
-    try {
-        const root: any = zarimanRewardsJson as any;
-        const zr = root?.zarimanRewards;
-        if (Array.isArray(zr)) {
-            for (const b of zr as any[]) {
-                const level = safeString(b?.bountyLevel);
-                if (!level) continue;
-
-                const id = `bounty:zariman:${slugifyToken(level)}`;
-                const rewards = b?.rewards;
-                if (!rewards || typeof rewards !== "object") continue;
-
-                for (const entries of Object.values(rewards)) {
-                    if (!Array.isArray(entries)) continue;
-                    for (const e of entries as any[]) {
-                        addItemSource(e?.itemName, id, itemToSources);
-                    }
-                }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // blueprintLocations.json
-    // ---------------------------
-    // { "blueprintLocations": [ { itemName, enemies:[{ enemyName }] } ] }
-    try {
-        const root: any = blueprintLocationsJson as any;
-        const bl = root?.blueprintLocations;
-        if (Array.isArray(bl)) {
-            for (const rec of bl as any[]) {
-                const item = safeString(rec?.itemName);
-                if (!item) continue;
-
-                const enemies = rec?.enemies;
-                if (!Array.isArray(enemies)) continue;
-
-                for (const e of enemies as any[]) {
-                    const enemyName = safeString(e?.enemyName);
-                    if (!enemyName) continue;
-
-                    const id = `enemy:${slugifyToken(enemyName)}:blueprint`;
-                    addItemSource(item, id, itemToSources);
-                }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // enemyBlueprintTables.json
-    // ---------------------------
-    // { "enemyBlueprintTables": [ { enemyName, items:[{ itemName }] } ] }
-    try {
-        const root: any = enemyBlueprintTablesJson as any;
-        const eb = root?.enemyBlueprintTables;
-        if (Array.isArray(eb)) {
-            for (const rec of eb as any[]) {
-                const enemyName = safeString(rec?.enemyName);
-                if (!enemyName) continue;
-
-                const id = `enemy:${slugifyToken(enemyName)}:blueprint`;
-                const items = rec?.items;
-                if (!Array.isArray(items)) continue;
-
-                for (const it of items as any[]) {
-                    addItemSource(it?.itemName, id, itemToSources);
-                }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // modLocations.json (mods sorted by mod, with enemies list)
-    // { "modLocations": [ { modName, enemies:[{ enemyName }] } ] }
-    try {
-        const root: any = modLocationsJson as any;
-        const ml = root?.modLocations;
-        if (Array.isArray(ml)) {
-            for (const rec of ml as any[]) {
-                const modName = safeString(rec?.modName);
-                if (!modName) continue;
-
-                const enemies = rec?.enemies;
-                if (!Array.isArray(enemies)) continue;
-
-                for (const e of enemies as any[]) {
-                    const enemyName = safeString(e?.enemyName);
-                    if (!enemyName) continue;
-
-                    const id = `enemy:${slugifyToken(enemyName)}:mod`;
-                    addItemSource(modName, id, itemToSources);
-                }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // enemyModTables.json (mods sorted by enemy)
-    // { "enemyModTables": [ { enemyName, mods:[{ modName }] } ] }
-    try {
-        const root: any = enemyModTablesJson as any;
-        const em = root?.enemyModTables ?? root?.modLocations; // docs show "modLocations" typo
-        if (Array.isArray(em)) {
-            for (const rec of em as any[]) {
-                const enemyName = safeString(rec?.enemyName);
-                if (!enemyName) continue;
-
-                const id = `enemy:${slugifyToken(enemyName)}:mod`;
-                const mods = rec?.mods;
-                if (!Array.isArray(mods)) continue;
-
-                for (const m of mods as any[]) {
-                    addItemSource(m?.modName, id, itemToSources);
-                }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // syndicates.json
-    // { "syndicates": { "Steel Meridian":[{ item, place, standing }], ... } }
-    try {
-        const root: any = syndicatesJson as any;
-        const syn = root?.syndicates;
-        if (syn && typeof syn === "object") {
-            for (const [synNameRaw, entries] of Object.entries(syn)) {
-                if (!Array.isArray(entries)) continue;
-
-                const synName = String(synNameRaw ?? "").trim();
-                const synToken = slugifyToken(synName);
-                if (!synToken) continue;
-
-                for (const e of entries as any[]) {
-                    const item = safeString(e?.item);
-                    if (!item) continue;
-
-                    const place = safeString(e?.place);
-                    const standing = toInt(e?.standing);
-
-                    // Place is important in labels, but keep IDs stable.
-                    const placeToken = place ? slugifyToken(place) : "vendor";
-                    const standingToken = standing !== null ? `s${standing}` : "s";
-
-                    const id = `vendor:syndicate:${synToken}:${placeToken}:${standingToken}`;
-                    addItemSource(item, id, itemToSources);
-                }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // miscItems.json (enemy miscellaneous item drops, includes resources like Circuits)
-    // { "miscItems": [ { enemyName, items:[{ itemName }] } ] }
-    try {
-        const root: any = miscItemsJson as any;
-        const mi = root?.miscItems;
-        if (Array.isArray(mi)) {
-            for (const rec of mi as any[]) {
-                const enemyName = safeString(rec?.enemyName);
-                if (!enemyName) continue;
-
-                const id = `enemy:${slugifyToken(enemyName)}:misc`;
-                const items = rec?.items;
-                if (!Array.isArray(items)) continue;
-
-                for (const it of items as any[]) {
-                    addItemSource(it?.itemName, id, itemToSources);
-                }
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // ---------------------------
-    // Convert itemName -> sourceIds into catalogId -> sources
-    // ---------------------------
-    const out: Record<string, AcquisitionDef> = {};
-
-    for (const [itemKey, sources] of itemToSources.entries()) {
-        const ids = NAME_TO_IDS[itemKey];
-        if (!ids || ids.length === 0) continue;
-
-        const list = sourcesSetToArray(sources);
-        if (list.length === 0) continue;
-
-        for (const cid of ids) {
-            // Merge if already present (multiple datasets)
-            if (!out[String(cid)]) {
-                out[String(cid)] = { sources: list };
-            } else {
-                const merged = new Set<string>(out[String(cid)].sources as any);
-                for (const s of list) merged.add(String(s));
-                out[String(cid)].sources = sourcesSetToArray(merged);
             }
         }
     }
@@ -466,141 +335,449 @@ export function deriveDropDataAcquisitionByCatalogId(): Record<string, Acquisiti
     return out;
 }
 
-export function deriveDropDataSources(): DerivedSourceDef[] {
-    const sources = new Map<string, DerivedSourceDef>();
+type JoinState = {
+    catalogNameToIds: Record<string, CatalogId[]>;
+    itemToSources: Record<string, Set<string>>;
 
-    function upsert(id: string, label: string, kind: string): void {
-        const key = String(id).trim();
-        const lab = String(label).trim();
-        if (!key || !lab) return;
-        if (!sources.has(key)) {
-            sources.set(key, { id: key as SourceId, label: lab, kind });
-        }
+    dropNameOccurrences: number;
+    uniqueDropNames: Set<string>;
+    matchedUniqueDropNames: Set<string>;
+    unmatchedUniqueDropNames: Set<string>;
+    ambiguousUniqueDropNames: Map<string, string[]>;
+    excludedNonCatalogRewardNames: Set<string>;
+    uniqueSourceIds: Set<string>;
+
+    avatarResourceRows: number;
+    avatarResourceRowsUsingFallback: number;
+    avatarAdditionalRows: number;
+    avatarAdditionalRowsUsingFallback: number;
+};
+
+function createJoinState(): JoinState {
+    return {
+        catalogNameToIds: buildCatalogNameToIds(),
+        itemToSources: {},
+
+        dropNameOccurrences: 0,
+        uniqueDropNames: new Set<string>(),
+        matchedUniqueDropNames: new Set<string>(),
+        unmatchedUniqueDropNames: new Set<string>(),
+        ambiguousUniqueDropNames: new Map<string, string[]>(),
+        excludedNonCatalogRewardNames: new Set<string>(),
+        uniqueSourceIds: new Set<string>(),
+
+        avatarResourceRows: 0,
+        avatarResourceRowsUsingFallback: 0,
+        avatarAdditionalRows: 0,
+        avatarAdditionalRowsUsingFallback: 0
+    };
+}
+
+function tryAddDropNameToSources(state: JoinState, rawDropName: string, sourceId: string): void {
+    const dropName = safeString(rawDropName);
+    if (!dropName) return;
+
+    state.dropNameOccurrences += 1;
+    state.uniqueDropNames.add(dropName);
+    state.uniqueSourceIds.add(sourceId);
+
+    if (isNonCatalogRewardName(dropName)) {
+        state.excludedNonCatalogRewardNames.add(dropName);
+        return;
     }
 
-    // Mission sources
-    try {
-        const root: any = missionRewardsJson as any;
-        const mr = root?.missionRewards;
-        if (mr && typeof mr === "object") {
-            for (const [planetRaw, planetObj] of Object.entries(mr)) {
-                if (!planetObj || typeof planetObj !== "object") continue;
+    const keys = expandNameKeys(dropName);
+    const candidateSet = new Set<CatalogId>();
 
-                const planetName = String(planetRaw ?? "").trim();
-                const planetToken = slugifyToken(planetName);
-                if (!planetToken) continue;
+    for (const k of keys) {
+        const ids = state.catalogNameToIds[k];
+        if (!ids || ids.length === 0) continue;
+        for (const id of ids) candidateSet.add(id);
+    }
 
-                for (const [placeRaw, node] of Object.entries(planetObj as Record<string, any>)) {
-                    const placeName = String(placeRaw ?? "").trim();
-                    if (!placeName) continue;
+    const candidates = Array.from(candidateSet.values());
+    if (candidates.length === 0) {
+        state.unmatchedUniqueDropNames.add(dropName);
+        return;
+    }
 
-                    const placeToken = slugifyToken(placeName);
-                    if (!placeToken) continue;
+    const { picked, ambiguous } = pickBestCatalogId(candidates);
+    if (ambiguous || !picked) {
+        state.ambiguousUniqueDropNames.set(
+            dropName,
+            candidates.map((x) => String(x)).sort((a, b) => a.localeCompare(b))
+        );
+        return;
+    }
 
-                    const gameMode = safeString((node as any)?.gameMode);
-                    const id = `node:${planetToken}:${placeToken}`;
-                    const label = gameMode
-                        ? `Mission: ${planetName} - ${placeName} (${gameMode})`
-                        : `Mission: ${planetName} - ${placeName}`;
+    state.matchedUniqueDropNames.add(dropName);
 
-                    upsert(id, label, "mission");
+    const idKey = String(picked);
+    if (!state.itemToSources[idKey]) state.itemToSources[idKey] = new Set<string>();
+    state.itemToSources[idKey].add(sourceId);
+}
+
+function buildJoinStateFromAllDropData(): JoinState {
+    const state = createJoinState();
+
+    // ---------- Mission rewards (planet/node) ----------
+    const mrRoot = (missionRewardsJson as any)?.missionRewards ?? (missionRewardsJson as any);
+    if (mrRoot && typeof mrRoot === "object") {
+        for (const [planetName, planetObj] of Object.entries(mrRoot as Record<string, any>)) {
+            if (!planetObj || typeof planetObj !== "object") continue;
+
+            for (const [nodeName, nodeObj] of Object.entries(planetObj as Record<string, any>)) {
+                if (!nodeObj || typeof nodeObj !== "object") continue;
+
+                const sourceId = srcId(["node", planetName, nodeName]);
+
+                const rewardsObj = (nodeObj as any)?.rewards;
+                if (!rewardsObj || typeof rewardsObj !== "object") continue;
+
+                for (const itemName of extractRewardItemNames(rewardsObj)) {
+                    tryAddDropNameToSources(state, itemName, sourceId);
                 }
             }
         }
-    } catch {
-        // ignore
     }
 
-    // Relic sources
-    try {
-        const root: any = relicsJson as any;
-        const relics = root?.relics;
-        if (Array.isArray(relics)) {
-            for (const r of relics as any[]) {
-                const tier = safeString(r?.tier);
-                const relicName = safeString(r?.relicName);
-                const state = safeString(r?.state) ?? "Intact";
-                if (!tier || !relicName) continue;
+    // ---------- Relics table (relic -> rewards) ----------
+    const relicsArr = (relicsJson as any)?.relics ?? (relicsJson as any);
+    if (Array.isArray(relicsArr)) {
+        for (const r of relicsArr) {
+            const tier = safeString((r as any)?.tier) ?? "relic";
+            const relicName = safeString((r as any)?.relicName) ?? "unknown";
+            const sourceId = srcId(["relic", tier, relicName]);
 
-                const id = `relic:${slugifyToken(tier)}:${slugifyToken(relicName)}:${slugifyToken(state)}`;
-                upsert(id, `Relic: ${tier} ${relicName} (${state})`, "relic");
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // Transient
-    try {
-        const root: any = transientRewardsJson as any;
-        const trs = root?.transientRewards;
-        if (Array.isArray(trs)) {
-            for (const t of trs as any[]) {
-                const obj = safeString(t?.objectiveName);
-                if (!obj) continue;
-                const id = `transient:${slugifyToken(obj)}`;
-                upsert(id, `Activity: ${obj}`, "transient");
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // Sortie (single)
-    upsert("activity:sortie", "Activity: Sortie Rewards", "activity");
-
-    // Bounties (Cetus/Zariman)
-    try {
-        const root: any = cetusBountyRewardsJson as any;
-        const br = root?.cetusBountyRewards;
-        if (Array.isArray(br)) {
-            for (const b of br as any[]) {
-                const level = safeString(b?.bountyLevel);
-                if (!level) continue;
-                const id = `bounty:cetus:${slugifyToken(level)}`;
-                upsert(id, `Bounty: Cetus (${level})`, "bounty");
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    try {
-        const root: any = zarimanRewardsJson as any;
-        const zr = root?.zarimanRewards;
-        if (Array.isArray(zr)) {
-            for (const b of zr as any[]) {
-                const level = safeString(b?.bountyLevel);
-                if (!level) continue;
-                const id = `bounty:zariman:${slugifyToken(level)}`;
-                upsert(id, `Bounty: Zariman (${level})`, "bounty");
-            }
-        }
-    } catch {
-        // ignore
-    }
-
-    // Enemies: we can’t enumerate all reliably without scanning all datasets again,
-    // so we add them opportunistically through syndicates + misc + enemy tables.
-    // That is acceptable as long as the sources referenced by acquisitions exist.
-    const acq = deriveDropDataAcquisitionByCatalogId();
-    for (const rec of Object.values(acq)) {
-        for (const sid of rec.sources) {
-            const id = String(sid);
-            if (sources.has(id)) continue;
-
-            if (id.startsWith("enemy:")) {
-                // enemy:<name>:<kind>
-                const parts = id.split(":");
-                const enemyToken = parts[1] ?? "enemy";
-                const kind = parts[2] ?? "drop";
-                upsert(id, `Enemy Drop: ${enemyToken} (${kind})`, "enemy");
-            } else if (id.startsWith("vendor:syndicate:")) {
-                upsert(id, `Syndicate Vendor: ${id.slice("vendor:syndicate:".length)}`, "vendor");
+            const rewards = (r as any)?.rewards;
+            for (const itemName of extractRewardItemNames(rewards)) {
+                tryAddDropNameToSources(state, itemName, sourceId);
             }
         }
     }
 
-    return Array.from(sources.values()).sort((a, b) => a.label.localeCompare(b.label));
+    // ---------- Blueprint locations (by item) ----------
+    const blArr = (blueprintLocationsJson as any)?.blueprintLocations ?? (blueprintLocationsJson as any);
+    if (Array.isArray(blArr)) {
+        for (const row of blArr) {
+            const itemName = safeString((row as any)?.itemName);
+            if (!itemName) continue;
+
+            const enemies = Array.isArray((row as any)?.enemies) ? (row as any).enemies : [];
+            for (const e of enemies) {
+                const enemyName = safeString((e as any)?.enemyName) ?? "enemy";
+                const sourceId = srcId(["enemy-drop", enemyName]);
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Enemy blueprint tables (by enemy) ----------
+    const ebtArr = (enemyBlueprintTablesJson as any)?.enemyBlueprintTables ?? (enemyBlueprintTablesJson as any);
+    if (Array.isArray(ebtArr)) {
+        for (const row of ebtArr) {
+            const enemyName = safeString((row as any)?.enemyName) ?? "enemy";
+            const sourceId = srcId(["enemy-drop", enemyName]);
+
+            const items = Array.isArray((row as any)?.items) ? (row as any).items : [];
+            for (const it of items) {
+                const itemName = safeString((it as any)?.itemName);
+                if (!itemName) continue;
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Mod locations (by mod) ----------
+    const mlArr = (modLocationsJson as any)?.modLocations ?? (modLocationsJson as any);
+    if (Array.isArray(mlArr)) {
+        for (const row of mlArr) {
+            const modName = safeString((row as any)?.modName);
+            if (!modName) continue;
+
+            const enemies = Array.isArray((row as any)?.enemies) ? (row as any).enemies : [];
+            for (const e of enemies) {
+                const enemyName = safeString((e as any)?.enemyName) ?? "enemy";
+                const sourceId = srcId(["enemy-mod", enemyName]);
+                tryAddDropNameToSources(state, modName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Enemy mod tables (by enemy) ----------
+    const emtArr =
+        (enemyModTablesJson as any)?.enemyModTables ??
+        (enemyModTablesJson as any)?.modLocations ??
+        (enemyModTablesJson as any);
+
+    if (Array.isArray(emtArr)) {
+        for (const row of emtArr) {
+            const enemyName = safeString((row as any)?.enemyName) ?? "enemy";
+            const sourceId = srcId(["enemy-mod", enemyName]);
+
+            const mods = Array.isArray((row as any)?.mods) ? (row as any).mods : [];
+            for (const it of mods) {
+                const modName = safeString((it as any)?.modName) ?? safeString((it as any)?.itemName);
+                if (!modName) continue;
+                tryAddDropNameToSources(state, modName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Transient rewards ----------
+    const trArr = (transientRewardsJson as any)?.transientRewards ?? (transientRewardsJson as any);
+    if (Array.isArray(trArr)) {
+        for (const row of trArr) {
+            const objectiveName = safeString((row as any)?.objectiveName) ?? "objective";
+            const sourceId = srcId(["transient", objectiveName]);
+
+            for (const itemName of extractRewardItemNames((row as any)?.rewards)) {
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Sortie rewards ----------
+    const srArr = (sortieRewardsJson as any)?.sortieRewards ?? (sortieRewardsJson as any);
+    if (Array.isArray(srArr)) {
+        const sourceId = srcId(["sortie"]);
+        for (const row of srArr) {
+            const itemName = safeString((row as any)?.itemName);
+            if (!itemName) continue;
+            tryAddDropNameToSources(state, itemName, sourceId);
+        }
+    }
+
+    // ---------- Key rewards ----------
+    const krArr = (keyRewardsJson as any)?.keyRewards ?? (keyRewardsJson as any);
+    if (Array.isArray(krArr)) {
+        for (const row of krArr) {
+            const keyName = safeString((row as any)?.keyName) ?? "key";
+            const sourceId = srcId(["key", keyName]);
+
+            const rewardsObj = (row as any)?.rewards;
+            for (const itemName of extractRewardItemNames(rewardsObj)) {
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Cetus bounty rewards ----------
+    const cbArr = (cetusBountyRewardsJson as any)?.cetusBountyRewards ?? (cetusBountyRewardsJson as any);
+    if (Array.isArray(cbArr)) {
+        for (const row of cbArr) {
+            const bountyLevel = safeString((row as any)?.bountyLevel) ?? "bounty";
+            const sourceId = srcId(["bounty", "cetus", bountyLevel]);
+
+            const rewardsObj = (row as any)?.rewards;
+            for (const itemName of extractRewardItemNames(rewardsObj)) {
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Solaris bounty rewards ----------
+    const sbArr = (solarisBountyRewardsJson as any)?.solarisBountyRewards ?? (solarisBountyRewardsJson as any);
+    if (Array.isArray(sbArr)) {
+        for (const row of sbArr) {
+            const bountyLevel = safeString((row as any)?.bountyLevel) ?? "bounty";
+            const sourceId = srcId(["bounty", "solaris", bountyLevel]);
+
+            const rewardsObj = (row as any)?.rewards;
+            for (const itemName of extractRewardItemNames(rewardsObj)) {
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Deimos rewards ----------
+    const drArr = (deimosRewardsJson as any)?.deimosRewards ?? (deimosRewardsJson as any);
+    if (Array.isArray(drArr)) {
+        for (const row of drArr) {
+            const bountyLevel = safeString((row as any)?.bountyLevel) ?? "bounty";
+            const sourceId = srcId(["bounty", "deimos", bountyLevel]);
+
+            const rewardsObj = (row as any)?.rewards;
+            for (const itemName of extractRewardItemNames(rewardsObj)) {
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Entrati Lab rewards ----------
+    const elArr = (entratiLabRewardsJson as any)?.entratiLabRewards ?? (entratiLabRewardsJson as any);
+    if (Array.isArray(elArr)) {
+        for (const row of elArr) {
+            const bountyLevel = safeString((row as any)?.bountyLevel) ?? "bounty";
+            const sourceId = srcId(["bounty", "entrati-lab", bountyLevel]);
+
+            const rewardsObj = (row as any)?.rewards;
+            for (const itemName of extractRewardItemNames(rewardsObj)) {
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Hex rewards ----------
+    const hxArr = (hexRewardsJson as any)?.hexRewards ?? (hexRewardsJson as any);
+    if (Array.isArray(hxArr)) {
+        for (const row of hxArr) {
+            const bountyLevel = safeString((row as any)?.bountyLevel) ?? "bounty";
+            const sourceId = srcId(["bounty", "hex", bountyLevel]);
+
+            const rewardsObj = (row as any)?.rewards;
+            for (const itemName of extractRewardItemNames(rewardsObj)) {
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Zariman bounty rewards ----------
+    const zrArr = (zarimanRewardsJson as any)?.zarimanRewards ?? (zarimanRewardsJson as any);
+    if (Array.isArray(zrArr)) {
+        for (const row of zrArr) {
+            const bountyLevel = safeString((row as any)?.bountyLevel) ?? "bounty";
+            const sourceId = srcId(["bounty", "zariman", bountyLevel]);
+
+            const rewardsObj = (row as any)?.rewards;
+            for (const itemName of extractRewardItemNames(rewardsObj)) {
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Syndicate vendor rewards ----------
+    const synRoot = (syndicatesJson as any)?.syndicates ?? (syndicatesJson as any);
+    if (synRoot && typeof synRoot === "object" && !Array.isArray(synRoot)) {
+        for (const [synName, items] of Object.entries(synRoot as Record<string, any>)) {
+            const sourceId = srcId(["vendor", "syndicate", synName]);
+
+            if (!Array.isArray(items)) continue;
+            for (const row of items) {
+                const itemName = safeString((row as any)?.item) ?? safeString((row as any)?.itemName);
+                if (!itemName) continue;
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Misc enemy item drops ----------
+    const miArr = (miscItemsJson as any)?.miscItems ?? (miscItemsJson as any);
+    if (Array.isArray(miArr)) {
+        for (const row of miArr) {
+            const enemyName = safeString((row as any)?.enemyName) ?? "enemy";
+            const sourceId = srcId(["enemy-item", enemyName]);
+
+            const items = Array.isArray((row as any)?.items) ? (row as any).items : [];
+            for (const it of items) {
+                const itemName = safeString((it as any)?.itemName);
+                if (!itemName) continue;
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Resource by avatar ----------
+    // resourceByAvatar.json rows use `source` as the source name.
+    const rbaArr = (resourceByAvatarJson as any)?.resourceByAvatar ?? (resourceByAvatarJson as any);
+    if (Array.isArray(rbaArr)) {
+        for (const row of rbaArr) {
+            state.avatarResourceRows += 1;
+
+            const srcName = safeString((row as any)?.source);
+            if (!srcName) state.avatarResourceRowsUsingFallback += 1;
+
+            const sourceId = srcName
+                ? srcId(["resource-by-avatar", srcName])
+                : srcId(["resource-by-avatar", "avatar"]);
+
+            const items = Array.isArray((row as any)?.items) ? (row as any).items : [];
+            for (const it of items) {
+                const itemName = safeString((it as any)?.item) ?? safeString((it as any)?.itemName);
+                if (!itemName) continue;
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    // ---------- Additional item by avatar ----------
+    // additionalItemByAvatar.json rows use `source` as the source name.
+    const aibaArr = (additionalItemByAvatarJson as any)?.additionalItemByAvatar ?? (additionalItemByAvatarJson as any);
+    if (Array.isArray(aibaArr)) {
+        for (const row of aibaArr) {
+            state.avatarAdditionalRows += 1;
+
+            const srcName = safeString((row as any)?.source);
+            if (!srcName) state.avatarAdditionalRowsUsingFallback += 1;
+
+            const sourceId = srcName
+                ? srcId(["additional-by-avatar", srcName])
+                : srcId(["additional-by-avatar", "avatar"]);
+
+            const items = Array.isArray((row as any)?.items) ? (row as any).items : [];
+            for (const it of items) {
+                const itemName = safeString((it as any)?.item) ?? safeString((it as any)?.itemName);
+                if (!itemName) continue;
+                tryAddDropNameToSources(state, itemName, sourceId);
+            }
+        }
+    }
+
+    return state;
+}
+
+export function deriveDropDataAcquisitionByCatalogId(): Record<string, AcquisitionDef> {
+    const state = buildJoinStateFromAllDropData();
+
+    const out: Record<string, AcquisitionDef> = {};
+
+    for (const [id, set] of Object.entries(state.itemToSources)) {
+        const sources = Array.from(set.values()).sort((a, b) => a.localeCompare(b));
+        if (sources.length === 0) continue;
+        out[id] = { sources };
+    }
+
+    return out;
+}
+
+export function deriveDropDataJoinDiagnostics(): DropDataJoinDiagnostics {
+    const state = buildJoinStateFromAllDropData();
+
+    const unmatched = Array.from(state.unmatchedUniqueDropNames.values()).sort((a, b) => a.localeCompare(b));
+
+    const ambiguous = Array.from(state.ambiguousUniqueDropNames.entries())
+        .map(([dropName, matchedCatalogIds]) => ({
+            dropName,
+            matchedCatalogIds: [...matchedCatalogIds].sort((a, b) => a.localeCompare(b))
+        }))
+        .sort((a, b) => a.dropName.localeCompare(b.dropName));
+
+    const excluded = Array.from(state.excludedNonCatalogRewardNames.values()).sort((a, b) => a.localeCompare(b));
+
+    const catalogIdsWithAnySources = Object.keys(state.itemToSources).length;
+    const uniqueSourceIds = state.uniqueSourceIds.size;
+
+    return {
+        stats: {
+            dropNameOccurrences: state.dropNameOccurrences,
+            uniqueDropNames: state.uniqueDropNames.size,
+            matchedUniqueDropNames: state.matchedUniqueDropNames.size,
+            unmatchedUniqueDropNames: state.unmatchedUniqueDropNames.size,
+            ambiguousUniqueDropNames: state.ambiguousUniqueDropNames.size,
+            catalogIdsWithAnySources,
+            uniqueSourceIds,
+            excludedNonCatalogRewardNames: state.excludedNonCatalogRewardNames.size,
+
+            avatarResourceRows: state.avatarResourceRows,
+            avatarResourceRowsUsingFallback: state.avatarResourceRowsUsingFallback,
+            avatarAdditionalRows: state.avatarAdditionalRows,
+            avatarAdditionalRowsUsingFallback: state.avatarAdditionalRowsUsingFallback
+        },
+        samples: {
+            unmatchedDropNames: unmatched.slice(0, 200),
+            ambiguousDropNames: ambiguous.slice(0, 200),
+            excludedNonCatalogRewardNames: excluded.slice(0, 200)
+        }
+    };
 }
 
