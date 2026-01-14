@@ -3,16 +3,19 @@
 //
 // Unified catalog loader.
 //
-// Canonical rules (WFCD-first):
-// - Items come from src/data/_generated/wfcd-items.byCatalogId.auto.json (authoritative).
-// - Legacy src/data/items.json is no longer ingested to avoid duplicates and category drift.
-// - Other datasets (mods, rivens, etc.) remain as-is until explicitly migrated.
+// Canonical rules:
+// - WFCD items remain the primary item source for metadata (masteryReq, tradable, etc.).
+// - src/data/items.json is used to ENRICH categories and to FILL COVERAGE gaps
+//   (resources, components/parts/blueprints, pets, weapon subtype categories, etc.).
 //
 // Display rule:
 // - If record has no name, we set displayName to the path key, and mark isDisplayable=false.
 //   UI must filter to isDisplayable===true for user-facing lists.
 
 import wfcdItemsJson from "../../data/_generated/wfcd-items.byCatalogId.auto.json";
+
+// Category enrichment + coverage layer (Lotus-path keyed).
+import lotusItemsJson from "../../data/items.json";
 
 import modsJson from "../../data/mods.json";
 import modsetsJson from "../../data/modsets.json";
@@ -101,9 +104,23 @@ function getDisplayName(pathKey: string, rec: any): string {
     return n ?? pathKey;
 }
 
-function getCategories(rec: any): string[] {
+function uniqueStable(list: string[]): string[] {
+    const out: string[] = [];
+    const seen = new Set<string>();
+    for (const x of list) {
+        if (!x || typeof x !== "string") continue;
+        const v = x.trim();
+        if (!v) continue;
+        if (seen.has(v)) continue;
+        seen.add(v);
+        out.push(v);
+    }
+    return out;
+}
+
+function getCategoriesFromWfcdLike(rec: any): string[] {
     // WFCD items use "category" (singular) primarily.
-    // We store a normalized categories array with at least that value when present.
+    // Some records may also provide "categories".
     const out: string[] = [];
 
     const single = safeString(rec?.category);
@@ -116,8 +133,21 @@ function getCategories(rec: any): string[] {
         }
     }
 
-    // Stable unique
-    return Array.from(new Set(out));
+    return uniqueStable(out);
+}
+
+function getCategoriesFromLotusItem(rec: any): string[] {
+    // src/data/items.json uses `categories: string[]`
+    const out: string[] = [];
+    const c = rec?.categories;
+
+    if (Array.isArray(c)) {
+        for (const x of c) {
+            if (typeof x === "string" && x.trim()) out.push(x.trim());
+        }
+    }
+
+    return uniqueStable(out);
 }
 
 function pushIndex(
@@ -129,18 +159,71 @@ function pushIndex(
     index[key].push(id);
 }
 
+function mergeItemRecord(pathKey: string, wfcdRec: any | null, lotusRec: any | null): any {
+    // Name preference: WFCD -> Lotus -> pathKey
+    const name = safeString(wfcdRec?.name) ?? safeString(lotusRec?.name) ?? pathKey;
+
+    // Category union: WFCD-derived + Lotus categories
+    const wfcdCats = wfcdRec ? getCategoriesFromWfcdLike(wfcdRec) : [];
+    const lotusCats = lotusRec ? getCategoriesFromLotusItem(lotusRec) : [];
+    const categories = uniqueStable([...wfcdCats, ...lotusCats]);
+
+    // Keep WFCD "category" for legacy logic, but ensure it exists when only Lotus provides info.
+    const category =
+        safeString(wfcdRec?.category) ??
+        (categories.length > 0 ? categories[0] : null);
+
+    // Preserve a "type" field for downstream consumers that check `rec.raw.type`.
+    // WFCD uses `type` (e.g., Rifle, Skin, etc.).
+    const type =
+        safeString(wfcdRec?.type) ??
+        safeString(lotusRec?.storeItemType) ??
+        safeString(lotusRec?.data?.type) ??
+        safeString(lotusRec?.tag) ??
+        null;
+
+    return {
+        // Top-level fields used by catalog loader helpers:
+        name,
+        category,
+        categories,
+
+        // Keep a reasonable type on the merged record itself:
+        type,
+
+        // Keep original sources for debugging/traceability:
+        rawWfcd: wfcdRec ?? null,
+        rawLotus: lotusRec ?? null
+    };
+}
+
 export function buildFullCatalog(): FullCatalog {
-    // Items: WFCD authoritative map is already keyed by "items:<uniqueName>".
-    // We need to ingest it into the catalog under source "items" but preserve the full path key.
+    // WFCD authoritative map is keyed by "items:<LotusPath>".
     const wfcdMapRaw = parseJsonMap("_generated/wfcd-items.byCatalogId.auto", wfcdItemsJson);
 
-    // Convert "items:<path>" -> path key "<path>" for catalog storage
-    const itemsMap: Record<string, any> = {};
+    // Convert "items:<path>" -> "<path>"
+    const wfcdItemsByPath: Record<string, any> = {};
     for (const [cid, rec] of Object.entries(wfcdMapRaw)) {
         const k = String(cid);
         if (!k.startsWith("items:")) continue;
         const pathKey = k.slice("items:".length);
-        itemsMap[pathKey] = rec;
+        wfcdItemsByPath[pathKey] = rec;
+    }
+
+    // Lotus items map (coverage + category enrichment)
+    const lotusItemsByPath = parseJsonMap("items", lotusItemsJson);
+
+    // Merge WFCD + Lotus into a single items map keyed by Lotus path
+    const itemsMap: Record<string, any> = {};
+    const allPaths = new Set<string>([
+        ...Object.keys(lotusItemsByPath),
+        ...Object.keys(wfcdItemsByPath)
+    ]);
+
+    for (const pathKey of allPaths) {
+        const wfcdRec = wfcdItemsByPath[pathKey] ?? null;
+        const lotusRec = lotusItemsByPath[pathKey] ?? null;
+        itemsMap[pathKey] = mergeItemRecord(pathKey, wfcdRec, lotusRec);
     }
 
     const modsMap = parseJsonMap("mods", modsJson);
@@ -187,7 +270,7 @@ export function buildFullCatalog(): FullCatalog {
                 missingNameBySource[source] += 1;
             }
 
-            const categories = getCategories(rec);
+            const categories = getCategoriesFromWfcdLike(rec);
 
             const record: CatalogRecordBase = {
                 id,

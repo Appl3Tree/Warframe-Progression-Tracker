@@ -1,3 +1,4 @@
+// ===== FILE: src/pages/Inventory.tsx =====
 // src/pages/Inventory.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
@@ -84,6 +85,25 @@ function PillButton(props: { label: string; active: boolean; onClick: () => void
                     ? "bg-slate-100 text-slate-900 border-slate-100"
                     : "bg-slate-950/40 text-slate-200 border-slate-700 hover:bg-slate-900"
             ].join(" ")}
+            onClick={props.onClick}
+        >
+            {props.label}
+        </button>
+    );
+}
+
+function SmallActionButton(props: { label: string; onClick: () => void; tone?: "primary" | "danger" | "neutral" }) {
+    const tone = props.tone ?? "neutral";
+    const cls =
+        tone === "primary"
+            ? "bg-slate-100 text-slate-900 border-slate-100 hover:bg-white"
+            : tone === "danger"
+                ? "bg-rose-950/40 text-rose-200 border-rose-800 hover:bg-rose-950/70"
+                : "bg-slate-950/40 text-slate-200 border-slate-700 hover:bg-slate-900";
+
+    return (
+        <button
+            className={["rounded-lg px-3 py-2 text-sm border", cls].join(" ")}
             onClick={props.onClick}
         >
             {props.label}
@@ -330,6 +350,37 @@ function classifyFromCategories(categories: string[]): Classification {
     return cls;
 }
 
+/**
+ * Minimal fallback classifier:
+ * If WFCD categories aren’t sufficient (common for Resources/Components),
+ * also use rec.raw.type to bucket.
+ */
+function classifyFromRecord(rec: any): Classification {
+    const categories = Array.isArray(rec?.categories) ? (rec.categories as string[]) : [];
+    const cls = classifyFromCategories(categories);
+
+    const rawType = typeof rec?.raw?.type === "string" ? normalize(rec.raw.type) : "";
+
+    if (rawType === "resource") {
+        cls.groups.add("resources");
+        cls.isResource = true;
+    }
+
+    if (rawType === "blueprint" || rawType === "component" || rawType === "part") {
+        cls.groups.add("components");
+        cls.isComponent = true;
+    }
+
+    // WFCD sometimes encodes materials as type="Misc"
+    const mains = new Set(categories.map((c) => splitCategory(c).main));
+    if (!cls.isResource && rawType === "misc" && mains.has("misc")) {
+        cls.groups.add("resources");
+        cls.isResource = true;
+    }
+
+    return cls;
+}
+
 type Row = {
     id: CatalogId;
     label: string;
@@ -395,11 +446,11 @@ export default function Inventory() {
 
         const base: Row[] = (FULL_CATALOG.displayableItemIds as CatalogId[])
             .map((id) => {
-                const rec = FULL_CATALOG.recordsById[id];
+                const rec: any = FULL_CATALOG.recordsById[id];
                 if (!rec?.displayName) return null;
 
                 const categories = rec.categories ?? [];
-                const cls = classifyFromCategories(categories);
+                const cls = classifyFromRecord(rec);
 
                 return {
                     id,
@@ -476,6 +527,66 @@ export default function Inventory() {
             return Array.from(types).some((t) => allowed.has(normalize(t)));
         });
     }, [rows, primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters]);
+
+    /**
+     * Batch update goals for the *currently filtered* item list.
+     * This is intentionally a single store transaction to avoid OOM from thousands of renders.
+     */
+    function setGoalsForFiltered(goalQty: number) {
+        const qty = Math.max(0, safeInt(goalQty, 0));
+        const ids = new Set<string>(filtered.map((r) => String(r.id)));
+
+        useTrackerStore.setState((st: any) => {
+            const nextGoals: any[] = Array.isArray(st?.state?.goals) ? [...st.state.goals] : [];
+
+            // Index existing active item goals by catalogId
+            const idxByCatalogId = new Map<string, number>();
+            for (let i = 0; i < nextGoals.length; i++) {
+                const g = nextGoals[i];
+                if (!g) continue;
+                if (g.type !== "item") continue;
+                if (g.isActive === false) continue;
+                idxByCatalogId.set(String(g.catalogId), i);
+            }
+
+            if (qty <= 0) {
+                // Clear goals for filtered ids
+                const kept = nextGoals.filter((g) => {
+                    if (!g) return false;
+                    if (g.type !== "item") return true;
+                    if (g.isActive === false) return true;
+                    return !ids.has(String(g.catalogId));
+                });
+                st.state.goals = kept;
+            } else {
+                // Set goal=qty for filtered ids (create if missing)
+                for (const cid of ids) {
+                    const idx = idxByCatalogId.get(cid);
+                    if (idx === undefined) {
+                        nextGoals.push({
+                            id: `goal:item:${cid}`,
+                            type: "item",
+                            catalogId: cid,
+                            qty,
+                            isActive: true
+                        });
+                    } else {
+                        const g = nextGoals[idx];
+                        nextGoals[idx] = {
+                            ...g,
+                            qty,
+                            isActive: true
+                        };
+                    }
+                }
+                st.state.goals = nextGoals;
+            }
+
+            if (st?.state?.meta) {
+                st.state.meta.updatedAtIso = new Date().toISOString();
+            }
+        });
+    }
 
     // -------- Virtualization (manual, no deps) --------
     const listRef = useRef<HTMLDivElement | null>(null);
@@ -564,6 +675,25 @@ export default function Inventory() {
                             />
                             Hide zero
                         </label>
+                    </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                    <div className="text-xs text-slate-400">
+                        Filtered: <span className="text-slate-200">{filtered.length}</span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                        <SmallActionButton
+                            label="Select all (filtered) → Goal=1"
+                            tone="primary"
+                            onClick={() => setGoalsForFiltered(1)}
+                        />
+                        <SmallActionButton
+                            label="Clear (filtered) goals"
+                            tone="danger"
+                            onClick={() => setGoalsForFiltered(0)}
+                        />
                     </div>
                 </div>
 
