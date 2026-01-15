@@ -105,6 +105,47 @@ export default function Diagnostics() {
         return hidden.filter((h) => h?.reason === "unknown-acquisition");
     }, [farming]);
 
+    // Cross-check: items flagged unknown-acquisition vs derived drop-data acquisition map (by catalogId)
+    const unknownAcqCrossCheck = useMemo(() => {
+        const hidden = Array.isArray(farming?.hidden) ? farming.hidden : [];
+        const unknown = hidden.filter((h) => h?.reason === "unknown-acquisition");
+
+        let dropMap: Record<string, any> = {};
+        try {
+            dropMap = deriveDropDataAcquisitionByCatalogId();
+        } catch {
+            dropMap = {};
+        }
+
+        const withDropData: Array<{ catalogId: string; name: string; dropSources: any[] }> = [];
+        const withoutDropData: Array<{ catalogId: string; name: string }> = [];
+
+        for (const h of unknown) {
+            const cid = String(h?.key ?? "");
+            const name = String(h?.name ?? "Unknown");
+
+            const drop = dropMap[cid];
+            const srcs = Array.isArray(drop?.sources) ? drop.sources : Array.isArray(drop) ? drop : [];
+
+            if (srcs.length > 0) {
+                withDropData.push({ catalogId: cid, name, dropSources: srcs });
+            } else {
+                withoutDropData.push({ catalogId: cid, name });
+            }
+        }
+
+        withDropData.sort((a, b) => a.name.localeCompare(b.name));
+        withoutDropData.sort((a, b) => a.name.localeCompare(b.name));
+
+        return {
+            unknownCount: unknown.length,
+            withDropDataCount: withDropData.length,
+            withoutDropDataCount: withoutDropData.length,
+            withDropData,
+            withoutDropData
+        };
+    }, [farming]);
+
     const blocking = useMemo(() => {
         const rows = new Map<
             string,
@@ -506,6 +547,63 @@ export default function Diagnostics() {
                         </div>
                     </details>
                 )}
+            </Section>
+
+            <Section
+                title="Unknown-acquisition cross-check (Drop-data)"
+                subtitle="Compares the planner's unknown-acquisition list against the derived drop-data acquisition map, by catalogId."
+            >
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <StatCard label="Unknown-acquisition items" value={fmtI(unknownAcqCrossCheck.unknownCount)} />
+                    <StatCard label="Unknown but HAS drop-data" value={fmtI(unknownAcqCrossCheck.withDropDataCount)} />
+                    <StatCard label="Unknown and NO drop-data" value={fmtI(unknownAcqCrossCheck.withoutDropDataCount)} />
+                    <StatCard
+                        label="Likely failure mode"
+                        value={unknownAcqCrossCheck.withDropDataCount > 0 ? "merge bug" : "join bug"}
+                    />
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
+                        onClick={() => downloadJson("unknown-acq-crosscheck.json", unknownAcqCrossCheck)}
+                    >
+                        Download cross-check (JSON)
+                    </button>
+                </div>
+
+                <details className="mt-3 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                    <summary className="cursor-pointer text-xs text-slate-300">
+                        Show sample (unknown-acquisition that HAS drop-data)
+                    </summary>
+
+                    {(unknownAcqCrossCheck.withDropData ?? []).length === 0 ? (
+                        <div className="mt-2 text-sm text-slate-400">None.</div>
+                    ) : (
+                        <div className="mt-2 space-y-2">
+                            {unknownAcqCrossCheck.withDropData.slice(0, 50).map((x) => (
+                                <div
+                                    key={`uacq-withdrop:${x.catalogId}`}
+                                    className="rounded-xl border border-slate-800 bg-slate-950/30 p-3"
+                                >
+                                    <div className="text-sm font-semibold break-words">{x.name}</div>
+                                    <div className="text-[11px] text-slate-500 mt-1 break-words">
+                                        CatalogId: <span className="font-mono">{x.catalogId}</span>
+                                    </div>
+                                    <div className="mt-2 text-xs text-slate-300 break-words">
+                                        Drop-data sources (first 5):{" "}
+                                        <span className="font-mono">
+                                            {x.dropSources
+                                                .slice(0, 5)
+                                                .map((s: any) => String(s?.sourceId ?? s))
+                                                .join(", ")}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </details>
             </Section>
 
             <Section
