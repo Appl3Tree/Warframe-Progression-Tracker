@@ -1,21 +1,9 @@
 // ===== FILE: src/domain/catalog/loadFullCatalog.ts =====
 // src/domain/catalog/loadFullCatalog.ts
-//
-// Unified catalog loader.
-//
-// Canonical rules:
-// - WFCD items remain the primary item source for metadata (masteryReq, tradable, etc.).
-// - src/data/items.json is used to ENRICH categories and to FILL COVERAGE gaps
-//   (resources, components/parts/blueprints, pets, weapon subtype categories, etc.).
-//
-// Display rule:
-// - If record has no name, we set displayName to the path key, and mark isDisplayable=false.
-//   UI must filter to isDisplayable===true for user-facing lists.
 
 import wfcdItemsJson from "../../data/_generated/wfcd-items.byCatalogId.auto.json";
-
-// Category enrichment + coverage layer (Lotus-path keyed).
 import lotusItemsJson from "../../data/items.json";
+import wfdataJson from "../../data/wfdata.json";
 
 import modsJson from "../../data/mods.json";
 import modsetsJson from "../../data/modsets.json";
@@ -62,6 +50,10 @@ export interface FullCatalog {
         missingNameBySource: Record<CatalogSource, number>;
         totalCount: number;
         totalDisplayableCount: number;
+
+        inventoryAllowCount: number;
+        inventoryItemCount: number;
+        displayableInventoryItemCount: number;
     };
 }
 
@@ -119,8 +111,6 @@ function uniqueStable(list: string[]): string[] {
 }
 
 function getCategoriesFromWfcdLike(rec: any): string[] {
-    // WFCD items use "category" (singular) primarily.
-    // Some records may also provide "categories".
     const out: string[] = [];
 
     const single = safeString(rec?.category);
@@ -137,7 +127,6 @@ function getCategoriesFromWfcdLike(rec: any): string[] {
 }
 
 function getCategoriesFromLotusItem(rec: any): string[] {
-    // src/data/items.json uses `categories: string[]`
     const out: string[] = [];
     const c = rec?.categories;
 
@@ -159,22 +148,203 @@ function pushIndex(
     index[key].push(id);
 }
 
-function mergeItemRecord(pathKey: string, wfcdRec: any | null, lotusRec: any | null): any {
-    // Name preference: WFCD -> Lotus -> pathKey
-    const name = safeString(wfcdRec?.name) ?? safeString(lotusRec?.name) ?? pathKey;
+type FoundryOverrides = {
+    // Direct path -> preferred label
+    byPath: Record<string, string>;
 
-    // Category union: WFCD-derived + Lotus categories
+    // resultItemType -> preferred label for the *result item* (used to name recipe blueprints)
+    byResultItemType: Record<string, string>;
+};
+
+function flattenFoundryItems(wfdata: any): any[] {
+    if (!wfdata || typeof wfdata !== "object") return [];
+
+    const buckets = [
+        wfdata?.warframes?.items,
+        wfdata?.primary?.items,
+        wfdata?.secondary?.items,
+        wfdata?.melee?.items,
+        wfdata?.archwing?.items,
+        wfdata?.companions?.items,
+        wfdata?.resources?.items,
+        wfdata?.miscellaneous?.items,
+        wfdata?.items?.items
+    ];
+
+    const out: any[] = [];
+    for (const b of buckets) {
+        if (!Array.isArray(b)) continue;
+        for (const it of b) out.push(it);
+    }
+    return out;
+}
+
+// Only these “slot names” should be prefixed with the parent item name.
+// Everything else is assumed to already be a proper component name (e.g. "War Blade", "Broken War").
+const GENERIC_COMPONENT_SLOTS = new Set<string>([
+    "blueprint",
+    "barrel",
+    "receiver",
+    "stock",
+    "chassis",
+    "neuroptics",
+    "systems",
+    "blade",
+    "hilt",
+    "handle",
+    "gauntlet",
+    "grip",
+    "string",
+    "upper limb",
+    "lower limb",
+    "link",
+    "pouch",
+    "cerebrum",
+    "carapace",
+    "blueprint (built)" // harmless, defensive
+]);
+
+function labelForFoundryComponent(itemName: string, slotName: string): string {
+    const s = slotName.trim();
+    const sNorm = s.toLowerCase();
+
+    if (GENERIC_COMPONENT_SLOTS.has(sNorm)) {
+        if (sNorm === "blueprint") return `${itemName} Blueprint`;
+        return `${itemName} ${s}`;
+    }
+
+    // Non-generic: slotName already carries the actual item name.
+    // Examples: "War Blade", "War Hilt", "Broken War"
+    return s;
+}
+
+function buildFoundryOverrides(wfdataRaw: any): FoundryOverrides {
+    const byPath: Record<string, string> = {};
+    const byResultItemType: Record<string, string> = {};
+
+    const items = flattenFoundryItems(wfdataRaw);
+
+    for (const it of items) {
+        const itemName = safeString(it?.name);
+        const itemPath = safeString(it?.uniqueName);
+
+        if (itemName && itemPath) {
+            // Ensure the primary item itself gets the Foundry name (fixes cases like Broken War being internal-named).
+            byPath[itemPath] = itemName;
+        }
+
+        if (!itemName) continue;
+
+        const comps = it?.components;
+        if (!Array.isArray(comps) || comps.length === 0) continue;
+
+        for (const c of comps) {
+            const slotName = safeString(c?.name);
+            const path = safeString(c?.uniqueName);
+            if (!slotName || !path) continue;
+
+            const baseLabel = labelForFoundryComponent(itemName, slotName);
+
+            byPath[path] = baseLabel;
+
+            // If the foundry component is a *part result item* (WeaponParts),
+            // we also want to name its *recipe blueprint* as "<baseLabel> Blueprint"
+            // using resultItemType matching.
+            if (path.startsWith("/Lotus/Types/Recipes/Weapons/WeaponParts/")) {
+                byResultItemType[path] = baseLabel;
+            }
+        }
+    }
+
+    return { byPath, byResultItemType };
+}
+
+function isRecipeItem(rec: any): boolean {
+    const parent = safeString(rec?.parent) ?? "";
+    if (parent === "/Lotus/Types/Game/RecipeItem") return true;
+
+    const pc = safeString(rec?.data?.ProductCategory);
+    if (pc === "Recipes") return true;
+
+    const path = safeString(rec?.path) ?? "";
+    if (path && path.toLowerCase().startsWith("/lotus/types/recipes/")) return true;
+
+    return false;
+}
+
+function getResultItemType(rec: any): string | null {
+    const a = safeString(rec?.data?.resultItemType);
+    if (a) return a;
+
+    const b = safeString(rec?.data?.ResultItemType);
+    if (b) return b;
+
+    return null;
+}
+
+function applyFoundryOverrideName(
+    pathKey: string,
+    wfcdRec: any | null,
+    lotusRec: any | null,
+    ov: FoundryOverrides
+): string | null {
+    // 1) Direct path match
+    const direct = ov.byPath[pathKey];
+    if (direct) {
+        const srcName =
+            safeString(wfcdRec?.name) ??
+            safeString(lotusRec?.name) ??
+            null;
+
+        if (!srcName) return direct;
+
+        const srcHasBlueprint = /\bblueprint\b/i.test(srcName);
+        const directHasBlueprint = /\bblueprint\b/i.test(direct);
+
+        if (srcHasBlueprint && !directHasBlueprint) {
+            return `${direct} Blueprint`;
+        }
+
+        return direct;
+    }
+
+    // 2) Recipe items: name as "<ResultLabel> Blueprint"
+    const merged = lotusRec ?? wfcdRec;
+    if (merged && isRecipeItem(merged)) {
+        const r = getResultItemType(merged);
+        if (r) {
+            const resultLabel = ov.byResultItemType[r];
+            if (resultLabel) {
+                return `${resultLabel} Blueprint`;
+            }
+        }
+    }
+
+    return null;
+}
+
+function mergeItemRecord(
+    pathKey: string,
+    wfcdRec: any | null,
+    lotusRec: any | null,
+    ov: FoundryOverrides
+): any {
+    const overrideName = applyFoundryOverrideName(pathKey, wfcdRec, lotusRec, ov);
+
+    const name =
+        overrideName ??
+        safeString(wfcdRec?.name) ??
+        safeString(lotusRec?.name) ??
+        pathKey;
+
     const wfcdCats = wfcdRec ? getCategoriesFromWfcdLike(wfcdRec) : [];
     const lotusCats = lotusRec ? getCategoriesFromLotusItem(lotusRec) : [];
     const categories = uniqueStable([...wfcdCats, ...lotusCats]);
 
-    // Keep WFCD "category" for legacy logic, but ensure it exists when only Lotus provides info.
     const category =
         safeString(wfcdRec?.category) ??
         (categories.length > 0 ? categories[0] : null);
 
-    // Preserve a "type" field for downstream consumers that check `rec.raw.type`.
-    // WFCD uses `type` (e.g., Rifle, Skin, etc.).
     const type =
         safeString(wfcdRec?.type) ??
         safeString(lotusRec?.storeItemType) ??
@@ -183,25 +353,63 @@ function mergeItemRecord(pathKey: string, wfcdRec: any | null, lotusRec: any | n
         null;
 
     return {
-        // Top-level fields used by catalog loader helpers:
         name,
         category,
         categories,
-
-        // Keep a reasonable type on the merged record itself:
         type,
-
-        // Keep original sources for debugging/traceability:
         rawWfcd: wfcdRec ?? null,
-        rawLotus: lotusRec ?? null
+        rawLotus: lotusRec ?? null,
+
+        path: pathKey,
+        parent: lotusRec?.parent ?? wfcdRec?.parent ?? null,
+        data: lotusRec?.data ?? wfcdRec?.data ?? null
     };
 }
 
+function buildInventoryAllowSetFromWfdata(wfdataRaw: any): Set<string> {
+    const allow = new Set<string>();
+    const items = flattenFoundryItems(wfdataRaw);
+
+    for (const it of items) {
+        const u = safeString(it?.uniqueName);
+        if (u) allow.add(u);
+
+        const comps = it?.components;
+        if (Array.isArray(comps)) {
+            for (const c of comps) {
+                const cu = safeString(c?.uniqueName);
+                if (cu) allow.add(cu);
+            }
+        }
+    }
+
+    return allow;
+}
+
+function extendAllowWithRecipesProducingAllowed(
+    allow: Set<string>,
+    lotusItemsByPath: Record<string, any>
+): Set<string> {
+    const out = new Set<string>(allow);
+
+    for (const [pathKey, rec] of Object.entries(lotusItemsByPath)) {
+        if (!rec) continue;
+        if (!isRecipeItem(rec)) continue;
+
+        const r = getResultItemType(rec);
+        if (!r) continue;
+
+        if (allow.has(r)) {
+            out.add(pathKey);
+        }
+    }
+
+    return out;
+}
+
 export function buildFullCatalog(): FullCatalog {
-    // WFCD authoritative map is keyed by "items:<LotusPath>".
     const wfcdMapRaw = parseJsonMap("_generated/wfcd-items.byCatalogId.auto", wfcdItemsJson);
 
-    // Convert "items:<path>" -> "<path>"
     const wfcdItemsByPath: Record<string, any> = {};
     for (const [cid, rec] of Object.entries(wfcdMapRaw)) {
         const k = String(cid);
@@ -210,10 +418,13 @@ export function buildFullCatalog(): FullCatalog {
         wfcdItemsByPath[pathKey] = rec;
     }
 
-    // Lotus items map (coverage + category enrichment)
     const lotusItemsByPath = parseJsonMap("items", lotusItemsJson);
 
-    // Merge WFCD + Lotus into a single items map keyed by Lotus path
+    const foundryOverrides = buildFoundryOverrides(wfdataJson);
+
+    const allowBase = buildInventoryAllowSetFromWfdata(wfdataJson);
+    const inventoryAllow = extendAllowWithRecipesProducingAllowed(allowBase, lotusItemsByPath);
+
     const itemsMap: Record<string, any> = {};
     const allPaths = new Set<string>([
         ...Object.keys(lotusItemsByPath),
@@ -223,7 +434,7 @@ export function buildFullCatalog(): FullCatalog {
     for (const pathKey of allPaths) {
         const wfcdRec = wfcdItemsByPath[pathKey] ?? null;
         const lotusRec = lotusItemsByPath[pathKey] ?? null;
-        itemsMap[pathKey] = mergeItemRecord(pathKey, wfcdRec, lotusRec);
+        itemsMap[pathKey] = mergeItemRecord(pathKey, wfcdRec, lotusRec, foundryOverrides);
     }
 
     const modsMap = parseJsonMap("mods", modsJson);
@@ -232,6 +443,7 @@ export function buildFullCatalog(): FullCatalog {
     const moddescriptionsMap = parseJsonMap("moddescriptions", moddescriptionsJson);
 
     const recordsById: Record<CatalogId, CatalogRecordBase> = {} as any;
+
     const idsBySource: Record<CatalogSource, CatalogId[]> = {
         items: [],
         mods: [],
@@ -307,10 +519,20 @@ export function buildFullCatalog(): FullCatalog {
     ingestMap("moddescriptions", moddescriptionsMap);
 
     const itemIds = idsBySource.items.slice();
-    const inventoryItemIds = itemIds.slice();
+
+    const inventoryItemIds = itemIds.filter((id) => {
+        const rec = recordsById[id];
+        if (!rec) return false;
+        return inventoryAllow.has(rec.path);
+    });
 
     const displayableItemIds = displayableIdsBySource.items.slice();
-    const displayableInventoryItemIds = displayableItemIds.slice();
+
+    const displayableInventoryItemIds = displayableItemIds.filter((id) => {
+        const rec = recordsById[id];
+        if (!rec) return false;
+        return inventoryAllow.has(rec.path);
+    });
 
     const countsBySource: Record<CatalogSource, number> = {
         items: idsBySource.items.length,
@@ -361,7 +583,11 @@ export function buildFullCatalog(): FullCatalog {
             displayableCountsBySource,
             missingNameBySource,
             totalCount,
-            totalDisplayableCount
+            totalDisplayableCount,
+
+            inventoryAllowCount: inventoryAllow.size,
+            inventoryItemCount: inventoryItemIds.length,
+            displayableInventoryItemCount: displayableInventoryItemIds.length
         }
     };
 }

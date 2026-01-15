@@ -1,3 +1,4 @@
+// ===== FILE: src/catalog/items/itemAcquisition.ts =====
 // src/catalog/items/itemAcquisition.ts
 
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
@@ -9,6 +10,8 @@ import {
 } from "./acquisitionFromSources";
 
 import { deriveDropDataAcquisitionByCatalogId } from "./acquisitionFromDropData";
+import { deriveRelicMissionRewardsAcquisitionByCatalogId } from "./acquisitionFromMissionRewardsRelics";
+import { deriveRelicsJsonAcquisitionByCatalogId } from "./acquisitionFromRelicsJson";
 
 /**
  * Central acquisition accessor.
@@ -16,7 +19,9 @@ import { deriveDropDataAcquisitionByCatalogId } from "./acquisitionFromDropData"
  * Rules:
  * - WFCD acquisition is used when present.
  * - warframe-drop-data/raw ingestion is an augment layer.
- * - When both exist: union the sources.
+ * - missionRewards relic indexing is an augment layer.
+ * - relics.json is an augment layer (covers vaulted / non-missionRewards relics).
+ * - When multiple exist: union the sources.
  * - Strict fallback (non-guess):
  *      - buildPrice:number => Crafting (Foundry)
  *      - marketCost:number => Market purchase
@@ -24,15 +29,18 @@ import { deriveDropDataAcquisitionByCatalogId } from "./acquisitionFromDropData"
 
 const WFCD_ACQ: Record<string, AcquisitionDef> = deriveAcquisitionByCatalogIdFromSourcesJson();
 const DROP_DATA_ACQ: Record<string, AcquisitionDef> = deriveDropDataAcquisitionByCatalogId();
+const MISSION_RELIC_ACQ: Record<string, AcquisitionDef> = deriveRelicMissionRewardsAcquisitionByCatalogId();
+const RELICS_JSON_ACQ: Record<string, AcquisitionDef> = deriveRelicsJsonAcquisitionByCatalogId();
 
-function unionSources(a: string[] | undefined, b: string[] | undefined): string[] {
+function unionSources(...lists: Array<string[] | undefined>): string[] {
     const set = new Set<string>();
-    for (const x of a ?? []) {
-        if (typeof x === "string" && x.trim()) set.add(x.trim());
+
+    for (const list of lists) {
+        for (const x of list ?? []) {
+            if (typeof x === "string" && x.trim()) set.add(x.trim());
+        }
     }
-    for (const x of b ?? []) {
-        if (typeof x === "string" && x.trim()) set.add(x.trim());
-    }
+
     return Array.from(set.values()).sort((x, y) => x.localeCompare(y));
 }
 
@@ -76,8 +84,10 @@ export function getAcquisitionByCatalogId(catalogId: CatalogId): AcquisitionDef 
 
     const wfcd = WFCD_ACQ[key];
     const dd = DROP_DATA_ACQ[key];
+    const mr = MISSION_RELIC_ACQ[key];
+    const rj = RELICS_JSON_ACQ[key];
 
-    const sources = unionSources(wfcd?.sources, dd?.sources);
+    const sources = unionSources(wfcd?.sources, dd?.sources, mr?.sources, rj?.sources);
 
     // Strict fallback only if no sources exist so far.
     if (sources.length === 0) {

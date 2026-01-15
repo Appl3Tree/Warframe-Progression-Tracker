@@ -473,6 +473,27 @@ function isCompanionWeaponByCatalogId(catalogId: string): boolean {
     return false;
 }
 
+function isRelicProjectionItem(catalogId: CatalogId, rec: any): boolean {
+    const cid = String(catalogId);
+    if (/\/Types\/Game\/Projections\//i.test(cid)) return true;
+
+    const raw = rec?.raw as any;
+    const wfcdName = raw?.rawWfcd?.uniqueName ?? raw?.rawWfcd?.unique_name ?? null;
+    const lotusName = raw?.rawLotus?.uniqueName ?? raw?.rawLotus?.unique_name ?? null;
+
+    const u = String(wfcdName ?? lotusName ?? "");
+    return /\/Types\/Game\/Projections\//i.test(u);
+}
+
+function relicTierFromName(displayName: string): string | null {
+    const s = normalize(String(displayName ?? ""));
+    if (s.startsWith("lith ")) return "lith";
+    if (s.startsWith("meso ")) return "meso";
+    if (s.startsWith("neo ")) return "neo";
+    if (s.startsWith("axi ")) return "axi";
+    return null;
+}
+
 function isBaseTemplateCompanion(catalogId: string, rec: any): boolean {
     const idh = normalize(String(catalogId));
     const name = String(rec?.displayName ?? "");
@@ -486,6 +507,39 @@ function isBaseTemplateCompanion(catalogId: string, rec: any): boolean {
     const hasBaseFragment = idh.includes("baseinfested") || idh.includes("/base") || idh.includes("basepredasite");
 
     return isPetPowerSuit && (looksLikeBaseById || (hasBaseFragment && isAllCaps));
+}
+
+function isRelicProjection(catalogId: string, rec: any): boolean {
+    const cid = String(catalogId);
+
+    if (/\/Types\/Game\/Projections\//i.test(cid)) return true;
+
+    const raw = rec?.raw as any;
+    const wfcdName = raw?.rawWfcd?.uniqueName ?? raw?.rawWfcd?.unique_name ?? null;
+    const lotusName = raw?.rawLotus?.uniqueName ?? raw?.rawLotus?.unique_name ?? null;
+
+    const u = String(wfcdName ?? lotusName ?? "");
+    return /\/Types\/Game\/Projections\//i.test(u);
+}
+
+function isBaseTemplateRelic(catalogId: string, rec: any): boolean {
+    // Hide base placeholder relic items like "Neo Relic", "Axi Relic", etc.
+    // Keep actual projections like "Axi A1 Intact" etc.
+    const name = String(rec?.displayName ?? "").trim();
+    if (!name) return false;
+
+    // Only apply to actual projection relic entities (avoid hiding unrelated cosmetics/strings)
+    if (!isRelicProjection(String(catalogId), rec)) return false;
+
+    // Exact generic base names
+    if (/^(Lith|Meso|Neo|Axi)\s+Relic$/i.test(name)) return true;
+    if (/^Void\s+Relic$/i.test(name)) return true;
+
+    // Defensive: some base templates are ALLCAPS and very short
+    const isAllCaps = name.length > 0 && name === name.toUpperCase();
+    if (isAllCaps && /relic/i.test(name) && name.length <= 12) return true;
+
+    return false;
 }
 
 /**
@@ -621,7 +675,7 @@ export default function Inventory() {
     const rows = useMemo<Row[]>(() => {
         const q = normalize(query);
 
-        const base: Row[] = (FULL_CATALOG.displayableItemIds as CatalogId[])
+        const base: Row[] = (FULL_CATALOG.displayableInventoryItemIds as CatalogId[])
             .map((id) => {
                 const rec: any = FULL_CATALOG.recordsById[id];
                 if (!rec?.displayName) return null;
@@ -632,6 +686,12 @@ export default function Inventory() {
                 // Hide base/template companion records like "VULPAPHYLA" / "PREDASITE" (Base*PowerSuit).
                 // Keep real companions and non-companion items that mention these words (tags, floofs, lures, glyphs).
                 if (cls.groups.has("companions") && isBaseTemplateCompanion(String(id), rec)) {
+                    return null;
+                }
+
+                // Hide base/template relic records like "Neo Relic", "Axi Relic", etc.
+                // Keep actual projection relic items like "Axi A1 Intact", etc.
+                if (isBaseTemplateRelic(String(id), rec)) {
                     return null;
                 }
 
@@ -646,7 +706,29 @@ export default function Inventory() {
             .filter((r): r is Row => !!r)
             .filter((r) => {
                 if (!q) return true;
-                return normalize(r.label).includes(q) || normalize(String(r.id)).includes(q);
+
+                const label = normalize(r.label);
+                const id = normalize(String(r.id));
+
+                // Base searchable fields
+                if (label.includes(q) || id.includes(q)) return true;
+
+                // Also search categories (helps a lot for non-obvious items)
+                const cats = Array.isArray(r.categories) ? r.categories.map(normalize).join(" | ") : "";
+                if (cats.includes(q)) return true;
+
+                // Relic keyword augmentation:
+                // If it’s a relic projection, allow "relic" to match even if displayName doesn’t include it.
+                const rec: any = FULL_CATALOG.recordsById[r.id];
+                if (isRelicProjectionItem(r.id, rec)) {
+                    if ("relic".includes(q) || q.includes("relic")) return true;
+
+                    // Optional: let "axi/neo/meso/lith" match via derived tier token (even if name format changes)
+                    const tier = relicTierFromName(r.label);
+                    if (tier && tier.includes(q)) return true;
+                }
+
+                return false;
             })
             .filter((r) => {
                 if (!hideZero) return true;

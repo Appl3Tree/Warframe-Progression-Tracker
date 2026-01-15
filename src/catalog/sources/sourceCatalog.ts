@@ -58,10 +58,6 @@ function toToken(s: string): string {
 /**
  * Build a valid src: SourceId payload segment (no extra colons).
  * MUST match acquisitionFromDropData.ts behavior.
- *
- * Example output:
- * - src:node/ceres/bode
- * - src:vendor/syndicate/conclave
  */
 function srcId(parts: string[]): string {
     const cleaned = parts
@@ -85,51 +81,16 @@ function pushUnique(out: RawSource[], seen: Set<string>, id: string, label: stri
 
 /**
  * Curated non-drop sources.
- * IDs MUST be src:* to align with acquisitionFromDropData.ts output.
+ * IDs MUST be src:* to align with acquisition layers.
  */
 const CURATED_SOURCES: RawSource[] = [
-    {
-        id: srcId(["crafting"]),
-        label: "Crafting (Foundry)",
-        type: "crafting"
-    },
-    {
-        id: srcId(["market"]),
-        label: "Market Purchase",
-        type: "vendor"
-    }
+    { id: srcId(["crafting"]), label: "Crafting (Foundry)", type: "crafting" },
+    { id: srcId(["market"]), label: "Market Purchase", type: "vendor" }
 ];
 
 /**
- * Optional helper if you ever want to create src:* aliases for legacy ids.
- * Not used for WFCD anymore (WFCD keys must be preserved as-is).
- */
-function coerceToSrcSourceId(raw: string): string {
-    const s = safeString(raw) ?? "";
-    if (!s) return "src:unknown";
-    if (s.startsWith("src:")) return s;
-
-    if (s.startsWith("data:")) {
-        const rest = s.slice("data:".length);
-        return `src:${rest.replace(/:/g, "/")}`;
-    }
-
-    const i = s.indexOf(":");
-    if (i > 0) {
-        const head = s.slice(0, i);
-        const tail = s.slice(i + 1);
-        if (head && tail) return `src:${head}/${tail.replace(/:/g, "/")}`;
-    }
-
-    return srcId([s]);
-}
-
-/**
  * WFCD-derived drop sources (already labeled).
- *
- * IMPORTANT:
- * - Preserve WFCD IDs verbatim (commonly data:drop:<hash>).
- * - These are referenced directly by acquisition layers, so SOURCE_INDEX must include them.
+ * Preserve WFCD IDs verbatim (commonly data:drop:<hash>).
  */
 function buildWfcdDropSources(): RawSource[] {
     const out: RawSource[] = [];
@@ -145,8 +106,8 @@ function buildWfcdDropSources(): RawSource[] {
 
 /**
  * Mission node sources derived from missionRewards.json.
- * MUST match acquisitionFromDropData.ts:
- *   sourceId = srcId(["node", planetName, nodeName])
+ * MUST match acquisitionFromMissionRewardsRelics.ts:
+ *   srcId(["node", planetName, nodeName])
  */
 function buildMissionNodeSources(): RawSource[] {
     const out: RawSource[] = [];
@@ -162,7 +123,6 @@ function buildMissionNodeSources(): RawSource[] {
             if (!nodeObj || typeof nodeObj !== "object") continue;
 
             const id = srcId(["node", planetName, nodeName]);
-
             const gameMode = safeString((nodeObj as any)?.gameMode);
             const label = gameMode ? `${planetName} - ${nodeName} (${gameMode})` : `${planetName} - ${nodeName}`;
 
@@ -175,8 +135,7 @@ function buildMissionNodeSources(): RawSource[] {
 }
 
 /**
- * Additional src:* sources used by acquisitionFromDropData.ts.
- * IMPORTANT: IDs MUST match acquisitionFromDropData.ts srcId([...]) output.
+ * Additional src:* sources used by drop-data acquisition layers.
  */
 function buildDropDataSupplementSources(): RawSource[] {
     const out: RawSource[] = [];
@@ -256,7 +215,6 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of trArr) {
             const objectiveName = safeString((row as any)?.objectiveName);
             if (!objectiveName) continue;
-
             const id = srcId(["transient", objectiveName]);
             const label = `Transient Reward: ${objectiveName}`;
             pushUnique(out, seen, id, label, "drop");
@@ -266,9 +224,7 @@ function buildDropDataSupplementSources(): RawSource[] {
     // ---- Sortie ----
     const srArr = (sortieRewardsJson as any)?.sortieRewards ?? (sortieRewardsJson as any);
     if (Array.isArray(srArr) && srArr.length > 0) {
-        const id = srcId(["sortie"]);
-        const label = "Sortie Rewards";
-        pushUnique(out, seen, id, label, "drop");
+        pushUnique(out, seen, srcId(["sortie"]), "Sortie Rewards", "drop");
     }
 
     // ---- Key rewards ----
@@ -277,7 +233,6 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of krArr) {
             const keyName = safeString((row as any)?.keyName);
             if (!keyName) continue;
-
             const id = srcId(["key", keyName]);
             const label = `Key Rewards: ${keyName}`;
             pushUnique(out, seen, id, label, "drop");
@@ -290,7 +245,6 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of cbArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-
             const id = srcId(["bounty", "cetus", bountyLevel]);
             const label = `Cetus Bounty: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
@@ -302,7 +256,6 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of sbArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-
             const id = srcId(["bounty", "solaris", bountyLevel]);
             const label = `Solaris Bounty: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
@@ -314,7 +267,6 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of drArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-
             const id = srcId(["bounty", "deimos", bountyLevel]);
             const label = `Deimos Bounty: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
@@ -326,7 +278,6 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of elArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-
             const id = srcId(["bounty", "entrati-lab", bountyLevel]);
             const label = `Entrati Lab Reward: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
@@ -338,7 +289,6 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of hxArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-
             const id = srcId(["bounty", "hex", bountyLevel]);
             const label = `Hex Reward: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
@@ -350,14 +300,13 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of zrArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-
             const id = srcId(["bounty", "zariman", bountyLevel]);
             const label = `Zariman Bounty: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
         }
     }
 
-    // ---- Syndicate vendor rewards ----
+    // ---- Syndicate vendors ----
     const synRoot = (syndicatesJson as any)?.syndicates ?? (syndicatesJson as any);
     if (synRoot && typeof synRoot === "object" && !Array.isArray(synRoot)) {
         for (const synName of Object.keys(synRoot as Record<string, any>)) {
@@ -373,7 +322,6 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of miArr) {
             const enemyName = safeString((row as any)?.enemyName);
             if (!enemyName) continue;
-
             const id = srcId(["enemy-item", enemyName]);
             const label = `Enemy Item Drop: ${enemyName}`;
             pushUnique(out, seen, id, label, "drop");
@@ -386,7 +334,6 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of rbaArr) {
             const srcName = safeString((row as any)?.source);
             if (!srcName) continue;
-
             const id = srcId(["resource-by-avatar", srcName]);
             const label = `Resource Drop (Avatar): ${srcName}`;
             pushUnique(out, seen, id, label, "drop");
@@ -399,7 +346,6 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of aibaArr) {
             const srcName = safeString((row as any)?.source);
             if (!srcName) continue;
-
             const id = srcId(["additional-by-avatar", srcName]);
             const label = `Additional Drop (Avatar): ${srcName}`;
             pushUnique(out, seen, id, label, "drop");
@@ -410,6 +356,7 @@ function buildDropDataSupplementSources(): RawSource[] {
     return out;
 }
 
+// Exported catalog lists
 export const SOURCE_CATALOG: RawSource[] = [
     ...CURATED_SOURCES,
     ...buildWfcdDropSources(),
