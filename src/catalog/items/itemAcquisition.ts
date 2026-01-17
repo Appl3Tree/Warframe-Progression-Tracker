@@ -9,9 +9,11 @@ import {
     type AcquisitionDef
 } from "./acquisitionFromSources";
 
-import { deriveDropDataAcquisitionByCatalogId } from "./acquisitionFromDropData";
+import { deriveDropDataAcquisitionByCatalogId, MANUAL_ACQUISITION_BY_CATALOG_ID } from "./acquisitionFromDropData";
 import { deriveRelicMissionRewardsAcquisitionByCatalogId } from "./acquisitionFromMissionRewardsRelics";
 import { deriveRelicsJsonAcquisitionByCatalogId } from "./acquisitionFromRelicsJson";
+
+import { getItemRequirements } from "./itemRequirements";
 
 /**
  * Central acquisition accessor.
@@ -22,9 +24,12 @@ import { deriveRelicsJsonAcquisitionByCatalogId } from "./acquisitionFromRelicsJ
  * - missionRewards relic indexing is an augment layer.
  * - relics.json is an augment layer (covers vaulted / non-missionRewards relics).
  * - When multiple exist: union the sources.
- * - Strict fallback (non-guess):
- *      - buildPrice:number => Crafting (Foundry)
- *      - marketCost:number => Market purchase
+ *
+ * Strict fallback (non-guess):
+ * - If item has any recipe requirements: Crafting (Foundry)
+ *   (EXCEPT ingredient-like items; those should not become "crafting acquisition" just because a resource blueprint exists)
+ * - Else if buildPrice:number => Crafting (Foundry)
+ * - Else if marketCost:number => Market purchase (Credits)
  */
 
 const WFCD_ACQ: Record<string, AcquisitionDef> = deriveAcquisitionByCatalogIdFromSourcesJson();
@@ -48,7 +53,53 @@ function isFiniteNumber(v: unknown): v is number {
     return typeof v === "number" && Number.isFinite(v);
 }
 
+/**
+ * Ingredient-like heuristic:
+ * If it's a Lotus "Items" path (resources, misc drops, etc.), we treat it as an ingredient.
+ * These should NOT be forced to "data:crafting" via recipe-exists fallback.
+ */
+function isIngredientLike(catalogId: CatalogId): boolean {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    const path = String(rec?.path ?? "");
+
+    if (path.startsWith("/Lotus/Types/Items/")) return true;
+
+    const rawType = typeof (rec as any)?.raw?.type === "string" ? String((rec as any).raw.type).toLowerCase() : "";
+    if (rawType === "resource") return true;
+
+    return false;
+}
+
+/**
+ * Blueprint-like heuristic:
+ * Blueprints are allowed to remain unmapped for now; do not force them into "data:crafting" via recipe fallback.
+ */
+function isBlueprintLike(catalogId: CatalogId): boolean {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    const path = String(rec?.path ?? "");
+
+    if (path.startsWith("/Lotus/Types/Recipes/")) return true;
+
+    const name = String(rec?.displayName ?? "");
+    if (name.toLowerCase().endsWith(" blueprint")) return true;
+
+    return false;
+}
+
+function hasRecipe(catalogId: CatalogId): boolean {
+    const reqs = getItemRequirements(catalogId);
+    return Array.isArray(reqs) && reqs.length > 0;
+}
+
 function deriveStrictFallbackSources(catalogId: CatalogId): string[] {
+    const out: string[] = [];
+
+    // 1) Recipe implies Foundry crafting (but DO NOT apply to ingredient-like or blueprint-like items)
+    if (!isIngredientLike(catalogId) && !isBlueprintLike(catalogId) && hasRecipe(catalogId)) {
+        out.push("data:crafting");
+        return out;
+    }
+
     const rec = FULL_CATALOG.recordsById[catalogId];
     const raw = rec?.raw as any;
 
@@ -66,14 +117,15 @@ function deriveStrictFallbackSources(catalogId: CatalogId): string[] {
         lotus?.marketCost ??
         null;
 
-    const out: string[] = [];
-
     if (isFiniteNumber(buildPrice) && buildPrice > 0) {
         out.push("data:crafting");
     }
 
+    // IMPORTANT:
+    // We treat marketCost as a “Market for Credits” signal. (If later you split plat vs credits,
+    // you can refine this, but today we need a stable actionable default.)
     if (isFiniteNumber(marketCost) && marketCost > 0) {
-        out.push("data:market");
+        out.push("data:market/credits");
     }
 
     return out;
@@ -87,7 +139,8 @@ export function getAcquisitionByCatalogId(catalogId: CatalogId): AcquisitionDef 
     const mr = MISSION_RELIC_ACQ[key];
     const rj = RELICS_JSON_ACQ[key];
 
-    const sources = unionSources(wfcd?.sources, dd?.sources, mr?.sources, rj?.sources);
+    const manual = MANUAL_ACQUISITION_BY_CATALOG_ID[key];
+    const sources = unionSources(wfcd?.sources, dd?.sources, mr?.sources, rj?.sources, manual?.sources);
 
     // Strict fallback only if no sources exist so far.
     if (sources.length === 0) {

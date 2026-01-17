@@ -149,10 +149,11 @@ function pushIndex(
 }
 
 type FoundryOverrides = {
-    // Direct path -> preferred label
+    // Direct path -> preferred label (for components and explicit blueprint components)
     byPath: Record<string, string>;
 
     // resultItemType -> preferred label for the *result item* (used to name recipe blueprints)
+    // Example: "/Lotus/Types/Recipes/Weapons/WeaponParts/1999EntHybridPistolBarrel" -> "Riot-848 Barrel"
     byResultItemType: Record<string, string>;
 };
 
@@ -179,44 +180,32 @@ function flattenFoundryItems(wfdata: any): any[] {
     return out;
 }
 
-// Only these “slot names” should be prefixed with the parent item name.
-// Everything else is assumed to already be a proper component name (e.g. "War Blade", "Broken War").
-const GENERIC_COMPONENT_SLOTS = new Set<string>([
-    "blueprint",
+const GENERIC_COMPONENT_SLOT_NAMES = new Set<string>([
+    // Common recipe/component slots (we want "<Item> <Slot>")
     "barrel",
     "receiver",
     "stock",
     "chassis",
     "neuroptics",
     "systems",
+    "harness",
+    "wings",
     "blade",
     "hilt",
-    "handle",
     "gauntlet",
+    "handle",
     "grip",
     "string",
     "upper limb",
     "lower limb",
     "link",
-    "pouch",
+    "disc",
+    "core",
     "cerebrum",
     "carapace",
-    "blueprint (built)" // harmless, defensive
+    "head",
+    "blueprint" // handled specially, but harmless here too
 ]);
-
-function labelForFoundryComponent(itemName: string, slotName: string): string {
-    const s = slotName.trim();
-    const sNorm = s.toLowerCase();
-
-    if (GENERIC_COMPONENT_SLOTS.has(sNorm)) {
-        if (sNorm === "blueprint") return `${itemName} Blueprint`;
-        return `${itemName} ${s}`;
-    }
-
-    // Non-generic: slotName already carries the actual item name.
-    // Examples: "War Blade", "War Hilt", "Broken War"
-    return s;
-}
 
 function buildFoundryOverrides(wfdataRaw: any): FoundryOverrides {
     const byPath: Record<string, string> = {};
@@ -226,13 +215,6 @@ function buildFoundryOverrides(wfdataRaw: any): FoundryOverrides {
 
     for (const it of items) {
         const itemName = safeString(it?.name);
-        const itemPath = safeString(it?.uniqueName);
-
-        if (itemName && itemPath) {
-            // Ensure the primary item itself gets the Foundry name (fixes cases like Broken War being internal-named).
-            byPath[itemPath] = itemName;
-        }
-
         if (!itemName) continue;
 
         const comps = it?.components;
@@ -243,7 +225,18 @@ function buildFoundryOverrides(wfdataRaw: any): FoundryOverrides {
             const path = safeString(c?.uniqueName);
             if (!slotName || !path) continue;
 
-            const baseLabel = labelForFoundryComponent(itemName, slotName);
+            const slotNorm = slotName.trim().toLowerCase();
+
+            // Labeling policy:
+            // - Blueprint slot: always "<Item> Blueprint"
+            // - Generic slots: "<Item> <Slot>" (Riot-848 Barrel, etc.)
+            // - Named/non-generic: use slotName as-is (War Blade, Broken War, Orokin Cell, etc.)
+            const baseLabel =
+                slotNorm === "blueprint"
+                    ? `${itemName} Blueprint`
+                    : GENERIC_COMPONENT_SLOT_NAMES.has(slotNorm)
+                        ? `${itemName} ${slotName}`
+                        : slotName;
 
             byPath[path] = baseLabel;
 
@@ -273,10 +266,11 @@ function isRecipeItem(rec: any): boolean {
 }
 
 function getResultItemType(rec: any): string | null {
+    // Some records use "resultItemType"; others use "ResultItem".
     const a = safeString(rec?.data?.resultItemType);
     if (a) return a;
 
-    const b = safeString(rec?.data?.ResultItemType);
+    const b = safeString(rec?.data?.ResultItem);
     if (b) return b;
 
     return null;
@@ -288,9 +282,10 @@ function applyFoundryOverrideName(
     lotusRec: any | null,
     ov: FoundryOverrides
 ): string | null {
-    // 1) Direct path match
+    // 1) Direct path match (covers Riot-848 part items, and item blueprints where wfdata points at the blueprint path)
     const direct = ov.byPath[pathKey];
     if (direct) {
+        // Preserve explicit "Blueprint" if upstream name already indicates it.
         const srcName =
             safeString(wfcdRec?.name) ??
             safeString(lotusRec?.name) ??
@@ -308,7 +303,8 @@ function applyFoundryOverrideName(
         return direct;
     }
 
-    // 2) Recipe items: name as "<ResultLabel> Blueprint"
+    // 2) Recipe items: if this recipe produces a result item type that we can label,
+    // name it as "<ResultLabel> Blueprint"
     const merged = lotusRec ?? wfcdRec;
     if (merged && isRecipeItem(merged)) {
         const r = getResultItemType(merged);
@@ -360,6 +356,7 @@ function mergeItemRecord(
         rawWfcd: wfcdRec ?? null,
         rawLotus: lotusRec ?? null,
 
+        // Keep these for downstream heuristic use if needed.
         path: pathKey,
         parent: lotusRec?.parent ?? wfcdRec?.parent ?? null,
         data: lotusRec?.data ?? wfcdRec?.data ?? null
@@ -399,6 +396,8 @@ function extendAllowWithRecipesProducingAllowed(
         const r = getResultItemType(rec);
         if (!r) continue;
 
+        // If this recipe produces something we already allow (e.g. Riot-848 Barrel),
+        // then the blueprint itself must be inventory-relevant too.
         if (allow.has(r)) {
             out.add(pathKey);
         }

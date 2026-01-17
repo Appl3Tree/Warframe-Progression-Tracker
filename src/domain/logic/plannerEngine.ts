@@ -206,6 +206,16 @@ function normalizeMr(value: number | null | undefined): number | null {
     return Math.max(0, Math.floor(n));
 }
 
+/**
+ * Accessibility policy (must match requirementEngine):
+ * - Any data:* source is actionable by default (known acquisition path).
+ * - If a data:* source is present in SOURCE_INDEX with prereqs, those prereqs gate it.
+ * - Non-data sources require SOURCE_INDEX and prereqs satisfied (fail-closed).
+ *
+ * MR gating:
+ * - Only enforced when SOURCE_INDEX has an mrRequired for that source.
+ * - For data:* sources with no SOURCE_INDEX entry, MR is not knowable, so do not block.
+ */
 function isSourceAccessible(
     sourceId: SourceId,
     completedMap: Record<string, boolean>,
@@ -213,28 +223,51 @@ function isSourceAccessible(
 ): { ok: boolean; missing: PrereqId[]; missingMr: number | null; reason?: string } {
     const sidStr = String(sourceId);
 
-    // Drop-table sources are actionable locations by default.
-    if (sidStr.startsWith("data:drop:")) {
-        return { ok: true, missing: [], missingMr: null };
+    // 1) data:* sources are actionable by default.
+    if (sidStr.startsWith("data:")) {
+        const def = SOURCE_INDEX[sourceId];
+
+        // Uncurated data:* source: do not block (we know *how* to get it; gating not modeled yet).
+        if (!def) {
+            return { ok: true, missing: [], missingMr: null };
+        }
+
+        const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
+        const missing: PrereqId[] = [];
+        for (const p of prereqs) {
+            if (completedMap[p] !== true) missing.push(p);
+        }
+
+        const mrReq =
+            typeof (def as any).mrRequired === "number"
+                ? Math.max(0, Math.floor((def as any).mrRequired))
+                : null;
+
+        const mrNow = normalizeMr(masteryRank);
+        const missingMr = mrReq !== null && (mrNow === null || mrNow < mrReq) ? mrReq : null;
+
+        const ok = missing.length === 0 && missingMr === null;
+        if (ok) return { ok: true, missing: [], missingMr: null };
+
+        const parts: string[] = [];
+        if (missing.length) parts.push(`Requires: ${missing.join(", ")}`);
+        if (missingMr !== null) parts.push(`Requires Mastery Rank ${missingMr}`);
+
+        return {
+            ok: false,
+            missing,
+            missingMr,
+            reason: parts.join(" | ") || "Inaccessible"
+        };
     }
 
+    // 2) Non-data sources: must be curated (fail-closed).
     const src = SOURCE_INDEX[sourceId];
     if (!src) {
         return { ok: false, missing: [], missingMr: null, reason: `Unknown source (${sourceId})` };
     }
 
-    const isDataDerived = sidStr.startsWith("data:");
     const prereqs = Array.isArray(src.prereqIds) ? src.prereqIds : [];
-
-    if (isDataDerived && prereqs.length === 0) {
-        return {
-            ok: false,
-            missing: [],
-            missingMr: null,
-            reason: "Source accessibility not curated (fail-closed)"
-        };
-    }
-
     const missing: PrereqId[] = [];
     for (const p of prereqs) {
         if (completedMap[p] !== true) missing.push(p);
