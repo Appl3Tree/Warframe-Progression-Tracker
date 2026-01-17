@@ -78,6 +78,30 @@ function downloadJson(filename: string, obj: unknown) {
     URL.revokeObjectURL(url);
 }
 
+function snapshotStamp(): string {
+    // YYYYMMDD-HHMMSS (local)
+    const d = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return [
+        d.getFullYear(),
+        pad(d.getMonth() + 1),
+        pad(d.getDate())
+    ].join("") + "-" + [
+        pad(d.getHours()),
+        pad(d.getMinutes()),
+        pad(d.getSeconds())
+    ].join("");
+}
+
+const DEBUG_CATALOG_IDS = {
+    orokinCell: "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+    neurode: "items:/Lotus/Types/Items/MiscItems/Neurode"
+};
+
+function isRecipeKey(catalogId: string): boolean {
+    return catalogId.includes("/Lotus/Types/Recipes/");
+}
+
 export default function Diagnostics() {
     const syndicates = useTrackerStore((s) => s.state.syndicates ?? []);
     const goals = useTrackerStore((s) => s.state.goals ?? []);
@@ -105,10 +129,60 @@ export default function Diagnostics() {
         return hidden.filter((h) => h?.reason === "unknown-acquisition");
     }, [farming]);
 
+    const unknownRecipeAcquisition = useMemo(() => {
+        const hidden = Array.isArray(farming?.hidden) ? farming.hidden : [];
+        return hidden.filter((h) => h?.reason === "unknown-recipe-acquisition");
+    }, [farming]);
+
     // Cross-check: items flagged unknown-acquisition vs derived drop-data acquisition map (by catalogId)
+    // IMPORTANT: This explicitly excludes /Lotus/Types/Recipes/ so it matches the UI subtitle.
     const unknownAcqCrossCheck = useMemo(() => {
         const hidden = Array.isArray(farming?.hidden) ? farming.hidden : [];
-        const unknown = hidden.filter((h) => h?.reason === "unknown-acquisition");
+        const unknown = hidden
+            .filter((h) => h?.reason === "unknown-acquisition")
+            .filter((h) => !isRecipeKey(String(h?.key ?? "")));
+
+        let dropMap: Record<string, any> = {};
+        try {
+            dropMap = deriveDropDataAcquisitionByCatalogId();
+        } catch {
+            dropMap = {};
+        }
+
+        const withDropData: Array<{ catalogId: string; name: string; dropSources: any[] }> = [];
+        const withoutDropData: Array<{ catalogId: string; name: string }> = [];
+
+        for (const h of unknown) {
+            const cid = String(h?.key ?? "");
+            const name = String(h?.name ?? "Unknown");
+
+            const drop = dropMap[cid];
+            const srcs = Array.isArray(drop?.sources) ? drop.sources : Array.isArray(drop) ? drop : [];
+
+            if (srcs.length > 0) {
+                withDropData.push({ catalogId: cid, name, dropSources: srcs });
+            } else {
+                withoutDropData.push({ catalogId: cid, name });
+            }
+        }
+
+        withDropData.sort((a, b) => a.name.localeCompare(b.name));
+        withoutDropData.sort((a, b) => a.name.localeCompare(b.name));
+
+        return {
+            unknownCount: unknown.length,
+            withDropDataCount: withDropData.length,
+            withoutDropDataCount: withoutDropData.length,
+            withDropData,
+            withoutDropData
+        };
+    }, [farming]);
+
+    // Cross-check: items flagged unknown-recipe-acquisition vs derived drop-data acquisition map (by catalogId)
+    // This is intentionally recipe-only (so you can see whether drop-data has anything for these blueprint/part recipes).
+    const unknownRecipeAcqCrossCheck = useMemo(() => {
+        const hidden = Array.isArray(farming?.hidden) ? farming.hidden : [];
+        const unknown = hidden.filter((h) => h?.reason === "unknown-recipe-acquisition");
 
         let dropMap: Record<string, any> = {};
         try {
@@ -236,31 +310,12 @@ export default function Diagnostics() {
         missingAcq.sort((a, b) => a.name.localeCompare(b.name));
         unknownSourceRefs.sort((a, b) => a.name.localeCompare(b.name));
 
-        const issuesJson = JSON.stringify(
-            {
-                stats: {
-                    displayableInventoryCount: displayableInventoryIds.length,
-                    missingAcquisitionCount: missingAcq.length,
-                    unknownSourceRefCount: unknownSourceRefs.length
-                },
-                missingAcquisition: missingAcq.map((x) => ({ catalogId: x.catalogId, name: x.name })),
-                unknownSourceRefs: unknownSourceRefs.map((x) => ({
-                    catalogId: x.catalogId,
-                    name: x.name,
-                    sources: x.sources ?? []
-                }))
-            },
-            null,
-            2
-        );
-
         return {
             displayableInventoryCount: displayableInventoryIds.length,
             missingAcquisitionCount: missingAcq.length,
             unknownSourceRefCount: unknownSourceRefs.length,
             missingAcq,
-            unknownSourceRefs,
-            issuesJson
+            unknownSourceRefs
         };
     }, []);
 
@@ -283,7 +338,54 @@ export default function Diagnostics() {
         }
     }, []);
 
-    // NEW: price coverage debug stats (no console needed)
+    const dropMapSanity = useMemo(() => {
+        let dropMap: Record<string, any> = {};
+        try {
+            dropMap = deriveDropDataAcquisitionByCatalogId();
+        } catch {
+            dropMap = {};
+        }
+
+        const rows = Object.entries(DEBUG_CATALOG_IDS).map(([k, catalogId]) => {
+            const drop = dropMap[catalogId] ?? null;
+            const dropSources: string[] = Array.isArray(drop?.sources) ? drop.sources.map(String) : [];
+
+            const dropSourcesKnown: string[] = dropSources.filter((s) => Boolean(SOURCE_INDEX[s as any]));
+            const dropSourcesUnknown: string[] = dropSources.filter((s) => !SOURCE_INDEX[s as any]);
+
+            const catalogRec: any = (FULL_CATALOG as any)?.recordsById?.[catalogId] ?? null;
+            const catalogName =
+                typeof catalogRec?.displayName === "string"
+                    ? catalogRec.displayName
+                    : typeof catalogRec?.name === "string"
+                        ? catalogRec.name
+                        : String(catalogId);
+
+            const acq = getAcquisitionByCatalogId(catalogId as any);
+            const acqSources: string[] = Array.isArray((acq as any)?.sources) ? (acq as any).sources.map(String) : [];
+
+            return {
+                key: k,
+                catalogId,
+                catalogName,
+                dropMapHasEntry: Boolean(drop),
+                dropSourcesCount: dropSources.length,
+                dropSourcesKnownCount: dropSourcesKnown.length,
+                dropSourcesUnknownCount: dropSourcesUnknown.length,
+                dropSourcesPreview: dropSources.slice(0, 25),
+                dropSourcesUnknownPreview: dropSourcesUnknown.slice(0, 25),
+                getAcqSourcesCount: acqSources.length,
+                getAcqSourcesPreview: acqSources.slice(0, 25)
+            };
+        });
+
+        return {
+            debugCatalogIds: DEBUG_CATALOG_IDS,
+            derivedDropMapKeys: Object.keys(dropMap).length,
+            rows
+        };
+    }, []);
+
     const priceCoverage = useMemo(() => {
         const ids = FULL_CATALOG.displayableInventoryItemIds;
 
@@ -318,18 +420,16 @@ export default function Diagnostics() {
     const farmingStats = farming?.stats ?? {
         actionableItemsWithKnownAcquisition: 0,
         hiddenForUnknownAcquisition: 0,
+        hiddenForUnknownRecipeAcquisition: 0,
         hiddenForMissingPrereqs: 0,
         hiddenForNoAccessibleSources: 0,
         overlapSourceCount: 0
     };
 
     const completenessExportObject = useMemo(() => {
-        // This is the object that will be written to catalog-completeness.json.
-        // Keep it as an object (not a pre-stringified JSON blob) so jq sees the extra keys.
         let dropDataJoinDiagnostics: any = null;
 
         try {
-            // Prefer the memoized value if available, but do not assume it exists.
             dropDataJoinDiagnostics = dropJoinDiag ?? deriveDropDataJoinDiagnostics();
         } catch {
             dropDataJoinDiagnostics = null;
@@ -353,6 +453,115 @@ export default function Diagnostics() {
 
     return (
         <div className="space-y-6">
+            <Section
+                title="Snapshot Export"
+                subtitle="Downloads the exact JSON used by the planner so you can run jq tests locally (no placeholders)."
+            >
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
+                        onClick={() => {
+                            const stamp = snapshotStamp();
+                            downloadJson(`requirements-snapshot-${stamp}.json`, requirements);
+                        }}
+                    >
+                        Download requirements snapshot
+                    </button>
+
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
+                        onClick={() => {
+                            const stamp = snapshotStamp();
+                            downloadJson(`farming-snapshot-${stamp}.json`, farming);
+                        }}
+                    >
+                        Download farming snapshot
+                    </button>
+
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
+                        onClick={() => {
+                            const stamp = snapshotStamp();
+                            downloadJson(`planner-snapshots-${stamp}.json`, {
+                                requirements,
+                                farming
+                            });
+                        }}
+                    >
+                        Download combined (requirements + farming)
+                    </button>
+                </div>
+
+                <div className="mt-3 text-xs text-slate-500">
+                    Tip: after downloading, rename the newest files to{" "}
+                    <span className="font-mono">requirements.json</span> and{" "}
+                    <span className="font-mono">farming.json</span> so your jq commands stay stable.
+                </div>
+            </Section>
+
+            <Section
+                title="Drop-map sanity checks (Orokin Cell + Neurodes)"
+                subtitle="Shows (1) what the drop-data layer returns, (2) which of those sources are missing from SOURCE_INDEX, and (3) what getAcquisitionByCatalogId ultimately returns."
+            >
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
+                        onClick={() => downloadJson("drop-map-sanity.json", dropMapSanity)}
+                    >
+                        Download sanity JSON
+                    </button>
+                </div>
+
+                <details className="mt-3">
+                    <summary className="cursor-pointer text-xs text-slate-300">Show sanity JSON</summary>
+                    <pre className="mt-2 whitespace-pre-wrap break-words text-xs text-slate-200 font-mono">
+                        {JSON.stringify(dropMapSanity, null, 2)}
+                    </pre>
+                </details>
+
+                <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    {dropMapSanity.rows.map((r) => (
+                        <div key={r.catalogId} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                            <div className="text-sm font-semibold break-words">{r.catalogName}</div>
+                            <div className="text-[11px] text-slate-500 mt-1 break-words">
+                                CatalogId: <span className="font-mono">{r.catalogId}</span>
+                            </div>
+
+                            <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2">
+                                <StatCard label="dropMap entry" value={r.dropMapHasEntry ? "yes" : "no"} />
+                                <StatCard label="dropMap sources" value={fmtI(r.dropSourcesCount)} />
+                                <StatCard label="getAcq sources" value={fmtI(r.getAcqSourcesCount)} />
+                            </div>
+
+                            <div className="mt-3 text-xs text-slate-300">
+                                dropMap sources preview:
+                                <div className="mt-1 font-mono text-[11px] text-slate-200 break-words">
+                                    {r.dropSourcesPreview.length > 0 ? r.dropSourcesPreview.join(", ") : "(none)"}
+                                </div>
+                            </div>
+
+                            <div className="mt-3 text-xs text-slate-300">
+                                dropMap sources missing in SOURCE_INDEX:
+                                <div className="mt-1 font-mono text-[11px] text-slate-200 break-words">
+                                    {r.dropSourcesUnknownPreview.length > 0 ? r.dropSourcesUnknownPreview.join(", ") : "(none)"}
+                                </div>
+                            </div>
+
+                            <div className="mt-3 text-xs text-slate-300">
+                                getAcquisitionByCatalogId sources preview:
+                                <div className="mt-1 font-mono text-[11px] text-slate-200 break-words">
+                                    {r.getAcqSourcesPreview.length > 0 ? r.getAcqSourcesPreview.join(", ") : "(none)"}
+                                </div>
+                            </div>
+
+                            <div className="mt-2 text-[11px] text-slate-500">
+                                If dropMap sources exist but getAcq sources is empty, the sources are being dropped downstream (usually because they are not in SOURCE_INDEX).
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </Section>
+
             <Section
                 title="Catalog Completeness"
                 subtitle="Strict checks for Phase 1.2 data coverage. This does not guess."
@@ -494,64 +703,11 @@ export default function Diagnostics() {
                     CatalogIds with any sources from drop-data:{" "}
                     <span className="font-mono">{fmtI(dropAcqMapStats.catalogIdsWithSources)}</span>
                 </div>
-
-                {dropJoinDiag && (
-                    <details className="mt-3 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                        <summary className="cursor-pointer text-xs text-slate-300">
-                            Show samples (unmatched + ambiguous)
-                        </summary>
-
-                        <div className="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
-                            <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                                <div className="text-[11px] uppercase tracking-wide text-slate-500 mb-2">
-                                    Unmatched drop names (sample)
-                                </div>
-                                {(dropJoinDiag.samples?.unmatchedDropNames ?? []).length === 0 ? (
-                                    <div className="text-sm text-slate-400">None.</div>
-                                ) : (
-                                    <ul className="list-disc pl-5 space-y-0.5 text-sm text-slate-200">
-                                        {(dropJoinDiag.samples?.unmatchedDropNames ?? []).slice(0, 100).map((n) => (
-                                            <li key={`unmatched:${n}`} className="break-words">
-                                                {n}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
-
-                            <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                                <div className="text-[11px] uppercase tracking-wide text-slate-500 mb-2">
-                                    Ambiguous drop names (sample)
-                                </div>
-                                {(dropJoinDiag.samples?.ambiguousDropNames ?? []).length === 0 ? (
-                                    <div className="text-sm text-slate-400">None.</div>
-                                ) : (
-                                    <div className="space-y-2">
-                                        {(dropJoinDiag.samples?.ambiguousDropNames ?? []).slice(0, 50).map((x) => (
-                                            <div
-                                                key={`amb:${x.dropName}`}
-                                                className="rounded-xl border border-slate-800 bg-slate-950/30 p-3"
-                                            >
-                                                <div className="text-sm font-semibold break-words">{x.dropName}</div>
-                                                <div className="text-xs text-slate-400 mt-1 break-words">
-                                                    Matches:{" "}
-                                                    <span className="font-mono">
-                                                        {(x.matchedCatalogIds ?? []).slice(0, 20).join(", ")}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </details>
-                )}
             </Section>
 
             <Section
                 title="Unknown-acquisition cross-check (Drop-data)"
-                subtitle="Compares the planner's unknown-acquisition list against the derived drop-data acquisition map, by catalogId."
+                subtitle="Compares the planner's unknown-acquisition list against the derived drop-data acquisition map, by catalogId. (Excludes /Lotus/Types/Recipes/*.)"
             >
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                     <StatCard label="Unknown-acquisition items" value={fmtI(unknownAcqCrossCheck.unknownCount)} />
@@ -571,47 +727,39 @@ export default function Diagnostics() {
                         Download cross-check (JSON)
                     </button>
                 </div>
+            </Section>
 
-                <details className="mt-3 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                    <summary className="cursor-pointer text-xs text-slate-300">
-                        Show sample (unknown-acquisition that HAS drop-data)
-                    </summary>
+            <Section
+                title="Unknown-recipe-acquisition cross-check (Drop-data)"
+                subtitle="Same cross-check, but for blueprint/recipe items (reason=unknown-recipe-acquisition). This tells you whether drop-data has any sources for these recipe ids at all."
+            >
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <StatCard label="Unknown recipe items" value={fmtI(unknownRecipeAcqCrossCheck.unknownCount)} />
+                    <StatCard label="Recipe but HAS drop-data" value={fmtI(unknownRecipeAcqCrossCheck.withDropDataCount)} />
+                    <StatCard label="Recipe and NO drop-data" value={fmtI(unknownRecipeAcqCrossCheck.withoutDropDataCount)} />
+                    <StatCard
+                        label="Likely failure mode"
+                        value={unknownRecipeAcqCrossCheck.withDropDataCount > 0 ? "merge bug" : "missing sources"}
+                    />
+                </div>
 
-                    {(unknownAcqCrossCheck.withDropData ?? []).length === 0 ? (
-                        <div className="mt-2 text-sm text-slate-400">None.</div>
-                    ) : (
-                        <div className="mt-2 space-y-2">
-                            {unknownAcqCrossCheck.withDropData.slice(0, 50).map((x) => (
-                                <div
-                                    key={`uacq-withdrop:${x.catalogId}`}
-                                    className="rounded-xl border border-slate-800 bg-slate-950/30 p-3"
-                                >
-                                    <div className="text-sm font-semibold break-words">{x.name}</div>
-                                    <div className="text-[11px] text-slate-500 mt-1 break-words">
-                                        CatalogId: <span className="font-mono">{x.catalogId}</span>
-                                    </div>
-                                    <div className="mt-2 text-xs text-slate-300 break-words">
-                                        Drop-data sources (first 5):{" "}
-                                        <span className="font-mono">
-                                            {x.dropSources
-                                                .slice(0, 5)
-                                                .map((s: any) => String(s?.sourceId ?? s))
-                                                .join(", ")}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </details>
+                <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
+                        onClick={() => downloadJson("unknown-recipe-acq-crosscheck.json", unknownRecipeAcqCrossCheck)}
+                    >
+                        Download cross-check (JSON)
+                    </button>
+                </div>
             </Section>
 
             <Section
                 title="Diagnostics"
                 subtitle="Fail-closed analysis of what is blocking progress. This page does not guess."
             >
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
                     <StatCard label="Hidden (unknown acquisition)" value={fmtI(farmingStats.hiddenForUnknownAcquisition)} />
+                    <StatCard label="Hidden (recipe acquisition missing)" value={fmtI(farmingStats.hiddenForUnknownRecipeAcquisition)} />
                     <StatCard label="Hidden (missing prereqs)" value={fmtI(farmingStats.hiddenForMissingPrereqs)} />
                     <StatCard label="Hidden (no accessible sources)" value={fmtI(farmingStats.hiddenForNoAccessibleSources)} />
                     <StatCard label="Actionable items" value={fmtI(farmingStats.actionableItemsWithKnownAcquisition)} />
@@ -660,7 +808,7 @@ export default function Diagnostics() {
 
             <Section
                 title="Unknown Acquisition (Debug)"
-                subtitle="Items required by goals or syndicates that have no acquisition mapping at all."
+                subtitle="Non-blueprint items required by goals or syndicates that have no acquisition mapping at all."
             >
                 {unknownAcquisition.length === 0 ? (
                     <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
@@ -679,6 +827,36 @@ export default function Diagnostics() {
                         ))}
 
                         {unknownAcquisition.length > 500 && (
+                            <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-xs text-slate-400">
+                                Rendering capped at 500 items to keep the page responsive. Use the download buttons above for full
+                                exports.
+                            </div>
+                        )}
+                    </div>
+                )}
+            </Section>
+
+            <Section
+                title="Recipe/Blueprint Acquisition Missing (Debug)"
+                subtitle="Blueprint/recipe items that should be purchasable/researchable/droppable, but are not yet mapped to acquisition sources."
+            >
+                {unknownRecipeAcquisition.length === 0 ? (
+                    <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
+                        No recipe/blueprint acquisition gaps detected.
+                    </div>
+                ) : (
+                    <div className="space-y-2">
+                        {unknownRecipeAcquisition.slice(0, 500).map((h) => (
+                            <div key={String(h.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                                <div className="text-sm font-semibold break-words">{String(h.name ?? "Unknown")}</div>
+                                <div className="text-xs text-slate-400 mt-1">Remaining {fmtN(h.remaining)}</div>
+                                <div className="text-[11px] text-slate-500 mt-1 break-words">
+                                    CatalogId: <span className="font-mono">{String(h.key)}</span>
+                                </div>
+                            </div>
+                        ))}
+
+                        {unknownRecipeAcquisition.length > 500 && (
                             <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-xs text-slate-400">
                                 Rendering capped at 500 items to keep the page responsive. Use the download buttons above for full
                                 exports.

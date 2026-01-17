@@ -56,8 +56,26 @@ function toToken(s: string): string {
 }
 
 /**
+ * Build a valid data: SourceId payload segment.
+ * Use "/" to keep it stable and consistent across layers.
+ */
+function dataId(parts: string[]): string {
+    const cleaned = parts
+        .map((p) => safeString(p) ?? "")
+        .filter((p) => p.length > 0)
+        .map((p) => toToken(p))
+        .filter((p) => p.length > 0);
+
+    if (cleaned.length === 0) return "data:unknown";
+    return `data:${cleaned.join("/")}`;
+}
+
+/**
  * Build a valid src: SourceId payload segment (no extra colons).
- * MUST match acquisitionFromDropData.ts behavior.
+ * MUST match src/catalog/sources/sourceCatalog.ts behavior used elsewhere.
+ *
+ * This intentionally uses the same tokenization as acquisitionFromDropData.ts:
+ * normalizeNameNoPunct -> hyphenated token segments.
  */
 function srcId(parts: string[]): string {
     const cleaned = parts
@@ -81,11 +99,16 @@ function pushUnique(out: RawSource[], seen: Set<string>, id: string, label: stri
 
 /**
  * Curated non-drop sources.
- * IDs MUST be src:* to align with acquisition layers.
+ *
+ * IMPORTANT:
+ * - Keep BOTH data:market and data:market/credits because older snapshots/code may have emitted data:market.
+ * - The planner/access layer should prefer data:market/credits going forward.
  */
 const CURATED_SOURCES: RawSource[] = [
-    { id: srcId(["crafting"]), label: "Crafting (Foundry)", type: "crafting" },
-    { id: srcId(["market"]), label: "Market Purchase", type: "vendor" }
+    { id: "data:crafting", label: "Crafting (Foundry)", type: "crafting" },
+
+    { id: "data:market", label: "Market Purchase", type: "vendor" },
+    { id: "data:market/credits", label: "Market (Credits)", type: "vendor" }
 ];
 
 /**
@@ -106,8 +129,10 @@ function buildWfcdDropSources(): RawSource[] {
 
 /**
  * Mission node sources derived from missionRewards.json.
- * MUST match acquisitionFromMissionRewardsRelics.ts:
- *   srcId(["node", planetName, nodeName])
+ * These are data-derived sources, so they MUST be data:*.
+ *
+ * MUST match acquisitionFromDropData.ts:
+ *   dataId(["node", planetName, nodeName])
  */
 function buildMissionNodeSources(): RawSource[] {
     const out: RawSource[] = [];
@@ -122,7 +147,7 @@ function buildMissionNodeSources(): RawSource[] {
         for (const [nodeName, nodeObj] of Object.entries(planetObj as Record<string, any>)) {
             if (!nodeObj || typeof nodeObj !== "object") continue;
 
-            const id = srcId(["node", planetName, nodeName]);
+            const id = dataId(["node", planetName, nodeName]);
             const gameMode = safeString((nodeObj as any)?.gameMode);
             const label = gameMode ? `${planetName} - ${nodeName} (${gameMode})` : `${planetName} - ${nodeName}`;
 
@@ -135,7 +160,7 @@ function buildMissionNodeSources(): RawSource[] {
 }
 
 /**
- * Additional src:* sources used by drop-data acquisition layers.
+ * Additional data:* sources used by drop-data acquisition layers.
  */
 function buildDropDataSupplementSources(): RawSource[] {
     const out: RawSource[] = [];
@@ -147,7 +172,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const r of relicsArr) {
             const tier = safeString((r as any)?.tier) ?? "relic";
             const relicName = safeString((r as any)?.relicName) ?? "unknown";
-            const id = srcId(["relic", tier, relicName]);
+            const id = dataId(["relic", tier, relicName]);
             const label = `Relic: ${tier} ${relicName}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -161,7 +186,7 @@ function buildDropDataSupplementSources(): RawSource[] {
             for (const e of enemies) {
                 const enemyName = safeString((e as any)?.enemyName);
                 if (!enemyName) continue;
-                const id = srcId(["enemy-drop", enemyName]);
+                const id = dataId(["enemy-drop", enemyName]);
                 const label = `Enemy Drop: ${enemyName}`;
                 pushUnique(out, seen, id, label, "drop");
             }
@@ -173,7 +198,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of ebtArr) {
             const enemyName = safeString((row as any)?.enemyName);
             if (!enemyName) continue;
-            const id = srcId(["enemy-drop", enemyName]);
+            const id = dataId(["enemy-drop", enemyName]);
             const label = `Enemy Drop: ${enemyName}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -187,7 +212,7 @@ function buildDropDataSupplementSources(): RawSource[] {
             for (const e of enemies) {
                 const enemyName = safeString((e as any)?.enemyName);
                 if (!enemyName) continue;
-                const id = srcId(["enemy-mod", enemyName]);
+                const id = dataId(["enemy-mod", enemyName]);
                 const label = `Enemy Mod Drop: ${enemyName}`;
                 pushUnique(out, seen, id, label, "drop");
             }
@@ -203,7 +228,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of emtArr) {
             const enemyName = safeString((row as any)?.enemyName);
             if (!enemyName) continue;
-            const id = srcId(["enemy-mod", enemyName]);
+            const id = dataId(["enemy-mod", enemyName]);
             const label = `Enemy Mod Drop: ${enemyName}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -215,7 +240,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of trArr) {
             const objectiveName = safeString((row as any)?.objectiveName);
             if (!objectiveName) continue;
-            const id = srcId(["transient", objectiveName]);
+            const id = dataId(["transient", objectiveName]);
             const label = `Transient Reward: ${objectiveName}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -224,7 +249,7 @@ function buildDropDataSupplementSources(): RawSource[] {
     // ---- Sortie ----
     const srArr = (sortieRewardsJson as any)?.sortieRewards ?? (sortieRewardsJson as any);
     if (Array.isArray(srArr) && srArr.length > 0) {
-        pushUnique(out, seen, srcId(["sortie"]), "Sortie Rewards", "drop");
+        pushUnique(out, seen, dataId(["sortie"]), "Sortie Rewards", "drop");
     }
 
     // ---- Key rewards ----
@@ -233,7 +258,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of krArr) {
             const keyName = safeString((row as any)?.keyName);
             if (!keyName) continue;
-            const id = srcId(["key", keyName]);
+            const id = dataId(["key", keyName]);
             const label = `Key Rewards: ${keyName}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -245,7 +270,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of cbArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-            const id = srcId(["bounty", "cetus", bountyLevel]);
+            const id = dataId(["bounty", "cetus", bountyLevel]);
             const label = `Cetus Bounty: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -256,7 +281,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of sbArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-            const id = srcId(["bounty", "solaris", bountyLevel]);
+            const id = dataId(["bounty", "solaris", bountyLevel]);
             const label = `Solaris Bounty: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -267,7 +292,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of drArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-            const id = srcId(["bounty", "deimos", bountyLevel]);
+            const id = dataId(["bounty", "deimos", bountyLevel]);
             const label = `Deimos Bounty: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -278,7 +303,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of elArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-            const id = srcId(["bounty", "entrati-lab", bountyLevel]);
+            const id = dataId(["bounty", "entrati-lab", bountyLevel]);
             const label = `Entrati Lab Reward: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -289,7 +314,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of hxArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-            const id = srcId(["bounty", "hex", bountyLevel]);
+            const id = dataId(["bounty", "hex", bountyLevel]);
             const label = `Hex Reward: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -300,7 +325,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of zrArr) {
             const bountyLevel = safeString((row as any)?.bountyLevel);
             if (!bountyLevel) continue;
-            const id = srcId(["bounty", "zariman", bountyLevel]);
+            const id = dataId(["bounty", "zariman", bountyLevel]);
             const label = `Zariman Bounty: ${bountyLevel}`;
             pushUnique(out, seen, id, label, "drop");
         }
@@ -310,44 +335,87 @@ function buildDropDataSupplementSources(): RawSource[] {
     const synRoot = (syndicatesJson as any)?.syndicates ?? (syndicatesJson as any);
     if (synRoot && typeof synRoot === "object" && !Array.isArray(synRoot)) {
         for (const synName of Object.keys(synRoot as Record<string, any>)) {
-            const id = srcId(["vendor", "syndicate", synName]);
+            const id = dataId(["vendor", "syndicate", synName]);
             const label = `Syndicate Vendor: ${synName}`;
             pushUnique(out, seen, id, label, "vendor");
         }
     }
 
-    // ---- Misc enemy item drops ----
+    // ---- Misc enemy item drops (data:*) ----
     const miArr = (miscItemsJson as any)?.miscItems ?? (miscItemsJson as any);
     if (Array.isArray(miArr)) {
         for (const row of miArr) {
             const enemyName = safeString((row as any)?.enemyName);
             if (!enemyName) continue;
-            const id = srcId(["enemy-item", enemyName]);
+            const id = dataId(["enemy-item", enemyName]);
             const label = `Enemy Item Drop: ${enemyName}`;
             pushUnique(out, seen, id, label, "drop");
         }
     }
 
-    // ---- Resource by avatar ----
+    // ---- Resource by avatar (data:*) ----
     const rbaArr = (resourceByAvatarJson as any)?.resourceByAvatar ?? (resourceByAvatarJson as any);
     if (Array.isArray(rbaArr)) {
         for (const row of rbaArr) {
             const srcName = safeString((row as any)?.source);
             if (!srcName) continue;
-            const id = srcId(["resource-by-avatar", srcName]);
+            const id = dataId(["resource-by-avatar", srcName]);
             const label = `Resource Drop (Avatar): ${srcName}`;
             pushUnique(out, seen, id, label, "drop");
         }
     }
 
-    // ---- Additional item by avatar ----
+    // ---- Additional item by avatar (data:*) ----
     const aibaArr = (additionalItemByAvatarJson as any)?.additionalItemByAvatar ?? (additionalItemByAvatarJson as any);
     if (Array.isArray(aibaArr)) {
         for (const row of aibaArr) {
             const srcName = safeString((row as any)?.source);
             if (!srcName) continue;
-            const id = srcId(["additional-by-avatar", srcName]);
+            const id = dataId(["additional-by-avatar", srcName]);
             const label = `Additional Drop (Avatar): ${srcName}`;
+            pushUnique(out, seen, id, label, "drop");
+        }
+    }
+
+    out.sort((a, b) => a.label.localeCompare(b.label));
+    return out;
+}
+
+/**
+ * Runtime src:* sources emitted by acquisitionFromDropData.ts.
+ *
+ * IMPORTANT: These ids must match EXACTLY:
+ *   - src:enemyitem/<enemyNameToken>
+ *   - src:resourcebyavatar/<sourceToken>
+ *
+ * These must exist in SOURCE_INDEX or requirementEngine will discard them.
+ */
+function buildDropDataRuntimeSrcSources(): RawSource[] {
+    const out: RawSource[] = [];
+    const seen = new Set<string>();
+
+    // src:enemyitem/<enemyName>
+    const miArr = (miscItemsJson as any)?.miscItems ?? (miscItemsJson as any);
+    if (Array.isArray(miArr)) {
+        for (const row of miArr) {
+            const enemyName = safeString((row as any)?.enemyName);
+            if (!enemyName) continue;
+
+            const id = srcId(["enemyitem", enemyName]);
+            const label = `Enemy: ${enemyName}`;
+            pushUnique(out, seen, id, label, "drop");
+        }
+    }
+
+    // src:resourcebyavatar/<source>
+    const rbaArr = (resourceByAvatarJson as any)?.resourceByAvatar ?? (resourceByAvatarJson as any);
+    if (Array.isArray(rbaArr)) {
+        for (const row of rbaArr) {
+            const srcName = safeString((row as any)?.source);
+            if (!srcName) continue;
+
+            const id = srcId(["resourcebyavatar", srcName]);
+            const label = `Avatar Drop: ${srcName}`;
             pushUnique(out, seen, id, label, "drop");
         }
     }
@@ -361,7 +429,8 @@ export const SOURCE_CATALOG: RawSource[] = [
     ...CURATED_SOURCES,
     ...buildWfcdDropSources(),
     ...buildMissionNodeSources(),
-    ...buildDropDataSupplementSources()
+    ...buildDropDataSupplementSources(),
+    ...buildDropDataRuntimeSrcSources()
 ];
 
 export const SOURCE_INDEX: Record<SourceId, Source> = (() => {

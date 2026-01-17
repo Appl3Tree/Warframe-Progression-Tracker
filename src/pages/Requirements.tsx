@@ -46,6 +46,37 @@ function MiniStat(props: { label: string; value: string }) {
     );
 }
 
+function downloadJson(filename: string, obj: unknown) {
+    const json = JSON.stringify(obj, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+}
+
+function snapshotStamp(): string {
+    const d = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return (
+        [d.getFullYear(), pad(d.getMonth() + 1), pad(d.getDate())].join("") +
+        "-" +
+        [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join("")
+    );
+}
+
+function formatSourcesForUi(sources: Array<{ sourceLabel?: string; sourceId: string }> | undefined): string {
+    const list = sources ?? [];
+    if (list.length === 0) return "(unmapped)";
+    return list.map((s) => String(s.sourceLabel ?? s.sourceId)).join(", ");
+}
+
 export default function Requirements() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
 
@@ -84,7 +115,7 @@ export default function Requirements() {
             if (normalize(l.name).includes(q)) return true;
             if (normalize(String(l.key)).includes(q)) return true;
 
-            return l.sources.some(
+            return (l.sources ?? []).some(
                 (s) => normalize(s.sourceLabel).includes(q) || normalize(String(s.sourceId)).includes(q)
             );
         });
@@ -98,7 +129,7 @@ export default function Requirements() {
             if (normalize(g.sourceLabel).includes(q)) return true;
             if (normalize(String(g.sourceId)).includes(q)) return true;
 
-            return g.items.some((it) => normalize(it.name).includes(q) || normalize(String(it.key)).includes(q));
+            return (g.items ?? []).some((it) => normalize(it.name).includes(q) || normalize(String(it.key)).includes(q));
         });
     }, [farming.overlap, query]);
 
@@ -147,6 +178,36 @@ export default function Requirements() {
                             onClick={() => setActivePage("inventory")}
                         >
                             Open Inventory
+                        </button>
+
+                        <button
+                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-sm font-semibold hover:bg-slate-900/40"
+                            onClick={() => {
+                                const stamp = snapshotStamp();
+                                downloadJson(`requirements-snapshot-${stamp}.json`, requirements);
+                            }}
+                        >
+                            Export Requirements JSON
+                        </button>
+
+                        <button
+                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-sm font-semibold hover:bg-slate-900/40"
+                            onClick={() => {
+                                const stamp = snapshotStamp();
+                                downloadJson(`farming-snapshot-${stamp}.json`, farming);
+                            }}
+                        >
+                            Export Farming JSON
+                        </button>
+
+                        <button
+                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-sm font-semibold hover:bg-slate-900/40"
+                            onClick={() => {
+                                const stamp = snapshotStamp();
+                                downloadJson(`planner-snapshots-${stamp}.json`, { requirements, farming });
+                            }}
+                        >
+                            Export Combined JSON
                         </button>
                     </div>
                 </div>
@@ -208,6 +269,12 @@ export default function Requirements() {
                         <div key={String(l.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                             <div className="text-sm font-semibold">{l.name}</div>
                             <div className="text-xs text-slate-400">Remaining {l.remaining}</div>
+                            <div className="mt-2 text-xs text-slate-400 break-words">
+                                Sources:{" "}
+                                <span className="font-mono">
+                                    {formatSourcesForUi(l.sources as any)}
+                                </span>
+                            </div>
                         </div>
                     ))}
                 </Section>
@@ -216,6 +283,9 @@ export default function Requirements() {
                     {filteredOverlap.map((g) => (
                         <div key={g.sourceId} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                             <div className="text-sm font-semibold">{g.sourceLabel}</div>
+                            <div className="mt-2 text-xs text-slate-400">
+                                Items: <span className="font-mono">{(g.items ?? []).length}</span>
+                            </div>
                         </div>
                     ))}
                 </Section>
@@ -223,3 +293,4 @@ export default function Requirements() {
         </div>
     );
 }
+
