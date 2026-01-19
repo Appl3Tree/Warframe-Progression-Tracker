@@ -1,4 +1,5 @@
-// ===== FILE: src/app/Diagnostics.tsx =====
+// ===== FILE: src/pages/Diagnostics.tsx =====
+// src/pages/Diagnostics.tsx
 
 import { useMemo } from "react";
 import { useTrackerStore } from "../store/store";
@@ -8,8 +9,7 @@ import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 
 import {
-    deriveDropDataAcquisitionByCatalogId,
-    deriveDropDataJoinDiagnostics
+    deriveDropDataAcquisitionByCatalogId
 } from "../catalog/items/acquisitionFromDropData";
 
 function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {
@@ -319,14 +319,6 @@ export default function Diagnostics() {
         };
     }, []);
 
-    const dropJoinDiag = useMemo(() => {
-        try {
-            return deriveDropDataJoinDiagnostics();
-        } catch {
-            return null;
-        }
-    }, []);
-
     const dropAcqMapStats = useMemo(() => {
         try {
             const m = deriveDropDataAcquisitionByCatalogId();
@@ -427,19 +419,12 @@ export default function Diagnostics() {
     };
 
     const completenessExportObject = useMemo(() => {
-        let dropDataJoinDiagnostics: any = null;
-
-        try {
-            dropDataJoinDiagnostics = dropJoinDiag ?? deriveDropDataJoinDiagnostics();
-        } catch {
-            dropDataJoinDiagnostics = null;
-        }
-
         return {
             stats: {
                 displayableInventoryCount: completeness.displayableInventoryCount,
                 missingAcquisitionCount: completeness.missingAcquisitionCount,
-                unknownSourceRefCount: completeness.unknownSourceRefCount
+                unknownSourceRefCount: completeness.unknownSourceRefCount,
+                dropDataCatalogIdsWithSources: dropAcqMapStats.catalogIdsWithSources
             },
             missingAcquisition: completeness.missingAcq.map((x) => ({ catalogId: x.catalogId, name: x.name })),
             unknownSourceRefs: completeness.unknownSourceRefs.map((x) => ({
@@ -447,9 +432,9 @@ export default function Diagnostics() {
                 name: x.name,
                 sources: x.sources ?? []
             })),
-            dropDataJoinDiagnostics
+            dropMapSanity
         };
-    }, [completeness, dropJoinDiag]);
+    }, [completeness, dropAcqMapStats, dropMapSanity]);
 
     return (
         <div className="space-y-6">
@@ -510,6 +495,16 @@ export default function Diagnostics() {
                     >
                         Download sanity JSON
                     </button>
+
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
+                        onClick={() => {
+                            const m = deriveDropDataAcquisitionByCatalogId();
+                            downloadJson("drop-data-acquisition-map.json", m);
+                        }}
+                    >
+                        Download drop-data acquisition map (JSON)
+                    </button>
                 </div>
 
                 <details className="mt-3">
@@ -519,46 +514,9 @@ export default function Diagnostics() {
                     </pre>
                 </details>
 
-                <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
-                    {dropMapSanity.rows.map((r) => (
-                        <div key={r.catalogId} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                            <div className="text-sm font-semibold break-words">{r.catalogName}</div>
-                            <div className="text-[11px] text-slate-500 mt-1 break-words">
-                                CatalogId: <span className="font-mono">{r.catalogId}</span>
-                            </div>
-
-                            <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2">
-                                <StatCard label="dropMap entry" value={r.dropMapHasEntry ? "yes" : "no"} />
-                                <StatCard label="dropMap sources" value={fmtI(r.dropSourcesCount)} />
-                                <StatCard label="getAcq sources" value={fmtI(r.getAcqSourcesCount)} />
-                            </div>
-
-                            <div className="mt-3 text-xs text-slate-300">
-                                dropMap sources preview:
-                                <div className="mt-1 font-mono text-[11px] text-slate-200 break-words">
-                                    {r.dropSourcesPreview.length > 0 ? r.dropSourcesPreview.join(", ") : "(none)"}
-                                </div>
-                            </div>
-
-                            <div className="mt-3 text-xs text-slate-300">
-                                dropMap sources missing in SOURCE_INDEX:
-                                <div className="mt-1 font-mono text-[11px] text-slate-200 break-words">
-                                    {r.dropSourcesUnknownPreview.length > 0 ? r.dropSourcesUnknownPreview.join(", ") : "(none)"}
-                                </div>
-                            </div>
-
-                            <div className="mt-3 text-xs text-slate-300">
-                                getAcquisitionByCatalogId sources preview:
-                                <div className="mt-1 font-mono text-[11px] text-slate-200 break-words">
-                                    {r.getAcqSourcesPreview.length > 0 ? r.getAcqSourcesPreview.join(", ") : "(none)"}
-                                </div>
-                            </div>
-
-                            <div className="mt-2 text-[11px] text-slate-500">
-                                If dropMap sources exist but getAcq sources is empty, the sources are being dropped downstream (usually because they are not in SOURCE_INDEX).
-                            </div>
-                        </div>
-                    ))}
+                <div className="mt-3 text-xs text-slate-400">
+                    CatalogIds with any sources from drop-data:{" "}
+                    <span className="font-mono">{fmtI(dropAcqMapStats.catalogIdsWithSources)}</span>
                 </div>
             </Section>
 
@@ -663,45 +621,6 @@ export default function Diagnostics() {
                     <StatCard label="Displayable inventory" value={fmtI(priceCoverage.displayableInventory)} />
                     <StatCard label="With buildPrice" value={fmtI(priceCoverage.withBuildPrice)} />
                     <StatCard label="With marketCost" value={fmtI(priceCoverage.withMarketCost)} />
-                </div>
-            </Section>
-
-            <Section
-                title="Drop-data join diagnostics"
-                subtitle="This evaluates how well drop-data names join onto catalog IDs (including ambiguity and misses)."
-            >
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <StatCard label="Unique drop names" value={fmtI(dropJoinDiag?.stats?.uniqueDropNames ?? 0)} />
-                    <StatCard label="Matched unique drop names" value={fmtI(dropJoinDiag?.stats?.matchedUniqueDropNames ?? 0)} />
-                    <StatCard label="Unmatched unique drop names" value={fmtI(dropJoinDiag?.stats?.unmatchedUniqueDropNames ?? 0)} />
-                    <StatCard label="Ambiguous unique drop names" value={fmtI(dropJoinDiag?.stats?.ambiguousUniqueDropNames ?? 0)} />
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                    <button
-                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
-                        onClick={() => {
-                            const diag = deriveDropDataJoinDiagnostics();
-                            downloadJson("drop-data-join-diagnostics.json", diag);
-                        }}
-                    >
-                        Download drop-data join diagnostics (JSON)
-                    </button>
-
-                    <button
-                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
-                        onClick={() => {
-                            const m = deriveDropDataAcquisitionByCatalogId();
-                            downloadJson("drop-data-acquisition-map.json", m);
-                        }}
-                    >
-                        Download drop-data acquisition map (JSON)
-                    </button>
-                </div>
-
-                <div className="mt-3 text-xs text-slate-400">
-                    CatalogIds with any sources from drop-data:{" "}
-                    <span className="font-mono">{fmtI(dropAcqMapStats.catalogIdsWithSources)}</span>
                 </div>
             </Section>
 
