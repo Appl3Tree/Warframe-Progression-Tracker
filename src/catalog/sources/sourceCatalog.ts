@@ -108,7 +108,69 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:crafting", label: "Crafting (Foundry)", type: "crafting" },
 
     { id: "data:market", label: "Market Purchase", type: "vendor" },
-    { id: "data:market/credits", label: "Market (Credits)", type: "vendor" }
+    { id: "data:market/credits", label: "Market (Credits)", type: "vendor" },
+
+    // warframe-items open-world coarse buckets (new)
+    { id: "data:openworld/cetus/mining", label: "Open World: Plains of Eidolon (Mining)", type: "drop" },
+    { id: "data:openworld/cetus/gathering", label: "Open World: Plains of Eidolon (Gathering)", type: "drop" },
+
+    { id: "data:openworld/fortuna/mining", label: "Open World: Orb Vallis (Mining)", type: "drop" },
+    { id: "data:openworld/fortuna/gathering", label: "Open World: Orb Vallis (Gathering)", type: "drop" },
+    { id: "data:openworld/fortuna/kdrive", label: "Open World: Orb Vallis (K-Drive)", type: "drop" },
+
+    { id: "data:openworld/deimos/mining", label: "Open World: Cambion Drift (Mining)", type: "drop" },
+    { id: "data:openworld/deimos/gathering", label: "Open World: Cambion Drift (Gathering)", type: "drop" },
+    { id: "data:openworld/deimos/kdrive-races", label: "Open World: Cambion Drift (K-Drive Races)", type: "drop" },
+
+    { id: "data:openworld/zariman", label: "Open World: Zariman", type: "drop" },
+    { id: "data:openworld/duviri", label: "Open World: Duviri", type: "drop" },
+
+    // fishing (explicit + processing)
+    { id: "data:fishing/cetus", label: "Fishing: Plains of Eidolon", type: "drop" },
+    { id: "data:fishing/cetus/processing", label: "Fishing: Plains of Eidolon (Cut/Processing)", type: "drop" },
+
+    { id: "data:fishing/fortuna", label: "Fishing: Orb Vallis", type: "drop" },
+    { id: "data:fishing/fortuna/processing", label: "Fishing: Orb Vallis (Cut/Processing)", type: "drop" },
+
+    { id: "data:fishing/deimos", label: "Fishing: Cambion Drift", type: "drop" },
+    { id: "data:fishing/deimos/processing", label: "Fishing: Cambion Drift (Cut/Processing)", type: "drop" },
+
+    // ---- Additional curated sources for Lotus-path rules ----
+
+    // generic processing fallback (should almost never display, but avoids "unknown source" if emitted)
+    { id: "data:fishing/processing", label: "Fishing (Cut/Processing)", type: "drop" },
+
+    // vendors
+    { id: "data:vendor/fortuna/ventkids", label: "Vendor: Ventkids (Fortuna)", type: "vendor" },
+    { id: "data:vendor/cetus/hok", label: "Vendor: Hok (Cetus)", type: "vendor" },
+    { id: "data:vendor/cetus/quills", label: "Vendor: The Quills (Cetus)", type: "vendor" },
+    { id: "data:vendor/fortuna/vox-solaris", label: "Vendor: Vox Solaris (Fortuna)", type: "vendor" },
+    { id: "data:vendor/fortuna/legs", label: "Vendor: Legs (Fortuna)", type: "vendor" },
+    { id: "data:vendor/amps", label: "Vendor: Amp Parts", type: "vendor" },
+
+    // systems / special economies
+    { id: "data:lich/kuva", label: "Kuva Lich Weapons (Kuva)", type: "other" },
+    { id: "data:lich/tenet", label: "Sisters of Parvos / Tenet Items", type: "other" },
+
+    { id: "data:eidolon/hunts", label: "Eidolon Hunts (Plains of Eidolon)", type: "drop" },
+    { id: "data:relics/ducats", label: "Relics: Ducats (Prime Part Exchange)", type: "other" },
+    { id: "data:bounties/narmer", label: "Narmer Bounties", type: "drop" },
+    { id: "data:system/helminth", label: "System: Helminth", type: "other" },
+
+    { id: "data:openworld/duviri/shrines", label: "Duviri: Shrines", type: "drop" },
+    { id: "data:events/anniversary", label: "Event: Anniversary (Dex Rewards)", type: "other" },
+    { id: "data:events/naberus", label: "Event: Nights of Naberus", type: "other" },
+
+    { id: "data:enemy/zanuka-hunter", label: "Enemy: Zanuka Hunter", type: "drop" },
+    { id: "data:pvp/conclave", label: "Conclave (PvP)", type: "other" },
+
+    { id: "data:market/sentinel-weapons", label: "Market: Sentinel Weapons", type: "vendor" },
+
+    { id: "data:openworld/cetus/vasca", label: "Open World: Plains of Eidolon (Vasca Kavat)", type: "drop" },
+
+    // ---- Resource buckets (curated) ----
+    // Fieldron Sample is a Corpus resource drop. Keep this coarse and stable.
+    { id: "data:resource/fieldron-sample", label: "Resource: Fieldron Sample (Corpus Drop)", type: "drop" }
 ];
 
 /**
@@ -383,12 +445,6 @@ function buildDropDataSupplementSources(): RawSource[] {
 
 /**
  * Runtime src:* sources emitted by acquisitionFromDropData.ts.
- *
- * IMPORTANT: These ids must match EXACTLY:
- *   - src:enemyitem/<enemyNameToken>
- *   - src:resourcebyavatar/<sourceToken>
- *
- * These must exist in SOURCE_INDEX or requirementEngine will discard them.
  */
 function buildDropDataRuntimeSrcSources(): RawSource[] {
     const out: RawSource[] = [];

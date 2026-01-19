@@ -16,25 +16,38 @@ function parseMap(raw: unknown): Record<string, any> {
     return raw as Record<string, any>;
 }
 
-export function deriveAcquisitionByCatalogIdFromSourcesJson(): Record<string, AcquisitionDef> {
-    const raw = parseMap(wfcdAcqJson);
+function normalizeSources(rawSources: unknown): string[] {
+    const sources = Array.isArray(rawSources) ? rawSources : [];
+    const norm = sources
+        .filter((x: any) => typeof x === "string" && x.trim().length > 0)
+        .map((x: string) => x.trim());
 
+    // Preserve duplicates? No. Stable unique list.
+    return Array.from(new Set(norm)).sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Derived once at module load, to avoid recomputing on every call.
+ */
+const WFCD_ACQ_BY_CATALOG_ID: Record<string, AcquisitionDef> = (() => {
+    const raw = parseMap(wfcdAcqJson);
     const out: Record<string, AcquisitionDef> = {};
 
     for (const [cid, rec] of Object.entries(raw)) {
-        const sources = Array.isArray((rec as any)?.sources) ? (rec as any).sources : [];
-        const norm = sources.filter((x: any) => typeof x === "string" && x.trim().length > 0);
-
-        if (norm.length === 0) continue;
-
-        out[String(cid)] = { sources: norm };
+        const sources = normalizeSources((rec as any)?.sources);
+        if (sources.length === 0) continue;
+        out[String(cid)] = { sources };
     }
 
     return out;
+})();
+
+export function deriveAcquisitionByCatalogIdFromSourcesJson(): Record<string, AcquisitionDef> {
+    // Return the already-derived map (treat as read-only).
+    return WFCD_ACQ_BY_CATALOG_ID;
 }
 
 export function getAcquisitionDefFromSources(catalogId: CatalogId): AcquisitionDef | null {
-    const all = deriveAcquisitionByCatalogIdFromSourcesJson();
-    return all[String(catalogId)] ?? null;
+    return WFCD_ACQ_BY_CATALOG_ID[String(catalogId)] ?? null;
 }
 

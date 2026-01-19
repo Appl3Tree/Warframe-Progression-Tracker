@@ -587,7 +587,7 @@ function classifyFromRecord(catalogId: string, rec: any): Classification {
     // Heuristic companion detection + subtype fix-ups.
     // Needed because some companion entities have weak/empty categories (e.g. base VULPAPHYLA powersuit).
     {
-        const h = getRawStringsForHeuristics(catalogId, rec);
+        const h = getRawStringsForHeuristics(catalogId as any, rec);
 
         const cid = normalize(String(catalogId));
         const isPetEntity =

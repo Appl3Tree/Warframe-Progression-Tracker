@@ -527,6 +527,11 @@ function getAcquisitionSourcesForCatalogId(catalogId: CatalogId): SourceId[] | n
  * This is intentionally conservative and based on the canonical Lotus path prefix for "Items".
  */
 function isIngredientLikeCatalogItem(catalogId: CatalogId): boolean {
+    const cidStr = String(catalogId);
+
+    // If catalog record is missing, fall back to CatalogId prefix.
+    if (cidStr.includes(":/Lotus/Types/Items/")) return true;
+
     const rec = FULL_CATALOG.recordsById[catalogId];
     const path = String(rec?.path ?? "");
 
@@ -539,6 +544,13 @@ function isIngredientLikeCatalogItem(catalogId: CatalogId): boolean {
 }
 
 function isRecipeCatalogItem(catalogId: CatalogId): boolean {
+    const cidStr = String(catalogId);
+
+    // CRITICAL:
+    // Recipe/blueprint CatalogIds may exist in itemRequirements even if FULL_CATALOG does not have a record for them.
+    // We must classify these by CatalogId string, not just by resolved record.path.
+    if (cidStr.includes(":/Lotus/Types/Recipes/")) return true;
+
     const rec = FULL_CATALOG.recordsById[catalogId];
     const path = String(rec?.path ?? "");
     return path.startsWith("/Lotus/Types/Recipes/");
