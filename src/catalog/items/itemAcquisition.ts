@@ -12,6 +12,7 @@ import { deriveDropDataAcquisitionByCatalogId } from "./acquisitionFromDropData"
 import { deriveRelicMissionRewardsAcquisitionByCatalogId } from "./acquisitionFromMissionRewardsRelics";
 import { deriveRelicsJsonAcquisitionByCatalogId } from "./acquisitionFromRelicsJson";
 import { deriveWarframeItemsAcquisitionByCatalogId } from "./acquisitionFromWarframeItems";
+import { deriveItemsJsonMarketAcquisitionByCatalogId } from "./acquisitionFromItemsJsonMarket";
 
 /**
  * Central acquisition accessor.
@@ -22,6 +23,7 @@ import { deriveWarframeItemsAcquisitionByCatalogId } from "./acquisitionFromWarf
  * - missionRewards relic indexing is an augment layer.
  * - relics.json is an augment layer.
  * - warframe-items ingestion (Resources/Misc/Fish) is an augment layer.
+ * - items.json market acquisition (recipes/blueprints) is an augment layer.
  * - Manual curation is included inside acquisitionFromDropData.ts (MANUAL_ACQUISITION_BY_CATALOG_ID)
  *
  * IMPORTANT POLICY:
@@ -36,6 +38,7 @@ const DROP_DATA_ACQ: Record<string, AcquisitionDef> = deriveDropDataAcquisitionB
 const MISSION_RELIC_ACQ: Record<string, AcquisitionDef> = deriveRelicMissionRewardsAcquisitionByCatalogId();
 const RELICS_JSON_ACQ: Record<string, AcquisitionDef> = deriveRelicsJsonAcquisitionByCatalogId();
 const WARFRAME_ITEMS_ACQ: Record<string, AcquisitionDef> = deriveWarframeItemsAcquisitionByCatalogId();
+const ITEMS_JSON_MARKET_ACQ: Record<string, AcquisitionDef> = deriveItemsJsonMarketAcquisitionByCatalogId();
 
 function unionSources(...lists: Array<string[] | undefined>): string[] {
     const set = new Set<string>();
@@ -60,10 +63,10 @@ export function getAcquisitionByCatalogId(catalogId: CatalogId): AcquisitionDef 
     const mr = MISSION_RELIC_ACQ[key];
     const rj = RELICS_JSON_ACQ[key];
     const wi = WARFRAME_ITEMS_ACQ[key];
+    const im = ITEMS_JSON_MARKET_ACQ[key];
 
-    const sources = unionSources(wfcd?.sources, dd?.sources, mr?.sources, rj?.sources, wi?.sources);
+    const sources = unionSources(wfcd?.sources, dd?.sources, mr?.sources, rj?.sources, wi?.sources, im?.sources);
 
     if (sources.length === 0) return null;
     return { sources };
 }
-

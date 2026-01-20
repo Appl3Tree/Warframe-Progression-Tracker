@@ -110,7 +110,7 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:market", label: "Market Purchase", type: "vendor" },
     { id: "data:market/credits", label: "Market (Credits)", type: "vendor" },
 
-    // warframe-items open-world coarse buckets (new)
+    // warframe-items open-world coarse buckets
     { id: "data:openworld/cetus/mining", label: "Open World: Plains of Eidolon (Mining)", type: "drop" },
     { id: "data:openworld/cetus/gathering", label: "Open World: Plains of Eidolon (Gathering)", type: "drop" },
 
@@ -135,9 +135,7 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:fishing/deimos", label: "Fishing: Cambion Drift", type: "drop" },
     { id: "data:fishing/deimos/processing", label: "Fishing: Cambion Drift (Cut/Processing)", type: "drop" },
 
-    // ---- Additional curated sources for Lotus-path rules ----
-
-    // generic processing fallback (should almost never display, but avoids "unknown source" if emitted)
+    // generic processing fallback
     { id: "data:fishing/processing", label: "Fishing (Cut/Processing)", type: "drop" },
 
     // vendors
@@ -146,7 +144,16 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:vendor/cetus/quills", label: "Vendor: The Quills (Cetus)", type: "vendor" },
     { id: "data:vendor/fortuna/vox-solaris", label: "Vendor: Vox Solaris (Fortuna)", type: "vendor" },
     { id: "data:vendor/fortuna/legs", label: "Vendor: Legs (Fortuna)", type: "vendor" },
-    { id: "data:vendor/amps", label: "Vendor: Amp Parts", type: "vendor" },
+
+    // kitguns
+    { id: "data:vendor/fortuna/rude-zuud", label: "Vendor: Rude Zuud (Fortuna Kitguns)", type: "vendor" },
+    { id: "data:vendor/deimos/father", label: "Vendor: Father (Deimos Kitguns)", type: "vendor" },
+
+    // dojo research
+    { id: "data:dojo/chem-lab", label: "Dojo Research: Chem Lab (Grineer)", type: "vendor" },
+    { id: "data:dojo/energy-lab", label: "Dojo Research: Energy Lab (Corpus)", type: "vendor" },
+    { id: "data:dojo/bio-lab", label: "Dojo Research: Bio Lab (Infested)", type: "vendor" },
+    { id: "data:dojo/research", label: "Dojo Research (Uncategorized)", type: "vendor" },
 
     // systems / special economies
     { id: "data:lich/kuva", label: "Kuva Lich Weapons (Kuva)", type: "other" },
@@ -168,8 +175,7 @@ const CURATED_SOURCES: RawSource[] = [
 
     { id: "data:openworld/cetus/vasca", label: "Open World: Plains of Eidolon (Vasca Kavat)", type: "drop" },
 
-    // ---- Resource buckets (curated) ----
-    // Fieldron Sample is a Corpus resource drop. Keep this coarse and stable.
+    // Resource buckets (curated)
     { id: "data:resource/fieldron-sample", label: "Resource: Fieldron Sample (Corpus Drop)", type: "drop" }
 ];
 
@@ -511,4 +517,3 @@ export const SOURCE_INDEX: Record<SourceId, Source> = (() => {
 })();
 
 export const SOURCES: Source[] = Object.values(SOURCE_INDEX);
-
