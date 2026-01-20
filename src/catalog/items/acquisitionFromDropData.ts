@@ -230,16 +230,16 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponIP": ["data:todo/zanuka-companion"],
     "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponIS": ["data:todo/zanuka-companion"],
 
-    "items:/Lotus/Weapons/Tenno/Pistol/BurstPistol": ["data:market/credits"], // Sicarus
-    "items:/Lotus/Weapons/Tenno/Shotgun/Shotgun": ["data:market/credits"], // Strun
-
     "items:/Lotus/Weapons/Grineer/Melee/GunBlade/GrnGunBlade/GrnGunblade": ["data:todo/vastilok"],
     "items:/Lotus/Powersuits/Khora/Kavat/KhoraKavatPowerSuit": ["data:warframe/khora"],
 
-    // Unknowns that need future authoritative mapping (but stop “unknown-acquisition” now)
+    // Manually adjusted unknown-acquisitions
     "items:/Lotus/Types/Items/MiscItems/GrnFlameSpearPart": ["data:enemyitem/prosecutors"],
     "items:/Lotus/Types/Items/MiscItems/SentientFragmentLootItem": ["data:node/murex/20-sentients"],
-    "items:/Lotus/Types/Items/MushroomJournal/PlainMushroomJournalItem": ["data:deepmines/gathering"]
+    "items:/Lotus/Types/Items/MushroomJournal/PlainMushroomJournalItem": ["data:deepmines/gathering"],
+
+    "items:/Lotus/Weapons/Tenno/Pistol/BurstPistol": ["data:market/credits"], // Sicarus
+    "items:/Lotus/Weapons/Tenno/Shotgun/Shotgun": ["data:market/credits"], // Strun
 };
 
 function normalizeName(s: string): string {
