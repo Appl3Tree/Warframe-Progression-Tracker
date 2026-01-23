@@ -153,7 +153,6 @@ type FoundryOverrides = {
     byPath: Record<string, string>;
 
     // resultItemType -> preferred label for the *result item* (used to name recipe blueprints)
-    // Example: "/Lotus/Types/Recipes/Weapons/WeaponParts/1999EntHybridPistolBarrel" -> "Riot-848 Barrel"
     byResultItemType: Record<string, string>;
 };
 
@@ -181,7 +180,6 @@ function flattenFoundryItems(wfdata: any): any[] {
 }
 
 const GENERIC_COMPONENT_SLOT_NAMES = new Set<string>([
-    // Common recipe/component slots (we want "<Item> <Slot>")
     "barrel",
     "receiver",
     "stock",
@@ -204,7 +202,7 @@ const GENERIC_COMPONENT_SLOT_NAMES = new Set<string>([
     "cerebrum",
     "carapace",
     "head",
-    "blueprint" // handled specially, but harmless here too
+    "blueprint"
 ]);
 
 function buildFoundryOverrides(wfdataRaw: any): FoundryOverrides {
@@ -227,10 +225,6 @@ function buildFoundryOverrides(wfdataRaw: any): FoundryOverrides {
 
             const slotNorm = slotName.trim().toLowerCase();
 
-            // Labeling policy:
-            // - Blueprint slot: always "<Item> Blueprint"
-            // - Generic slots: "<Item> <Slot>" (Riot-848 Barrel, etc.)
-            // - Named/non-generic: use slotName as-is (War Blade, Broken War, Orokin Cell, etc.)
             const baseLabel =
                 slotNorm === "blueprint"
                     ? `${itemName} Blueprint`
@@ -240,9 +234,6 @@ function buildFoundryOverrides(wfdataRaw: any): FoundryOverrides {
 
             byPath[path] = baseLabel;
 
-            // If the foundry component is a *part result item* (WeaponParts),
-            // we also want to name its *recipe blueprint* as "<baseLabel> Blueprint"
-            // using resultItemType matching.
             if (path.startsWith("/Lotus/Types/Recipes/Weapons/WeaponParts/")) {
                 byResultItemType[path] = baseLabel;
             }
@@ -266,7 +257,6 @@ function isRecipeItem(rec: any): boolean {
 }
 
 function getResultItemType(rec: any): string | null {
-    // Some records use "resultItemType"; others use "ResultItem".
     const a = safeString(rec?.data?.resultItemType);
     if (a) return a;
 
@@ -276,16 +266,25 @@ function getResultItemType(rec: any): string | null {
     return null;
 }
 
+function isWeaponPartRecipePath(pathKey: string): boolean {
+    return String(pathKey).startsWith("/Lotus/Types/Recipes/Weapons/WeaponParts/");
+}
+
 function applyFoundryOverrideName(
     pathKey: string,
     wfcdRec: any | null,
     lotusRec: any | null,
     ov: FoundryOverrides
 ): string | null {
-    // 1) Direct path match (covers Riot-848 part items, and item blueprints where wfdata points at the blueprint path)
+    // 1) Direct path match
     const direct = ov.byPath[pathKey];
     if (direct) {
-        // Preserve explicit "Blueprint" if upstream name already indicates it.
+        // Critical: WeaponParts recipe-path records must NOT be forced into "... Blueprint".
+        // These are treated as craftable outputs in the farming layer (data:crafting).
+        if (isWeaponPartRecipePath(pathKey)) {
+            return direct;
+        }
+
         const srcName =
             safeString(wfcdRec?.name) ??
             safeString(lotusRec?.name) ??
@@ -303,10 +302,15 @@ function applyFoundryOverrideName(
         return direct;
     }
 
-    // 2) Recipe items: if this recipe produces a result item type that we can label,
-    // name it as "<ResultLabel> Blueprint"
+    // 2) Recipe items: name as "<ResultLabel> Blueprint" when safe
     const merged = lotusRec ?? wfcdRec;
     if (merged && isRecipeItem(merged)) {
+        // Critical: Do NOT auto-name WeaponParts recipe records as "... Blueprint".
+        // That breaks the farming crafted-output rule and reintroduces unknown-acquisition.
+        if (isWeaponPartRecipePath(pathKey)) {
+            return null;
+        }
+
         const r = getResultItemType(merged);
         if (r) {
             const resultLabel = ov.byResultItemType[r];
@@ -356,7 +360,6 @@ function mergeItemRecord(
         rawWfcd: wfcdRec ?? null,
         rawLotus: lotusRec ?? null,
 
-        // Keep these for downstream heuristic use if needed.
         path: pathKey,
         parent: lotusRec?.parent ?? wfcdRec?.parent ?? null,
         data: lotusRec?.data ?? wfcdRec?.data ?? null
@@ -396,8 +399,6 @@ function extendAllowWithRecipesProducingAllowed(
         const r = getResultItemType(rec);
         if (!r) continue;
 
-        // If this recipe produces something we already allow (e.g. Riot-848 Barrel),
-        // then the blueprint itself must be inventory-relevant too.
         if (allow.has(r)) {
             out.add(pathKey);
         }

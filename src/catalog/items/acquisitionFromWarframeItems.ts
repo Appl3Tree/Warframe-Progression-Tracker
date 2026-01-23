@@ -152,9 +152,6 @@ function sourceIdForMissionNodeLocation(locRaw: string): string | null {
     if (!loc.includes("/")) return null;
 
     // Take only the left-hand part before " (" or ","
-    // Examples:
-    //   "Mars/Tyana Pass (Defense), Rotation C" -> "Mars/Tyana Pass"
-    //   "Höllvania/Solstice Square (Defense), Rotation A" -> "Höllvania/Solstice Square"
     const head = normalizeSpaces(loc.split("(")[0] ?? "");
     const headNoRot = normalizeSpaces(head.split(",")[0] ?? "");
     const parts = headNoRot.split("/").map((x) => normalizeSpaces(x)).filter(Boolean);
@@ -172,12 +169,6 @@ function sourceIdForMissionNodeLocation(locRaw: string): string | null {
 /**
  * Map All.json bounty-style locations to your existing bounty SourceIds:
  *   data:bounty/<region>/<bountyLevel>
- *
- * Examples:
- *   "Earth/Cetus (Level 20 - 40 Cetus Bounty), Rotation A" -> data:bounty/cetus/level-20-40
- *   "Venus/Orb Vallis (Level 20 - 40 Orb Vallis Bounty), Rotation B" -> data:bounty/solaris/level-20-40
- *   "Deimos/Cambion Drift (Level 50 - 60 Arcana Isolation Vault), Rotation C" -> data:bounty/deimos/level-50-60-arcana-isolation-vault
- *   "Höllvania/Legacyte Harvest (Legacyte Harvest), Rotation A" -> data:bounty/hex/legacyte-harvest
  */
 function sourceIdForBountyLocation(locRaw: string): string | null {
     const loc = normalizeSpaces(locRaw ?? "");
@@ -200,7 +191,7 @@ function sourceIdForBountyLocation(locRaw: string): string | null {
         }
     }
 
-    // Deimos / Cambion Drift bounty tiers (Arcana Isolation Vault, etc.)
+    // Deimos / Cambion Drift bounty tiers
     {
         const m = loc.match(/\/Cambion Drift\s*\(\s*(Level[^)]*?)\s*\)\s*(?:,|$)/i);
         if (m) {
@@ -209,10 +200,7 @@ function sourceIdForBountyLocation(locRaw: string): string | null {
         }
     }
 
-    // Höllvania (1999 / Hex rewards) – treat as "hex" bounty tier bucket
-    // Example: "Höllvania/Solstice Square (Defense), Rotation A" is a mission node, but
-    // "Höllvania/Legacyte Harvest (Legacyte Harvest), Rotation A" is clearly a reward-track label.
-    // We only map the "(X)" bounty label variant here.
+    // Höllvania / Hex reward-track labels
     {
         const m = loc.match(/^\s*H[öo]llvania\/[^()]*\(\s*([^)]+?)\s*\)\s*(?:,|$)/i);
         if (m) {
@@ -257,26 +245,29 @@ function collectDropSourcesFromAllJson(): Record<string, string[]> {
             const loc = typeof d.location === "string" ? d.location : "";
             if (!loc) continue;
 
-            // 1) Relic locations (existing behavior)
+            // 1) Relic locations
             const baseRelic = baseRelicLocation(loc);
             if (baseRelic) {
                 set.add(sourceIdForRelicLocation(baseRelic));
                 continue;
             }
 
-            // 2) Bounties (Cetus / Orb Vallis / Deimos / Hex)
+            // 2) Bounties
             const bountySid = sourceIdForBountyLocation(loc);
             if (bountySid) {
                 set.add(bountySid);
                 continue;
             }
 
-            // 3) Mission nodes (Planet/Node ...)
+            // 3) Mission nodes
             const nodeSid = sourceIdForMissionNodeLocation(loc);
             if (nodeSid) {
                 set.add(nodeSid);
                 continue;
             }
+
+            // 4) Fallback: stable wfitems location source.
+            set.add(`data:wfitems:loc:${toToken(loc)}`);
         }
 
         if (set.size === 0) continue;
@@ -341,7 +332,7 @@ function applyLotusPathRules(out: Record<string, AcquisitionDef>): void {
             continue;
         }
 
-        // --- Kuva ecosystem (weapons + blueprints) ---
+        // --- Kuva ecosystem ---
         if (p.includes("/KuvaLich/") || p.includes("/Types/Recipes/Weapons/KuvaWeapons/")) {
             addSource(out, key, "data:lich/kuva");
             continue;
@@ -493,6 +484,95 @@ function applyLotusPathRules(out: Record<string, AcquisitionDef>): void {
     }
 }
 
+/* ---------- Recipe backreference propagation (FULL_CATALOG-driven) ---------- */
+
+const RECIPE_CATALOG_ID_PREFIX = "items:/Lotus/Types/Recipes/";
+
+function isRecipeCatalogId(id: string): boolean {
+    return typeof id === "string" && id.startsWith(RECIPE_CATALOG_ID_PREFIX);
+}
+
+function isCatalogIdStringLike(v: unknown): v is string {
+    return typeof v === "string" && v.startsWith("items:/Lotus/");
+}
+
+function collectReferencedRecipeIds(value: unknown, maxNodes: number): Set<string> {
+    const out = new Set<string>();
+    const stack: unknown[] = [value];
+    let seen = 0;
+
+    while (stack.length > 0) {
+        const cur = stack.pop();
+        seen += 1;
+        if (seen > maxNodes) break;
+
+        if (isCatalogIdStringLike(cur)) {
+            const s = String(cur);
+            if (isRecipeCatalogId(s)) out.add(s);
+            continue;
+        }
+
+        if (Array.isArray(cur)) {
+            for (const v of cur) stack.push(v);
+            continue;
+        }
+
+        if (cur && typeof cur === "object") {
+            const obj = cur as Record<string, unknown>;
+            for (const v of Object.values(obj)) stack.push(v);
+        }
+    }
+
+    return out;
+}
+
+function propagateSourcesToRecipes(out: Record<string, AcquisitionDef>): void {
+    const recordsById: Record<string, any> = (FULL_CATALOG as any).recordsById ?? {};
+    const allIds = Object.keys(recordsById);
+
+    // Build recipeId -> parentIds[] where parent references recipeId somewhere in its record object.
+    const recipeToParents = new Map<string, Set<string>>();
+
+    for (const parentId of allIds) {
+        const rec = recordsById[parentId];
+        if (!rec) continue;
+
+        // IMPORTANT: bounded traversal per record to avoid pathological blowups.
+        const recipeRefs = collectReferencedRecipeIds(rec, 2500);
+        if (recipeRefs.size === 0) continue;
+
+        for (const recipeId of recipeRefs) {
+            if (!recipeToParents.has(recipeId)) recipeToParents.set(recipeId, new Set<string>());
+            recipeToParents.get(recipeId)!.add(parentId);
+        }
+    }
+
+    // For each recipe that currently has no sources, inherit from parents that do have sources.
+    // This directly fixes cases like:
+    //   items:/Lotus/Types/Recipes/WarframeRecipes/BansheeChassisComponent
+    // where All.json recipe objects have no drops and no result fields.
+    const recipeIds = (FULL_CATALOG.itemIds as CatalogId[]).map(String).filter(isRecipeCatalogId);
+
+    for (const recipeId of recipeIds) {
+        const existing = out[recipeId]?.sources ?? [];
+        if (existing.length > 0) continue;
+
+        const parents = recipeToParents.get(recipeId);
+        if (!parents || parents.size === 0) continue;
+
+        const inherited = new Set<string>();
+
+        for (const p of parents) {
+            const ps = out[p]?.sources ?? [];
+            for (const s of ps) inherited.add(String(s));
+        }
+
+        if (inherited.size === 0) continue;
+
+        out[recipeId] = { sources: Array.from(inherited.values()).sort((a, b) => a.localeCompare(b)) };
+    }
+}
+
 /* ---------- Build once, reuse everywhere ---------- */
 
 function buildInternal(): Record<string, AcquisitionDef> {
@@ -526,7 +606,7 @@ function buildInternal(): Record<string, AcquisitionDef> {
         addSource(out, cid, sourceId);
     }
 
-    // 3) All.json: drop locations → sources (relics + nodes + bounties)
+    // 3) All.json: drop locations → sources (relics + nodes + bounties + fallback wfitems:loc)
     const sourcesByUniqueName = collectDropSourcesFromAllJson();
     for (const [uniqueName, sources] of Object.entries(sourcesByUniqueName)) {
         const cid = `items:${uniqueName}` as CatalogId;
@@ -535,6 +615,13 @@ function buildInternal(): Record<string, AcquisitionDef> {
 
     // 4) Lotus-path rules (FULL_CATALOG-driven)
     applyLotusPathRules(out);
+
+    // 5) FINAL: propagate known sources from parent items to recipes referenced by those items.
+    // This is REQUIRED because recipe objects in warframe-items All.json often have:
+    //  - drops: []
+    //  - no "result/product/output" fields
+    // Therefore, the only reliable linkage is via FULL_CATALOG record relationships.
+    propagateSourcesToRecipes(out);
 
     return out;
 }
@@ -549,3 +636,4 @@ export function buildAcquisitionFromWarframeItems(): Record<CatalogId, Acquisiti
 export function deriveWarframeItemsAcquisitionByCatalogId(): Record<string, AcquisitionDef> {
     return WARFRAME_ITEMS_ACQ_BY_CATALOG_ID;
 }
+

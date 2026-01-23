@@ -1,5 +1,6 @@
 // ===== FILE: src/domain/logic/requirementEngine.ts =====
 // src/domain/logic/requirementEngine.ts
+
 import type { CatalogId } from "../catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../catalog/loadFullCatalog";
 import { getItemRequirements } from "../../catalog/items/itemRequirements";
@@ -123,7 +124,6 @@ export function buildRequirementsSnapshot(args: {
     };
 
     function addItemNeed(catalogId: CatalogId, need: number, source: RequirementSource) {
-        // Still fail-closed on unknown catalog id (data integrity), but DO NOT gate by acquisition.
         if (!FULL_CATALOG.recordsById[catalogId]) return;
 
         const rec = FULL_CATALOG.recordsById[catalogId];
@@ -143,12 +143,6 @@ export function buildRequirementsSnapshot(args: {
         currencyAgg[key].sources.push(source);
     }
 
-    /**
-     * Goal component expansion (recursive)
-     * - Expands an item into all of its recipe requirements (and their requirements, etc.).
-     * - Uses getItemRequirements() as the sole source of truth.
-     * - Cycle-safe and depth-capped to avoid runaway graphs.
-     */
     function addGoalWithRecursiveComponents(args2: {
         goal: GoalLike;
         rootCatalogId: CatalogId;
@@ -175,7 +169,6 @@ export function buildRequirementsSnapshot(args: {
 
                     const compId = c.catalogId as CatalogId;
 
-                    // Add the component line itself
                     addItemNeed(compId, cNeed, {
                         type: "goal",
                         id: goal.id,
@@ -184,7 +177,6 @@ export function buildRequirementsSnapshot(args: {
                         need: cNeed
                     });
 
-                    // Recurse into that component as well
                     walk(compId, cNeed, depth + 1);
                 }
             }
@@ -192,7 +184,6 @@ export function buildRequirementsSnapshot(args: {
             visited.delete(k);
         }
 
-        // Root item need
         addItemNeed(rootCatalogId, rootQty, {
             type: "goal",
             id: goal.id,
@@ -201,11 +192,9 @@ export function buildRequirementsSnapshot(args: {
             need: rootQty
         });
 
-        // Recursive expansion
         walk(rootCatalogId, rootQty, 0);
     }
 
-    // 1) Syndicate next-rank requirements
     for (const syn of syndicates ?? []) {
         const syndicateId = typeof syn?.id === "string" ? syn.id : "";
         const syndicateName = typeof syn?.name === "string" ? syn.name : syndicateId || "Unknown Syndicate";
@@ -256,7 +245,6 @@ export function buildRequirementsSnapshot(args: {
         }
     }
 
-    // 2) Goals (direct item goals + recursive breakdown via registry)
     for (const g of goals ?? []) {
         if (!g || g.isActive === false) continue;
         if (g.type !== "item") continue;
@@ -380,12 +368,8 @@ export type HiddenFarmingItem = {
         | "unknown-recipe-acquisition"
         | "missing-prereqs"
         | "no-accessible-sources";
-
-    // Diagnostics payload
     missingPrereqs?: PrereqId[];
     blockedBySources?: SourceId[];
-
-    // Recipe diagnostics (optional)
     blockedByRecipeComponents?: Array<{
         catalogId: CatalogId;
         name: string;
@@ -411,12 +395,6 @@ export type FarmingSnapshot = {
     };
 };
 
-/**
- * Accessibility policy:
- * - Any data:* source is actionable by default (we have a known acquisition path).
- * - If a data:* source is present in SOURCE_INDEX with prereqs, those prereqs gate it.
- * - Non-data sources require SOURCE_INDEX and prereqs satisfied.
- */
 function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, boolean>): boolean {
     const sidStr = String(sourceId);
 
@@ -450,14 +428,11 @@ function getMissingPrereqsForSources(args: {
 
     const missing = new Set<PrereqId>();
     const blockedSources: SourceId[] = [];
-
     let hasUncuratedGate = false;
 
     for (const sid of sourceIds) {
         const sidStr = String(sid);
 
-        // Data-derived sources are known acquisitions by default.
-        // Only treat them as blocked if we explicitly curated prereqs in SOURCE_INDEX and they are unmet.
         if (sidStr.startsWith("data:")) {
             const def = SOURCE_INDEX[sid];
             if (!def) {
@@ -483,17 +458,14 @@ function getMissingPrereqsForSources(args: {
 
         const def = SOURCE_INDEX[sid];
         if (!def) {
-            // We have a sourceId, but we don't have curated metadata for it.
-            // Treat as "uncurated gating" (do not mislabel as "no accessible sources").
             hasUncuratedGate = true;
             blockedSources.push(sid);
             continue;
         }
 
         const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
-
-        // Curated prereqs: record missing
         let thisSourceBlocked = false;
+
         for (const pr of prereqs) {
             if (!completedPrereqs[String(pr)]) {
                 missing.add(String(pr) as PrereqId);
@@ -519,17 +491,9 @@ function getAcquisitionSourcesForCatalogId(catalogId: CatalogId): SourceId[] | n
     return def.sources as SourceId[];
 }
 
-/**
- * Ingredient/material policy for Farming:
- * - Ingredients should still appear in Requirements (what you need),
- * - but they must NOT force a farmability/acquisition mapping for a crafted item to be considered actionable.
- *
- * This is intentionally conservative and based on the canonical Lotus path prefix for "Items".
- */
 function isIngredientLikeCatalogItem(catalogId: CatalogId): boolean {
     const cidStr = String(catalogId);
 
-    // If catalog record is missing, fall back to CatalogId prefix.
     if (cidStr.includes(":/Lotus/Types/Items/")) return true;
 
     const rec = FULL_CATALOG.recordsById[catalogId];
@@ -546,9 +510,6 @@ function isIngredientLikeCatalogItem(catalogId: CatalogId): boolean {
 function isRecipeCatalogItem(catalogId: CatalogId): boolean {
     const cidStr = String(catalogId);
 
-    // CRITICAL:
-    // Recipe/blueprint CatalogIds may exist in itemRequirements even if FULL_CATALOG does not have a record for them.
-    // We must classify these by CatalogId string, not just by resolved record.path.
     if (cidStr.includes(":/Lotus/Types/Recipes/")) return true;
 
     const rec = FULL_CATALOG.recordsById[catalogId];
@@ -556,16 +517,22 @@ function isRecipeCatalogItem(catalogId: CatalogId): boolean {
     return path.startsWith("/Lotus/Types/Recipes/");
 }
 
-/**
- * Blueprint-like policy for Farming:
- * - Blueprints/recipes are NOT "ingredients".
- * - They should not be lumped into unknown-acquisition.
- * - Until we wire a blueprint acquisition provider (market/dojo/vendors/drops), they are classified separately.
- */
-function isBlueprintLikeCatalogItem(catalogId: CatalogId, name: string): boolean {
-    if (isRecipeCatalogItem(catalogId)) return true;
-    if (String(name).toLowerCase().endsWith(" blueprint")) return true;
+function isExplicitBlueprintItem(catalogId: CatalogId, name: string): boolean {
+    const cidStr = String(catalogId).toLowerCase();
+    const nm = String(name ?? "").toLowerCase();
+
+    if (nm.endsWith(" blueprint")) return true;
+    if (cidStr.endsWith("blueprint")) return true;
+
     return false;
+}
+
+function isBlueprintLikeCatalogItem(catalogId: CatalogId, name: string): boolean {
+    // IMPORTANT:
+    // Do NOT treat all /Lotus/Types/Recipes/* items as blueprints.
+    // Many real “part items” live under /Recipes/Weapons/WeaponParts/* and should be acquired (drops/invasions/etc),
+    // not classified as “unknown-recipe-acquisition”.
+    return isExplicitBlueprintItem(catalogId, name);
 }
 
 type AcquireAnalysis =
@@ -588,9 +555,8 @@ function analyzeCatalogIdForFarming(args: {
 }): AcquireAnalysis {
     const { catalogId, name, remaining, completedPrereqs, visited, depth } = args;
 
-    // IMPORTANT:
-    // The "ingredient unmapped is fine" policy is only for RECIPE COMPONENTS.
-    // For the root required item (depth === 0), we still must attempt direct acquisition.
+    const BLUEPRINT_UNCLASSIFIED = "data:blueprint/unclassified" as SourceId;
+
     if (depth > 0 && isIngredientLikeCatalogItem(catalogId)) {
         return { kind: "ok", sources: [] };
     }
@@ -610,9 +576,25 @@ function analyzeCatalogIdForFarming(args: {
         };
     }
 
-    // 1) Try direct acquisition (including blueprint-like items)
-    const directSources = getAcquisitionSourcesForCatalogId(catalogId);
+    let directSources = getAcquisitionSourcesForCatalogId(catalogId);
+
+    // Placeholder-only acquisition is actionable ONLY for explicit blueprint items.
     if (directSources && directSources.length > 0) {
+        const onlyPlaceholder = directSources.length === 1 && directSources[0] === BLUEPRINT_UNCLASSIFIED;
+        if (onlyPlaceholder && !isExplicitBlueprintItem(catalogId, name)) {
+            directSources = null;
+        }
+    }
+
+    if (directSources && directSources.length > 0) {
+        if (directSources.includes(BLUEPRINT_UNCLASSIFIED)) {
+            const sources = directSources.map((sid) => ({
+                sourceId: sid,
+                sourceLabel: SOURCE_INDEX[sid]?.label ?? String(sid)
+            }));
+            return { kind: "ok", sources };
+        }
+
         const accessible = directSources
             .filter((sid) => canAccessSource(sid, completedPrereqs))
             .map((sid) => ({
@@ -624,7 +606,6 @@ function analyzeCatalogIdForFarming(args: {
             return { kind: "ok", sources: accessible };
         }
 
-        // Direct exists but is currently blocked; we will still consider crafting as an alternate path if recipe exists.
         const comps = getItemRequirements(catalogId);
         if (!Array.isArray(comps) || comps.length === 0) {
             const diag = getMissingPrereqsForSources({ sourceIds: directSources, completedPrereqs });
@@ -648,11 +629,8 @@ function analyzeCatalogIdForFarming(args: {
                 }
             };
         }
-        // else: fall through to crafting analysis
     }
 
-    // If this is a blueprint-like item and we have NO direct acquisition mapping, do NOT label it unknown-acquisition.
-    // This is the correct "work remaining": wire a blueprint acquisition provider (market/dojo/vendors/drops).
     if (isBlueprintLikeCatalogItem(catalogId, name)) {
         return {
             kind: "hidden",
@@ -660,9 +638,25 @@ function analyzeCatalogIdForFarming(args: {
         };
     }
 
-    // 2) Crafting path (Foundry) if recipe exists
     const recipe = getItemRequirements(catalogId);
-    if (!Array.isArray(recipe) || recipe.length === 0) {
+    const hasRecipe = Array.isArray(recipe) && recipe.length > 0;
+
+    // Deterministic crafted-output rule (guarded):
+    // Only classify as Foundry crafting if we can prove the item has a recipe (ingredients).
+    // If it has no recipe and no acquisition, we must not lie by labeling it “crafting”.
+    if (hasRecipe && isRecipeCatalogItem(catalogId) && !isExplicitBlueprintItem(catalogId, name)) {
+        return {
+            kind: "ok",
+            sources: [
+                {
+                    sourceId: "data:crafting" as SourceId,
+                    sourceLabel: "Crafting (Foundry)"
+                }
+            ]
+        };
+    }
+
+    if (!hasRecipe) {
         return {
             kind: "hidden",
             hidden: { key: catalogId, name, remaining, reason: "unknown-acquisition" }
@@ -681,8 +675,6 @@ function analyzeCatalogIdForFarming(args: {
         const compRec = FULL_CATALOG.recordsById[compId];
         const compName = compRec?.displayName ?? String(compId);
 
-        // Ingredient-like components are allowed to be "unmapped".
-        // Blueprint-like components are also allowed to be unmapped (they should not gate craftability).
         if (isIngredientLikeCatalogItem(compId) || isBlueprintLikeCatalogItem(compId, compName)) {
             continue;
         }
