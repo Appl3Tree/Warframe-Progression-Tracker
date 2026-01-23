@@ -103,7 +103,7 @@ function canonicalizeComponentCatalogId(cid: CatalogId): CatalogId {
 }
 
 /**
- * If wfcd-requirements has no entry keyed by the *output item* itself (common for weapons),
+ * If wfcd-requirements has no entry keyed by the *output item* itself (common for weapons/frames),
  * resolve via a RecipeItem that produces that output:
  *   recipe.data.resultItemType == "/Lotus/Types/Weapons/...."
  *
@@ -147,13 +147,192 @@ function resolveRecipeRequirementsKeyForOutput(outputCatalogId: CatalogId, reqMa
     return candidates[0];
 }
 
+/* =========================================================================================
+ * Lotus recipe fallback (WFCD gaps)
+ * ========================================================================================= */
+
+type LotusIngredientRow = {
+    itemType: string;
+    count: number;
+};
+
+function safeLotusPathToItemsCatalogId(path: string): CatalogId | null {
+    const p = safeString(path);
+    if (!p) return null;
+    if (!p.startsWith("/Lotus/")) return null;
+
+    const cid = toItemsCatalogId(p);
+    // Fail-closed: only accept if it exists in FULL_CATALOG
+    if (!FULL_CATALOG.recordsById[cid]) return null;
+
+    return cid;
+}
+
+function extractLotusIngredientsFromMergedRecipe(merged: any): LotusIngredientRow[] {
+    const data = merged?.data ?? merged ?? null;
+    if (!data || typeof data !== "object") return [];
+
+    // Warframe item schemas vary; try several known-ish containers deterministically.
+    const candidates = [
+        (data as any).Ingredients,
+        (data as any).ingredients,
+        (data as any).mIngredients,
+        (data as any).Recipe,
+        (data as any).recipe
+    ];
+
+    let arr: any[] = [];
+    for (const c of candidates) {
+        if (Array.isArray(c)) {
+            arr = c;
+            break;
+        }
+        // Some schemas wrap the list under .ingredients/.Ingredients
+        if (c && typeof c === "object") {
+            const innerA = (c as any).Ingredients;
+            const innerB = (c as any).ingredients;
+            if (Array.isArray(innerA)) {
+                arr = innerA;
+                break;
+            }
+            if (Array.isArray(innerB)) {
+                arr = innerB;
+                break;
+            }
+        }
+    }
+
+    if (!Array.isArray(arr) || arr.length === 0) return [];
+
+    const out: LotusIngredientRow[] = [];
+
+    for (const row of arr) {
+        if (!row || typeof row !== "object") continue;
+
+        const itemType =
+            safeString((row as any).ItemType) ??
+            safeString((row as any).itemType) ??
+            safeString((row as any).type) ??
+            safeString((row as any).Type) ??
+            null;
+
+        const cnt =
+            safeCount((row as any).ItemCount) ||
+            safeCount((row as any).itemCount) ||
+            safeCount((row as any).Count) ||
+            safeCount((row as any).count) ||
+            0;
+
+        if (!itemType) continue;
+        if (cnt <= 0) continue;
+
+        out.push({ itemType, count: cnt });
+    }
+
+    return out;
+}
+
+function getMergedRecordForCatalogId(catalogId: CatalogId): any | null {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    if (!rec) return null;
+
+    const raw: any = rec.raw as any;
+    const lotus = raw?.rawLotus ?? null;
+    const wfcd = raw?.rawWfcd ?? null;
+
+    // Prefer lotus for recipe ingredient fields when present.
+    return lotus ?? wfcd ?? raw ?? null;
+}
+
+/**
+ * Find the unique RecipeItem CatalogId that produces the given output lotus path.
+ * Fail-closed: if 0 or >1 candidates, return null.
+ */
+function findUniqueRecipeCatalogIdProducingOutput(outputCatalogId: CatalogId): CatalogId | null {
+    const outPath = catalogIdToLotusPath(outputCatalogId);
+    if (!outPath) return null;
+
+    const candidates: CatalogId[] = [];
+
+    for (const cid of FULL_CATALOG.displayableInventoryItemIds ?? []) {
+        const s = String(cid);
+        if (!s.startsWith("items:/Lotus/Types/Recipes/")) continue;
+
+        const merged = getMergedRecordForCatalogId(cid);
+        if (!merged || !isRecipeLike(merged)) continue;
+
+        const resultPath = getResultItemTypePath(merged);
+        if (!resultPath) continue;
+
+        if (resultPath === outPath) {
+            candidates.push(cid);
+        }
+    }
+
+    if (candidates.length !== 1) return null;
+    return candidates[0];
+}
+
+function getLotusRecipeRequirementsForOutput(outputCatalogId: CatalogId): ItemRequirement[] {
+    // Case A: outputCatalogId is itself a RecipeItem with ingredients
+    {
+        const merged = getMergedRecordForCatalogId(outputCatalogId);
+        if (merged && isRecipeLike(merged)) {
+            const ingredients = extractLotusIngredientsFromMergedRecipe(merged);
+            if (ingredients.length > 0) {
+                const out: ItemRequirement[] = [];
+
+                for (const ing of ingredients) {
+                    const cid = safeLotusPathToItemsCatalogId(ing.itemType);
+                    if (!cid) continue;
+
+                    const canon = canonicalizeComponentCatalogId(cid);
+
+                    out.push({
+                        catalogId: canon,
+                        count: ing.count
+                    });
+                }
+
+                return out;
+            }
+        }
+    }
+
+    // Case B: outputCatalogId is a crafted output; find its producing recipe item
+    const recipeCid = findUniqueRecipeCatalogIdProducingOutput(outputCatalogId);
+    if (!recipeCid) return [];
+
+    const merged = getMergedRecordForCatalogId(recipeCid);
+    if (!merged || !isRecipeLike(merged)) return [];
+
+    const ingredients = extractLotusIngredientsFromMergedRecipe(merged);
+    if (ingredients.length === 0) return [];
+
+    const out: ItemRequirement[] = [];
+
+    for (const ing of ingredients) {
+        const cid = safeLotusPathToItemsCatalogId(ing.itemType);
+        if (!cid) continue;
+
+        const canon = canonicalizeComponentCatalogId(cid);
+
+        out.push({
+            catalogId: canon,
+            count: ing.count
+        });
+    }
+
+    return out;
+}
+
 export function getItemRequirements(outputCatalogId: CatalogId): ItemRequirement[] {
     const raw = parseMap(wfcdReqJson);
 
     // Primary: requirements keyed by the output item itself.
     let def = raw[String(outputCatalogId)];
 
-    // Fallback: requirements keyed by a recipe that produces the output item.
+    // Fallback (WFCD): requirements keyed by a recipe that produces the output item.
     if (!def || typeof def !== "object") {
         const recipeKey = resolveRecipeRequirementsKeyForOutput(outputCatalogId, raw);
         if (recipeKey) {
@@ -161,26 +340,30 @@ export function getItemRequirements(outputCatalogId: CatalogId): ItemRequirement
         }
     }
 
-    if (!def || typeof def !== "object") return [];
+    // If WFCD yielded a definition, use it (existing behavior).
+    if (def && typeof def === "object") {
+        const comps = Array.isArray((def as any).components) ? (def as any).components : [];
+        const out: ItemRequirement[] = [];
 
-    const comps = Array.isArray((def as any).components) ? (def as any).components : [];
-    const out: ItemRequirement[] = [];
+        for (const c of comps) {
+            const cidRaw = typeof c?.catalogId === "string" ? c.catalogId : "";
+            const cnt = safeCount(c?.count ?? 0);
 
-    for (const c of comps) {
-        const cidRaw = typeof c?.catalogId === "string" ? c.catalogId : "";
-        const cnt = safeCount(c?.count ?? 0);
+            if (!cidRaw.startsWith("items:")) continue;
+            if (cnt <= 0) continue;
 
-        if (!cidRaw.startsWith("items:")) continue;
-        if (cnt <= 0) continue;
+            const cid = canonicalizeComponentCatalogId(cidRaw as CatalogId);
 
-        const cid = canonicalizeComponentCatalogId(cidRaw as CatalogId);
+            out.push({
+                catalogId: cid,
+                count: cnt
+            });
+        }
 
-        out.push({
-            catalogId: cid,
-            count: cnt
-        });
+        return out;
     }
 
-    return out;
+    // Lotus fallback: derive ingredients deterministically from the recipe record(s).
+    return getLotusRecipeRequirementsForOutput(outputCatalogId);
 }
 

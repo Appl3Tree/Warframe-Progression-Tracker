@@ -13,20 +13,34 @@ import additionalItemByAvatarJson from "../../../external/warframe-drop-data/raw
 import miscItemsJson from "../../../external/warframe-drop-data/raw/miscItems.json";
 import transientRewardsJson from "../../../external/warframe-drop-data/raw/transientRewards.json";
 import solarisBountyRewardsJson from "../../../external/warframe-drop-data/raw/solarisBountyRewards.json";
+import blueprintLocationsJson from "../../../external/warframe-drop-data/raw/blueprintLocations.json";
+import enemyBlueprintTablesJson from "../../../external/warframe-drop-data/raw/enemyBlueprintTables.json";
+
+// warframe-items raw (name aliasing to avoid generic “Barrels/Blades” displayName collisions)
+import WARFRAME_ITEMS_ALL from "../../../external/warframe-items/raw/All.json";
 
 export type AcquisitionDef = {
     sources: string[];
 };
 
 type RelicMissionRow = {
-    relicKey: string;     // e.g. "meso v14"
+    relicKey: string; // e.g. "meso v14"
     relicDisplay: string; // e.g. "Meso V14 Relic"
-    pathLabel: string;    // e.g. "missionRewards / Ceres / Bode / C"
-    rotation: string;     // e.g. "C"
-    chance: number;       // e.g. 9.68
+    pathLabel: string; // e.g. "missionRewards / Ceres / Bode / C"
+    rotation: string; // e.g. "C"
+    chance: number; // e.g. 9.68
 };
 
 type ResourceByAvatarRow = {
+    source?: string;
+    items?: Array<{
+        item?: string;
+        rarity?: string;
+        chance?: number;
+    }>;
+};
+
+type AdditionalItemByAvatarRow = {
     source?: string;
     items?: Array<{
         item?: string;
@@ -56,6 +70,26 @@ type SolarisBountyRow = {
     rewards?: any;
 };
 
+type BlueprintLocationsRow = {
+    blueprintName?: string;
+    itemName?: string;
+    enemies?: Array<{
+        enemyName?: string;
+        chance?: number;
+        rarity?: string;
+    }>;
+};
+
+type EnemyBlueprintTablesRow = {
+    enemyName?: string;
+    items?: Array<{
+        itemName?: string;
+        blueprintName?: string;
+        chance?: number;
+        rarity?: string;
+    }>;
+};
+
 // Manual overrides live here intentionally.
 // Policy: if a catalogId has a manual mapping, it MUST be included.
 export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
@@ -63,6 +97,65 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     // Unobtainable / account-locked
     // ----------------------------
     "items:/Lotus/Powersuits/Excalibur/ExcaliburPrime": ["data:unobtainable/founders"],
+
+    // ----------------------------
+    // Clan research (Tenno Lab) and Dojo replication
+    // ----------------------------
+    // Volt (Warframe + parts) are Dojo Tenno Lab research on the Wiki. :contentReference[oaicite:0]{index=0}
+    "items:/Lotus/Powersuits/VOLTFemale/VOLTFemale": ["data:clan/tenno-lab"], // Volt
+    "items:/Lotus/Types/Recipes/WarframeRecipes/VOLTHelmetComponent": ["data:clan/tenno-lab"], // Volt Neuroptics
+    "items:/Lotus/Types/Recipes/WarframeRecipes/VOLTChassisComponent": ["data:clan/tenno-lab"], // Volt Chassis
+    "items:/Lotus/Types/Recipes/WarframeRecipes/VOLTSystemsComponent": ["data:clan/tenno-lab"], // Volt Systems
+
+    // Banshee is Dojo Tenno Lab research on the Wiki. :contentReference[oaicite:1]{index=1}
+    "items:/Lotus/Powersuits/Banshee/Banshee": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/BansheeChassisComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/BansheeHelmetComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/BansheeSystemsComponent": ["data:clan/tenno-lab"],
+
+    // Zephyr is Dojo Tenno Lab research on the Wiki. :contentReference[oaicite:2]{index=2}
+    "items:/Lotus/Powersuits/Tengu/Tengu": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/TenguChassisComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/TenguHelmetComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/TenguSystemsComponent": ["data:clan/tenno-lab"],
+
+    // Wukong is Dojo Tenno Lab research on the Wiki. :contentReference[oaicite:3]{index=3}
+    "items:/Lotus/Powersuits/MonkeyKing/MonkeyKing": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/WukongChassisComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/WukongHelmetComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/WukongSystemsComponent": ["data:clan/tenno-lab"],
+
+    // Nezha is Dojo Tenno Lab research on the Wiki. :contentReference[oaicite:4]{index=4}
+    "items:/Lotus/Powersuits/Nezha/Nezha": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/NezhaChassisComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/NezhaHelmetComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/NezhaSystemsComponent": ["data:clan/tenno-lab"],
+
+    // Archwings Itzal / Elytron / Amesha are Tenno Lab research on the Wiki. 
+    "items:/Lotus/Powersuits/Archwing/StealthJetPack/StealthJetPack": ["data:clan/tenno-lab"], // Itzal
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/StealthArchwing/StealthArchwingChassisComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/StealthArchwing/StealthArchwingSystemsComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/StealthArchwing/StealthArchwingWingsComponent": ["data:clan/tenno-lab"],
+
+    "items:/Lotus/Powersuits/Archwing/DemolitionJetPack/DemolitionJetPack": ["data:clan/tenno-lab"], // Elytron
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/DemolitionArchwing/DemolitionArchwingChassisComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/DemolitionArchwing/DemolitionArchwingSystemsComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/DemolitionArchwing/DemolitionArchwingWingsComponent": ["data:clan/tenno-lab"],
+
+    "items:/Lotus/Powersuits/Archwing/SupportJetPack/SupportJetPack": ["data:clan/tenno-lab"], // Amesha
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/SupportArchwing/SupportArchwingChassisComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/SupportArchwing/SupportArchwingSystemsComponent": ["data:clan/tenno-lab"],
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/SupportArchwing/SupportArchwingWingsComponent": ["data:clan/tenno-lab"],
+
+    // Archwing weapons: these commonly come from Dojo research (Tenno Lab).
+    // Use coarse sourceIds here; if you later add lab-specific source objects, keep the ids stable.
+    "items:/Lotus/Weapons/Tenno/Archwing/Primary/ArchwingHeavyPistols/ArchHeavyPistols": ["data:clan/tenno-lab"], // Dual Decurion
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHeavyPistolsBarrel": ["data:clan/tenno-lab"], // Decurion Barrel
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHeavyPistolsReceiver": ["data:clan/tenno-lab"], // Decurion Receiver
+    "items:/Lotus/Weapons/Tenno/Archwing/Primary/RocketArtillery/ArchRocketCrossbow": ["data:clan/tenno-lab"], // Fluctus
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchRocketCrossbowBarrel": ["data:clan/tenno-lab"], // Fluctus Barrel
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchRocketCrossbowStock": ["data:clan/tenno-lab"], // Fluctus Limbs (yes, Stock id; displayName “Limbs”)
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchRocketCrossbowReceiver": ["data:clan/tenno-lab"], // If present in catalog; harmless if unused
 
     // ----------------------------
     // Quest: Octavia’s Anthem (Mandachord)
@@ -89,7 +182,9 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     "items:/Lotus/Weapons/Tenno/Pistol/HeavyPistol": ["data:market/credits"], // Lex
     "items:/Lotus/Weapons/Tenno/Akimbo/AkimboPistol": ["data:market/credits"], // Aklato
     "items:/Lotus/Weapons/Tenno/Archwing/Primary/ThanoTechArchLongGun/ThanoTechLongGun": ["data:necramech/arquebex-archgun"], // Mausolon (coarse)
-    "items:/Lotus/Weapons/Sentients/OperatorAmplifiers/SentTrainingAmplifier/SentAmpTrainingBarrel": ["data:operator/amp-starter"], // Mote Prism
+    "items:/Lotus/Weapons/Sentients/OperatorAmplifiers/SentTrainingAmplifier/SentAmpTrainingBarrel": [
+        "data:operator/amp-starter"
+    ], // Mote Prism
 
     // ----------------------------
     // Conclave / PvP variants
@@ -207,6 +302,118 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     "items:/Lotus/Weapons/Tenno/Rifle/StartingRifle": ["data:market/credits"], // MK1-Braton
 
     // ----------------------------
+    // Invasions (Wraith / Vandal / certain weapon-part rewards)
+    // ----------------------------
+    // These are strongly “non-missionRewards” for your dataset because warframe-drop-data invasion tables
+    // are not part of your current ingestion set. Keep as explicit manual mappings.
+    // Karak Wraith / Latron Wraith / Strun Wraith are listed as Invasion rewards on the Wiki. :contentReference[oaicite:6]{index=6}
+    "items:/Lotus/Weapons/Grineer/LongGuns/GrineerM16Homage/KarakWraith": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithBarrel": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithStock": ["data:invasion/rewards"],
+
+    "items:/Lotus/Weapons/Tenno/LongGuns/WraithLatron/WraithLatron": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LatronWraithBarrel": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LatronWraithReceiver": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LatronWraithStock": ["data:invasion/rewards"],
+
+    "items:/Lotus/Weapons/Tenno/Shotgun/ShotgunVandal": ["data:invasion/rewards"], // Strun Wraith (weapon path in your list)
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/StrunWraithBarrel": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/StrunWraithReceiver": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/StrunWraithStock": ["data:invasion/rewards"],
+
+    "items:/Lotus/Weapons/Grineer/Pistols/WraithTwinVipers/WraithTwinVipers": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TwinVipersWraithBarrel": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TwinVipersWraithReceiver": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TwinVipersWraithLink": ["data:invasion/rewards"],
+
+    "items:/Lotus/Weapons/Tenno/Rifle/VandalSniperRifle": ["data:invasion/rewards"], // Snipetron Vandal
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SnipetronVandalBarrel": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SnipetronVandalReceiver": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SnipetronVandalStock": ["data:invasion/rewards"],
+
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DeraVandalBarrel": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DeraVandalReceiver": ["data:invasion/rewards"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DeraVandalStock": ["data:invasion/rewards"],
+
+    // Sheev parts are commonly delivered via Invasion reward tables (component BPs).
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrineerCombatKnifeBlade": ["data:invasion/rewards"], // Sheev Blade
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrineerCombatKnifeHilt": ["data:invasion/rewards"], // Sheev Hilt
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrineerCombatKnifeHeatsink": ["data:invasion/rewards"], // Heatsink
+
+    // ----------------------------
+    // Nightwave
+    // ----------------------------
+    // Vauban is typically obtained through Nightwave (cred offerings / rotation); keep as explicit.
+    "items:/Lotus/Powersuits/Trapper/Trapper": ["data:nightwave/cred-offerings"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/TrapperChassisComponent": ["data:nightwave/cred-offerings"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/TrapperHelmetComponent": ["data:nightwave/cred-offerings"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/TrapperSystemsComponent": ["data:nightwave/cred-offerings"],
+
+    // ----------------------------
+    // Duviri / Circuit / Abyss / Arbitration (coarse buckets to eliminate unknown-acquisition)
+    // ----------------------------
+    // Kullervo: Duviri content island
+    "items:/Lotus/Powersuits/PaxDuviricus/PaxDuviricus": ["data:duviri/kullervo"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/PaxDuviricusChassisComponent": ["data:duviri/kullervo"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/PaxDuviricusHelmetComponent": ["data:duviri/kullervo"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/PaxDuviricusSystemsComponent": ["data:duviri/kullervo"],
+
+    // Dagath: Abyssal Zone bucket (coarse)
+    "items:/Lotus/Powersuits/Dagath/Dagath": ["data:abyssal-zone/dagath"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/DagathChassisComponent": ["data:abyssal-zone/dagath"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/DagathHelmetComponent": ["data:abyssal-zone/dagath"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/DagathSystemsComponent": ["data:abyssal-zone/dagath"],
+
+    // Grendel: Arbitration (locator / mission rotations) bucket (coarse)
+    "items:/Lotus/Powersuits/Devourer/Devourer": ["data:arbitrations/grendel"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/GrendelChassisComponent": ["data:arbitrations/grendel"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/GrendelHelmetComponent": ["data:arbitrations/grendel"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/GrendelSystemsComponent": ["data:arbitrations/grendel"],
+
+    // Yareli: quest bucket
+    "items:/Lotus/Powersuits/Yareli/Yareli": ["data:quest/the-waverider"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/YareliChassisComponent": ["data:quest/the-waverider"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/YareliHelmetComponent": ["data:quest/the-waverider"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/YareliSystemsComponent": ["data:quest/the-waverider"],
+
+    // Uriel: keep coarse until you decide the exact system (1999 / etc.)
+    "items:/Lotus/Powersuits/DemonFrame/DemonFrame": ["data:todo/uriel"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielChassisComponent": ["data:todo/uriel"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielHelmetComponent": ["data:todo/uriel"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielSystemsComponent": ["data:todo/uriel"],
+
+    // ----------------------------
+    // 1999 Mushrooms / Journal items (Souterrains + vendor)
+    // ----------------------------
+    // Borica page indicates it is found in “Souterrains” bounties and can be purchased from Bonne-Nuit. :contentReference[oaicite:7]{index=7}
+    // Apply the same coarse acquisition buckets across the MushroomJournal set to eliminate unknown-acquisition immediately.
+    "items:/Lotus/Types/Items/MushroomJournal/CorrosiveMushroomJournalItem": [
+        "data:activity/souterrains/bounties",
+        "data:vendor/bonne-nuit"
+    ], // Borica
+    "items:/Lotus/Types/Items/MushroomJournal/MagneticMushroomJournalItem": [
+        "data:activity/souterrains/bounties",
+        "data:vendor/bonne-nuit"
+    ], // Ferrofungus
+    "items:/Lotus/Types/Items/MushroomJournal/RadiationMushroomJournalItem": [
+        "data:activity/souterrains/bounties",
+        "data:vendor/bonne-nuit"
+    ], // Gamma Berry
+    "items:/Lotus/Types/Items/MushroomJournal/GasMushroomJournalItem": [
+        "data:activity/souterrains/bounties",
+        "data:vendor/bonne-nuit"
+    ], // Reeking Puffball
+    "items:/Lotus/Types/Items/MushroomJournal/BlastMushroomJournalItem": [
+        "data:activity/souterrains/bounties",
+        "data:vendor/bonne-nuit"
+    ], // Spring Popper
+    "items:/Lotus/Types/Items/MushroomJournal/ViralMushroomJournalItem": [
+        "data:activity/souterrains/bounties",
+        "data:vendor/bonne-nuit"
+    ], // Violet's Bane
+
+    // ----------------------------
     // Infested “Coda” weapons (Infested Lich system)
     // ----------------------------
     "items:/Lotus/Weapons/Infested/InfestedLich/LongGuns/1999InfShotgun/1999InfShotgunWeapon": ["data:lich/infested-coda"], // Coda Bassocyst
@@ -238,8 +445,43 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     "items:/Lotus/Types/Items/MiscItems/SentientFragmentLootItem": ["data:node/murex/20-sentients"],
     "items:/Lotus/Types/Items/MushroomJournal/PlainMushroomJournalItem": ["data:deepmines/gathering"],
 
+    // ----------------------------
+    // The Old Peace / The Descendia: Vinquibus
+    // ----------------------------
+    "items:/Lotus/Weapons/Tenno/Bayonet/TnBayonetRifleBlueprint": [
+        "data:vendor/roathe/la-cathedrale",
+        "data:activity/the-descendia/maphica",
+        "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c",
+        "data:quest/the-old-peace"
+    ],
+
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VinquibusBarrelBlueprint": [
+        "data:vendor/roathe/la-cathedrale",
+        "data:activity/the-descendia/maphica",
+        "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c",
+        "data:quest/the-old-peace"
+    ],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VinquibusBladeBlueprint": [
+        "data:vendor/roathe/la-cathedrale",
+        "data:activity/the-descendia/maphica",
+        "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c",
+        "data:quest/the-old-peace"
+    ],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VinquibusReceiverBlueprint": [
+        "data:vendor/roathe/la-cathedrale",
+        "data:activity/the-descendia/maphica",
+        "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c",
+        "data:quest/the-old-peace"
+    ],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VinquibusStockBlueprint": [
+        "data:vendor/roathe/la-cathedrale",
+        "data:activity/the-descendia/maphica",
+        "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c",
+        "data:quest/the-old-peace"
+    ],
+
     "items:/Lotus/Weapons/Tenno/Pistol/BurstPistol": ["data:market/credits"], // Sicarus
-    "items:/Lotus/Weapons/Tenno/Shotgun/Shotgun": ["data:market/credits"], // Strun
+    "items:/Lotus/Weapons/Tenno/Shotgun/Shotgun": ["data:market/credits"] // Strun
 };
 
 function normalizeName(s: string): string {
@@ -327,7 +569,10 @@ function relicKeyFromDisplayName(displayName: string): string | null {
 
 function parseMissionRewardsPathLabel(pathLabel: string): { planet: string; node: string; rotation: string | null } | null {
     // Expected: "missionRewards / Ceres / Bode / C"
-    const parts = (pathLabel ?? "").split("/").map((p) => p.trim()).filter(Boolean);
+    const parts = (pathLabel ?? "")
+        .split("/")
+        .map((p) => p.trim())
+        .filter(Boolean);
     if (parts.length < 3) return null;
 
     const planet = parts[1] ?? "";
@@ -365,17 +610,96 @@ function buildRelicKeyToNodeSourcesIndex(): Record<string, string[]> {
 const RELIC_NODE_SOURCES_BY_KEY: Record<string, string[]> = buildRelicKeyToNodeSourcesIndex();
 
 function sourcesForRelicProjection(rec: any): { key: string | null; sources: string[] } {
-    const name =
-        typeof rec?.displayName === "string"
-            ? rec.displayName
-            : (typeof rec?.name === "string" ? rec.name : "");
-
+    const name = typeof rec?.displayName === "string" ? rec.displayName : typeof rec?.name === "string" ? rec.name : "";
     const key = relicKeyFromDisplayName(name);
     if (!key) return { key: null, sources: [] };
 
     const sources = RELIC_NODE_SOURCES_BY_KEY[normalizeName(key)] ?? [];
     return { key, sources };
 }
+
+/* =========================================================================================
+ * warframe-items name aliasing: uniqueName (/Lotus/...) -> "actual item name"
+ * Used only as an alternate join key for drop-data itemName-based tables.
+ * ========================================================================================= */
+
+function buildWfItemsUniqueNameToNameIndex(): Record<string, string> {
+    const out: Record<string, string> = Object.create(null);
+
+    const stack: unknown[] = [WARFRAME_ITEMS_ALL as unknown];
+    while (stack.length > 0) {
+        const node = stack.pop();
+
+        if (Array.isArray(node)) {
+            for (const v of node) stack.push(v);
+            continue;
+        }
+
+        if (!node || typeof node !== "object") continue;
+
+        const obj = node as Record<string, unknown>;
+        for (const v of Object.values(obj)) stack.push(v);
+
+        const uniqueName = typeof obj.uniqueName === "string" ? obj.uniqueName : null;
+        const name = typeof obj.name === "string" ? obj.name : null;
+        if (!uniqueName || !name) continue;
+
+        const clean = name.trim();
+        if (!clean) continue;
+
+        // Prefer first-seen; this is an alias helper, not an authoritative catalog.
+        if (!out[uniqueName]) out[uniqueName] = clean;
+    }
+
+    return out;
+}
+
+const WFITEMS_NAME_BY_UNIQUENAME: Record<string, string> = buildWfItemsUniqueNameToNameIndex();
+
+function lotusPathFromCatalogId(catalogId: string): string | null {
+    // "items:/Lotus/..." -> "/Lotus/..."
+    const s = String(catalogId);
+    const idx = s.indexOf(":/Lotus/");
+    if (idx === -1) return null;
+    return s.slice(idx + 1);
+}
+
+function candidateNameKeysForRecord(catalogId: string, rec: any): string[] {
+    const keys: string[] = [];
+
+    const primary =
+        typeof rec?.displayName === "string" ? rec.displayName : typeof rec?.name === "string" ? rec.name : "";
+    const k1 = normalizeNameNoPunct(primary);
+    if (k1) keys.push(k1);
+
+    // Secondary: warframe-items All.json name for the same Lotus uniqueName (helps with “Barrels”, “Blades”, etc.)
+    const lotus = lotusPathFromCatalogId(catalogId);
+    if (lotus) {
+        const alias = WFITEMS_NAME_BY_UNIQUENAME[lotus];
+        const k2 = normalizeNameNoPunct(alias ?? "");
+        if (k2 && !keys.includes(k2)) keys.push(k2);
+
+        // Also consider stripping trailing "blueprint" from alias (common mismatch)
+        if (alias) {
+            const aliasNoBp = alias.replace(/\bBlueprint\b/i, "").trim();
+            const k3 = normalizeNameNoPunct(aliasNoBp);
+            if (k3 && !keys.includes(k3)) keys.push(k3);
+        }
+    }
+
+    // Tertiary: remove trailing "blueprint" from primary
+    if (primary) {
+        const pNoBp = primary.replace(/\bBlueprint\b/i, "").trim();
+        const k4 = normalizeNameNoPunct(pNoBp);
+        if (k4 && !keys.includes(k4)) keys.push(k4);
+    }
+
+    return keys;
+}
+
+/* =========================================================================================
+ * missionRewards / transient / bounties / resourceByAvatar / additionalItemByAvatar / miscItems
+ * ========================================================================================= */
 
 /**
  * missionRewards.json
@@ -497,9 +821,11 @@ function buildSolarisBountyItemNameToSourcesIndex(): Record<string, string[]> {
         const bountyName =
             typeof row?.bountyName === "string"
                 ? row.bountyName.trim()
-                : (typeof row?.name === "string"
-                    ? row.name.trim()
-                    : (typeof row?.objectiveName === "string" ? row.objectiveName.trim() : ""));
+                : typeof row?.name === "string"
+                  ? row.name.trim()
+                  : typeof row?.objectiveName === "string"
+                    ? row.objectiveName.trim()
+                    : "";
 
         if (!bountyName) continue;
 
@@ -581,6 +907,42 @@ function buildResourceByAvatarItemNameToSourcesIndex(): Record<string, string[]>
 }
 
 /**
+ * additionalItemByAvatar.json
+ * item -> data:additional-item-by-avatar/<source>
+ *
+ * Same rationale as resourceByAvatar: emit data:* so it is actionable by default and matches sourceCatalog.ts.
+ */
+function buildAdditionalItemByAvatarItemNameToSourcesIndex(): Record<string, string[]> {
+    const root = (additionalItemByAvatarJson as any)?.additionalItemByAvatar ?? (additionalItemByAvatarJson as any);
+    const rows: AdditionalItemByAvatarRow[] = Array.isArray(root) ? (root as AdditionalItemByAvatarRow[]) : [];
+
+    const map = new Map<string, Set<string>>();
+
+    for (const row of rows) {
+        const source = typeof row?.source === "string" ? row.source.trim() : "";
+        if (!source) continue;
+
+        const sid = dataId(["additional-item-by-avatar", source]);
+
+        const items = Array.isArray(row?.items) ? row.items : [];
+        for (const it of items) {
+            const itemName = typeof it?.item === "string" ? it.item.trim() : "";
+            if (!itemName) continue;
+
+            const key = normalizeNameNoPunct(itemName);
+            if (!key) continue;
+
+            if (!map.has(key)) map.set(key, new Set<string>());
+            map.get(key)!.add(sid);
+        }
+    }
+
+    const out: Record<string, string[]> = {};
+    for (const [k, set] of map.entries()) out[k] = Array.from(set.values()).sort((a, b) => a.localeCompare(b));
+    return out;
+}
+
+/**
  * miscItems.json
  * itemName -> data:enemy-item/<enemyName>
  *
@@ -619,15 +981,103 @@ function buildMiscItemsItemNameToSourcesIndex(): Record<string, string[]> {
     return out;
 }
 
+/* =========================================================================================
+ * blueprintLocations / enemyBlueprintTables (enemy blueprint drop sources)
+ * ========================================================================================= */
+
+/**
+ * blueprintLocations.json
+ * blueprintName/itemName -> data:enemy-drop/<enemyName>
+ */
+function buildBlueprintLocationsItemNameToSourcesIndex(): Record<string, string[]> {
+    const root = (blueprintLocationsJson as any)?.blueprintLocations ?? (blueprintLocationsJson as any);
+    const rows: BlueprintLocationsRow[] = Array.isArray(root) ? (root as BlueprintLocationsRow[]) : [];
+
+    const map = new Map<string, Set<string>>();
+
+    for (const row of rows) {
+        const enemies = Array.isArray(row?.enemies) ? row.enemies : [];
+        if (enemies.length === 0) continue;
+
+        const nameRaw =
+            typeof row?.blueprintName === "string"
+                ? row.blueprintName
+                : typeof row?.itemName === "string"
+                  ? row.itemName
+                  : "";
+
+        const name = stripQtyPrefix(nameRaw).trim();
+        if (!name) continue;
+
+        const key = normalizeNameNoPunct(name);
+        if (!key) continue;
+
+        for (const e of enemies) {
+            const enemyName = typeof e?.enemyName === "string" ? e.enemyName.trim() : "";
+            if (!enemyName) continue;
+
+            const sid = dataId(["enemy-drop", enemyName]);
+
+            if (!map.has(key)) map.set(key, new Set<string>());
+            map.get(key)!.add(sid);
+        }
+    }
+
+    const out: Record<string, string[]> = {};
+    for (const [k, set] of map.entries()) out[k] = Array.from(set.values()).sort((a, b) => a.localeCompare(b));
+    return out;
+}
+
+/**
+ * enemyBlueprintTables.json
+ * itemName/blueprintName -> data:enemy-drop/<enemyName>
+ */
+function buildEnemyBlueprintTablesItemNameToSourcesIndex(): Record<string, string[]> {
+    const root = (enemyBlueprintTablesJson as any)?.enemyBlueprintTables ?? (enemyBlueprintTablesJson as any);
+    const rows: EnemyBlueprintTablesRow[] = Array.isArray(root) ? (root as EnemyBlueprintTablesRow[]) : [];
+
+    const map = new Map<string, Set<string>>();
+
+    for (const row of rows) {
+        const enemyName = typeof row?.enemyName === "string" ? row.enemyName.trim() : "";
+        if (!enemyName) continue;
+
+        const sid = dataId(["enemy-drop", enemyName]);
+
+        const items = Array.isArray(row?.items) ? row.items : [];
+        for (const it of items) {
+            const raw =
+                typeof it?.itemName === "string"
+                    ? it.itemName
+                    : typeof it?.blueprintName === "string"
+                      ? it.blueprintName
+                      : "";
+
+            const name = stripQtyPrefix(raw).trim();
+            if (!name) continue;
+
+            const key = normalizeNameNoPunct(name);
+            if (!key) continue;
+
+            if (!map.has(key)) map.set(key, new Set<string>());
+            map.get(key)!.add(sid);
+        }
+    }
+
+    const out: Record<string, string[]> = {};
+    for (const [k, set] of map.entries()) out[k] = Array.from(set.values()).sort((a, b) => a.localeCompare(b));
+    return out;
+}
+
 // Build once (fast lookup during catalog scan)
 const MISSION_REWARDS_SOURCES_BY_ITEM: Record<string, string[]> = buildMissionRewardsItemNameToSourcesIndex();
 const TRANSIENT_REWARDS_SOURCES_BY_ITEM: Record<string, string[]> = buildTransientRewardsItemNameToSourcesIndex();
 const SOLARIS_BOUNTY_SOURCES_BY_ITEM: Record<string, string[]> = buildSolarisBountyItemNameToSourcesIndex();
 const RESOURCE_BY_AVATAR_SOURCES_BY_ITEM: Record<string, string[]> = buildResourceByAvatarItemNameToSourcesIndex();
+const ADDITIONAL_ITEM_BY_AVATAR_SOURCES_BY_ITEM: Record<string, string[]> = buildAdditionalItemByAvatarItemNameToSourcesIndex();
 const MISC_ITEMS_SOURCES_BY_ITEM: Record<string, string[]> = buildMiscItemsItemNameToSourcesIndex();
-
-// Keep the import referenced so TS doesn't complain if the file is present but not used yet.
-void additionalItemByAvatarJson;
+const BLUEPRINT_LOCATIONS_SOURCES_BY_ITEM: Record<string, string[]> = buildBlueprintLocationsItemNameToSourcesIndex();
+const ENEMY_BLUEPRINT_TABLES_SOURCES_BY_ITEM: Record<string, string[]> = buildEnemyBlueprintTablesItemNameToSourcesIndex();
 
 export function deriveDropDataAcquisitionByCatalogId(): Record<string, AcquisitionDef> {
     const out: Record<string, AcquisitionDef> = {};
@@ -648,15 +1098,10 @@ export function deriveDropDataAcquisitionByCatalogId(): Record<string, Acquisiti
             sources.push(...r.sources);
         }
 
-        // --- Name-based joins (drop tables) ---
-        const displayOrName =
-            typeof rec?.displayName === "string"
-                ? rec.displayName
-                : (typeof rec?.name === "string" ? rec.name : "");
+        // --- Name-based joins (drop tables) with alias support ---
+        const candidateKeys = candidateNameKeysForRecord(catalogId, rec);
 
-        const nameKey = normalizeNameNoPunct(displayOrName);
-
-        if (nameKey) {
+        for (const nameKey of candidateKeys) {
             const mr = MISSION_REWARDS_SOURCES_BY_ITEM[nameKey] ?? [];
             if (mr.length > 0) sources.push(...mr);
 
@@ -669,8 +1114,17 @@ export function deriveDropDataAcquisitionByCatalogId(): Record<string, Acquisiti
             const rba = RESOURCE_BY_AVATAR_SOURCES_BY_ITEM[nameKey] ?? [];
             if (rba.length > 0) sources.push(...rba);
 
+            const aiba = ADDITIONAL_ITEM_BY_AVATAR_SOURCES_BY_ITEM[nameKey] ?? [];
+            if (aiba.length > 0) sources.push(...aiba);
+
             const mi = MISC_ITEMS_SOURCES_BY_ITEM[nameKey] ?? [];
             if (mi.length > 0) sources.push(...mi);
+
+            const bl = BLUEPRINT_LOCATIONS_SOURCES_BY_ITEM[nameKey] ?? [];
+            if (bl.length > 0) sources.push(...bl);
+
+            const ebt = ENEMY_BLUEPRINT_TABLES_SOURCES_BY_ITEM[nameKey] ?? [];
+            if (ebt.length > 0) sources.push(...ebt);
         }
 
         // --- Manual overrides (must win / always included) ---
@@ -709,12 +1163,23 @@ export type DropDataJoinDiagnostics = {
         transientRewardsKeys: number;
         solarisBountyKeys: number;
         resourceByAvatarKeys: number;
+        additionalItemByAvatarKeys: number;
         miscItemsKeys: number;
+        blueprintLocationsKeys: number;
+        enemyBlueprintTablesKeys: number;
         sampleMissionRewardsKeys: string[];
         sampleTransientRewardsKeys: string[];
         sampleSolarisBountyKeys: string[];
         sampleResourceByAvatarKeys: string[];
+        sampleAdditionalItemByAvatarKeys: string[];
         sampleMiscItemsKeys: string[];
+        sampleBlueprintLocationsKeys: string[];
+        sampleEnemyBlueprintTablesKeys: string[];
+    };
+
+    wfitemsAlias: {
+        uniqueNamesWithNames: number;
+        sampleAliases: Array<{ uniqueName: string; name: string }>;
     };
 };
 
@@ -743,10 +1208,7 @@ export function deriveDropDataJoinDiagnostics(): DropDataJoinDiagnostics {
 
         total += 1;
 
-        const name =
-            typeof rec?.displayName === "string"
-                ? rec.displayName
-                : (typeof rec?.name === "string" ? rec.name : "");
+        const name = typeof rec?.displayName === "string" ? rec.displayName : typeof rec?.name === "string" ? rec.name : "";
 
         const key = relicKeyFromDisplayName(name);
 
@@ -773,7 +1235,9 @@ export function deriveDropDataJoinDiagnostics(): DropDataJoinDiagnostics {
         if (sources.length > 0) withSources += 1;
         else {
             withoutSources += 1;
-            if (sampleMissing.length < 50) sampleMissing.push({ id: catalogId, name, key, reason: "index-has-no-sources" });
+            if (sampleMissing.length < 50) {
+                sampleMissing.push({ id: catalogId, name, key, reason: "index-has-no-sources" });
+            }
         }
     }
 
@@ -781,7 +1245,16 @@ export function deriveDropDataJoinDiagnostics(): DropDataJoinDiagnostics {
     const trKeys = Object.keys(TRANSIENT_REWARDS_SOURCES_BY_ITEM);
     const sbKeys = Object.keys(SOLARIS_BOUNTY_SOURCES_BY_ITEM);
     const rbaKeys = Object.keys(RESOURCE_BY_AVATAR_SOURCES_BY_ITEM);
+    const aibaKeys = Object.keys(ADDITIONAL_ITEM_BY_AVATAR_SOURCES_BY_ITEM);
     const miKeys = Object.keys(MISC_ITEMS_SOURCES_BY_ITEM);
+    const blKeys = Object.keys(BLUEPRINT_LOCATIONS_SOURCES_BY_ITEM);
+    const ebtKeys = Object.keys(ENEMY_BLUEPRINT_TABLES_SOURCES_BY_ITEM);
+
+    const wfKeys = Object.keys(WFITEMS_NAME_BY_UNIQUENAME);
+    const sampleAliases: Array<{ uniqueName: string; name: string }> = [];
+    for (const k of wfKeys.slice(0, 25)) {
+        sampleAliases.push({ uniqueName: k, name: WFITEMS_NAME_BY_UNIQUENAME[k] });
+    }
 
     return {
         relicProjections: {
@@ -799,12 +1272,22 @@ export function deriveDropDataJoinDiagnostics(): DropDataJoinDiagnostics {
             transientRewardsKeys: trKeys.length,
             solarisBountyKeys: sbKeys.length,
             resourceByAvatarKeys: rbaKeys.length,
+            additionalItemByAvatarKeys: aibaKeys.length,
             miscItemsKeys: miKeys.length,
+            blueprintLocationsKeys: blKeys.length,
+            enemyBlueprintTablesKeys: ebtKeys.length,
             sampleMissionRewardsKeys: mrKeys.slice(0, 25),
             sampleTransientRewardsKeys: trKeys.slice(0, 25),
             sampleSolarisBountyKeys: sbKeys.slice(0, 25),
             sampleResourceByAvatarKeys: rbaKeys.slice(0, 25),
-            sampleMiscItemsKeys: miKeys.slice(0, 25)
+            sampleAdditionalItemByAvatarKeys: aibaKeys.slice(0, 25),
+            sampleMiscItemsKeys: miKeys.slice(0, 25),
+            sampleBlueprintLocationsKeys: blKeys.slice(0, 25),
+            sampleEnemyBlueprintTablesKeys: ebtKeys.slice(0, 25)
+        },
+        wfitemsAlias: {
+            uniqueNamesWithNames: wfKeys.length,
+            sampleAliases
         }
     };
 }

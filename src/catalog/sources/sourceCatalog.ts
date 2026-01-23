@@ -105,6 +105,13 @@ function pushUnique(out: RawSource[], seen: Set<string>, id: string, label: stri
  * - The planner/access layer should prefer data:market/credits going forward.
  */
 const CURATED_SOURCES: RawSource[] = [
+    { id: "data:quest/the-sacrifice", label: "Quest: The Sacrifice", type: "other" },
+    { id: "data:quest/chimera-prologue", label: "Quest: Chimera Prologue", type: "other" },
+
+    { id: "data:duviri/experience", label: "Duviri: Experience", type: "drop" },
+    { id: "data:duviri/circuit", label: "Duviri: The Circuit", type: "drop" },
+
+    { id: "data:vendor/deimos/necraloid", label: "Vendor: Necraloid (Deimos)", type: "vendor" },
     { id: "data:crafting", label: "Crafting (Foundry)", type: "crafting" },
 
     { id: "data:market", label: "Market Purchase", type: "vendor" },
@@ -154,6 +161,7 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:dojo/energy-lab", label: "Dojo Research: Energy Lab (Corpus)", type: "vendor" },
     { id: "data:dojo/bio-lab", label: "Dojo Research: Bio Lab (Infested)", type: "vendor" },
     { id: "data:dojo/research", label: "Dojo Research (Uncategorized)", type: "vendor" },
+    { id: "data:clan/tenno-lab", label: "Dojo Research: Tenno Lab", type: "vendor" },
 
     // systems / special economies
     { id: "data:lich/kuva", label: "Kuva Lich Weapons (Kuva)", type: "other" },
@@ -439,7 +447,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         for (const row of aibaArr) {
             const srcName = safeString((row as any)?.source);
             if (!srcName) continue;
-            const id = dataId(["additional-by-avatar", srcName]);
+            const id = dataId(["additional-item-by-avatar", srcName]);
             const label = `Additional Drop (Avatar): ${srcName}`;
             pushUnique(out, seen, id, label, "drop");
         }
