@@ -587,36 +587,44 @@ function analyzeCatalogIdForFarming(args: {
     }
 
     if (directSources && directSources.length > 0) {
-        if (directSources.includes(BLUEPRINT_UNCLASSIFIED)) {
-            const sources = directSources.map((sid) => ({
-                sourceId: sid,
-                sourceLabel: SOURCE_INDEX[sid]?.label ?? String(sid)
-            }));
-            return { kind: "ok", sources };
+        // Placeholder must NEVER short-circuit real sources.
+        // If real sources exist, strip the placeholder before any further analysis.
+        const realSources = directSources.filter((sid) => sid !== BLUEPRINT_UNCLASSIFIED);
+    
+        // If the only source is the placeholder, it is actionable only for explicit blueprint items.
+        if (realSources.length === 0) {
+            // If we got here, placeholder-only is allowed (because non-blueprints were nulled earlier).
+            return {
+                kind: "ok",
+                sources: directSources.map((sid) => ({
+                    sourceId: sid,
+                    sourceLabel: SOURCE_INDEX[sid]?.label ?? String(sid)
+                }))
+            };
         }
-
-        const accessible = directSources
+    
+        const accessible = realSources
             .filter((sid) => canAccessSource(sid, completedPrereqs))
             .map((sid) => ({
                 sourceId: sid,
                 sourceLabel: SOURCE_INDEX[sid]?.label ?? String(sid)
             }));
-
+    
         if (accessible.length > 0) {
             return { kind: "ok", sources: accessible };
         }
-
+    
         const comps = getItemRequirements(catalogId);
         if (!Array.isArray(comps) || comps.length === 0) {
-            const diag = getMissingPrereqsForSources({ sourceIds: directSources, completedPrereqs });
-
+            const diag = getMissingPrereqsForSources({ sourceIds: realSources, completedPrereqs });
+    
             const inferredReason: HiddenFarmingItem["reason"] =
                 diag.missingPrereqs.length > 0
                     ? "missing-prereqs"
                     : diag.hasUncuratedGate
                         ? "unknown-acquisition"
                         : "no-accessible-sources";
-
+    
             return {
                 kind: "hidden",
                 hidden: {
