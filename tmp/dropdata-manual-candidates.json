@@ -1,0 +1,2519 @@
+{
+    "inputs": {
+        "wfcdItems": "/mnt/c/Users/forrest/Repos/Warframe-Progression-Tracker/src/data/_generated/wfcd-items.byCatalogId.auto.json"
+    },
+    "counts": {
+        "catalogRecords": 16860,
+        "missionRewardsKeys": 924,
+        "transientRewardsKeys": 295,
+        "solarisBountyKeys": 95,
+        "resourceByAvatarKeys": 89,
+        "additionalItemByAvatarKeys": 35,
+        "miscItemsKeys": 19,
+        "blueprintLocationsKeys": 179,
+        "enemyBlueprintTablesKeys": 179,
+        "manualCandidates": 15786
+    },
+    "sampleManualCandidates": [
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageChromaPrimePartner",
+            "name": "-Chroma- Prime Partner Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Gameplay/1999Wf/Gifts/VideoCassette",
+            "name": "\"Circle Of Comrades\" Series On Vhs",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/Community10YearAnniversarySigil",
+            "name": "10 Year Anniversary Community Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/SongItems/TenthAnniversaryLoginSongItem",
+            "name": "10th Anniversary Login Music",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImage13angTV",
+            "name": "13angtv Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/SongItems/CC16BitGirlsSongItem",
+            "name": "16-Bit Girls With Machine Guns",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Clan/CY17173MediaBadge",
+            "name": "17173 Emblem",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageDrippy",
+            "name": "1999 Drippy Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/Syndicate/HexRankThree",
+            "name": "2-For-1 Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImage2020ZerO",
+            "name": "2020zero Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Gameplay/1999Wf/Resources/HexDogTagQuincy",
+            "name": "35mm Film",
+            "type": "Resource"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageSixixgatsu",
+            "name": "6ixgatsu Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageIm7heClown",
+            "name": "7heclown Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Restoratives/Consumable/BaseSpearFishingSpear",
+            "name": "A Fishing Spear",
+            "type": "Gear"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAHR",
+            "name": "A H R Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/NewWar/LisetPropFamilyPortrait",
+            "name": "A Lost Time",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Keys/GetClemQuest/GetClemQuestKeyChain",
+            "name": "A Man Of Few Words",
+            "type": "Key"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/CorpusGreedReliefG",
+            "name": "A New Beginning",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/CorpusGreedReliefJ",
+            "name": "A New Empire",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Venus/SolarisPosterA",
+            "name": "A New Future Poster",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Venus/SolarisPosterD",
+            "name": "A New World Poster",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:SolNode203",
+            "name": "Abaddon",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/Trinity/LinkAugmentCard",
+            "name": "Abating Link",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/PrimeScarfG",
+            "name": "Abbera Prime Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/HalloweenErosionCape",
+            "name": "Abrasys Day Of The Dead Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/ErosionCape",
+            "name": "Abrasys Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/Infestation/InfestPassiveAugmentCard",
+            "name": "Abundant Mutation",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/SongItems/AbyssofDagathSongItem",
+            "name": "Abyss Of Dagath Login Music",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleDagath",
+            "name": "Abyssal Thorn Honoria",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Tattoos/TattooDuviriC",
+            "name": "Academe Ink",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/PrimeSetThree/PrimeSetThreeC",
+            "name": "Acanthus Prime Chest Plate",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/PrimeSetThree/PrimeSetThreeL",
+            "name": "Acanthus Prime Leg Guard",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/PrimeSetThree/PrimeSetThreeA",
+            "name": "Acanthus Prime Shoulder Guard",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Sentinel/SentinelShieldRechargeRateMod",
+            "name": "Accelerated Deflection",
+            "type": "Companion Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Pistol/DualStat/RadiationFireratePistolMod",
+            "name": "Accelerated Isotope",
+            "type": "Secondary Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Challenges/Seasons/Daily/SeasonDailySlideKills",
+            "name": "Accelerator",
+            "type": "Nightwave Challenge"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/LongGuns/SapientPrimary/SapientPrimaryWeapon",
+            "name": "Acceltra",
+            "type": "Rifle"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Runner/DeluxeAcceltraSkin",
+            "name": "Acceltra Caduceus Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Promo/Seasonal/Halloween2023DOTDAcceltraSkin",
+            "name": "Acceltra Day Of The Dead Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/LunarNewYear/Lunar2020AcceltraSkin",
+            "name": "Acceltra Lunaeus Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/LongGuns/PrimeAcceltra/PrimeAcceltraWeapon",
+            "name": "Acceltra Prime",
+            "type": "Rifle"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/WinterSolstice/SolsticeAcceltraSkin",
+            "name": "Acceltra Solstice Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/SuitCustomizations/ColourPickerAccessibilityItemA",
+            "name": "Accessibility",
+            "type": "Color Palette"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAccessibleGamer",
+            "name": "Accessiblegamer Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/SyndicateSigilConclaveN",
+            "name": "Accord Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/Khora/KhoraCrackAugmentCard",
+            "name": "Accumulating Whipclaw",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:SolNode4",
+            "name": "Acheron",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Shotgun/Event/ProjectNightwatch/SobekNightwatchMod",
+            "name": "Acid Shells",
+            "type": "Shotgun Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Friendly/Pets/CreaturePets/CreaturePrecepts/InfestedPredatorSpitAcidPrecept",
+            "name": "Acidic Spittle",
+            "type": "Companion Mod"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Grineer/Melee/GrineerTylAxeAndBoar/RegorAxeShield",
+            "name": "Ack & Brunt",
+            "type": "Melee"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/PvP/Melee/PvPAckBrunt",
+            "name": "Ack & Brunt Conclave Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Halloween/HalloweenRegorAxeShield",
+            "name": "Ack & Brunt Day Of The Dead Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/IncarnonAdapters/Melee/AckAndBruntIncarnonUnlocker",
+            "name": "Ack & Brunt Incarnon Genesis",
+            "type": "Equipment Adapter"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/GrineerUrban/AckBruntGrineerUrbanCamo",
+            "name": "Ack & Brunt Nightwatch Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Clan/ProjectSinisterBadgeItem",
+            "name": "Acolyte Emblem",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/ProjectSinisterSigil",
+            "name": "Acolyte Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAcolyteSynpai",
+            "name": "Acolyte Synpai Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Weapons/ClanTech/Bio/AcidDartPistol",
+            "name": "Acrid",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/LavosDeluxeSyandana",
+            "name": "Aculea Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:SolNode181",
+            "name": "Adaro",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/CatbrowPet/MirrorCatbrowPetPowerSuit",
+            "name": "Adarza Kavat",
+            "type": "Pets"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/NotePacks/BardTennoPackA",
+            "name": "Adau Instruments",
+            "type": "Note Packs"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/CustomizationSlotUnlocker",
+            "name": "Additional Appearance Config Slot For This Item",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/ModSlotUnlocker",
+            "name": "Additional Mod Config Slot For This Item",
+            "type": "Equipment Adapter"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAdelfosSelene",
+            "name": "Adelfos Selene Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/PvPMods/Warframe/MoreBulletJumpLessHealthMod",
+            "name": "Adept Surge",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAdikDarkCero",
+            "name": "Adikdarkcero Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetParts/ZanukaPetPartBodyA",
+            "name": "Adlet Core",
+            "type": "Pet Resource"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAdmiralBahroo",
+            "name": "Admiral Bahroo Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Friendly/Pets/CreaturePets/CreaturePetParts/Deimos/InfestedCritterMutagenA",
+            "name": "Adra Mutagen",
+            "type": "Pet Parts"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Gems/Deimos/DeimosCommonOreAAlloyItem",
+            "name": "Adramal Alloy",
+            "type": "Gem"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Gems/Deimos/DeimosCommonOreAItem",
+            "name": "Adramalium",
+            "type": "Gem"
+        },
+        {
+            "id": "items:SolNode88",
+            "name": "Adrastea",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Types/Restoratives/Consumable/NpcBuffs/SpeedBuffArmorDebuff",
+            "name": "Adrenal Stim",
+            "type": "Gear"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadA",
+            "name": "Adultfemaleheada",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadB",
+            "name": "Adultfemaleheadb",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadC",
+            "name": "Adultfemaleheadc",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadD",
+            "name": "Adultfemaleheadd",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadE",
+            "name": "Adultfemaleheade",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadF",
+            "name": "Adultfemaleheadf",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadG",
+            "name": "Adultfemaleheadg",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadH",
+            "name": "Adultfemaleheadh",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadI",
+            "name": "Adultfemaleheadi",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadJ",
+            "name": "Adultfemaleheadj",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadK",
+            "name": "Adultfemaleheadk",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadL",
+            "name": "Adultfemaleheadl",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultFemaleHeadM",
+            "name": "Adultfemaleheadm",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadA",
+            "name": "Adultmaleheada",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadB",
+            "name": "Adultmaleheadb",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadC",
+            "name": "Adultmaleheadc",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadD",
+            "name": "Adultmaleheadd",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadE",
+            "name": "Adultmaleheade",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadF",
+            "name": "Adultmaleheadf",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadG",
+            "name": "Adultmaleheadg",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadH",
+            "name": "Adultmaleheadh",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadI",
+            "name": "Adultmaleheadi",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadJ",
+            "name": "Adultmaleheadj",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadK",
+            "name": "Adultmaleheadk",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadL",
+            "name": "Adultmaleheadl",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultMaleHeadM",
+            "name": "Adultmaleheadm",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipFeatureItems/AdvancedOrdisFeatureItem",
+            "name": "Advanced Cephalon Segment",
+            "type": "Ship Segment"
+        },
+        {
+            "id": "items:/Lotus/Types/Restoratives/Consumable/MiningLaserC",
+            "name": "Advanced Nosam Cutter",
+            "type": "Gear"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/NokkoMushroomScrawlPosterG",
+            "name": "Adventure Walk Cave Art",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Horse/ErsatzHorseTailD",
+            "name": "Aebolg Tail",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/IronFrame/IronFrameEruptionAugmentCard",
+            "name": "Aegis Gale",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Kahl/KahlEyepatchA",
+            "name": "Aegrae Eye-Guard",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Grineer/ThrowingWeapons/GrnVorStickyBomb/GrnVorStickyBomb",
+            "name": "Aegrit",
+            "type": "Throwing"
+        },
+        {
+            "id": "items:/Lotus/Types/Friendly/Pets/MoaPets/MoaPetParts/MoaPetPayloadAegron",
+            "name": "Aegron Gyro",
+            "type": "Pet Resource"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/LongGuns/TnRifleErsatz/TnRifleErsatzWeapon",
+            "name": "Aeolak",
+            "type": "Rifle"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAeonKnight",
+            "name": "Aeonknight86 Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Rifle/Event/Arbitration/JumpRefreshOnKillRifleMod",
+            "name": "Aerial Ace",
+            "type": "Primary Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Sentinels/SentinelPrecepts/VoidBond/Copilot",
+            "name": "Aerial Bond",
+            "type": "Companion Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetPrecepts/ZanukaPetPhotonStrikePrecept",
+            "name": "Aerial Prospectus",
+            "type": "Companion Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Fairy/TitaniaDeluxeIIArchwingPistolsSkin",
+            "name": "Aerospri Dex Pixia Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/DuvArmor/DuvArmorC",
+            "name": "Aesopex Chest Plate",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/DuvArmor/DuvArmorL",
+            "name": "Aesopex Leg Plates",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/DuvArmor/DuvArmorA",
+            "name": "Aesopex Shoulder Plates",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAesopYOLIAN",
+            "name": "Aesopyolian Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Horse/GaussDeluxeHorseHelmet",
+            "name": "Aethon Chamfron",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Horse/GaussDeluxeHorseSaddle",
+            "name": "Aethon Saddle",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Horse/GaussDeluxeHorseTail",
+            "name": "Aethon Tail",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Horse/ErsatzBodySkinA",
+            "name": "Aetigo Kaithe",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Horse/ErsatzHorseTailDefaultA",
+            "name": "Aetigo Tail",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/LongGuns/TnHopliteSpear/TnHopliteSpearGunWeapon",
+            "name": "Afentis",
+            "type": "Rifle"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Tattoos/TattooLoveRose",
+            "name": "Affections Ink",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Focus/Tactic/Residual/MeleeXpFocusUpgrade",
+            "name": "Affinity Spike",
+            "type": "Focus Way"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/Boosters/AffinityBoosterStoreItem",
+            "name": "Affinityboosterstoreitem",
+            "type": "Boosters"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/Dragon/DragonBreathAugmentCard",
+            "name": "Afterburn",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/Archwing/DemolitionJetPack/ExhaustTrailAugmentCard",
+            "name": "Afterburner",
+            "type": "Archwing Mod"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Akimbo/AkimboAutoPistols",
+            "name": "Afuris",
+            "type": "Dual Pistols"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/GrineerForest/GrineerForestAfuris",
+            "name": "Afuris Forest-Camo Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/PrimeAfuris/PrimeAFurisWeapon",
+            "name": "Afuris Prime",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Promo/Twitch/Twitch2021AfurisSkin",
+            "name": "Afuris Verv Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/DomsFinalDrink",
+            "name": "Aged Claret Of Denas",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Challenges/Seasons/Daily/SeasonDailyCompleteMission",
+            "name": "Agent",
+            "type": "Nightwave Challenge"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCreatorAGGP",
+            "name": "Aggp Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Props/LisetPropDUVxRockContainerItem",
+            "name": "Aggri Formation Decoration",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/PvPMods/Rifle/FasterMovementWhileAimingRifleMod",
+            "name": "Agile Aim",
+            "type": "Primary Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/OrokinChallenge/OrokinChallengeModAgility",
+            "name": "Agility Drift",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/LisetPropOroSigilMarker",
+            "name": "Agkani Stone",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Archwing/Melee/ArchSwordHook/ArchHookSwordWeapon",
+            "name": "Agkuza",
+            "type": "Arch-Melee"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/SuitCustomizations/Nemesis/ColourPickerKuvaLichElectric",
+            "name": "Agony",
+            "type": "Color Palette"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Emotes/AgreeEmote",
+            "name": "Agree",
+            "type": "Emotes"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/PaxDuviricusSyandana",
+            "name": "Ahlto Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Hollvania/LASxArcadeAirHockeyA",
+            "name": "Air Hockey Table",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Challenges/Seasons/Daily/SeasonDailyDeployAirSupport",
+            "name": "Air It Out",
+            "type": "Nightwave Challenge"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/PvPMods/Melee/AirborneMeleeAutoTargetBonus",
+            "name": "Air Martial",
+            "type": "Melee Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/PvPMods/Pistol/HigherAirAimFoVPistolMod",
+            "name": "Air Recon",
+            "type": "Secondary Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Restoratives/LisetAirSupport",
+            "name": "Air Support Charges",
+            "type": "Gear"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/PvPMods/Warframe/AirSlideBoost",
+            "name": "Air Thrusters",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Hoverboard/HBAirGravMod",
+            "name": "Air Time",
+            "type": "K-Drive Mod"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/Tengu/TenguBurstAugmentCard",
+            "name": "Airburst Rounds",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Tattoos/TattooCorpusA",
+            "name": "Airlock Ink",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAjingom",
+            "name": "Ajingom Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/SWAkSuraScarf",
+            "name": "Ak-Sura Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAkariayataka",
+            "name": "Akari_ayataka Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/SapientPistol/SapientPistol",
+            "name": "Akarius",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/PrimeAkarius/PrimeAkariusWeapon",
+            "name": "Akarius Prime",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponPS",
+            "name": "Akaten",
+            "type": "Companion Weapon"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Akimbo/AkimboBolto",
+            "name": "Akbolto",
+            "type": "Dual Pistols"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/BrassAndGold/BrassAndGoldAkbolto",
+            "name": "Akbolto Ormolu Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/PrimeAkbolto/PrimeAkBoltoWeapon",
+            "name": "Akbolto Prime",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Akimbo/AkimboShotGun",
+            "name": "Akbronco",
+            "type": "Dual Pistols"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Akimbo/PrimeAkimboShotGun",
+            "name": "Akbronco Prime",
+            "type": "Dual Pistols"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/TigrisRedeemerSetPistol/TnoBladedPistols",
+            "name": "Akjagara",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Promo/Twitch/AkjagaraIridosSkin",
+            "name": "Akjagara Iridos Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/PrimeAkjagara/AkJagaraPrime",
+            "name": "Akjagara Prime",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/BaroKiTeerDecorationB",
+            "name": "Akka Luxxum Ornament",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:ClanNode18",
+            "name": "Akkad",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Akimbo/AkimboPistol",
+            "name": "Aklato",
+            "type": "Dual Pistols"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/PvP/Pistols/PvPAklato",
+            "name": "Aklato Conclave Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Halloween/HalloweenAklato",
+            "name": "Aklato Day Of The Dead Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Kintsukuroi/KintsukuroiAklato",
+            "name": "Aklato Kintsugi Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Starry/StarryAklato",
+            "name": "Aklato Nocturne Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Promo/Nintendo/NintendoAklatoSkin",
+            "name": "Aklato Opal Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Akimbo/AkLexPistols",
+            "name": "Aklex",
+            "type": "Dual Pistols"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/PvP/Pistols/PvPAkLex",
+            "name": "Aklex Conclave Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Akimbo/AkLexPrimePistols",
+            "name": "Aklex Prime",
+            "type": "Dual Pistols"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Akimbo/DualMagnus",
+            "name": "Akmagnus",
+            "type": "Dual Pistols"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Contests/Pistols/AkmagnusDakila",
+            "name": "Akmagnus Dakila Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Contests/Pistols/AkmagnusHiveLight",
+            "name": "Akmagnus Hivelight Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sony/ObsidianAkmagnus",
+            "name": "Akmagnus Obsidian Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Akimbo/DualMagnusPrime",
+            "name": "Akmagnus Prime",
+            "type": "Dual Pistols"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Ornate/TekeluAkmagnusSkin",
+            "name": "Akmagnus Tekelu Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/PacifistSyandana",
+            "name": "Akrabu Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/SomaSidearm/AkimboSomaPistols",
+            "name": "Aksomati",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/PrimeAksomati/PrimeAksomati",
+            "name": "Aksomati Prime",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/TennoUzi/TennoUzi",
+            "name": "Akstiletto",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/PvP/Pistols/PvPAkstiletto",
+            "name": "Akstiletto Conclave Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/PrimeAkstiletto/PrimeAkstiletto",
+            "name": "Akstiletto Prime",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Ornate/TekeluAkstilettoSkin",
+            "name": "Akstiletto Tekelu Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Akimbo/DualVastos",
+            "name": "Akvasto",
+            "type": "Dual Pistols"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/PvP/Pistols/PvPAkvasto",
+            "name": "Akvasto Conclave Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Halloween/HalloweenAkvasto",
+            "name": "Akvasto Day Of The Dead Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/GrineerForest/GrineerForestDualVastos",
+            "name": "Akvasto Forest-Camo Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Promo/Void/AkvastosVoidSkin",
+            "name": "Akvasto Phased Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/PrimeVasto/AkPrimeVasto/AkPrimeVastoPistol",
+            "name": "Akvasto Prime",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Ornate/TekeluAkvastoSkin",
+            "name": "Akvasto Tekelu Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Pistols/HarlequinGun/HarlequinPistols",
+            "name": "Akzani",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Excalibur/ExcaliburPrimeAlabasterSkin",
+            "name": "Alabaster Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/KubrowPet/Colors/KubrowPetColorVibrantG",
+            "name": "Alad Blue",
+            "type": "Fur Color"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/ImageCorpusAladV",
+            "name": "Alad V Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageGlyphMashedAladV",
+            "name": "Alad V Mashed Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/BossSigilAladV",
+            "name": "Alad V Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAlainLove",
+            "name": "Alainlove Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Deluxe/NovaDeluxeIISniperSkin",
+            "name": "Alamos Sniper Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/ValkyrDeluxeArmor/ValkyrDeluxeArmorC",
+            "name": "Alastorn Chest Plate",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/ValkyrDeluxeArmor/ValkyrDeluxeArmorL",
+            "name": "Alastorn Leg Plates",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/ValkyrDeluxeArmor/ValkyrDeluxeArmorA",
+            "name": "Alastorn Shoulder Plates",
+            "type": "Skin"
+        },
+        {
+            "id": "items:SolNode106",
+            "name": "Alator",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/AlbrechtPortrait",
+            "name": "Albrecht 1999 Display",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageAlbrechtHatCommunity",
+            "name": "Albrecht Hat Community Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/WitWSupporterPoster",
+            "name": "Albrecht Jahu Display",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/PhotoBooth/Entrati/PhotoboothTileArchives",
+            "name": "Albrecht's Archive Scene",
+            "type": "Captura"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/PhotoBooth/Entrati/PhotoboothTileCapRoomNarrow",
+            "name": "Albrecht's Bureau Scene",
+            "type": "Captura"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/KalymosGrimoireGlyph",
+            "name": "Albrecht's Treasures Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/CatbrowPet/Colors/CatbrowPetColorTertiaryEntrati",
+            "name": "Alchemy Black",
+            "type": "Fur Color"
+        },
+        {
+            "id": "items:/Lotus/Types/Friendly/Pets/MoaPets/MoaPetParts/MoaPetEngineArcotek",
+            "name": "Alcrom Core",
+            "type": "Pet Resource"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/FusionBundles/AlertFusionBundleLarge",
+            "name": "Alertfusionbundlelarge",
+            "type": "Resource"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/FusionBundles/AlertFusionBundleMedium",
+            "name": "Alertfusionbundlemedium",
+            "type": "Resource"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/FusionBundles/AlertFusionBundleSmall",
+            "name": "Alertfusionbundlesmall",
+            "type": "Resource"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/FusionBundles/AlertRewardFusionBundle",
+            "name": "Alertrewardfusionbundle",
+            "type": "Resource"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipFeatureItems/AlertsFeatureItem",
+            "name": "Alerts Segment",
+            "type": "Ship Segment"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAlexanderDario",
+            "name": "Alexanderdario Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAlexandraLive",
+            "name": "Alexandralive Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/KubrowBedA",
+            "name": "Alitaka Pet Bed",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/SongItems/AliveAgainSongItem",
+            "name": "Alive Again",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Motorcycle/MotorcycleGraffitiSkin",
+            "name": "All City Livery",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/Seasonal/Halloween2019CheshireKavat",
+            "name": "All Mad Here Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Venus/TNWGlintUmbraDisplay",
+            "name": "All Miracles Require Sacrifice",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Clan/AllianceEmblemItem",
+            "name": "Alliance Emblem",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/AllianceSigilBasic",
+            "name": "Alliance Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/ContainerDecoItemAlloyDrum",
+            "name": "Alloy Drum Decoration",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/ResourceDecoItemAlloyPlate",
+            "name": "Alloy Plate Decoration",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/SWAlocanaSyandana",
+            "name": "Alocana Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/JadeShadowsAlonePoster",
+            "name": "Alone Portrait",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleOraxia",
+            "name": "Along Came Honoria",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/AlphaCorruptorResource",
+            "name": "Alpha Corruptor",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/Restoratives/Consumable/AlphaCorruptor",
+            "name": "Alpha Corruptor",
+            "type": "Gear"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/NotePacks/BardCorpusPackA",
+            "name": "Alpha Instruments",
+            "type": "Note Packs"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Plushies/PlushySawgawUncommon",
+            "name": "Alpine Monitor Sawgaw Floof",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Solaris/AnimalTagSawgawUncommon",
+            "name": "Alpine Monitor Sawgaw Tag",
+            "type": "Conservation Tag"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/LongGuns/GyreRifle/GyreRifleWeapon",
+            "name": "Alternox",
+            "type": "Rifle"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/LongGuns/PrimeAlternox/PrimeAlternoxWeapon",
+            "name": "Alternox Prime",
+            "type": "Rifle"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/PrimeAltraScarf",
+            "name": "Altra Prime Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sentinels/Masks/GaussSentinelMask",
+            "name": "Altra Sentinel Mask",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sentinels/Skins/GaussSentinelSkin",
+            "name": "Altra Sentinel Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sentinels/Tails/GaussSentinelTail",
+            "name": "Altra Sentinel Tail",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sentinels/Wings/GaussSentinelWings",
+            "name": "Altra Sentinel Wings",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/SapientCape",
+            "name": "Altra Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/MeleeDangles/CitrineSugatra",
+            "name": "Alumeti Sugatra",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAlyekk",
+            "name": "Alyekk Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/DualSource/Pistol/MultishotDodgeMod",
+            "name": "Amalgam Barrel Diffusion",
+            "type": "Secondary Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/Factions/GlyphFactionAmalgam",
+            "name": "Amalgam Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/DualSource/Melee/CritDamageChargeSpeedMod",
+            "name": "Amalgam Organ Shatter",
+            "type": "Melee Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/DualSource/Rifle/SerratedRushMod",
+            "name": "Amalgam Serration",
+            "type": "Primary Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/DualSource/Shotgun/ShotgunMedicMod",
+            "name": "Amalgam Shotgun Barrage",
+            "type": "Shotgun Mod"
+        },
+        {
+            "id": "items:SolNode97",
+            "name": "Amalthea",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Melee/Polearms/Naginata/ShrineMaidenNaginataWeapon",
+            "name": "Amanata",
+            "type": "Melee"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Melee/Polearms/Naginata/ShrineMaidenNaginataAugment",
+            "name": "Amanata Pressure",
+            "type": "Melee Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Gems/Solaris/SolarisRareGemAItem",
+            "name": "Amarast",
+            "type": "Gem"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/TextureOverrides/Mirage",
+            "name": "Amarast Facets",
+            "type": "Skin"
+        },
+        {
+            "id": "items:ClanNode14",
+            "name": "Amarna",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Sets/Amar/AmarSetMod",
+            "name": "Amarsetmod",
+            "type": "Mod Set Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/PhotoboothTileSyndicateNewLoka",
+            "name": "Amaryn's Retreat Scene",
+            "type": "Captura"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Corpus/LongGuns/CrpArSniper/CrpArSniperRifle",
+            "name": "Ambassador",
+            "type": "Rifle"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/CrpArSniper/CrpArSniperLichSkin",
+            "name": "Ambassador Tenet Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/SyndicateSigilConclaveI",
+            "name": "Ambition Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/DangerRoom/DangerRoomTileOutpostAmbulasArena",
+            "name": "Ambulas Arena Simulacrum",
+            "type": "Simulacrum"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/KubrowPet/Colors/KubrowPetColorVibrantB",
+            "name": "Ambulas Black",
+            "type": "Fur Color"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Clan/AmbulasEventBadgeItem",
+            "name": "Ambulas Reborn Emblem",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/EventSigilAmbulas",
+            "name": "Ambulas Reborn Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/BossSigilAmbulas",
+            "name": "Ambulas Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Types/Sentinels/SentinelPrecepts/GhostAugmentCard",
+            "name": "Ambush",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/Archwing/SupportJetPack/SupportJetPack",
+            "name": "Amesha",
+            "type": "Archwing"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Archwing/SupportDefaultArchwingSkin",
+            "name": "Amesha Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Restoratives/Consumable/Toxins/NightCommonAntitoxin",
+            "name": "Amethyst Antitoxin",
+            "type": "Gear"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Plushies/Deimos/PlushyInfestedNexiferaCommon",
+            "name": "Amethyst Nexifera Floof",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Deimos/AnimalTagInfestedNexiferaCommon",
+            "name": "Amethyst Nexifera Tag",
+            "type": "Conservation Tag"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageAmirAccoladeGlyph",
+            "name": "Amir Accolade Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Plushies/PlushyAmir",
+            "name": "Amir Floof",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Emotes/LegendaryAmirEmote",
+            "name": "Amir Gemini Emote",
+            "type": "Emotes"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Volt/WF1999VoltSkin",
+            "name": "Amir Gemini Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImagePixelAmir",
+            "name": "Amir Pixel Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Hair/Hair1999Volt",
+            "name": "Amir's Hairstyle",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Volt/WF1999VoltAuxHat",
+            "name": "Amir's Shades",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Sentinels/SentinelPrecepts/ItemVacum",
+            "name": "Ammo Case",
+            "type": "Companion Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Fish/Deimos/InfestedCommonDFishItem",
+            "name": "Amniophysi",
+            "type": "Fish"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Fish/Deimos/InfestedCommonDFishItemLarge",
+            "name": "Amniophysi",
+            "type": "Fish"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Fish/Deimos/InfestedCommonDFishItemMedium",
+            "name": "Amniophysi",
+            "type": "Fish"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Deimos/FishTrophyInfestedCommonD",
+            "name": "Amniophysi Trophy",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Tattoos/TattooLoveFlower",
+            "name": "Amorous Ink",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/WeaponAmpArcaneUnlocker",
+            "name": "Amp Arcane Adapter",
+            "type": "Equipment Adapter"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Focus/Tactic/Active/ComboAmpDamageFocusUpgrade",
+            "name": "Amp Spike",
+            "type": "Focus Way"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Kubrows/Armor/GrnAmphisKubrowArmor",
+            "name": "Amphatz Kubrow Armor",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Melee/Staff/GrnStaff",
+            "name": "Amphis",
+            "type": "Melee"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/PhotoboothTileDuviriIsleSignatureAmphitheatre",
+            "name": "Amphitheater Scene",
+            "type": "Captura"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Catbrows/Armor/GrnAmphisKavatArmor",
+            "name": "Amphix Kavat Armor",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/GrnAmphisScarf",
+            "name": "Amphor Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Corpus/LongGuns/ChainLightningGun/ChainLightningRifle",
+            "name": "Amprex",
+            "type": "Rifle"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Halloween/HalloweenAmprex",
+            "name": "Amprex Day Of The Dead Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/EliteAlerts/EliteAlertAmprex",
+            "name": "Amprex Telos Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Friendly/Pets/CreaturePets/CreaturePrecepts/InfestedPredatorBuffSporesPrecept",
+            "name": "Anabolic Pollination",
+            "type": "Companion Mod"
+        },
+        {
+            "id": "items:SolNode73",
+            "name": "Ananke",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Tau/LisetPropSTMxGrnTankTrapA",
+            "name": "Anarch Anti-Tank Trap",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Tau/LisetPropSTMxGrnStorageCrateC",
+            "name": "Anarch Storage Crate",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Tau/LisetPropSTMxGrnStorageDrumAS",
+            "name": "Anarch Storage Drum",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/IvaraPrimeArmor/IvaraPrimeCArmor",
+            "name": "Anasa Ayatan Prime Chest Plate",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/IvaraPrimeArmor/IvaraPrimeLArmor",
+            "name": "Anasa Ayatan Prime Leg Plates",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/IvaraPrimeArmor/IvaraPrimeAArmor",
+            "name": "Anasa Ayatan Prime Shoulder Plates",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/Tengu/TenguDisablePassiveMod",
+            "name": "Anchored Glide",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Hoverboard/HoverboardStickerInfested",
+            "name": "Ancient",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/CatbrowPet/Colors/CatbrowPetColorAccentsContest",
+            "name": "Ancient Brown",
+            "type": "Fur Color"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/CatbrowPet/Colors/CatbrowPetColorTertiaryB",
+            "name": "Ancient Green",
+            "type": "Fur Color"
+        },
+        {
+            "id": "items:/Lotus/Types/Challenges/Seasons/Weekly/SeasonWeeklyRequiemTotem",
+            "name": "Ancient Obelisks",
+            "type": "Nightwave Challenge"
+        },
+        {
+            "id": "items:/Lotus/Types/Restoratives/Consumable/AncientHealerBall",
+            "name": "Ancient Protector Specter",
+            "type": "Gear"
+        },
+        {
+            "id": "items:/Lotus/Types/Keys/ZarimanQuest/ZarimanQuestKeyChain",
+            "name": "Angels Of The Zariman",
+            "type": "Key"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/SongItems/ZarimanLoginSongItem",
+            "name": "Angels Of The Zariman Login Music",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAngryUnicorn",
+            "name": "Angry Unicorn Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAngryIceberg",
+            "name": "Angryiceberg Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Corpus/Pistols/CrpHandRL/CorpusHandRocketLauncher",
+            "name": "Angstrum",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/PvP/Pistols/PvPAngstrum",
+            "name": "Angstrum Conclave Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Halloween/HalloweenAngstrum",
+            "name": "Angstrum Day Of The Dead Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/IncarnonAdapters/Secondary/AngstrumIncarnonUnlocker",
+            "name": "Angstrum Incarnon Genesis",
+            "type": "Equipment Adapter"
+        },
+        {
+            "id": "items:SolNode405",
+            "name": "Ani",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Types/Challenges/Seasons/Weekly/SeasonWeeklyCompleteTreasures",
+            "name": "Animator",
+            "type": "Nightwave Challenge"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Events/AmbulasDataFragment",
+            "name": "Animo Nav Beacon",
+            "type": "Resource"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAnJetCat",
+            "name": "Anjetcat Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Melee/Scythe/ParisScythe/ParisScythe",
+            "name": "Anku",
+            "type": "Melee"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/IncarnonAdapters/Melee/AnkuIncarnonUnlocker",
+            "name": "Anku Incarnon Genesis",
+            "type": "Equipment Adapter"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/Gauntlet",
+            "name": "Ankyros",
+            "type": "Melee"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Promo/Void/AnkyrosVoidSkin",
+            "name": "Ankyros Phased Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/PrimeAnkyros/PrimeAnkyros",
+            "name": "Ankyros Prime",
+            "type": "Melee"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Promo/Twitch/TwitchAnkyros",
+            "name": "Ankyros Prominence Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/Minigames/MinigameGlyphStickerD",
+            "name": "Anna Ki Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/SongItems/CCAnnaKiGOBSongItem",
+            "name": "Anna Ki In The G.O.B.",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/SongItems/CCAnnaKiPunkSongItem",
+            "name": "Anna Ki Is A Punk Rocker",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAnnoyingKillah",
+            "name": "Annoying Killah Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/SentientFragmentLootItem",
+            "name": "Anomaly Shard",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Emotes/DanceReachAcrossHips",
+            "name": "Another Level",
+            "type": "Emotes"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/VoidTrader/BaroInarosPolearmSkin",
+            "name": "Anpu Staff Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/MeleeDangles/BaroInarosMeleeDangle",
+            "name": "Anpu Sugatra",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Deimos/LisetPropOrokinBeamBase",
+            "name": "Ansophys",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Sentients/OperatorAmplifiers/Set2/Grip/SentAmpSet2GripPartA",
+            "name": "Anspatha Brace",
+            "type": "Amp"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Accessories/PrimeAccessoriesCEar",
+            "name": "Anten Prime Earpiece",
+            "type": "Skin"
+        },
+        {
+            "id": "items:SolNode31",
+            "name": "Anthe",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/CatbrowPet/Colors/CatbrowPetColorBaseC",
+            "name": "Anti Moa Purple",
+            "type": "Fur Color"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/PvPMods/Warframe/BlastResist",
+            "name": "Anti-Flak Plating",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Friendly/Pets/MoaPets/MoaPetPrecept/MoaLiftBombPrecept",
+            "name": "Anti-Grav Grenade",
+            "type": "Companion Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Immortal/AntivirusSevenMod",
+            "name": "Anti-V",
+            "type": "Parazon Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/PvPMods/Warframe/StaggerImmunityMod",
+            "name": "Anticipation",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/AntiMatter/AntiMatterDropAugmentCard",
+            "name": "Antimatter Absorb",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Powersuits/AntiMatter/AntiMatterDropPvPAugmentCard",
+            "name": "Antimatter Mine",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Challenges/Seasons/WeeklyHard/SeasonWeeklyHardAntiquarian",
+            "name": "Antiquarian",
+            "type": "Nightwave Challenge"
+        },
+        {
+            "id": "items:/Lotus/Types/Restoratives/Consumable/InfestedSyringe",
+            "name": "Antiserum Injector",
+            "type": "Gear"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/SyringeComponent",
+            "name": "Antiserum Injector Fragment",
+            "type": "Resource"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/KubrowPet/Colors/KubrowPetColorVibrantA",
+            "name": "Anyo Grey",
+            "type": "Fur Color"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageAoiAccoladeGlyph",
+            "name": "Aoi Accolade Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Plushies/PlushyAoi",
+            "name": "Aoi Floof",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Emotes/LegendaryAoiEmote",
+            "name": "Aoi Gemini Emote",
+            "type": "Emotes"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Mag/WF1999MagSkin",
+            "name": "Aoi Gemini Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageNightwaveAoi",
+            "name": "Aoi Origami Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImagePixelAoi",
+            "name": "Aoi Pixel Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Operator/Hair/Hair1999Mag",
+            "name": "Aoi's Hairstyle",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/IvaraPrimeCape",
+            "name": "Apavada Prime Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/PvPMods/Rifle/MarkTargetRifleMod",
+            "name": "Apex Predator",
+            "type": "Primary Mod"
+        },
+        {
+            "id": "items:SolNode2",
+            "name": "Aphrodite",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/InfMembraneCape",
+            "name": "Apis Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/CrewShip/MassDriver/AutoCannon/AutoCannon",
+            "name": "Apoc",
+            "type": "Railjack Turret"
+        },
+        {
+            "id": "items:/Lotus/Weapons/CrewShip/MassDriver/AutoCannon/AutoCannonTierA",
+            "name": "Apoc Mk I",
+            "type": "Railjack Turret"
+        },
+        {
+            "id": "items:/Lotus/Weapons/CrewShip/MassDriver/AutoCannon/AutoCannonTierB",
+            "name": "Apoc Mk Ii",
+            "type": "Railjack Turret"
+        },
+        {
+            "id": "items:/Lotus/Weapons/CrewShip/MassDriver/AutoCannon/AutoCannonTierC",
+            "name": "Apoc Mk Iii",
+            "type": "Railjack Turret"
+        },
+        {
+            "id": "items:SolNode308",
+            "name": "Apollo",
+            "type": "Node"
+        },
+        {
+            "id": "items:SolNode94",
+            "name": "Apollodorus",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Types/Keys/ApostasyQuest/ApostasyKeyChain",
+            "name": "Apostasy Prologue",
+            "type": "Key"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/KazInfestedScarf",
+            "name": "Apoxys Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Promo/Seasonal/DogDays2025BadgeItem",
+            "name": "Aqua Heart Emblem",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Fish/Deimos/HybridRareAFishItem",
+            "name": "Aquapulmo",
+            "type": "Fish"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Fish/Deimos/HybridRareAFishItemLarge",
+            "name": "Aquapulmo",
+            "type": "Fish"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Fish/Deimos/HybridRareAFishItemMedium",
+            "name": "Aquapulmo",
+            "type": "Fish"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Deimos/FishTrophyHybridRareA",
+            "name": "Aquapulmo Trophy",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Emotes/Kata2Emote",
+            "name": "Aquarid Narta",
+            "type": "Emotes"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/ActionFigureDioramas/OceanADiorama",
+            "name": "Aquarium Vignette",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/SWRThreeAquirosScarf",
+            "name": "Aquiros Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:SolNode45",
+            "name": "Ara",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/TnOraxiaArmor/TnOraxiaArmorA",
+            "name": "Arachna Arm Armor",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/TnOraxiaArmor/TnOraxiaArmorC",
+            "name": "Arachna Chest Armor",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/TnOraxiaArmor/TnOraxiaArmorL",
+            "name": "Arachna Leg Armor",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/TennoPlanterD",
+            "name": "Aranya Planter",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/SyndicateSigilArbitersOfHexisA",
+            "name": "Arbiter Of Hexis Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/PhotoboothTileSyndicateArbiters",
+            "name": "Arbiter's Tribunal Scene",
+            "type": "Captura"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Emotes/Syndicate/AHCombatEmote",
+            "name": "Arbiters Combat Emote",
+            "type": "Emotes"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Emotes/Syndicate/AHSurvivabilityEmote",
+            "name": "Arbiters Endurance Emote",
+            "type": "Emotes"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Emotes/Syndicate/AHEngineeringEmote",
+            "name": "Arbiters Engineering Emote",
+            "type": "Emotes"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Emotes/Syndicate/AHGunneryEmote",
+            "name": "Arbiters Gunnery Emote",
+            "type": "Emotes"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/ImageSyndicateAH",
+            "name": "Arbiters Of Hexis Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/QuartersWallpapers/SyndicateAHWallpaper",
+            "name": "Arbiters Of Hexis Stencil",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/Emotes/Syndicate/AHPilotingEmote",
+            "name": "Arbiters Piloting Emote",
+            "type": "Emotes"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/ArbitersRewardStatue",
+            "name": "Arbitration Statue",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Archwing/Primary/NokkoArchGun/NokkoArchGun",
+            "name": "Arbucep",
+            "type": "Arch-Gun"
+        },
+        {
+            "id": "items:/Lotus/Types/Sentinels/SentinelPrecepts/ArcTrap",
+            "name": "Arc Coil",
+            "type": "Companion Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Vehicles/Hoverboard/HoverboardParts/PartComponents/HoverboardCorpusA/HoverboardCorpusAEngine",
+            "name": "Arc Twelve",
+            "type": "K-Drive Component"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/CrpHighArmor/CrpHighArmorC",
+            "name": "Arca Chest Guard",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/CrpHighArmor/CrpHighArmorL",
+            "name": "Arca Knee Guards",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Corpus/LongGuns/CrpShotgun/CrpShotgun",
+            "name": "Arca Plasmor",
+            "type": "Shotgun"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Promo/Seasonal/TennobaumArcaPlasmorSkin",
+            "name": "Arca Plasmor Solstice Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Corpus/Pistols/SniperPistol/CrpScopeGun",
+            "name": "Arca Scisco",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/CrpHighArmor/CrpHighArmorA",
+            "name": "Arca Shoulder Guards",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/CrpHighArmor/WinterSolsticeArcaArmourC",
+            "name": "Arca Solstice Chest Guard",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/CrpHighArmor/WinterSolsticeArcaArmourL",
+            "name": "Arca Solstice Knee Guards",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Armor/CrpHighArmor/WinterSolsticeArcaArmourA",
+            "name": "Arca Solstice Shoulder Guards",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Corpus/Melee/Hammer/CorpusHammerWeapon",
+            "name": "Arca Titron",
+            "type": "Melee"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Nightwave/CosmosArcaTitronSkin",
+            "name": "Arca Titron Raya Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Hollvania/LASxArcadeMachineD",
+            "name": "Arcade Machine",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Hollvania/LASxArcadeRacingA",
+            "name": "Arcade Racing Machine",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Hollvania/LASxArcadeChangeMachineA",
+            "name": "Arcade Ticket Machine",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Offensive/AbilityStrengthOnSummonAttackSub",
+            "name": "Arcane",
+            "type": "Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Offensive/PermaComboOnFinisherSub",
+            "name": "Arcane",
+            "type": "Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Trinity/TrinityHelmetAlt",
+            "name": "Arcane Aura Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Frost/FrostHelmetAlt",
+            "name": "Arcane Aurora Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Excalibur/ExcaliburHelmetAlt",
+            "name": "Arcane Avalon Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Ember/EmberHelmetAltB",
+            "name": "Arcane Backdraft Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Offensive/MaxEnergyForArmor",
+            "name": "Arcane Battery",
+            "type": "Warframe Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Asp/AspAltHelmetB",
+            "name": "Arcane Chlora Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Decree/DecreeAltHelmetB",
+            "name": "Arcane Chorus Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Defensive/StealDefensiveStatsOnRoll",
+            "name": "Arcane Circumvent",
+            "type": "Warframe Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Mag/MagHelmetAlt",
+            "name": "Arcane Coil Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Utility/AbilityDurationOnCast",
+            "name": "Arcane Concentration",
+            "type": "Warframe Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Defensive/PunctureProcResist",
+            "name": "Arcane Defense",
+            "type": "Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Defensive/PoisonProcResist",
+            "name": "Arcane Detoxifier",
+            "type": "Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Trapper/TrapperHelmetAlt",
+            "name": "Arcane Esprit Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Loki/LokiHelmetAlt",
+            "name": "Arcane Essence Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Defensive/ShieldMaxForAbilityStrength",
+            "name": "Arcane Expertise",
+            "type": "Warframe Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/AntiMatter/AntiAltHelmet",
+            "name": "Arcane Flux Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Trapper/TrapperHelmetAltB",
+            "name": "Arcane Gambit Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Asp/AspAltHelmet",
+            "name": "Arcane Hemlock Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Offensive/AbilityPowerOnFreeze",
+            "name": "Arcane Ice Storm",
+            "type": "Warframe Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Defensive/GasProcResist",
+            "name": "Arcane Liquid",
+            "type": "Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Ninja/NinjaHelmetAltB",
+            "name": "Arcane Locust Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Mag/MagHelmetAltB",
+            "name": "Arcane Mag Gauss Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Jade/JadeHelmetAlt",
+            "name": "Arcane Menticide Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Trinity/TrinityHelmetAltB",
+            "name": "Arcane Meridian Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Excalibur/ExcaliburHelmetAltB",
+            "name": "Arcane Pendragon Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Defensive/MaxDPSTakenForArmour",
+            "name": "Arcane Persistence",
+            "type": "Warframe Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Ember/EmberHelmetAlt",
+            "name": "Arcane Phoenix Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Defensive/CorrosiveProcResist",
+            "name": "Arcane Protection",
+            "type": "Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Volt/VoltHelmetAltB",
+            "name": "Arcane Pulse Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Decree/DecreeAltHelmet",
+            "name": "Arcane Reverb Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Ninja/NinjaHelmetAlt",
+            "name": "Arcane Scorpion Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Defensive/ImpactProcResist",
+            "name": "Arcane Shield",
+            "type": "Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Frost/FrostHelmetAltB",
+            "name": "Arcane Squall Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Volt/VoltHelmetAlt",
+            "name": "Arcane Storm Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Utility/SlowerBleedOutOnPredeath",
+            "name": "Arcane Survival",
+            "type": "Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Loki/LokiHelmetAltB",
+            "name": "Arcane Swindle Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/CosmeticEnhancers/Utility/DamageReductionDuringRevive",
+            "name": "Arcane Temperance",
+            "type": "Arcane"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Rhino/RhinoHelmetAlt",
+            "name": "Arcane Thrak Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Rhino/RhinoHelmetAltB",
+            "name": "Arcane Vanguard Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Jade/JadeHelmetAltB",
+            "name": "Arcane Vespa Helmet",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Lunaro/ArcataSkinA",
+            "name": "Arcata Riv Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/PhotoboothTileDuviriIsleSignatureLibrary",
+            "name": "Archarbor Scene",
+            "type": "Captura"
+        },
+        {
+            "id": "items:/Lotus/Types/Restoratives/HeavyWeaponSummon",
+            "name": "Archgun Deployer",
+            "type": "Gear"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Randomized/LotusArchgunRandomModRare",
+            "name": "Archgun Riven Mod",
+            "type": "Arch-Gun Riven Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Randomized/RawArchgunRandomMod",
+            "name": "Archgun Riven Mod",
+            "type": "Arch-Gun Riven Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Liset/ConquestHoodOrnament",
+            "name": "Archimedean Eye Sumdali",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/TNWArchonItemAmar",
+            "name": "Archon Amar's Shard",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/TNWArchonItemBoreal",
+            "name": "Archon Boreal's Shard",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarAbilityDurationMod",
+            "name": "Archon Continuity",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarDropEnergySubMod",
+            "name": "Archon Flow",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarPowerMaxMod",
+            "name": "Archon Flow",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Challenges/Seasons/WeeklyHard/SeasonWeeklyHardCompleteArchonHunt",
+            "name": "Archon Hunter",
+            "type": "Nightwave Challenge"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarAbilityStrengthMod",
+            "name": "Archon Intensify",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarAbilityStrengthSubMod",
+            "name": "Archon Intensify",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/NewWar2021Glyph",
+            "name": "Archon Nira Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Sigils/NewWar2021Sigil",
+            "name": "Archon Nira Sigil",
+            "type": "Sigil"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/MiscItems/TNWArchonItemNira",
+            "name": "Archon Nira's Shard",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystal",
+            "name": "Archon Shard",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalMythic",
+            "name": "Archon Shard",
+            "type": "Misc"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarAbilityRangeMod",
+            "name": "Archon Stretch",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarAbilityRangeSubMod",
+            "name": "Archon Stretch",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarHealthMaxMod",
+            "name": "Archon Vitality",
+            "type": "Warframe Mod"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/Vignettes/Warframes/ArchwingAFItem",
+            "name": "Archwing Articula",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/PoseSets/ArchwingArmedPoseSet",
+            "name": "Archwing Gun Pose Set",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Restoratives/OpenArchwingSummon",
+            "name": "Archwing Launcher",
+            "type": "Gear"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/PoseSets/ArchwingUnarmedPoseSet",
+            "name": "Archwing Reaction Pose Set",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Liset/ZephyrDeluxeShipSkin",
+            "name": "Arclite Landing Craft Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/SteamWorkshop/Primary/ArcaPlasmor/SWArcosoliumSkin",
+            "name": "Arcosolium Arca Plasmor Skin",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Infested/Pistols/InfKitGun/Clips/InfSmallClip/InfModularClipSmallCritStatPart",
+            "name": "Arcroid",
+            "type": "Pistol"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Scarves/SWArcturusScarf",
+            "name": "Arcturus Syandana",
+            "type": "Skin"
+        },
+        {
+            "id": "items:SolNode113",
+            "name": "Ares",
+            "type": "Node"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Mods/PvPMods/Stances/PvPPolearmStanceOne",
+            "name": "Argent Scourge",
+            "type": "Stance Mod"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/DaxDuviriMaceShieldWeapon",
+            "name": "Argo & Vel",
+            "type": "Melee"
+        },
+        {
+            "id": "items:/Lotus/Types/Gameplay/1999Wf/Resources/HexDogTagUncommon",
+            "name": "Argon Burger Meal",
+            "type": "Resource"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/ResourceDecoItemArgonCrystal",
+            "name": "Argon Crystal Decoration",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Items/ShipDecos/ContainerDecoItemArgonPegmatite",
+            "name": "Argon Pegmatite Decoration",
+            "type": "Ship Decoration"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/CatbrowPet/Colors/PrimeCatbrowPetColorAccents",
+            "name": "Argon Violet",
+            "type": "Fur Color"
+        },
+        {
+            "id": "items:/Lotus/Weapons/Grineer/LongGuns/LaserAimRifle/LaserAimRifle",
+            "name": "Argonak",
+            "type": "Rifle"
+        },
+        {
+            "id": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageArgonSix",
+            "name": "Argonsix Glyph",
+            "type": "Glyph"
+        },
+        {
+            "id": "items:/Lotus/Upgrades/Skins/Catbrows/XmasCatbrowSkin",
+            "name": "Argyl Kavat Fur Pattern",
+            "type": "Skin"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/CatbrowPet/Colors/CatbrowPetColorBaseContest",
+            "name": "Arid Brown",
+            "type": "Fur Color"
+        },
+        {
+            "id": "items:/Lotus/Types/Game/KubrowPet/Colors/KubrowPetColorMundaneI",
+            "name": "Arid Brown",
+            "type": "Fur Color"
+        }
+    ]
+}
