@@ -103,88 +103,181 @@ function pushUnique(out: RawSource[], seen: Set<string>, id: string, label: stri
  * IMPORTANT:
  * - Keep BOTH data:market and data:market/credits because older snapshots/code may have emitted data:market.
  * - The planner/access layer should prefer data:market/credits going forward.
+ *
+ * ALSO:
+ * - This list includes SourceIds referenced by MANUAL_ACQUISITION_BY_CATALOG_ID so those never show as "Unknown source".
  */
 const CURATED_SOURCES: RawSource[] = [
-    { id: "data:quest/the-sacrifice", label: "Quest: The Sacrifice", type: "other" },
-    { id: "data:quest/chimera-prologue", label: "Quest: Chimera Prologue", type: "other" },
-
-    { id: "data:duviri/experience", label: "Duviri: Experience", type: "drop" },
-    { id: "data:duviri/circuit", label: "Duviri: The Circuit", type: "drop" },
-
-    { id: "data:vendor/deimos/necraloid", label: "Vendor: Necraloid (Deimos)", type: "vendor" },
+    // ----------------------------
+    // Core
+    // ----------------------------
     { id: "data:crafting", label: "Crafting (Foundry)", type: "crafting" },
 
+    // ----------------------------
+    // Market / monetization / bundles (coarse)
+    // ----------------------------
     { id: "data:market", label: "Market Purchase", type: "vendor" },
     { id: "data:market/credits", label: "Market (Credits)", type: "vendor" },
+    { id: "data:market/platinum", label: "Market (Platinum)", type: "vendor" },
+    { id: "data:market/bundles", label: "Market Bundles (Coarse)", type: "vendor" },
+    { id: "data:market/tennogen", label: "Market: TennoGen (PC)", type: "vendor" },
 
-    // warframe-items open-world coarse buckets
-    { id: "data:openworld/cetus/mining", label: "Open World: Plains of Eidolon (Mining)", type: "drop" },
-    { id: "data:openworld/cetus/gathering", label: "Open World: Plains of Eidolon (Gathering)", type: "drop" },
+    { id: "data:market/sentinel-weapons", label: "Market: Sentinel Weapons", type: "vendor" },
 
-    { id: "data:openworld/fortuna/mining", label: "Open World: Orb Vallis (Mining)", type: "drop" },
-    { id: "data:openworld/fortuna/gathering", label: "Open World: Orb Vallis (Gathering)", type: "drop" },
-    { id: "data:openworld/fortuna/kdrive", label: "Open World: Orb Vallis (K-Drive)", type: "drop" },
+    // ----------------------------
+    // System-given / account / timed
+    // ----------------------------
+    { id: "data:system/daily-tribute", label: "System: Daily Tribute (Login Rewards)", type: "other" },
+    { id: "data:system/starter", label: "System: Starter / New Account Items", type: "other" },
 
-    { id: "data:openworld/deimos/mining", label: "Open World: Cambion Drift (Mining)", type: "drop" },
-    { id: "data:openworld/deimos/gathering", label: "Open World: Cambion Drift (Gathering)", type: "drop" },
-    { id: "data:openworld/deimos/kdrive-races", label: "Open World: Cambion Drift (K-Drive Races)", type: "drop" },
+    // ----------------------------
+    // Baro / time-gated vendors
+    // ----------------------------
+    { id: "data:baro/void-trader", label: "Vendor: Baro Ki’Teer (Void Trader)", type: "vendor" },
 
-    { id: "data:openworld/zariman", label: "Open World: Zariman", type: "drop" },
-    { id: "data:openworld/duviri", label: "Open World: Duviri", type: "drop" },
+    // Steel Path shop (Teshin rotates items)
+    { id: "data:vendor/steel-path/teshin", label: "Vendor: Teshin (Steel Path Honors)", type: "vendor" },
 
-    // fishing (explicit + processing)
-    { id: "data:fishing/cetus", label: "Fishing: Plains of Eidolon", type: "drop" },
-    { id: "data:fishing/cetus/processing", label: "Fishing: Plains of Eidolon (Cut/Processing)", type: "drop" },
+    // Nightwave cred offerings
+    { id: "data:nightwave/cred-offerings", label: "Nightwave: Cred Offerings", type: "vendor" },
 
-    { id: "data:fishing/fortuna", label: "Fishing: Orb Vallis", type: "drop" },
-    { id: "data:fishing/fortuna/processing", label: "Fishing: Orb Vallis (Cut/Processing)", type: "drop" },
+    // ----------------------------
+    // Quests (you will add more as needed; these are just “known used” + future-safe patterns)
+    // ----------------------------
+    { id: "data:quest/the-sacrifice", label: "Quest: The Sacrifice", type: "other" },
+    { id: "data:quest/chimera-prologue", label: "Quest: Chimera Prologue", type: "other" },
+    { id: "data:quest/octavias-anthem", label: "Quest: Octavia’s Anthem", type: "other" },
+    { id: "data:quest/whispers-in-the-walls", label: "Quest: Whispers in the Walls", type: "other" },
+    { id: "data:quest/the-waverider", label: "Quest: The Waverider", type: "other" },
+    { id: "data:quest/the-old-peace", label: "Quest: The Old Peace", type: "other" },
 
-    { id: "data:fishing/deimos", label: "Fishing: Cambion Drift", type: "drop" },
-    { id: "data:fishing/deimos/processing", label: "Fishing: Cambion Drift (Cut/Processing)", type: "drop" },
+    // ----------------------------
+    // Unobtainable
+    // ----------------------------
+    { id: "data:unobtainable/founders", label: "Unobtainable: Founders (Account-locked)", type: "other" },
 
-    // generic processing fallback
-    { id: "data:fishing/processing", label: "Fishing (Cut/Processing)", type: "drop" },
+    // ----------------------------
+    // Operator / amps
+    // ----------------------------
+    { id: "data:operator/amp-starter", label: "Operator: Starter Amp Component", type: "other" },
 
-    // vendors
-    { id: "data:vendor/fortuna/ventkids", label: "Vendor: Ventkids (Fortuna)", type: "vendor" },
-    { id: "data:vendor/cetus/hok", label: "Vendor: Hok (Cetus)", type: "vendor" },
+    // ----------------------------
+    // Duviri / Drifter content islands
+    // ----------------------------
+    { id: "data:duviri/experience", label: "Duviri: Experience", type: "drop" },
+    { id: "data:duviri/circuit", label: "Duviri: The Circuit", type: "drop" },
+    { id: "data:duviri/kullervo", label: "Duviri: Kullervo (Content Island)", type: "drop" },
+    { id: "data:vendor/duviri/acrithis", label: "Vendor: Acrithis (Duviri)", type: "vendor" },
+
+    // ----------------------------
+    // Abyss / Arbitrations
+    // ----------------------------
+    { id: "data:abyssal-zone/dagath", label: "Abyssal Zone: Dagath", type: "drop" },
+    { id: "data:arbitrations/grendel", label: "Arbitrations: Grendel (Locators / Rotations)", type: "drop" },
+    { id: "data:vendor/arbitrations/galatea", label: "Vendor: Arbiters of Hexis (Arbitrations Honors)", type: "vendor" },
+
+    // ----------------------------
+    // Invasions (reward tables)
+    // ----------------------------
+    { id: "data:invasion/rewards", label: "Invasions: Reward Tables", type: "drop" },
+
+    // ----------------------------
+    // Variants / series buckets
+    // ----------------------------
+    { id: "data:variants/wraith", label: "Variant Series: Wraith", type: "other" },
+    { id: "data:variants/vandal", label: "Variant Series: Vandal", type: "other" },
+    { id: "data:variants/prime", label: "Variant Series: Prime", type: "other" },
+    { id: "data:variants/kuva", label: "Variant Series: Kuva (Lich)", type: "other" },
+    { id: "data:variants/tenet", label: "Variant Series: Tenet (Sisters)", type: "other" },
+
+    // ----------------------------
+    // Conclave / events
+    // ----------------------------
+    { id: "data:conclave", label: "Conclave (PvP)", type: "other" },
+    { id: "data:pvp/conclave", label: "Conclave (PvP) [Alias]", type: "other" },
+
+    { id: "data:event/plague-star", label: "Event: Plague Star", type: "other" },
+    { id: "data:events/plague-star", label: "Event: Plague Star [Alias]", type: "other" },
+
+    // ----------------------------
+    // “Syndicates” (officially includes faction + neutral syndicates)
+    // Neutral syndicates explicitly called out by DE include:
+    // Ostrons, Quills, Solaris United, Vox Solaris, Ventkids, Entrati, Necraloid, Cavia, Holdfasts. :contentReference[oaicite:3]{index=3}
+    // ----------------------------
+    { id: "data:vendor/cetus/ostron", label: "Vendor: Ostrons (Cetus)", type: "vendor" },
     { id: "data:vendor/cetus/quills", label: "Vendor: The Quills (Cetus)", type: "vendor" },
-    { id: "data:vendor/fortuna/vox-solaris", label: "Vendor: Vox Solaris (Fortuna)", type: "vendor" },
-    { id: "data:vendor/fortuna/legs", label: "Vendor: Legs (Fortuna)", type: "vendor" },
 
-    // kitguns
-    { id: "data:vendor/fortuna/rude-zuud", label: "Vendor: Rude Zuud (Fortuna Kitguns)", type: "vendor" },
-    { id: "data:vendor/deimos/father", label: "Vendor: Father (Deimos Kitguns)", type: "vendor" },
+    { id: "data:vendor/fortuna/solaris-united", label: "Vendor: Solaris United (Fortuna)", type: "vendor" },
+    { id: "data:vendor/fortuna/vox-solaris", label: "Vendor: Vox Solaris (Fortuna)", type: "vendor" },
+    { id: "data:vendor/fortuna/ventkids", label: "Vendor: Ventkids (Fortuna)", type: "vendor" },
+
+    { id: "data:vendor/deimos/entrati", label: "Vendor: Entrati Family (Deimos)", type: "vendor" },
+    { id: "data:vendor/deimos/necraloid", label: "Vendor: Necraloid (Deimos)", type: "vendor" },
+
+    { id: "data:vendor/zariman/holdfasts", label: "Vendor: The Holdfasts (Zariman)", type: "vendor" },
+    { id: "data:vendor/zariman/cavalero", label: "Vendor: Cavalero (Zariman)", type: "vendor" },
+    { id: "data:vendor/zariman/yonta", label: "Vendor: Archimedean Yonta (Zariman)", type: "vendor" },
+
+    { id: "data:vendor/sanctum/cavia", label: "Vendor: Cavia (Sanctum Anatomica)", type: "vendor" },
+
+    // Kahl’s Garrison / Chipper :contentReference[oaicite:4]{index=4}
+    { id: "data:vendor/kahl-garrison/chipper", label: "Vendor: Chipper (Kahl’s Garrison)", type: "vendor" },
+
+    // ----------------------------
+    // Other key “non-drop” vendors / systems commonly used as acquisition sources
+    // ----------------------------
+    { id: "data:vendor/simaris", label: "Vendor: Cephalon Simaris (Sanctuary)", type: "vendor" },
+    { id: "data:vendor/darvo", label: "Vendor: Darvo (Deals / Market)", type: "vendor" },
+    { id: "data:vendor/iron-wake/palladino", label: "Vendor: Palladino (Iron Wake)", type: "vendor" },
+    { id: "data:vendor/relay/varzia", label: "Vendor: Varzia (Prime Resurgence)", type: "vendor" },
+    { id: "data:vendor/relay/legs", label: "Vendor: Legs (Fortuna)", type: "vendor" },
+
+    // ----------------------------
+    // Lich systems (coarse)
+    // ----------------------------
+    { id: "data:lich/kuva", label: "Kuva Lich Weapons (Kuva)", type: "other" },
+    { id: "data:lich/tenet", label: "Sisters of Parvos / Tenet Items", type: "other" },
+    { id: "data:lich/infested-coda", label: "Infested Lich: Coda Weapons", type: "other" },
+
+    // ----------------------------
+    // Misc sources you already reference
+    // ----------------------------
+    { id: "data:necramech/arquebex-archgun", label: "Necramech: Arquebex / Starter Archgun Source (Coarse)", type: "other" },
+
+    { id: "data:vendor/bonne-nuit", label: "Vendor: Bonne-Nuit", type: "vendor" },
+    { id: "data:vendor/roathe/la-cathedrale", label: "Vendor: Roathe (La Cathédrale)", type: "vendor" },
+
+    { id: "data:activity/souterrains/bounties", label: "Activity: Souterrains (Bounties)", type: "drop" },
+
+    { id: "data:activity/the-descendia/maphica", label: "Activity: The Descendia (Maphica)", type: "drop" },
+    { id: "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c", label: "Activity: The Descendia (Oblivion on Infernium-21, Rotation C)", type: "drop" },
+
+    { id: "data:bounty/solaris-united", label: "Bounties: Solaris United (Coarse)", type: "drop" },
+    { id: "data:heist/profit-taker", label: "Heist: Profit-Taker", type: "drop" },
+
+    { id: "data:eidolon/hunts", label: "Eidolon Hunts (Plains of Eidolon)", type: "drop" },
+
+    { id: "data:enemy-item/prosecutors", label: "Enemy Item Drop: Prosecutors (Manual)", type: "drop" },
+    { id: "data:enemyitem/prosecutors", label: "Enemy Item Drop: Prosecutors (Legacy Alias)", type: "drop" },
+
+    { id: "data:node/murex/20-sentients", label: "Node: Murex (20 Sentients) (Manual)", type: "drop" },
+    { id: "data:deepmines/gathering", label: "Deep Mines (Gathering) (Manual)", type: "drop" },
 
     // dojo research
     { id: "data:dojo/chem-lab", label: "Dojo Research: Chem Lab (Grineer)", type: "vendor" },
     { id: "data:dojo/energy-lab", label: "Dojo Research: Energy Lab (Corpus)", type: "vendor" },
     { id: "data:dojo/bio-lab", label: "Dojo Research: Bio Lab (Infested)", type: "vendor" },
+    { id: "data:dojo/orokin-lab", label: "Dojo Research: Orokin Lab (Orokin)", type: "vendor" },
     { id: "data:dojo/research", label: "Dojo Research (Uncategorized)", type: "vendor" },
     { id: "data:clan/tenno-lab", label: "Dojo Research: Tenno Lab", type: "vendor" },
 
-    // systems / special economies
-    { id: "data:lich/kuva", label: "Kuva Lich Weapons (Kuva)", type: "other" },
-    { id: "data:lich/tenet", label: "Sisters of Parvos / Tenet Items", type: "other" },
-
-    { id: "data:eidolon/hunts", label: "Eidolon Hunts (Plains of Eidolon)", type: "drop" },
-    { id: "data:relics/ducats", label: "Relics: Ducats (Prime Part Exchange)", type: "other" },
-    { id: "data:bounties/narmer", label: "Narmer Bounties", type: "drop" },
-    { id: "data:system/helminth", label: "System: Helminth", type: "other" },
-
-    { id: "data:openworld/duviri/shrines", label: "Duviri: Shrines", type: "drop" },
-    { id: "data:events/anniversary", label: "Event: Anniversary (Dex Rewards)", type: "other" },
-    { id: "data:events/naberus", label: "Event: Nights of Naberus", type: "other" },
-
-    { id: "data:enemy/zanuka-hunter", label: "Enemy: Zanuka Hunter", type: "drop" },
-    { id: "data:pvp/conclave", label: "Conclave (PvP)", type: "other" },
-
-    { id: "data:market/sentinel-weapons", label: "Market: Sentinel Weapons", type: "vendor" },
-
-    { id: "data:openworld/cetus/vasca", label: "Open World: Plains of Eidolon (Vasca Kavat)", type: "drop" },
-
     // Resource buckets (curated)
-    { id: "data:resource/fieldron-sample", label: "Resource: Fieldron Sample (Corpus Drop)", type: "drop" }
+    { id: "data:resource/fieldron-sample", label: "Resource: Fieldron Sample (Corpus Drop)", type: "drop" },
+    { id: "data:resource/detonite-ampule", label: "Resource: Detonite Ampule (Grineer Drop)", type: "drop" },
+    { id: "data:resource/mutagen-sample", label: "Resource: Mutagen Sample (Infested Drop)", type: "drop" },
+    { id: "data:resource/mutagen-mass", label: "Resource: Mutagen Mass (Invasion / Lab / Crafting)", type: "other" },
+    { id: "data:resource/detonite-injector", label: "Resource: Detonite Injector (Invasion / Lab / Crafting)", type: "other" },
+    { id: "data:resource/fieldron", label: "Resource: Fieldron (Invasion / Lab / Crafting)", type: "other" }
 ];
 
 /**
@@ -205,8 +298,6 @@ function buildWfcdDropSources(): RawSource[] {
 
 /**
  * Mission node sources derived from missionRewards.json.
- * These are data-derived sources, so they MUST be data:*.
- *
  * MUST match acquisitionFromDropData.ts:
  *   dataId(["node", planetName, nodeName])
  */
@@ -340,7 +431,7 @@ function buildDropDataSupplementSources(): RawSource[] {
         }
     }
 
-    // ---- Bounties ----
+    // ---- Bounties (note: source ids use bountyLevel) ----
     const cbArr = (cetusBountyRewardsJson as any)?.cetusBountyRewards ?? (cetusBountyRewardsJson as any);
     if (Array.isArray(cbArr)) {
         for (const row of cbArr) {
@@ -525,3 +616,4 @@ export const SOURCE_INDEX: Record<SourceId, Source> = (() => {
 })();
 
 export const SOURCES: Source[] = Object.values(SOURCE_INDEX);
+
