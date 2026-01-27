@@ -1,3 +1,4 @@
+// ===== FILE: src/domain/logic/plannerEngine.ts =====
 // src/domain/logic/plannerEngine.ts
 
 import { PR } from "../ids/prereqIds";
@@ -223,17 +224,15 @@ function isSourceAccessible(
         return { ok: false, missing: [], missingMr: null, reason: `Unknown source (${sourceId})` };
     }
 
-    const isDataDerived = sidStr.startsWith("data:");
     const prereqs = Array.isArray(src.prereqIds) ? (src.prereqIds as PrereqId[]) : [];
 
-    if (isDataDerived && prereqs.length === 0) {
-        return {
-            ok: false,
-            missing: [],
-            missingMr: null,
-            reason: "Source accessibility not curated (fail-closed)"
-        };
+    // Explicit “unknown” placeholder should never be considered accessible.
+    if (sidStr === "data:unknown" || sidStr === "src:unknown") {
+        return { ok: false, missing: [], missingMr: null, reason: "Unknown source placeholder" };
     }
+
+    // Curated sources with no prereqs are allowed by default.
+    // Fail-closed behavior is enforced by the `!src` check above, not by prereq absence.
 
     const missing: PrereqId[] = [];
     for (const p of prereqs) {

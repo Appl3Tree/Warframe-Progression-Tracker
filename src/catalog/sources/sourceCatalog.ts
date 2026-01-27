@@ -108,6 +108,23 @@ function pushUnique(out: RawSource[], seen: Set<string>, id: string, label: stri
  * - This list includes SourceIds referenced by MANUAL_ACQUISITION_BY_CATALOG_ID so those never show as "Unknown source".
  */
 const CURATED_SOURCES: RawSource[] = [
+    // Pets / companions (coarse)
+    { id: "data:pets/kavat", label: "Pets: Kavats (Breeding / Incubation)", type: "other" },
+    { id: "data:pets/kubrow", label: "Pets: Kubrows (Breeding / Incubation)", type: "other" },
+    { id: "data:pets/helminth-charger", label: "Pets: Helminth Charger (Incubation)", type: "other" },
+    { id: "data:pets/vulpaphyla", label: "Pets: Vulpaphylas (Deimos)", type: "other" },
+    { id: "data:pets/predasite", label: "Pets: Predasites (Deimos)", type: "other" },
+    { id: "data:pets/moa", label: "Companions: MOA (Fortuna)", type: "other" },
+
+    // Warframe-specific coarse buckets used by manual mappings
+    { id: "data:warframe/khora", label: "Warframe: Khora (Coarse)", type: "other" },
+    { id: "data:warframe/khora-prime", label: "Warframe: Khora Prime (Coarse)", type: "other" },
+
+    // TODO buckets (explicitly non-authoritative placeholders)
+    { id: "data:todo/uriel", label: "TODO: Uriel Acquisition (Uncurated)", type: "other" },
+    { id: "data:todo/vastilok", label: "TODO: Vastilok Acquisition (Uncurated)", type: "other" },
+    { id: "data:todo/zanuka-companion", label: "TODO: Zanuka Companion Acquisition (Uncurated)", type: "other" },
+
     // ----------------------------
     // Core
     // ----------------------------
