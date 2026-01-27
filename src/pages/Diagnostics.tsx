@@ -113,7 +113,8 @@ export default function Diagnostics() {
             syndicates,
             goals,
             completedPrereqs,
-            inventory
+            inventory,
+            expandMode: "direct"
         });
     }, [syndicates, goals, completedPrereqs, inventory]);
 
@@ -484,6 +485,7 @@ export default function Diagnostics() {
                 </div>
             </Section>
 
+            {/* rest of file unchanged */}
             <Section
                 title="Drop-map sanity checks (Orokin Cell + Neurodes)"
                 subtitle="Shows (1) what the drop-data layer returns, (2) which of those sources are missing from SOURCE_INDEX, and (3) what getAcquisitionByCatalogId ultimately returns."

@@ -8,7 +8,8 @@ import {
     type AcquisitionDef
 } from "./acquisitionFromSources";
 
-import { deriveDropDataAcquisitionByCatalogId, MANUAL_ACQUISITION_BY_CATALOG_ID } from "./acquisitionFromDropData";
+import { MANUAL_ACQUISITION_BY_CATALOG_ID } from "./manualAcquisitionByCatalogId";
+import { deriveDropDataAcquisitionByCatalogId } from "./acquisitionFromDropData";
 import { deriveRelicMissionRewardsAcquisitionByCatalogId } from "./acquisitionFromMissionRewardsRelics";
 import { deriveRelicsJsonAcquisitionByCatalogId } from "./acquisitionFromRelicsJson";
 import { deriveWarframeItemsAcquisitionByCatalogId } from "./acquisitionFromWarframeItems";

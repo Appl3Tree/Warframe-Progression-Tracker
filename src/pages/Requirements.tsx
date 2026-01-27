@@ -4,7 +4,8 @@ import { useTrackerStore } from "../store/store";
 import {
     buildRequirementsSnapshot,
     buildFarmingSnapshot,
-    type RequirementViewMode
+    type RequirementViewMode,
+    type RequirementExpandMode
 } from "../domain/logic/requirementEngine";
 
 function normalize(s: string): string {
@@ -86,6 +87,7 @@ export default function Requirements() {
     const inventory = useTrackerStore((s) => s.state.inventory);
 
     const [mode, setMode] = useState<RequirementViewMode>("targeted");
+    const [expandMode, setExpandMode] = useState<RequirementExpandMode>("direct");
 
     // Search & hidden are fixed for now (no unused setters)
     const query = "";
@@ -96,9 +98,10 @@ export default function Requirements() {
             syndicates,
             goals,
             completedPrereqs,
-            inventory
+            inventory,
+            expandMode
         });
-    }, [syndicates, goals, completedPrereqs, inventory]);
+    }, [syndicates, goals, completedPrereqs, inventory, expandMode]);
 
     const farming = useMemo(() => {
         return buildFarmingSnapshot({
@@ -162,6 +165,19 @@ export default function Requirements() {
                             label="Overlap Farming"
                             active={mode === "overlap"}
                             onClick={() => setMode("overlap")}
+                        />
+
+                        <div className="w-px h-7 bg-slate-800 mx-1" />
+
+                        <PillButton
+                            label="Top-level only"
+                            active={expandMode === "direct"}
+                            onClick={() => setExpandMode("direct")}
+                        />
+                        <PillButton
+                            label="Expand crafted deps"
+                            active={expandMode === "recursive"}
+                            onClick={() => setExpandMode("recursive")}
                         />
                     </div>
 

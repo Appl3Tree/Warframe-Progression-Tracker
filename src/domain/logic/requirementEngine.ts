@@ -87,6 +87,58 @@ function safeInt(v: unknown, fallback: number): number {
     return Math.max(0, Math.floor(n));
 }
 
+function isExplicitBlueprintItem(catalogId: CatalogId, name: string): boolean {
+    const cidStr = String(catalogId).toLowerCase();
+    const nm = String(name ?? "").toLowerCase();
+    if (nm.endsWith(" blueprint")) return true;
+    if (cidStr.endsWith("blueprint")) return true;
+    return false;
+}
+
+function getSiblingBlueprintCatalogIdForOutput(outputCatalogId: CatalogId): CatalogId | null {
+    const key = String(outputCatalogId);
+
+    // Common WFCD/Lotus convention: outputId + "Blueprint"
+    const bpCandidate = `${key}Blueprint` as CatalogId;
+    if (FULL_CATALOG.recordsById[bpCandidate]) {
+        return bpCandidate;
+    }
+
+    return null;
+}
+
+type RequirementComponent = {
+    catalogId: CatalogId;
+    count: number;
+};
+
+function getDirectRequirementsForExpansion(catalogId: CatalogId): RequirementComponent[] {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    const name = rec?.displayName ?? String(catalogId);
+
+    // Critical fix:
+    // If this is a craftable OUTPUT that has a sibling Blueprint record,
+    // treat the OUTPUT as requiring the Blueprint (qty 1) and DO NOT also
+    // treat the OUTPUT as directly requiring the Blueprint's ingredients.
+    if (!isExplicitBlueprintItem(catalogId, name)) {
+        const bp = getSiblingBlueprintCatalogIdForOutput(catalogId);
+        if (bp) {
+            return [{ catalogId: bp, count: 1 }];
+        }
+    }
+
+    const comps = getItemRequirements(catalogId);
+    if (!Array.isArray(comps) || comps.length === 0) return [];
+
+    const out: RequirementComponent[] = [];
+    for (const c of comps) {
+        const cid = c.catalogId as CatalogId;
+        const ct = Math.max(1, safeInt((c as any).count ?? 0, 0));
+        out.push({ catalogId: cid, count: ct });
+    }
+    return out;
+}
+
 /**
  * IMPORTANT: This snapshot is "what you need", not "what is actionable".
  * It must NOT filter based on acquisition knowledge.
@@ -161,7 +213,11 @@ export function buildRequirementsSnapshot(args: {
 
             visited.add(k);
 
-            const comps = getItemRequirements(catalogId);
+            // Use the corrected "direct requirements" rule that prevents:
+            // OUTPUT -> (ingredients of blueprint) AND OUTPUT -> Blueprint -> (ingredients)
+            // which is what was blowing out Nano Spores and other materials.
+            const comps = getDirectRequirementsForExpansion(catalogId);
+
             if (Array.isArray(comps) && comps.length > 0) {
                 for (const c of comps) {
                     const cNeed = Math.max(1, safeInt(c.count ?? 0, 0)) * multiplier;
@@ -173,7 +229,7 @@ export function buildRequirementsSnapshot(args: {
                         type: "goal",
                         id: goal.id,
                         name: rootName,
-                        label: "Goal Component",
+                        label: "Goal Component (Expanded)",
                         need: cNeed
                     });
 
@@ -517,7 +573,7 @@ function isRecipeCatalogItem(catalogId: CatalogId): boolean {
     return path.startsWith("/Lotus/Types/Recipes/");
 }
 
-function isExplicitBlueprintItem(catalogId: CatalogId, name: string): boolean {
+function isExplicitBlueprintItem2(catalogId: CatalogId, name: string): boolean {
     const cidStr = String(catalogId).toLowerCase();
     const nm = String(name ?? "").toLowerCase();
 
@@ -532,7 +588,7 @@ function isBlueprintLikeCatalogItem(catalogId: CatalogId, name: string): boolean
     // Do NOT treat all /Lotus/Types/Recipes/* items as blueprints.
     // Many real “part items” live under /Recipes/Weapons/WeaponParts/* and should be acquired (drops/invasions/etc),
     // not classified as “unknown-recipe-acquisition”.
-    return isExplicitBlueprintItem(catalogId, name);
+    return isExplicitBlueprintItem2(catalogId, name);
 }
 
 type AcquireAnalysis =
@@ -581,7 +637,7 @@ function analyzeCatalogIdForFarming(args: {
     // Placeholder-only acquisition is actionable ONLY for explicit blueprint items.
     if (directSources && directSources.length > 0) {
         const onlyPlaceholder = directSources.length === 1 && directSources[0] === BLUEPRINT_UNCLASSIFIED;
-        if (onlyPlaceholder && !isExplicitBlueprintItem(catalogId, name)) {
+        if (onlyPlaceholder && !isExplicitBlueprintItem2(catalogId, name)) {
             directSources = null;
         }
     }
@@ -590,7 +646,7 @@ function analyzeCatalogIdForFarming(args: {
         // Placeholder must NEVER short-circuit real sources.
         // If real sources exist, strip the placeholder before any further analysis.
         const realSources = directSources.filter((sid) => sid !== BLUEPRINT_UNCLASSIFIED);
-    
+
         // If the only source is the placeholder, it is actionable only for explicit blueprint items.
         if (realSources.length === 0) {
             // If we got here, placeholder-only is allowed (because non-blueprints were nulled earlier).
@@ -602,29 +658,29 @@ function analyzeCatalogIdForFarming(args: {
                 }))
             };
         }
-    
+
         const accessible = realSources
             .filter((sid) => canAccessSource(sid, completedPrereqs))
             .map((sid) => ({
                 sourceId: sid,
                 sourceLabel: SOURCE_INDEX[sid]?.label ?? String(sid)
             }));
-    
+
         if (accessible.length > 0) {
             return { kind: "ok", sources: accessible };
         }
-    
+
         const comps = getItemRequirements(catalogId);
         if (!Array.isArray(comps) || comps.length === 0) {
             const diag = getMissingPrereqsForSources({ sourceIds: realSources, completedPrereqs });
-    
+
             const inferredReason: HiddenFarmingItem["reason"] =
                 diag.missingPrereqs.length > 0
                     ? "missing-prereqs"
                     : diag.hasUncuratedGate
                         ? "unknown-acquisition"
                         : "no-accessible-sources";
-    
+
             return {
                 kind: "hidden",
                 hidden: {
@@ -652,7 +708,7 @@ function analyzeCatalogIdForFarming(args: {
     // Deterministic crafted-output rule (guarded):
     // Only classify as Foundry crafting if we can prove the item has a recipe (ingredients).
     // If it has no recipe and no acquisition, we must not lie by labeling it “crafting”.
-    if (hasRecipe && isRecipeCatalogItem(catalogId) && !isExplicitBlueprintItem(catalogId, name)) {
+    if (hasRecipe && isRecipeCatalogItem(catalogId) && !isExplicitBlueprintItem2(catalogId, name)) {
         return {
             kind: "ok",
             sources: [
@@ -736,7 +792,7 @@ function analyzeCatalogIdForFarming(args: {
             hidden: {
                 key: catalogId,
                 name,
-                remaining,
+               remaining,
                 reason: "unknown-recipe-acquisition",
                 blockedByRecipeComponents
             }

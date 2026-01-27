@@ -167,6 +167,7 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:quest/whispers-in-the-walls", label: "Quest: Whispers in the Walls", type: "other" },
     { id: "data:quest/the-waverider", label: "Quest: The Waverider", type: "other" },
     { id: "data:quest/the-old-peace", label: "Quest: The Old Peace", type: "other" },
+    { id: "data:quest/the-teacher", label: "Quest: The Teacher", type: "other" },
 
     // ----------------------------
     // Unobtainable
@@ -248,6 +249,7 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:vendor/iron-wake/palladino", label: "Vendor: Palladino (Iron Wake)", type: "vendor" },
     { id: "data:vendor/relay/varzia", label: "Vendor: Varzia (Prime Resurgence)", type: "vendor" },
     { id: "data:vendor/relay/legs", label: "Vendor: Legs (Fortuna)", type: "vendor" },
+    { id: "data:vendor/fortuna/nightcap", label: "Vendor: Nightcap (Fortuna Airlock)", type: "vendor" },
 
     // ----------------------------
     // Lich systems (coarse)
@@ -255,6 +257,12 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:lich/kuva", label: "Kuva Lich Weapons (Kuva)", type: "other" },
     { id: "data:lich/tenet", label: "Sisters of Parvos / Tenet Items", type: "other" },
     { id: "data:lich/infested-coda", label: "Infested Lich: Coda Weapons", type: "other" },
+
+    // ----------------------------
+    // Deepmines (Fortuna Airlock)
+    // ----------------------------
+    { id: "data:activity/deepmines/bounties", label: "Activity: Deepmines (Bounties) (Fortuna Airlock)", type: "drop" },
+    { id: "data:deepmines/gathering", label: "Deep Mines (Gathering) (Manual)", type: "drop" },
 
     // ----------------------------
     // Misc sources you already reference
@@ -278,7 +286,6 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:enemyitem/prosecutors", label: "Enemy Item Drop: Prosecutors (Legacy Alias)", type: "drop" },
 
     { id: "data:node/murex/20-sentients", label: "Node: Murex (20 Sentients) (Manual)", type: "drop" },
-    { id: "data:deepmines/gathering", label: "Deep Mines (Gathering) (Manual)", type: "drop" },
 
     // dojo research
     { id: "data:dojo/chem-lab", label: "Dojo Research: Chem Lab (Grineer)", type: "vendor" },
