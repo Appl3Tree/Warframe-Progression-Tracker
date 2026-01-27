@@ -103,6 +103,25 @@ function canonicalizeComponentCatalogId(cid: CatalogId): CatalogId {
 }
 
 /**
+ * Treat a recipe record as "blueprint-ish" only if it looks like an actual foundry/research blueprint,
+ * not a bogus/derived "resource blueprint" or garbage edge that causes Control Module-style false recipes.
+ *
+ * Deterministic rule (no guessing):
+ * - the record must be a RecipeItem AND
+ * - the catalog displayName OR uniqueName-ish path strongly indicates Blueprint.
+ */
+function isBlueprintishRecipeCatalogId(recipeCatalogId: CatalogId): boolean {
+    const rec: any = FULL_CATALOG.recordsById[recipeCatalogId] ?? null;
+    const name = String(rec?.displayName ?? rec?.name ?? "").toLowerCase();
+    const cid = String(recipeCatalogId).toLowerCase();
+
+    if (name.includes("blueprint")) return true;
+    if (cid.includes("blueprint")) return true;
+
+    return false;
+}
+
+/**
  * If wfcd-requirements has no entry keyed by the *output item* itself (common for weapons/frames),
  * resolve via a RecipeItem that produces that output:
  *   recipe.data.resultItemType == "/Lotus/Types/Weapons/...."
@@ -245,10 +264,12 @@ function getMergedRecordForCatalogId(catalogId: CatalogId): any | null {
 }
 
 /**
- * Find the unique RecipeItem CatalogId that produces the given output lotus path.
+ * Find the unique "blueprint-ish" RecipeItem CatalogId that produces the given output lotus path.
  * Fail-closed: if 0 or >1 candidates, return null.
+ *
+ * This is the key guard that prevents false "recipes" from creating Control Module ingredients.
  */
-function findUniqueRecipeCatalogIdProducingOutput(outputCatalogId: CatalogId): CatalogId | null {
+function findUniqueBlueprintRecipeCatalogIdProducingOutput(outputCatalogId: CatalogId): CatalogId | null {
     const outPath = catalogIdToLotusPath(outputCatalogId);
     if (!outPath) return null;
 
@@ -257,6 +278,8 @@ function findUniqueRecipeCatalogIdProducingOutput(outputCatalogId: CatalogId): C
     for (const cid of FULL_CATALOG.displayableInventoryItemIds ?? []) {
         const s = String(cid);
         if (!s.startsWith("items:/Lotus/Types/Recipes/")) continue;
+
+        if (!isBlueprintishRecipeCatalogId(cid)) continue;
 
         const merged = getMergedRecordForCatalogId(cid);
         if (!merged || !isRecipeLike(merged)) continue;
@@ -273,37 +296,83 @@ function findUniqueRecipeCatalogIdProducingOutput(outputCatalogId: CatalogId): C
     return candidates[0];
 }
 
-function getLotusRecipeRequirementsForOutput(outputCatalogId: CatalogId): ItemRequirement[] {
-    // Case A: outputCatalogId is itself a RecipeItem with ingredients
-    {
-        const merged = getMergedRecordForCatalogId(outputCatalogId);
-        if (merged && isRecipeLike(merged)) {
-            const ingredients = extractLotusIngredientsFromMergedRecipe(merged);
-            if (ingredients.length > 0) {
-                const out: ItemRequirement[] = [];
+/**
+ * WFCD can sometimes present a crafted item as having:
+ *   [Blueprint] + [Blueprint ingredients]
+ * directly on the output item.
+ *
+ * This creates the exact double-counting you saw (Ack & Brunt, etc).
+ *
+ * Fix (deterministic):
+ * - If the WFCD component list contains a *single* recipe-like component that produces the output item,
+ *   then the output item's requirements are ONLY that blueprint component (and its count),
+ *   and all other WFCD material requirements are ignored at this layer.
+ *
+ * The blueprint (recipe item) is responsible for its own ingredient list.
+ */
+function extractBlueprintComponentOnlyForOutput(outputCatalogId: CatalogId, def: any): ItemRequirement[] | null {
+    const outPath = catalogIdToLotusPath(outputCatalogId);
+    if (!outPath) return null;
 
-                for (const ing of ingredients) {
-                    const cid = safeLotusPathToItemsCatalogId(ing.itemType);
-                    if (!cid) continue;
+    const comps = Array.isArray(def?.components) ? def.components : [];
+    if (comps.length === 0) return null;
 
-                    const canon = canonicalizeComponentCatalogId(cid);
+    const blueprintCandidates: Array<{ cid: CatalogId; count: number }> = [];
 
-                    out.push({
-                        catalogId: canon,
-                        count: ing.count
-                    });
-                }
+    for (const c of comps) {
+        const cidRaw = typeof c?.catalogId === "string" ? c.catalogId : "";
+        const cnt = safeCount(c?.count ?? 0);
 
-                return out;
-            }
-        }
+        if (!cidRaw.startsWith("items:")) continue;
+        if (cnt <= 0) continue;
+
+        const cid = cidRaw as CatalogId;
+        const merged = getMergedRecordForCatalogId(cid);
+        if (!merged || !isRecipeLike(merged)) continue;
+
+        const resultPath = getResultItemTypePath(merged);
+        if (!resultPath) continue;
+
+        // Must be a blueprint-ish recipe and must produce this output.
+        if (resultPath !== outPath) continue;
+        if (!isBlueprintishRecipeCatalogId(cid)) continue;
+
+        blueprintCandidates.push({ cid, count: cnt });
     }
 
-    // Case B: outputCatalogId is a crafted output; find its producing recipe item
-    const recipeCid = findUniqueRecipeCatalogIdProducingOutput(outputCatalogId);
-    if (!recipeCid) return [];
+    if (blueprintCandidates.length !== 1) return null;
 
-    const merged = getMergedRecordForCatalogId(recipeCid);
+    return [
+        {
+            catalogId: blueprintCandidates[0].cid,
+            count: blueprintCandidates[0].count
+        }
+    ];
+}
+
+function normalizeAndFilterSelfEdges(outputCatalogId: CatalogId, reqs: ItemRequirement[]): ItemRequirement[] {
+    const out: ItemRequirement[] = [];
+
+    for (const r of reqs) {
+        if (!r) continue;
+
+        const cid = r.catalogId;
+        const cnt = safeCount(r.count);
+
+        if (!String(cid).startsWith("items:")) continue;
+        if (cnt <= 0) continue;
+
+        // Kill self-recursive edges (e.g., Forma -> Forma).
+        if (String(cid) === String(outputCatalogId)) continue;
+
+        out.push({ catalogId: cid, count: cnt });
+    }
+
+    return out;
+}
+
+function getLotusRecipeRequirementsForRecipeItem(recipeCatalogId: CatalogId): ItemRequirement[] {
+    const merged = getMergedRecordForCatalogId(recipeCatalogId);
     if (!merged || !isRecipeLike(merged)) return [];
 
     const ingredients = extractLotusIngredientsFromMergedRecipe(merged);
@@ -326,10 +395,64 @@ function getLotusRecipeRequirementsForOutput(outputCatalogId: CatalogId): ItemRe
     return out;
 }
 
+function getLotusRecipeRequirementsForOutputItem(outputCatalogId: CatalogId): ItemRequirement[] {
+    const recipeCid = findUniqueBlueprintRecipeCatalogIdProducingOutput(outputCatalogId);
+    if (!recipeCid) return [];
+
+    // IMPORTANT SEMANTICS:
+    // Output item requires ONLY its blueprint/recipe item.
+    // The blueprint expands to its ingredients.
+    return [
+        {
+            catalogId: recipeCid,
+            count: 1
+        }
+    ];
+}
+
 export function getItemRequirements(outputCatalogId: CatalogId): ItemRequirement[] {
     const raw = parseMap(wfcdReqJson);
 
-    // Primary: requirements keyed by the output item itself.
+    const mergedOutput = getMergedRecordForCatalogId(outputCatalogId);
+    const outputIsRecipe = Boolean(mergedOutput && isRecipeLike(mergedOutput));
+
+    // =========================
+    // Case 1: Output is itself a recipe item (Blueprint, component recipe, etc.)
+    // =========================
+    if (outputIsRecipe) {
+        // Prefer WFCD requirements if keyed by this recipe id.
+        const def = raw[String(outputCatalogId)];
+        if (def && typeof def === "object") {
+            const comps = Array.isArray((def as any).components) ? (def as any).components : [];
+            const out: ItemRequirement[] = [];
+
+            for (const c of comps) {
+                const cidRaw = typeof c?.catalogId === "string" ? c.catalogId : "";
+                const cnt = safeCount(c?.count ?? 0);
+
+                if (!cidRaw.startsWith("items:")) continue;
+                if (cnt <= 0) continue;
+
+                const cid = canonicalizeComponentCatalogId(cidRaw as CatalogId);
+
+                out.push({
+                    catalogId: cid,
+                    count: cnt
+                });
+            }
+
+            return normalizeAndFilterSelfEdges(outputCatalogId, out);
+        }
+
+        // Otherwise, lotus fallback for the recipe item itself.
+        return normalizeAndFilterSelfEdges(outputCatalogId, getLotusRecipeRequirementsForRecipeItem(outputCatalogId));
+    }
+
+    // =========================
+    // Case 2: Output is a non-recipe item (weapon, resource, etc.)
+    // =========================
+
+    // Primary: WFCD requirements keyed by the output item itself.
     let def = raw[String(outputCatalogId)];
 
     // Fallback (WFCD): requirements keyed by a recipe that produces the output item.
@@ -340,8 +463,14 @@ export function getItemRequirements(outputCatalogId: CatalogId): ItemRequirement
         }
     }
 
-    // If WFCD yielded a definition, use it (existing behavior).
+    // If WFCD yielded a definition, enforce blueprint semantics if the WFCD def includes the blueprint.
     if (def && typeof def === "object") {
+        const blueprintOnly = extractBlueprintComponentOnlyForOutput(outputCatalogId, def);
+        if (blueprintOnly) {
+            return normalizeAndFilterSelfEdges(outputCatalogId, blueprintOnly);
+        }
+
+        // Otherwise, accept the WFCD component list (but still fail-closed on self-edges).
         const comps = Array.isArray((def as any).components) ? (def as any).components : [];
         const out: ItemRequirement[] = [];
 
@@ -360,10 +489,11 @@ export function getItemRequirements(outputCatalogId: CatalogId): ItemRequirement
             });
         }
 
-        return out;
+        return normalizeAndFilterSelfEdges(outputCatalogId, out);
     }
 
-    // Lotus fallback: derive ingredients deterministically from the recipe record(s).
-    return getLotusRecipeRequirementsForOutput(outputCatalogId);
+    // Final fallback: if the item has a unique blueprint-ish producing recipe, REQUIRE ONLY THAT BLUEPRINT.
+    // If not, it is drop-only (terminal) and returns [].
+    return normalizeAndFilterSelfEdges(outputCatalogId, getLotusRecipeRequirementsForOutputItem(outputCatalogId));
 }
 
