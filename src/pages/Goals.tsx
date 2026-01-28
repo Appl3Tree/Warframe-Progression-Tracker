@@ -1,5 +1,5 @@
 // ===== FILE: src/pages/Goals.tsx =====
-import React, { useEffect, useMemo, useRef, useState, memo, useCallback, useLayoutEffect } from "react";
+import React, { useEffect, useMemo, useRef, useState, memo, useCallback } from "react";
 import { useTrackerStore } from "../store/store";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
 import { buildRequirementsSnapshot } from "../domain/logic/requirementEngine";
@@ -52,11 +52,6 @@ function safeInt(v: unknown, fallback: number): number {
     return Math.max(0, Math.floor(n));
 }
 
-function getDisplayName(catalogId: CatalogId): string {
-    const rec = FULL_CATALOG.recordsById[catalogId];
-    return rec?.displayName ?? String(catalogId);
-}
-
 function isExplicitBlueprintItem(catalogId: CatalogId, name: string): boolean {
     const cidStr = String(catalogId).toLowerCase();
     const nm = String(name ?? "").toLowerCase();
@@ -77,7 +72,18 @@ type ReqChild = {
     count: number;
 };
 
-function aggregateDirectRequirements(catalogId: CatalogId): ReqChild[] {
+function getDirectRequirementsForExpansion(catalogId: CatalogId): ReqChild[] {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    const name = rec?.displayName ?? String(catalogId);
+
+    // Craftable OUTPUT => show Blueprint only (qty 1) and let Blueprint expand to ingredients.
+    if (!isExplicitBlueprintItem(catalogId, name)) {
+        const bp = getSiblingBlueprintCatalogIdForOutput(catalogId);
+        if (bp) {
+            return [{ catalogId: bp, count: 1 }];
+        }
+    }
+
     const raw = getItemRequirements(catalogId);
     if (!Array.isArray(raw) || raw.length === 0) return [];
 
@@ -98,66 +104,12 @@ function aggregateDirectRequirements(catalogId: CatalogId): ReqChild[] {
     return Array.from(agg.values()).sort((a, b) => String(a.catalogId).localeCompare(String(b.catalogId)));
 }
 
-/**
- * Core rule:
- * - If an OUTPUT's requirements are represented as a single Blueprint node, flatten it so the OUTPUT shows the
- *   Blueprint's ingredients directly (this is what you want for Dual Cleavers, Forma, etc.).
- *
- * This must work even when the Blueprint catalog id is NOT `${output}Blueprint` (because some datasets express
- * "requires blueprint" via getItemRequirements(output) directly).
- */
-function getDirectRequirementsForExpansion(catalogId: CatalogId): ReqChild[] {
-    const name = getDisplayName(catalogId);
-
-    let children: ReqChild[] = [];
-
-    // Preferred: Craftable OUTPUT => if we can find sibling Blueprint, and it has ingredients, skip the Blueprint step.
-    if (!isExplicitBlueprintItem(catalogId, name)) {
-        const bp = getSiblingBlueprintCatalogIdForOutput(catalogId);
-        if (bp) {
-            const bpReqs = aggregateDirectRequirements(bp);
-            if (bpReqs.length > 0) {
-                children = bpReqs;
-            } else {
-                children = [{ catalogId: bp, count: 1 }];
-            }
-        } else {
-            // Fallback to whatever the dataset says the OUTPUT requires.
-            children = aggregateDirectRequirements(catalogId);
-        }
-    } else {
-        // Explicit Blueprint item => show its ingredients
-        children = aggregateDirectRequirements(catalogId);
-    }
-
-    // Universal flattening:
-    // If we ended up with exactly ONE child and that child is a Blueprint item, replace it with that Blueprint's ingredients.
-    // This fixes cases where OUTPUT requirements are [Blueprint] (e.g., Dual Cleavers -> Dual Cleavers Blueprint -> parts).
-    if (children.length === 1) {
-        const only = children[0];
-        const childName = getDisplayName(only.catalogId);
-        if (isExplicitBlueprintItem(only.catalogId, childName)) {
-            const bpReqs = aggregateDirectRequirements(only.catalogId);
-            if (bpReqs.length > 0) {
-                const mult = Math.max(1, Math.floor(Number(only.count) || 1));
-                const flattened: ReqChild[] = bpReqs.map((r) => ({
-                    catalogId: r.catalogId,
-                    count: Math.max(1, Math.floor(Number(r.count) || 1)) * mult
-                }));
-                return flattened;
-            }
-        }
-    }
-
-    return children;
-}
-
 function fmtI(n: number): string {
     return Math.max(0, Math.floor(Number(n) || 0)).toLocaleString();
 }
 
 /* =========================================================================================
- * Tree UI (modal) - LOCAL zoom/pan (no page zoom), + prevent text selection during pan
+ * Tree UI (modal) - connector fixes + LOCAL zoom/pan (no page zoom)
  * ========================================================================================= */
 
 function clamp(n: number, min: number, max: number): number {
@@ -170,333 +122,318 @@ type ZoomState = {
     panY: number;
 };
 
-type PointerInfo = {
-    x: number;
-    y: number;
-};
-
 function ZoomableTreeViewport(props: { children: React.ReactNode }) {
-    const viewportRef = useRef<HTMLDivElement | null>(null);
+    const outerRef = useRef<HTMLDivElement | null>(null);
     const contentRef = useRef<HTMLDivElement | null>(null);
 
     const [z, setZ] = useState<ZoomState>({ scale: 1, panX: 0, panY: 0 });
-    const zRef = useRef<ZoomState>(z);
-    useEffect(() => {
-        zRef.current = z;
-    }, [z]);
 
-    const pointersRef = useRef<Map<number, PointerInfo>>(new Map());
-    const isPanningRef = useRef<boolean>(false);
-    const panStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
-
-    const pinchStartRef = useRef<{
-        dist: number;
-        scale: number;
-        panX: number;
-        panY: number;
-    } | null>(null);
-
-    const [isPanningUi, setIsPanningUi] = useState(false);
+    const isPanningRef = useRef(false);
+    const panStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+    const pinchRef = useRef<{
+        active: boolean;
+        startDist: number;
+        startScale: number;
+        startPanX: number;
+        startPanY: number;
+        startCenterX: number;
+        startCenterY: number;
+        pointerA: { id: number; x: number; y: number } | null;
+        pointerB: { id: number; x: number; y: number } | null;
+    }>({
+        active: false,
+        startDist: 0,
+        startScale: 1,
+        startPanX: 0,
+        startPanY: 0,
+        startCenterX: 0,
+        startCenterY: 0,
+        pointerA: null,
+        pointerB: null
+    });
 
     const transform = useMemo(() => {
         return `translate(${z.panX}px, ${z.panY}px) scale(${z.scale})`;
     }, [z.panX, z.panY, z.scale]);
 
-    const centerContentInViewport = useCallback(() => {
-        const vp = viewportRef.current;
-        const content = contentRef.current;
-        if (!vp || !content) return;
+    const zoomAboutPoint = useCallback((nextScaleRaw: number, clientX: number, clientY: number) => {
+        const outer = outerRef.current;
+        if (!outer) return;
 
-        const vpRect = vp.getBoundingClientRect();
-        const cRect = content.getBoundingClientRect();
+        const rect = outer.getBoundingClientRect();
+        const px = clientX - rect.left;
+        const py = clientY - rect.top;
 
-        const scale = zRef.current.scale || 1;
-        const baseW = cRect.width / scale;
-        const baseH = cRect.height / scale;
+        setZ((prev) => {
+            const nextScale = clamp(nextScaleRaw, 0.25, 2.75);
+            const scaleRatio = nextScale / prev.scale;
 
-        const targetPanX = Math.round(vpRect.width / 2 - (baseW * scale) / 2);
-        const targetPanY = Math.round(vpRect.height / 2 - (baseH * scale) / 2);
+            const nextPanX = px - (px - prev.panX) * scaleRatio;
+            const nextPanY = py - (py - prev.panY) * scaleRatio;
 
-        setZ((prev) => ({ ...prev, panX: targetPanX, panY: targetPanY }));
-    }, []);
-
-    useLayoutEffect(() => {
-        const id = window.requestAnimationFrame(() => {
-            centerContentInViewport();
+            return { scale: nextScale, panX: nextPanX, panY: nextPanY };
         });
-        return () => window.cancelAnimationFrame(id);
-    }, [centerContentInViewport]);
-
-    const isPanStartAllowed = useCallback((target: EventTarget | null): boolean => {
-        const el = target as HTMLElement | null;
-        if (!el) return true;
-
-        if (el.closest("[data-pan-ignore='1']")) return false;
-        if (el.closest(".wf-tree-node")) return false;
-
-        return true;
     }, []);
 
-    const applyWheelZoom = useCallback((e: WheelEvent) => {
-        const vp = viewportRef.current;
-        if (!vp) return;
+    // Center the tree on open/resize based on content bounding box
+    const recenterToContent = useCallback((targetScale?: number) => {
+        const outer = outerRef.current;
+        const content = contentRef.current;
+        if (!outer || !content) return;
 
-        if (!e.ctrlKey) return;
+        const o = outer.getBoundingClientRect();
+        const c = content.getBoundingClientRect();
 
-        e.preventDefault();
+        // We need content "natural" size. Since content is transformed, use scrollWidth/Height of inner wrapper.
+        const naturalW = content.scrollWidth;
+        const naturalH = content.scrollHeight;
 
-        const rect = vp.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
+        const scale = clamp(typeof targetScale === "number" ? targetScale : 1, 0.25, 2.75);
 
-        const prev = zRef.current;
-        const nextScale = clamp(prev.scale * (e.deltaY < 0 ? 1.1 : 0.9), 0.25, 2.5);
-        const scaleRatio = nextScale / prev.scale;
+        const panX = (o.width - naturalW * scale) / 2;
+        const panY = (o.height - naturalH * scale) / 2;
 
-        const nextPanX = mouseX - (mouseX - prev.panX) * scaleRatio;
-        const nextPanY = mouseY - (mouseY - prev.panY) * scaleRatio;
-
-        setZ({ scale: nextScale, panX: nextPanX, panY: nextPanY });
+        setZ({ scale, panX, panY });
     }, []);
 
-    const resetView = useCallback(() => {
-        setZ({ scale: 1, panX: 0, panY: 0 });
-        window.requestAnimationFrame(() => centerContentInViewport());
-    }, [centerContentInViewport]);
-
-    const zoomBy = useCallback((factor: number) => {
-        const vp = viewportRef.current;
-        if (!vp) return;
-
-        const rect = vp.getBoundingClientRect();
-        const cx = rect.width / 2;
-        const cy = rect.height / 2;
-
-        const prev = zRef.current;
-        const nextScale = clamp(prev.scale * factor, 0.25, 2.5);
-        const scaleRatio = nextScale / prev.scale;
-
-        const nextPanX = cx - (cx - prev.panX) * scaleRatio;
-        const nextPanY = cy - (cy - prev.panY) * scaleRatio;
-
-        setZ({ scale: nextScale, panX: nextPanX, panY: nextPanY });
+    useEffect(() => {
+        recenterToContent(1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const clearSelection = useCallback(() => {
-        const sel = window.getSelection?.();
-        if (sel && sel.rangeCount > 0) {
+    useEffect(() => {
+        function onResize() {
+            // Keep current scale, just re-center to viewport
+            setZ((prev) => {
+                const outer = outerRef.current;
+                const content = contentRef.current;
+                if (!outer || !content) return prev;
+
+                const o = outer.getBoundingClientRect();
+                const naturalW = content.scrollWidth;
+                const naturalH = content.scrollHeight;
+
+                const panX = (o.width - naturalW * prev.scale) / 2;
+                const panY = (o.height - naturalH * prev.scale) / 2;
+
+                return { ...prev, panX, panY };
+            });
+        }
+
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, []);
+
+    useEffect(() => {
+        const el = outerRef.current;
+        if (!el) return;
+
+        function onWheel(e: WheelEvent) {
+            // local zoom. On trackpads, ctrl+wheel is common. Also allow metaKey as fallback.
+            if (!(e.ctrlKey || e.metaKey)) return;
+
+            e.preventDefault();
+
+            setZ((prev) => {
+                const nextScale = clamp(prev.scale * (e.deltaY < 0 ? 1.1 : 0.9), 0.25, 2.75);
+
+                const rect = el.getBoundingClientRect();
+                const px = e.clientX - rect.left;
+                const py = e.clientY - rect.top;
+
+                const scaleRatio = nextScale / prev.scale;
+                const nextPanX = px - (px - prev.panX) * scaleRatio;
+                const nextPanY = py - (py - prev.panY) * scaleRatio;
+
+                return { scale: nextScale, panX: nextPanX, panY: nextPanY };
+            });
+        }
+
+        el.addEventListener("wheel", onWheel, { passive: false });
+        return () => el.removeEventListener("wheel", onWheel as any);
+    }, []);
+
+    useEffect(() => {
+        const el = outerRef.current;
+        if (!el) return;
+
+        function setPointer(elm: Element, e: PointerEvent) {
             try {
-                sel.removeAllRanges();
+                elm.setPointerCapture(e.pointerId);
             } catch {
                 // ignore
             }
         }
-    }, []);
 
-    useEffect(() => {
-        const vp = viewportRef.current;
-        if (!vp) return;
+        function distance(a: { x: number; y: number }, b: { x: number; y: number }): number {
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
 
-        vp.style.touchAction = "none";
+        function onPointerDown(e: PointerEvent) {
+            // Only pan/zoom when interacting with background/viewport, not buttons/inputs.
+            // But we still allow starting on non-interactive parts of nodes.
+            const target = e.target as HTMLElement | null;
+            const isInteractive =
+                !!target?.closest?.("button, a, input, textarea, select, [role='button']") ||
+                target?.getAttribute?.("data-wf-no-pan") === "true";
+            if (isInteractive) return;
 
-        const onWheel = (e: WheelEvent) => applyWheelZoom(e);
+            e.preventDefault();
 
-        const onPointerDown = (e: PointerEvent) => {
-            const el = viewportRef.current;
-            if (!el) return;
+            setPointer(el, e);
 
-            if (e.pointerType === "mouse" && e.button !== 0) return;
+            // track pointers for pinch
+            const p = pinchRef.current;
 
-            if (!isPanStartAllowed(e.target)) {
+            if (!p.pointerA) {
+                p.pointerA = { id: e.pointerId, x: e.clientX, y: e.clientY };
+            } else if (!p.pointerB && p.pointerA.id !== e.pointerId) {
+                p.pointerB = { id: e.pointerId, x: e.clientX, y: e.clientY };
+
+                const d = distance(p.pointerA, p.pointerB);
+                const cx = (p.pointerA.x + p.pointerB.x) / 2;
+                const cy = (p.pointerA.y + p.pointerB.y) / 2;
+
+                p.active = true;
+                p.startDist = d;
+                p.startScale = z.scale;
+                p.startPanX = z.panX;
+                p.startPanY = z.panY;
+                p.startCenterX = cx;
+                p.startCenterY = cy;
+
+                isPanningRef.current = false;
                 return;
             }
 
-            e.preventDefault();
-            clearSelection();
+            // single-pointer pan
+            isPanningRef.current = true;
+            panStartRef.current = { x: e.clientX, y: e.clientY, panX: z.panX, panY: z.panY };
+        }
 
-            try {
-                el.setPointerCapture(e.pointerId);
-            } catch {
-                // ignore
+        function onPointerMove(e: PointerEvent) {
+            const p = pinchRef.current;
+
+            if (p.pointerA && p.pointerA.id === e.pointerId) {
+                p.pointerA = { ...p.pointerA, x: e.clientX, y: e.clientY };
+            } else if (p.pointerB && p.pointerB.id === e.pointerId) {
+                p.pointerB = { ...p.pointerB, x: e.clientX, y: e.clientY };
             }
 
-            pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-            if (pointersRef.current.size === 1) {
-                isPanningRef.current = true;
-                setIsPanningUi(true);
-
-                const prev = zRef.current;
-                panStartRef.current = { x: e.clientX, y: e.clientY, panX: prev.panX, panY: prev.panY };
-            }
-
-            if (pointersRef.current.size === 2) {
-                const pts = Array.from(pointersRef.current.values());
-                const dx = pts[0].x - pts[1].x;
-                const dy = pts[0].y - pts[1].y;
-                const dist = Math.hypot(dx, dy);
-
-                const prev = zRef.current;
-                pinchStartRef.current = {
-                    dist,
-                    scale: prev.scale,
-                    panX: prev.panX,
-                    panY: prev.panY
-                };
-
-                isPanningRef.current = false;
-                panStartRef.current = null;
-                setIsPanningUi(true);
-            }
-        };
-
-        const onPointerMove = (e: PointerEvent) => {
-            if (!pointersRef.current.has(e.pointerId)) return;
-
-            if (isPanningRef.current || pointersRef.current.size >= 2) {
+            if (p.active && p.pointerA && p.pointerB) {
                 e.preventDefault();
-                clearSelection();
-            }
 
-            pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+                const d = distance(p.pointerA, p.pointerB);
+                const cx = (p.pointerA.x + p.pointerB.x) / 2;
+                const cy = (p.pointerA.y + p.pointerB.y) / 2;
 
-            if (pointersRef.current.size === 2 && pinchStartRef.current) {
-                const vpEl = viewportRef.current;
-                if (!vpEl) return;
+                const nextScale = clamp(p.startScale * (d / Math.max(1, p.startDist)), 0.25, 2.75);
 
-                const pts = Array.from(pointersRef.current.values());
-                const dx = pts[0].x - pts[1].x;
-                const dy = pts[0].y - pts[1].y;
-                const dist = Math.hypot(dx, dy);
+                // zoom about the pinch center, but using the start state as base
+                const outer = outerRef.current;
+                if (!outer) return;
 
-                const midX = (pts[0].x + pts[1].x) / 2;
-                const midY = (pts[0].y + pts[1].y) / 2;
+                const rect = outer.getBoundingClientRect();
+                const px = cx - rect.left;
+                const py = cy - rect.top;
 
-                const start = pinchStartRef.current;
-                const nextScale = clamp(start.scale * (dist / Math.max(1, start.dist)), 0.25, 2.5);
-
-                const rect = vpEl.getBoundingClientRect();
-                const localX = midX - rect.left;
-                const localY = midY - rect.top;
-
-                const scaleRatio = nextScale / start.scale;
-
-                const nextPanX = localX - (localX - start.panX) * scaleRatio;
-                const nextPanY = localY - (localY - start.panY) * scaleRatio;
+                const scaleRatio = nextScale / p.startScale;
+                const nextPanX = px - (px - p.startPanX) * scaleRatio;
+                const nextPanY = py - (py - p.startPanY) * scaleRatio;
 
                 setZ({ scale: nextScale, panX: nextPanX, panY: nextPanY });
                 return;
             }
 
-            if (pointersRef.current.size === 1 && isPanningRef.current && panStartRef.current) {
-                const start = panStartRef.current;
-                const dx = e.clientX - start.x;
-                const dy = e.clientY - start.y;
-                setZ((prev) => ({ ...prev, panX: start.panX + dx, panY: start.panY + dy }));
+            if (!isPanningRef.current) return;
+
+            e.preventDefault();
+
+            const start = panStartRef.current;
+            const dx = e.clientX - start.x;
+            const dy = e.clientY - start.y;
+
+            setZ((prev) => ({ ...prev, panX: start.panX + dx, panY: start.panY + dy }));
+        }
+
+        function onPointerUp(e: PointerEvent) {
+            const p = pinchRef.current;
+
+            if (p.pointerA && p.pointerA.id === e.pointerId) p.pointerA = null;
+            if (p.pointerB && p.pointerB.id === e.pointerId) p.pointerB = null;
+
+            if (!p.pointerA || !p.pointerB) {
+                p.active = false;
             }
-        };
 
-        const onPointerUpOrCancel = (e: PointerEvent) => {
-            pointersRef.current.delete(e.pointerId);
+            isPanningRef.current = false;
+        }
 
-            if (pointersRef.current.size < 2) {
-                pinchStartRef.current = null;
-            }
-
-            if (pointersRef.current.size === 0) {
-                isPanningRef.current = false;
-                panStartRef.current = null;
-                setIsPanningUi(false);
-                clearSelection();
-            }
-
-            if (pointersRef.current.size === 1 && !pinchStartRef.current) {
-                const remaining = Array.from(pointersRef.current.values())[0];
-                const prev = zRef.current;
-                isPanningRef.current = true;
-                setIsPanningUi(true);
-                panStartRef.current = { x: remaining.x, y: remaining.y, panX: prev.panX, panY: prev.panY };
-            }
-        };
-
-        vp.addEventListener("wheel", onWheel, { passive: false });
-        vp.addEventListener("pointerdown", onPointerDown, { passive: false } as any);
-        vp.addEventListener("pointermove", onPointerMove, { passive: false } as any);
-        vp.addEventListener("pointerup", onPointerUpOrCancel);
-        vp.addEventListener("pointercancel", onPointerUpOrCancel);
+        el.addEventListener("pointerdown", onPointerDown);
+        el.addEventListener("pointermove", onPointerMove);
+        el.addEventListener("pointerup", onPointerUp);
+        el.addEventListener("pointercancel", onPointerUp);
 
         return () => {
-            vp.removeEventListener("wheel", onWheel as any);
-            vp.removeEventListener("pointerdown", onPointerDown as any);
-            vp.removeEventListener("pointermove", onPointerMove as any);
-            vp.removeEventListener("pointerup", onPointerUpOrCancel as any);
-            vp.removeEventListener("pointercancel", onPointerUpOrCancel as any);
+            el.removeEventListener("pointerdown", onPointerDown);
+            el.removeEventListener("pointermove", onPointerMove);
+            el.removeEventListener("pointerup", onPointerUp);
+            el.removeEventListener("pointercancel", onPointerUp);
         };
-    }, [applyWheelZoom, clearSelection, isPanStartAllowed]);
+    }, [z.panX, z.panY, z.scale]);
 
     return (
-        <div
-            className={[
-                "relative h-full w-full overflow-hidden",
-                isPanningUi ? "select-none" : ""
-            ].join(" ")}
-            ref={viewportRef}
-        >
-            <div className="absolute left-3 top-3 z-10 flex items-center gap-2" data-pan-ignore="1">
+        <div className="relative h-full w-full overflow-hidden select-none" ref={outerRef} style={{ touchAction: "none" }}>
+            <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
                 <button
                     className="rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
-                    onClick={() => zoomBy(1 / 1.1)}
+                    onClick={() =>
+                        setZ((prev) => ({ ...prev, scale: clamp(prev.scale / 1.1, 0.25, 2.75) }))
+                    }
                     aria-label="Zoom out"
-                    data-pan-ignore="1"
+                    data-wf-no-pan="true"
                 >
                     −
                 </button>
 
-                <div className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-300" data-pan-ignore="1">
+                <div className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-300">
                     {Math.round(z.scale * 100)}%
                 </div>
 
                 <button
                     className="rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
-                    onClick={() => zoomBy(1.1)}
+                    onClick={() =>
+                        setZ((prev) => ({ ...prev, scale: clamp(prev.scale * 1.1, 0.25, 2.75) }))
+                    }
                     aria-label="Zoom in"
-                    data-pan-ignore="1"
+                    data-wf-no-pan="true"
                 >
                     +
                 </button>
 
                 <button
                     className="ml-2 rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
-                    onClick={resetView}
-                    data-pan-ignore="1"
+                    onClick={() => recenterToContent(1)}
+                    data-wf-no-pan="true"
                 >
                     Reset
                 </button>
 
-                <button
-                    className="rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
-                    onClick={() => centerContentInViewport()}
-                    data-pan-ignore="1"
-                >
-                    Center
-                </button>
-
-                <div className="ml-2 hidden sm:block text-[11px] text-slate-500" data-pan-ignore="1">
-                    Drag empty space to pan · Ctrl+wheel to zoom · Pinch on mobile
+                <div className="ml-2 hidden sm:block text-[11px] text-slate-500">
+                    Drag to pan · Pinch to zoom · Ctrl+wheel to zoom
                 </div>
             </div>
 
-            <div className="absolute inset-0" />
-
             <div
-                ref={contentRef}
                 className="absolute left-0 top-0"
                 style={{
                     transform,
                     transformOrigin: "0 0"
                 }}
             >
-                {props.children}
+                <div ref={contentRef}>{props.children}</div>
             </div>
         </div>
     );
@@ -515,19 +452,30 @@ function TreeStyles() {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px;
+
+    /* Use safe-area + small margin so it feels "full screen" but still not edge-to-edge harsh */
+    padding:
+        max(8px, env(safe-area-inset-top))
+        max(8px, env(safe-area-inset-right))
+        max(8px, env(safe-area-inset-bottom))
+        max(8px, env(safe-area-inset-left));
 }
+
+/* Nearly full-screen, fully responsive to viewport size */
 .wf-tree-modal {
-    width: min(1400px, 100%);
-    height: min(86vh, 900px);
+    width: 100%;
+    height: 100%;
+
     border: 1px solid rgba(30, 41, 59, 0.8);
     background: rgba(2, 6, 23, 0.92);
     border-radius: 16px;
     box-shadow: 0 20px 80px rgba(0,0,0,0.55);
     overflow: hidden;
+
     display: flex;
     flex-direction: column;
 }
+
 .wf-tree-modal-header {
     display: flex;
     align-items: center;
@@ -564,15 +512,15 @@ function TreeStyles() {
 }
 .wf-tree-modal-body {
     flex: 1;
-    overflow: hidden;
+    overflow: hidden; /* IMPORTANT: viewport handles overflow */
     padding: 0;
 }
 
 /* Tree layout */
 .wf-tree-root {
     padding: 18px;
-    --wf-gap-x: 26px;
-    --wf-gap-y: 22px;
+    --wf-gap-x: 26px;   /* sibling spacing */
+    --wf-gap-y: 22px;   /* vertical spacing between levels */
     --wf-line: rgba(71, 85, 105, 0.75);
 }
 
@@ -587,7 +535,7 @@ function TreeStyles() {
     padding: 0;
 }
 
-/* For child rows */
+/* For child rows: add space above for the row connector + child stems */
 .wf-tree-ul.wf-tree-ul-children {
     margin-top: var(--wf-gap-y);
     padding-top: var(--wf-gap-y);
@@ -603,7 +551,7 @@ function TreeStyles() {
     border-top: 1px solid var(--wf-line);
 }
 
-/* LI is a column */
+/* LI is a column: node then its children */
 .wf-tree-li {
     list-style: none;
     position: relative;
@@ -612,7 +560,7 @@ function TreeStyles() {
     align-items: center;
 }
 
-/* Vertical stem from the child-row line down to the child node */
+/* Vertical stem from the child-row horizontal line down to the child node */
 .wf-tree-ul.wf-tree-ul-children > .wf-tree-li {
     padding-top: var(--wf-gap-y);
 }
@@ -626,7 +574,7 @@ function TreeStyles() {
     transform: translateX(-50%);
 }
 
-/* Vertical stem from a parent node down to its child-row line */
+/* Vertical stem from a parent node down to its child-row horizontal line (only when open) */
 .wf-tree-li.wf-tree-li-has-children > .wf-tree-node::after {
     content: "";
     position: absolute;
@@ -645,11 +593,12 @@ function TreeStyles() {
     border-radius: 14px;
     padding: 10px 12px;
     min-width: 220px;
-    max-width: min(320px, 70vw);
+    max-width: min(360px, 78vw);
     display: grid;
     grid-template-columns: 28px 1fr auto;
     gap: 10px;
     align-items: center;
+    user-select: none;
 }
 .wf-tree-node-title {
     font-size: 13px;
@@ -675,11 +624,13 @@ function TreeStyles() {
     border: 1px solid rgba(51, 65, 85, 0.9);
     background: rgba(2, 6, 23, 0.7);
     color: rgba(226, 232, 240, 1);
+    user-select: none;
 }
 .wf-tree-node-btn:hover {
     background: rgba(15, 23, 42, 0.75);
 }
 
+/* On very small screens, shrink nodes a bit */
 @media (max-width: 520px) {
     .wf-tree-node {
         min-width: 180px;
@@ -698,9 +649,9 @@ function TreeStyles() {
 
 type TreeNodeProps = {
     nodeCatalogId: CatalogId;
-    nodeNeed: number;
+    nodeNeed: number; // total need for this node (already multiplied)
     inventoryCounts: Record<string, number>;
-    edgeId: string;
+    edgeId: string; // stable edge identity for React keying
     expandedEdges: Record<string, boolean>;
     onToggleEdge: (edgeId: string) => void;
     maxDepth: number;
@@ -710,7 +661,8 @@ type TreeNodeProps = {
 const TreeNode = memo(function TreeNode(props: TreeNodeProps) {
     const { nodeCatalogId, nodeNeed, inventoryCounts, edgeId, expandedEdges, onToggleEdge, maxDepth, depth } = props;
 
-    const name = getDisplayName(nodeCatalogId);
+    const rec = FULL_CATALOG.recordsById[nodeCatalogId];
+    const name = rec?.displayName ?? String(nodeCatalogId);
 
     const have = safeInt(inventoryCounts?.[String(nodeCatalogId)] ?? 0, 0);
     const remaining = Math.max(0, Math.floor(nodeNeed) - have);
@@ -723,25 +675,25 @@ const TreeNode = memo(function TreeNode(props: TreeNodeProps) {
 
     return (
         <li className={["wf-tree-li", hasOpenChildren ? "wf-tree-li-has-children" : ""].join(" ")}>
-            <div className="wf-tree-node" data-pan-ignore="1">
+            <div className="wf-tree-node">
                 {canExpand ? (
                     <button
                         className="wf-tree-node-btn"
                         onClick={() => onToggleEdge(edgeId)}
                         aria-label={isExpanded ? "Collapse" : "Expand"}
-                        data-pan-ignore="1"
+                        data-wf-no-pan="true"
                     >
                         {isExpanded ? "▾" : "▸"}
                     </button>
                 ) : (
-                    <div className="h-7 w-7" data-pan-ignore="1" />
+                    <div className="h-7 w-7" />
                 )}
 
-                <div className="min-w-0" data-pan-ignore="1">
+                <div className="min-w-0">
                     <div className="wf-tree-node-title">{name}</div>
                 </div>
 
-                <div className="wf-tree-node-metrics" data-pan-ignore="1">
+                <div className="wf-tree-node-metrics">
                     <div>Need {fmtI(nodeNeed)}</div>
                     <div>Have {fmtI(have)}</div>
                     <div>
@@ -781,6 +733,7 @@ const ChildrenList = memo(function ChildrenList(props: ChildrenListProps) {
     const children = useMemo(() => {
         const direct = getDirectRequirementsForExpansion(parentCatalogId);
 
+        // Multiply per-parent need, and aggregate identical child ids *for this parent*
         const agg = new Map<string, number>();
         for (const c of direct) {
             const childId = String(c.catalogId);
@@ -794,10 +747,11 @@ const ChildrenList = memo(function ChildrenList(props: ChildrenListProps) {
             need
         }));
 
+        // Stable ordering: highest need first, then name
         out.sort((a, b) => {
             if (a.need !== b.need) return b.need - a.need;
-            const an = getDisplayName(a.catalogId);
-            const bn = getDisplayName(b.catalogId);
+            const an = FULL_CATALOG.recordsById[a.catalogId]?.displayName ?? String(a.catalogId);
+            const bn = FULL_CATALOG.recordsById[b.catalogId]?.displayName ?? String(b.catalogId);
             return an.localeCompare(bn);
         });
 
@@ -808,9 +762,45 @@ const ChildrenList = memo(function ChildrenList(props: ChildrenListProps) {
         return null;
     }
 
+    // Blueprint-skip: if the only child is a blueprint, show that blueprint's ingredients directly
+    const maybeFlattened = useMemo(() => {
+        if (children.length !== 1) return children;
+
+        const only = children[0];
+        const rec = FULL_CATALOG.recordsById[only.catalogId];
+        const nm = rec?.displayName ?? String(only.catalogId);
+
+        if (!isExplicitBlueprintItem(only.catalogId, nm)) return children;
+
+        // Expand the blueprint and multiply by the blueprint quantity (need)
+        const bpChildren = getDirectRequirementsForExpansion(only.catalogId);
+        if (!bpChildren || bpChildren.length === 0) return children;
+
+        const agg = new Map<string, number>();
+        for (const bc of bpChildren) {
+            const cid = String(bc.catalogId);
+            const need = Math.max(1, Math.floor(Number(bc.count) || 1)) * Math.max(1, Math.floor(Number(only.need) || 1));
+            agg.set(cid, (agg.get(cid) ?? 0) + need);
+        }
+
+        const flattened = Array.from(agg.entries()).map(([cid, need]) => ({
+            catalogId: cid as CatalogId,
+            need
+        }));
+
+        flattened.sort((a, b) => {
+            if (a.need !== b.need) return b.need - a.need;
+            const an = FULL_CATALOG.recordsById[a.catalogId]?.displayName ?? String(a.catalogId);
+            const bn = FULL_CATALOG.recordsById[b.catalogId]?.displayName ?? String(b.catalogId);
+            return an.localeCompare(bn);
+        });
+
+        return flattened;
+    }, [children]);
+
     return (
         <ul className="wf-tree-ul wf-tree-ul-children">
-            {children.map((c) => {
+            {maybeFlattened.map((c) => {
                 const childEdgeId = `${String(parentCatalogId)}=>${String(c.catalogId)}`;
                 return (
                     <TreeNode
@@ -872,6 +862,7 @@ function TreeModal(props: {
                         <button
                             className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
                             onClick={onClose}
+                            data-wf-no-pan="true"
                         >
                             Close
                         </button>
@@ -918,7 +909,10 @@ export default function Goals() {
 
     const [tab, setTab] = useState<GoalsTab>("personal");
 
+    // Per-goal expanded tree state (stable edge identity)
     const [expandedEdgesByGoalId, setExpandedEdgesByGoalId] = useState<Record<string, Record<string, boolean>>>({});
+
+    // Per-goal tree modal open state
     const [treeOpenByGoalId, setTreeOpenByGoalId] = useState<Record<string, boolean>>({});
 
     const toggleEdgeForGoal = useCallback((goalId: string, edgeId: string) => {
@@ -938,6 +932,7 @@ export default function Goals() {
     const openTreeForGoal = useCallback((goalId: string, rootCatalogId: CatalogId) => {
         setTreeOpenByGoalId((prev) => ({ ...prev, [goalId]: true }));
 
+        // Ensure root is expanded when opening.
         const rootEdgeId = `root=>${String(rootCatalogId)}`;
         setExpandedEdgesByGoalId((prev) => {
             const existing = prev[goalId] ?? {};
@@ -950,6 +945,7 @@ export default function Goals() {
         setTreeOpenByGoalId((prev) => ({ ...prev, [goalId]: false }));
     }, []);
 
+    // Requirements-only snapshot (syndicates + inventory; NO personal goals included)
     const requirementsOnly = useMemo(() => {
         return buildRequirementsSnapshot({
             syndicates,
@@ -959,6 +955,7 @@ export default function Goals() {
         });
     }, [syndicates, completedPrereqs, inventory]);
 
+    // Personal goals lines (only active item goals)
     const personalLines = useMemo(() => {
         const out: Array<{
             goalId: string;
@@ -975,7 +972,8 @@ export default function Goals() {
             if (!g || g.type !== "item") continue;
 
             const cid = String(g.catalogId) as CatalogId;
-            const name = getDisplayName(cid);
+            const rec = FULL_CATALOG.recordsById[cid];
+            const name = rec?.displayName ?? cid;
 
             const qty = Math.max(1, safeInt(g.qty ?? 1, 1));
             const have = safeInt(inventory?.counts?.[String(cid)] ?? 0, 0);
@@ -1002,6 +1000,7 @@ export default function Goals() {
         return out;
     }, [goals, inventory]);
 
+    // Requirements goals lines (actionable items; remaining > 0 already filtered by engine)
     const requirementsLines = useMemo(() => {
         const base = requirementsOnly.itemLines.slice();
         base.sort((a, b) => {
@@ -1011,9 +1010,9 @@ export default function Goals() {
         return base;
     }, [requirementsOnly.itemLines]);
 
+    // Total / compiled goals
     const totalLines = useMemo<GoalRow[]>(() => {
-        const map: Record<string, { catalogId: CatalogId; name: string; personalNeed: number; requirementsNeed: number }> =
-            {};
+        const map: Record<string, { catalogId: CatalogId; name: string; personalNeed: number; requirementsNeed: number }> = {};
 
         for (const g of goals ?? []) {
             if (!g || g.isActive === false) continue;
@@ -1021,7 +1020,9 @@ export default function Goals() {
 
             const cid = String(g.catalogId) as CatalogId;
             const qty = Math.max(1, safeInt(g.qty ?? 1, 1));
-            const name = getDisplayName(cid);
+
+            const rec = FULL_CATALOG.recordsById[cid];
+            const name = rec?.displayName ?? cid;
 
             if (!map[cid]) {
                 map[cid] = { catalogId: cid, name, personalNeed: 0, requirementsNeed: 0 };
@@ -1119,14 +1120,17 @@ export default function Goals() {
                                                     <span
                                                         className={[
                                                             "text-[11px] rounded-full border px-2 py-0.5",
-                                                            g.isActive ? "border-emerald-800 text-emerald-300" : "border-slate-700 text-slate-400"
+                                                            g.isActive
+                                                                ? "border-emerald-800 text-emerald-300"
+                                                                : "border-slate-700 text-slate-400"
                                                         ].join(" ")}
                                                     >
                                                         {g.isActive ? "Active" : "Inactive"}
                                                     </span>
                                                 </div>
                                                 <div className="text-xs text-slate-400 mt-1">
-                                                    Need {g.qty.toLocaleString()} · Have {g.have.toLocaleString()} · Remaining {g.remaining.toLocaleString()}
+                                                    Need {g.qty.toLocaleString()} · Have {g.have.toLocaleString()} · Remaining{" "}
+                                                    {g.remaining.toLocaleString()}
                                                 </div>
                                             </div>
 
@@ -1185,7 +1189,7 @@ export default function Goals() {
                                             </div>
 
                                             <div className="mt-2 text-xs text-slate-500">
-                                                Drag empty space to pan. Desktop zoom: Ctrl+wheel. Mobile: pinch to zoom.
+                                                Viewer supports local zoom (Ctrl+wheel / pinch) and pan (drag).
                                             </div>
                                         </div>
 
@@ -1225,7 +1229,8 @@ export default function Goals() {
                                         <div className="min-w-0">
                                             <div className="text-sm font-semibold break-words">{l.name}</div>
                                             <div className="text-xs text-slate-400 mt-1">
-                                                Need {l.totalNeed.toLocaleString()} · Have {l.have.toLocaleString()} · Remaining {l.remaining.toLocaleString()}
+                                                Need {l.totalNeed.toLocaleString()} · Have {l.have.toLocaleString()} · Remaining{" "}
+                                                {l.remaining.toLocaleString()}
                                             </div>
                                         </div>
                                     </div>
