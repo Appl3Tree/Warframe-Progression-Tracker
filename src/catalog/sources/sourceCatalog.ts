@@ -25,6 +25,9 @@ import keyRewardsJson from "../../../external/warframe-drop-data/raw/keyRewards.
 import resourceByAvatarJson from "../../../external/warframe-drop-data/raw/resourceByAvatar.json";
 import additionalItemByAvatarJson from "../../../external/warframe-drop-data/raw/additionalItemByAvatar.json";
 
+// warframe-items/raw (for wfitems:loc sources)
+import WARFRAME_ITEMS_ALL from "../../../external/warframe-items/raw/All.json";
+
 export type Source = {
     id: SourceId;
     label: string;
@@ -159,7 +162,7 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:nightwave/cred-offerings", label: "Nightwave: Cred Offerings", type: "vendor" },
 
     // ----------------------------
-    // Quests (you will add more as needed; these are just “known used” + future-safe patterns)
+    // Quests
     // ----------------------------
     { id: "data:quest/the-sacrifice", label: "Quest: The Sacrifice", type: "other" },
     { id: "data:quest/chimera-prologue", label: "Quest: Chimera Prologue", type: "other" },
@@ -218,9 +221,7 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:events/plague-star", label: "Event: Plague Star [Alias]", type: "other" },
 
     // ----------------------------
-    // “Syndicates” (officially includes faction + neutral syndicates)
-    // Neutral syndicates explicitly called out by DE include:
-    // Ostrons, Quills, Solaris United, Vox Solaris, Ventkids, Entrati, Necraloid, Cavia, Holdfasts. :contentReference[oaicite:3]{index=3}
+    // Neutral syndicate / faction vendors
     // ----------------------------
     { id: "data:vendor/cetus/ostron", label: "Vendor: Ostrons (Cetus)", type: "vendor" },
     { id: "data:vendor/cetus/quills", label: "Vendor: The Quills (Cetus)", type: "vendor" },
@@ -238,7 +239,6 @@ const CURATED_SOURCES: RawSource[] = [
 
     { id: "data:vendor/sanctum/cavia", label: "Vendor: Cavia (Sanctum Anatomica)", type: "vendor" },
 
-    // Kahl’s Garrison / Chipper :contentReference[oaicite:4]{index=4}
     { id: "data:vendor/kahl-garrison/chipper", label: "Vendor: Chipper (Kahl’s Garrison)", type: "vendor" },
 
     // ----------------------------
@@ -344,6 +344,92 @@ function buildMissionNodeSources(): RawSource[] {
 
             pushUnique(out, seen, id, label, "drop");
         }
+    }
+
+    out.sort((a, b) => a.label.localeCompare(b.label));
+    return out;
+}
+
+/**
+ * warframe-items/raw All.json derived wfitems:loc sources.
+ * These must exist because acquisitionFromWarframeItems.ts and acquisitionFromWfItemsDrops.ts emit:
+ *   data:wfitems:loc:<toToken(location)>
+ */
+function buildWfItemsLocSources(): RawSource[] {
+    const out: RawSource[] = [];
+    const seen = new Set<string>();
+
+    const locs = new Set<string>();
+
+    const stack: unknown[] = [WARFRAME_ITEMS_ALL as unknown];
+    while (stack.length > 0) {
+        const cur = stack.pop();
+
+        if (!cur) continue;
+
+        if (Array.isArray(cur)) {
+            for (const v of cur) stack.push(v);
+            continue;
+        }
+
+        if (typeof cur !== "object") continue;
+
+        const obj = cur as Record<string, unknown>;
+
+        // Push children
+        for (const v of Object.values(obj)) {
+            if (v && (typeof v === "object" || Array.isArray(v))) stack.push(v);
+        }
+
+        // Common patterns in warframe-items for drop locations are "drops" arrays or "drop" fields.
+        // We intentionally keep this permissive and collect any string that looks like a location label.
+        //
+        // If your dataset uses different keys, this still tends to work because it traverses deeply
+        // and checks multiple common fields below.
+        const candidates: unknown[] = [];
+
+        if (Array.isArray(obj.drops)) candidates.push(...(obj.drops as unknown[]));
+        if (Array.isArray(obj.drop)) candidates.push(...(obj.drop as unknown[]));
+        if (Array.isArray(obj.locations)) candidates.push(...(obj.locations as unknown[]));
+        if (Array.isArray(obj.location)) candidates.push(...(obj.location as unknown[]));
+
+        for (const c of candidates) {
+            if (!c) continue;
+
+            if (typeof c === "string") {
+                const s = safeString(c);
+                if (s) locs.add(s);
+                continue;
+            }
+
+            if (typeof c === "object") {
+                const co = c as Record<string, unknown>;
+
+                // Try a few common shapes:
+                const name = safeString(co.location) ?? safeString(co.name) ?? safeString(co.place) ?? safeString(co.source);
+                if (name) locs.add(name);
+
+                // Sometimes nested arrays exist (e.g., rotations)
+                for (const v of Object.values(co)) {
+                    if (typeof v === "string") {
+                        const s = safeString(v);
+                        if (s && s.length <= 120) {
+                            // Avoid obviously-non-location strings; keep it light.
+                            locs.add(s);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for (const loc of Array.from(locs.values())) {
+        const token = toToken(loc);
+        if (!token) continue;
+
+        const id = `data:wfitems:loc:${token}`;
+        const label = `WFItems Location: ${loc}`;
+        pushUnique(out, seen, id, label, "drop");
     }
 
     out.sort((a, b) => a.label.localeCompare(b.label));
@@ -573,7 +659,8 @@ function buildDropDataSupplementSources(): RawSource[] {
 }
 
 /**
- * Runtime src:* sources emitted by acquisitionFromDropData.ts.
+ * Runtime src:* sources emitted by acquisitionFromDropData.ts (legacy / optional).
+ * Keep only the patterns you actually emit somewhere in src/catalog/items.
  */
 function buildDropDataRuntimeSrcSources(): RawSource[] {
     const out: RawSource[] = [];
@@ -614,6 +701,7 @@ export const SOURCE_CATALOG: RawSource[] = [
     ...CURATED_SOURCES,
     ...buildWfcdDropSources(),
     ...buildMissionNodeSources(),
+    ...buildWfItemsLocSources(),
     ...buildDropDataSupplementSources(),
     ...buildDropDataRuntimeSrcSources()
 ];
