@@ -19,6 +19,11 @@ import type { PrereqId } from "../ids/prereqIds";
 
 export type RequirementViewMode = "targeted" | "overlap";
 
+// Controls how goal requirements are expanded into component requirements.
+// - "direct": only the immediate components for each goal are added.
+// - "recursive": recursively expands crafted dependencies.
+export type RequirementExpandMode = "direct" | "recursive";
+
 export type RequirementSource =
     | {
           type: "syndicate";
@@ -149,8 +154,10 @@ export function buildRequirementsSnapshot(args: {
     goals: GoalLike[];
     completedPrereqs: Record<string, boolean>;
     inventory: InventoryLike;
+    expandMode?: RequirementExpandMode;
 }): RequirementsResult {
     const { syndicates, goals, inventory } = args;
+    const expandMode: RequirementExpandMode = args.expandMode ?? "recursive";
 
     const itemAgg: Record<
         string,
@@ -229,11 +236,14 @@ export function buildRequirementsSnapshot(args: {
                         type: "goal",
                         id: goal.id,
                         name: rootName,
-                        label: "Goal Component (Expanded)",
+                        label: expandMode === "recursive" ? "Goal Component (Expanded)" : "Goal Component",
                         need: cNeed
                     });
 
-                    walk(compId, cNeed, depth + 1);
+                    // Only expand crafted dependencies in recursive mode.
+                    if (expandMode === "recursive") {
+                        walk(compId, cNeed, depth + 1);
+                    }
                 }
             }
 
