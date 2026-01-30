@@ -156,25 +156,6 @@ function ZoomableTreeViewport(props: { children: React.ReactNode }) {
         return `translate(${z.panX}px, ${z.panY}px) scale(${z.scale})`;
     }, [z.panX, z.panY, z.scale]);
 
-    const zoomAboutPoint = useCallback((nextScaleRaw: number, clientX: number, clientY: number) => {
-        const outer = outerRef.current;
-        if (!outer) return;
-
-        const rect = outer.getBoundingClientRect();
-        const px = clientX - rect.left;
-        const py = clientY - rect.top;
-
-        setZ((prev) => {
-            const nextScale = clamp(nextScaleRaw, 0.25, 2.75);
-            const scaleRatio = nextScale / prev.scale;
-
-            const nextPanX = px - (px - prev.panX) * scaleRatio;
-            const nextPanY = py - (py - prev.panY) * scaleRatio;
-
-            return { scale: nextScale, panX: nextPanX, panY: nextPanY };
-        });
-    }, []);
-
     // Center the tree on open/resize based on content bounding box
     const recenterToContent = useCallback((targetScale?: number) => {
         const outer = outerRef.current;
@@ -182,7 +163,6 @@ function ZoomableTreeViewport(props: { children: React.ReactNode }) {
         if (!outer || !content) return;
 
         const o = outer.getBoundingClientRect();
-        const c = content.getBoundingClientRect();
 
         // We need content "natural" size. Since content is transformed, use scrollWidth/Height of inner wrapper.
         const naturalW = content.scrollWidth;
@@ -225,19 +205,22 @@ function ZoomableTreeViewport(props: { children: React.ReactNode }) {
     }, []);
 
     useEffect(() => {
-        const el = outerRef.current;
-        if (!el) return;
+        const root = outerRef.current;
+        if (!root) return;
 
         function onWheel(e: WheelEvent) {
             // local zoom. On trackpads, ctrl+wheel is common. Also allow metaKey as fallback.
             if (!(e.ctrlKey || e.metaKey)) return;
+
+            const viewport = outerRef.current;
+            if (!viewport) return;
 
             e.preventDefault();
 
             setZ((prev) => {
                 const nextScale = clamp(prev.scale * (e.deltaY < 0 ? 1.1 : 0.9), 0.25, 2.75);
 
-                const rect = el.getBoundingClientRect();
+                const rect = viewport.getBoundingClientRect();
                 const px = e.clientX - rect.left;
                 const py = e.clientY - rect.top;
 
@@ -249,13 +232,13 @@ function ZoomableTreeViewport(props: { children: React.ReactNode }) {
             });
         }
 
-        el.addEventListener("wheel", onWheel, { passive: false });
-        return () => el.removeEventListener("wheel", onWheel as any);
+        root.addEventListener("wheel", onWheel, { passive: false });
+        return () => root.removeEventListener("wheel", onWheel as any);
     }, []);
 
     useEffect(() => {
-        const el = outerRef.current;
-        if (!el) return;
+        const root = outerRef.current;
+        if (!root) return;
 
         function setPointer(elm: Element, e: PointerEvent) {
             try {
@@ -272,6 +255,9 @@ function ZoomableTreeViewport(props: { children: React.ReactNode }) {
         }
 
         function onPointerDown(e: PointerEvent) {
+            const viewport = outerRef.current;
+            if (!viewport) return;
+
             // Only pan/zoom when interacting with background/viewport, not buttons/inputs.
             // But we still allow starting on non-interactive parts of nodes.
             const target = e.target as HTMLElement | null;
@@ -282,7 +268,7 @@ function ZoomableTreeViewport(props: { children: React.ReactNode }) {
 
             e.preventDefault();
 
-            setPointer(el, e);
+            setPointer(viewport, e);
 
             // track pointers for pinch
             const p = pinchRef.current;
@@ -371,16 +357,16 @@ function ZoomableTreeViewport(props: { children: React.ReactNode }) {
             isPanningRef.current = false;
         }
 
-        el.addEventListener("pointerdown", onPointerDown);
-        el.addEventListener("pointermove", onPointerMove);
-        el.addEventListener("pointerup", onPointerUp);
-        el.addEventListener("pointercancel", onPointerUp);
+        root.addEventListener("pointerdown", onPointerDown);
+        root.addEventListener("pointermove", onPointerMove);
+        root.addEventListener("pointerup", onPointerUp);
+        root.addEventListener("pointercancel", onPointerUp);
 
         return () => {
-            el.removeEventListener("pointerdown", onPointerDown);
-            el.removeEventListener("pointermove", onPointerMove);
-            el.removeEventListener("pointerup", onPointerUp);
-            el.removeEventListener("pointercancel", onPointerUp);
+            root.removeEventListener("pointerdown", onPointerDown);
+            root.removeEventListener("pointermove", onPointerMove);
+            root.removeEventListener("pointerup", onPointerUp);
+            root.removeEventListener("pointercancel", onPointerUp);
         };
     }, [z.panX, z.panY, z.scale]);
 
