@@ -105,8 +105,14 @@ function normalizeName(s: string): string {
     return (s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+function foldDiacritics(s: string): string {
+    // NFKD splits letters+diacritics, then we remove the diacritic marks
+    return (s ?? "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+}
+
 function normalizeNameNoPunct(s: string): string {
-    return normalizeName(s).replace(/[^a-z0-9 ]+/g, "").replace(/\s+/g, " ").trim();
+    const folded = foldDiacritics(s);
+    return normalizeName(folded).replace(/[^a-z0-9 ]+/g, "").replace(/\s+/g, " ").trim();
 }
 
 function toToken(s: string): string {

@@ -79,21 +79,31 @@ function parseOpenWorldMiningSourceFromDescription(descRaw: string): string | nu
 
 /* ---------- shared tokenization (MUST match sourceCatalog.ts dataId/srcId token rules) ---------- */
 
+function normalizeBountyLevelLabel(levelRaw: string): string {
+    // IMPORTANT:
+    // dataId() strips punctuation (including '-').
+    // If the range has no spaces ("5-15"), it becomes "515" -> token "515".
+    // Force spaces so it becomes "5 15" -> token "5-15".
+    const s = normalizeSpaces(levelRaw ?? "");
+    return s.replace(/(\d)\s*-\s*(\d)/g, "$1 - $2");
+}
+
 function normalizeSpaces(s: string): string {
     return String(s ?? "").replace(/\s+/g, " ").trim();
 }
 
-function stripDiacritics(s: string): string {
+function foldDiacritics(s: string): string {
     // e.g., "Höllvania" -> "Hollvania"
-    return s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+    return String(s ?? "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function normalizeName(s: string): string {
+    // canonical: folded, lowercase, normalized whitespace
+    return normalizeSpaces(foldDiacritics(s)).toLowerCase();
 }
 
 function normalizeNameNoPunct(s: string): string {
-    return stripDiacritics(normalizeSpaces(s))
-        .toLowerCase()
-        .replace(/[^a-z0-9 ]+/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
+    return normalizeName(s).replace(/[^a-z0-9 ]+/g, "").replace(/\s+/g, " ").trim();
 }
 
 function toToken(s: string): string {
@@ -147,23 +157,57 @@ function sourceIdForRelicLocation(baseLoc: string): string {
  *
  * IMPORTANT: This is "best effort" and does not invent rotations.
  */
-function sourceIdForMissionNodeLocation(locRaw: string): string | null {
+function parseRotationLetter(locRaw: string): "A" | "B" | "C" | null {
+    const m = String(locRaw ?? "").match(/\bRotation\s+([ABC])\b/i);
+    if (!m) return null;
+    const r = String(m[1]).toUpperCase();
+    return r === "A" || r === "B" || r === "C" ? (r as "A" | "B" | "C") : null;
+}
+
+/**
+ * Parse All.json location labels like:
+ *   "Mars/Tyana Pass (Defense), Rotation C"
+ *   "Höllvania/Solstice Square (Defense), Rotation A"
+ *
+ * IMPORTANT:
+ * - These strings are NOT proof of "mission rotation rewards" tables.
+ * - They *are* useful as UI hints, but must be typed:
+ *     - caches => data:caches/<planet>/<node>
+ *     - rotation mentioned => data:mission-reward/<planet>/<node>/rotation<a|b|c> (and base)
+ */
+function sourcesForMissionLikeLocation(locRaw: string): string[] {
     const loc = normalizeSpaces(locRaw ?? "");
-    if (!loc.includes("/")) return null;
+    if (!loc.includes("/")) return [];
 
     // Take only the left-hand part before " (" or ","
     const head = normalizeSpaces(loc.split("(")[0] ?? "");
-    const headNoRot = normalizeSpaces(head.split(",")[0] ?? "");
-    const parts = headNoRot.split("/").map((x) => normalizeSpaces(x)).filter(Boolean);
+    const headNoComma = normalizeSpaces(head.split(",")[0] ?? "");
+    const parts = headNoComma
+        .split("/")
+        .map((x) => normalizeSpaces(x))
+        .filter(Boolean);
 
-    if (parts.length < 2) return null;
+    if (parts.length < 2) return [];
 
     const planet = parts[0];
-    const node = parts.slice(1).join("/"); // keep any deeper path segments stable
+    const node = parts.slice(1).join("/");
+    if (!planet || !node) return [];
 
-    if (!planet || !node) return null;
+    const out: string[] = [];
 
-    return dataId(["node", planet, node]);
+    const isCaches = /\(\s*Caches\s*\)/i.test(locRaw);
+    if (isCaches) {
+        out.push(dataId(["caches", planet, node]));
+    }
+
+    const rot = parseRotationLetter(locRaw);
+    if (rot) {
+        // Emit both the base and the rotation-specific source.
+        out.push(dataId(["missionreward", planet, node]));
+        out.push(dataId(["missionreward", planet, node, `rotation${rot.toLowerCase()}`]));
+    }
+
+    return out;
 }
 
 /**
@@ -172,13 +216,31 @@ function sourceIdForMissionNodeLocation(locRaw: string): string | null {
  */
 function sourceIdForBountyLocation(locRaw: string): string | null {
     const loc = normalizeSpaces(locRaw ?? "");
+    if (!loc) return null;
 
-    // Cetus bounties
+    // NOTE:
+    // SOURCE_INDEX proves canonical ids include the suffix tokens:
+    // - cetus: "...-cetus-bounty"
+    // - solaris: "...-orb-vallis-bounty"
+    // - deimos: "...-cambion-drift-bounty" / "...-isolation-vault" / "...-arcana-isolation-vault"
+
+    // Cetus bounties (standard)
     {
         const m = loc.match(/\/Cetus\s*\(\s*(Level[^)]*?)\s+Cetus Bounty\s*\)\s*(?:,|$)/i);
         if (m) {
-            const level = normalizeSpaces(m[1] ?? "");
-            if (level) return dataId(["bounty", "cetus", level]);
+            const level = normalizeBountyLevelLabel(m[1] ?? "");
+            if (level) return dataId(["bounty", "cetus", `${level} Cetus Bounty`]);
+        }
+    }
+
+    // Cetus special events that exist in SOURCE_INDEX
+    // Example in SOURCE_INDEX: "Level 15 - 25 Ghoul Bounty", "Level 15 - 25 Plague Star"
+    {
+        const m = loc.match(/\/Cetus\s*\(\s*(Level[^)]*?)\s+(Ghoul Bounty|Plague Star)\s*\)\s*(?:,|$)/i);
+        if (m) {
+            const level = normalizeBountyLevelLabel(m[1] ?? "");
+            const kind = normalizeSpaces(m[2] ?? "");
+            if (level && kind) return dataId(["bounty", "cetus", `${level} ${kind}`]);
         }
     }
 
@@ -186,27 +248,45 @@ function sourceIdForBountyLocation(locRaw: string): string | null {
     {
         const m = loc.match(/\/Orb Vallis\s*\(\s*(Level[^)]*?)\s+Orb Vallis Bounty\s*\)\s*(?:,|$)/i);
         if (m) {
-            const level = normalizeSpaces(m[1] ?? "");
-            if (level) return dataId(["bounty", "solaris", level]);
+            const level = normalizeBountyLevelLabel(m[1] ?? "");
+            if (level) return dataId(["bounty", "solaris", `${level} Orb Vallis Bounty`]);
         }
     }
 
-    // Deimos / Cambion Drift bounty tiers
+    // Profit-Taker phases (Solaris) exist in SOURCE_INDEX too
+    // Example in SOURCE_INDEX: "Level 40 - 60 PROFIT-TAKER - PHASE 1"
     {
-        const m = loc.match(/\/Cambion Drift\s*\(\s*(Level[^)]*?)\s*\)\s*(?:,|$)/i);
+        const m = loc.match(/\/Orb Vallis\s*\(\s*(Level[^)]*?)\s+PROFIT-TAKER\s*-\s*PHASE\s*(\d)\s*\)\s*(?:,|$)/i);
         if (m) {
-            const level = normalizeSpaces(m[1] ?? "");
-            if (level) return dataId(["bounty", "deimos", level]);
+            const level = normalizeBountyLevelLabel(m[1] ?? "");
+            const phase = normalizeSpaces(m[2] ?? "");
+            if (level && phase) return dataId(["bounty", "solaris", `${level} PROFIT-TAKER - PHASE ${phase}`]);
         }
     }
 
-    // Höllvania / Hex reward-track labels
+    // Deimos / Cambion Drift bounty tiers (base)
+    {
+        const m = loc.match(/\/Cambion Drift\s*\(\s*(Level[^)]*?)\s+Cambion Drift Bounty\s*\)\s*(?:,|$)/i);
+        if (m) {
+            const level = normalizeBountyLevelLabel(m[1] ?? "");
+            if (level) return dataId(["bounty", "deimos", `${level} Cambion Drift Bounty`]);
+        }
+    }
+
+    // Deimos Isolation Vault + Arcana Isolation Vault (these exist in SOURCE_INDEX)
+    {
+        const m = loc.match(/\/Cambion Drift\s*\(\s*(Level[^)]*?)\s+(Arcana\s+Isolation\s+Vault|Isolation\s+Vault)\s*\)\s*(?:,|$)/i);
+        if (m) {
+            const level = normalizeBountyLevelLabel(m[1] ?? "");
+            const kind = normalizeSpaces(m[2] ?? "");
+            if (level && kind) return dataId(["bounty", "deimos", `${level} ${kind}`]);
+        }
+    }
+
+    // Höllvania / Hex reward-track labels are NOT bounties
     {
         const m = loc.match(/^\s*H[öo]llvania\/[^()]*\(\s*([^)]+?)\s*\)\s*(?:,|$)/i);
-        if (m) {
-            const label = normalizeSpaces(m[1] ?? "");
-            if (label) return dataId(["bounty", "hex", label]);
-        }
+        if (m) return null;
     }
 
     return null;
@@ -259,10 +339,10 @@ function collectDropSourcesFromAllJson(): Record<string, string[]> {
                 continue;
             }
 
-            // 3) Mission nodes
-            const nodeSid = sourceIdForMissionNodeLocation(loc);
-            if (nodeSid) {
-                set.add(nodeSid);
+            // 3) Mission-like labels (rotation / caches) → typed sources
+            const missionLike = sourcesForMissionLikeLocation(loc);
+            if (missionLike.length > 0) {
+                for (const s of missionLike) set.add(s);
                 continue;
             }
 
