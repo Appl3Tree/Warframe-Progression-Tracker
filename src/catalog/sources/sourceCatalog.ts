@@ -50,8 +50,14 @@ function normalizeName(s: string): string {
     return s.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+function foldDiacritics(s: string): string {
+    // NFKD splits letters+diacritics, then we remove the diacritic marks
+    return (s ?? "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+}
+
 function normalizeNameNoPunct(s: string): string {
-    return normalizeName(s).replace(/[^a-z0-9 ]+/g, "").replace(/\s+/g, " ").trim();
+    const folded = foldDiacritics(s);
+    return normalizeName(folded).replace(/[^a-z0-9 ]+/g, "").replace(/\s+/g, " ").trim();
 }
 
 function toToken(s: string): string {
@@ -301,7 +307,134 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:resource/mutagen-sample", label: "Resource: Mutagen Sample (Infested Drop)", type: "drop" },
     { id: "data:resource/mutagen-mass", label: "Resource: Mutagen Mass (Invasion / Lab / Crafting)", type: "other" },
     { id: "data:resource/detonite-injector", label: "Resource: Detonite Injector (Invasion / Lab / Crafting)", type: "other" },
-    { id: "data:resource/fieldron", label: "Resource: Fieldron (Invasion / Lab / Crafting)", type: "other" }
+    { id: "data:resource/fieldron", label: "Resource: Fieldron (Invasion / Lab / Crafting)", type: "other" },
+
+    // --- acquisitionFromWarframeItems.ts emits these literal ids ---
+    {
+        id: "data:1999/resources",
+        label: "Resources: 1999",
+        type: "drop",
+    },
+    {
+        id: "data:bounties/narmer",
+        label: "Bounties: Narmer",
+        type: "drop",
+    },
+    {
+        id: "data:enemy/zanuka-hunter",
+        label: "Enemy: Zanuka Hunter",
+        type: "drop",
+    },
+    {
+        id: "data:events/anniversary",
+        label: "Event: Anniversary",
+        type: "drop",
+    },
+    {
+        id: "data:events/naberus",
+        label: "Event: Naberus",
+        type: "drop",
+    },
+    {
+        id: "data:fishing/cetus/processing",
+        label: "Fishing: Cetus processing",
+        type: "drop",
+    },
+    {
+        id: "data:fishing/fortuna/processing",
+        label: "Fishing: Fortuna processing",
+        type: "drop",
+    },
+    {
+        id: "data:fishing/deimos/processing",
+        label: "Fishing: Deimos processing",
+        type: "drop",
+    },
+    {
+        id: "data:openworld/cetus/mining",
+        label: "Open World: Plains of Eidolon mining",
+        type: "drop",
+    },
+    {
+        id: "data:openworld/fortuna/mining",
+        label: "Open World: Orb Vallis mining",
+        type: "drop",
+    },
+    {
+        id: "data:openworld/deimos/mining",
+        label: "Open World: Cambion Drift mining",
+        type: "drop",
+    },
+    {
+        id: "data:openworld/deimos/entrati-lab",
+        label: "Open World: Deimos Entrati Lab",
+        type: "drop",
+    },
+    {
+        id: "data:openworld/cetus/vasca",
+        label: "Open World: Vasca Kavat (Cetus)",
+        type: "drop",
+    },
+    {
+        id: "data:openworld/duviri",
+        label: "Open World: Duviri",
+        type: "drop",
+    },
+    {
+        id: "data:openworld/duviri/shrines",
+        label: "Open World: Duviri Shrines",
+        type: "drop",
+    },
+    {
+        id: "data:openworld/zariman",
+        label: "Open World: Zariman",
+        type: "drop",
+    },
+    {
+        id: "data:relics/ducats",
+        label: "Relics: Ducats",
+        type: "drop",
+    },
+    {
+        id: "data:system/helminth",
+        label: "System: Helminth",
+        type: "drop",
+    },
+    {
+        id: "data:vendor/cetus/hok",
+        label: "Vendor: Hok (Cetus)",
+        type: "vendor",
+    },
+    {
+        id: "data:vendor/fortuna/legs",
+        label: "Vendor: Legs (Fortuna)",
+        type: "vendor",
+    },
+    {
+        id: "data:vendor/fortuna/rude-zuud",
+        label: "Vendor: Rude Zuud (Fortuna)",
+        type: "vendor",
+    },
+    {
+        id: "data:vendor/deimos/father",
+        label: "Vendor: Father (Deimos)",
+        type: "vendor",
+    },
+    {
+        id: "data:node/deimos/albrechts-laboratories",
+        label: "Node: Deimos - Albrecht's Laboratories",
+        type: "drop",
+    },
+    {
+        id: "data:node/earth/cetus",
+        label: "Node: Earth - Cetus",
+        type: "drop",
+    },
+    {
+        id: "data:node/venus/orb-vallis",
+        label: "Node: Venus - Orb Vallis",
+        type: "drop",
+    },
 ];
 
 /**
@@ -344,6 +477,108 @@ function buildMissionNodeSources(): RawSource[] {
 
             pushUnique(out, seen, id, label, "drop");
         }
+    }
+
+    out.sort((a, b) => a.label.localeCompare(b.label));
+    return out;
+}
+
+/**
+ * Mission reward sources (typed) derived from missionRewards.json.
+ *
+ * Emits:
+ *   data:mission-reward/<planet>/<node>
+ *   data:mission-reward/<planet>/<node>/rotation-a|rotation-b|rotation-c
+ */
+function buildMissionRewardSources(): RawSource[] {
+    const out: RawSource[] = [];
+    const seen = new Set<string>();
+
+    const mrRoot = (missionRewardsJson as any)?.missionRewards ?? (missionRewardsJson as any);
+    if (!mrRoot || typeof mrRoot !== "object" || Array.isArray(mrRoot)) return out;
+
+    for (const [planetName, planetObj] of Object.entries(mrRoot as Record<string, any>)) {
+        if (!planetObj || typeof planetObj !== "object") continue;
+
+        for (const [nodeName, nodeObj] of Object.entries(planetObj as Record<string, any>)) {
+            if (!nodeObj || typeof nodeObj !== "object") continue;
+
+            const baseId = dataId(["mission-reward", String(planetName), String(nodeName)]);
+            const baseLabel = `Mission Reward: ${planetName} / ${nodeName}`;
+            pushUnique(out, seen, baseId, baseLabel, "drop");
+
+            const rewards = (nodeObj as any)?.rewards;
+            if (!rewards || typeof rewards !== "object" || Array.isArray(rewards)) continue;
+
+            const hasA = Object.prototype.hasOwnProperty.call(rewards, "A");
+            const hasB = Object.prototype.hasOwnProperty.call(rewards, "B");
+            const hasC = Object.prototype.hasOwnProperty.call(rewards, "C");
+
+            if (hasA) pushUnique(out, seen, dataId(["mission-reward", planetName, nodeName, "rotationa"]), `${baseLabel} (Rotation A)`, "drop");
+            if (hasB) pushUnique(out, seen, dataId(["mission-reward", planetName, nodeName, "rotationb"]), `${baseLabel} (Rotation B)`, "drop");
+            if (hasC) pushUnique(out, seen, dataId(["mission-reward", planetName, nodeName, "rotationc"]), `${baseLabel} (Rotation C)`, "drop");
+        }
+    }
+
+    out.sort((a, b) => a.label.localeCompare(b.label));
+    return out;
+}
+
+/**
+ * Cache sources inferred from warframe-items/raw/All.json drop location strings.
+ * Emits:
+ *   data:caches/<planet>/<node>
+ */
+function buildWfItemsCacheSources(): RawSource[] {
+    const out: RawSource[] = [];
+    const seen = new Set<string>();
+
+    const locs = new Set<string>();
+
+    const stack: unknown[] = [WARFRAME_ITEMS_ALL as unknown];
+    while (stack.length > 0) {
+        const cur = stack.pop();
+        if (!cur) continue;
+
+        if (Array.isArray(cur)) {
+            for (const v of cur) stack.push(v);
+            continue;
+        }
+        if (typeof cur !== "object") continue;
+
+        const obj = cur as Record<string, unknown>;
+        for (const v of Object.values(obj)) {
+            if (v && (typeof v === "object" || Array.isArray(v))) stack.push(v);
+        }
+
+        const drops = (obj as any).drops;
+        if (!Array.isArray(drops)) continue;
+
+        for (const d of drops) {
+            const loc = safeString((d as any)?.location);
+            if (!loc) continue;
+            if (!/\(\s*Caches\s*\)/i.test(loc)) continue;
+            locs.add(loc);
+        }
+    }
+
+    for (const raw of Array.from(locs.values())) {
+        const head = safeString(String(raw).split("(")[0] ?? "");
+        const headNoComma = safeString(String(head).split(",")[0] ?? "");
+        const parts = headNoComma
+            .split("/")
+            .map((x) => safeString(x))
+            .filter(Boolean);
+
+        if (parts.length < 2) continue;
+
+        const planet = parts[0];
+        const node = parts.slice(1).join("/");
+        if (!planet || !node) continue;
+
+        const id = dataId(["caches", planet, node]);
+        const label = `Caches: ${planet} / ${node}`;
+        pushUnique(out, seen, id, label, "drop");
     }
 
     out.sort((a, b) => a.label.localeCompare(b.label));
@@ -701,6 +936,8 @@ export const SOURCE_CATALOG: RawSource[] = [
     ...CURATED_SOURCES,
     ...buildWfcdDropSources(),
     ...buildMissionNodeSources(),
+    ...buildMissionRewardSources(),
+    ...buildWfItemsCacheSources(),
     ...buildWfItemsLocSources(),
     ...buildDropDataSupplementSources(),
     ...buildDropDataRuntimeSrcSources()
