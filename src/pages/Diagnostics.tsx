@@ -7,10 +7,9 @@ import { buildRequirementsSnapshot, buildFarmingSnapshot } from "../domain/logic
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
+import { deriveWarframeItemsAcquisitionByCatalogId, deriveWarframeItemsPresenceByCatalogId } from "../catalog/items/acquisitionFromWarframeItems";
 
-import {
-    deriveDropDataAcquisitionByCatalogId
-} from "../catalog/items/acquisitionFromDropData";
+import { deriveDropDataAcquisitionByCatalogId } from "../catalog/items/acquisitionFromDropData";
 
 function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {
     return (
@@ -82,15 +81,38 @@ function snapshotStamp(): string {
     // YYYYMMDD-HHMMSS (local)
     const d = new Date();
     const pad = (n: number) => String(n).padStart(2, "0");
-    return [
-        d.getFullYear(),
-        pad(d.getMonth() + 1),
-        pad(d.getDate())
-    ].join("") + "-" + [
-        pad(d.getHours()),
-        pad(d.getMinutes()),
-        pad(d.getSeconds())
-    ].join("");
+    return (
+        [
+            d.getFullYear(),
+            pad(d.getMonth() + 1),
+            pad(d.getDate())
+        ].join("") +
+        "-" +
+        [
+            pad(d.getHours()),
+            pad(d.getMinutes()),
+            pad(d.getSeconds())
+        ].join("")
+    );
+}
+
+/**
+ * Fail-closed guard: these legacy ids should never appear in the completeness export.
+ * If they do, throw hard so you catch regression immediately.
+ */
+function assertNoLegacyMissionRewardIds(obj: unknown): void {
+    const legacy = [
+        "data:missionreward/deimos/albrechts-laboratories",
+        "data:missionreward/deimos/albrechts-laboratories/rotationc",
+        "data:missionreward/saturn/lunaro",
+        "data:missionreward/saturn/lunaro/rotationb"
+    ];
+
+    const haystack = JSON.stringify(obj);
+    const hit = legacy.find((s) => haystack.includes(s));
+    if (hit) {
+        throw new Error(`Legacy missionreward id detected in completeness export: ${hit}`);
+    }
 }
 
 const DEBUG_CATALOG_IDS = {
@@ -319,6 +341,162 @@ export default function Diagnostics() {
             unknownSourceRefs
         };
     }, []);
+    
+            const missingAcqCrossCheck = useMemo(() => {
+                // We expect catalog ids in different layers to not always share the same prefix.
+                // FULL_CATALOG ids are usually "items:/Lotus/..."
+                // Some derived maps may be keyed as "/Lotus/..." (no "items:"), etc.
+                // This cross-check tries several key variants to detect mismatches.
+
+                let dropMap: Record<string, any> = {};
+                try {
+                    dropMap = deriveDropDataAcquisitionByCatalogId();
+                } catch {
+                    dropMap = {};
+                }
+
+                let wfItemsMap: Record<string, any> = {};
+                try {
+                    wfItemsMap = deriveWarframeItemsAcquisitionByCatalogId();
+                } catch {
+                    wfItemsMap = {};
+                }
+
+                let wfItemsPresence: Record<string, true> = {};
+                try {
+                    wfItemsPresence = deriveWarframeItemsPresenceByCatalogId();
+                } catch {
+                    wfItemsPresence = {};
+                }
+
+                function toKeyVariants(catalogId: string): string[] {
+                    const cid = String(catalogId);
+
+                    const variants = new Set<string>();
+                    variants.add(cid);
+
+                    // Strip leading items:
+                    variants.add(cid.replace(/^items:/, ""));
+
+                    // If it doesn't have items:, add it
+                    if (!cid.startsWith("items:")) {
+                        variants.add(`items:${cid}`);
+                    }
+
+                    // Also try stripping any accidental double-prefix
+                    variants.add(cid.replace(/^items:items:/, "items:"));
+
+                    return Array.from(variants);
+                }
+
+                function readSources(maybe: any): string[] {
+                    if (!maybe) return [];
+                    const srcs = Array.isArray(maybe?.sources) ? maybe.sources : Array.isArray(maybe) ? maybe : [];
+                    return Array.isArray(srcs) ? srcs.map(String) : [];
+                }
+
+                function findFirstWithSources(map: Record<string, any>, keys: string[]): { keyUsed: string | null; sources: string[] } {
+                    for (const k of keys) {
+                        if (Object.prototype.hasOwnProperty.call(map, k)) {
+                            const srcs = readSources(map[k]);
+                            if (srcs.length > 0) return { keyUsed: k, sources: srcs };
+                        }
+                    }
+                    return { keyUsed: null, sources: [] };
+                }
+
+                const rows = (completeness.missingAcq ?? []).map((x) => {
+                    const catalogId = String(x.catalogId);
+                    const name = String((x as any).name ?? "Unknown");
+
+                    const keyVariants = toKeyVariants(catalogId);
+
+                    // Look up in derived maps using variants
+                    const dropHit = findFirstWithSources(dropMap, keyVariants);
+                    const wfHit = findFirstWithSources(wfItemsMap, keyVariants);
+
+                    // Catalog metadata signals
+                    const rec: any = (FULL_CATALOG as any)?.recordsById?.[catalogId] ?? null;
+                    const raw: any = rec?.raw ?? null;
+
+                    const wfcd: any = raw?.rawWfcd ?? null;
+                    const lotus: any = raw?.rawLotus ?? null;
+
+                    const buildPrice = wfcd?.buildPrice ?? lotus?.buildPrice ?? null;
+                    const marketCost = wfcd?.marketCost ?? lotus?.marketCost ?? null;
+
+                    const hasBuildPrice = typeof buildPrice === "number" && Number.isFinite(buildPrice) && buildPrice > 0;
+                    const hasMarketCost = typeof marketCost === "number" && Number.isFinite(marketCost) && marketCost > 0;
+
+                    const wfItemsHasRow = keyVariants.some((k) => Object.prototype.hasOwnProperty.call(wfItemsPresence, k));
+
+                    return {
+                        name,
+                        catalogId,
+
+                        // key diagnostics
+                        keyVariants,
+
+                        // layer presence + what key matched
+                        dropDataHasSources: dropHit.sources.length > 0,
+                        dropDataKeyUsed: dropHit.keyUsed,
+                        dropDataSourcesPreview: dropHit.sources.slice(0, 25),
+
+                        warframeItemsHasRow: wfItemsHasRow,
+
+                        warframeItemsHasSources: wfHit.sources.length > 0,
+                        warframeItemsKeyUsed: wfHit.keyUsed,
+                        warframeItemsSourcesPreview: wfHit.sources.slice(0, 25),
+
+                        // metadata signals
+                        hasBuildPrice,
+                        buildPrice: typeof buildPrice === "number" && Number.isFinite(buildPrice) ? buildPrice : null,
+
+                        hasMarketCost,
+                        marketCost: typeof marketCost === "number" && Number.isFinite(marketCost) ? marketCost : null
+                    };
+                });
+
+                const stats = {
+                    missingCount: rows.length,
+                    dropDataHasSourcesCount: rows.filter((r) => r.dropDataHasSources).length,
+                    warframeItemsHasSourcesCount: rows.filter((r) => r.warframeItemsHasSources).length,
+                    warframeItemsHasRowCount: rows.filter((r) => r.warframeItemsHasRow).length,
+                    hasMarketCostCount: rows.filter((r) => r.hasMarketCost).length,
+                    hasBuildPriceCount: rows.filter((r) => r.hasBuildPrice).length,
+
+                    // New: are we even seeing key-shape mismatches?
+                    dropDataMatchedViaNonPrimaryKeyCount: rows.filter(
+                        (r) => r.dropDataHasSources && r.dropDataKeyUsed !== null && r.dropDataKeyUsed !== r.catalogId
+                    ).length,
+                    warframeItemsMatchedViaNonPrimaryKeyCount: rows.filter(
+                        (r) => r.warframeItemsHasSources && r.warframeItemsKeyUsed !== null && r.warframeItemsKeyUsed !== r.catalogId
+                    ).length
+                };
+
+                // Sort so the most actionable show up first
+                rows.sort((a, b) => {
+                    if (a.warframeItemsHasRow !== b.warframeItemsHasRow) return a.warframeItemsHasRow ? -1 : 1;
+                    if (a.warframeItemsHasSources !== b.warframeItemsHasSources) return a.warframeItemsHasSources ? -1 : 1;
+                    if (a.dropDataHasSources !== b.dropDataHasSources) return a.dropDataHasSources ? -1 : 1;
+
+                    const aSignals = (a.hasMarketCost ? 1 : 0) + (a.hasBuildPrice ? 1 : 0);
+                    const bSignals = (b.hasMarketCost ? 1 : 0) + (b.hasBuildPrice ? 1 : 0);
+                    if (aSignals !== bSignals) return bSignals - aSignals;
+
+                    return a.name.localeCompare(b.name);
+                });
+
+                // Also export a quick peek at map key prefixes so we can see the shape immediately
+                const mapKeyPreview = {
+                    dropMapKeyCount: Object.keys(dropMap).length,
+                    dropMapFirstKeys: Object.keys(dropMap).slice(0, 50),
+                    wfItemsMapKeyCount: Object.keys(wfItemsMap).length,
+                    wfItemsMapFirstKeys: Object.keys(wfItemsMap).slice(0, 50)
+                };
+
+                return { stats, rows, mapKeyPreview };
+            }, [completeness]);
 
     const dropAcqMapStats = useMemo(() => {
         try {
@@ -419,6 +597,7 @@ export default function Diagnostics() {
         overlapSourceCount: 0
     };
 
+    // Base export object (without meta). We’ll attach meta + stamp at download time.
     const completenessExportObject = useMemo(() => {
         return {
             stats: {
@@ -485,7 +664,6 @@ export default function Diagnostics() {
                 </div>
             </Section>
 
-            {/* rest of file unchanged */}
             <Section
                 title="Drop-map sanity checks (Orokin Cell + Neurodes)"
                 subtitle="Shows (1) what the drop-data layer returns, (2) which of those sources are missing from SOURCE_INDEX, and (3) what getAcquisitionByCatalogId ultimately returns."
@@ -600,7 +778,24 @@ export default function Diagnostics() {
                         </div>
                         <button
                             className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
-                            onClick={() => downloadJson("catalog-completeness.json", completenessExportObject)}
+                            onClick={() => {
+                                const stamp = snapshotStamp();
+
+                                // Attach meta at export time so each download is provably unique.
+                                const obj = {
+                                    meta: {
+                                        stamp,
+                                        mode: (import.meta as any)?.env?.MODE ?? null,
+                                        gitSha: (import.meta as any)?.env?.VITE_GIT_SHA ?? null
+                                    },
+                                    ...completenessExportObject
+                                };
+
+                                // Fail closed if legacy ids ever regress back into the export.
+                                assertNoLegacyMissionRewardIds(obj);
+
+                                downloadJson(`catalog-completeness-${stamp}.json`, obj);
+                            }}
                         >
                             Download catalog completeness JSON
                         </button>
@@ -610,6 +805,38 @@ export default function Diagnostics() {
                         <summary className="cursor-pointer text-xs text-slate-300">Show JSON</summary>
                         <pre className="mt-2 whitespace-pre-wrap break-words text-xs text-slate-200 font-mono">
                             {JSON.stringify(completenessExportObject, null, 2)}
+                        </pre>
+                    </details>
+                </div>
+                                <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                        <div className="text-[11px] uppercase tracking-wide text-slate-500">
+                            Missing-acquisition cross-check (JSON)
+                        </div>
+                        <button
+                            className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
+                            onClick={() => downloadJson("missing-acq-crosscheck.json", missingAcqCrossCheck)}
+                        >
+                            Download missing-acq cross-check JSON
+                        </button>
+                    </div>
+
+                    <div className="mt-2 text-xs text-slate-400">
+                        Stats:{" "}
+                        <span className="font-mono">
+                            missing={fmtI(missingAcqCrossCheck.stats.missingCount)}{" "}
+                            wfItemsHasRow={fmtI((missingAcqCrossCheck.stats as any).warframeItemsHasRowCount)}{" "}
+                            wfItemsHasSources={fmtI(missingAcqCrossCheck.stats.warframeItemsHasSourcesCount)}{" "}
+                            dropDataHasSources={fmtI(missingAcqCrossCheck.stats.dropDataHasSourcesCount)}{" "}
+                            marketCost={fmtI(missingAcqCrossCheck.stats.hasMarketCostCount)}{" "}
+                            buildPrice={fmtI(missingAcqCrossCheck.stats.hasBuildPriceCount)}
+                        </span>
+                    </div>
+
+                    <details className="mt-3">
+                        <summary className="cursor-pointer text-xs text-slate-300">Show first 25 rows</summary>
+                        <pre className="mt-2 whitespace-pre-wrap break-words text-xs text-slate-200 font-mono">
+                            {JSON.stringify({ stats: missingAcqCrossCheck.stats, rows: missingAcqCrossCheck.rows.slice(0, 25) }, null, 2)}
                         </pre>
                     </details>
                 </div>
@@ -680,7 +907,10 @@ export default function Diagnostics() {
             >
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
                     <StatCard label="Hidden (unknown acquisition)" value={fmtI(farmingStats.hiddenForUnknownAcquisition)} />
-                    <StatCard label="Hidden (recipe acquisition missing)" value={fmtI(farmingStats.hiddenForUnknownRecipeAcquisition)} />
+                    <StatCard
+                        label="Hidden (recipe acquisition missing)"
+                        value={fmtI(farmingStats.hiddenForUnknownRecipeAcquisition)}
+                    />
                     <StatCard label="Hidden (missing prereqs)" value={fmtI(farmingStats.hiddenForMissingPrereqs)} />
                     <StatCard label="Hidden (no accessible sources)" value={fmtI(farmingStats.hiddenForNoAccessibleSources)} />
                     <StatCard label="Actionable items" value={fmtI(farmingStats.actionableItemsWithKnownAcquisition)} />
