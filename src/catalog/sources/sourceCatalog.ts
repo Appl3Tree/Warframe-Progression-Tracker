@@ -435,6 +435,34 @@ const CURATED_SOURCES: RawSource[] = [
         label: "Node: Venus - Orb Vallis",
         type: "drop",
     },
+    // ----------------------------
+    // Aliases for legacy/misclassified missionreward IDs
+    // These should NOT be generated from missionRewards.json.
+    // They exist because some wfitems/drop parsing emits data:missionreward/* for:
+    // - Entrati Lab bounties (Albrecht's Laboratories)
+    // - Conclave nodes (Lunaro)
+    // ----------------------------
+
+    {
+        id: "data:missionreward/deimos/albrechts-laboratories",
+        label: "Alias: Entrati Lab Bounty (Albrecht's Laboratories) (Legacy missionreward id)",
+        type: "drop",
+    },
+    {
+        id: "data:missionreward/deimos/albrechts-laboratories/rotationc",
+        label: "Alias: Entrati Lab Bounty (Albrecht's Laboratories), Rotation C (Legacy missionreward id)",
+        type: "drop",
+    },
+    {
+        id: "data:missionreward/saturn/lunaro",
+        label: "Alias: Conclave (Lunaro) (Legacy missionreward id)",
+        type: "other",
+    },
+    {
+        id: "data:missionreward/saturn/lunaro/rotationb",
+        label: "Alias: Conclave (Lunaro), Rotation B (Legacy missionreward id)",
+        type: "other",
+    },
 ];
 
 /**
@@ -486,9 +514,14 @@ function buildMissionNodeSources(): RawSource[] {
 /**
  * Mission reward sources (typed) derived from missionRewards.json.
  *
- * Emits:
- *   data:mission-reward/<planet>/<node>
- *   data:mission-reward/<planet>/<node>/rotation-a|rotation-b|rotation-c
+ * Emits (canonical):
+ *   data:missionreward/<planet>/<node>
+ *   data:missionreward/<planet>/<node>/rotationa|rotationb|rotationc
+ *
+ * NOTE:
+ * - Node names in missionRewards.json sometimes include suffixes like "(Caches)" or "(Extra)".
+ * - acquisitionFromWarframeItems/acquisitionFromDropData canonicalize those to the base node name.
+ * - Therefore we MUST strip those suffixes before tokenization here.
  */
 function buildMissionRewardSources(): RawSource[] {
     const out: RawSource[] = [];
@@ -497,14 +530,19 @@ function buildMissionRewardSources(): RawSource[] {
     const mrRoot = (missionRewardsJson as any)?.missionRewards ?? (missionRewardsJson as any);
     if (!mrRoot || typeof mrRoot !== "object" || Array.isArray(mrRoot)) return out;
 
+    const stripNodeSuffix = (s: string): string => s.replace(/\s*\((Caches|Extra)\)\s*$/i, "");
+
     for (const [planetName, planetObj] of Object.entries(mrRoot as Record<string, any>)) {
         if (!planetObj || typeof planetObj !== "object") continue;
 
-        for (const [nodeName, nodeObj] of Object.entries(planetObj as Record<string, any>)) {
+        for (const [nodeNameRaw, nodeObj] of Object.entries(planetObj as Record<string, any>)) {
             if (!nodeObj || typeof nodeObj !== "object") continue;
 
-            const baseId = dataId(["mission-reward", String(planetName), String(nodeName)]);
-            const baseLabel = `Mission Reward: ${planetName} / ${nodeName}`;
+            const nodeNameBase = stripNodeSuffix(String(nodeNameRaw));
+
+            // Canonical ids (match what your jq script expects: data:missionreward/<planet>/<baseNode>)
+            const baseId = dataId(["missionreward", String(planetName), nodeNameBase]);
+            const baseLabel = `Mission Reward: ${planetName} / ${nodeNameBase}`;
             pushUnique(out, seen, baseId, baseLabel, "drop");
 
             const rewards = (nodeObj as any)?.rewards;
@@ -514,9 +552,39 @@ function buildMissionRewardSources(): RawSource[] {
             const hasB = Object.prototype.hasOwnProperty.call(rewards, "B");
             const hasC = Object.prototype.hasOwnProperty.call(rewards, "C");
 
-            if (hasA) pushUnique(out, seen, dataId(["mission-reward", planetName, nodeName, "rotationa"]), `${baseLabel} (Rotation A)`, "drop");
-            if (hasB) pushUnique(out, seen, dataId(["mission-reward", planetName, nodeName, "rotationb"]), `${baseLabel} (Rotation B)`, "drop");
-            if (hasC) pushUnique(out, seen, dataId(["mission-reward", planetName, nodeName, "rotationc"]), `${baseLabel} (Rotation C)`, "drop");
+            if (hasA) pushUnique(out, seen, dataId(["missionreward", planetName, nodeNameBase, "rotationa"]), `${baseLabel} (Rotation A)`, "drop");
+            if (hasB) pushUnique(out, seen, dataId(["missionreward", planetName, nodeNameBase, "rotationb"]), `${baseLabel} (Rotation B)`, "drop");
+            if (hasC) pushUnique(out, seen, dataId(["missionreward", planetName, nodeNameBase, "rotationc"]), `${baseLabel} (Rotation C)`, "drop");
+
+            // Optional: legacy aliases (only if older code ever emitted these)
+            // - nodeNameRaw includes "(Caches)" -> tokenizes to "<node>-caches"
+            // - some layers might have emitted mission-reward or rotation-a style
+            //
+            // If you want zero-risk compatibility, keep these aliases.
+            const legacyBaseId1 = dataId(["mission-reward", String(planetName), String(nodeNameRaw)]);
+            if (legacyBaseId1 !== baseId) pushUnique(out, seen, legacyBaseId1, baseLabel, "drop");
+
+            const legacyBaseId2 = dataId(["missionreward", String(planetName), String(nodeNameRaw)]);
+            if (legacyBaseId2 !== baseId) pushUnique(out, seen, legacyBaseId2, baseLabel, "drop");
+
+            if (hasA) {
+                const legacyRotA1 = dataId(["mission-reward", planetName, nodeNameRaw, "rotationa"]);
+                if (legacyRotA1 !== dataId(["missionreward", planetName, nodeNameBase, "rotationa"])) {
+                    pushUnique(out, seen, legacyRotA1, `${baseLabel} (Rotation A)`, "drop");
+                }
+            }
+            if (hasB) {
+                const legacyRotB1 = dataId(["mission-reward", planetName, nodeNameRaw, "rotationb"]);
+                if (legacyRotB1 !== dataId(["missionreward", planetName, nodeNameBase, "rotationb"])) {
+                    pushUnique(out, seen, legacyRotB1, `${baseLabel} (Rotation B)`, "drop");
+                }
+            }
+            if (hasC) {
+                const legacyRotC1 = dataId(["mission-reward", planetName, nodeNameRaw, "rotationc"]);
+                if (legacyRotC1 !== dataId(["missionreward", planetName, nodeNameBase, "rotationc"])) {
+                    pushUnique(out, seen, legacyRotC1, `${baseLabel} (Rotation C)`, "drop");
+                }
+            }
         }
     }
 

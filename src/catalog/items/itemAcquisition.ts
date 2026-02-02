@@ -21,6 +21,7 @@ import ITEMS_JSON from "../../data/items.json";
 const BLUEPRINT_UNCLASSIFIED = "data:blueprint/unclassified";
 const SOURCE_CRAFTING = "data:crafting";
 
+const SOURCE_MARKET = "data:market";
 const WFCD_ACQ: Record<string, AcquisitionDef> = deriveAcquisitionByCatalogIdFromSourcesJson();
 const DROP_DATA_ACQ: Record<string, AcquisitionDef> = deriveDropDataAcquisitionByCatalogId();
 const MISSION_RELIC_ACQ: Record<string, AcquisitionDef> = deriveRelicMissionRewardsAcquisitionByCatalogId();
@@ -28,6 +29,60 @@ const RELICS_JSON_ACQ: Record<string, AcquisitionDef> = deriveRelicsJsonAcquisit
 const WARFRAME_ITEMS_ACQ: Record<string, AcquisitionDef> = deriveWarframeItemsAcquisitionByCatalogId();
 const ITEMS_JSON_MARKET_ACQ: Record<string, AcquisitionDef> = deriveItemsJsonMarketAcquisitionByCatalogId();
 const RECIPE_BUCKET_ACQ: Record<string, AcquisitionDef> = deriveRecipeBucketAcquisitionByCatalogId();
+
+const RECIPE_CATALOG_ID_PREFIX = "items:/Lotus/Types/Recipes/";
+
+function isRecipeCatalogIdString(id: string): boolean {
+    return typeof id === "string" && id.startsWith(RECIPE_CATALOG_ID_PREFIX);
+}
+
+function stripItemsPrefix(id: string): string {
+    return String(id ?? "").replace(/^items:/, "");
+}
+
+/**
+ * Index recipe ids by their rawLotus parent/parents lotus path.
+ * Key shape: "/Lotus/Weapons/..."  ->  [ "items:/Lotus/Types/Recipes/..." ... ]
+ *
+ * This covers cases where weapon/item records have:
+ *  - no blueprintId
+ *  - no components
+ * but recipes still point back at the output via parent/parents.
+ */
+const RECIPE_IDS_BY_PARENT_PATH: Record<string, string[]> = (() => {
+    const out: Record<string, Set<string>> = Object.create(null);
+
+    const recordsById: Record<string, any> = (FULL_CATALOG as any).recordsById ?? {};
+    for (const [id, rec] of Object.entries(recordsById)) {
+        if (!isRecipeCatalogIdString(id)) continue;
+
+        const rawLotus: any = rec?.raw?.rawLotus ?? null;
+        if (!rawLotus) continue;
+
+        const parent = typeof rawLotus.parent === "string" ? rawLotus.parent : null;
+        const parents = Array.isArray(rawLotus.parents) ? rawLotus.parents : [];
+
+        const parentPaths: string[] = [];
+        if (parent) parentPaths.push(parent);
+        for (const p of parents) {
+            if (typeof p === "string" && p.length > 0) parentPaths.push(p);
+        }
+
+        for (const p of parentPaths) {
+            const key = stripItemsPrefix(p); // normalize to "/Lotus/..."
+            if (!key) continue;
+
+            if (!out[key]) out[key] = new Set<string>();
+            out[key].add(String(id));
+        }
+    }
+
+    const finalized: Record<string, string[]> = Object.create(null);
+    for (const [k, set] of Object.entries(out)) {
+        finalized[k] = Array.from(set.values()).sort((a, b) => a.localeCompare(b));
+    }
+    return finalized;
+})();
 
 function unionSources(...lists: Array<string[] | undefined>): string[] {
     const set = new Set<string>();
@@ -269,6 +324,30 @@ function getAcquisitionByCatalogIdInternal(catalogId: CatalogId, seen: Set<strin
     // Do not apply this fallback when a manual mapping exists.
     if (!hasManual && sources.length === 0 && isBlueprintLikeCatalogItem(catalogId)) {
         sources = [BLUEPRINT_UNCLASSIFIED];
+    }
+
+    // 7) Recipe parent/parents backreference:
+    // If we have no sources for an item/weapon, try to resolve via recipes that declare
+    // this item's lotus path as rawLotus.parent/rawLotus.parents.
+    if (sources.length === 0) {
+        const rec: any = (FULL_CATALOG as any).recordsById?.[key] ?? null;
+
+        // Prefer canonical record.path; otherwise derive from catalogId
+        const lotusPath =
+            (typeof rec?.path === "string" && rec.path.startsWith("/Lotus/") ? rec.path : null) ??
+            stripItemsPrefix(key);
+
+        const recipeIds = RECIPE_IDS_BY_PARENT_PATH[lotusPath] ?? [];
+        for (const rid of recipeIds) {
+            const recipeAcq = getAcquisitionByCatalogIdInternal(rid as any, seen);
+            if (recipeAcq?.sources?.length) {
+                sources = unionSources(
+                    sources.filter((s) => s !== BLUEPRINT_UNCLASSIFIED),
+                    recipeAcq.sources
+                );
+                break;
+            }
+        }
     }
 
     if (sources.length === 0) return null;

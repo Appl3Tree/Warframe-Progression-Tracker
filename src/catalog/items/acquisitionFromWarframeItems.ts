@@ -178,6 +178,16 @@ function parseRotationLetter(locRaw: string): "A" | "B" | "C" | null {
 function sourcesForMissionLikeLocation(locRaw: string): string[] {
     const loc = normalizeSpaces(locRaw ?? "");
     if (!loc.includes("/")) return [];
+    // Conclave locations are not mission reward nodes.
+    // Keep them stable and coarse.
+    if (/\(\s*Conclave\s*\)/i.test(loc)) {
+        return ["data:pvp/conclave"];
+    }
+
+    // Entrati Lab Bounties should be handled by sourceIdForBountyLocation(), not mission-like parsing.
+    if (/Entrati\s+Lab\s+Bounty/i.test(loc) || /Albrecht's\s+Laboratories/i.test(loc)) {
+        return [];
+    }
 
     // Take only the left-hand part before " (" or ","
     const head = normalizeSpaces(loc.split("(")[0] ?? "");
@@ -223,6 +233,17 @@ function sourceIdForBountyLocation(locRaw: string): string | null {
     // - cetus: "...-cetus-bounty"
     // - solaris: "...-orb-vallis-bounty"
     // - deimos: "...-cambion-drift-bounty" / "...-isolation-vault" / "...-arcana-isolation-vault"
+
+    // Entrati Lab bounty tiers (Albrecht's Laboratories)
+    // Example:
+    //   "Deimos/Albrecht's Laboratories (Level  65 - 70 Entrati Lab Bounty), Rotation C"
+    {
+        const m = loc.match(/\/Albrecht's Laboratories\s*\(\s*(Level[^)]*?)\s+Entrati\s+Lab\s+Bounty\s*\)\s*(?:,|$)/i);
+        if (m) {
+            const level = normalizeBountyLevelLabel(m[1] ?? "");
+            if (level) return dataId(["bounty", "entrati-lab", `${level} Entrati Lab Bounty`]);
+        }
+    }
 
     // Cetus bounties (standard)
     {
@@ -715,5 +736,41 @@ export function buildAcquisitionFromWarframeItems(): Record<CatalogId, Acquisiti
 // Symbol imported by itemAcquisition.ts
 export function deriveWarframeItemsAcquisitionByCatalogId(): Record<string, AcquisitionDef> {
     return WARFRAME_ITEMS_ACQ_BY_CATALOG_ID;
+}
+
+export function deriveWarframeItemsPresenceByCatalogId(): Record<string, true> {
+    const out: Record<string, true> = Object.create(null);
+
+    function addUniqueName(unRaw: unknown): void {
+        if (typeof unRaw !== "string" || unRaw.length === 0) return;
+        const cid = `items:${unRaw}`;
+        out[cid] = true;
+    }
+
+    for (const r of normalizeItemsArray(RESOURCES)) addUniqueName(r.uniqueName);
+    for (const r of normalizeItemsArray(MISC)) addUniqueName(r.uniqueName);
+
+    const stack: unknown[] = [ALL as unknown];
+    let guard = 0;
+
+    while (stack.length > 0) {
+        const node = stack.pop();
+        guard += 1;
+        if (guard > 2_000_000) break;
+
+        if (Array.isArray(node)) {
+            for (const v of node) stack.push(v);
+            continue;
+        }
+
+        if (!node || typeof node !== "object") continue;
+        const obj = node as Record<string, unknown>;
+
+        addUniqueName(obj.uniqueName);
+
+        for (const v of Object.values(obj)) stack.push(v);
+    }
+
+    return out;
 }
 
