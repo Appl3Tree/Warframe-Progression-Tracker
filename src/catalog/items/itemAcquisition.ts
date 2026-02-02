@@ -218,6 +218,17 @@ function removeFallbackSources(sources: string[]): string[] {
     return sources.filter((s) => s !== BLUEPRINT_UNCLASSIFIED);
 }
 
+function isSoldInMarketFromCatalog(catalogId: CatalogId): boolean {
+    const rec: any = (FULL_CATALOG as any).recordsById?.[String(catalogId)];
+    const rawLotus: any = rec?.raw?.rawLotus ?? null;
+
+    // Strong signal: Lotus store metadata exists for this item.
+    if (rawLotus?.storeData && typeof rawLotus.storeData === "object") return true;
+    if (typeof rawLotus?.storeItemType === "string" && rawLotus.storeItemType.trim().length > 0) return true;
+
+    return false;
+}
+
 /**
  * Deterministic crafted-part inference:
  * If the current CatalogId is a recipe-path *part* (not a blueprint record) AND
@@ -297,6 +308,13 @@ function getAcquisitionByCatalogIdInternal(catalogId: CatalogId, seen: Set<strin
         }
     }
 
+    // 3.1) Deterministic Market listing:
+    // If catalog metadata indicates this item is sold in the in-game Market,
+    // assign the Market source (must exist in SOURCE_INDEX).
+    // Only applies when there are no sources AND no manual mapping exists.
+    if (!hasManual && sources.length === 0 && isSoldInMarketFromCatalog(catalogId)) {
+        sources = [SOURCE_MARKET];
+    }
     // 4) DisplayRecipe inheritance: output -> blueprint
     const recipeCid = getDisplayRecipeCatalogIdForOutput(catalogId);
     if (recipeCid) {
