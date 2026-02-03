@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
     "predeploy": "npm run build",
-    "validate:sources": "tsx ./src/catalog/sources/validateSources.cli.ts"
+    "validate:sources": "tsx ./scripts/validateSources.cli.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
