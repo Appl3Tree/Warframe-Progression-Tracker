@@ -72,6 +72,12 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     "items:/Lotus/Weapons/ClanTech/Chemical/FlamethrowerWraithBlueprint": ["data:dojo/chem-lab"], // Ignis Wraith Blueprint (replicate)
     "items:/Lotus/Types/Recipes/Weapons/InfBeamPistolBlueprint": ["data:dojo/bio-lab"], // Catabolyst Blueprint
 
+    // Dorrclave component blueprints come from Clan Dojo research (Dagath's Hollow)
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnDagathBladeWhipBlade": ["data:dojo/dagaths-hollow"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnDagathBladeWhipHilt": ["data:dojo/dagaths-hollow"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnDagathBladeWhipString": ["data:dojo/dagaths-hollow"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnDagathBladeWhipHook": ["data:dojo/dagaths-hollow"],
+
     // ============================
     // QUEST-LOCKED BLUEPRINTS
     // ============================
@@ -123,23 +129,22 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     // Pets
     // ----------------------------
     "items:/Lotus/Powersuits/Khora/Kavat/KhoraPrimeKavatPowerSuit": ["data:warframe/khora-prime"], // Venari Prime
-    "items:/Lotus/Types/Game/CatbrowPet/CheshireCatbrowPetPowerSuit": ["data:pets/kavat"], // Smeeta Kavat
-    "items:/Lotus/Types/Game/CatbrowPet/MirrorCatbrowPetPowerSuit": ["data:pets/kavat"], // Adarza Kavat
+    "items:/Lotus/Types/Game/CatbrowPet/CheshireCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",], // Smeeta Kavat
+    "items:/Lotus/Types/Game/CatbrowPet/MirrorCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",], // Adarza Kavat
+    "items:/Lotus/Types/Game/KubrowPet/AdventurerKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    "items:/Lotus/Types/Game/KubrowPet/FurtiveKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    "items:/Lotus/Types/Game/KubrowPet/GuardKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    "items:/Lotus/Types/Game/KubrowPet/HunterKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    "items:/Lotus/Types/Game/KubrowPet/RetrieverKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    "items:/Lotus/Types/Game/KubrowPet/ChargerKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
 
-    "items:/Lotus/Types/Game/KubrowPet/AdventurerKubrowPetPowerSuit": ["data:pets/kubrow"],
-    "items:/Lotus/Types/Game/KubrowPet/FurtiveKubrowPetPowerSuit": ["data:pets/kubrow"],
-    "items:/Lotus/Types/Game/KubrowPet/GuardKubrowPetPowerSuit": ["data:pets/kubrow"],
-    "items:/Lotus/Types/Game/KubrowPet/HunterKubrowPetPowerSuit": ["data:pets/kubrow"],
-    "items:/Lotus/Types/Game/KubrowPet/RetrieverKubrowPetPowerSuit": ["data:pets/kubrow"],
-    "items:/Lotus/Types/Game/KubrowPet/ChargerKubrowPetPowerSuit": ["data:pets/helminth-charger"],
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/ArmoredInfestedCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/HornedInfestedCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/VulpineInfestedCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
 
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/ArmoredInfestedCatbrowPetPowerSuit": ["data:pets/vulpaphyla"],
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/HornedInfestedCatbrowPetPowerSuit": ["data:pets/vulpaphyla"],
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/VulpineInfestedCatbrowPetPowerSuit": ["data:pets/vulpaphyla"],
-
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/MedjayPredatorKubrowPetPowerSuit": ["data:pets/predasite"],
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/PharaohPredatorKubrowPetPowerSuit": ["data:pets/predasite"],
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/VizierPredatorKubrowPetPowerSuit": ["data:pets/predasite"],
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/MedjayPredatorKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/PharaohPredatorKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/VizierPredatorKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
 
     // ----------------------------
     // Moa companion weapons / parts (Fortuna)
@@ -407,5 +412,21 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     // VENDOR / SYSTEM BLUEPRINTS
     // ============================
     "items:/Lotus/Types/Recipes/Weapons/CrpChargeGunBlueprint": ["data:vendor/fortuna/vox-solaris"],
-    "items:/Lotus/Types/Recipes/DeimosRecipes/Mechs/NecromechBlueprint": ["data:vendor/deimos/necraloid"]
+
+    // Kompressa component blueprints are purchased from Ventkids (Fortuna)
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnYareliPistolBarrel": ["data:vendor/fortuna/ventkids"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnYareliPistolReceiver": ["data:vendor/fortuna/ventkids"],
+    "items:/Lotus/Types/Recipes/DeimosRecipes/Mechs/NecromechBlueprint": ["data:vendor/deimos/necraloid"],
+
+    // Purgator 1 component blueprints are purchased from The Hex
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LasrianNoxPlayerWeaponBarrel": ["data:vendor/hollvania/the-hex"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LasrianNoxPlayerWeaponReceiver": ["data:vendor/hollvania/the-hex"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LasrianNoxPlayerWeaponStock": ["data:vendor/hollvania/the-hex"],
+
+
+    // ===========================
+    // Extras / Manual Additions
+    // ===========================
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/InfTransformClawsWeaponBlade": ["data:vendor/deimos/father"],
+    "items:/Lotus/Types/Recipes/Weapons/WeaponParts/InfTransformClawsWeaponBladeBlueprint": ["data:vendor/deimos/father"],
 };
