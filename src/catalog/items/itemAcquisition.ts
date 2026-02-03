@@ -2,12 +2,7 @@
 
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
-
-import {
-    deriveAcquisitionByCatalogIdFromSourcesJson,
-    type AcquisitionDef
-} from "./acquisitionFromSources";
-
+import { deriveAcquisitionByCatalogIdFromSourcesJson, type AcquisitionDef } from "./acquisitionFromSources";
 import { MANUAL_ACQUISITION_BY_CATALOG_ID } from "./manualAcquisitionByCatalogId";
 import { deriveDropDataAcquisitionByCatalogId } from "./acquisitionFromDropData";
 import { deriveRelicMissionRewardsAcquisitionByCatalogId } from "./acquisitionFromMissionRewardsRelics";
@@ -15,13 +10,13 @@ import { deriveRelicsJsonAcquisitionByCatalogId } from "./acquisitionFromRelicsJ
 import { deriveWarframeItemsAcquisitionByCatalogId } from "./acquisitionFromWarframeItems";
 import { deriveItemsJsonMarketAcquisitionByCatalogId } from "./acquisitionFromItemsJsonMarket";
 import { deriveRecipeBucketAcquisitionByCatalogId } from "./acquisitionFromRecipeBuckets";
+import { deriveClanTechAcquisitionByCatalogId } from "./acquisitionFromClanTech";
 
 import ITEMS_JSON from "../../data/items.json";
 
 const BLUEPRINT_UNCLASSIFIED = "data:blueprint/unclassified";
 const SOURCE_CRAFTING = "data:crafting";
 
-const SOURCE_MARKET = "data:market";
 const WFCD_ACQ: Record<string, AcquisitionDef> = deriveAcquisitionByCatalogIdFromSourcesJson();
 const DROP_DATA_ACQ: Record<string, AcquisitionDef> = deriveDropDataAcquisitionByCatalogId();
 const MISSION_RELIC_ACQ: Record<string, AcquisitionDef> = deriveRelicMissionRewardsAcquisitionByCatalogId();
@@ -29,6 +24,7 @@ const RELICS_JSON_ACQ: Record<string, AcquisitionDef> = deriveRelicsJsonAcquisit
 const WARFRAME_ITEMS_ACQ: Record<string, AcquisitionDef> = deriveWarframeItemsAcquisitionByCatalogId();
 const ITEMS_JSON_MARKET_ACQ: Record<string, AcquisitionDef> = deriveItemsJsonMarketAcquisitionByCatalogId();
 const RECIPE_BUCKET_ACQ: Record<string, AcquisitionDef> = deriveRecipeBucketAcquisitionByCatalogId();
+const CLAN_TECH_ACQ: Record<string, AcquisitionDef> = deriveClanTechAcquisitionByCatalogId();
 
 const RECIPE_CATALOG_ID_PREFIX = "items:/Lotus/Types/Recipes/";
 
@@ -218,17 +214,6 @@ function removeFallbackSources(sources: string[]): string[] {
     return sources.filter((s) => s !== BLUEPRINT_UNCLASSIFIED);
 }
 
-function isSoldInMarketFromCatalog(catalogId: CatalogId): boolean {
-    const rec: any = (FULL_CATALOG as any).recordsById?.[String(catalogId)];
-    const rawLotus: any = rec?.raw?.rawLotus ?? null;
-
-    // Strong signal: Lotus store metadata exists for this item.
-    if (rawLotus?.storeData && typeof rawLotus.storeData === "object") return true;
-    if (typeof rawLotus?.storeItemType === "string" && rawLotus.storeItemType.trim().length > 0) return true;
-
-    return false;
-}
-
 /**
  * Deterministic crafted-part inference:
  * If the current CatalogId is a recipe-path *part* (not a blueprint record) AND
@@ -273,8 +258,9 @@ function gatherDirectSources(catalogId: CatalogId): string[] {
     const wi = WARFRAME_ITEMS_ACQ[key];
     const im = ITEMS_JSON_MARKET_ACQ[key];
     const rb = RECIPE_BUCKET_ACQ[key];
+    const ct = CLAN_TECH_ACQ[key];
 
-    return unionSources(wfcd?.sources, dd?.sources, mr?.sources, rj?.sources, wi?.sources, im?.sources, rb?.sources);
+    return unionSources(wfcd?.sources, dd?.sources, mr?.sources, rj?.sources, wi?.sources, im?.sources, rb?.sources, ct?.sources);
 }
 
 function getAcquisitionByCatalogIdInternal(catalogId: CatalogId, seen: Set<string>): AcquisitionDef | null {
@@ -308,13 +294,6 @@ function getAcquisitionByCatalogIdInternal(catalogId: CatalogId, seen: Set<strin
         }
     }
 
-    // 3.1) Deterministic Market listing:
-    // If catalog metadata indicates this item is sold in the in-game Market,
-    // assign the Market source (must exist in SOURCE_INDEX).
-    // Only applies when there are no sources AND no manual mapping exists.
-    if (!hasManual && sources.length === 0 && isSoldInMarketFromCatalog(catalogId)) {
-        sources = [SOURCE_MARKET];
-    }
     // 4) DisplayRecipe inheritance: output -> blueprint
     const recipeCid = getDisplayRecipeCatalogIdForOutput(catalogId);
     if (recipeCid) {

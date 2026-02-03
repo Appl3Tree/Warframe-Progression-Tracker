@@ -1,5 +1,4 @@
 // ===== FILE: src/catalog/items/acquisitionFromItemsJsonMarket.ts =====
-// src/catalog/items/acquisitionFromItemsJsonMarket.ts
 
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import type { AcquisitionDef } from "./acquisitionFromSources";
@@ -7,21 +6,17 @@ import type { AcquisitionDef } from "./acquisitionFromSources";
 import ITEMS_JSON from "../../data/items.json";
 
 /**
- * Market blueprint acquisition.
+ * Market acquisition derived from items.json storeData-like fields.
  *
- * Policy (strict / non-inferential, but not artificially constrained):
- * - Emit market acquisition only when items.json explicitly indicates it is a recipe store item AND has a price.
- * - MarketMode may be MM_HIDDEN even for legitimately purchasable blueprints (e.g., some starter weapon BPs).
- * - Therefore, MarketMode is not the gating condition.
+ * Player-meaningful policy:
+ * - We only emit market acquisition when an explicit price is present.
+ * - RegularPrice => purchasable for Credits (data:market/credits)
+ * - PremiumPrice => purchasable for Platinum (data:market/platinum)
  *
- * Evidence rules:
- * - Must be under /Lotus/Types/Recipes/
- * - Must be a recipe store item:
- *     StoreItemSpecialization == "/Lotus/Types/Game/StoreItemSpecializations/RecipeStoreItem"
- *   OR ProductCategory == "Recipes"
- * - Must have explicit prices:
- *     RegularPrice > 0 => data:market/credits
- *     PremiumPrice > 0 => data:market
+ * Notes:
+ * - We DO NOT infer blueprint prices from DisplayRecipe relationships here.
+ *   If a blueprint (recipe path) itself has an explicit price in items.json, it will be covered.
+ * - We intentionally ignore SellingPrice (resale value) because it is not acquisition.
  *
  * Output SourceIds must exist in SOURCE_INDEX (sourceCatalog.ts).
  */
@@ -44,9 +39,8 @@ function safeNumber(v: unknown): number | null {
     return n;
 }
 
-function isRecipePath(p: string): boolean {
-    return p.startsWith("/Lotus/Types/Recipes/");
-}
+const MARKETMODE_VISIBLE = "MM_VISIBLE";
+const MARKETMODE_BLOCKLIST = new Set(["MM_NONE", "MM_HIDDEN", "MM_EXCLUDED"]);
 
 function add(out: Record<string, AcquisitionDef>, catalogId: CatalogId, sourceId: string): void {
     const key = String(catalogId);
@@ -63,14 +57,81 @@ function add(out: Record<string, AcquisitionDef>, catalogId: CatalogId, sourceId
     out[key] = { sources: [...(prev.sources ?? []), sourceId] };
 }
 
-function isExplicitRecipeStoreItem(data: Record<string, unknown>): boolean {
-    const specialization = safeString((data as any).StoreItemSpecialization) ?? "";
-    const productCategory = safeString((data as any).ProductCategory) ?? "";
+/**
+ * Extract explicit market prices from an items.json record.
+ * Supports a few shapes that occur in practice:
+ * - rec.data.RegularPrice / rec.data.PremiumPrice
+ * - rec.RegularPrice / rec.PremiumPrice
+ */
+function extractPrices(raw: unknown): { regularPrice: number; premiumPrice: number } {
+    if (!isRecord(raw)) return { regularPrice: 0, premiumPrice: 0 };
 
-    if (specialization === "/Lotus/Types/Game/StoreItemSpecializations/RecipeStoreItem") return true;
-    if (productCategory === "Recipes") return true;
+    const rec = raw as ItemsJsonRecord;
+    const data = isRecord(rec.data) ? rec.data : {};
 
-    return false;
+    const regular =
+        safeNumber((data as any).RegularPrice) ??
+        safeNumber((rec as any).RegularPrice) ??
+        0;
+
+    const premium =
+        safeNumber((data as any).PremiumPrice) ??
+        safeNumber((rec as any).PremiumPrice) ??
+        0;
+
+    return {
+        regularPrice: regular,
+        premiumPrice: premium
+    };
+}
+
+function getMarketMode(raw: unknown): string | null {
+    if (!isRecord(raw)) return null;
+
+    const rec = raw as ItemsJsonRecord;
+    const data = isRecord(rec.data) ? rec.data : {};
+
+    const mm =
+        safeString((data as any).MarketMode) ??
+        safeString((data as any).marketMode) ??
+        safeString((rec as any).MarketMode) ??
+        safeString((rec as any).marketMode) ??
+        null;
+
+    return mm ? mm.trim().toUpperCase() : null;
+}
+
+function getShowInMarket(raw: unknown): boolean | null {
+    if (!isRecord(raw)) return null;
+
+    const rec = raw as ItemsJsonRecord;
+    const data = isRecord(rec.data) ? rec.data : {};
+
+    const v =
+        (data as any).ShowInMarket ??
+        (data as any).showInMarket ??
+        (rec as any).ShowInMarket ??
+        (rec as any).showInMarket ??
+        null;
+
+    if (v === 0 || v === "0" || v === false) return false;
+    if (v === 1 || v === "1" || v === true) return true;
+
+    return null;
+}
+
+function shouldAllowMarket(raw: unknown): boolean {
+    // 1) ShowInMarket is authoritative when present
+    const sim = getShowInMarket(raw);
+    if (sim === false) return false;
+    if (sim === true) return true;
+
+    // 2) MarketMode is authoritative when present
+    const mm = getMarketMode(raw);
+    if (mm) return mm === MARKETMODE_VISIBLE;
+
+    // 3) No gating keys present -> fallback to price evidence
+    return true;
 }
 
 function build(): Record<string, AcquisitionDef> {
@@ -80,25 +141,27 @@ function build(): Record<string, AcquisitionDef> {
     if (!isRecord(root)) return out;
 
     for (const [path, raw] of Object.entries(root)) {
-        if (!safeString(path) || !isRecipePath(path)) continue;
-        if (!isRecord(raw)) continue;
+        const p = safeString(path);
+        if (!p) continue;
 
-        const rec = raw as ItemsJsonRecord;
-        const data = isRecord(rec.data) ? rec.data : {};
+        // items.json should be lotus-path keyed; enforce minimal sanity.
+        if (!p.startsWith("/Lotus/")) continue;
 
-        // Key gate: must be explicitly a recipe store item (not inferred)
-        if (!isExplicitRecipeStoreItem(data)) continue;
+        // Market gating:
+        // - ShowInMarket=0 => NOT purchasable, even if price exists (Lex Prime case)
+        // - MarketMode present => must be MM_VISIBLE
+        // - No gating keys => fallback to price evidence
+        if (!shouldAllowMarket(raw)) continue;
 
-        const regularPrice = safeNumber((data as any).RegularPrice) ?? 0;
-        const premiumPrice = safeNumber((data as any).PremiumPrice) ?? 0;
+        const { regularPrice, premiumPrice } = extractPrices(raw);
 
-        // Must have an explicit price to be considered market-acquirable
+        // Must have an explicit purchase price to be market-acquirable.
         if (regularPrice <= 0 && premiumPrice <= 0) continue;
 
-        const catalogId = `items:${path}` as CatalogId;
+        const catalogId = `items:${p}` as CatalogId;
 
         if (regularPrice > 0) add(out, catalogId, "data:market/credits");
-        if (premiumPrice > 0) add(out, catalogId, "data:market");
+        if (premiumPrice > 0) add(out, catalogId, "data:market/platinum");
     }
 
     return out;

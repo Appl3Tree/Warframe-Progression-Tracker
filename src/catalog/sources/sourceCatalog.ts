@@ -121,8 +121,6 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:pets/kavat", label: "Pets: Kavats (Breeding / Incubation)", type: "other" },
     { id: "data:pets/kubrow", label: "Pets: Kubrows (Breeding / Incubation)", type: "other" },
     { id: "data:pets/helminth-charger", label: "Pets: Helminth Charger (Incubation)", type: "other" },
-    { id: "data:pets/vulpaphyla", label: "Pets: Vulpaphylas (Deimos)", type: "other" },
-    { id: "data:pets/predasite", label: "Pets: Predasites (Deimos)", type: "other" },
     { id: "data:pets/moa", label: "Companions: MOA (Fortuna)", type: "other" },
 
     // Warframe-specific coarse buckets used by manual mappings
@@ -238,6 +236,11 @@ const CURATED_SOURCES: RawSource[] = [
 
     { id: "data:vendor/deimos/entrati", label: "Vendor: Entrati Family (Deimos)", type: "vendor" },
     { id: "data:vendor/deimos/necraloid", label: "Vendor: Necraloid (Deimos)", type: "vendor" },
+    { id: "data:vendor/deimos/father", label: "Vendor: Father (Deimos)", type: "vendor", },
+    { id: "data:vendor/deimos/son", label: "Vendor: Son (Deimos)", type: "vendor", },
+    { id: "data:vendor/deimos/daughter", label: "Vendor: Daughter (Deimos)", type: "vendor", },
+    { id: "data:vendor/deimos/otak", label: "Vendor: Otak (Deimos)", type: "vendor", },
+    { id: "data:vendor/deimos/mother", label: "Vendor: Mother (Deimos)", type: "vendor", },
 
     { id: "data:vendor/zariman/holdfasts", label: "Vendor: The Holdfasts (Zariman)", type: "vendor" },
     { id: "data:vendor/zariman/cavalero", label: "Vendor: Cavalero (Zariman)", type: "vendor" },
@@ -282,6 +285,8 @@ const CURATED_SOURCES: RawSource[] = [
 
     { id: "data:activity/the-descendia/maphica", label: "Activity: The Descendia (Maphica)", type: "drop" },
     { id: "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c", label: "Activity: The Descendia (Oblivion on Infernium-21, Rotation C)", type: "drop" },
+    { id: "data:activity/deimos/conservation", label: "Activity: Conservation (Cambion Drift, Deimos)", type: "drop" },
+
 
     { id: "data:bounty/solaris-united", label: "Bounties: Solaris United (Coarse)", type: "drop" },
     { id: "data:heist/profit-taker", label: "Heist: Profit-Taker", type: "drop" },
@@ -300,6 +305,7 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:dojo/orokin-lab", label: "Dojo Research: Orokin Lab (Orokin)", type: "vendor" },
     { id: "data:dojo/research", label: "Dojo Research (Uncategorized)", type: "vendor" },
     { id: "data:clan/tenno-lab", label: "Dojo Research: Tenno Lab", type: "vendor" },
+    { id: "data:dojo/dagaths-hollow", label: "Clan Dojo: Dagath's Hollow Research", type: "dojo" },
 
     // Resource buckets (curated)
     { id: "data:resource/fieldron-sample", label: "Resource: Fieldron Sample (Corpus Drop)", type: "drop" },
@@ -415,11 +421,12 @@ const CURATED_SOURCES: RawSource[] = [
         label: "Vendor: Rude Zuud (Fortuna)",
         type: "vendor",
     },
-    {
-        id: "data:vendor/deimos/father",
-        label: "Vendor: Father (Deimos)",
-        type: "vendor",
+    { 
+        id: "data:vendor/hollvania/the-hex", 
+        label: "Vendor: The Hex (Höllvania)",
+        type: "vendor"
     },
+
     {
         id: "data:node/deimos/albrechts-laboratories",
         label: "Node: Deimos - Albrecht's Laboratories",
@@ -435,6 +442,7 @@ const CURATED_SOURCES: RawSource[] = [
         label: "Node: Venus - Orb Vallis",
         type: "drop",
     },
+
     // ----------------------------
     // Aliases for legacy/misclassified missionreward IDs
     // These should NOT be generated from missionRewards.json.
