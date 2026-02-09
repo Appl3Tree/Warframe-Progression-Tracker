@@ -1,3 +1,5 @@
+// ===== FILE: src/catalog/sources/validateSources.ts =====
+
 import { SOURCE_CATALOG, SOURCE_INDEX } from "./sourceCatalog";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
 import { getAcquisitionByCatalogId } from "../items/itemAcquisition";
@@ -26,11 +28,11 @@ const CURATED_DOMAIN_PREFIXES = [
 ];
 
 function inCuratedDomain(id: string): boolean {
-    return CURATED_DOMAIN_PREFIXES.some(p => id === p || id.startsWith(p + "/"));
+    return CURATED_DOMAIN_PREFIXES.some((p) => id === p || id.startsWith(p + "/"));
 }
 
 function isParentBucket(all: string[], id: string): boolean {
-    return all.some(x => x !== id && x.startsWith(id + "/"));
+    return all.some((x) => x !== id && x.startsWith(id + "/"));
 }
 
 /**
@@ -60,6 +62,7 @@ function isActionableLabel(label: string): boolean {
         "baro",
         "nightwave",
         "invasion",
+        "event",
         "incub",
         "synth",
         "scan",
@@ -74,7 +77,7 @@ function isActionableLabel(label: string): boolean {
         "simaris",
     ];
 
-    return actionTokens.some(x => t.includes(x));
+    return actionTokens.some((x) => t.includes(x));
 }
 
 /**
@@ -83,7 +86,6 @@ function isActionableLabel(label: string): boolean {
  */
 function isClearlyNonActionableId(sourceId: string): boolean {
     return (
-        sourceId === "data:market" ||
         sourceId === "data:pets/kavat" ||
         sourceId === "data:pets/kubrow" ||
         sourceId === "data:pets/helminth-charger"
@@ -93,7 +95,7 @@ function isClearlyNonActionableId(sourceId: string): boolean {
 export function validateSources(): { issues: ValidationIssue[] } {
     const issues: ValidationIssue[] = [];
 
-    const curatedIdsAll = SOURCE_CATALOG.map(s => s.id);
+    const curatedIdsAll = SOURCE_CATALOG.map((s) => s.id);
     const curatedIds = curatedIdsAll.filter(inCuratedDomain);
 
     // 1) Curated sources must exist in SOURCE_INDEX
@@ -109,7 +111,7 @@ export function validateSources(): { issues: ValidationIssue[] } {
 
     // 2) Parent buckets may exist, but should not be “actionable”
     //    (They are taxonomy, not acquisition steps)
-    const parents = curatedIds.filter(sid => isParentBucket(curatedIds, sid));
+    const parents = curatedIds.filter((sid) => isParentBucket(curatedIds, sid));
     for (const sid of parents) {
         const label = SOURCE_INDEX[sid]?.label ?? "";
         if (label && isActionableLabel(label)) {
@@ -123,7 +125,7 @@ export function validateSources(): { issues: ValidationIssue[] } {
 
     // 3) Leaf sources should have actionable labels
     const parentSet = new Set(parents);
-    const leaves = curatedIds.filter(sid => !parentSet.has(sid));
+    const leaves = curatedIds.filter((sid) => !parentSet.has(sid));
     for (const sid of leaves) {
         const label = SOURCE_INDEX[sid]?.label ?? "";
         if (!label) continue;
@@ -141,7 +143,7 @@ export function validateSources(): { issues: ValidationIssue[] } {
     const forbiddenUsed: Array<{ sid: string; exampleCid: string }> = [];
     const used = new Map<string, number>();
 
-    for (const cid of (FULL_CATALOG.itemIds as string[])) {
+    for (const cid of FULL_CATALOG.itemIds as string[]) {
         const def = getAcquisitionByCatalogId(cid as any);
         const srcs = (def as any)?.sources as string[] | undefined;
         for (const sid of srcs ?? []) {
@@ -179,14 +181,15 @@ export function validateSources(): { issues: ValidationIssue[] } {
 export function runSourceValidationOrThrow(): void {
     const { issues } = validateSources();
 
-    const errors = issues.filter(i =>
-        i.code === "curated_missing_from_index" ||
-        i.code === "parent_bucket_looks_actionable" ||
-        i.code === "leaf_not_actionable" ||
-        i.code === "forbidden_source_used_by_item"
+    const errors = issues.filter(
+        (i) =>
+            i.code === "curated_missing_from_index" ||
+            i.code === "parent_bucket_looks_actionable" ||
+            i.code === "leaf_not_actionable" ||
+            i.code === "forbidden_source_used_by_item"
     );
 
-    const warnings = issues.filter(i => !errors.includes(i));
+    const warnings = issues.filter((i) => !errors.includes(i));
 
     if (warnings.length) {
         console.log("[source-validation] warnings:", warnings.length);
