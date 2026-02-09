@@ -7,8 +7,6 @@ import { buildRequirementsSnapshot, buildFarmingSnapshot } from "../domain/logic
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
-import { deriveWarframeItemsAcquisitionByCatalogId, deriveWarframeItemsPresenceByCatalogId } from "../catalog/items/acquisitionFromWarframeItems";
-
 import { deriveDropDataAcquisitionByCatalogId } from "../catalog/items/acquisitionFromDropData";
 
 function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {

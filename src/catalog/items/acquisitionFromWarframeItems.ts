@@ -177,7 +177,7 @@ function sourcesForMissionLikeLocation(locRaw: string): string[] {
     // Conclave locations are not mission reward nodes.
     // Keep them stable and coarse.
     if (/\(\s*Conclave\s*\)/i.test(loc)) {
-        return ["data:pvp/conclave"];
+        return ["data:conclave"];
     }
 
     // Entrati Lab Bounties should be handled by sourceIdForBountyLocation(), not mission-like parsing.
@@ -515,13 +515,13 @@ function applyLotusPathRules(out: Record<string, AcquisitionDef>): void {
 
         // --- Snipetron ---
         if (p === "/Lotus/Weapons/Tenno/Rifle/SniperRifle") {
-            addSource(out, key, "data:pvp/conclave");
+            addSource(out, key, "data:conclave");
             continue;
         }
 
         // --- Sentinel weapons ---
         if (p.includes("/Types/Sentinels/SentinelWeapons/")) {
-            addSource(out, key, "data:market/sentinel-weapons");
+            addSource(out, key, "data:market/credits");
             continue;
         }
 
@@ -563,7 +563,7 @@ function applyLotusPathRules(out: Record<string, AcquisitionDef>): void {
 
         // --- Zylok (Conclave) ---
         if (p.includes("/ConclaveLeverPistol/")) {
-            addSource(out, key, "data:pvp/conclave");
+            addSource(out, key, "data:conclave");
             continue;
         }
 
