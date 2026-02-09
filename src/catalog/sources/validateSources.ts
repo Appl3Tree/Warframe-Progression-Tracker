@@ -3,6 +3,7 @@
 import { SOURCE_CATALOG, SOURCE_INDEX } from "./sourceCatalog";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
 import { getAcquisitionByCatalogId } from "../items/itemAcquisition";
+import { normalizeSourceId } from "../../domain/ids/sourceIds";
 
 type ValidationIssue = {
     code: string;
@@ -100,10 +101,11 @@ export function validateSources(): { issues: ValidationIssue[] } {
 
     // 1) Curated sources must exist in SOURCE_INDEX
     for (const sid of curatedIds) {
-        if (!SOURCE_INDEX[sid]) {
+        const id = normalizeSourceId(sid);
+        if (!SOURCE_INDEX[id]) {
             issues.push({
                 code: "curated_missing_from_index",
-                sourceId: sid,
+                sourceId: id,
                 message: "Curated source exists in SOURCE_CATALOG but not in SOURCE_INDEX.",
             });
         }
@@ -113,7 +115,8 @@ export function validateSources(): { issues: ValidationIssue[] } {
     //    (They are taxonomy, not acquisition steps)
     const parents = curatedIds.filter((sid) => isParentBucket(curatedIds, sid));
     for (const sid of parents) {
-        const label = SOURCE_INDEX[sid]?.label ?? "";
+        const id = normalizeSourceId(sid);
+        const label = SOURCE_INDEX[id]?.label ?? "";
         if (label && isActionableLabel(label)) {
             issues.push({
                 code: "parent_bucket_looks_actionable",
@@ -127,7 +130,8 @@ export function validateSources(): { issues: ValidationIssue[] } {
     const parentSet = new Set(parents);
     const leaves = curatedIds.filter((sid) => !parentSet.has(sid));
     for (const sid of leaves) {
-        const label = SOURCE_INDEX[sid]?.label ?? "";
+        const id = normalizeSourceId(sid);
+        const label = SOURCE_INDEX[id]?.label ?? "";
         if (!label) continue;
 
         if (!isActionableLabel(label)) {

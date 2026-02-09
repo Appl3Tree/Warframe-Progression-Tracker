@@ -40,7 +40,6 @@ function safeNumber(v: unknown): number | null {
 }
 
 const MARKETMODE_VISIBLE = "MM_VISIBLE";
-const MARKETMODE_BLOCKLIST = new Set(["MM_NONE", "MM_HIDDEN", "MM_EXCLUDED"]);
 
 function add(out: Record<string, AcquisitionDef>, catalogId: CatalogId, sourceId: string): void {
     const key = String(catalogId);

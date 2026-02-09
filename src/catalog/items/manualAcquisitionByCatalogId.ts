@@ -122,8 +122,8 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/PvPVariantTipFive": ["data:conclave"],
     "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/PvPVariantTipSix": ["data:conclave"],
 
-    "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/PvPVariantInfestedTipOne": ["data:event/plague-star"],
-    "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/PvPVariantInfestedTipTwo": ["data:event/plague-star"],
+    "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/PvPVariantInfestedTipOne": ["data:events/plague-star"],
+    "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/PvPVariantInfestedTipTwo": ["data:events/plague-star"],
 
     // ----------------------------
     // Pets
@@ -154,21 +154,21 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     // ----------------------------
     // Sentinel weapons (general)
     // ----------------------------
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/Gremlin": ["data:market/sentinel-weapons"], // Artax
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/LaserRifle": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/PrimeLaserRifle": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/BurstLaserPistol": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/PrimeBurstLaserPistol": ["data:market/sentinel-weapons"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/Gremlin": ["data:market/credits"], // Artax
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/LaserRifle": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/PrimeLaserRifle": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/BurstLaserPistol": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/PrimeBurstLaserPistol": ["data:market/credits"],
     "items:/Lotus/Types/Sentinels/SentinelWeapons/PrismaBurstLaserPistol": ["data:baro/void-trader"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/SentGlaiveWeapon": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/DeconstructorPrime/PrimeHeliosGlaiveWeapon": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/DethMachineRifle": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/PrimeDethMachineRifle": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/SentShotgun": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/PrimeSentShotgun": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayRifle": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayPrimeRifle": ["data:market/sentinel-weapons"],
-    "items:/Lotus/Types/Sentinels/SentinelWeapons/SentElecRailgun": ["data:market/sentinel-weapons"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/SentGlaiveWeapon": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/DeconstructorPrime/PrimeHeliosGlaiveWeapon": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/DethMachineRifle": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/PrimeDethMachineRifle": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/SentShotgun": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/PrimeSentShotgun": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayRifle": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/SentinelFreezeRayPrimeRifle": ["data:market/credits"],
+    "items:/Lotus/Types/Sentinels/SentinelWeapons/SentElecRailgun": ["data:market/credits"],
     "items:/Lotus/Types/Sentinels/SentinelPowersuits/PrismaShadePowerSuit": ["data:baro/void-trader"],
 
     // ----------------------------
@@ -308,10 +308,10 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     "items:/Lotus/Types/Recipes/WarframeRecipes/YareliHelmetComponent": ["data:quest/the-waverider"],
     "items:/Lotus/Types/Recipes/WarframeRecipes/YareliSystemsComponent": ["data:quest/the-waverider"],
 
-    "items:/Lotus/Powersuits/DemonFrame/DemonFrame": ["data:todo/uriel"],
-    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielChassisComponent": ["data:todo/uriel"],
-    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielHelmetComponent": ["data:todo/uriel"],
-    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielSystemsComponent": ["data:todo/uriel"],
+    "items:/Lotus/Powersuits/DemonFrame/DemonFrame": ["data:quest/the-old-peace","data:activity/the-descendia"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielChassisComponent": ["data:activity/the-descendia"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielHelmetComponent": ["data:activity/the-descendia"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielSystemsComponent": ["data:activity/the-descendia"],
 
     // ----------------------------
     // 1999 Mushrooms / Journal items (Souterrains + vendor)
@@ -343,11 +343,11 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     // ----------------------------
     // Remaining unknown-acquisition (coarse buckets)
     // ----------------------------
-    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponPS": ["data:todo/zanuka-companion"],
-    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponIP": ["data:todo/zanuka-companion"],
-    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponIS": ["data:todo/zanuka-companion"],
+    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponPS": ["data:enemy/zanuka-hunter"],
+    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponIP": ["data:enemy/zanuka-hunter"],
+    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponIS": ["data:enemy/zanuka-hunter"],
 
-    "items:/Lotus/Weapons/Grineer/Melee/GunBlade/GrnGunBlade/GrnGunblade": ["data:todo/vastilok"],
+    "items:/Lotus/Weapons/Grineer/Melee/GunBlade/GrnGunBlade/GrnGunblade": ["data:varo/void-trader"],
     "items:/Lotus/Powersuits/Khora/Kavat/KhoraKavatPowerSuit": ["data:warframe/khora"],
 
     "items:/Lotus/Types/Items/MiscItems/GrnFlameSpearPart": ["data:enemy-item/prosecutors"],
