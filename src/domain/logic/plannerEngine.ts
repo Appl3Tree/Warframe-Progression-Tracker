@@ -13,6 +13,13 @@ import { getAcquisitionByCatalogId } from "../../catalog/items/itemAcquisition";
 import type { SourceId } from "../ids/sourceIds";
 import { normalizeSourceId } from "../ids/sourceIds";
 
+import {
+    PROGRESSION_ITEM_IDS,
+    findItemIdsByDisplayName
+} from "../../catalog/items/itemsIndex";
+
+const PROGRESSION_ITEM_ID_SET = new Set<CatalogId>(PROGRESSION_ITEM_IDS);
+
 export interface ProgressionStep {
     id: string;
     prereqId: PrereqId;
@@ -214,55 +221,61 @@ function isSourceAccessible(
 ): { ok: boolean; missing: PrereqId[]; missingMr: number | null; reason?: string } {
     const sidStr = String(sourceId);
 
-    // Drop-table sources are actionable locations by default.
-    if (sidStr.startsWith("data:drop:")) {
-        return { ok: true, missing: [], missingMr: null };
+    hookup: {
+        // Drop-table sources are actionable locations by default.
+        if (sidStr.startsWith("data:drop:")) {
+            return { ok: true, missing: [], missingMr: null };
+        }
+
+        const src = SOURCE_INDEX[sourceId];
+        if (!src) {
+            return { ok: false, missing: [], missingMr: null, reason: `Unknown source (${sourceId})` };
+        }
+
+        const prereqs = Array.isArray(src.prereqIds) ? (src.prereqIds as PrereqId[]) : [];
+
+        // Explicit “unknown” placeholder should never be considered accessible.
+        if (sidStr === "data:unknown" || sidStr === "src:unknown") {
+            return { ok: false, missing: [], missingMr: null, reason: "Unknown source placeholder" };
+        }
+
+        const missing: PrereqId[] = [];
+        for (const p of prereqs) {
+            if (completedMap[String(p)] !== true) missing.push(p);
+        }
+
+        const mrReq =
+            typeof (src as any).mrRequired === "number"
+                ? Math.max(0, Math.floor((src as any).mrRequired))
+                : null;
+
+        const mrNow = normalizeMr(masteryRank);
+        const missingMr = mrReq !== null && (mrNow === null || mrNow < mrReq) ? mrReq : null;
+
+        const ok = missing.length === 0 && missingMr === null;
+
+        if (ok) {
+            return { ok: true, missing: [], missingMr: null };
+        }
+
+        const parts: string[] = [];
+        if (missing.length) parts.push(`Requires: ${missing.join(", ")}`);
+        if (missingMr !== null) parts.push(`Requires Mastery Rank ${missingMr}`);
+
+        return {
+            ok: false,
+            missing,
+            missingMr,
+            reason: parts.join(" | ") || "Inaccessible"
+        };
     }
+}
 
-    const src = SOURCE_INDEX[sourceId];
-    if (!src) {
-        return { ok: false, missing: [], missingMr: null, reason: `Unknown source (${sourceId})` };
-    }
-
-    const prereqs = Array.isArray(src.prereqIds) ? (src.prereqIds as PrereqId[]) : [];
-
-    // Explicit “unknown” placeholder should never be considered accessible.
-    if (sidStr === "data:unknown" || sidStr === "src:unknown") {
-        return { ok: false, missing: [], missingMr: null, reason: "Unknown source placeholder" };
-    }
-
-    // Curated sources with no prereqs are allowed by default.
-    // Fail-closed behavior is enforced by the `!src` check above, not by prereq absence.
-
-    const missing: PrereqId[] = [];
-    for (const p of prereqs) {
-        if (completedMap[String(p)] !== true) missing.push(p);
-    }
-
-    const mrReq =
-        typeof (src as any).mrRequired === "number"
-            ? Math.max(0, Math.floor((src as any).mrRequired))
-            : null;
-
-    const mrNow = normalizeMr(masteryRank);
-    const missingMr = mrReq !== null && (mrNow === null || mrNow < mrReq) ? mrReq : null;
-
-    const ok = missing.length === 0 && missingMr === null;
-
-    if (ok) {
-        return { ok: true, missing: [], missingMr: null };
-    }
-
-    const parts: string[] = [];
-    if (missing.length) parts.push(`Requires: ${missing.join(", ")}`);
-    if (missingMr !== null) parts.push(`Requires Mastery Rank ${missingMr}`);
-
-    return {
-        ok: false,
-        missing,
-        missingMr,
-        reason: parts.join(" | ") || "Inaccessible"
-    };
+function isInProgressionScope(catalogId: CatalogId): boolean {
+    // Current scope is explicitly "inventory-real items only".
+    // If scope expands later, it should be changed at the itemsIndex boundary.
+    if (!String(catalogId).startsWith("items:")) return false;
+    return PROGRESSION_ITEM_ID_SET.has(catalogId);
 }
 
 export function canAccessCatalogItem(
@@ -270,6 +283,16 @@ export function canAccessCatalogItem(
     completedMap: Record<string, boolean>,
     masteryRank?: number | null
 ): ItemAccessResult {
+    // Scope gate: planner/requirements must never treat out-of-scope catalog records as progression-valid.
+    if (!isInProgressionScope(catalogId)) {
+        return {
+            allowed: false,
+            missingPrereqs: [],
+            missingMr: null,
+            reasons: ["Out of scope (not inventory-real / progression-valid)."]
+        };
+    }
+
     const rec = FULL_CATALOG.recordsById[catalogId];
     if (!rec?.displayName) {
         return {
@@ -329,8 +352,7 @@ export function canAccessItemByName(
     completedMap: Record<string, boolean>,
     masteryRank?: number | null
 ): ItemAccessResult {
-    const normalized = String(itemName ?? "").trim().toLowerCase();
-    const matches = FULL_CATALOG.nameIndex?.[normalized] ?? [];
+    const matches = findItemIdsByDisplayName(String(itemName ?? ""));
     const cid = matches[0] as CatalogId | undefined;
 
     if (!cid) {
@@ -344,4 +366,3 @@ export function canAccessItemByName(
 
     return canAccessCatalogItem(cid, completedMap, masteryRank);
 }
-

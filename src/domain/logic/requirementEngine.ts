@@ -17,6 +17,10 @@ import { getAcquisitionByCatalogId } from "../../catalog/items/itemAcquisition";
 
 import type { PrereqId } from "../ids/prereqIds";
 
+import { PROGRESSION_ITEM_IDS } from "../../catalog/items/itemsIndex";
+
+const PROGRESSION_ITEM_ID_SET = new Set<CatalogId>(PROGRESSION_ITEM_IDS);
+
 export type RequirementViewMode = "targeted" | "overlap";
 
 // Controls how goal requirements are expanded into component requirements.
@@ -430,6 +434,7 @@ export type HiddenFarmingItem = {
     name: string;
     remaining: number;
     reason:
+        | "out-of-scope"
         | "unknown-acquisition"
         | "unknown-recipe-acquisition"
         | "missing-prereqs"
@@ -440,6 +445,7 @@ export type HiddenFarmingItem = {
         catalogId: CatalogId;
         name: string;
         reason:
+            | "out-of-scope"
             | "unknown-acquisition"
             | "unknown-recipe-acquisition"
             | "missing-prereqs"
@@ -453,6 +459,7 @@ export type FarmingSnapshot = {
     hidden: HiddenFarmingItem[];
     stats: {
         actionableItemsWithKnownAcquisition: number;
+        hiddenForOutOfScope: number;
         hiddenForUnknownAcquisition: number;
         hiddenForUnknownRecipeAcquisition: number;
         hiddenForMissingPrereqs: number;
@@ -461,9 +468,20 @@ export type FarmingSnapshot = {
     };
 };
 
+function isInProgressionScope(catalogId: CatalogId): boolean {
+    if (!String(catalogId).startsWith("items:")) return false;
+    return PROGRESSION_ITEM_ID_SET.has(catalogId);
+}
+
 function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, boolean>): boolean {
     const sidStr = String(sourceId);
 
+    // Drop-table sources are actionable locations by default.
+    if (sidStr.startsWith("data:drop:")) {
+        return true;
+    }
+
+    // "data:*" synthetic sources are allowed by default unless SOURCE_INDEX explicitly gates them.
     if (sidStr.startsWith("data:")) {
         const def = SOURCE_INDEX[sourceId];
         if (!def) return true;
@@ -475,6 +493,7 @@ function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, bo
         return true;
     }
 
+    // Curated sources: fail-closed if missing from SOURCE_INDEX.
     const def = SOURCE_INDEX[sourceId];
     if (!def) return false;
 
@@ -499,11 +518,16 @@ function getMissingPrereqsForSources(args: {
     for (const sid of sourceIds) {
         const sidStr = String(sid);
 
+        // Drop sources never gate by prereq in Phase 1 (locations are actionable by default).
+        if (sidStr.startsWith("data:drop:")) {
+            continue;
+        }
+
+        // Synthetic sources ("data:*") do NOT count as uncurated gates when missing from SOURCE_INDEX.
+        // If SOURCE_INDEX defines them, we respect prereqIds.
         if (sidStr.startsWith("data:")) {
             const def = SOURCE_INDEX[sid];
-            if (!def) {
-                continue;
-            }
+            if (!def) continue;
 
             const prereqs = Array.isArray(def.prereqIds) ? def.prereqIds : [];
             let thisSourceBlocked = false;
@@ -522,6 +546,7 @@ function getMissingPrereqsForSources(args: {
             continue;
         }
 
+        // Curated sources: missing SOURCE_INDEX entry is an uncurated gate.
         const def = SOURCE_INDEX[sid];
         if (!def) {
             hasUncuratedGate = true;
@@ -623,6 +648,16 @@ function analyzeCatalogIdForFarming(args: {
 
     const BLUEPRINT_UNCLASSIFIED = "data:blueprint/unclassified" as SourceId;
 
+    // Scope gate:
+    // - At depth 0 (the items we show to the user as farm targets), enforce progression scope strictly.
+    // - At depth > 0, components are handled by ingredient/blueprint guards and recipe expansion.
+    if (depth === 0 && !isInProgressionScope(catalogId)) {
+        return {
+            kind: "hidden",
+            hidden: { key: catalogId, name, remaining, reason: "out-of-scope" }
+        };
+    }
+
     if (depth > 0 && isIngredientLikeCatalogItem(catalogId)) {
         return { kind: "ok", sources: [] };
     }
@@ -659,7 +694,6 @@ function analyzeCatalogIdForFarming(args: {
 
         // If the only source is the placeholder, it is actionable only for explicit blueprint items.
         if (realSources.length === 0) {
-            // If we got here, placeholder-only is allowed (because non-blueprints were nulled earlier).
             return {
                 kind: "ok",
                 sources: directSources.map((sid) => ({
@@ -783,6 +817,19 @@ function analyzeCatalogIdForFarming(args: {
 
     visited.delete(visitKey);
 
+    if ((blockedByRecipeComponents ?? []).some((x) => x.reason === "out-of-scope")) {
+        return {
+            kind: "hidden",
+            hidden: {
+                key: catalogId,
+                name,
+                remaining,
+                reason: "out-of-scope",
+                blockedByRecipeComponents
+            }
+        };
+    }
+
     if ((blockedByRecipeComponents ?? []).some((x) => x.reason === "unknown-acquisition")) {
         return {
             kind: "hidden",
@@ -802,7 +849,7 @@ function analyzeCatalogIdForFarming(args: {
             hidden: {
                 key: catalogId,
                 name,
-               remaining,
+                remaining,
                 reason: "unknown-recipe-acquisition",
                 blockedByRecipeComponents
             }
@@ -932,6 +979,7 @@ export function buildFarmingSnapshot(args: {
             return a.sourceLabel.localeCompare(b.sourceLabel);
         });
 
+    const hiddenForOutOfScope = hidden.filter((h) => h.reason === "out-of-scope").length;
     const hiddenForUnknownAcquisition = hidden.filter((h) => h.reason === "unknown-acquisition").length;
     const hiddenForUnknownRecipeAcquisition = hidden.filter((h) => h.reason === "unknown-recipe-acquisition").length;
     const hiddenForMissingPrereqs = hidden.filter((h) => h.reason === "missing-prereqs").length;
@@ -943,6 +991,7 @@ export function buildFarmingSnapshot(args: {
         hidden,
         stats: {
             actionableItemsWithKnownAcquisition: targeted.length,
+            hiddenForOutOfScope,
             hiddenForUnknownAcquisition,
             hiddenForUnknownRecipeAcquisition,
             hiddenForMissingPrereqs,
@@ -951,4 +1000,3 @@ export function buildFarmingSnapshot(args: {
         }
     };
 }
-

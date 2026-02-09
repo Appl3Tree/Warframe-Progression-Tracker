@@ -40,7 +40,25 @@ export const ITEM_INDEX_BY_ID: Record<CatalogId, ItemIndexEntry> = (() => {
     return out;
 })();
 
+/**
+ * Scope boundary exports.
+ *
+ * DISPLAYABLE_ITEM_IDS:
+ * - Everything UI-displayable from the items source.
+ *
+ * INVENTORY_ITEM_IDS:
+ * - Anything we can prove is inventory-real (wfdata allowlist + recipe-producing-allowed extension).
+ * - May include non-displayable items.
+ *
+ * PROGRESSION_ITEM_IDS:
+ * - The Phase 1 progression scope: displayable AND inventory-real.
+ * - This is the correct list to feed planners / farming / goal pickers right now.
+ */
 export const DISPLAYABLE_ITEM_IDS: CatalogId[] = FULL_CATALOG.displayableItemIds.slice();
+
+export const INVENTORY_ITEM_IDS: CatalogId[] = FULL_CATALOG.inventoryItemIds.slice();
+
+export const PROGRESSION_ITEM_IDS: CatalogId[] = FULL_CATALOG.displayableInventoryItemIds.slice();
 
 export const ITEM_IDS_ALL: CatalogId[] = FULL_CATALOG.itemIds.slice();
 
@@ -79,4 +97,3 @@ export function findItemIdsByDisplayName(name: string): CatalogId[] {
     const key = normalizeName(name);
     return ITEM_IDS_BY_NORMALIZED_NAME[key] ? ITEM_IDS_BY_NORMALIZED_NAME[key].slice() : [];
 }
-

@@ -3,6 +3,7 @@
 
 import { normalizeSourceId, type SourceId } from "../../domain/ids/sourceIds";
 import wfcdSourceLabels from "../../data/_generated/wfcd-source-label-map.auto.json";
+import { canonicalizeWfItemsLocation } from "./wfItemsLocCanonical";
 
 // warframe-drop-data/raw inputs
 import missionRewardsJson from "../../../external/warframe-drop-data/raw/missionRewards.json";
@@ -109,10 +110,6 @@ function pushUnique(out: RawSource[], seen: Set<string>, id: string, label: stri
 /**
  * Curated non-drop sources.
  *
- * IMPORTANT:
- * - Keep BOTH data:market and data:market/credits because older snapshots/code may have emitted data:market.
- * - The planner/access layer should prefer data:market/credits going forward.
- *
  * ALSO:
  * - This list includes SourceIds referenced by MANUAL_ACQUISITION_BY_CATALOG_ID so those never show as "Unknown source".
  */
@@ -121,7 +118,7 @@ const CURATED_SOURCES: RawSource[] = [
     { id: "data:pets/kavat", label: "Pets: Kavats (Breeding / Incubation)", type: "other" },
     { id: "data:pets/kubrow", label: "Pets: Kubrows (Breeding / Incubation)", type: "other" },
     { id: "data:pets/helminth-charger", label: "Pets: Helminth Charger (Incubation)", type: "other" },
-    { id: "data:pets/moa", label: "Companions: MOA (Fortuna)", type: "other" },
+    { id: "data:pets/moa", label: "Build Companion: MOA (Fortuna Vendor)", type: "other" },
 
     // Warframe-specific coarse buckets used by manual mappings
     { id: "data:warframe/khora", label: "Warframe: Khora (Coarse)", type: "other" },
@@ -140,41 +137,39 @@ const CURATED_SOURCES: RawSource[] = [
     // ----------------------------
     // Market / monetization / bundles (coarse)
     // ----------------------------
-    { id: "data:market", label: "Market Purchase", type: "vendor" },
-    { id: "data:market/credits", label: "Market (Credits)", type: "vendor" },
-    { id: "data:market/platinum", label: "Market (Platinum)", type: "vendor" },
-    { id: "data:market/bundles", label: "Market Bundles (Coarse)", type: "vendor" },
-    { id: "data:market/tennogen", label: "Market: TennoGen (PC)", type: "vendor" },
-
-    { id: "data:market/sentinel-weapons", label: "Market: Sentinel Weapons", type: "vendor" },
+    { id: "data:market/credits", label: "Buy from Market (Credits)", type: "vendor" },
+    { id: "data:market/platinum", label: "Buy from Market (Platinum)", type: "vendor" },
+    { id: "data:market/bundles", label: "Buy Market Bundles (Coarse)", type: "vendor" },
+    { id: "data:market/tennogen", label: "Buy TennoGen (PC)", type: "vendor" },
+    { id: "data:market/sentinel-weapons", label: "Buy Market: Sentinel Weapons", type: "vendor" },
 
     // ----------------------------
     // System-given / account / timed
     // ----------------------------
-    { id: "data:system/daily-tribute", label: "System: Daily Tribute (Login Rewards)", type: "other" },
-    { id: "data:system/starter", label: "System: Starter / New Account Items", type: "other" },
+    { id: "data:system/daily-tribute", label: "Earn: Daily Tribute (Login Rewards)", type: "other" },
+    { id: "data:system/starter", label: "Receive: Starter / New Account Items", type: "other" },
 
     // ----------------------------
     // Baro / time-gated vendors
     // ----------------------------
-    { id: "data:baro/void-trader", label: "Vendor: Baro Ki’Teer (Void Trader)", type: "vendor" },
+    { id: "data:baro/void-trader", label: "Buy from Vendor: Baro Ki’Teer (Void Trader)", type: "vendor" },
 
     // Steel Path shop (Teshin rotates items)
-    { id: "data:vendor/steel-path/teshin", label: "Vendor: Teshin (Steel Path Honors)", type: "vendor" },
+    { id: "data:vendor/steel-path/teshin", label: "Buy from Vendor: Teshin (Steel Path Honors)", type: "vendor" },
 
     // Nightwave cred offerings
-    { id: "data:nightwave/cred-offerings", label: "Nightwave: Cred Offerings", type: "vendor" },
+    { id: "data:nightwave/cred-offerings", label: "Buy from Nightwave: Cred Offerings", type: "vendor" },
 
     // ----------------------------
     // Quests
     // ----------------------------
-    { id: "data:quest/the-sacrifice", label: "Quest: The Sacrifice", type: "other" },
-    { id: "data:quest/chimera-prologue", label: "Quest: Chimera Prologue", type: "other" },
-    { id: "data:quest/octavias-anthem", label: "Quest: Octavia’s Anthem", type: "other" },
-    { id: "data:quest/whispers-in-the-walls", label: "Quest: Whispers in the Walls", type: "other" },
-    { id: "data:quest/the-waverider", label: "Quest: The Waverider", type: "other" },
-    { id: "data:quest/the-old-peace", label: "Quest: The Old Peace", type: "other" },
-    { id: "data:quest/the-teacher", label: "Quest: The Teacher", type: "other" },
+    { id: "data:quest/the-sacrifice", label: "Complete Quest: The Sacrifice", type: "other" },
+    { id: "data:quest/chimera-prologue", label: "Complete Quest: Chimera Prologue", type: "other" },
+    { id: "data:quest/octavias-anthem", label: "Complete Quest: Octavia’s Anthem", type: "other" },
+    { id: "data:quest/whispers-in-the-walls", label: "Complete Quest: Whispers in the Walls", type: "other" },
+    { id: "data:quest/the-waverider", label: "Complete Quest: The Waverider", type: "other" },
+    { id: "data:quest/the-old-peace", label: "Complete Quest: The Old Peace", type: "other" },
+    { id: "data:quest/the-teacher", label: "Complete Quest: The Teacher", type: "other" },
 
     // ----------------------------
     // Unobtainable
@@ -184,22 +179,22 @@ const CURATED_SOURCES: RawSource[] = [
     // ----------------------------
     // Operator / amps
     // ----------------------------
-    { id: "data:operator/amp-starter", label: "Operator: Starter Amp Component", type: "other" },
+    { id: "data:operator/amp-starter", label: "Receive: Operator Starter Amp Component", type: "other" },
 
     // ----------------------------
     // Duviri / Drifter content islands
     // ----------------------------
     { id: "data:duviri/experience", label: "Duviri: Experience", type: "drop" },
     { id: "data:duviri/circuit", label: "Duviri: The Circuit", type: "drop" },
-    { id: "data:duviri/kullervo", label: "Duviri: Kullervo (Content Island)", type: "drop" },
-    { id: "data:vendor/duviri/acrithis", label: "Vendor: Acrithis (Duviri)", type: "vendor" },
+    { id: "data:duviri/kullervo", label: "Farm: Duviri (Kullervo Content Island)", type: "drop" },
+    { id: "data:vendor/duviri/acrithis", label: "Buy from Vendor: Acrithis (Duviri)", type: "vendor" },
 
     // ----------------------------
     // Abyss / Arbitrations
     // ----------------------------
-    { id: "data:abyssal-zone/dagath", label: "Abyssal Zone: Dagath", type: "drop" },
+    { id: "data:abyssal-zone/dagath", label: "Farm: Abyssal Zone (Dagath)", type: "drop" },
     { id: "data:arbitrations/grendel", label: "Arbitrations: Grendel (Locators / Rotations)", type: "drop" },
-    { id: "data:vendor/arbitrations/galatea", label: "Vendor: Arbiters of Hexis (Arbitrations Honors)", type: "vendor" },
+    { id: "data:vendor/arbitrations/galatea", label: "Buy from Vendor: Arbiters of Hexis (Arbitrations Honors)", type: "vendor" },
 
     // ----------------------------
     // Invasions (reward tables)
@@ -227,38 +222,38 @@ const CURATED_SOURCES: RawSource[] = [
     // ----------------------------
     // Neutral syndicate / faction vendors
     // ----------------------------
-    { id: "data:vendor/cetus/ostron", label: "Vendor: Ostrons (Cetus)", type: "vendor" },
-    { id: "data:vendor/cetus/quills", label: "Vendor: The Quills (Cetus)", type: "vendor" },
+    { id: "data:vendor/cetus/ostron", label: "Buy from Vendor: Ostrons (Cetus)", type: "vendor" },
+    { id: "data:vendor/cetus/quills", label: "Buy from Vendor: The Quills (Cetus)", type: "vendor" },
 
-    { id: "data:vendor/fortuna/solaris-united", label: "Vendor: Solaris United (Fortuna)", type: "vendor" },
-    { id: "data:vendor/fortuna/vox-solaris", label: "Vendor: Vox Solaris (Fortuna)", type: "vendor" },
-    { id: "data:vendor/fortuna/ventkids", label: "Vendor: Ventkids (Fortuna)", type: "vendor" },
+    { id: "data:vendor/fortuna/solaris-united", label: "Buy from Vendor: Solaris United (Fortuna)", type: "vendor" },
+    { id: "data:vendor/fortuna/vox-solaris", label: "Buy from Vendor: Vox Solaris (Fortuna)", type: "vendor" },
+    { id: "data:vendor/fortuna/ventkids", label: "Buy from Vendor: Ventkids (Fortuna)", type: "vendor" },
 
-    { id: "data:vendor/deimos/entrati", label: "Vendor: Entrati Family (Deimos)", type: "vendor" },
-    { id: "data:vendor/deimos/necraloid", label: "Vendor: Necraloid (Deimos)", type: "vendor" },
-    { id: "data:vendor/deimos/father", label: "Vendor: Father (Deimos)", type: "vendor", },
-    { id: "data:vendor/deimos/son", label: "Vendor: Son (Deimos)", type: "vendor", },
-    { id: "data:vendor/deimos/daughter", label: "Vendor: Daughter (Deimos)", type: "vendor", },
-    { id: "data:vendor/deimos/otak", label: "Vendor: Otak (Deimos)", type: "vendor", },
-    { id: "data:vendor/deimos/mother", label: "Vendor: Mother (Deimos)", type: "vendor", },
+    { id: "data:vendor/deimos/entrati", label: "Buy from Vendor: Entrati Family (Deimos)", type: "vendor" },
+    { id: "data:vendor/deimos/necraloid", label: "Buy from Vendor: Necraloid (Deimos)", type: "vendor" },
+    { id: "data:vendor/deimos/father", label: "Buy from Vendor: Father (Deimos)", type: "vendor" },
+    { id: "data:vendor/deimos/son", label: "Buy from Vendor: Son (Deimos)", type: "vendor" },
+    { id: "data:vendor/deimos/daughter", label: "Buy from Vendor: Daughter (Deimos)", type: "vendor" },
+    { id: "data:vendor/deimos/otak", label: "Buy from Vendor: Otak (Deimos)", type: "vendor" },
+    { id: "data:vendor/deimos/mother", label: "Buy from Vendor: Mother (Deimos)", type: "vendor" },
 
-    { id: "data:vendor/zariman/holdfasts", label: "Vendor: The Holdfasts (Zariman)", type: "vendor" },
-    { id: "data:vendor/zariman/cavalero", label: "Vendor: Cavalero (Zariman)", type: "vendor" },
-    { id: "data:vendor/zariman/yonta", label: "Vendor: Archimedean Yonta (Zariman)", type: "vendor" },
+    { id: "data:vendor/zariman/holdfasts", label: "Buy from Vendor: The Holdfasts (Zariman)", type: "vendor" },
+    { id: "data:vendor/zariman/cavalero", label: "Buy from Vendor: Cavalero (Zariman)", type: "vendor" },
+    { id: "data:vendor/zariman/yonta", label: "Buy from Vendor: Archimedean Yonta (Zariman)", type: "vendor" },
 
-    { id: "data:vendor/sanctum/cavia", label: "Vendor: Cavia (Sanctum Anatomica)", type: "vendor" },
+    { id: "data:vendor/sanctum/cavia", label: "Buy from Vendor: Cavia (Sanctum Anatomica)", type: "vendor" },
 
-    { id: "data:vendor/kahl-garrison/chipper", label: "Vendor: Chipper (Kahl’s Garrison)", type: "vendor" },
+    { id: "data:vendor/kahl-garrison/chipper", label: "Buy from Vendor: Chipper (Kahl’s Garrison)", type: "vendor" },
 
     // ----------------------------
     // Other key “non-drop” vendors / systems commonly used as acquisition sources
     // ----------------------------
-    { id: "data:vendor/simaris", label: "Vendor: Cephalon Simaris (Sanctuary)", type: "vendor" },
-    { id: "data:vendor/darvo", label: "Vendor: Darvo (Deals / Market)", type: "vendor" },
-    { id: "data:vendor/iron-wake/palladino", label: "Vendor: Palladino (Iron Wake)", type: "vendor" },
-    { id: "data:vendor/relay/varzia", label: "Vendor: Varzia (Prime Resurgence)", type: "vendor" },
-    { id: "data:vendor/relay/legs", label: "Vendor: Legs (Fortuna)", type: "vendor" },
-    { id: "data:vendor/fortuna/nightcap", label: "Vendor: Nightcap (Fortuna Airlock)", type: "vendor" },
+    { id: "data:vendor/simaris", label: "Buy from Vendor: Cephalon Simaris (Sanctuary)", type: "vendor" },
+    { id: "data:vendor/darvo", label: "Buy from Vendor: Darvo (Deals / Market)", type: "vendor" },
+    { id: "data:vendor/iron-wake/palladino", label: "Buy from Vendor: Palladino (Iron Wake)", type: "vendor" },
+    { id: "data:vendor/relay/varzia", label: "Buy from Vendor: Varzia (Prime Resurgence)", type: "vendor" },
+    { id: "data:vendor/relay/legs", label: "Buy from Vendor: Legs (Fortuna)", type: "vendor" },
+    { id: "data:vendor/fortuna/nightcap", label: "Buy from Vendor: Nightcap (Fortuna Airlock)", type: "vendor" },
 
     // ----------------------------
     // Lich systems (coarse)
@@ -270,50 +265,49 @@ const CURATED_SOURCES: RawSource[] = [
     // ----------------------------
     // Deepmines (Fortuna Airlock)
     // ----------------------------
-    { id: "data:activity/deepmines/bounties", label: "Activity: Deepmines (Bounties) (Fortuna Airlock)", type: "drop" },
-    { id: "data:deepmines/gathering", label: "Deep Mines (Gathering) (Manual)", type: "drop" },
+    { id: "data:activity/deepmines/bounties", label: "Bounty: Deepmines (Fortuna Airlock)", type: "drop" },
+    { id: "data:deepmines/gathering", label: "Farm: Deep Mines (Gathering) (Manual)", type: "drop" },
 
     // ----------------------------
     // Misc sources you already reference
     // ----------------------------
     { id: "data:necramech/arquebex-archgun", label: "Necramech: Arquebex / Starter Archgun Source (Coarse)", type: "other" },
 
-    { id: "data:vendor/bonne-nuit", label: "Vendor: Bonne-Nuit", type: "vendor" },
-    { id: "data:vendor/roathe/la-cathedrale", label: "Vendor: Roathe (La Cathédrale)", type: "vendor" },
+    { id: "data:vendor/bonne-nuit", label: "Buy from Vendor: Bonne-Nuit", type: "vendor" },
+    { id: "data:vendor/roathe/la-cathedrale", label: "Buy from Vendor: Roathe (La Cathédrale)", type: "vendor" },
 
-    { id: "data:activity/souterrains/bounties", label: "Activity: Souterrains (Bounties)", type: "drop" },
+    { id: "data:activity/souterrains/bounties", label: "Bounty: Souterrains", type: "drop" },
 
-    { id: "data:activity/the-descendia/maphica", label: "Activity: The Descendia (Maphica)", type: "drop" },
-    { id: "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c", label: "Activity: The Descendia (Oblivion on Infernium-21, Rotation C)", type: "drop" },
-    { id: "data:activity/deimos/conservation", label: "Activity: Conservation (Cambion Drift, Deimos)", type: "drop" },
+    { id: "data:activity/the-descendia/maphica", label: "Mission: The Descendia (Maphica)", type: "drop" },
+    { id: "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c", label: "Mission Reward: The Descendia (Oblivion on Infernium-21, Rotation C)", type: "drop" },
+    { id: "data:activity/deimos/conservation", label: "Earn: Conservation (Cambion Drift, Deimos)", type: "drop" },
 
-
-    { id: "data:bounty/solaris-united", label: "Bounties: Solaris United (Coarse)", type: "drop" },
+    { id: "data:bounty/solaris-united", label: "Bounty: Solaris United (Coarse)", type: "drop" },
     { id: "data:heist/profit-taker", label: "Heist: Profit-Taker", type: "drop" },
 
-    { id: "data:eidolon/hunts", label: "Eidolon Hunts (Plains of Eidolon)", type: "drop" },
+    { id: "data:eidolon/hunts", label: "Bounty: Eidolon Hunts (Plains of Eidolon)", type: "drop" },
 
     { id: "data:enemy-item/prosecutors", label: "Enemy Item Drop: Prosecutors (Manual)", type: "drop" },
     { id: "data:enemyitem/prosecutors", label: "Enemy Item Drop: Prosecutors (Legacy Alias)", type: "drop" },
 
-    { id: "data:node/murex/20-sentients", label: "Node: Murex (20 Sentients) (Manual)", type: "drop" },
+    { id: "data:node/murex/20-sentients", label: "Mission: Murex (20 Sentients) (Manual)", type: "drop" },
 
     // dojo research
-    { id: "data:dojo/chem-lab", label: "Dojo Research: Chem Lab (Grineer)", type: "vendor" },
-    { id: "data:dojo/energy-lab", label: "Dojo Research: Energy Lab (Corpus)", type: "vendor" },
-    { id: "data:dojo/bio-lab", label: "Dojo Research: Bio Lab (Infested)", type: "vendor" },
-    { id: "data:dojo/orokin-lab", label: "Dojo Research: Orokin Lab (Orokin)", type: "vendor" },
-    { id: "data:dojo/research", label: "Dojo Research (Uncategorized)", type: "vendor" },
-    { id: "data:clan/tenno-lab", label: "Dojo Research: Tenno Lab", type: "vendor" },
-    { id: "data:dojo/dagaths-hollow", label: "Clan Dojo: Dagath's Hollow Research", type: "dojo" },
+    { id: "data:dojo/chem-lab", label: "Research: Dojo Chem Lab (Grineer)", type: "vendor" },
+    { id: "data:dojo/energy-lab", label: "Research: Dojo Energy Lab (Corpus)", type: "vendor" },
+    { id: "data:dojo/bio-lab", label: "Research: Dojo Bio Lab (Infested)", type: "vendor" },
+    { id: "data:dojo/orokin-lab", label: "Research: Dojo Orokin Lab (Orokin)", type: "vendor" },
+    { id: "data:dojo/research", label: "Research: Dojo (Uncategorized)", type: "vendor" },
+    { id: "data:clan/tenno-lab", label: "Research: Dojo Tenno Lab", type: "vendor" },
+    { id: "data:dojo/dagaths-hollow", label: "Research: Clan Dojo (Dagath's Hollow)", type: "dojo" },
 
     // Resource buckets (curated)
-    { id: "data:resource/fieldron-sample", label: "Resource: Fieldron Sample (Corpus Drop)", type: "drop" },
-    { id: "data:resource/detonite-ampule", label: "Resource: Detonite Ampule (Grineer Drop)", type: "drop" },
-    { id: "data:resource/mutagen-sample", label: "Resource: Mutagen Sample (Infested Drop)", type: "drop" },
-    { id: "data:resource/mutagen-mass", label: "Resource: Mutagen Mass (Invasion / Lab / Crafting)", type: "other" },
-    { id: "data:resource/detonite-injector", label: "Resource: Detonite Injector (Invasion / Lab / Crafting)", type: "other" },
-    { id: "data:resource/fieldron", label: "Resource: Fieldron (Invasion / Lab / Crafting)", type: "other" },
+    { id: "data:resource/fieldron-sample", label: "Drop: Fieldron Sample (Corpus)", type: "drop" },
+    { id: "data:resource/detonite-ampule", label: "Drop: Detonite Ampule (Grineer)", type: "drop" },
+    { id: "data:resource/mutagen-sample", label: "Drop: Mutagen Sample (Infested)", type: "drop" },
+    { id: "data:resource/mutagen-mass", label: "Craft / Invasion: Mutagen Mass", type: "other" },
+    { id: "data:resource/detonite-injector", label: "Craft / Invasion: Detonite Injector", type: "other" },
+    { id: "data:resource/fieldron", label: "Craft / Invasion: Fieldron", type: "other" },
 
     // --- acquisitionFromWarframeItems.ts emits these literal ids ---
     {
@@ -421,10 +415,10 @@ const CURATED_SOURCES: RawSource[] = [
         label: "Vendor: Rude Zuud (Fortuna)",
         type: "vendor",
     },
-    { 
-        id: "data:vendor/hollvania/the-hex", 
+    {
+        id: "data:vendor/hollvania/the-hex",
         label: "Vendor: The Hex (Höllvania)",
-        type: "vendor"
+        type: "vendor",
     },
 
     {
@@ -687,16 +681,10 @@ function buildWfItemsLocSources(): RawSource[] {
 
         const obj = cur as Record<string, unknown>;
 
-        // Push children
         for (const v of Object.values(obj)) {
             if (v && (typeof v === "object" || Array.isArray(v))) stack.push(v);
         }
 
-        // Common patterns in warframe-items for drop locations are "drops" arrays or "drop" fields.
-        // We intentionally keep this permissive and collect any string that looks like a location label.
-        //
-        // If your dataset uses different keys, this still tends to work because it traverses deeply
-        // and checks multiple common fields below.
         const candidates: unknown[] = [];
 
         if (Array.isArray(obj.drops)) candidates.push(...(obj.drops as unknown[]));
@@ -715,19 +703,13 @@ function buildWfItemsLocSources(): RawSource[] {
 
             if (typeof c === "object") {
                 const co = c as Record<string, unknown>;
-
-                // Try a few common shapes:
                 const name = safeString(co.location) ?? safeString(co.name) ?? safeString(co.place) ?? safeString(co.source);
                 if (name) locs.add(name);
 
-                // Sometimes nested arrays exist (e.g., rotations)
                 for (const v of Object.values(co)) {
                     if (typeof v === "string") {
                         const s = safeString(v);
-                        if (s && s.length <= 120) {
-                            // Avoid obviously-non-location strings; keep it light.
-                            locs.add(s);
-                        }
+                        if (s && s.length <= 120) locs.add(s);
                     }
                 }
             }
@@ -735,12 +717,19 @@ function buildWfItemsLocSources(): RawSource[] {
     }
 
     for (const loc of Array.from(locs.values())) {
-        const token = toToken(loc);
-        if (!token) continue;
+        const { canonicalSourceId, canonicalLabel, legacySourceId } = canonicalizeWfItemsLocation(loc);
 
-        const id = `data:wfitems:loc:${token}`;
-        const label = `WFItems Location: ${loc}`;
-        pushUnique(out, seen, id, label, "drop");
+        const isRelicCanonical = canonicalSourceId.startsWith("data:relic/");
+
+        // For relics, canonical ids already come from relics.json (buildDropDataSupplementSources),
+        // so we only keep the legacy wfitems alias to avoid duplicate SourceIds.
+        if (!isRelicCanonical) {
+            pushUnique(out, seen, canonicalSourceId, canonicalLabel, "drop");
+        }
+
+        if (legacySourceId !== canonicalSourceId) {
+            pushUnique(out, seen, legacySourceId, `WFItems Location (Legacy): ${loc}`, "drop");
+        }
     }
 
     out.sort((a, b) => a.label.localeCompare(b.label));
@@ -1016,7 +1005,7 @@ export const SOURCE_CATALOG: RawSource[] = [
     ...buildWfItemsCacheSources(),
     ...buildWfItemsLocSources(),
     ...buildDropDataSupplementSources(),
-    ...buildDropDataRuntimeSrcSources()
+    ...buildDropDataRuntimeSrcSources(),
 ];
 
 export const SOURCE_INDEX: Record<SourceId, Source> = (() => {
@@ -1033,7 +1022,7 @@ export const SOURCE_INDEX: Record<SourceId, Source> = (() => {
             id,
             label: raw.label,
             type: raw.type ?? "other",
-            prereqIds: raw.prereqIds
+            prereqIds: raw.prereqIds,
         };
     }
 
@@ -1041,4 +1030,3 @@ export const SOURCE_INDEX: Record<SourceId, Source> = (() => {
 })();
 
 export const SOURCES: Source[] = Object.values(SOURCE_INDEX);
-

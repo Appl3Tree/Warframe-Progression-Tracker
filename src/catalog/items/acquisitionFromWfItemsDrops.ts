@@ -2,6 +2,7 @@
 
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
+import { canonicalizeWfItemsLocation } from "../sources/wfItemsLocCanonical";
 
 export type AcquisitionDef = {
     sources: string[];
@@ -27,16 +28,6 @@ export type WfItemsJoinDiagnostics = {
         ambiguousDropTypes: Array<{ dropType: string; matchedCatalogIds: string[] }>;
     };
 };
-
-function toToken(s: string): string {
-    return s
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9 ]+/g, "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .replace(/\s+/g, "-");
-}
 
 function pushUnique(out: string[], v: string): void {
     if (!v || typeof v !== "string") return;
@@ -81,10 +72,13 @@ export function deriveWfItemsDropsAcquisitionByCatalogId(): Record<string, Acqui
                     if (matched.length !== 1) continue;
 
                     const catalogId = String(matched[0]);
-                    const sourceId = `data:wfitems:loc:${toToken(location)}`;
+                    const canon = canonicalizeWfItemsLocation(location);
+                    if (canon.legacySourceId === "data:wfitems:loc:requiem-undefined-relic") {
+                        continue;
+                    }
 
                     if (!out[catalogId]) out[catalogId] = { sources: [] };
-                    pushUnique(out[catalogId].sources, sourceId);
+                    pushUnique(out[catalogId].sources, canon.canonicalSourceId);
                 }
             }
         }
@@ -169,4 +163,3 @@ export function deriveWfItemsDropJoinDiagnostics(): WfItemsJoinDiagnostics {
         }
     };
 }
-

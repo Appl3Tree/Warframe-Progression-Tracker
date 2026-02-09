@@ -4,6 +4,7 @@
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
 import type { AcquisitionDef } from "./acquisitionFromSources";
+import { canonicalizeWfItemsLocation } from "../sources/wfItemsLocCanonical";
 
 // warframe-items raw datasets (targeted)
 import RESOURCES from "../../../external/warframe-items/raw/Resources.json";
@@ -142,12 +143,6 @@ function baseRelicLocation(locRaw: string): string | null {
     return base;
 }
 
-function sourceIdForRelicLocation(baseLoc: string): string {
-    // Preserve existing behavior (already in-use across snapshots)
-    // Example: "Axi M6 Relic" → "data:wfitems:loc:axi-m6-relic"
-    return `data:wfitems:loc:${toToken(baseLoc)}`;
-}
-
 /**
  * Map All.json locations like:
  *   "Mars/Tyana Pass (Defense), Rotation C"
@@ -178,6 +173,7 @@ function parseRotationLetter(locRaw: string): "A" | "B" | "C" | null {
 function sourcesForMissionLikeLocation(locRaw: string): string[] {
     const loc = normalizeSpaces(locRaw ?? "");
     if (!loc.includes("/")) return [];
+
     // Conclave locations are not mission reward nodes.
     // Keep them stable and coarse.
     if (/\(\s*Conclave\s*\)/i.test(loc)) {
@@ -201,9 +197,20 @@ function sourcesForMissionLikeLocation(locRaw: string): string[] {
 
     const planet = parts[0];
     const node = parts.slice(1).join("/");
-    if (!planet || !node) return [];
+
+    const planetToken = toToken(planet);
+    const nodeToken = toToken(node);
+
+    if (!planetToken || !nodeToken) return [];
 
     const out: string[] = [];
+
+    // ALWAYS emit the base mission node source.
+    // This fixes things like:
+    //   "Ceres/Exta (Assassination)"
+    // by producing:
+    //   data:drop:node:ceres:exta
+    out.push(`data:drop:node:${planetToken}:${nodeToken}`);
 
     const isCaches = /\(\s*Caches\s*\)/i.test(locRaw);
     if (isCaches) {
@@ -349,7 +356,10 @@ function collectDropSourcesFromAllJson(): Record<string, string[]> {
             // 1) Relic locations
             const baseRelic = baseRelicLocation(loc);
             if (baseRelic) {
-                set.add(sourceIdForRelicLocation(baseRelic));
+                const canon = canonicalizeWfItemsLocation(baseRelic);
+                if (canon.legacySourceId !== "data:wfitems:loc:requiem-undefined-relic") {
+                    set.add(canon.canonicalSourceId);
+                }
                 continue;
             }
 
@@ -368,7 +378,10 @@ function collectDropSourcesFromAllJson(): Record<string, string[]> {
             }
 
             // 4) Fallback: stable wfitems location source.
-            set.add(`data:wfitems:loc:${toToken(loc)}`);
+            const canon = canonicalizeWfItemsLocation(loc);
+            if (canon.legacySourceId !== "data:wfitems:loc:requiem-undefined-relic") {
+                set.add(canon.canonicalSourceId);
+            }
         }
 
         if (set.size === 0) continue;

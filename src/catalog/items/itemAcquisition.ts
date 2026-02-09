@@ -12,6 +12,8 @@ import { deriveItemsJsonMarketAcquisitionByCatalogId } from "./acquisitionFromIt
 import { deriveRecipeBucketAcquisitionByCatalogId } from "./acquisitionFromRecipeBuckets";
 import { deriveClanTechAcquisitionByCatalogId } from "./acquisitionFromClanTech";
 
+import { getItemRequirements } from "./itemRequirements";
+
 import ITEMS_JSON from "../../data/items.json";
 
 const BLUEPRINT_UNCLASSIFIED = "data:blueprint/unclassified";
@@ -185,21 +187,38 @@ function isRecipePathCatalogId(catalogId: CatalogId): boolean {
     return String(catalogId).includes(":/Lotus/Types/Recipes/");
 }
 
-function isBlueprintLikeCatalogItem(catalogId: CatalogId): boolean {
+function isWeaponPartRecipePathCatalogId(catalogId: CatalogId): boolean {
+    return String(catalogId).startsWith("items:/Lotus/Types/Recipes/Weapons/WeaponParts/");
+}
+
+function isExplicitBlueprintLikeByNameOrId(catalogId: CatalogId): boolean {
     const cidStr = String(catalogId);
-
-    if (cidStr.includes(":/Lotus/Types/Recipes/")) return true;
-
     const rec: any = (FULL_CATALOG as any).recordsById?.[cidStr];
+
     const name = safeString(rec?.displayName) ?? safeString(rec?.name) ?? "";
     const path = safeString(rec?.path) ?? "";
 
     if (name.toLowerCase().endsWith(" blueprint")) return true;
     if (path.toLowerCase().endsWith("blueprint")) return true;
-
     if (cidStr.toLowerCase().endsWith("blueprint")) return true;
 
     return false;
+}
+
+/**
+ * Blueprint-like classification used ONLY for fallback placeholder behavior.
+ *
+ * IMPORTANT:
+ * - Do NOT treat all /Lotus/Types/Recipes/* items as blueprint-like.
+ * - WeaponParts under /Recipes/Weapons/WeaponParts/* include real “part outputs” and must not
+ *   be forced into blueprint fallback.
+ */
+function isBlueprintLikeCatalogItem(catalogId: CatalogId): boolean {
+    if (isWeaponPartRecipePathCatalogId(catalogId)) return false;
+
+    // Recipe-path records are often blueprints, but we do not blanket-classify them.
+    // Explicit blueprint indicators control fallback.
+    return isExplicitBlueprintLikeByNameOrId(catalogId);
 }
 
 function stripPlaceholderWhenRedundant(sources: string[]): string[] {
@@ -248,6 +267,23 @@ function maybeCraftedFromSiblingBlueprint(catalogId: CatalogId, seen: Set<string
     return real.length > 0;
 }
 
+/**
+ * Guarded crafting inference:
+ * If this is a recipe-path OUTPUT (not an explicit blueprint item) and we can prove it has a recipe
+ * (ingredients), then it is obtainable via Foundry crafting.
+ *
+ * This is intentionally fail-closed:
+ * - No recipe ingredients => not crafting
+ * - Manual mapping present => do not infer
+ */
+function maybeCraftedFromRecipeIngredients(catalogId: CatalogId): boolean {
+    if (!isRecipePathCatalogId(catalogId)) return false;
+    if (isExplicitBlueprintLikeByNameOrId(catalogId)) return false;
+
+    const reqs = getItemRequirements(catalogId);
+    return Array.isArray(reqs) && reqs.length > 0;
+}
+
 function gatherDirectSources(catalogId: CatalogId): string[] {
     const key = String(catalogId);
 
@@ -260,7 +296,16 @@ function gatherDirectSources(catalogId: CatalogId): string[] {
     const rb = RECIPE_BUCKET_ACQ[key];
     const ct = CLAN_TECH_ACQ[key];
 
-    return unionSources(wfcd?.sources, dd?.sources, mr?.sources, rj?.sources, wi?.sources, im?.sources, rb?.sources, ct?.sources);
+    return unionSources(
+        wfcd?.sources,
+        dd?.sources,
+        mr?.sources,
+        rj?.sources,
+        wi?.sources,
+        im?.sources,
+        rb?.sources,
+        ct?.sources
+    );
 }
 
 function getAcquisitionByCatalogIdInternal(catalogId: CatalogId, seen: Set<string>): AcquisitionDef | null {
@@ -290,6 +335,15 @@ function getAcquisitionByCatalogIdInternal(catalogId: CatalogId, seen: Set<strin
     if (!hasManual && sources.length === 0) {
         const crafted = maybeCraftedFromSiblingBlueprint(catalogId, seen);
         if (crafted) {
+            sources = [SOURCE_CRAFTING];
+        }
+    }
+
+    // 3.1) Guarded recipe-ingredient crafting inference:
+    // If there are still no sources, and we can prove it has recipe ingredients, it is Foundry craftable.
+    if (!hasManual && sources.length === 0) {
+        const craftedByIngredients = maybeCraftedFromRecipeIngredients(catalogId);
+        if (craftedByIngredients) {
             sources = [SOURCE_CRAFTING];
         }
     }
@@ -354,4 +408,3 @@ function getAcquisitionByCatalogIdInternal(catalogId: CatalogId, seen: Set<strin
 export function getAcquisitionByCatalogId(catalogId: CatalogId): AcquisitionDef | null {
     return getAcquisitionByCatalogIdInternal(catalogId, new Set<string>());
 }
-
