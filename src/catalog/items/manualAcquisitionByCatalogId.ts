@@ -308,10 +308,23 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     "items:/Lotus/Types/Recipes/WarframeRecipes/YareliHelmetComponent": ["data:quest/the-waverider"],
     "items:/Lotus/Types/Recipes/WarframeRecipes/YareliSystemsComponent": ["data:quest/the-waverider"],
 
-    "items:/Lotus/Powersuits/DemonFrame/DemonFrame": ["data:quest/the-old-peace","data:activity/the-descendia"],
-    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielChassisComponent": ["data:activity/the-descendia"],
-    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielHelmetComponent": ["data:activity/the-descendia"],
-    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielSystemsComponent": ["data:activity/the-descendia"],
+    "items:/Lotus/Powersuits/DemonFrame/DemonFrame": [
+        "data:quest/the-old-peace",
+        "data:vendor/roathe/la-cathedrale",
+    ],
+
+    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielChassisComponent": [
+        "data:activity/the-descendia/oblivion-on-infernium-21",
+        "data:vendor/roathe/la-cathedrale"
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielHelmetComponent": [
+        "data:activity/the-descendia/oblivion-on-infernium-21",
+        "data:vendor/roathe/la-cathedrale"
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/UrielSystemsComponent": [
+        "data:activity/the-descendia/oblivion-on-infernium-21",
+        "data:vendor/roathe/la-cathedrale"
+    ],
 
     // ----------------------------
     // 1999 Mushrooms / Journal items (Souterrains + vendor)
@@ -343,11 +356,11 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     // ----------------------------
     // Remaining unknown-acquisition (coarse buckets)
     // ----------------------------
-    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponPS": ["data:enemy/zanuka-hunter"],
-    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponIP": ["data:enemy/zanuka-hunter"],
-    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponIS": ["data:enemy/zanuka-hunter"],
+    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponPS": ["data:companions/hound-bhaira"],
+    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponIP": ["data:companions/hound-bhaira"],
+    "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetMeleeWeaponIS": ["data:companions/hound-bhaira"],
 
-    "items:/Lotus/Weapons/Grineer/Melee/GunBlade/GrnGunBlade/GrnGunblade": ["data:varo/void-trader"],
+    "items:/Lotus/Weapons/Grineer/Melee/GunBlade/GrnGunBlade/GrnGunblade": ["data:baro/void-trader"],
     "items:/Lotus/Powersuits/Khora/Kavat/KhoraKavatPowerSuit": ["data:warframe/khora"],
 
     "items:/Lotus/Types/Items/MiscItems/GrnFlameSpearPart": ["data:enemy-item/prosecutors"],
@@ -375,34 +388,24 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     // ----------------------------
     "items:/Lotus/Weapons/Tenno/Bayonet/TnBayonetRifleBlueprint": [
         "data:vendor/roathe/la-cathedrale",
-        "data:activity/the-descendia/maphica",
-        "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c",
-        "data:quest/the-old-peace"
+        "data:activity/the-descendia/oblivion-on-infernium-21",
     ],
 
     "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VinquibusBarrelBlueprint": [
         "data:vendor/roathe/la-cathedrale",
-        "data:activity/the-descendia/maphica",
-        "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c",
-        "data:quest/the-old-peace"
+        "data:activity/the-descendia/oblivion-on-infernium-21",
     ],
     "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VinquibusBladeBlueprint": [
         "data:vendor/roathe/la-cathedrale",
-        "data:activity/the-descendia/maphica",
-        "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c",
-        "data:quest/the-old-peace"
+        "data:activity/the-descendia/oblivion-on-infernium-21",
     ],
     "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VinquibusReceiverBlueprint": [
         "data:vendor/roathe/la-cathedrale",
-        "data:activity/the-descendia/maphica",
-        "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c",
-        "data:quest/the-old-peace"
+        "data:activity/the-descendia/oblivion-on-infernium-21",
     ],
     "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VinquibusStockBlueprint": [
         "data:vendor/roathe/la-cathedrale",
-        "data:activity/the-descendia/maphica",
-        "data:activity/the-descendia/oblivion-on-infernium-21/rotation-c",
-        "data:quest/the-old-peace"
+        "data:activity/the-descendia/oblivion-on-infernium-21",
     ],
 
     "items:/Lotus/Weapons/Tenno/Pistol/BurstPistol": ["data:market/credits"], // Sicarus
