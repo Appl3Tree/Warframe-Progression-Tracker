@@ -11,7 +11,8 @@ export type PageKey =
     | "imports"
     | "settings"
     | "diagnostics"
-    | "inventory";
+    | "inventory"
+    | "starchart";
 
 export interface UserMetaV2 {
     schemaVersion: 2;

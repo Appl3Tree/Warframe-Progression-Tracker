@@ -105,14 +105,13 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     // Lich systems
     { id: "data:lich/kuva", label: "Earn from Kuva Liches", type: "other" },
     { id: "data:lich/tenet", label: "Earn from Sisters of Parvos", type: "other" },
-    { id: "data:lich/infested-coda", label: "Earn from Infested Lich Coda weapons", type: "other" },
+    { id: "data:lich/infested-coda", label: "Technocyte Coda (earn currency, purchase Coda weapons)", type: "other" },
 
     // Fortuna Deepmines
     { id: "data:activity/deepmines/bounties", label: "Run Deepmines bounties (Fortuna Airlock)", type: "drop" },
     { id: "data:deepmines/gathering", label: "Gather in the Deepmines", type: "drop" },
 
     // Misc sources you already reference
-    { id: "data:vendor/bonne-nuit", label: "Buy from Bonne-Nuit", type: "vendor" },
     { id: "data:vendor/roathe/la-cathedrale", label: "Buy from Roathe (La Cathédrale)", type: "vendor" },
 
     { id: "data:activity/souterrains/bounties", label: "Run Souterrains bounties", type: "drop" },
