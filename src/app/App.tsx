@@ -1,9 +1,11 @@
+// ===== FILE: src/app/App.tsx =====
 import Shell from "./layout/Shell";
 import { useTrackerStore } from "../store/store";
 import type { PageKey } from "../domain/models/userState";
 
 import Dashboard from "../pages/Dashboard";
 import Inventory from "../pages/Inventory";
+import StarChart from "../pages/StarChart";
 import Prerequisites from "../pages/Prerequisites";
 import Syndicates from "../pages/Syndicates";
 import Goals from "../pages/Goals";
@@ -16,6 +18,7 @@ import Diagnostics from "../pages/Diagnostics";
 const PAGE_COMPONENTS: Record<PageKey, React.ReactNode> = {
     dashboard: <Dashboard />,
     inventory: <Inventory />,
+    starchart: <StarChart />,
     prereqs: <Prerequisites />,
     syndicates: <Syndicates />,
     goals: <Goals />,

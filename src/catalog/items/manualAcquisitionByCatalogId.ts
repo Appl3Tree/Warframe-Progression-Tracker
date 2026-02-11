@@ -329,12 +329,12 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     // ----------------------------
     // 1999 Mushrooms / Journal items (Souterrains + vendor)
     // ----------------------------
-    "items:/Lotus/Types/Items/MushroomJournal/CorrosiveMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/bonne-nuit"],
-    "items:/Lotus/Types/Items/MushroomJournal/MagneticMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/bonne-nuit"],
-    "items:/Lotus/Types/Items/MushroomJournal/RadiationMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/bonne-nuit"],
-    "items:/Lotus/Types/Items/MushroomJournal/GasMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/bonne-nuit"],
-    "items:/Lotus/Types/Items/MushroomJournal/BlastMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/bonne-nuit"],
-    "items:/Lotus/Types/Items/MushroomJournal/ViralMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/bonne-nuit"],
+    "items:/Lotus/Types/Items/MushroomJournal/CorrosiveMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/fortuna/nightcap"],
+    "items:/Lotus/Types/Items/MushroomJournal/MagneticMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/fortuna/nightcap"],
+    "items:/Lotus/Types/Items/MushroomJournal/RadiationMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/fortuna/nightcap"],
+    "items:/Lotus/Types/Items/MushroomJournal/GasMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/fortuna/nightcap"],
+    "items:/Lotus/Types/Items/MushroomJournal/BlastMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/fortuna/nightcap"],
+    "items:/Lotus/Types/Items/MushroomJournal/ViralMushroomJournalItem": ["data:activity/souterrains/bounties", "data:vendor/fortuna/nightcap"],
 
     // ----------------------------
     // Infested “Coda” weapons (Infested Lich system)
