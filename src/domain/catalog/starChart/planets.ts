@@ -63,6 +63,12 @@ const CURATED_STAR_CHART_PLANETS: StarChartPlanet[] = [
     { id: "region:duviri", name: "Duviri", kind: "region", sortOrder: 240 },
 
     // =============================
+    // Höllvania & Dark Refractory
+    // =============================
+    { id: "region:hollvania", name: "Höllvania", kind: "region", sortOrder: 250 },
+    { id: "region:dark_refractory_deimos", name: "Dark Refractory, Deimos", kind: "region", sortOrder: 260 },
+
+    // =============================
     // Railjack regions (Proxima)
     // =============================
     { id: "region:earth_proxima", name: "Earth Proxima", kind: "region", sortOrder: 310 },
@@ -90,13 +96,7 @@ const CURATED_STAR_CHART_PLANETS: StarChartPlanet[] = [
     { id: "hub:relay_kuiper", name: "Kuiper Relay", kind: "hub", sortOrder: 540 },
     { id: "hub:relay_leonov", name: "Leonov Relay", kind: "hub", sortOrder: 550 },
     { id: "hub:relay_vesper", name: "Vesper Relay", kind: "hub", sortOrder: 560 },
-    { id: "hub:relay_orcus", name: "Orcus Relay", kind: "hub", sortOrder: 570 },
-
-    // =============================
-    // Höllvania & Dark Refractory
-    // =============================
-    { id: "region:hollvania", name: "Höllvania", kind: "region", sortOrder: 250 },
-    { id: "region:dark_refractory_deimos", name: "Dark Refractory, Deimos", kind: "region", sortOrder: 260 }
+    { id: "hub:relay_orcus", name: "Orcus Relay", kind: "hub", sortOrder: 570 }
 ];
 
 function deriveAutoPlanetsFromMissionRewards(): StarChartPlanet[] {
@@ -105,6 +105,13 @@ function deriveAutoPlanetsFromMissionRewards(): StarChartPlanet[] {
 
     const existingIds = new Set<string>(CURATED_STAR_CHART_PLANETS.map((p) => p.id));
     const existingNameToks = new Set<string>(CURATED_STAR_CHART_PLANETS.map((p) => toToken(p.name)));
+
+    // If a missionRewards "group" is actually represented in our curated list under a different
+    // in-game naming (ex: "Veil" is "Veil Proxima" in the Star Chart), do NOT auto-create a fake planet.
+    const SKIP_GROUP_TOKENS = new Set<string>([
+        "veil",
+        "sanctuary" // keep this if you do NOT want an "auto:sanctuary" button
+    ]);
 
     const out: StarChartPlanet[] = [];
     const groupNames = Object.keys(root);
@@ -119,6 +126,8 @@ function deriveAutoPlanetsFromMissionRewards(): StarChartPlanet[] {
 
         const tok = toToken(name);
         if (!tok) continue;
+
+        if (SKIP_GROUP_TOKENS.has(tok)) continue;
 
         // If a curated planet already matches by name token, skip.
         if (existingNameToks.has(tok)) continue;
