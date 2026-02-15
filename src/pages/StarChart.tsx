@@ -177,58 +177,30 @@ function nodeRevealAlpha(scale: number): number {
     return clamp(a, 0, 1);
 }
 
-type NodeLayout = { node: StarChartNode; x: number; y: number; ring: number; order: number };
-
-/**
- * Returns a stable transform that keeps an SVG element the same on-screen size
- * regardless of zoom (scale).
- */
-function screenStableTransform(anchorX: number, anchorY: number, scale: number): string {
-    const inv = 1 / Math.max(0.0001, scale);
-    return `translate(${anchorX} ${anchorY}) scale(${inv}) translate(${-anchorX} ${-anchorY})`;
+function dist2(ax: number, ay: number, bx: number, by: number): number {
+    const dx = ax - bx;
+    const dy = ay - by;
+    return dx * dx + dy * dy;
 }
 
-/**
- * Best-effort extraction of node placement from STAR_CHART_DATA.
- * Supports a few common shapes without hard-coding your domain types:
- * - n.pos: { x, y } in [0..100], [0..1], or [-1..1]
- * - n.x/n.y (same ranges)
- */
-function getNodeLocalNormalizedPos(n: StarChartNode): { x: number; y: number } | null {
-    const anyN: any = n as any;
-
-    const raw =
-        (anyN && typeof anyN === 'object' && anyN.pos && typeof anyN.pos === 'object' && anyN.pos) ||
-        (anyN && typeof anyN === 'object' && (typeof anyN.x === 'number' || typeof anyN.y === 'number') && { x: anyN.x, y: anyN.y }) ||
-        null;
-
-    if (!raw) return null;
-
-    const rx = Number(raw.x);
-    const ry = Number(raw.y);
-    if (!Number.isFinite(rx) || !Number.isFinite(ry)) return null;
-
-    // Case 1: already normalized to [-1..1]
-    if (Math.abs(rx) <= 1.05 && Math.abs(ry) <= 1.05) {
-        return { x: clamp(rx, -1, 1), y: clamp(ry, -1, 1) };
-    }
-
-    // Case 2: normalized to [0..1]
-    if (rx >= -0.05 && rx <= 1.05 && ry >= -0.05 && ry <= 1.05) {
-        const nx = (rx - 0.5) * 2;
-        const ny = (ry - 0.5) * 2;
-        return { x: clamp(nx, -1, 1), y: clamp(ny, -1, 1) };
-    }
-
-    // Case 3: "percent" style [0..100]
-    if (rx >= -5 && rx <= 105 && ry >= -5 && ry <= 105) {
-        const nx = ((rx - 50) / 50);
-        const ny = ((ry - 50) / 50);
-        return { x: clamp(nx, -1, 1), y: clamp(ny, -1, 1) };
-    }
-
-    return null;
+function len(x: number, y: number): number {
+    return Math.sqrt(x * x + y * y);
 }
+
+function norm(x: number, y: number): { x: number; y: number } {
+    const l = len(x, y);
+    if (!l) return { x: 0, y: 0 };
+    return { x: x / l, y: y / l };
+}
+
+type NodeLayout = {
+    node: StarChartNode;
+    x: number;
+    y: number;
+    ring: number;
+    order: number;
+    label: { x: number; y: number; anchor: 'start' | 'end' };
+};
 
 function StarChartMap(props: {
     isInModal: boolean;
@@ -279,14 +251,7 @@ function StarChartMap(props: {
             m.get(pid)!.push(n);
         }
         for (const [pid, arr] of m.entries()) {
-            // Keep stable ordering for deterministic layout.
-            // (If your data has sortOrder, we can auto-detect and use it.)
-            const hasSortOrder = arr.some((x: any) => typeof (x as any).sortOrder === 'number');
-            if (hasSortOrder) {
-                arr.sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-            } else {
-                arr.sort((a, b) => a.name.localeCompare(b.name));
-            }
+            arr.sort((a, b) => a.name.localeCompare(b.name));
             m.set(pid, arr);
         }
         return m;
@@ -377,7 +342,7 @@ function StarChartMap(props: {
             if (e.button !== 0) return;
 
             const t = e.target as HTMLElement | null;
-            if (t?.closest('[data-clickable="true"]')) return;
+            if (t?.closest('[data-clickable=\'true\']')) return;
 
             dragging = true;
             startClient = { x: e.clientX, y: e.clientY };
@@ -513,17 +478,25 @@ function StarChartMap(props: {
         return clamp(r, 6.5, 28.0);
     }, [vb.w]);
 
-    const nodesClusterR = focusedDiskR * 0.86;
-
     const otherPlanetsOpacity = useMemo(() => {
         if (!planetMode) return 1;
         return clamp(1 - reveal * 1.15, 0, 1);
     }, [planetMode, reveal]);
 
     const nodeDotR = useMemo(() => {
-        const r = 1.15 / scale;
-        return clamp(r, 0.26, 0.62);
+        const r = 0.78 / scale;
+        return clamp(r, 0.18, 0.42);
     }, [scale]);
+
+    const nodeFont = useMemo(() => {
+        const f = 2.5 / scale;
+        return clamp(f, 0.70, 1.10);
+    }, [scale]);
+
+    const planetTitleFont = useMemo(() => {
+        const f = (focusedDiskR * 0.23) / scale;
+        return clamp(f, 1.1, 2.4);
+    }, [focusedDiskR, scale]);
 
     const focusedNodeLayout = useMemo((): NodeLayout[] => {
         if (!focusedPlanetPos) return [];
@@ -532,146 +505,214 @@ function StarChartMap(props: {
         const cx = focusedPlanetPos.x;
         const cy = focusedPlanetPos.y;
 
-        // Prefer explicit placements if present in STAR_CHART_DATA.
-        const normalized = focusedPlanetNodes.map((n) => ({ n, pos: getNodeLocalNormalizedPos(n) }));
-        const hasAnyExplicit = normalized.some((x) => Boolean(x.pos));
+        const maxR = focusedDiskR * 0.84;
 
-        const layouts: NodeLayout[] = [];
+        const hasAnyManual = focusedPlanetNodes.some((n: any) => typeof (n as any)?.pos?.x === 'number' && typeof (n as any)?.pos?.y === 'number');
 
-        if (hasAnyExplicit) {
-            // Place explicit nodes exactly; fill the rest with a deterministic ring fallback.
-            const maxR = nodesClusterR * 0.95;
+        const base: Array<{ node: StarChartNode; x: number; y: number; ring: number; order: number; fixed?: boolean }> = [];
 
-            // 1) Explicit
-            for (let i = 0; i < normalized.length; i++) {
-                const { n, pos } = normalized[i];
-                if (!pos) continue;
+        const count = focusedPlanetNodes.length;
+        const ringCount = 3;
 
-                const x = cx + pos.x * maxR;
-                const y = cy + pos.y * maxR;
-
-                // ring/order are still used for link grouping; keep stable.
-                layouts.push({ node: n, x, y, ring: 0, order: i });
-            }
-
-            // 2) Fallback for missing
-            const missing = normalized.filter((x) => !x.pos).map((x) => x.n);
-            if (missing.length > 0) {
-                const ringCount = 3;
-
-                for (let i = 0; i < missing.length; i++) {
-                    const n = missing[i];
-                    const hRing = hashToUnitFloat(n.id + ':ring');
-                    const ring = Math.floor(hRing * ringCount);
-
-                    const ringT = ringCount <= 1 ? 0 : ring / (ringCount - 1);
-                    const r = nodesClusterR * (0.34 + ringT * 0.56);
-
-                    const a0 = hashToUnitFloat(n.id + ':ang') * Math.PI * 2;
-                    const a = a0 + i * (Math.PI * 2 / Math.max(12, missing.length));
-
-                    const jx = (hashToUnitFloat(n.id + ':jx') - 0.5) * (focusedDiskR * 0.06);
-                    const jy = (hashToUnitFloat(n.id + ':jy') - 0.5) * (focusedDiskR * 0.06);
-
-                    const x = cx + Math.cos(a) * r + jx;
-                    const y = cy + Math.sin(a) * r + jy;
-
-                    layouts.push({ node: n, x, y, ring, order: 1000 + i });
-                }
-            }
-        } else {
-            // Pure deterministic ring layout (previous behavior), but cleaner spacing.
-            const count = focusedPlanetNodes.length;
-            const ringCount = 3;
-
-            const rings: number[] = [];
-            for (let i = 0; i < count; i++) {
-                const n = focusedPlanetNodes[i];
-                const h = hashToUnitFloat(n.id + ':ring');
-                const ring = Math.floor(h * ringCount);
-                rings.push(ring);
-            }
-
-            for (let i = 0; i < count; i++) {
-                const n = focusedPlanetNodes[i];
-
-                const ring = rings[i] ?? 0;
-                const ringT = ringCount <= 1 ? 0 : ring / (ringCount - 1);
-
-                const r = nodesClusterR * (0.34 + ringT * 0.56);
-
-                const a0 = hashToUnitFloat(n.id + ':ang') * Math.PI * 2;
-                const a = a0 + i * (Math.PI * 2 / Math.max(14, count));
-
-                const jx = (hashToUnitFloat(n.id + ':jx') - 0.5) * (focusedDiskR * 0.06);
-                const jy = (hashToUnitFloat(n.id + ':jy') - 0.5) * (focusedDiskR * 0.06);
-
-                const x = cx + Math.cos(a) * r + jx;
-                const y = cy + Math.sin(a) * r + jy;
-
-                layouts.push({ node: n, x, y, ring, order: i });
-            }
+        const rings: number[] = [];
+        for (let i = 0; i < count; i++) {
+            const n = focusedPlanetNodes[i];
+            const h = hashToUnitFloat(n.id + ':ring');
+            const ring = Math.floor(h * ringCount);
+            rings.push(ring);
         }
 
-        // Clamp to disk boundary
-        const maxR = focusedDiskR * 0.90;
-        for (const l of layouts) {
-            const dx = l.x - cx;
-            const dy = l.y - cy;
-            const d = Math.sqrt(dx * dx + dy * dy);
-            if (d > maxR) {
-                const s = maxR / d;
-                l.x = cx + dx * s;
-                l.y = cy + dy * s;
+        for (let i = 0; i < count; i++) {
+            const n: any = focusedPlanetNodes[i];
+
+            const manual = hasAnyManual && typeof n?.pos?.x === 'number' && typeof n?.pos?.y === 'number';
+            if (manual) {
+                // pos is in "planet radii" units:
+                // (0,0) center, (1,0) edge, (>1) outside
+                const px = Number(n.pos.x);
+                const py = Number(n.pos.y);
+
+                const x = cx + px * maxR;
+                const y = cy + py * maxR;
+
+                base.push({ node: n as StarChartNode, x, y, ring: 0, order: i, fixed: true });
+                continue;
             }
+
+            const ring = rings[i] ?? 0;
+            const ringT = ringCount <= 1 ? 0 : ring / (ringCount - 1);
+            const r = maxR * (0.34 + ringT * 0.56);
+
+            const a0 = hashToUnitFloat(n.id + ':ang') * Math.PI * 2;
+            const a = a0 + i * (Math.PI * 2 / Math.max(12, count));
+
+            const jx = (hashToUnitFloat(n.id + ':jx') - 0.5) * (focusedDiskR * 0.05);
+            const jy = (hashToUnitFloat(n.id + ':jy') - 0.5) * (focusedDiskR * 0.05);
+
+            const x = cx + Math.cos(a) * r + jx;
+            const y = cy + Math.sin(a) * r + jy;
+
+            base.push({ node: n, x, y, ring, order: i });
+        }
+
+        const minSep = nodeDotR * 5.2;
+        const minSep2 = minSep * minSep;
+        const relaxed = base.map((b) => ({ ...b }));
+
+        for (let iter = 0; iter < 28; iter++) {
+            let moved = 0;
+
+            for (let i = 0; i < relaxed.length; i++) {
+                for (let j = i + 1; j < relaxed.length; j++) {
+                    const a = relaxed[i];
+                    const b = relaxed[j];
+                    const d2 = dist2(a.x, a.y, b.x, b.y);
+                    if (d2 >= minSep2 || d2 === 0) continue;
+
+                    const d = Math.sqrt(d2);
+                    const push = (minSep - d) * 0.5;
+                    const vx = (a.x - b.x) / d;
+                    const vy = (a.y - b.y) / d;
+
+                    const aFixed = Boolean((a as any).fixed);
+                    const bFixed = Boolean((b as any).fixed);
+
+                    if (!aFixed) {
+                        a.x += vx * push;
+                        a.y += vy * push;
+                    }
+                    if (!bFixed) {
+                        b.x -= vx * push;
+                        b.y -= vy * push;
+                    }
+                    moved++;
+                }
+            }
+
+            for (const p of relaxed) {
+                if (Boolean((p as any).fixed)) continue; // allow manual nodes outside
+                const dx = p.x - cx;
+                const dy = p.y - cy;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                if (d > maxR) {
+                    const s = maxR / d;
+                    p.x = cx + dx * s;
+                    p.y = cy + dy * s;
+                }
+            }
+
+            if (moved === 0) break;
+        }
+
+        const layouts: NodeLayout[] = [];
+        for (const p of relaxed) {
+            const dx = p.x - cx;
+            const dy = p.y - cy;
+            const v = norm(dx, dy);
+
+            const dir =
+                v.x === 0 && v.y === 0
+                    ? norm(hashToUnitFloat(p.node.id + ':lx') - 0.5, hashToUnitFloat(p.node.id + ':ly') - 0.5)
+                    : v;
+
+            const baseOff = nodeDotR * 3.2;
+
+            const tryDirs: Array<{ x: number; y: number; anchor: 'start' | 'end' }> = [
+                { x: dir.x, y: dir.y, anchor: dir.x >= 0 ? 'start' : 'end' },
+                { x: -dir.x, y: -dir.y, anchor: dir.x >= 0 ? 'end' : 'start' }
+            ];
+
+            let label = {
+                x: p.x + tryDirs[0].x * baseOff,
+                y: p.y + tryDirs[0].y * baseOff,
+                anchor: tryDirs[0].anchor as 'start' | 'end'
+            };
+
+            const wouldHitAny = (lx: number, ly: number) => {
+                const pad = nodeDotR * 4.4;
+                const pad2 = pad * pad;
+                for (const other of relaxed) {
+                    if (other.node.id === p.node.id) continue;
+                    if (dist2(lx, ly, other.x, other.y) < pad2) return true;
+                }
+                return false;
+            };
+
+            if (wouldHitAny(label.x, label.y)) {
+                label = {
+                    x: p.x + tryDirs[1].x * baseOff,
+                    y: p.y + tryDirs[1].y * baseOff,
+                    anchor: tryDirs[1].anchor
+                };
+            }
+
+            if (!Boolean((p as any).fixed)) {
+                const maxLabelR = focusedDiskR * 0.94;
+                const ldx = label.x - cx;
+                const ldy = label.y - cy;
+                const ld = Math.sqrt(ldx * ldx + ldy * ldy);
+                if (ld > maxLabelR) {
+                    const s = maxLabelR / ld;
+                    label.x = cx + ldx * s;
+                    label.y = cy + ldy * s;
+                }
+            }
+
+            layouts.push({ node: p.node, x: p.x, y: p.y, ring: p.ring, order: p.order, label });
         }
 
         return layouts;
-    }, [focusedPlanetPos, focusedPlanetNodes, nodesClusterR, focusedDiskR]);
+    }, [focusedPlanetPos, focusedPlanetNodes, focusedDiskR, nodeDotR]);
 
     const focusedLinks = useMemo(() => {
+        if (!focusedPlanetId) return [] as Array<{ a: NodeLayout; b: NodeLayout }>;
         if (focusedNodeLayout.length < 2) return [] as Array<{ a: NodeLayout; b: NodeLayout }>;
 
-        const byRing = new Map<number, NodeLayout[]>();
-        for (const n of focusedNodeLayout) {
-            const arr = byRing.get(n.ring) ?? [];
-            arr.push(n);
-            byRing.set(n.ring, arr);
-        }
-        for (const arr of byRing.values()) arr.sort((a, b) => a.order - b.order);
+        const byId = new Map<string, NodeLayout>();
+        for (const l of focusedNodeLayout) byId.set(l.node.id, l);
 
+        const uniq = new Set<string>();
         const links: Array<{ a: NodeLayout; b: NodeLayout }> = [];
 
-        for (const arr of byRing.values()) {
-            for (let i = 0; i < arr.length - 1; i++) links.push({ a: arr[i], b: arr[i + 1] });
+        for (const l of focusedNodeLayout) {
+            const n: any = l.node;
+            const edges: string[] = Array.isArray(n?.edges) ? n.edges.map(String) : [];
+            for (const toId of edges) {
+                const b = byId.get(toId);
+                if (!b) continue;
+
+                const key = [l.node.id, b.node.id].sort().join('::');
+                if (uniq.has(key)) continue;
+                uniq.add(key);
+
+                links.push({ a: l, b });
+            }
         }
 
-        const all = [...focusedNodeLayout];
-        for (let i = 0; i < Math.min(28, all.length); i++) {
-            const a = all[i];
-            const pick = Math.floor(hashToUnitFloat(a.node.id + ':x') * all.length);
-            const b = all[pick];
-            if (!b || b.node.id === a.node.id) continue;
-            links.push({ a, b });
-        }
-
-        return links.slice(0, 64);
-    }, [focusedNodeLayout]);
+        return links;
+    }, [focusedPlanetId, focusedNodeLayout]);
 
     const clipId = useMemo(() => {
         const base = focusedPlanetId ? focusedPlanetId.replace(/[^a-z0-9_:-]/gi, '_') : 'none';
         return `clip_${base}`;
     }, [focusedPlanetId]);
 
-    const focusedPlanetLabel = useMemo(() => {
-        if (!focusedPlanet) return '';
-        return focusedPlanet.name.toUpperCase();
-    }, [focusedPlanet]);
+    const panelDock = useMemo(() => {
+        if (!focusedPlanetPos) return { side: 'right' as const, top: true };
+        const side = focusedPlanetPos.x > 55 ? ('left' as const) : ('right' as const);
+        const top = focusedPlanetPos.y > 55 ? false : true;
+        return { side, top };
+    }, [focusedPlanetPos]);
+
+    const panelClass = useMemo(() => {
+        const side = panelDock.side === 'left' ? 'left-4' : 'right-4';
+        const vert = panelDock.top ? 'top-4' : 'bottom-4';
+        return `${side} ${vert}`;
+    }, [panelDock]);
 
     return (
         <div className={['relative w-full', isInModal ? 'h-full' : 'h-[72vh] min-h-[560px]'].join(' ')}>
-            {/* Drop panel overlay (stays inside map, both normal + modal) */}
-            <div className='absolute right-4 top-4 z-30 w-[520px] max-w-[42vw] pointer-events-none'>
+            <div className={`absolute ${panelClass} z-30 w-[520px] max-w-[42vw] pointer-events-none`}>
                 <div className='pointer-events-auto rounded-2xl border border-slate-800 bg-slate-950/55 p-3 backdrop-blur-sm'>
                     <div className='text-sm font-semibold text-slate-100'>
                         {selectedNode ? `Drops · ${selectedNode.name}` : 'Drops / Rewards'}
@@ -727,7 +768,6 @@ function StarChartMap(props: {
                 </div>
             </div>
 
-            {/* Map */}
             <div className='absolute inset-0 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 select-none'>
                 <svg
                     ref={svgRef}
@@ -767,7 +807,6 @@ function StarChartMap(props: {
                         <circle cx={50} cy={50} r={52} fill='none' stroke='rgba(148,163,184,0.07)' strokeWidth={0.18} />
                     </g>
 
-                    {/* Overview planets (labels are screen-stable so they don't become unreadable when zoomed) */}
                     <g opacity={otherPlanetsOpacity}>
                         {overviewPlanets.map((pl) => {
                             const p = pl.planet;
@@ -785,8 +824,6 @@ function StarChartMap(props: {
                                   ? 'rgba(148,163,184,0.55)'
                                   : 'rgba(148,163,184,0.35)';
 
-                            const labelY = pl.y - (p.kind === 'planet' ? 3.2 : -3.2);
-
                             return (
                                 <g
                                     key={p.id}
@@ -795,15 +832,13 @@ function StarChartMap(props: {
                                     style={{ cursor: 'pointer' }}
                                 >
                                     <circle cx={pl.x} cy={pl.y} r={pl.r} fill={fill} stroke={stroke} strokeWidth={0.22} />
-
                                     <text
                                         x={pl.x}
-                                        y={labelY}
+                                        y={pl.y - (p.kind === 'planet' ? 3.2 : -3.2)}
                                         textAnchor='middle'
                                         fontSize={1.6}
                                         fill={active ? 'rgba(226,232,240,0.95)' : 'rgba(226,232,240,0.78)'}
                                         style={{ letterSpacing: '0.35em', textTransform: 'uppercase' } as any}
-                                        transform={screenStableTransform(pl.x, labelY, scale)}
                                     >
                                         {p.name.toUpperCase()}
                                     </text>
@@ -819,8 +854,8 @@ function StarChartMap(props: {
                                 cy={focusedPlanetPos.y}
                                 r={focusedDiskR}
                                 fill='rgba(2,6,23,0.55)'
-                                stroke='rgba(148,163,184,0.22)'
-                                strokeWidth={0.25}
+                                stroke='rgba(148,163,184,0.24)'
+                                strokeWidth={0.28}
                             />
                             <circle
                                 cx={focusedPlanetPos.x - focusedDiskR * 0.22}
@@ -828,27 +863,12 @@ function StarChartMap(props: {
                                 r={focusedDiskR * 0.62}
                                 fill='rgba(226,232,240,0.05)'
                             />
-
-                            {/* Focused planet name (screen-stable) */}
-                            {focusedPlanet && (
-                                <text
-                                    x={focusedPlanetPos.x}
-                                    y={focusedPlanetPos.y - focusedDiskR - 2.0}
-                                    textAnchor='middle'
-                                    fontSize={2.1}
-                                    fill='rgba(226,232,240,0.92)'
-                                    style={{ letterSpacing: '0.42em', textTransform: 'uppercase' } as any}
-                                    transform={screenStableTransform(focusedPlanetPos.x, focusedPlanetPos.y - focusedDiskR - 2.0, scale)}
-                                >
-                                    {focusedPlanetLabel}
-                                </text>
-                            )}
                         </g>
                     )}
 
                     {focusedPlanetPos && focusedPlanet && reveal > 0.01 && (
-                        <g clipPath={`url(#${clipId})`} opacity={reveal} pointerEvents={reveal > 0.15 ? 'auto' : 'none'}>
-                            <g opacity={0.92}>
+                        <g clipPath={`url(#${clipId})`} opacity={reveal} pointerEvents='none'>
+                            <g opacity={0.90}>
                                 {focusedLinks.map((l, idx) => (
                                     <line
                                         key={`ln-${idx}`}
@@ -856,25 +876,37 @@ function StarChartMap(props: {
                                         y1={l.a.y}
                                         x2={l.b.x}
                                         y2={l.b.y}
-                                        stroke='rgba(226,232,240,0.24)'
-                                        strokeWidth={0.14}
+                                        stroke='rgba(226,232,240,0.20)'
+                                        strokeWidth={0.10}
                                     />
                                 ))}
                             </g>
+                        </g>
+                    )}
 
+                    {focusedPlanetPos && focusedPlanet && reveal > 0.01 && (
+                        <g opacity={reveal} pointerEvents='none'>
+                            <text
+                                x={focusedPlanetPos.x}
+                                y={focusedPlanetPos.y - focusedDiskR * 0.72}
+                                textAnchor='middle'
+                                fontSize={planetTitleFont}
+                                fill='rgba(226,232,240,0.90)'
+                                style={{ letterSpacing: '0.38em', textTransform: 'uppercase' } as any}
+                            >
+                                {focusedPlanet.name.toUpperCase()}
+                            </text>
+                        </g>
+                    )}
+
+                    {focusedPlanetPos && focusedPlanet && reveal > 0.01 && (
+                        <g opacity={reveal} pointerEvents={reveal > 0.15 ? 'auto' : 'none'}>
                             {focusedNodeLayout.map((nd) => {
                                 const n = nd.node;
                                 const isActive = n.id === selectedNodeId;
 
-                                const nodeFill = isActive ? 'rgba(226,232,240,0.38)' : 'rgba(2,6,23,0.70)';
-                                const nodeStroke = isActive ? 'rgba(226,232,240,0.95)' : 'rgba(148,163,184,0.62)';
-
-                                // Keep node label readable (screen-stable), but keep the dot itself in world-space.
-                                const labelDx = 2.6;
-                                const labelDy = 2.0;
-
-                                const labelX = nd.x + labelDx;
-                                const labelY = nd.y - labelDy;
+                                const nodeFill = isActive ? 'rgba(226,232,240,0.34)' : 'rgba(2,6,23,0.70)';
+                                const nodeStroke = isActive ? 'rgba(226,232,240,0.92)' : 'rgba(148,163,184,0.62)';
 
                                 return (
                                     <g
@@ -884,14 +916,13 @@ function StarChartMap(props: {
                                         style={{ cursor: 'pointer' }}
                                     >
                                         <circle cx={nd.x} cy={nd.y} r={nodeDotR} fill={nodeFill} stroke={nodeStroke} strokeWidth={0.18} />
-
                                         <text
-                                            x={labelX}
-                                            y={labelY}
-                                            fontSize={1.05}
+                                            x={nd.label.x}
+                                            y={nd.label.y}
+                                            textAnchor={nd.label.anchor}
+                                            fontSize={nodeFont}
                                             fill={isActive ? 'rgba(226,232,240,0.95)' : 'rgba(226,232,240,0.82)'}
                                             style={{ letterSpacing: '0.26em', textTransform: 'uppercase' } as any}
-                                            transform={screenStableTransform(labelX, labelY, scale)}
                                         >
                                             {n.name.toUpperCase()}
                                         </text>
@@ -903,7 +934,7 @@ function StarChartMap(props: {
                 </svg>
 
                 <div className='absolute bottom-3 left-3 z-30 rounded-xl border border-slate-800 bg-slate-950/55 px-3 py-2 text-xs text-slate-400 backdrop-blur-sm pointer-events-none'>
-                    Drag to pan · Wheel to zoom · Click planet to jump-zoom
+                    Drag to pan · Wheel to zoom · Click planet to jump-zoom · Click node again to unselect
                 </div>
 
                 <div className='absolute top-3 left-3 z-30 flex items-center gap-2'>
@@ -1169,4 +1200,3 @@ export default function StarChart() {
         </div>
     );
 }
-

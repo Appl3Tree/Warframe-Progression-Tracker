@@ -38,6 +38,7 @@ export interface StarChartNode {
 
     nodeType: "mission" | "hub" | "junction" | "special";
 
+    pos?: { x: number; y: number };
     /**
      * Adjacency list for navigation and reachability checks.
      * Must be canonical NodeIds.
