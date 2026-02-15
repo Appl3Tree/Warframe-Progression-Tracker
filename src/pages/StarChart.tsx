@@ -1,6 +1,6 @@
 // ===== FILE: src/pages/StarChart.tsx =====
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STAR_CHART_DATA } from '../domain/catalog/starChart';
 import type { NodeId, PlanetId, StarChartNode, StarChartPlanet } from '../domain/models/starChart';
 import { getDropSourcesForStarChartNode } from '../domain/catalog/starChart/nodeDropSourceMap';
@@ -177,29 +177,53 @@ function nodeRevealAlpha(scale: number): number {
     return clamp(a, 0, 1);
 }
 
-function dist2(ax: number, ay: number, bx: number, by: number): number {
-    const dx = ax - bx;
-    const dy = ay - by;
-    return dx * dx + dy * dy;
+type NodeGroupKind = 'base' | 'mission_rewards' | 'caches' | 'extra' | 'other';
+
+type NodeGroup = {
+    key: string;
+    planetId: PlanetId;
+    displayName: string;
+    baseNodeId: NodeId;
+    kinds: Partial<Record<NodeGroupKind, NodeId[]>>;
+};
+
+function baseKeyFromNode(n: StarChartNode): string {
+    const id = String(n.id);
+    const stripId = id.replace(/\-\(caches\)$/i, '').replace(/\-\(extra\)$/i, '');
+
+    const nm = String(n.name ?? '');
+    const stripName = nm
+        .replace(/\s*\(Caches\)\s*$/i, '')
+        .replace(/\s*\(Extra\)\s*$/i, '')
+        .replace(/\s*\(Mission Rewards\)\s*$/i, '');
+
+    return `${String(n.planetId)}::${stripId}::${stripName}`;
 }
 
-function len(x: number, y: number): number {
-    return Math.sqrt(x * x + y * y);
+function displayNameFromBase(n: StarChartNode): string {
+    return String(n.name ?? '').replace(/\s*\((Caches|Extra|Mission Rewards)\)\s*$/i, '').trim();
 }
 
-function norm(x: number, y: number): { x: number; y: number } {
-    const l = len(x, y);
-    if (!l) return { x: 0, y: 0 };
-    return { x: x / l, y: y / l };
+function parseNodeVariant(n: StarChartNode): { baseKey: string; kind: NodeGroupKind } {
+    const name = (n.name ?? '').toLowerCase();
+    const id = String(n.id);
+
+    if (id.includes('-(caches)') || name.includes('(caches)')) return { baseKey: baseKeyFromNode(n), kind: 'caches' };
+    if (id.includes('-(extra)') || name.includes('(extra)')) return { baseKey: baseKeyFromNode(n), kind: 'extra' };
+    if (name.includes('(mission rewards)') || name.includes('mission rewards'))
+        return { baseKey: baseKeyFromNode(n), kind: 'mission_rewards' };
+
+    return { baseKey: baseKeyFromNode(n), kind: 'base' };
 }
 
 type NodeLayout = {
-    node: StarChartNode;
-    x: number;
-    y: number;
-    ring: number;
-    order: number;
-    label: { x: number; y: number; anchor: 'start' | 'end' };
+    group: NodeGroup;
+    cx: number;
+    cy: number;
+    r: number;
+    lx: number;
+    ly: number;
+    lAnchor: 'start' | 'end';
 };
 
 function StarChartMap(props: {
@@ -208,11 +232,14 @@ function StarChartMap(props: {
     setVb: React.Dispatch<React.SetStateAction<ViewBox>>;
     selectedPlanetId: PlanetId | null;
     setSelectedPlanetId: React.Dispatch<React.SetStateAction<PlanetId | null>>;
-    selectedNodeId: NodeId | null;
-    setSelectedNodeId: React.Dispatch<React.SetStateAction<NodeId | null>>;
-    itemsAtNode: ItemRow[];
+    selectedGroupKey: string | null;
+    setSelectedGroupKey: React.Dispatch<React.SetStateAction<string | null>>;
+    selectedTab: NodeGroupKind;
+    setSelectedTab: React.Dispatch<React.SetStateAction<NodeGroupKind>>;
+    itemsAtTab: ItemRow[];
     dropSourceDetails: Array<{ sid: string; label: string }>;
-    selectedNode: StarChartNode | null;
+    focusedTitle: string | null;
+    showDropsPanel: boolean;
 }) {
     const {
         isInModal,
@@ -220,19 +247,31 @@ function StarChartMap(props: {
         setVb,
         selectedPlanetId,
         setSelectedPlanetId,
-        selectedNodeId,
-        setSelectedNodeId,
-        itemsAtNode,
+        selectedGroupKey,
+        setSelectedGroupKey,
+        selectedTab,
+        setSelectedTab,
+        itemsAtTab,
         dropSourceDetails,
-        selectedNode
+        focusedTitle,
+        showDropsPanel
     } = props;
 
     const svgRef = useRef<SVGSVGElement | null>(null);
-
     const vbRef = useRef<ViewBox>(vb);
     useEffect(() => {
         vbRef.current = vb;
     }, [vb]);
+
+    const [boundsTick, setBoundsTick] = useState(0);
+    useEffect(() => {
+        const svg = svgRef.current;
+        if (!svg) return;
+
+        const ro = new ResizeObserver(() => setBoundsTick((x) => x + 1));
+        ro.observe(svg);
+        return () => ro.disconnect();
+    }, []);
 
     const scale = useMemo(() => viewBoxToScale(vb), [vb]);
     const reveal = useMemo(() => nodeRevealAlpha(scale), [scale]);
@@ -243,18 +282,41 @@ function StarChartMap(props: {
         return m;
     }, []);
 
-    const nodesByPlanet = useMemo(() => {
-        const m = new Map<string, StarChartNode[]>();
+    const groupedByPlanet = useMemo(() => {
+        const out = new Map<string, NodeGroup[]>();
+
         for (const n of STAR_CHART_DATA.nodes) {
-            const pid = n.planetId;
-            if (!m.has(pid)) m.set(pid, []);
-            m.get(pid)!.push(n);
+            const pid = String(n.planetId);
+            const v = parseNodeVariant(n);
+            const key = v.baseKey;
+
+            if (!out.has(pid)) out.set(pid, []);
+            const arr = out.get(pid)!;
+
+            let g = arr.find((x) => x.key === key) ?? null;
+            if (!g) {
+                g = {
+                    key,
+                    planetId: n.planetId,
+                    displayName: displayNameFromBase(n),
+                    baseNodeId: n.id,
+                    kinds: {}
+                };
+                arr.push(g);
+            }
+
+            if (!g.kinds[v.kind]) g.kinds[v.kind] = [];
+            g.kinds[v.kind]!.push(n.id);
+
+            if (v.kind === 'base') g.baseNodeId = n.id;
         }
-        for (const [pid, arr] of m.entries()) {
-            arr.sort((a, b) => a.name.localeCompare(b.name));
-            m.set(pid, arr);
+
+        for (const [pid, arr] of out.entries()) {
+            arr.sort((a, b) => a.displayName.localeCompare(b.displayName));
+            out.set(pid, arr);
         }
-        return m;
+
+        return out;
     }, []);
 
     const sortedPlanets = useMemo(() => {
@@ -330,6 +392,22 @@ function StarChartMap(props: {
         return { x: out.x, y: out.y };
     }
 
+    function worldToOverlayPx(world: { x: number; y: number }): { x: number; y: number } | null {
+        const svg = svgRef.current;
+        if (!svg) return null;
+
+        const pt = svg.createSVGPoint();
+        pt.x = world.x;
+        pt.y = world.y;
+
+        const ctm = svg.getScreenCTM();
+        if (!ctm) return null;
+
+        const out = pt.matrixTransform(ctm);
+        const rect = svg.getBoundingClientRect();
+        return { x: out.x - rect.left, y: out.y - rect.top };
+    }
+
     useEffect(() => {
         const svg = svgRef.current;
         if (!svg) return;
@@ -342,7 +420,7 @@ function StarChartMap(props: {
             if (e.button !== 0) return;
 
             const t = e.target as HTMLElement | null;
-            if (t?.closest('[data-clickable=\'true\']')) return;
+            if (t?.closest('[data-clickable="true"]')) return;
 
             dragging = true;
             startClient = { x: e.clientX, y: e.clientY };
@@ -436,19 +514,19 @@ function StarChartMap(props: {
         return overviewPosById.get(focusedPlanetId) ?? null;
     }, [focusedPlanetId, overviewPosById]);
 
-    const focusedPlanetNodes = useMemo(() => {
-        if (!focusedPlanetId) return [] as StarChartNode[];
-        return nodesByPlanet.get(focusedPlanetId) ?? [];
-    }, [focusedPlanetId, nodesByPlanet]);
+    const focusedPlanetGroups = useMemo(() => {
+        if (!focusedPlanetId) return [] as NodeGroup[];
+        return groupedByPlanet.get(focusedPlanetId) ?? [];
+    }, [focusedPlanetId, groupedByPlanet]);
 
     const planetMode = useMemo(() => Boolean(focusedPlanetPos && reveal > 0.12), [focusedPlanetPos, reveal]);
 
     useEffect(() => {
         if (scale <= 1.10 && selectedPlanetId) {
             setSelectedPlanetId(null);
-            setSelectedNodeId(null);
+            setSelectedGroupKey(null);
         }
-    }, [scale, selectedPlanetId, setSelectedPlanetId, setSelectedNodeId]);
+    }, [scale, selectedPlanetId, setSelectedPlanetId, setSelectedGroupKey]);
 
     function zoomToPlanet(pid: PlanetId, targetScale: number) {
         const pos = overviewPosById.get(pid);
@@ -469,7 +547,8 @@ function StarChartMap(props: {
 
     function onClickPlanet(pid: PlanetId) {
         setSelectedPlanetId(pid);
-        setSelectedNodeId(null);
+        setSelectedGroupKey(null);
+        setSelectedTab('base');
         zoomToPlanet(pid, 4.2);
     }
 
@@ -484,289 +563,397 @@ function StarChartMap(props: {
     }, [planetMode, reveal]);
 
     const nodeDotR = useMemo(() => {
-        const r = 0.78 / scale;
-        return clamp(r, 0.18, 0.42);
+        const r = 0.92 / scale;
+        return clamp(r, 0.20, 0.44);
     }, [scale]);
 
-    const nodeFont = useMemo(() => {
-        const f = 2.5 / scale;
-        return clamp(f, 0.70, 1.10);
-    }, [scale]);
+    const edgesById = useMemo(() => {
+        const m = new Map<string, string[]>();
+        for (const n of STAR_CHART_DATA.nodes as any[]) {
+            const id = String(n.id);
+            const edges = Array.isArray(n.edges) ? n.edges.map(String) : [];
+            m.set(id, edges);
+        }
+        return m;
+    }, []);
 
-    const planetTitleFont = useMemo(() => {
-        const f = (focusedDiskR * 0.23) / scale;
-        return clamp(f, 1.1, 2.4);
-    }, [focusedDiskR, scale]);
+    function nodeManualLocal(n: StarChartNode): { x: number; y: number } | null {
+        const anyN = n as any;
+        const p = anyN?.pos;
+        if (!p) return null;
+        const x = typeof p.x === 'number' ? p.x : Number(p.x);
+        const y = typeof p.y === 'number' ? p.y : Number(p.y);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+        return { x, y };
+    }
 
-    const focusedNodeLayout = useMemo((): NodeLayout[] => {
+    function getNodeRecordById(id: NodeId): StarChartNode | null {
+        const n = (STAR_CHART_DATA.nodes as StarChartNode[]).find((x) => x.id === id);
+        return n ?? null;
+    }
+
+    function groupBaseNode(group: NodeGroup): StarChartNode | null {
+        return getNodeRecordById(group.baseNodeId);
+    }
+
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // ONLY CHANGE: allow manual positions to be outside the planet disk by removing the clipPath
+    // for the focused-planet node layer + line layer. Everything else unchanged.
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    const focusedLayout = useMemo((): NodeLayout[] => {
         if (!focusedPlanetPos) return [];
-        if (focusedPlanetNodes.length === 0) return [];
+        if (focusedPlanetGroups.length === 0) return [];
 
         const cx = focusedPlanetPos.x;
         const cy = focusedPlanetPos.y;
 
-        const maxR = focusedDiskR * 0.84;
+        const clusterR = focusedDiskR * 0.82;
 
-        const hasAnyManual = focusedPlanetNodes.some((n: any) => typeof (n as any)?.pos?.x === 'number' && typeof (n as any)?.pos?.y === 'number');
+        const pts: Array<{
+            group: NodeGroup;
+            x: number;
+            y: number;
+            r: number;
+            hasManual: boolean;
+        }> = [];
 
-        const base: Array<{ node: StarChartNode; x: number; y: number; ring: number; order: number; fixed?: boolean }> = [];
+        for (let i = 0; i < focusedPlanetGroups.length; i++) {
+            const g = focusedPlanetGroups[i];
+            const base = groupBaseNode(g);
+            const manual = base ? nodeManualLocal(base) : null;
 
-        const count = focusedPlanetNodes.length;
-        const ringCount = 3;
-
-        const rings: number[] = [];
-        for (let i = 0; i < count; i++) {
-            const n = focusedPlanetNodes[i];
-            const h = hashToUnitFloat(n.id + ':ring');
-            const ring = Math.floor(h * ringCount);
-            rings.push(ring);
-        }
-
-        for (let i = 0; i < count; i++) {
-            const n: any = focusedPlanetNodes[i];
-
-            const manual = hasAnyManual && typeof n?.pos?.x === 'number' && typeof n?.pos?.y === 'number';
             if (manual) {
-                // pos is in "planet radii" units:
-                // (0,0) center, (1,0) edge, (>1) outside
-                const px = Number(n.pos.x);
-                const py = Number(n.pos.y);
-
-                const x = cx + px * maxR;
-                const y = cy + py * maxR;
-
-                base.push({ node: n as StarChartNode, x, y, ring: 0, order: i, fixed: true });
+                pts.push({
+                    group: g,
+                    x: cx + manual.x * focusedDiskR,
+                    y: cy + manual.y * focusedDiskR,
+                    r: nodeDotR,
+                    hasManual: true
+                });
                 continue;
             }
 
-            const ring = rings[i] ?? 0;
-            const ringT = ringCount <= 1 ? 0 : ring / (ringCount - 1);
-            const r = maxR * (0.34 + ringT * 0.56);
-
-            const a0 = hashToUnitFloat(n.id + ':ang') * Math.PI * 2;
-            const a = a0 + i * (Math.PI * 2 / Math.max(12, count));
-
-            const jx = (hashToUnitFloat(n.id + ':jx') - 0.5) * (focusedDiskR * 0.05);
-            const jy = (hashToUnitFloat(n.id + ':jy') - 0.5) * (focusedDiskR * 0.05);
-
-            const x = cx + Math.cos(a) * r + jx;
-            const y = cy + Math.sin(a) * r + jy;
-
-            base.push({ node: n, x, y, ring, order: i });
+            const a = (i / Math.max(1, focusedPlanetGroups.length)) * Math.PI * 2;
+            const r0 = clusterR * (0.30 + 0.66 * hashToUnitFloat(g.key + ':r'));
+            pts.push({
+                group: g,
+                x: cx + Math.cos(a) * r0,
+                y: cy + Math.sin(a) * r0,
+                r: nodeDotR,
+                hasManual: false
+            });
         }
 
-        const minSep = nodeDotR * 5.2;
-        const minSep2 = minSep * minSep;
-        const relaxed = base.map((b) => ({ ...b }));
+        const steps = 70;
+        const padding = nodeDotR * 2.6;
+        const pull = 0.010;
 
-        for (let iter = 0; iter < 28; iter++) {
-            let moved = 0;
+        for (let s = 0; s < steps; s++) {
+            for (let i = 0; i < pts.length; i++) {
+                const a = pts[i];
+                if (a.hasManual) continue;
 
-            for (let i = 0; i < relaxed.length; i++) {
-                for (let j = i + 1; j < relaxed.length; j++) {
-                    const a = relaxed[i];
-                    const b = relaxed[j];
-                    const d2 = dist2(a.x, a.y, b.x, b.y);
-                    if (d2 >= minSep2 || d2 === 0) continue;
+                const dx0 = a.x - cx;
+                const dy0 = a.y - cy;
+                a.x -= dx0 * pull;
+                a.y -= dy0 * pull;
 
-                    const d = Math.sqrt(d2);
-                    const push = (minSep - d) * 0.5;
-                    const vx = (a.x - b.x) / d;
-                    const vy = (a.y - b.y) / d;
+                for (let j = 0; j < pts.length; j++) {
+                    if (i === j) continue;
+                    const b = pts[j];
 
-                    const aFixed = Boolean((a as any).fixed);
-                    const bFixed = Boolean((b as any).fixed);
+                    const dx = a.x - b.x;
+                    const dy = a.y - b.y;
+                    const d = Math.sqrt(dx * dx + dy * dy) || 0.0001;
+                    const minD = a.r + b.r + padding;
 
-                    if (!aFixed) {
-                        a.x += vx * push;
-                        a.y += vy * push;
+                    if (d < minD) {
+                        const push = (minD - d) * 0.42;
+                        const ux = dx / d;
+                        const uy = dy / d;
+
+                        const wA = b.hasManual ? 1.0 : 0.5;
+                        const wB = b.hasManual ? 0.0 : 0.5;
+
+                        a.x += ux * push * wA;
+                        a.y += uy * push * wA;
+
+                        b.x -= ux * push * wB;
+                        b.y -= uy * push * wB;
                     }
-                    if (!bFixed) {
-                        b.x -= vx * push;
-                        b.y -= vy * push;
-                    }
-                    moved++;
                 }
             }
-
-            for (const p of relaxed) {
-                if (Boolean((p as any).fixed)) continue; // allow manual nodes outside
-                const dx = p.x - cx;
-                const dy = p.y - cy;
-                const d = Math.sqrt(dx * dx + dy * dy);
-                if (d > maxR) {
-                    const s = maxR / d;
-                    p.x = cx + dx * s;
-                    p.y = cy + dy * s;
-                }
-            }
-
-            if (moved === 0) break;
         }
 
-        const layouts: NodeLayout[] = [];
-        for (const p of relaxed) {
-            const dx = p.x - cx;
-            const dy = p.y - cy;
-            const v = norm(dx, dy);
+        const layouts: NodeLayout[] = pts.map((p) => {
+            const ang = Math.atan2(p.y - cy, p.x - cx);
+            const preferRight = Math.cos(ang) >= 0;
 
-            const dir =
-                v.x === 0 && v.y === 0
-                    ? norm(hashToUnitFloat(p.node.id + ':lx') - 0.5, hashToUnitFloat(p.node.id + ':ly') - 0.5)
-                    : v;
+            const labelDist = nodeDotR * 3.1;
+            const lxA = p.x + (preferRight ? labelDist : -labelDist);
+            const lyA = p.y;
 
-            const baseOff = nodeDotR * 3.2;
+            const altRight = !preferRight;
+            const lxB = p.x + (altRight ? labelDist : -labelDist);
+            const lyB = p.y;
 
-            const tryDirs: Array<{ x: number; y: number; anchor: 'start' | 'end' }> = [
-                { x: dir.x, y: dir.y, anchor: dir.x >= 0 ? 'start' : 'end' },
-                { x: -dir.x, y: -dir.y, anchor: dir.x >= 0 ? 'end' : 'start' }
-            ];
-
-            let label = {
-                x: p.x + tryDirs[0].x * baseOff,
-                y: p.y + tryDirs[0].y * baseOff,
-                anchor: tryDirs[0].anchor as 'start' | 'end'
-            };
-
-            const wouldHitAny = (lx: number, ly: number) => {
-                const pad = nodeDotR * 4.4;
-                const pad2 = pad * pad;
-                for (const other of relaxed) {
-                    if (other.node.id === p.node.id) continue;
-                    if (dist2(lx, ly, other.x, other.y) < pad2) return true;
+            function penalty(lx: number, ly: number): number {
+                let pen = 0;
+                for (const q of pts) {
+                    const dx = lx - q.x;
+                    const dy = ly - q.y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    const minD = q.r + nodeDotR * 3.4;
+                    if (d < minD) pen += minD - d;
                 }
-                return false;
-            };
-
-            if (wouldHitAny(label.x, label.y)) {
-                label = {
-                    x: p.x + tryDirs[1].x * baseOff,
-                    y: p.y + tryDirs[1].y * baseOff,
-                    anchor: tryDirs[1].anchor
-                };
+                return pen;
             }
 
-            if (!Boolean((p as any).fixed)) {
-                const maxLabelR = focusedDiskR * 0.94;
-                const ldx = label.x - cx;
-                const ldy = label.y - cy;
-                const ld = Math.sqrt(ldx * ldx + ldy * ldy);
-                if (ld > maxLabelR) {
-                    const s = maxLabelR / ld;
-                    label.x = cx + ldx * s;
-                    label.y = cy + ldy * s;
-                }
-            }
+            const pA = penalty(lxA, lyA);
+            const pB = penalty(lxB, lyB);
 
-            layouts.push({ node: p.node, x: p.x, y: p.y, ring: p.ring, order: p.order, label });
-        }
+            const useRight = pA <= pB ? preferRight : altRight;
+
+            return {
+                group: p.group,
+                cx: p.x,
+                cy: p.y,
+                r: p.r,
+                lx: p.x + (useRight ? labelDist : -labelDist),
+                ly: p.y,
+                lAnchor: useRight ? 'start' : 'end'
+            };
+        });
 
         return layouts;
-    }, [focusedPlanetPos, focusedPlanetNodes, focusedDiskR, nodeDotR]);
+    }, [focusedPlanetPos, focusedPlanetGroups, focusedDiskR, nodeDotR]);
 
-    const focusedLinks = useMemo(() => {
+    const canInteractPlanetNodes = planetMode && reveal > 0.18;
+
+    const selectedGroup = useMemo(() => {
+        if (!selectedGroupKey) return null;
+        return focusedPlanetGroups.find((g) => g.key === selectedGroupKey) ?? null;
+    }, [selectedGroupKey, focusedPlanetGroups]);
+
+    const selectedNodeIdsForTabs = useMemo(() => {
+        if (!selectedGroup) return null;
+
+        const tabs: Array<{ kind: NodeGroupKind; label: string; nodeId: NodeId | null }> = [];
+
+        const baseIds = selectedGroup.kinds.base ?? [];
+        const cachesIds = selectedGroup.kinds.caches ?? [];
+        const extraIds = selectedGroup.kinds.extra ?? [];
+        const mrIds = selectedGroup.kinds.mission_rewards ?? [];
+
+        tabs.push({ kind: 'base', label: 'Drops', nodeId: baseIds[0] ?? selectedGroup.baseNodeId });
+        if (mrIds.length) tabs.push({ kind: 'mission_rewards', label: 'Mission Rewards', nodeId: mrIds[0] });
+        if (cachesIds.length) tabs.push({ kind: 'caches', label: 'Caches', nodeId: cachesIds[0] });
+        if (extraIds.length) tabs.push({ kind: 'extra', label: 'Extra', nodeId: extraIds[0] });
+
+        return tabs;
+    }, [selectedGroup]);
+
+    function onClickGroup(g: NodeGroup) {
+        if (selectedGroupKey === g.key) {
+            setSelectedGroupKey(null);
+            setSelectedTab('base');
+            return;
+        }
+        setSelectedGroupKey(g.key);
+        setSelectedTab('base');
+    }
+
+    const groupByBaseNodeId = useMemo(() => {
+        const m = new Map<string, NodeGroup>();
+        for (const g of focusedPlanetGroups) m.set(String(g.baseNodeId), g);
+        return m;
+    }, [focusedPlanetGroups]);
+
+    const links = useMemo(() => {
         if (!focusedPlanetId) return [] as Array<{ a: NodeLayout; b: NodeLayout }>;
-        if (focusedNodeLayout.length < 2) return [] as Array<{ a: NodeLayout; b: NodeLayout }>;
+        if (!focusedLayout.length) return [];
 
-        const byId = new Map<string, NodeLayout>();
-        for (const l of focusedNodeLayout) byId.set(l.node.id, l);
+        const byKey = new Map<string, NodeLayout>();
+        for (const l of focusedLayout) byKey.set(l.group.key, l);
 
-        const uniq = new Set<string>();
-        const links: Array<{ a: NodeLayout; b: NodeLayout }> = [];
+        const out: Array<{ a: NodeLayout; b: NodeLayout }> = [];
 
-        for (const l of focusedNodeLayout) {
-            const n: any = l.node;
-            const edges: string[] = Array.isArray(n?.edges) ? n.edges.map(String) : [];
+        for (const l of focusedLayout) {
+            const aBaseId = String(l.group.baseNodeId);
+            const edges = edgesById.get(aBaseId) ?? [];
             for (const toId of edges) {
-                const b = byId.get(toId);
+                const toGroup = groupByBaseNodeId.get(String(toId));
+                if (!toGroup) continue;
+                const b = byKey.get(toGroup.key);
                 if (!b) continue;
-
-                const key = [l.node.id, b.node.id].sort().join('::');
-                if (uniq.has(key)) continue;
-                uniq.add(key);
-
-                links.push({ a: l, b });
+                out.push({ a: l, b });
             }
         }
 
-        return links;
-    }, [focusedPlanetId, focusedNodeLayout]);
+        const seen = new Set<string>();
+        const uniq: Array<{ a: NodeLayout; b: NodeLayout }> = [];
+        for (const e of out) {
+            const k1 = `${e.a.group.key}=>${e.b.group.key}`;
+            const k2 = `${e.b.group.key}=>${e.a.group.key}`;
+            if (seen.has(k1) || seen.has(k2)) continue;
+            seen.add(k1);
+            uniq.push(e);
+        }
+
+        return uniq;
+    }, [focusedPlanetId, focusedLayout, edgesById, groupByBaseNodeId]);
 
     const clipId = useMemo(() => {
         const base = focusedPlanetId ? focusedPlanetId.replace(/[^a-z0-9_:-]/gi, '_') : 'none';
         return `clip_${base}`;
     }, [focusedPlanetId]);
 
-    const panelDock = useMemo(() => {
-        if (!focusedPlanetPos) return { side: 'right' as const, top: true };
-        const side = focusedPlanetPos.x > 55 ? ('left' as const) : ('right' as const);
-        const top = focusedPlanetPos.y > 55 ? false : true;
-        return { side, top };
-    }, [focusedPlanetPos]);
+    function onMapBackgroundClick() {
+        setSelectedGroupKey(null);
+        setSelectedTab('base');
+    }
 
-    const panelClass = useMemo(() => {
-        const side = panelDock.side === 'left' ? 'left-4' : 'right-4';
-        const vert = panelDock.top ? 'top-4' : 'bottom-4';
-        return `${side} ${vert}`;
-    }, [panelDock]);
+    const planetNameScreen = useMemo(() => {
+        if (!focusedPlanetPos || !focusedPlanet || reveal <= 0.12) return null;
+        const p = worldToOverlayPx({ x: focusedPlanetPos.x, y: focusedPlanetPos.y - focusedDiskR + 2.2 });
+        if (!p) return null;
+        return { x: p.x, y: p.y, name: focusedPlanet.name };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [focusedPlanetPos?.x, focusedPlanetPos?.y, focusedPlanet?.name, reveal, focusedDiskR, boundsTick]);
+
+    const labelScreens = useMemo(() => {
+        if (!canInteractPlanetNodes) return [];
+        const out: Array<{ key: string; x: number; y: number; text: string; anchor: 'start' | 'end' }> = [];
+
+        for (const nd of focusedLayout) {
+            const p = worldToOverlayPx({ x: nd.lx, y: nd.ly });
+            if (!p) continue;
+            out.push({
+                key: nd.group.key,
+                x: p.x,
+                y: p.y,
+                text: nd.group.displayName,
+                anchor: nd.lAnchor
+            });
+        }
+
+        return out;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [canInteractPlanetNodes, focusedLayout, boundsTick]);
+
+    const overviewPlanetLabelScreens = useMemo(() => {
+        const out: Array<{ id: string; x: number; y: number; text: string; opacity: number }> = [];
+        const baseOpacity = clamp(otherPlanetsOpacity, 0, 1);
+
+        for (const pl of overviewPlanets) {
+            const p = worldToOverlayPx({ x: pl.x, y: pl.y - 4.2 });
+            if (!p) continue;
+            out.push({
+                id: pl.planet.id,
+                x: p.x,
+                y: p.y,
+                text: pl.planet.name,
+                opacity: baseOpacity
+            });
+        }
+        return out;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [overviewPlanets, boundsTick, otherPlanetsOpacity]);
 
     return (
         <div className={['relative w-full', isInModal ? 'h-full' : 'h-[72vh] min-h-[560px]'].join(' ')}>
-            <div className={`absolute ${panelClass} z-30 w-[520px] max-w-[42vw] pointer-events-none`}>
-                <div className='pointer-events-auto rounded-2xl border border-slate-800 bg-slate-950/55 p-3 backdrop-blur-sm'>
-                    <div className='text-sm font-semibold text-slate-100'>
-                        {selectedNode ? `Drops · ${selectedNode.name}` : 'Drops / Rewards'}
-                    </div>
-                    <div className='mt-1 text-xs text-slate-400'>
-                        {selectedNode ? `${selectedNode.name} (${selectedNode.id})` : 'Zoom into a planet then click a node.'}
-                    </div>
+            {showDropsPanel && (
+                <div className='absolute right-4 top-4 bottom-4 z-40 w-[520px] max-w-[42vw] pointer-events-none'>
+                    <div className='pointer-events-auto h-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/55 backdrop-blur-sm'>
+                        <div className='h-full overflow-auto overscroll-contain p-3'>
+                            <div className='flex items-start justify-between gap-2'>
+                                <div className='min-w-0'>
+                                    <div className='text-sm font-semibold text-slate-100'>
+                                        {selectedGroup ? `Drops · ${selectedGroup.displayName}` : 'Drops / Rewards'}
+                                    </div>
+                                    <div className='mt-1 text-xs text-slate-400'>Click the selected node again to unselect.</div>
+                                </div>
 
-                    {!selectedNode ? (
-                        <div className='mt-3 text-sm text-slate-400'>No node selected.</div>
-                    ) : (
-                        <div className='mt-3 space-y-3'>
-                            <div>
-                                <div className='mb-2 text-[11px] uppercase tracking-wide text-slate-500'>Drop SourceIds</div>
-                                {dropSourceDetails.length === 0 ? (
-                                    <div className='text-sm text-slate-400'>No drop sources mapped for this node.</div>
-                                ) : (
-                                    <ul className='space-y-1'>
-                                        {dropSourceDetails.map((d) => (
-                                            <li key={d.sid} className='text-xs text-slate-200 break-words'>
-                                                <span className='font-mono'>{d.sid}</span>
-                                                <span className='text-slate-500'> — {d.label}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
+                                <div className='flex items-center gap-2'>
+                                    <button
+                                        className='rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900'
+                                        onClick={() => {
+                                            setSelectedGroupKey(null);
+                                            setSelectedTab('base');
+                                        }}
+                                    >
+                                        Close
+                                    </button>
+                                </div>
                             </div>
 
-                            <div>
-                                <div className='mb-2 text-[11px] uppercase tracking-wide text-slate-500'>
-                                    Items with acquisition including these sources
+                            {selectedGroup && selectedNodeIdsForTabs && (
+                                <div className='mt-3 flex flex-wrap items-center gap-2'>
+                                    {selectedNodeIdsForTabs.map((t) => {
+                                        const active = t.kind === selectedTab;
+                                        return (
+                                            <button
+                                                key={`tab-${t.kind}`}
+                                                className={[
+                                                    'rounded-full px-3 py-1 text-xs border',
+                                                    active
+                                                        ? 'bg-slate-100 text-slate-900 border-slate-100'
+                                                        : 'bg-slate-950/40 text-slate-200 border-slate-700 hover:bg-slate-900'
+                                                ].join(' ')}
+                                                onClick={() => setSelectedTab(t.kind)}
+                                            >
+                                                {t.label}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
-                                {itemsAtNode.length === 0 ? (
-                                    <div className='text-sm text-slate-400'>No items currently resolve to these sources.</div>
-                                ) : (
-                                    <div className='max-h-[420px] overflow-auto rounded-xl border border-slate-800 bg-slate-950/30 p-2'>
-                                        <ul className='list-disc pl-5 space-y-0.5 text-sm text-slate-200'>
-                                            {itemsAtNode.slice(0, 300).map((it) => (
-                                                <li key={it.catalogId} className='break-words'>
-                                                    <span className='font-semibold'>{it.name}</span>{' '}
-                                                    <span className='text-slate-500 font-mono'>({it.catalogId})</span>
+                            )}
+
+                            <div className='mt-3 space-y-3'>
+                                <div>
+                                    <div className='mb-2 text-[11px] uppercase tracking-wide text-slate-500'>Drop SourceIds</div>
+                                    {dropSourceDetails.length === 0 ? (
+                                        <div className='text-sm text-slate-400'>No drop sources mapped for this node.</div>
+                                    ) : (
+                                        <ul className='space-y-1'>
+                                            {dropSourceDetails.map((d) => (
+                                                <li key={d.sid} className='text-xs text-slate-200 break-words'>
+                                                    <span className='font-mono'>{d.sid}</span>
+                                                    <span className='text-slate-500'> — {d.label}</span>
                                                 </li>
                                             ))}
                                         </ul>
-                                        {itemsAtNode.length > 300 && (
-                                            <div className='mt-2 text-xs text-slate-500'>Rendering capped at 300 items.</div>
-                                        )}
+                                    )}
+                                </div>
+
+                                <div>
+                                    <div className='mb-2 text-[11px] uppercase tracking-wide text-slate-500'>
+                                        Items with acquisition including these sources
                                     </div>
-                                )}
+                                    {itemsAtTab.length === 0 ? (
+                                        <div className='text-sm text-slate-400'>No items currently resolve to these sources.</div>
+                                    ) : (
+                                        <div className='max-h-[420px] overflow-auto rounded-xl border border-slate-800 bg-slate-950/30 p-2'>
+                                            <ul className='list-disc pl-5 space-y-0.5 text-sm text-slate-200'>
+                                                {itemsAtTab.slice(0, 300).map((it) => (
+                                                    <li key={it.catalogId} className='break-words'>
+                                                        <span className='font-semibold'>{it.name}</span>{' '}
+                                                        <span className='text-slate-500 font-mono'>({it.catalogId})</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            {itemsAtTab.length > 300 && (
+                                                <div className='mt-2 text-xs text-slate-500'>Rendering capped at 300 items.</div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div className='absolute inset-0 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 select-none'>
                 <svg
@@ -774,6 +961,11 @@ function StarChartMap(props: {
                     className='absolute inset-0 h-full w-full z-10 cursor-grab active:cursor-grabbing'
                     viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
                     preserveAspectRatio='xMidYMid meet'
+                    onClick={(e) => {
+                        const t = e.target as HTMLElement | null;
+                        if (t?.closest?.('[data-clickable="true"]')) return;
+                        onMapBackgroundClick();
+                    }}
                 >
                     <defs>
                         <radialGradient id='bg0' cx='50%' cy='50%' r='70%'>
@@ -832,16 +1024,6 @@ function StarChartMap(props: {
                                     style={{ cursor: 'pointer' }}
                                 >
                                     <circle cx={pl.x} cy={pl.y} r={pl.r} fill={fill} stroke={stroke} strokeWidth={0.22} />
-                                    <text
-                                        x={pl.x}
-                                        y={pl.y - (p.kind === 'planet' ? 3.2 : -3.2)}
-                                        textAnchor='middle'
-                                        fontSize={1.6}
-                                        fill={active ? 'rgba(226,232,240,0.95)' : 'rgba(226,232,240,0.78)'}
-                                        style={{ letterSpacing: '0.35em', textTransform: 'uppercase' } as any}
-                                    >
-                                        {p.name.toUpperCase()}
-                                    </text>
                                 </g>
                             );
                         })}
@@ -854,8 +1036,8 @@ function StarChartMap(props: {
                                 cy={focusedPlanetPos.y}
                                 r={focusedDiskR}
                                 fill='rgba(2,6,23,0.55)'
-                                stroke='rgba(148,163,184,0.24)'
-                                strokeWidth={0.28}
+                                stroke='rgba(148,163,184,0.22)'
+                                strokeWidth={0.25}
                             />
                             <circle
                                 cx={focusedPlanetPos.x - focusedDiskR * 0.22}
@@ -867,65 +1049,42 @@ function StarChartMap(props: {
                     )}
 
                     {focusedPlanetPos && focusedPlanet && reveal > 0.01 && (
-                        <g clipPath={`url(#${clipId})`} opacity={reveal} pointerEvents='none'>
-                            <g opacity={0.90}>
-                                {focusedLinks.map((l, idx) => (
-                                    <line
-                                        key={`ln-${idx}`}
-                                        x1={l.a.x}
-                                        y1={l.a.y}
-                                        x2={l.b.x}
-                                        y2={l.b.y}
-                                        stroke='rgba(226,232,240,0.20)'
-                                        strokeWidth={0.10}
-                                    />
-                                ))}
+                        // NOTE: intentionally NOT clipped so nodes (and their lines) can be placed outside the planet circle.
+                        <g opacity={reveal} pointerEvents={canInteractPlanetNodes ? 'auto' : 'none'}>
+                            <g opacity={0.85}>
+                                {links.map((l, idx) => {
+                                    const isSelectedA = selectedGroupKey === l.a.group.key;
+                                    const isSelectedB = selectedGroupKey === l.b.group.key;
+                                    const hi = isSelectedA || isSelectedB;
+
+                                    return (
+                                        <line
+                                            key={`ln-${idx}`}
+                                            x1={l.a.cx}
+                                            y1={l.a.cy}
+                                            x2={l.b.cx}
+                                            y2={l.b.cy}
+                                            stroke={hi ? 'rgba(226,232,240,0.55)' : 'rgba(226,232,240,0.22)'}
+                                            strokeWidth={hi ? 0.18 : 0.12}
+                                        />
+                                    );
+                                })}
                             </g>
-                        </g>
-                    )}
 
-                    {focusedPlanetPos && focusedPlanet && reveal > 0.01 && (
-                        <g opacity={reveal} pointerEvents='none'>
-                            <text
-                                x={focusedPlanetPos.x}
-                                y={focusedPlanetPos.y - focusedDiskR * 0.72}
-                                textAnchor='middle'
-                                fontSize={planetTitleFont}
-                                fill='rgba(226,232,240,0.90)'
-                                style={{ letterSpacing: '0.38em', textTransform: 'uppercase' } as any}
-                            >
-                                {focusedPlanet.name.toUpperCase()}
-                            </text>
-                        </g>
-                    )}
+                            {focusedLayout.map((nd) => {
+                                const isActive = selectedGroupKey === nd.group.key;
 
-                    {focusedPlanetPos && focusedPlanet && reveal > 0.01 && (
-                        <g opacity={reveal} pointerEvents={reveal > 0.15 ? 'auto' : 'none'}>
-                            {focusedNodeLayout.map((nd) => {
-                                const n = nd.node;
-                                const isActive = n.id === selectedNodeId;
-
-                                const nodeFill = isActive ? 'rgba(226,232,240,0.34)' : 'rgba(2,6,23,0.70)';
-                                const nodeStroke = isActive ? 'rgba(226,232,240,0.92)' : 'rgba(148,163,184,0.62)';
+                                const nodeFill = isActive ? 'rgba(226,232,240,0.34)' : 'rgba(2,6,23,0.72)';
+                                const nodeStroke = isActive ? 'rgba(226,232,240,0.95)' : 'rgba(148,163,184,0.60)';
 
                                 return (
                                     <g
-                                        key={n.id}
+                                        key={nd.group.key}
                                         data-clickable='true'
-                                        onClick={() => setSelectedNodeId((prev) => (prev === n.id ? null : n.id))}
+                                        onClick={() => onClickGroup(nd.group)}
                                         style={{ cursor: 'pointer' }}
                                     >
-                                        <circle cx={nd.x} cy={nd.y} r={nodeDotR} fill={nodeFill} stroke={nodeStroke} strokeWidth={0.18} />
-                                        <text
-                                            x={nd.label.x}
-                                            y={nd.label.y}
-                                            textAnchor={nd.label.anchor}
-                                            fontSize={nodeFont}
-                                            fill={isActive ? 'rgba(226,232,240,0.95)' : 'rgba(226,232,240,0.82)'}
-                                            style={{ letterSpacing: '0.26em', textTransform: 'uppercase' } as any}
-                                        >
-                                            {n.name.toUpperCase()}
-                                        </text>
+                                        <circle cx={nd.cx} cy={nd.cy} r={nd.r} fill={nodeFill} stroke={nodeStroke} strokeWidth={0.16} />
                                     </g>
                                 );
                             })}
@@ -933,8 +1092,62 @@ function StarChartMap(props: {
                     )}
                 </svg>
 
+                <div className='absolute inset-0 z-30 pointer-events-none'>
+                    {overviewPlanetLabelScreens.map((p) => (
+                        <div
+                            key={`pllbl-${p.id}`}
+                            className='absolute text-[11px] text-slate-200 tracking-[0.35em]'
+                            style={{
+                                left: p.x,
+                                top: p.y,
+                                opacity: p.opacity,
+                                transform: 'translate(-50%, -50%)',
+                                textTransform: 'uppercase',
+                                textShadow: '0 2px 10px rgba(0,0,0,0.65)',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {p.text}
+                        </div>
+                    ))}
+
+                    {planetNameScreen && (
+                        <div
+                            className='absolute text-[12px] font-semibold text-slate-100 tracking-[0.35em]'
+                            style={{
+                                left: planetNameScreen.x,
+                                top: planetNameScreen.y,
+                                transform: 'translate(-50%, -50%)',
+                                textTransform: 'uppercase',
+                                textShadow: '0 2px 10px rgba(0,0,0,0.65)',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {planetNameScreen.name}
+                        </div>
+                    )}
+
+                    {canInteractPlanetNodes &&
+                        labelScreens.map((l) => (
+                            <div
+                                key={`lbl-${l.key}`}
+                                className='absolute text-[11px] text-slate-100 tracking-[0.22em]'
+                                style={{
+                                    left: l.x,
+                                    top: l.y,
+                                    transform: l.anchor === 'end' ? 'translate(-100%, -50%)' : 'translate(0%, -50%)',
+                                    textTransform: 'uppercase',
+                                    textShadow: '0 2px 10px rgba(0,0,0,0.65)',
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
+                                {l.text}
+                            </div>
+                        ))}
+                </div>
+
                 <div className='absolute bottom-3 left-3 z-30 rounded-xl border border-slate-800 bg-slate-950/55 px-3 py-2 text-xs text-slate-400 backdrop-blur-sm pointer-events-none'>
-                    Drag to pan · Wheel to zoom · Click planet to jump-zoom · Click node again to unselect
+                    Drag to pan · Wheel to zoom · Click pnet to jump-zoom · Click node again to unselect
                 </div>
 
                 <div className='absolute top-3 left-3 z-30 flex items-center gap-2'>
@@ -953,6 +1166,8 @@ function StarChartMap(props: {
                     >
                         −
                     </button>
+
+                    {focusedTitle && <div className='ml-2 hidden sm:block text-[11px] text-slate-500'>{focusedTitle}</div>}
                 </div>
             </div>
         </div>
@@ -967,7 +1182,7 @@ function StarChartModalStyles() {
     inset: 0;
     z-index: 50;
     background: rgba(2, 6, 23, 0.72);
-    backdrop-filter: blur(6px);
+    backdrop-filte blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1086,25 +1301,93 @@ function StarChartModal(props: {
     );
 }
 
+type TabTarget = { kind: 'base' | 'mission_rewards' | 'caches' | 'extra' | 'other'; nodeId: NodeId | null };
+
+function pickNodeIdForTab(group: NodeGroup | null, tab: TabTarget['kind']): NodeId | null {
+    if (!group) return null;
+    const ids = group.kinds[tab] ?? [];
+    if (ids && ids.length) return ids[0] ?? null;
+    if (tab === 'base') return group.baseNodeId;
+    return null;
+}
+
 export default function StarChart() {
     const [selectedPlanetId, setSelectedPlanetId] = useState<PlanetId | null>(null);
-    const [selectedNodeId, setSelectedNodeId] = useState<NodeId | null>(null);
+
+    const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
+    const [selectedTab, setSelectedTab] = useState<'base' | 'mission_rewards' | 'caches' | 'extra' | 'other'>('base');
 
     const [vb, setVb] = useState<ViewBox>({ x: 0, y: 0, w: 100, h: 100 });
 
     const sourceToItemsIndex = useMemo(() => buildSourceToItemsIndex(), []);
 
-    const selectedNode: StarChartNode | null = useMemo(() => {
-        if (!selectedNodeId) return null;
-        return STAR_CHART_DATA.nodes.find((n) => n.id === selectedNodeId) ?? null;
-    }, [selectedNodeId]);
+    const planetsById = useMemo(() => {
+        const m = new Map<string, StarChartPlanet>();
+        for (const p of STAR_CHART_DATA.planets) m.set(p.id, p);
+        return m;
+    }, []);
+
+    const groupedByPlanet = useMemo(() => {
+        const out = new Map<string, NodeGroup[]>();
+
+        for (const n of STAR_CHART_DATA.nodes) {
+            const pid = String(n.planetId);
+            const v = parseNodeVariant(n);
+            const key = v.baseKey;
+
+            if (!out.has(pid)) out.set(pid, []);
+            const arr = out.get(pid)!;
+
+            let g = arr.find((x) => x.key === key) ?? null;
+            if (!g) {
+                g = {
+                    key,
+                    planetId: n.planetId,
+                    displayName: displayNameFromBase(n),
+                    baseNodeId: n.id,
+                    kinds: {}
+                };
+                arr.push(g);
+            }
+
+            if (!g.kinds[v.kind]) g.kinds[v.kind] = [];
+            g.kinds[v.kind]!.push(n.id);
+
+            if (v.kind === 'base') g.baseNodeId = n.id;
+        }
+
+        for (const [pid, arr] of out.entries()) {
+            arr.sort((a, b) => a.displayName.localeCompare(b.displayName));
+            out.set(pid, arr);
+        }
+
+        return out;
+    }, []);
+
+    const scale = useMemo(() => viewBoxToScale(vb), [vb]);
+    const focusedPlanetId = useMemo(() => selectedPlanetId ?? null, [selectedPlanetId]);
+    const focusedPlanet = useMemo(() => (focusedPlanetId ? planetsById.get(focusedPlanetId) ?? null : null), [focusedPlanetId, planetsById]);
+
+    const focusedPlanetGroups = useMemo(() => {
+        if (!focusedPlanetId) return [] as NodeGroup[];
+        return groupedByPlanet.get(focusedPlanetId) ?? [];
+    }, [focusedPlanetId, groupedByPlanet]);
+
+    const selectedGroup = useMemo(() => {
+        if (!selectedGroupKey) return null;
+        return focusedPlanetGroups.find((g) => g.key === selectedGroupKey) ?? null;
+    }, [selectedGroupKey, focusedPlanetGroups]);
+
+    const tabNodeId = useMemo(() => {
+        return pickNodeIdForTab(selectedGroup, selectedTab);
+    }, [selectedGroup, selectedTab]);
 
     const dropSources = useMemo(() => {
-        if (!selectedNode) return [];
-        return getDropSourcesForStarChartNode(selectedNode.id)
+        if (!tabNodeId) return [];
+        return getDropSourcesForStarChartNode(tabNodeId)
             .map((sid) => safeNormalizeSourceId(sid))
             .filter((x): x is string => Boolean(x));
-    }, [selectedNode]);
+    }, [tabNodeId]);
 
     const dropSourceDetails = useMemo(() => {
         return dropSources.map((sid) => ({
@@ -1113,7 +1396,7 @@ export default function StarChart() {
         }));
     }, [dropSources]);
 
-    const itemsAtNode = useMemo(() => {
+    const itemsAtTab = useMemo(() => {
         const acc: ItemRow[] = [];
         for (const sid of dropSources) {
             const rows = sourceToItemsIndex[sid] ?? [];
@@ -1135,10 +1418,19 @@ export default function StarChart() {
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     function resetView() {
-        setSelectedNodeId(null);
+        setSelectedGroupKey(null);
+        setSelectedTab('base');
         setSelectedPlanetId(null);
         setVb({ x: 0, y: 0, w: 100, h: 100 });
     }
+
+    const focusedTitle = useMemo(() => {
+        if (scale <= 1.15) return null;
+        if (!focusedPlanet) return null;
+        return `Focused: ${focusedPlanet.name}`;
+    }, [scale, focusedPlanet]);
+
+    const showDropsPanel = Boolean(selectedGroupKey);
 
     return (
         <div className='space-y-6'>
@@ -1146,7 +1438,7 @@ export default function StarChart() {
 
             <Section
                 title='Star Chart'
-                subtitle='Drag to pan. Wheel to zoom. Click a planet to jump-zoom. Zoom closer to reveal node charts, then click nodes to see drops.'
+                subtitle='Drag to pan. Wheel to zoom. Click a planet to jump-zoom. Zoom closer to reveal node charts.'
                 actions={
                     <>
                         <button
@@ -1170,18 +1462,21 @@ export default function StarChart() {
                     setVb={setVb}
                     selectedPlanetId={selectedPlanetId}
                     setSelectedPlanetId={setSelectedPlanetId}
-                    selectedNodeId={selectedNodeId}
-                    setSelectedNodeId={setSelectedNodeId}
-                    itemsAtNode={itemsAtNode}
+                    selectedGroupKey={selectedGroupKey}
+                    setSelectedGroupKey={setSelectedGroupKey}
+                    selectedTab={selectedTab}
+                    setSelectedTab={setSelectedTab}
+                    itemsAtTab={itemsAtTab}
                     dropSourceDetails={dropSourceDetails}
-                    selectedNode={selectedNode}
+                    focusedTitle={focusedTitle}
+                    showDropsPanel={showDropsPanel}
                 />
             </Section>
 
             <StarChartModal
                 isOpen={isOpen}
                 title='Star Chart'
-                subtitle='Drag to pan · Wheel to zoom · Click planet to jump-zoom · Click node for drops'
+                subtitle='Drag to pan · Wheel to zoom · Click planet to jump-zoom · Click node again to unselect'
                 onClose={() => setIsOpen(false)}
             >
                 <StarChartMap
@@ -1190,13 +1485,17 @@ export default function StarChart() {
                     setVb={setVb}
                     selectedPlanetId={selectedPlanetId}
                     setSelectedPlanetId={setSelectedPlanetId}
-                    selectedNodeId={selectedNodeId}
-                    setSelectedNodeId={setSelectedNodeId}
-                    itemsAtNode={itemsAtNode}
+                    selectedGroupKey={selectedGroupKey}
+                    setSelectedGroupKey={setSelectedGroupKey}
+                    selectedTab={selectedTab}
+                    setSelectedTab={setSelectedTab}
+                    itemsAtTab={itemsAtTab}
                     dropSourceDetails={dropSourceDetails}
-                    selectedNode={selectedNode}
+                    focusedTitle={focusedTitle}
+                    showDropsPanel={showDropsPanel}
                 />
             </StarChartModal>
         </div>
     );
 }
+
