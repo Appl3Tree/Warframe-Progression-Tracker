@@ -87,7 +87,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Pacific",
         nodeType: "mission",
-        pos: { x: 0.80, y: 1.1},
+        pos: { x: 0.80, y: 0.7},
         edges: ["node:mr/earth/gaia",]
     },
 
