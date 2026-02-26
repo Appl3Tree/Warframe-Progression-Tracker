@@ -61,6 +61,7 @@ const CURATED_STAR_CHART_PLANETS: StarChartPlanet[] = [
     { id: "region:void", name: "Void", kind: "region", sortOrder: 220 },
     { id: "region:zariman", name: "Zariman", kind: "region", sortOrder: 230 },
     { id: "region:duviri", name: "Duviri", kind: "region", sortOrder: 240 },
+    { id: "region:sanctuary", name: "Sanctuary", kind: "region", sortOrder: 250 },
 
     // =============================
     // Höllvania & Dark Refractory
