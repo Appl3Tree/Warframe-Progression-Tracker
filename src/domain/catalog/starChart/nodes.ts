@@ -3270,7 +3270,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
     // =============================
     {
         id: "node:mr/sanctuary/elite-sanctuary-onslaught",
-        planetId: "auto:sanctuary",
+        planetId: "region:sanctuary",
         name: "Elite Sanctuary Onslaught",
         nodeType: "mission",
         pos: undefined,
@@ -3278,7 +3278,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
     },
     {
         id: "node:mr/sanctuary/sanctuary-onslaught",
-        planetId: "auto:sanctuary",
+        planetId: "region:sanctuary",
         name: "Sanctuary Onslaught",
         nodeType: "mission",
         pos: undefined,
