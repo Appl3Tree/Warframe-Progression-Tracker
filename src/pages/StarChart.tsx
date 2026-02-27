@@ -384,10 +384,16 @@ function isMissionRewardSourceId(sid: string): boolean {
  * Source filtering is ONLY for missionreward separation:
  * - Mission Rewards tab: missionreward/*
  * - All other tabs: exclude missionreward/*
+ *
+ * USER REQUESTED CHANGE:
+ * Combine "Mission Rewards" + what used to be "Extra" into the Mission Rewards pill.
+ * That means Mission Rewards shows ALL sources (missionreward/* + non-missionreward/*),
+ * and the Extra pill should be effectively empty/hidden.
  */
 function filterSourcesForTab(kind: NodeGroupKind, sids: string[]): string[] {
-    if (kind === "mission_rewards") return sids.filter(isMissionRewardSourceId);
+    if (kind === "mission_rewards") return sids; // <-- combined (Mission Rewards + Extra)
     if (kind === "all") return sids;
+    if (kind === "extra") return []; // <-- effectively removed
     return sids.filter((s) => !isMissionRewardSourceId(s));
 }
 
@@ -474,6 +480,10 @@ function buildTabSpecRaw(args: { group: NodeGroup; kind: NodeGroupKind; sourceTo
  *
  * NOTE: Exclusivity is enforced by *normalized display name* (not catalogId) so you don't
  * see the "same item" repeated across pills.
+ *
+ * USER REQUESTED CHANGE:
+ * Extra is removed (its content is now in Mission Rewards). So we should NOT reserve items
+ * for Extra anymore. Treat Extra as empty.
  */
 function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
     const byKind = new Map<NodeGroupKind, TabSpec>();
@@ -481,16 +491,13 @@ function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
 
     const mr = byKind.get("mission_rewards") ?? null;
     const caches = byKind.get("caches") ?? null;
-    const extra = byKind.get("extra") ?? null;
     const base = byKind.get("base") ?? null;
     const all = byKind.get("all") ?? null;
 
     const mrSet = new Set<string>((mr?.items ?? []).map((x) => itemNameKey(x.name)));
     const cachesSetRaw = new Set<string>((caches?.items ?? []).map((x) => itemNameKey(x.name)));
-    const extraSetRaw = new Set<string>((extra?.items ?? []).map((x) => itemNameKey(x.name)));
     const baseSetRaw = new Set<string>((base?.items ?? []).map((x) => itemNameKey(x.name)));
 
-    // Remove any higher-priority items from lower-priority tabs.
     const cachesSet = new Set<string>();
     for (const k of cachesSetRaw) {
         if (!k) continue;
@@ -498,20 +505,11 @@ function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
         cachesSet.add(k);
     }
 
-    const extraSet = new Set<string>();
-    for (const k of extraSetRaw) {
-        if (!k) continue;
-        if (mrSet.has(k)) continue;
-        if (cachesSet.has(k)) continue;
-        extraSet.add(k);
-    }
-
     const baseSet = new Set<string>();
     for (const k of baseSetRaw) {
         if (!k) continue;
         if (mrSet.has(k)) continue;
         if (cachesSet.has(k)) continue;
-        if (extraSet.has(k)) continue;
         baseSet.add(k);
     }
 
@@ -522,7 +520,6 @@ function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
 
     const outSpecs: TabSpec[] = [];
 
-    // Preserve incoming order, just replace items.
     for (const s of specs) {
         if (s.kind === "mission_rewards") {
             outSpecs.push({ ...s, items: dedupeItemsByName(s.items) });
@@ -533,7 +530,7 @@ function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
             continue;
         }
         if (s.kind === "extra") {
-            outSpecs.push({ ...s, items: filterItems(s.items, extraSet) });
+            outSpecs.push({ ...s, items: [] });
             continue;
         }
         if (s.kind === "base") {
@@ -541,7 +538,6 @@ function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
             continue;
         }
         if (s.kind === "all" && all) {
-            // All is union of the original, non-exclusive item sets.
             outSpecs.push({ ...s, items: dedupeItemsByName(s.items) });
             continue;
         }
@@ -1493,6 +1489,7 @@ function StarChartMap(props: {
                                                         {filteredActiveItems.slice(0, 600).map((it) => (
                                                             <li key={it.catalogId} className="break-words">
                                                                 <span className="font-semibold">{it.name}</span>
+                                                                {/*<div className="mt-0.5 text-[11px] text-slate-500 font-mono">{it.catalogId}</div>*/}
                                                             </li>
                                                         ))}
                                                     </ul>
@@ -1989,7 +1986,8 @@ export default function StarChart() {
         // - Mission Rewards: collapse relic quality variants and drop generic era rows ("Lith", "Lith Relic", etc.)
         // - All: apply the SAME display normalization so you don't see "Lith" there either.
         return finalTabs.map((t) => {
-            if (t.kind !== "mission_rewards" && t.kind !== "all") return t;
+            // UI-only: collapse relic refinement variants anywhere they appear in node tabs.
+            // (Prevents “Exceptional/Flawless/Radiant” noise even if a relic leaks into Extra/Drops.)
             return { ...t, items: normalizeMissionRewardItemsForDisplay(t.items) };
         });
     }, [selectedGroup, sourceToItemsIndex]);
