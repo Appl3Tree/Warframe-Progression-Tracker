@@ -1,3 +1,4 @@
+// ===== FILE: src/utils/profileImport.ts =====
 // src/utils/profileImport.ts
 import type { SyndicateState } from "../domain/types";
 
@@ -32,6 +33,13 @@ function clampInt(n: unknown, fallback: number): number {
     const v = typeof n === "number" ? n : Number(n);
     if (!Number.isFinite(v)) return fallback;
     return Math.max(0, Math.floor(v));
+}
+
+function clampIntSigned(n: unknown, fallback: number, min: number, max: number): number {
+    const v = typeof n === "number" ? n : Number(n);
+    if (!Number.isFinite(v)) return fallback;
+    const x = Math.floor(v);
+    return Math.max(min, Math.min(max, x));
 }
 
 function getResultRoot(payload: any): any {
@@ -142,6 +150,7 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
     };
 
     // Syndicates: root.Affiliations: [{ Tag, Standing, Title, ... }]
+    // Relay faction syndicates can be negative rank/standing, so allow signed ranges here.
     const syndicates: SyndicateState[] = [];
     if (Array.isArray(root?.Affiliations)) {
         for (const a of root.Affiliations) {
@@ -152,8 +161,8 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
             syndicates.push({
                 id,
                 name: id,
-                rank: clampInt(a.Title, 0),
-                standing: clampInt(a.Standing, 0)
+                rank: clampIntSigned(a.Title, 0, -2, 5),
+                standing: clampIntSigned(a.Standing, 0, -44_000, 132_000)
             });
         }
     }
@@ -200,4 +209,3 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
         }
     };
 }
-

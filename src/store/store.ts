@@ -5,7 +5,7 @@ import { immer } from "zustand/middleware/immer";
 import { persist } from "zustand/middleware";
 import { z } from "zod";
 import { toYMD } from "../domain/ymd";
-import type { DailyTask } from "../domain/types";
+import type { DailyTask, SyndicateState } from "../domain/types";
 import { SEED_INVENTORY, SEED_MASTERY, SEED_MISSIONS, SEED_SYNDICATES } from "../domain/seed";
 import type { PageKey, UserStateV2 } from "../domain/models/userState";
 import type { UserGoalV1 } from "../domain/models/userState";
@@ -14,6 +14,7 @@ import { parseProfileViewingData } from "../utils/profileImport";
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
 import { canAccessItemByName } from "../domain/logic/plannerEngine";
 import { validateDataOrThrow } from "../domain/logic/startupValidation";
+import { SY } from "../domain/ids/syndicateIds";
 
 validateDataOrThrow();
 
@@ -324,6 +325,69 @@ function computeDerivedReservesFromSyndicates(
     return out;
 }
 
+function normalizeSyndicatePatch(input: any): Partial<SyndicateState> {
+    const out: Partial<SyndicateState> = {};
+
+    if (!input || typeof input !== "object") return out;
+
+    if (typeof input.id === "string") out.id = input.id;
+    if (typeof input.name === "string") out.name = input.name;
+
+    if (typeof input.rank === "number" && Number.isFinite(input.rank)) out.rank = Math.floor(input.rank);
+    if (typeof input.standing === "number" && Number.isFinite(input.standing)) out.standing = Math.floor(input.standing);
+
+    if (typeof input.pledged === "boolean") out.pledged = input.pledged;
+
+    // Keep these pass-through fields for future phases.
+    if (typeof input.standingCap === "number" && Number.isFinite(input.standingCap)) out.standingCap = Math.floor(input.standingCap);
+    if (typeof input.dailyCap === "number" && Number.isFinite(input.dailyCap)) out.dailyCap = Math.floor(input.dailyCap);
+
+    if (input.nextRankUp && typeof input.nextRankUp === "object") {
+        out.nextRankUp = input.nextRankUp;
+    }
+
+    return out;
+}
+
+function upsertSyndicateIntoList(list: SyndicateState[], patch: Partial<SyndicateState>): SyndicateState[] {
+    const id = String(patch.id ?? "").trim();
+    if (!id) return list;
+
+    const idx = list.findIndex((s) => s.id === id);
+    if (idx >= 0) {
+        const prev = list[idx];
+        list[idx] = {
+            ...prev,
+            ...patch,
+            id: prev.id,
+            name: typeof patch.name === "string" && patch.name.trim() ? patch.name : prev.name
+        };
+        return list;
+    }
+
+    const name = typeof patch.name === "string" && patch.name.trim() ? patch.name : id;
+    list.push({
+        id,
+        name,
+        rank: typeof patch.rank === "number" ? patch.rank : 0,
+        standing: typeof patch.standing === "number" ? patch.standing : 0,
+        pledged: typeof patch.pledged === "boolean" ? patch.pledged : false
+    });
+
+    return list;
+}
+
+function isPrimaryFactionId(id: string): boolean {
+    return (
+        id === SY.STEEL_MERIDIAN ||
+        id === SY.ARBITERS_OF_HEXIS ||
+        id === SY.CEPHALON_SUDA ||
+        id === SY.PERRIN_SEQUENCE ||
+        id === SY.RED_VEIL ||
+        id === SY.NEW_LOKA
+    );
+}
+
 export interface TrackerStore {
     state: UserStateV2;
 
@@ -347,7 +411,8 @@ export interface TrackerStore {
     toggleDailyTask: (taskId: string) => void;
     deleteDailyTask: (taskId: string) => void;
 
-    setSyndicateNotes: (id: string, notes: string) => void;
+    upsertSyndicate: (patch: Partial<SyndicateState>) => void;
+    setPrimaryPledge: (syndicateId: string | null) => void;
 
     exportProgressPackJson: () => string;
     importProgressPackJson: (json: string) => { ok: boolean; error?: string };
@@ -464,7 +529,29 @@ export const useTrackerStore = create<TrackerStore>()(
                         s.state.player.clanClass = parsed.clan?.clanClass;
                         s.state.player.clanXp = parsed.clan?.xp;
 
-                        s.state.syndicates = parsed.syndicates;
+                        // Merge syndicates by id, preserving pledge flags if already set locally.
+                        const existingById = new Map<string, SyndicateState>();
+                        for (const syn of s.state.syndicates ?? []) {
+                            if (syn && typeof syn.id === "string") existingById.set(syn.id, syn);
+                        }
+
+                        const merged: SyndicateState[] = [];
+                        for (const incoming of parsed.syndicates ?? []) {
+                            const prev = existingById.get(incoming.id);
+                            const pledged = typeof prev?.pledged === "boolean" ? prev.pledged : false;
+                            merged.push({
+                                ...incoming,
+                                pledged
+                            });
+                            existingById.delete(incoming.id);
+                        }
+
+                        // Keep any local-only syndicates that were not present in import.
+                        for (const leftover of existingById.values()) {
+                            merged.push(leftover);
+                        }
+
+                        s.state.syndicates = merged;
                         s.state.mastery = parsed.mastery;
                         s.state.missions = parsed.missions;
 
@@ -523,13 +610,56 @@ export const useTrackerStore = create<TrackerStore>()(
                 });
             },
 
-            setSyndicateNotes: (id, notes) => {
+            upsertSyndicate: (patch) => {
+                const p = normalizeSyndicatePatch(patch);
+                if (!p.id) return;
+
                 set((s) => {
-                    const syn = s.state.syndicates.find((x: any) => x.id === id);
-                    if (syn) {
-                        syn.notes = notes;
-                        s.state.meta.updatedAtIso = nowIso();
+                    if (!Array.isArray(s.state.syndicates)) {
+                        s.state.syndicates = [];
                     }
+
+                    upsertSyndicateIntoList(s.state.syndicates as any, p);
+
+                    // If someone sets pledged directly, enforce "single pledge" only across Primary factions.
+                    if (p.pledged === true && isPrimaryFactionId(String(p.id))) {
+                        for (const syn of s.state.syndicates as any[]) {
+                            if (!syn || typeof syn.id !== "string") continue;
+                            if (!isPrimaryFactionId(syn.id)) continue;
+                            syn.pledged = syn.id === p.id;
+                        }
+                    }
+
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setPrimaryPledge: (syndicateId) => {
+                const target = typeof syndicateId === "string" && syndicateId.trim() ? syndicateId.trim() : null;
+                set((s) => {
+                    if (!Array.isArray(s.state.syndicates)) s.state.syndicates = [];
+
+                    // Ensure all 6 exist if user is interacting.
+                    const primary: Array<{ id: string; name: string }> = [
+                        { id: SY.STEEL_MERIDIAN, name: "Steel Meridian" },
+                        { id: SY.ARBITERS_OF_HEXIS, name: "Arbiters of Hexis" },
+                        { id: SY.CEPHALON_SUDA, name: "Cephalon Suda" },
+                        { id: SY.PERRIN_SEQUENCE, name: "The Perrin Sequence" },
+                        { id: SY.RED_VEIL, name: "Red Veil" },
+                        { id: SY.NEW_LOKA, name: "New Loka" }
+                    ];
+
+                    for (const p of primary) {
+                        upsertSyndicateIntoList(s.state.syndicates as any, { id: p.id, name: p.name });
+                    }
+
+                    for (const syn of s.state.syndicates as any[]) {
+                        if (!syn || typeof syn.id !== "string") continue;
+                        if (!isPrimaryFactionId(syn.id)) continue;
+                        syn.pledged = target ? syn.id === target : false;
+                    }
+
+                    s.state.meta.updatedAtIso = nowIso();
                 });
             },
 
@@ -752,4 +882,3 @@ export const useTrackerStore = create<TrackerStore>()(
         }
     )
 );
-
