@@ -1,3 +1,4 @@
+// ===== FILE: src/domain/types.ts =====
 export type Id = string;
 
 export interface Inventory {
@@ -36,16 +37,18 @@ export interface SyndicateState {
 
     /**
      * Rank index (0-based).
+     * For Relay faction syndicates, negative ranks exist (-2..-1).
      */
     rank: number;
 
     /**
      * Current standing into the rank.
+     * For negative ranks, standing is typically negative and approaches 0.
      */
     standing: number;
 
     /**
-     * Standing cap for the current rank, if known.
+     * Computed in UI (based on rank), but kept optional for forward-compat.
      */
     standingCap?: number;
 
@@ -54,6 +57,11 @@ export interface SyndicateState {
      */
     rankLabel?: string;
     dailyCap?: number;
+
+    /**
+     * Relay faction pledge (one primary pledge at a time).
+     */
+    pledged?: boolean;
 
     /**
      * Optional rank-up requirements when defined by embedded ladder data.
@@ -65,7 +73,4 @@ export interface SyndicateState {
         platinum?: number;
         items?: Array<{ key: string; count: number; label?: string }>;
     };
-
-    notes?: string;
 }
-

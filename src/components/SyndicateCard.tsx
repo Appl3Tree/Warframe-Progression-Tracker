@@ -1,16 +1,73 @@
+// ===== FILE: src/components/SyndicateCard.tsx =====
 import { useMemo, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import type { SyndicateState } from "../domain/types";
 
-function getHaveForKey(
-    key: string,
-    credits: number,
-    platinum: number,
-    counts: Record<string, number>
-): number {
+function getHaveForKey(key: string, credits: number, platinum: number, counts: Record<string, number>): number {
     if (key === "credits") return credits;
     if (key === "platinum") return platinum;
     return counts[key] ?? 0;
+}
+
+type ProgressionModel = "standing" | "nightwave" | "no-standing" | "event-standing";
+
+function classifyProgression(id: string, name: string): { model: ProgressionModel; label: string; detail: string; showStanding: boolean; showDailyCap: boolean } {
+    const key = `${id} ${name}`.toLowerCase();
+
+    if (key.includes("nightwave")) {
+        return {
+            model: "nightwave",
+            label: "System",
+            detail: "Progress via Nightwave Acts/points; separate currency (Nora’s Creds).",
+            showStanding: false,
+            showDailyCap: false
+        };
+    }
+
+    if (key.includes("kahl") || key.includes("kahls_garrison") || key.includes("kahls garrison")) {
+        return {
+            model: "no-standing",
+            label: "No Standing",
+            detail: "Ranks advance via weekly Break Narmer progression; currency-driven purchases.",
+            showStanding: false,
+            showDailyCap: false
+        };
+    }
+
+    if (key.includes("nightcap")) {
+        return {
+            model: "no-standing",
+            label: "No Standing",
+            detail: "Ranks advance via Nightcap-specific turn-ins/analysis; currency-driven purchases.",
+            showStanding: false,
+            showDailyCap: false
+        };
+    }
+
+    if (key.includes("operational") || key.includes("operation") || key.includes("supply")) {
+        return {
+            model: "event-standing",
+            label: "Event",
+            detail: "Event-scoped standing progression tied to active operations.",
+            showStanding: true,
+            showDailyCap: false
+        };
+    }
+
+    return {
+        model: "standing",
+        label: "Standing",
+        detail: "Classic standing-based syndicate progression.",
+        showStanding: true,
+        showDailyCap: true
+    };
+}
+
+function pillTone(model: ProgressionModel): string {
+    if (model === "standing") return "border-sky-700/60 bg-sky-950/30 text-sky-200";
+    if (model === "nightwave") return "border-violet-700/60 bg-violet-950/25 text-violet-200";
+    if (model === "event-standing") return "border-rose-700/60 bg-rose-950/25 text-rose-200";
+    return "border-amber-700/60 bg-amber-950/25 text-amber-200";
 }
 
 export default function SyndicateCard(props: { syndicate: SyndicateState }) {
@@ -25,6 +82,8 @@ export default function SyndicateCard(props: { syndicate: SyndicateState }) {
 
     const haveCredits = inventory.credits ?? 0;
     const havePlat = inventory.platinum ?? 0;
+
+    const prog = classifyProgression(props.syndicate.id, props.syndicate.name);
 
     const readiness = useMemo(() => {
         const missing: string[] = [];
@@ -50,23 +109,33 @@ export default function SyndicateCard(props: { syndicate: SyndicateState }) {
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <div className="text-lg font-semibold">{props.syndicate.name}</div>
+                    <div className="flex items-center gap-2">
+                        <div className="text-lg font-semibold">{props.syndicate.name}</div>
+                        <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${pillTone(prog.model)}`} title={prog.detail}>
+                            {prog.label}
+                        </span>
+                    </div>
                     <div className="text-sm text-slate-400">
                         Rank {props.syndicate.rank} {props.syndicate.rankLabel ? `• ${props.syndicate.rankLabel}` : ""}
                     </div>
+                    <div className="mt-1 text-xs text-slate-500">{prog.detail}</div>
                 </div>
 
-                {props.syndicate.dailyCap && props.syndicate.dailyCap > 0 && (
+                {prog.showDailyCap && props.syndicate.dailyCap && props.syndicate.dailyCap > 0 && (
                     <div className="text-xs text-slate-300 rounded-lg border border-slate-700 px-2 py-1">
                         Daily cap: {props.syndicate.dailyCap.toLocaleString()}
                     </div>
                 )}
             </div>
 
-            <div className="mt-3 text-sm text-slate-300">
-                Standing: {props.syndicate.standing.toLocaleString()}
-                {props.syndicate.standingCap ? ` / ${props.syndicate.standingCap.toLocaleString()}` : ""}
-            </div>
+            {prog.showStanding ? (
+                <div className="mt-3 text-sm text-slate-300">
+                    Standing: {props.syndicate.standing.toLocaleString()}
+                    {props.syndicate.standingCap ? ` / ${props.syndicate.standingCap.toLocaleString()}` : ""}
+                </div>
+            ) : (
+                <div className="mt-3 text-sm text-slate-400">Standing: not applicable for this progression model.</div>
+            )}
 
             <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                 <div className="text-sm font-semibold">Next Rank-Up (if defined)</div>
@@ -142,7 +211,7 @@ export default function SyndicateCard(props: { syndicate: SyndicateState }) {
                             placeholder="Notes..."
                         />
                         <div className="mt-1 text-xs text-slate-500">
-                            Notes editing is wired in the main Syndicates grid; this component is currently unused.
+                            Notes editing is wired in the main Syndicates grid; this component may be unused depending on layout.
                         </div>
                     </div>
                 )}
@@ -150,4 +219,3 @@ export default function SyndicateCard(props: { syndicate: SyndicateState }) {
         </div>
     );
 }
-
