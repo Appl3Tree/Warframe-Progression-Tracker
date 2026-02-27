@@ -2081,7 +2081,7 @@ export default function StarChart() {
                     setVb={setVb}
                     selectedPlanetId={selectedPlanetId}
                     setSelectedPlanetId={setSelectedPlanetId}
-                    selectlanetName={focusedPlanet?.name ?? null}
+                    selectedPlanetName={focusedPlanet?.name ?? null}
                     selectedGroupKey={selectedGroupKey}
                     setSelectedGroupKey={setSelectedGroupKey}
                     selectedTab={selectedTab}
