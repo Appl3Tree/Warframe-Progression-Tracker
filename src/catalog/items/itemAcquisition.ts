@@ -330,6 +330,19 @@ function getAcquisitionByCatalogIdInternal(catalogId: CatalogId, seen: Set<strin
     // (This still applies even when hasManual=false, and remains safe when hasManual=true)
     sources = stripPlaceholderWhenRedundant(sources);
 
+    // 2.5)
+    // Targeted fix: some Void relic variants are incorrectly attributed to data:node/void/*
+    // by one of the acquisition layers. Relics should not be sourced from node drops.
+    {
+        const rec: any = (FULL_CATALOG as any).recordsById?.[key] ?? null;
+
+        const isRelic = String(rec?.type ?? "").toLowerCase() === "relic";
+
+        if (isRelic) {
+            sources = sources.filter((s) => !String(s).startsWith("data:node/void/"));
+        }
+    }
+
     // 3) If this is a crafted output of a sibling blueprint with real acquisition, mark as crafting.
     // Only applies when there are no sources AND no manual mapping exists.
     if (!hasManual && sources.length === 0) {
