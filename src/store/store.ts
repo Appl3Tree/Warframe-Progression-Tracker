@@ -1,5 +1,4 @@
 // ===== FILE: src/store/store.ts =====
-// src/store/store.ts
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { persist } from "zustand/middleware";
@@ -338,7 +337,6 @@ function normalizeSyndicatePatch(input: any): Partial<SyndicateState> {
 
     if (typeof input.pledged === "boolean") out.pledged = input.pledged;
 
-    // Keep these pass-through fields for future phases.
     if (typeof input.standingCap === "number" && Number.isFinite(input.standingCap)) out.standingCap = Math.floor(input.standingCap);
     if (typeof input.dailyCap === "number" && Number.isFinite(input.dailyCap)) out.dailyCap = Math.floor(input.dailyCap);
 
@@ -388,6 +386,14 @@ function isPrimaryFactionId(id: string): boolean {
     );
 }
 
+function countPrimaryPledges(list: SyndicateState[]): number {
+    let n = 0;
+    for (const s of list) {
+        if (s && typeof s.id === "string" && isPrimaryFactionId(s.id) && s.pledged) n++;
+    }
+    return n;
+}
+
 export interface TrackerStore {
     state: UserStateV2;
 
@@ -412,7 +418,10 @@ export interface TrackerStore {
     deleteDailyTask: (taskId: string) => void;
 
     upsertSyndicate: (patch: Partial<SyndicateState>) => void;
-    setPrimaryPledge: (syndicateId: string | null) => void;
+
+    // NEW: Primary pledge set supports up to 3 concurrent pledges
+    togglePrimaryPledge: (syndicateId: string) => void;
+    clearPrimaryPledges: () => void;
 
     exportProgressPackJson: () => string;
     importProgressPackJson: (json: string) => { ok: boolean; error?: string };
@@ -432,7 +441,6 @@ export interface TrackerStore {
     toggleGoalActive: (goalId: string) => void;
     clearAllGoals: () => void;
 
-    // Expansion UI (stable ids from goalExpansion.ts)
     toggleExpandedGoalNode: (nodeId: string) => void;
     setExpandedGoalNode: (nodeId: string, expanded: boolean) => void;
     isExpandedGoalNode: (nodeId: string) => boolean;
@@ -546,7 +554,6 @@ export const useTrackerStore = create<TrackerStore>()(
                             existingById.delete(incoming.id);
                         }
 
-                        // Keep any local-only syndicates that were not present in import.
                         for (const leftover of existingById.values()) {
                             merged.push(leftover);
                         }
@@ -621,12 +628,18 @@ export const useTrackerStore = create<TrackerStore>()(
 
                     upsertSyndicateIntoList(s.state.syndicates as any, p);
 
-                    // If someone sets pledged directly, enforce "single pledge" only across Primary factions.
-                    if (p.pledged === true && isPrimaryFactionId(String(p.id))) {
-                        for (const syn of s.state.syndicates as any[]) {
-                            if (!syn || typeof syn.id !== "string") continue;
-                            if (!isPrimaryFactionId(syn.id)) continue;
-                            syn.pledged = syn.id === p.id;
+                    // If caller sets pledged directly, enforce "max 3" for primary factions.
+                    if (typeof p.pledged === "boolean" && isPrimaryFactionId(String(p.id))) {
+                        const list = s.state.syndicates as any as SyndicateState[];
+
+                        // If setting to true and we're already at 3, refuse (fail-closed).
+                        if (p.pledged === true) {
+                            const currentCount = countPrimaryPledges(list);
+                            const already = list.find((x) => x.id === p.id)?.pledged === true;
+                            if (!already && currentCount >= 3) {
+                                // Do nothing.
+                                return;
+                            }
                         }
                     }
 
@@ -634,12 +647,14 @@ export const useTrackerStore = create<TrackerStore>()(
                 });
             },
 
-            setPrimaryPledge: (syndicateId) => {
-                const target = typeof syndicateId === "string" && syndicateId.trim() ? syndicateId.trim() : null;
+            togglePrimaryPledge: (syndicateId) => {
+                const id = String(syndicateId ?? "").trim();
+                if (!id || !isPrimaryFactionId(id)) return;
+
                 set((s) => {
                     if (!Array.isArray(s.state.syndicates)) s.state.syndicates = [];
 
-                    // Ensure all 6 exist if user is interacting.
+                    // Ensure all 6 exist
                     const primary: Array<{ id: string; name: string }> = [
                         { id: SY.STEEL_MERIDIAN, name: "Steel Meridian" },
                         { id: SY.ARBITERS_OF_HEXIS, name: "Arbiters of Hexis" },
@@ -653,12 +668,33 @@ export const useTrackerStore = create<TrackerStore>()(
                         upsertSyndicateIntoList(s.state.syndicates as any, { id: p.id, name: p.name });
                     }
 
+                    const list = s.state.syndicates as any as SyndicateState[];
+                    const target = list.find((x) => x.id === id);
+                    if (!target) return;
+
+                    const next = !target.pledged;
+
+                    if (next === true) {
+                        const current = countPrimaryPledges(list);
+                        if (current >= 3) {
+                            // refuse: max 3 pledges
+                            return;
+                        }
+                    }
+
+                    target.pledged = next;
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            clearPrimaryPledges: () => {
+                set((s) => {
+                    if (!Array.isArray(s.state.syndicates)) return;
                     for (const syn of s.state.syndicates as any[]) {
                         if (!syn || typeof syn.id !== "string") continue;
                         if (!isPrimaryFactionId(syn.id)) continue;
-                        syn.pledged = target ? syn.id === target : false;
+                        syn.pledged = false;
                     }
-
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
@@ -744,8 +780,8 @@ export const useTrackerStore = create<TrackerStore>()(
 
                 reasons.push(`Keep at least ${rule.minKeep.toLocaleString()} (would drop to ${afterSpend.toLocaleString()}).`);
 
-                for (const s of topSources.slice(0, 10)) {
-                    reasons.push(`${s.syndicateName}: requires ${s.amount.toLocaleString()}${s.label ? ` (${s.label})` : ""}`);
+                for (const s0 of topSources.slice(0, 10)) {
+                    reasons.push(`${s0.syndicateName}: requires ${s0.amount.toLocaleString()}${s0.label ? ` (${s0.label})` : ""}`);
                 }
 
                 if (topSources.length > 10) {

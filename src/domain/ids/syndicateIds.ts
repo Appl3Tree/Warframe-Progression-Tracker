@@ -2,25 +2,21 @@
 export const SY = {
     // Open-world / hub syndicates
     OSTRON: "syndicate_ostron",
-    QUILLS: "syndicate_quills",
+    THE_QUILLS: "syndicate_quills",
     SOLARIS_UNITED: "syndicate_solaris_united",
     VOX_SOLARIS: "syndicate_vox_solaris",
     ENTRATI: "syndicate_entrati",
     NECRALOID: "syndicate_necraloid",
     VENTKIDS: "syndicate_ventkids",
     CAVIA: "syndicate_cavia",
-    HEX_1999: "syndicate_hex_1999",
-
-    // NOTE: The existing key HOLDFATS is a typo. Keep it as an alias to avoid breaking imports.
-    // Use HOLDFASTS going forward.
-    HOLDFATS: "syndicate_holdfasts",
-    HOLDFASTS: "syndicate_holdfasts",
+    THE_HEX: "syndicate_hex_1999",
+    THE_HOLDFASTS: "syndicate_holdfasts",
 
     // Relay syndicates (shared-cap bucket)
     STEEL_MERIDIAN: "syndicate_steel_meridian",
     ARBITERS_OF_HEXIS: "syndicate_arbiters_of_hexis",
     CEPHALON_SUDA: "syndicate_cephalon_suda",
-    PERRIN_SEQUENCE: "syndicate_perrin_sequence",
+    THE_PERRIN_SEQUENCE: "syndicate_perrin_sequence",
     NEW_LOKA: "syndicate_new_loka",
     RED_VEIL: "syndicate_red_veil",
 
