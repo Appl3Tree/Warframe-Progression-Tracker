@@ -74,7 +74,6 @@ export default function SyndicateCard(props: { syndicate: SyndicateState }) {
     const inventory = useTrackerStore((s) => s.state.inventory);
 
     const [showNotes, setShowNotes] = useState(false);
-    const [notesDraft, setNotesDraft] = useState(props.syndicate.notes ?? "");
 
     const reqs = props.syndicate.nextRankUp?.items ?? [];
     const creditsReq = props.syndicate.nextRankUp?.credits ?? 0;
@@ -201,20 +200,6 @@ export default function SyndicateCard(props: { syndicate: SyndicateState }) {
                 >
                     {showNotes ? "Hide Notes" : "Show Notes"}
                 </button>
-
-                {showNotes && (
-                    <div className="mt-2">
-                        <textarea
-                            className="w-full min-h-[80px] rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100"
-                            value={notesDraft}
-                            onChange={(e) => setNotesDraft(e.target.value)}
-                            placeholder="Notes..."
-                        />
-                        <div className="mt-1 text-xs text-slate-500">
-                            Notes editing is wired in the main Syndicates grid; this component may be unused depending on layout.
-                        </div>
-                    </div>
-                )}
             </div>
         </div>
     );
