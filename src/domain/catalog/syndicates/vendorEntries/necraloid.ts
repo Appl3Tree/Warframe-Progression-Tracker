@@ -8,6 +8,7 @@ export const NECRALOID_VENDOR_ENTRY: SyndicateVendorEntry = {
     rankUps: [
         {
             rank: 3,
+            minimumStanding: 44_000,
             costs: [
                 { kind: "item", name: "Orokin Animus Matrix", qty: 15 },
                 { kind: "item", name: "Void Traces", qty: 350 },
@@ -18,6 +19,7 @@ export const NECRALOID_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 2,
+            minimumStanding: 22_000,
             costs: [
                 { kind: "item", name: "Orokin Ballistics Matrix", qty: 15 },
                 { kind: "item", name: "Void Traces", qty: 250 },
@@ -28,6 +30,7 @@ export const NECRALOID_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 1,
+            minimumStanding: 5_000,
             costs: [
                 { kind: "item", name: "Orokin Orientation Matrix", qty: 10 },
                 { kind: "item", name: "Void Traces", qty: 150 },
@@ -38,6 +41,7 @@ export const NECRALOID_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 0,
+            minimumStanding: 0,
             costs: []
         }
     ],

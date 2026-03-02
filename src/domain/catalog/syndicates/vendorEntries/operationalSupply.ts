@@ -8,6 +8,7 @@ export const OPERATIONAL_SUPPLY_VENDOR_ENTRY: SyndicateVendorEntry = {
     rankUps: [
         {
             rank: 3,
+            minimumStanding: 44_000,
             costs: [
                 { kind: "item", name: "Nistlepod", qty: 10 },
                 { kind: "credits", amount: 20_000 },
@@ -16,6 +17,7 @@ export const OPERATIONAL_SUPPLY_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 2,
+            minimumStanding: 22_000,
             costs: [
                 { kind: "item", name: "Iradite", qty: 10 },
                 { kind: "credits", amount: 10_000 },
@@ -24,6 +26,7 @@ export const OPERATIONAL_SUPPLY_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 1,
+            minimumStanding: 5_000,
             costs: [
                 { kind: "item", name: "Grokdrul", qty: 10 },
                 { kind: "credits", amount: 5_000 },
@@ -32,6 +35,7 @@ export const OPERATIONAL_SUPPLY_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 0,
+            minimumStanding: 0,
             costs: []
         }
     ],

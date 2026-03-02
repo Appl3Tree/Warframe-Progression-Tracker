@@ -8,7 +8,7 @@ export const THE_QUILLS_VENDOR_ENTRY: SyndicateVendorEntry = {
     rankUps: [
         {
             rank: 5,
-            minimumStanding: 0,
+            minimumStanding: 99_000,
             costs: [
                 { kind: "item", name: "Eidolon Shard", qty: 30 },
                 { kind: "credits", amount: 500_000 },
@@ -17,7 +17,7 @@ export const THE_QUILLS_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 4,
-            minimumStanding: 0,
+            minimumStanding: 70_000,
             costs: [
                 { kind: "item", name: "Eidolon Shard", qty: 20 },
                 { kind: "credits", amount: 250_000 },
@@ -26,7 +26,7 @@ export const THE_QUILLS_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 3,
-            minimumStanding: 0,
+            minimumStanding: 44_000,
             costs: [
                 { kind: "item", name: "Eidolon Shard", qty: 10 },
                 { kind: "credits", amount: 100_000 },
@@ -35,7 +35,7 @@ export const THE_QUILLS_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 2,
-            minimumStanding: 0,
+            minimumStanding: 22_000,
             costs: [
                 { kind: "item", name: "Intact Sentient Core", qty: 20 },
                 { kind: "credits", amount: 50_000 },
@@ -44,7 +44,7 @@ export const THE_QUILLS_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 1,
-            minimumStanding: 0,
+            minimumStanding: 5_000,
             costs: [
                 { kind: "item", name: "Intact Sentient Core", qty: 10 },
                 { kind: "credits", amount: 30_000 },

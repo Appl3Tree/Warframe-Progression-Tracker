@@ -8,6 +8,7 @@ export const STEEL_MERIDIAN_VENDOR_ENTRY: SyndicateVendorEntry = {
     rankUps: [
         {
             rank: -1,
+            minimumStanding: -22_000,
             costs: [
                 { kind: "item", name: "Orokin Catalyst", qty: 1 },
                 { kind: "credits", amount: 100_000 }
@@ -15,6 +16,7 @@ export const STEEL_MERIDIAN_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 0,
+            minimumStanding: 0,
             costs: [
                 { kind: "item", name: "Forma", qty: 1 },
                 { kind: "credits", amount: 50_000 }
@@ -22,6 +24,7 @@ export const STEEL_MERIDIAN_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 1,
+            minimumStanding: 5_000,
             costs: [
                 { kind: "item", name: "Morphics", qty: 2 },
                 { kind: "credits", amount: 30_000 },
@@ -30,6 +33,7 @@ export const STEEL_MERIDIAN_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 2,
+            minimumStanding: 22_000,
             costs: [
                 { kind: "item", name: "Forma", qty: 1 },
                 { kind: "credits", amount: 50_000 },
@@ -38,6 +42,7 @@ export const STEEL_MERIDIAN_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 3,
+            minimumStanding: 44_000,
             costs: [
                 { kind: "item", name: "Orokin Catalyst", qty: 1 },
                 { kind: "credits", amount: 100_000 },
@@ -46,6 +51,7 @@ export const STEEL_MERIDIAN_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 4,
+            minimumStanding: 70_000,
             costs: [
                 { kind: "item", name: "Aya", qty: 2 },
                 { kind: "credits", amount: 250_000 },
@@ -54,6 +60,7 @@ export const STEEL_MERIDIAN_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 5,
+            minimumStanding: 99_000,
             costs: [
                 { kind: "item", name: "Aya", qty: 3 },
                 { kind: "credits", amount: 500_000 },

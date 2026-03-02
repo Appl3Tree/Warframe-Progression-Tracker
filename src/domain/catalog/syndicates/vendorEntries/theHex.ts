@@ -8,6 +8,7 @@ export const THE_HEX_VENDOR_ENTRY: SyndicateVendorEntry = {
     rankUps: [
         {
             rank: 5,
+            minimumStanding: 99_000,
             costs: [
                 { kind: "item", name: "Techrot Motherboard", qty: 5 },
                 { kind: "item", name: "The Countessa Comic", qty: 1 },
@@ -22,6 +23,7 @@ export const THE_HEX_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 4,
+            minimumStanding: 70_000,
             costs: [
                 { kind: "item", name: "Techrot Chitin", qty: 25 },
                 { kind: "item", name: "Necracoil", qty: 25 },
@@ -33,6 +35,7 @@ export const THE_HEX_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 3,
+            minimumStanding: 44_000,
             costs: [
                 { kind: "item", name: "The Countessa Comic", qty: 1 },
                 { kind: "item", name: "On-lyne CD", qty: 1 },
@@ -46,6 +49,7 @@ export const THE_HEX_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 2,
+            minimumStanding: 22_000,
             costs: [
                 { kind: "item", name: "Experimental Arc-Relay", qty: 5 },
                 { kind: "item", name: "Entrati Obols", qty: 12 },
@@ -56,6 +60,7 @@ export const THE_HEX_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 1,
+            minimumStanding: 5_000,
             costs: [
                 { kind: "item", name: "Efervon Sample", qty: 15 },
                 { kind: "item", name: "Höllvanian Pitchweave Fragment", qty: 15 },
@@ -65,6 +70,7 @@ export const THE_HEX_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 0,
+            minimumStanding: 0,
             costs: []
         }
     ],
