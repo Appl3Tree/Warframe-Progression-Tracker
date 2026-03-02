@@ -18,26 +18,32 @@ export const NIGHTCAP_VENDOR_ENTRY: SyndicateVendorEntry = {
     rankUps: [
         {
             rank: 5,
+            minimumStanding: 99_000,
             costs: [{ kind: "item", name: "Mushroom (Analyzed)", qty: 16 }]
         },
         {
             rank: 4,
+            minimumStanding: 70_000,
             costs: [{ kind: "item", name: "Mushroom (Analyzed)", qty: 12 }]
         },
         {
             rank: 3,
+            minimumStanding: 44_000,
             costs: [{ kind: "item", name: "Mushroom (Analyzed)", qty: 6 }]
         },
         {
             rank: 2,
+            minimumStanding: 22_000,
             costs: [{ kind: "item", name: "Mushroom (Analyzed)", qty: 2 }]
         },
         {
             rank: 1,
+            minimumStanding: 5_000,
             costs: [{ kind: "item", name: "Mushroom (Analyzed)", qty: 1 }]
         },
         {
             rank: 0,
+            minimumStanding: 0,
             costs: []
         }
     ],

@@ -8,6 +8,7 @@ export const SOLARIS_UNITED_VENDOR_ENTRY: SyndicateVendorEntry = {
     rankUps: [
         {
             rank: 5,
+            minimumStanding: 99_000,
             costs: [
                 { kind: "item", name: "Familial Debt-Bond", qty: 5 },
                 { kind: "item", name: "Advances Debt-Bond", qty: 5 },
@@ -18,6 +19,7 @@ export const SOLARIS_UNITED_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 4,
+            minimumStanding: 70_000,
             costs: [
                 { kind: "item", name: "Advances Debt-Bond", qty: 5 },
                 { kind: "item", name: "Medical Debt-Bond", qty: 4 },
@@ -28,6 +30,7 @@ export const SOLARIS_UNITED_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 3,
+            minimumStanding: 44_000,
             costs: [
                 { kind: "item", name: "Medical Debt-Bond", qty: 4 },
                 { kind: "item", name: "Shelter Debt-Bond", qty: 3 },
@@ -38,6 +41,7 @@ export const SOLARIS_UNITED_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 2,
+            minimumStanding: 22_000,
             costs: [
                 { kind: "item", name: "Shelter Debt-Bond", qty: 3 },
                 { kind: "item", name: "Training Debt-Bond", qty: 2 },
@@ -47,6 +51,7 @@ export const SOLARIS_UNITED_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 1,
+            minimumStanding: 5_000,
             costs: [
                 { kind: "item", name: "Training Debt-Bond", qty: 2 },
                 { kind: "credits", amount: 10_000 },
@@ -55,6 +60,7 @@ export const SOLARIS_UNITED_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 0,
+            minimumStanding: 0,
             costs: []
         }
     ],

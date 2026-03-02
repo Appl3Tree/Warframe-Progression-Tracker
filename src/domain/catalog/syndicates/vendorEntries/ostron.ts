@@ -8,7 +8,7 @@ export const OSTRON_VENDOR_ENTRY: SyndicateVendorEntry = {
     rankUps: [
         {
             rank: 5,
-            minimumStanding: 0,
+            minimumStanding: 99_000,
             costs: [
                 { kind: "item", name: "Nyth", qty: 1 },
                 { kind: "item", name: "Sentirum", qty: 1 },
@@ -20,7 +20,7 @@ export const OSTRON_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 4,
-            minimumStanding: 0,
+            minimumStanding: 70_000,
             costs: [
                 { kind: "item", name: "Maprico", qty: 10 },
                 { kind: "item", name: "Fersteel Alloy", qty: 40 },
@@ -31,7 +31,7 @@ export const OSTRON_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 3,
-            minimumStanding: 0,
+            minimumStanding: 44_000,
             costs: [
                 { kind: "item", name: "Cetus Wisp", qty: 1 },
                 { kind: "item", name: "Maprico", qty: 5 },
@@ -41,7 +41,7 @@ export const OSTRON_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 2,
-            minimumStanding: 0,
+            minimumStanding: 22_000,
             costs: [
                 { kind: "item", name: "Tear Azurite", qty: 10 },
                 { kind: "item", name: "Pyrol", qty: 40 },
@@ -52,7 +52,7 @@ export const OSTRON_VENDOR_ENTRY: SyndicateVendorEntry = {
         },
         {
             rank: 1,
-            minimumStanding: 0,
+            minimumStanding: 5_000,
             costs: [
                 { kind: "item", name: "Nistlepod", qty: 25 },
                 { kind: "item", name: "Iradite", qty: 25 },

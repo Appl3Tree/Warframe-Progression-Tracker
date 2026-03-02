@@ -8,27 +8,27 @@ export const VENTKIDS_VENDOR_ENTRY: SyndicateVendorEntry = {
     rankUps: [
         {
             rank: 5,
-            minimumStanding: 0,
+            minimumStanding: 99_000,
             costs: [{ kind: "standing", amount: 99_000 }]
         },
         {
             rank: 4,
-            minimumStanding: 0,
+            minimumStanding: 70_000,
             costs: [{ kind: "standing", amount: 70_000 }]
         },
         {
             rank: 3,
-            minimumStanding: 0,
+            minimumStanding: 44_000,
             costs: [{ kind: "standing", amount: 44_000 }]
         },
         {
             rank: 2,
-            minimumStanding: 0,
+            minimumStanding: 22_000,
             costs: [{ kind: "standing", amount: 22_000 }]
         },
         {
             rank: 1,
-            minimumStanding: 0,
+            minimumStanding: 5_000,
             costs: [{ kind: "standing", amount: 5_000 }]
         },
         {

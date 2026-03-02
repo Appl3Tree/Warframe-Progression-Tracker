@@ -14,8 +14,7 @@ export const NIGHTWAVE_VENDOR_ENTRY: SyndicateVendorEntry = {
 
     // Nightwave ranks are earned, not purchased.
     // We keep these as empty-cost ranks so the UI can still render the rank ladder consistently.
-    rankUps: [
-    ],
+    rankUps: [],
     rankInfo: "Nightwave has 30 Ranks with 150 Prestige Ranks earning 15 Credits per Prestige Rank.",
 
     offerings: [
