@@ -1,5 +1,6 @@
 // ===== FILE: src/components/SyndicateDetailsModal.tsx =====
 import { useEffect, useMemo, useState } from "react";
+import { SY } from "../domain/ids/syndicateIds";
 import type {
     SyndicateCostLine,
     SyndicateOffering,
@@ -148,21 +149,38 @@ function countCostLineStanding(costs: SyndicateCostLine[]): number {
     return s;
 }
 
+function getItemQty(costs: SyndicateCostLine[], itemName: string): number {
+    let n = 0;
+    for (const c of costs) {
+        if (c?.kind === "item" && String(c.name ?? "") === itemName) n += c.qty ?? 0;
+    }
+    return n;
+}
+
 function renderCostSummaryBlocks(sum: ReturnType<typeof sumCosts>) {
     const currencyEntries = Object.entries(sum.currencies).sort((a, b) => a[0].localeCompare(b[0]));
     const itemEntries = Object.entries(sum.items).sort((a, b) => a[0].localeCompare(b[0]));
     const otherEntries = Object.entries(sum.other).sort((a, b) => a[0].localeCompare(b[0]));
 
+    const showStanding = sum.standing !== 0;
+    const showCredits = sum.credits !== 0;
+
     return (
         <div className="flex flex-col gap-2">
-            <div className="flex flex-wrap gap-2">
-                <span className={chipClass()}>
-                    Standing: <span className="ml-1 font-mono">{sum.standing.toLocaleString()}</span>
-                </span>
-                <span className={chipClass()}>
-                    Credits: <span className="ml-1 font-mono">{sum.credits.toLocaleString()}</span>
-                </span>
-            </div>
+            {(showStanding || showCredits) ? (
+                <div className="flex flex-wrap gap-2">
+                    {showStanding ? (
+                        <span className={chipClass()}>
+                            Standing: <span className="ml-1 font-mono">{sum.standing.toLocaleString()}</span>
+                        </span>
+                    ) : null}
+                    {showCredits ? (
+                        <span className={chipClass()}>
+                            Credits: <span className="ml-1 font-mono">{sum.credits.toLocaleString()}</span>
+                        </span>
+                    ) : null}
+                </div>
+            ) : null}
 
             {currencyEntries.length ? (
                 <div className="flex flex-wrap gap-2">
@@ -200,8 +218,10 @@ function renderCostSummaryBlocks(sum: ReturnType<typeof sumCosts>) {
 /**
  * Ranks list (transition view). No minimum-standing shown (redundant with main page).
  */
-function RankUpTransitionsList(props: { rows: SyndicateRankUpRequirement[] }) {
+function RankUpTransitionsList(props: { rows: SyndicateRankUpRequirement[]; isNightcap?: boolean }) {
     const rows = props.rows ?? [];
+    const isNightcap = Boolean(props.isNightcap);
+
     if (rows.length === 0) {
         return (
             <EmptyState
@@ -240,6 +260,8 @@ function RankUpTransitionsList(props: { rows: SyndicateRankUpRequirement[] }) {
                 const costs = Array.isArray((to as any).costs) ? ((to as any).costs as SyndicateCostLine[]) : [];
                 const hasAnyCost = costs.length > 0;
 
+                const nightcapCheckpoint = isNightcap ? getItemQty(costs, "Mushroom (Analyzed)") : 0;
+
                 return (
                     <div key={`transition-${fromRank}-${toRank}`} className="rounded-2xl border border-slate-800 bg-slate-950/30 p-4">
                         <div className="flex items-center justify-between gap-3">
@@ -249,9 +271,15 @@ function RankUpTransitionsList(props: { rows: SyndicateRankUpRequirement[] }) {
 
                             <div className="text-[11px] text-slate-400">
                                 {hasAnyCost ? (
-                                    <span>
-                                        {countCostLineStanding(costs).toLocaleString()} Standing
-                                    </span>
+                                    isNightcap ? (
+                                        <span>
+                                            Checkpoint: <span className="font-mono text-slate-200">{nightcapCheckpoint}</span>/16
+                                        </span>
+                                    ) : (
+                                        <span>
+                                            {countCostLineStanding(costs).toLocaleString()} Standing
+                                        </span>
+                                    )
                                 ) : (
                                     <span className="text-amber-300/90">Not populated</span>
                                 )}
@@ -487,6 +515,7 @@ export default function SyndicateDetailsModal(props: {
     }
 
     const entry = props.entry;
+    const isNightcap = entry?.id === SY.NIGHTCAP;
 
     const rankUps = useMemo(() => entry?.rankUps ?? [], [entry]);
 
@@ -597,12 +626,31 @@ export default function SyndicateDetailsModal(props: {
         const ranks = [...byRank.keys()].sort((a, b) => a - b);
         if (ranks.length < 2) return sumCosts([]);
 
+        // Nightcap rank-ups are cumulative checkpoints; totals should be the MAX checkpoint (not a sum).
+        if (isNightcap) {
+            let maxMushrooms = 0;
+            for (const toRank of ranks.slice(1)) {
+                const to = byRank.get(toRank);
+                const costs = Array.isArray((to as any)?.costs) ? ((to as any).costs as SyndicateCostLine[]) : [];
+                const qty = getItemQty(costs, "Mushroom (Analyzed)");
+                if (qty > maxMushrooms) maxMushrooms = qty;
+            }
+
+            return {
+                standing: 0,
+                credits: 0,
+                currencies: {},
+                items: maxMushrooms ? { "Mushroom (Analyzed)": maxMushrooms } : {},
+                other: {}
+            };
+        }
+
         return ranks.slice(1).reduce((acc, toRank) => {
             const to = byRank.get(toRank);
             const costs = Array.isArray((to as any)?.costs) ? ((to as any).costs as SyndicateCostLine[]) : [];
             return mergeCostSums(acc, sumCosts(costs));
         }, sumCosts([]));
-    }, [rankUps]);
+    }, [rankUps, isNightcap]);
 
     if (!props.open) return null;
 
@@ -719,7 +767,7 @@ export default function SyndicateDetailsModal(props: {
                                 {tab === "ranks" ? (
                                     entry ? (
                                         rankUps.length ? (
-                                            <RankUpTransitionsList rows={rankUps} />
+                                            <RankUpTransitionsList rows={rankUps} isNightcap={isNightcap} />
                                         ) : entry.rankInfo ? (
                                             <div className="rounded-2xl border border-slate-800 bg-slate-950/30 p-4">
                                                 <div className="text-sm font-semibold text-slate-100">Ranks</div>
@@ -829,12 +877,16 @@ export default function SyndicateDetailsModal(props: {
                                 ) : (
                                     <>
                                         <div className="mt-3">
-                                            <div className="text-xs text-slate-400 mb-2">Total Rank-Up Cost</div>
+                                            <div className="text-xs text-slate-400 mb-2">
+                                                {isNightcap ? "Total Rank-Up Requirement (Max checkpoint)" : "Total Rank-Up Cost"}
+                                            </div>
                                             {renderCostSummaryBlocks(rankUpSum)}
                                         </div>
 
                                         <div className="mt-4 text-[11px] text-slate-500">
-                                            Totals are summed from the “to-rank” costs across transitions shown in this panel.
+                                            {isNightcap
+                                                ? "Nightcap rank-ups are checkpoints on a cumulative counter (x/16). Totals show the max checkpoint."
+                                                : "Totals are summed from the “to-rank” costs across transitions shown in this panel."}
                                         </div>
                                     </>
                                 )}

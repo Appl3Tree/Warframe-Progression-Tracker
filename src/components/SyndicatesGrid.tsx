@@ -320,7 +320,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Nightcap",
         tab: "other",
         model: "no-standing",
-        detail: "No standing meter. Rank via Nightcap-specific progression.",
+        detail: "Mushrooms analyzed progression (0–16).",
         bg: "#1f2430",
         fg: "#cbd5e1"
     }
@@ -369,10 +369,7 @@ function rankStandingRange(rank: number): { min: number; max: number } {
 }
 
 function hasRanksForSyndicate(canon: CanonicalSyndicate): boolean {
-    // Simaris has standing but no ranks.
     if (canon.id === SY.CEPHALON_SIMARIS) return false;
-
-    // Default behavior: your current UI expects ranks everywhere else.
     return true;
 }
 
@@ -380,10 +377,8 @@ function standingRangeForSyndicate(
     canon: CanonicalSyndicate,
     rank: number
 ): { min: number; max: number } | null {
-    // Simaris standing is unranked and caps at 125,000.
     if (canon.id === SY.CEPHALON_SIMARIS) return { min: 0, max: 125_000 };
-
-    // Existing behavior
+    if (canon.id === SY.NIGHTCAP) return { min: 0, max: 16 };
     return canon.model === "standing" || canon.model === "event-standing"
         ? rankStandingRange(rank)
         : null;
@@ -485,6 +480,88 @@ function inputClass(): string {
     return "w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-inherit font-mono";
 }
 
+// ===== Syndicate Pledge Simulation helpers =====
+
+type NetRow = { id: string; name: string; net: number };
+type NetTone = "pos" | "zero" | "neg";
+
+function combinations<T>(arr: T[], k: number): T[][] {
+    const out: T[][] = [];
+    function rec(start: number, pick: T[]) {
+        if (pick.length === k) {
+            out.push([...pick]);
+            return;
+        }
+        for (let i = start; i < arr.length; i++) {
+            pick.push(arr[i]);
+            rec(i + 1, pick);
+            pick.pop();
+        }
+    }
+    rec(0, []);
+    return out;
+}
+
+function computeNetRatesForPrimary(primaryCanon: CanonicalSyndicate[], pledgeSet: string[]): NetRow[] {
+    const ids = primaryCanon.map((c) => c.id);
+    const nameById = new Map(primaryCanon.map((c) => [c.id, c.name] as const));
+
+    if (pledgeSet.length === 0) {
+        return ids
+            .map((id) => ({ id, name: nameById.get(id) ?? id, net: 0 }))
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    const netById: Record<string, number> = {};
+    for (const id of ids) netById[id] = 0;
+
+    const relById = new Map<string, Relationship>();
+    for (const c of primaryCanon) {
+        relById.set(c.id, c.relationship ?? {});
+    }
+
+    for (const p of pledgeSet) {
+        if (p in netById) netById[p] += 1.0;
+
+        const rel = relById.get(p) ?? {};
+        for (const a of rel.allied ?? []) if (a in netById) netById[a] += 0.5;
+        for (const o of rel.opposed ?? []) if (o in netById) netById[o] -= 0.5;
+        for (const e of rel.enemy ?? []) if (e in netById) netById[e] -= 1.0;
+    }
+
+    const denom = pledgeSet.length;
+    const rows = ids.map((id) => ({
+        id,
+        name: nameById.get(id) ?? id,
+        net: netById[id] / denom
+    }));
+
+    rows.sort((a, b) => {
+        if (b.net !== a.net) return b.net - a.net;
+        return a.name.localeCompare(b.name);
+    });
+
+    return rows;
+}
+
+function netTone(net: number): NetTone {
+    if (net > 0) return "pos";
+    if (net < 0) return "neg";
+    return "zero";
+}
+
+function netChipClass(t: NetTone): string {
+    if (t === "pos") return "border-emerald-700/70 bg-emerald-950/30 text-emerald-200";
+    if (t === "zero") return "border-amber-700/70 bg-amber-950/25 text-amber-200";
+    return "border-rose-700/70 bg-rose-950/25 text-rose-200";
+}
+
+function formatNet(net: number): string {
+    const pct = Math.round(net * 100);
+    if (pct > 0) return `+${pct}%`;
+    return `${pct}%`;
+}
+
 export default function SyndicatesGrid() {
     const masteryRank = useTrackerStore((s) => s.state.player.masteryRank);
 
@@ -530,6 +607,19 @@ export default function SyndicatesGrid() {
         }
         return n;
     }, [primaryCanon, overlayById]);
+
+    const currentPledgedIds = useMemo(() => {
+        const out: string[] = [];
+        for (const c of primaryCanon) {
+            const ov = overlayById.get(c.id);
+            if (ov?.pledged) out.push(c.id);
+        }
+        return out;
+    }, [primaryCanon, overlayById]);
+
+    const pledgeNetNow = useMemo(() => {
+        return computeNetRatesForPrimary(primaryCanon, currentPledgedIds);
+    }, [primaryCanon, currentPledgedIds]);
 
     const showPledgePanel = activeTab === "all" || activeTab === "primary";
 
@@ -655,6 +745,29 @@ export default function SyndicatesGrid() {
                                     );
                                 })}
                             </div>
+
+                            {/* Syndicate Pledge Simulation (full width) */}
+                            <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                                <div className="text-sm font-semibold text-slate-100">Syndicate Pledge Simulation</div>
+                                <div className="mt-0.5 text-xs text-slate-400">
+                                    Net standing gain rates if you earn standing while pledged (self +100%, allied +50%, opposed -50%, enemy -100%).
+                                </div>
+
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {pledgeNetNow.map((r) => (
+                                        <span
+                                            key={`now-${r.id}`}
+                                            className={[
+                                                "inline-flex items-center rounded-full border px-2 py-0.5 text-xs",
+                                                netChipClass(netTone(r.net))
+                                            ].join(" ")}
+                                            title={r.id}
+                                        >
+                                            {r.name}: <span className="ml-1 font-mono">{formatNet(r.net)}</span>
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     ) : null}
                 </div>
@@ -674,7 +787,11 @@ export default function SyndicatesGrid() {
 
                     const pledged = canon.isFaction ? Boolean(overlay?.pledged) : false;
 
-                    const showStanding = canon.model === "standing" || canon.model === "event-standing";
+                    const isNightcapProgress = canon.id === SY.NIGHTCAP;
+
+                    const showStanding =
+                        canon.model === "standing" || canon.model === "event-standing" || isNightcapProgress;
+
                     const showCaps = canon.model === "standing" && canon.id !== SY.CEPHALON_SIMARIS;
 
                     const iconUrl = syndicateIconUrl(canon.iconFile);
@@ -744,7 +861,9 @@ export default function SyndicatesGrid() {
                                                 ? "Event"
                                                 : canon.model === "nightwave"
                                                     ? "System"
-                                                    : "No Standing"}
+                                                    : isNightcapProgress
+                                                        ? "Progress"
+                                                        : "No Standing"}
                                     </div>
                                 </div>
 
@@ -849,7 +968,9 @@ export default function SyndicatesGrid() {
 
                                     {showStanding ? (
                                         <div className="rounded-xl border border-white/10 bg-black/15 p-3">
-                                            <div className="text-xs opacity-90 mb-1">Standing</div>
+                                            <div className="text-xs opacity-90 mb-1">
+                                                {isNightcapProgress ? "Mushrooms analyzed (x/16)" : "Standing"}
+                                            </div>
 
                                             <input
                                                 className={inputClass()}
@@ -880,7 +1001,9 @@ export default function SyndicatesGrid() {
                                                     Valid range: {formatRange(range.min, range.max)}
                                                 </div>
                                             ) : (
-                                                <div className="mt-1 text-[11px] opacity-90">Current standing into rank.</div>
+                                                <div className="mt-1 text-[11px] opacity-90">
+                                                    {isNightcapProgress ? "Progress counter." : "Current standing into rank."}
+                                                </div>
                                             )}
                                         </div>
                                     ) : (
