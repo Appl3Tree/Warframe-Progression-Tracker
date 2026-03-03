@@ -1,6 +1,5 @@
 // ===== FILE: src/components/SyndicateDetailsModal.tsx =====
 import { useEffect, useMemo, useState } from "react";
-import { SY } from "../domain/ids/syndicateIds";
 import type {
     SyndicateCostLine,
     SyndicateOffering,
@@ -11,6 +10,7 @@ import type {
 type ModalTab = "ranks" | "offerings";
 
 type OwnedMap = Record<string, boolean>;
+type ChecklistMap = Record<string, boolean>;
 
 type OfferSortKey = "rankAsc" | "rankDesc" | "nameAsc" | "nameDesc" | "standingAsc" | "standingDesc";
 
@@ -149,38 +149,21 @@ function countCostLineStanding(costs: SyndicateCostLine[]): number {
     return s;
 }
 
-function getItemQty(costs: SyndicateCostLine[], itemName: string): number {
-    let n = 0;
-    for (const c of costs) {
-        if (c?.kind === "item" && String(c.name ?? "") === itemName) n += c.qty ?? 0;
-    }
-    return n;
-}
-
 function renderCostSummaryBlocks(sum: ReturnType<typeof sumCosts>) {
     const currencyEntries = Object.entries(sum.currencies).sort((a, b) => a[0].localeCompare(b[0]));
     const itemEntries = Object.entries(sum.items).sort((a, b) => a[0].localeCompare(b[0]));
     const otherEntries = Object.entries(sum.other).sort((a, b) => a[0].localeCompare(b[0]));
 
-    const showStanding = sum.standing !== 0;
-    const showCredits = sum.credits !== 0;
-
     return (
         <div className="flex flex-col gap-2">
-            {(showStanding || showCredits) ? (
-                <div className="flex flex-wrap gap-2">
-                    {showStanding ? (
-                        <span className={chipClass()}>
-                            Standing: <span className="ml-1 font-mono">{sum.standing.toLocaleString()}</span>
-                        </span>
-                    ) : null}
-                    {showCredits ? (
-                        <span className={chipClass()}>
-                            Credits: <span className="ml-1 font-mono">{sum.credits.toLocaleString()}</span>
-                        </span>
-                    ) : null}
-                </div>
-            ) : null}
+            <div className="flex flex-wrap gap-2">
+                <span className={chipClass()}>
+                    Standing: <span className="ml-1 font-mono">{sum.standing.toLocaleString()}</span>
+                </span>
+                <span className={chipClass()}>
+                    Credits: <span className="ml-1 font-mono">{sum.credits.toLocaleString()}</span>
+                </span>
+            </div>
 
             {currencyEntries.length ? (
                 <div className="flex flex-wrap gap-2">
@@ -215,13 +198,68 @@ function renderCostSummaryBlocks(sum: ReturnType<typeof sumCosts>) {
     );
 }
 
-/**
- * Ranks list (transition view). No minimum-standing shown (redundant with main page).
- */
-function RankUpTransitionsList(props: { rows: SyndicateRankUpRequirement[]; isNightcap?: boolean }) {
-    const rows = props.rows ?? [];
-    const isNightcap = Boolean(props.isNightcap);
+function rankChecklistStorageKey(syndicateId: string): string {
+    return `wfpt:syndicateRankChecklist:${syndicateId}`;
+}
 
+function ownedStorageKey(syndicateId: string): string {
+    return `wfpt:syndicateOwned:${syndicateId}`;
+}
+
+function canUseLocalStorage(): boolean {
+    try {
+        if (typeof window === "undefined") return false;
+        if (!window.localStorage) return false;
+        const k = "__wfpt_ls_test__";
+        window.localStorage.setItem(k, "1");
+        window.localStorage.removeItem(k);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function safeJsonParse<T>(raw: string | null, fallback: T): T {
+    if (!raw) return fallback;
+    try {
+        return JSON.parse(raw) as T;
+    } catch {
+        return fallback;
+    }
+}
+
+function normalizeChecklistKey(s: string): string {
+    return String(s ?? "").trim().replace(/\s+/g, " ");
+}
+
+function checklistKeyForCost(toRank: number, c: SyndicateCostLine): string {
+    // Stable enough for your use: rank gate + cost signature.
+    // If you later rename items in catalog, this will intentionally create a new checkbox.
+    const kind = (c as any)?.kind ?? "unknown";
+    if (kind === "standing") return normalizeChecklistKey(`to:${toRank}::standing::${(c as any)?.amount ?? 0}`);
+    if (kind === "credits") return normalizeChecklistKey(`to:${toRank}::credits::${(c as any)?.amount ?? 0}`);
+    if (kind === "currency") return normalizeChecklistKey(`to:${toRank}::currency::${(c as any)?.name ?? "Currency"}::${(c as any)?.amount ?? 0}`);
+    if (kind === "item") return normalizeChecklistKey(`to:${toRank}::item::${(c as any)?.name ?? "Item"}::${(c as any)?.qty ?? 0}`);
+    if (kind === "other") return normalizeChecklistKey(`to:${toRank}::other::${(c as any)?.label ?? "Other"}::${(c as any)?.amount ?? ""}`);
+    return normalizeChecklistKey(`to:${toRank}::unknown::${formatCostLine(c)}`);
+}
+
+function checklistRowClass(checked: boolean): string {
+    return checked
+        ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
+        : "border-slate-700 bg-slate-950/30 text-slate-200 hover:bg-slate-900/30";
+}
+
+/**
+ * Ranks list (transition view). Checklist is per cost line.
+ */
+function RankUpTransitionsList(props: {
+    rows: SyndicateRankUpRequirement[];
+    checklist: ChecklistMap;
+    onToggleChecklist: (key: string) => void;
+    onSetChecklistMany: (keys: string[], value: boolean) => void;
+}) {
+    const rows = props.rows ?? [];
     if (rows.length === 0) {
         return (
             <EmptyState
@@ -260,29 +298,53 @@ function RankUpTransitionsList(props: { rows: SyndicateRankUpRequirement[]; isNi
                 const costs = Array.isArray((to as any).costs) ? ((to as any).costs as SyndicateCostLine[]) : [];
                 const hasAnyCost = costs.length > 0;
 
-                const nightcapCheckpoint = isNightcap ? getItemQty(costs, "Mushroom (Analyzed)") : 0;
+                const keys = costs.map((c) => checklistKeyForCost(toRank, c));
+                const checkedN = keys.reduce((acc, k) => acc + (props.checklist[k] ? 1 : 0), 0);
 
                 return (
                     <div key={`transition-${fromRank}-${toRank}`} className="rounded-2xl border border-slate-800 bg-slate-950/30 p-4">
-                        <div className="flex items-center justify-between gap-3">
-                            <div className="text-sm font-semibold text-slate-100">
-                                Rank {fromRank} → Rank {toRank}
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <div className="text-sm font-semibold text-slate-100">
+                                    Rank {fromRank} → Rank {toRank}
+                                </div>
+
+                                <div className="mt-1 text-[11px] text-slate-400">
+                                    Checklist:{" "}
+                                    <span className="font-mono text-slate-200">{checkedN}</span>/
+                                    <span className="font-mono text-slate-200">{keys.length}</span>
+                                </div>
                             </div>
 
-                            <div className="text-[11px] text-slate-400">
-                                {hasAnyCost ? (
-                                    isNightcap ? (
-                                        <span>
-                                            Checkpoint: <span className="font-mono text-slate-200">{nightcapCheckpoint}</span>/16
-                                        </span>
-                                    ) : (
+                            <div className="shrink-0 text-right">
+                                <div className="text-[11px] text-slate-400">
+                                    {hasAnyCost ? (
                                         <span>
                                             {countCostLineStanding(costs).toLocaleString()} Standing
                                         </span>
-                                    )
-                                ) : (
-                                    <span className="text-amber-300/90">Not populated</span>
-                                )}
+                                    ) : (
+                                        <span className="text-amber-300/90">Not populated</span>
+                                    )}
+                                </div>
+
+                                {keys.length ? (
+                                    <div className="mt-2 flex items-center justify-end gap-2">
+                                        <button
+                                            className="rounded-lg border border-slate-700 bg-slate-950/30 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
+                                            onClick={() => props.onSetChecklistMany(keys, true)}
+                                            title="Mark all costs for this transition as owned"
+                                        >
+                                            Mark all
+                                        </button>
+                                        <button
+                                            className="rounded-lg border border-slate-700 bg-slate-950/30 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
+                                            onClick={() => props.onSetChecklistMany(keys, false)}
+                                            title="Clear all checkmarks for this transition"
+                                        >
+                                            Clear
+                                        </button>
+                                    </div>
+                                ) : null}
                             </div>
                         </div>
 
@@ -297,12 +359,62 @@ function RankUpTransitionsList(props: { rows: SyndicateRankUpRequirement[]; isNi
                             <div className="text-xs text-slate-400 mb-2">Rank Up Costs</div>
 
                             {hasAnyCost ? (
-                                <div className="flex flex-wrap gap-2">
-                                    {costs.map((c: SyndicateCostLine, i: number) => (
-                                        <span key={i} className={chipClass()}>
-                                            {formatCostLine(c)}
-                                        </span>
-                                    ))}
+                                <div className="flex flex-col gap-2">
+                                    {costs.map((c: SyndicateCostLine, i: number) => {
+                                        const k = checklistKeyForCost(toRank, c);
+                                        const checked = Boolean(props.checklist[k]);
+
+                                        return (
+                                            <button
+                                                key={`${k}::${i}`}
+                                                className={[
+                                                    "w-full rounded-xl border px-3 py-2 text-left transition",
+                                                    checklistRowClass(checked)
+                                                ].join(" ")}
+                                                onClick={() => props.onToggleChecklist(k)}
+                                                title={checked ? "Marked owned" : "Click to mark owned"}
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="min-w-0 flex items-start gap-3">
+                                                        <div
+                                                            className={[
+                                                                "mt-0.5 h-5 w-5 rounded border flex items-center justify-center",
+                                                                checked
+                                                                    ? "border-emerald-400/40 bg-emerald-400/15 text-emerald-200"
+                                                                    : "border-slate-600 bg-slate-950/30 text-slate-400"
+                                                            ].join(" ")}
+                                                            aria-label={checked ? "Owned" : "Unowned"}
+                                                        >
+                                                            {checked ? (
+                                                                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M20 6L9 17l-5-5"
+                                                                        stroke="currentColor"
+                                                                        strokeWidth="2"
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                    />
+                                                                </svg>
+                                                            ) : null}
+                                                        </div>
+
+                                                        <div className="min-w-0">
+                                                            <div className="text-xs font-semibold text-inherit break-words">
+                                                                {formatCostLine(c)}
+                                                            </div>
+                                                            <div className="mt-0.5 text-[11px] opacity-80">
+                                                                Click to toggle.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="shrink-0 text-[11px] opacity-80">
+                                                        {checked ? "Owned" : "Missing"}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className="text-xs text-amber-300/90">
@@ -315,32 +427,6 @@ function RankUpTransitionsList(props: { rows: SyndicateRankUpRequirement[]; isNi
             })}
         </div>
     );
-}
-
-function ownedStorageKey(syndicateId: string): string {
-    return `wfpt:syndicateOwned:${syndicateId}`;
-}
-
-function canUseLocalStorage(): boolean {
-    try {
-        if (typeof window === "undefined") return false;
-        if (!window.localStorage) return false;
-        const k = "__wfpt_ls_test__";
-        window.localStorage.setItem(k, "1");
-        window.localStorage.removeItem(k);
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-function safeJsonParse<T>(raw: string | null, fallback: T): T {
-    if (!raw) return fallback;
-    try {
-        return JSON.parse(raw) as T;
-    } catch {
-        return fallback;
-    }
 }
 
 function OfferingRow(props: {
@@ -425,6 +511,36 @@ function OfferingRow(props: {
     );
 }
 
+function tipsBlock(entry: SyndicateVendorEntry | null) {
+    if (!entry) return null;
+
+    const tips = (entry as any)?.standingGainTips as Array<{ title: string; body: string; sources?: string[] }> | undefined;
+    if (!Array.isArray(tips) || !tips.length) return null;
+
+    return (
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/30 p-4">
+            <div className="text-sm font-semibold text-slate-100">Optimal Standing Gain</div>
+            <div className="mt-1 text-xs text-slate-400">
+                Notes are rendered from your syndicate catalog (community/wiki-derived).
+            </div>
+
+            <div className="mt-3 flex flex-col gap-3">
+                {tips.map((t, idx) => (
+                    <div key={`tip-${idx}`} className="rounded-xl border border-slate-800 bg-slate-950/20 p-3">
+                        <div className="text-xs font-semibold text-slate-200">{t.title}</div>
+                        <div className="mt-1 text-xs text-slate-400 whitespace-pre-wrap">{t.body}</div>
+                        {Array.isArray(t.sources) && t.sources.length ? (
+                            <div className="mt-2 text-[11px] text-slate-500">
+                                Sources: {t.sources.join(" | ")}
+                            </div>
+                        ) : null}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default function SyndicateDetailsModal(props: {
     open: boolean;
     onClose: () => void;
@@ -446,6 +562,9 @@ export default function SyndicateDetailsModal(props: {
     // Owned toggle map (persisted per syndicate)
     const syndicateId = props.entry?.id ?? "";
     const [owned, setOwned] = useState<OwnedMap>({});
+
+    // Rank-up checklist map (persisted per syndicate)
+    const [rankChecklist, setRankChecklist] = useState<ChecklistMap>({});
 
     useEffect(() => {
         if (props.open) setTab(props.initialTab);
@@ -506,6 +625,39 @@ export default function SyndicateDetailsModal(props: {
         }
     }, [props.open, syndicateId, owned]);
 
+    // Load rank-up checklist on open / id change
+    useEffect(() => {
+        if (!props.open) return;
+        if (!syndicateId) {
+            setRankChecklist({});
+            return;
+        }
+        if (!canUseLocalStorage()) {
+            setRankChecklist({});
+            return;
+        }
+
+        try {
+            const raw = localStorage.getItem(rankChecklistStorageKey(syndicateId));
+            setRankChecklist(safeJsonParse<ChecklistMap>(raw, {}));
+        } catch {
+            setRankChecklist({});
+        }
+    }, [props.open, syndicateId]);
+
+    // Persist rank-up checklist
+    useEffect(() => {
+        if (!props.open) return;
+        if (!syndicateId) return;
+        if (!canUseLocalStorage()) return;
+
+        try {
+            localStorage.setItem(rankChecklistStorageKey(syndicateId), JSON.stringify(rankChecklist));
+        } catch {
+            // ignore
+        }
+    }, [props.open, syndicateId, rankChecklist]);
+
     function toggleOwned(key: string) {
         setOwned((prev) => {
             const next = { ...prev };
@@ -514,8 +666,23 @@ export default function SyndicateDetailsModal(props: {
         });
     }
 
+    function toggleRankChecklist(key: string) {
+        setRankChecklist((prev) => {
+            const next = { ...prev };
+            next[key] = !Boolean(next[key]);
+            return next;
+        });
+    }
+
+    function setRankChecklistMany(keys: string[], value: boolean) {
+        setRankChecklist((prev) => {
+            const next = { ...prev };
+            for (const k of keys) next[k] = value;
+            return next;
+        });
+    }
+
     const entry = props.entry;
-    const isNightcap = entry?.id === SY.NIGHTCAP;
 
     const rankUps = useMemo(() => entry?.rankUps ?? [], [entry]);
 
@@ -626,31 +793,12 @@ export default function SyndicateDetailsModal(props: {
         const ranks = [...byRank.keys()].sort((a, b) => a - b);
         if (ranks.length < 2) return sumCosts([]);
 
-        // Nightcap rank-ups are cumulative checkpoints; totals should be the MAX checkpoint (not a sum).
-        if (isNightcap) {
-            let maxMushrooms = 0;
-            for (const toRank of ranks.slice(1)) {
-                const to = byRank.get(toRank);
-                const costs = Array.isArray((to as any)?.costs) ? ((to as any).costs as SyndicateCostLine[]) : [];
-                const qty = getItemQty(costs, "Mushroom (Analyzed)");
-                if (qty > maxMushrooms) maxMushrooms = qty;
-            }
-
-            return {
-                standing: 0,
-                credits: 0,
-                currencies: {},
-                items: maxMushrooms ? { "Mushroom (Analyzed)": maxMushrooms } : {},
-                other: {}
-            };
-        }
-
         return ranks.slice(1).reduce((acc, toRank) => {
             const to = byRank.get(toRank);
             const costs = Array.isArray((to as any)?.costs) ? ((to as any).costs as SyndicateCostLine[]) : [];
             return mergeCostSums(acc, sumCosts(costs));
         }, sumCosts([]));
-    }, [rankUps, isNightcap]);
+    }, [rankUps]);
 
     if (!props.open) return null;
 
@@ -766,19 +914,29 @@ export default function SyndicateDetailsModal(props: {
                             <div className="max-h-[70vh] overflow-auto pr-1">
                                 {tab === "ranks" ? (
                                     entry ? (
-                                        rankUps.length ? (
-                                            <RankUpTransitionsList rows={rankUps} isNightcap={isNightcap} />
-                                        ) : entry.rankInfo ? (
-                                            <div className="rounded-2xl border border-slate-800 bg-slate-950/30 p-4">
-                                                <div className="text-sm font-semibold text-slate-100">Ranks</div>
-                                                <div className="mt-2 text-xs text-slate-400 whitespace-pre-wrap">{entry.rankInfo}</div>
+                                        <>
+                                            {tipsBlock(entry)}
+                                            <div className={tipsBlock(entry) ? "mt-3" : ""}>
+                                                {rankUps.length ? (
+                                                    <RankUpTransitionsList
+                                                        rows={rankUps}
+                                                        checklist={rankChecklist}
+                                                        onToggleChecklist={toggleRankChecklist}
+                                                        onSetChecklistMany={setRankChecklistMany}
+                                                    />
+                                                ) : entry.rankInfo ? (
+                                                    <div className="rounded-2xl border border-slate-800 bg-slate-950/30 p-4">
+                                                        <div className="text-sm font-semibold text-slate-100">Ranks</div>
+                                                        <div className="mt-2 text-xs text-slate-400 whitespace-pre-wrap">{entry.rankInfo}</div>
+                                                    </div>
+                                                ) : (
+                                                    <EmptyState
+                                                        title="No rank-up data"
+                                                        body="This syndicate does not have rank-up sacrifices, or the catalog entry is not populated."
+                                                    />
+                                                )}
                                             </div>
-                                        ) : (
-                                            <EmptyState
-                                                title="No rank-up data"
-                                                body="This syndicate does not have rank-up sacrifices, or the catalog entry is not populated."
-                                            />
-                                        )
+                                        </>
                                     ) : (
                                         <EmptyState title="Missing catalog entry" body="Add a matching entry in syndicateVendorCatalog.ts." />
                                     )
@@ -877,16 +1035,16 @@ export default function SyndicateDetailsModal(props: {
                                 ) : (
                                     <>
                                         <div className="mt-3">
-                                            <div className="text-xs text-slate-400 mb-2">
-                                                {isNightcap ? "Total Rank-Up Requirement (Max checkpoint)" : "Total Rank-Up Cost"}
-                                            </div>
+                                            <div className="text-xs text-slate-400 mb-2">Total Rank-Up Cost</div>
                                             {renderCostSummaryBlocks(rankUpSum)}
                                         </div>
 
                                         <div className="mt-4 text-[11px] text-slate-500">
-                                            {isNightcap
-                                                ? "Nightcap rank-ups are checkpoints on a cumulative counter (x/16). Totals show the max checkpoint."
-                                                : "Totals are summed from the “to-rank” costs across transitions shown in this panel."}
+                                            Totals are summed from the “to-rank” costs across transitions shown in this panel.
+                                        </div>
+
+                                        <div className="mt-4 text-[11px] text-slate-500">
+                                            Clist state is stored locally per syndicate (browser localStorage).
                                         </div>
                                     </>
                                 )}
