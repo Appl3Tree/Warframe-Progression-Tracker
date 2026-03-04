@@ -380,7 +380,7 @@ function isPrimaryFactionId(id: string): boolean {
         id === SY.STEEL_MERIDIAN ||
         id === SY.ARBITERS_OF_HEXIS ||
         id === SY.CEPHALON_SUDA ||
-        id === SY.PERRIN_SEQUENCE ||
+        id === SY.THE_PERRIN_SEQUENCE ||
         id === SY.RED_VEIL ||
         id === SY.NEW_LOKA
     );
@@ -659,7 +659,7 @@ export const useTrackerStore = create<TrackerStore>()(
                         { id: SY.STEEL_MERIDIAN, name: "Steel Meridian" },
                         { id: SY.ARBITERS_OF_HEXIS, name: "Arbiters of Hexis" },
                         { id: SY.CEPHALON_SUDA, name: "Cephalon Suda" },
-                        { id: SY.PERRIN_SEQUENCE, name: "The Perrin Sequence" },
+                        { id: SY.THE_PERRIN_SEQUENCE, name: "The Perrin Sequence" },
                         { id: SY.RED_VEIL, name: "Red Veil" },
                         { id: SY.NEW_LOKA, name: "New Loka" }
                     ];

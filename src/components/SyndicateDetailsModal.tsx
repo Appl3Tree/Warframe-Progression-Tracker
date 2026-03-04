@@ -31,6 +31,10 @@ type OfferingWithVendor = SyndicateOffering & {
     vendorName: string;    // "Rude Zuud", etc. OR entry.name
 };
 
+function offeringRankRequired(o: { rankRequired?: number }): number {
+    return typeof o.rankRequired === "number" ? o.rankRequired : 0;
+}
+
 function offeringKey(o: OfferingWithVendor): string {
     // Unique within a syndicate even if two vendors sell the same named item.
     return `${o.vendorId}::${o.name}`;
@@ -721,7 +725,7 @@ export default function SyndicateDetailsModal(props: {
 
     const maxRankOptions = useMemo(() => {
         const ranks = new Set<number>();
-        for (const o of offerings) ranks.add(o.rankRequired);
+        for (const o of offerings) ranks.add(offeringRankRequired(o));
         return [...ranks].sort((a, b) => a - b);
     }, [offerings]);
 
@@ -735,7 +739,7 @@ export default function SyndicateDetailsModal(props: {
             if (ownedFilter === "owned" && !isOwned) return false;
             if (ownedFilter === "unowned" && isOwned) return false;
 
-            if (maxRank !== null && o.rankRequired > maxRank) return false;
+            if (maxRank !== null && offeringRankRequired(o) > maxRank) return false;
 
             if (!q) return true;
             const hay = `${o.name} ${o.notes ?? ""}`.toLowerCase();
@@ -743,8 +747,8 @@ export default function SyndicateDetailsModal(props: {
         });
 
         const sorted = [...filtered].sort((a, b) => {
-            if (sortKey === "rankAsc") return a.rankRequired - b.rankRequired || a.name.localeCompare(b.name);
-            if (sortKey === "rankDesc") return b.rankRequired - a.rankRequired || a.name.localeCompare(b.name);
+            if (sortKey === "rankAsc") return offeringRankRequired(a) - offeringRankRequired(b) || a.name.localeCompare(b.name);
+            if (sortKey === "rankDesc") return offeringRankRequired(b) - offeringRankRequired(a) || a.name.localeCompare(b.name);
             if (sortKey === "nameAsc") return a.name.localeCompare(b.name);
             if (sortKey === "nameDesc") return b.name.localeCompare(a.name);
             if (sortKey === "standingAsc")

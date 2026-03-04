@@ -1,5 +1,4 @@
 // ===== FILE: src/domain/catalog/syndicates/syndicateVendorCatalog.ts =====
-import type { SyndicateVendorEntry } from "./syndicateVendorCatalog";
 import {
     ARBITERS_OF_HEXIS_VENDOR_ENTRY,
     CAVIA_VENDOR_ENTRY,
@@ -43,7 +42,7 @@ export type SyndicateRankUpRequirement = {
 export type SyndicateOffering = {
     name: string;
     // Minimum rank required to purchase.
-    rankRequired: number;
+    rankRequired?: number;
     costs: SyndicateCostLine[];
     // Optional: notes like “Blueprint”, “One-time”, etc.
     notes?: string;
@@ -60,7 +59,7 @@ export type SyndicateVendorEntry = {
     rankInfo?: string;
 
     // Vendor offerings (if applicable).
-    offerings: SyndicateOffering[];
+    offerings?: SyndicateOffering[];
 
     vendors?: {
         id: string;
