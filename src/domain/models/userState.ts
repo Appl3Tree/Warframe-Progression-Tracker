@@ -37,6 +37,7 @@ export interface UserPlayerV2 {
 
 export interface UserUiV2 {
     activePage: PageKey;
+    expandedGoalNodes: Record<string, boolean>;
 }
 
 export interface UserPrereqsV2 {
