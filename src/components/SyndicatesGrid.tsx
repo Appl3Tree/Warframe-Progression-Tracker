@@ -318,7 +318,9 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         detail: "Nora Night’s radio syndicate. Complete Acts to earn Standing and rank up for Nora’s Creds and exclusive rewards.",
         iconFile: "120px-NightwaveSyndicate.png",
         bg: "#6C1822",
-        fg: "#F4ABAB"
+        fg: "#F4ABAB",
+        // 30 normal ranks + 150 prestige ranks
+        maxRank: 180
     },
     {
         id: SY.NIGHTCAP,
@@ -689,6 +691,7 @@ export default function SyndicatesGrid() {
     const [detailsTitle, setDetailsTitle] = useState<string>("");
     const [detailsInitialTab, setDetailsInitialTab] = useState<"ranks" | "offerings">("ranks");
     const [detailsInitialOwnedFilter, setDetailsInitialOwnedFilter] = useState<"all" | "owned" | "unowned">("all");
+    const [detailsPlayerRank, setDetailsPlayerRank] = useState<number>(0);
 
     // Bump this when the modal closes to force re-read of localStorage for missing counts
     const [ownedRefreshKey, setOwnedRefreshKey] = useState(0);
@@ -699,12 +702,14 @@ export default function SyndicatesGrid() {
         syndicateId: string,
         title: string,
         tab: "ranks" | "offerings",
-        ownedFilter: "all" | "owned" | "unowned" = "all"
+        ownedFilter: "all" | "owned" | "unowned" = "all",
+        playerRank = 0
     ) {
         setDetailsSyndicateId(syndicateId);
         setDetailsTitle(title);
         setDetailsInitialTab(tab);
         setDetailsInitialOwnedFilter(ownedFilter);
+        setDetailsPlayerRank(playerRank);
         setDetailsOpen(true);
     }
 
@@ -1260,7 +1265,7 @@ export default function SyndicatesGrid() {
                                     {canShowRanksButton ? (
                                         <button
                                             className={cardActionButtonClass()}
-                                            onClick={() => openDetails(canon.id, `${canon.name} - Ranks`, "ranks")}
+                                            onClick={() => openDetails(canon.id, `${canon.name} - Ranks`, "ranks", "all", rank)}
                                             title="View rank-up requirements"
                                         >
                                             Ranks
@@ -1356,6 +1361,19 @@ export default function SyndicatesGrid() {
                                                 </select>
                                             ) : canon.id === SY.NIGHTCAP ? (
                                                 <div className="text-sm font-mono">{rank}</div>
+                                            ) : maxRank > 10 ? (
+                                                <input
+                                                    className={inputClass()}
+                                                    value={String(rank)}
+                                                    inputMode="numeric"
+                                                    onChange={(e) =>
+                                                        upsertSyndicate({
+                                                            id: canon.id,
+                                                            name: canon.name,
+                                                            rank: clamp(Math.max(0, parseIntSafeSigned(e.target.value)), 0, maxRank)
+                                                        })
+                                                    }
+                                                />
                                             ) : (
                                                 <select
                                                     className={selectClass()}
@@ -1379,6 +1397,8 @@ export default function SyndicatesGrid() {
                                                 <div className="mt-1 text-[11px] opacity-90">Relay factions support ranks -2..5.</div>
                                             ) : canon.id === SY.NIGHTCAP ? (
                                                 <div className="mt-1 text-[11px] opacity-90">Auto-derived from mushrooms analyzed.</div>
+                                            ) : canon.id === SY.NIGHTWAVE ? (
+                                                <div className="mt-1 text-[11px] opacity-90">Ranks 1–30 (normal) + 31–180 (prestige).</div>
                                             ) : (
                                                 <div className="mt-1 text-[11px] opacity-90">Ranks 0–{maxRank}.</div>
                                             )}
@@ -1492,6 +1512,7 @@ export default function SyndicatesGrid() {
                 initialTab={detailsInitialTab}
                 initialOwnedFilter={detailsInitialOwnedFilter}
                 initialSortKey={detailsInitialOwnedFilter === "unowned" ? "rankAsc" : undefined}
+                playerRank={detailsPlayerRank}
             />
         </div>
     );
