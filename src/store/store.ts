@@ -439,11 +439,15 @@ export interface TrackerStore {
     setGoalQty: (goalId: string, qty: number) => void;
     setGoalNote: (goalId: string, note: string) => void;
     toggleGoalActive: (goalId: string) => void;
+    setGoalComponentCompleted: (goalId: string, componentKey: string, done: boolean) => void;
     clearAllGoals: () => void;
 
     toggleExpandedGoalNode: (nodeId: string) => void;
     setExpandedGoalNode: (nodeId: string, expanded: boolean) => void;
     isExpandedGoalNode: (nodeId: string) => boolean;
+
+    setNodeCompleted: (starChartNodeId: string, completed: boolean) => void;
+    isNodeCompleted: (starChartNodeId: string) => boolean;
 }
 
 const PERSIST_KEY = "wf_tracker_state_v3";
@@ -869,6 +873,20 @@ export const useTrackerStore = create<TrackerStore>()(
                 });
             },
 
+            setGoalComponentCompleted: (goalId, componentKey, done) => {
+                set((s) => {
+                    ensureGoalsArray(s.state);
+                    const g = s.state.goals.find((x: any) => x.id === goalId);
+                    if (!g) return;
+                    if (!g.completedComponents || typeof g.completedComponents !== "object") {
+                        g.completedComponents = {};
+                    }
+                    g.completedComponents[componentKey] = done;
+                    g.updatedAtIso = nowIso();
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
             clearAllGoals: () => {
                 set((s) => {
                     s.state.goals = [];
@@ -897,6 +915,28 @@ export const useTrackerStore = create<TrackerStore>()(
             isExpandedGoalNode: (nodeId) => {
                 const m = get().state.ui.expandedGoalNodes ?? {};
                 return Boolean(m[String(nodeId)]);
+            },
+
+            setNodeCompleted: (starChartNodeId, completed) => {
+                set((s) => {
+                    if (!s.state.missions) {
+                        s.state.missions = { completesByTag: {} };
+                    }
+                    if (!s.state.missions.nodeCompleted) {
+                        s.state.missions.nodeCompleted = {};
+                    }
+                    if (completed) {
+                        s.state.missions.nodeCompleted[starChartNodeId] = true;
+                    } else {
+                        delete s.state.missions.nodeCompleted[starChartNodeId];
+                    }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            isNodeCompleted: (starChartNodeId) => {
+                const nc = get().state.missions?.nodeCompleted;
+                return Boolean(nc?.[starChartNodeId]);
             }
         })),
         {

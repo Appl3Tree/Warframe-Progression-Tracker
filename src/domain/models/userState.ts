@@ -76,6 +76,12 @@ export interface UserGoalV1 {
      */
     isActive: boolean;
 
+    /**
+     * Per-component completion tracking.
+     * Keys are step identifiers (e.g. "blueprint", "resources", "crafted").
+     */
+    completedComponents?: Record<string, boolean>;
+
     createdAtIso: string;
     updatedAtIso: string;
 }
@@ -100,6 +106,8 @@ export interface UserStateV2 {
 
     missions: {
         completesByTag: Record<string, number>;
+        /** Manually toggled per-node completion (boolean, by node ID). */
+        nodeCompleted?: Record<string, boolean>;
     };
 }
 

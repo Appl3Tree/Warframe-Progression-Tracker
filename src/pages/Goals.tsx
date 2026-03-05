@@ -892,6 +892,7 @@ export default function Goals() {
     const setGoalNote = useTrackerStore((s) => s.setGoalNote);
     const toggleGoalActive = useTrackerStore((s) => s.toggleGoalActive);
     const removeGoal = useTrackerStore((s) => s.removeGoal);
+    const setGoalComponentCompleted = useTrackerStore((s) => s.setGoalComponentCompleted);
 
     const [tab, setTab] = useState<GoalsTab>("personal");
 
@@ -947,6 +948,7 @@ export default function Goals() {
             goalId: string;
             catalogId: CatalogId;
             name: string;
+            completedComponents: Record<string, boolean>;
             qty: number;
             note: string;
             isActive: boolean;
@@ -973,7 +975,8 @@ export default function Goals() {
                 note: String(g.note ?? ""),
                 isActive: g.isActive !== false,
                 have,
-                remaining
+                remaining,
+                completedComponents: (g.completedComponents ?? {}) as Record<string, boolean>
             });
         }
 
@@ -1163,7 +1166,37 @@ export default function Goals() {
                                             </label>
                                         </div>
 
-                                        <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-950/20 p-3">
+                                        <div className="mt-3 rounded-xl border border-slate-700/50 bg-slate-950/20 p-3">
+                                            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+                                                Crafting Progress
+                                            </div>
+                                            <div className="flex flex-wrap gap-x-5 gap-y-1.5">
+                                                {(["blueprint", "resources", "crafted"] as const).map((key) => {
+                                                    const labels: Record<string, string> = {
+                                                        blueprint: "Blueprint obtained",
+                                                        resources: "Resources farmed",
+                                                        crafted: "Item crafted"
+                                                    };
+                                                    const done = Boolean(g.completedComponents[key]);
+                                                    return (
+                                                        <label key={key} className="flex items-center gap-1.5 cursor-pointer text-xs">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={done}
+                                                                onChange={(e) =>
+                                                                    setGoalComponentCompleted(g.goalId, key, e.target.checked)
+                                                                }
+                                                            />
+                                                            <span className={done ? "line-through text-slate-500" : "text-slate-300"}>
+                                                                {labels[key]}
+                                                            </span>
+                                                        </label>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-3 rounded-2xl border border-slate-800 bg-slate-950/20 p-3">
                                             <div className="flex items-center justify-between gap-3">
                                                 <div className="text-xs uppercase tracking-wide text-slate-400">Expanded Requirements</div>
                                                 <button
