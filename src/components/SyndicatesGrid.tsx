@@ -5,6 +5,8 @@ import { SY } from "../domain/ids/syndicateIds";
 import type { SyndicateState } from "../domain/types";
 import SyndicateDetailsModal from "./SyndicateDetailsModal";
 import { getSyndicateVendorEntry } from "../domain/catalog/syndicates/syndicateVendorCatalog";
+import type { SyndicateVendorEntry } from "../domain/catalog/syndicates/syndicateVendorCatalog";
+import { readOwnedMap, offeringKey, countOwned } from "../domain/syndicates/ownedOfferings";
 
 type TabKey =
     | "all"
@@ -542,38 +544,122 @@ function formatNet(net: number): string {
     return `${pct}%`;
 }
 
-type HintCombo = { ids: string[] };
+// ===== Estimate standing to reach max rank =====
 
-function computeSwapSafeCombos(primaryCanon: CanonicalSyndicate[]): HintCombo[] {
+function estimateStandingToMaxRank(rank: number, standing: number): number {
+    if (rank >= 5) return 0;
+
+    let total = 0;
+
+    // Standing remaining within the current rank (to reach its max)
+    const currentRange = rankStandingRange(rank);
+    total += currentRange.max - standing;
+
+    // Full bands for each subsequent rank up to (and including) rank 4 → rank up to 5
+    for (let r = rank + 1; r <= 4; r++) {
+        const rng = rankStandingRange(r);
+        total += rng.max - rng.min;
+    }
+
+    return Math.max(0, total);
+}
+
+// ===== Conflict simulation: ranked combinations =====
+
+type RankedCombo = {
+    ids: string[];
+    nets: Record<string, number>;
+    posCount: number;
+    negCount: number;
+    netSum: number;
+};
+
+function computeRankedCombos(primaryCanon: CanonicalSyndicate[]): RankedCombo[] {
     const ids = primaryCanon.map((c) => c.id);
     const relById = new Map<string, Relationship>();
     for (const c of primaryCanon) relById.set(c.id, c.relationship ?? {});
 
-    function isSafeSet(setIds: string[]): boolean {
-        const set = new Set(setIds);
-        for (const p of setIds) {
+    const results: RankedCombo[] = [];
+
+    // Enumerate all subsets of size 0..3
+    const n = ids.length;
+    for (let mask = 0; mask < (1 << n); mask++) {
+        const pledgeSet: string[] = [];
+        for (let i = 0; i < n; i++) {
+            if (mask & (1 << i)) pledgeSet.push(ids[i]);
+        }
+        if (pledgeSet.length > 3) continue;
+
+        const netById: Record<string, number> = {};
+        for (const id of ids) netById[id] = 0;
+
+        for (const p of pledgeSet) {
+            netById[p] += 1.0;
             const rel = relById.get(p) ?? {};
-            const bad = new Set<string>([...(rel.opposed ?? []), ...(rel.enemy ?? [])]);
-            for (const other of set) {
-                if (other === p) continue;
-                if (bad.has(other)) return false;
-            }
+            for (const a of rel.allied ?? []) if (a in netById) netById[a] += 0.5;
+            for (const o of rel.opposed ?? []) if (o in netById) netById[o] -= 0.5;
+            for (const e of rel.enemy ?? []) if (e in netById) netById[e] -= 1.0;
         }
-        return true;
+
+        let posCount = 0;
+        let negCount = 0;
+        let netSum = 0;
+        for (const id of ids) {
+            if (netById[id] > 0) posCount++;
+            if (netById[id] < 0) negCount++;
+            netSum += netById[id];
+        }
+
+        results.push({ ids: pledgeSet, nets: netById, posCount, negCount, netSum });
     }
 
-    const out: HintCombo[] = [];
-    for (let i = 0; i < ids.length; i++) {
-        for (let j = i + 1; j < ids.length; j++) {
-            for (let k = j + 1; k < ids.length; k++) {
-                const set = [ids[i], ids[j], ids[k]];
-                if (isSafeSet(set)) out.push({ ids: set });
-            }
+    // Sort: most positives first, then fewest negatives, then highest net sum, then fewest pledges
+    results.sort((a, b) => {
+        if (b.posCount !== a.posCount) return b.posCount - a.posCount;
+        if (a.negCount !== b.negCount) return a.negCount - b.negCount;
+        if (b.netSum !== a.netSum) return b.netSum - a.netSum;
+        return a.ids.length - b.ids.length;
+    });
+
+    return results;
+}
+
+// ===== Flat offering list from a vendor entry =====
+
+function flattenOfferings(entry: SyndicateVendorEntry | null): Array<{ vendorId: string; name: string }> {
+    if (!entry) return [];
+    const vendors = (entry as any).vendors as Array<{ id: string; offerings: Array<{ name: string }> }> | undefined;
+    if (Array.isArray(vendors) && vendors.length > 0) {
+        return vendors.flatMap((v) =>
+            (v.offerings ?? []).map((o) => ({ vendorId: v.id, name: o.name }))
+        );
+    }
+    return (entry.offerings ?? []).map((o) => ({ vendorId: "main", name: o.name }));
+}
+
+// ===== Collect unique currencies used by a vendor entry's offerings =====
+
+function collectCurrencyNames(entry: SyndicateVendorEntry | null): string[] {
+    if (!entry) return [];
+    const names = new Set<string>();
+
+    function checkCosts(costs: Array<{ kind?: string; name?: string }> | undefined) {
+        if (!costs) return;
+        for (const c of costs) {
+            if (c?.kind === "currency" && c.name) names.add(c.name);
         }
     }
 
-    out.sort((a, b) => a.ids.join("|").localeCompare(b.ids.join("|")));
-    return out;
+    const vendors = (entry as any).vendors as Array<{ offerings: Array<{ costs: any[] }> }> | undefined;
+    if (Array.isArray(vendors) && vendors.length > 0) {
+        for (const v of vendors) {
+            for (const o of v.offerings ?? []) checkCosts(o.costs);
+        }
+    } else {
+        for (const o of entry.offerings ?? []) checkCosts((o as any).costs);
+    }
+
+    return [...names].sort();
 }
 
 export default function SyndicatesGrid() {
@@ -588,15 +674,29 @@ export default function SyndicatesGrid() {
     const [detailsSyndicateId, setDetailsSyndicateId] = useState<string>("");
     const [detailsTitle, setDetailsTitle] = useState<string>("");
     const [detailsInitialTab, setDetailsInitialTab] = useState<"ranks" | "offerings">("ranks");
+    const [detailsInitialOwnedFilter, setDetailsInitialOwnedFilter] = useState<"all" | "owned" | "unowned">("all");
+
+    // Bump this when the modal closes to force re-read of localStorage for missing counts
+    const [ownedRefreshKey, setOwnedRefreshKey] = useState(0);
 
     const [standingDraftById, setStandingDraftById] = useState<Record<string, string>>({});
-    const [hintOpen, setHintOpen] = useState(false);
 
-    function openDetails(syndicateId: string, title: string, tab: "ranks" | "offerings") {
+    function openDetails(
+        syndicateId: string,
+        title: string,
+        tab: "ranks" | "offerings",
+        ownedFilter: "all" | "owned" | "unowned" = "all"
+    ) {
         setDetailsSyndicateId(syndicateId);
         setDetailsTitle(title);
         setDetailsInitialTab(tab);
+        setDetailsInitialOwnedFilter(ownedFilter);
         setDetailsOpen(true);
+    }
+
+    function closeDetails() {
+        setDetailsOpen(false);
+        setOwnedRefreshKey((k) => k + 1);
     }
 
     const overlayById = useMemo(() => {
@@ -662,13 +762,20 @@ export default function SyndicatesGrid() {
         return { pos, zero, neg };
     }, [pledgeNetNow]);
 
-    const hintCombos = useMemo(() => computeSwapSafeCombos(primaryCanon), [primaryCanon]);
+    // Conflict simulation: top recommendations from all 42 pledge combinations
+    const rankedCombos = useMemo(() => computeRankedCombos(primaryCanon), [primaryCanon]);
+    // Show top 6 non-empty combos as recommendations
+    const topRecommendations = useMemo(
+        () => rankedCombos.filter((c) => c.ids.length > 0).slice(0, 6),
+        [rankedCombos]
+    );
 
-    function applyHintCombo(ids: string[]) {
+    function applyCombo(ids: string[]) {
         for (const c of primaryCanon) setPledged(c.id, false);
         for (const id of ids) setPledged(id, true);
-        setHintOpen(false);
     }
+
+    const [simOpen, setSimOpen] = useState(false);
 
     const showPledgePanel = activeTab === "all" || activeTab === "primary";
 
@@ -708,8 +815,6 @@ export default function SyndicatesGrid() {
         });
     }
 
-    const showSimulation = currentPledgedIds.length > 0;
-
     return (
         <div className="flex flex-col gap-4">
             <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-3">
@@ -739,79 +844,19 @@ export default function SyndicatesGrid() {
                             <div className="flex items-center justify-between gap-3">
                                 <div>
                                     <div className="text-sm font-semibold text-slate-100">Primary Pledges</div>
-                                    <div className="text-xs text-slate-400 mt-0.5">Pledge to a syndicate to view the simulator. Toggle up to 3. ({pledgedCount}/3)</div>
+                                    <div className="text-xs text-slate-400 mt-0.5">Toggle up to 3 pledges to simulate standing rates. ({pledgedCount}/3)</div>
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                    <div className="relative">
-                                        <button
-                                            className="rounded-full border border-slate-700 bg-slate-950/30 px-3 py-1 text-xs text-slate-200 hover:bg-slate-900"
-                                            type="button"
-                                            onClick={() => setHintOpen((v) => !v)}
-                                            aria-expanded={hintOpen}
-                                            title="Show swap-safe combinations"
-                                        >
-                                            Hint
-                                        </button>
-
-                                        {hintOpen ? (
-                                            <div className="absolute right-0 mt-2 w-[380px] z-30 rounded-xl border border-slate-800 bg-slate-950/95 p-3 shadow-xl">
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <div>
-                                                        <div className="text-xs font-semibold text-slate-100">Swap-safe examples</div>
-                                                        <div className="mt-1 text-[11px] text-slate-400">
-                                                            Any pledge inside the set won’t make the others in that set go negative.
-                                                        </div>
-                                                    </div>
-
-                                                    <button
-                                                        className="shrink-0 rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
-                                                        type="button"
-                                                        onClick={() => setHintOpen(false)}
-                                                    >
-                                                        Close
-                                                    </button>
-                                                </div>
-
-                                                <div className="mt-3 flex flex-col gap-2">
-                                                    {(hintCombos.length
-                                                        ? hintCombos
-                                                        : [{ ids: primaryCanon.slice(0, 3).map((c) => c.id) }])
-                                                        .slice(0, 6)
-                                                        .map((c, idx) => (
-                                                            <div
-                                                                key={`hint-${idx}`}
-                                                                className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-950/40 p-2"
-                                                            >
-                                                                <div className="min-w-0 flex flex-wrap gap-1.5">
-                                                                    {c.ids.map((id) => (
-                                                                        <span
-                                                                            key={`hint-${idx}-${id}`}
-                                                                            className="inline-flex items-center rounded-full border border-slate-700 bg-slate-950/30 px-2 py-0.5 text-[11px] text-slate-200"
-                                                                        >
-                                                                            {findCanonNameById(id)}
-                                                                        </span>
-                                                                    ))}
-                                                                </div>
-
-                                                                <button
-                                                                    className="shrink-0 rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
-                                                                    type="button"
-                                                                    onClick={() => applyHintCombo(c.ids)}
-                                                                    title="Apply these pledges"
-                                                                >
-                                                                    Apply
-                                                                </button>
-                                                            </div>
-                                                        ))}
-                                                </div>
-
-                                                <div className="mt-2 text-[11px] text-slate-500">
-                                                    This is just a quick planner, not a permanent panel.
-                                                </div>
-                                            </div>
-                                        ) : null}
-                                    </div>
+                                    <button
+                                        className="rounded-full border border-slate-700 bg-slate-950/30 px-3 py-1 text-xs text-slate-200 hover:bg-slate-900"
+                                        type="button"
+                                        onClick={() => setSimOpen((v) => !v)}
+                                        aria-expanded={simOpen}
+                                        title="Show ranked pledge combinations"
+                                    >
+                                        {simOpen ? "Hide Simulator" : "Simulator"}
+                                    </button>
 
                                     <button
                                         className="rounded-full border border-slate-700 bg-slate-950/30 px-3 py-1 text-xs text-slate-200 hover:bg-slate-900"
@@ -839,12 +884,7 @@ export default function SyndicatesGrid() {
                                             className={pledgeIconButtonClass(isOn, disabled)}
                                             onClick={() => {
                                                 if (disabled) return;
-
-                                                if (isOn) {
-                                                    setPledged(c.id, false);
-                                                    return;
-                                                }
-
+                                                if (isOn) { setPledged(c.id, false); return; }
                                                 if (pledgedCount >= 3) return;
                                                 setPledged(c.id, true);
                                             }}
@@ -876,73 +916,136 @@ export default function SyndicatesGrid() {
                                 })}
                             </div>
 
-                            {/* Simulation appears only after the player selects at least one pledge */}
-                            {showSimulation ? (
+                            {/* Live simulation of current pledges */}
+                            {currentPledgedIds.length > 0 ? (
                                 <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-3">
-                                    <div className="rounded-xl border border-slate-800 bg-slate-950/20 p-3">
-                                        <div className="text-xs font-semibold text-emerald-200">Positives</div>
-                                        <div className="mt-2 flex flex-wrap gap-2">
-                                            {netBuckets.pos.length ? (
-                                                netBuckets.pos.map((r) => (
-                                                    <span
-                                                        key={`pos-${r.id}`}
-                                                        className={[
-                                                            "inline-flex items-center rounded-full border px-2 py-0.5 text-xs",
-                                                            netChipClass("pos")
-                                                        ].join(" ")}
-                                                        title={r.id}
-                                                    >
-                                                        {r.name}: <span className="ml-1 font-mono">{formatNet(r.net)}</span>
-                                                    </span>
-                                                ))
-                                            ) : (
-                                                <span className="text-[11px] text-slate-500">None</span>
-                                            )}
-                                        </div>
-                                    </div>
+                                    {(["pos", "zero", "neg"] as const).map((tone) => {
+                                        const bucket = netBuckets[tone];
+                                        const label = tone === "pos" ? "Positives" : tone === "zero" ? "Neutrals" : "Negatives";
+                                        const labelCls = tone === "pos" ? "text-emerald-200" : tone === "zero" ? "text-amber-200" : "text-rose-200";
+                                        return (
+                                            <div key={tone} className="rounded-xl border border-slate-800 bg-slate-950/20 p-3">
+                                                <div className={`text-xs font-semibold ${labelCls}`}>{label}</div>
+                                                <div className="mt-2 flex flex-wrap gap-2">
+                                                    {bucket.length ? bucket.map((r) => (
+                                                        <span
+                                                            key={`${tone}-${r.id}`}
+                                                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${netChipClass(tone)}`}
+                                                            title={r.id}
+                                                        >
+                                                            {r.name}: <span className="ml-1 font-mono">{formatNet(r.net)}</span>
+                                                        </span>
+                                                    )) : (
+                                                        <span className="text-[11px] text-slate-500">None</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : null}
 
-                                    <div className="rounded-xl border border-slate-800 bg-slate-950/20 p-3">
-                                        <div className="text-xs font-semibold text-amber-200">Neutrals</div>
-                                        <div className="mt-2 flex flex-wrap gap-2">
-                                            {netBuckets.zero.length ? (
-                                                netBuckets.zero.map((r) => (
-                                                    <span
-                                                        key={`zero-${r.id}`}
-                                                        className={[
-                                                            "inline-flex items-center rounded-full border px-2 py-0.5 text-xs",
-                                                            netChipClass("zero")
-                                                        ].join(" ")}
-                                                        title={r.id}
-                                                    >
-                                                        {r.name}: <span className="ml-1 font-mono">{formatNet(r.net)}</span>
-                                                    </span>
-                                                ))
-                                            ) : (
-                                                <span className="text-[11px] text-slate-500">None</span>
-                                            )}
-                                        </div>
+                            {/* Conflict simulator: ranked combinations panel */}
+                            {simOpen ? (
+                                <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/20 p-3">
+                                    <div className="text-xs font-semibold text-slate-100 mb-1">Conflict Simulator</div>
+                                    <div className="text-[11px] text-slate-400 mb-3">
+                                        All pledge combinations scored by: most positives → fewest negatives → highest net rate.
+                                        Click Apply to set those pledges.
                                     </div>
+                                    <div className="flex flex-col gap-2">
+                                        {topRecommendations.map((combo, idx) => {
+                                            // Changes needed from current pledges
+                                            const currentSet = new Set(currentPledgedIds);
+                                            const comboSet = new Set(combo.ids);
+                                            const toAdd = combo.ids.filter((id) => !currentSet.has(id));
+                                            const toRemove = currentPledgedIds.filter((id) => !comboSet.has(id));
 
-                                    <div className="rounded-xl border border-slate-800 bg-slate-950/20 p-3">
-                                        <div className="text-xs font-semibold text-rose-200">Negatives</div>
-                                        <div className="mt-2 flex flex-wrap gap-2">
-                                            {netBuckets.neg.length ? (
-                                                netBuckets.neg.map((r) => (
-                                                    <span
-                                                        key={`neg-${r.id}`}
-                                                        className={[
-                                                            "inline-flex items-center rounded-full border px-2 py-0.5 text-xs",
-                                                            netChipClass("neg")
-                                                        ].join(" ")}
-                                                        title={r.id}
-                                                    >
-                                                        {r.name}: <span className="ml-1 font-mono">{formatNet(r.net)}</span>
-                                                    </span>
-                                                ))
-                                            ) : (
-                                                <span className="text-[11px] text-slate-500">None</span>
-                                            )}
-                                        </div>
+                                            const isActive =
+                                                combo.ids.length === currentPledgedIds.length &&
+                                                combo.ids.every((id) => currentSet.has(id));
+
+                                            return (
+                                                <div
+                                                    key={`combo-${idx}`}
+                                                    className={[
+                                                        "rounded-lg border p-2",
+                                                        isActive
+                                                            ? "border-emerald-700/50 bg-emerald-950/20"
+                                                            : "border-slate-800 bg-slate-950/40"
+                                                    ].join(" ")}
+                                                >
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div className="min-w-0 flex-1">
+                                                            {/* Pledge names */}
+                                                            <div className="flex flex-wrap gap-1.5 mb-2">
+                                                                {combo.ids.length === 0 ? (
+                                                                    <span className="text-[11px] text-slate-500">No pledges</span>
+                                                                ) : combo.ids.map((id) => (
+                                                                    <span
+                                                                        key={id}
+                                                                        className="inline-flex items-center rounded-full border border-slate-600 bg-slate-900/50 px-2 py-0.5 text-[11px] text-slate-200"
+                                                                    >
+                                                                        {findCanonNameById(id)}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+
+                                                            {/* Net rates for all 6 */}
+                                                            <div className="flex flex-wrap gap-1.5">
+                                                                {primaryCanon.map((c) => {
+                                                                    const net = combo.nets[c.id] ?? 0;
+                                                                    const tone = netTone(net);
+                                                                    return (
+                                                                        <span
+                                                                            key={c.id}
+                                                                            className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] ${netChipClass(tone)}`}
+                                                                        >
+                                                                            {c.name.split(" ").pop()}: <span className="ml-0.5 font-mono">{formatNet(net)}</span>
+                                                                        </span>
+                                                                    );
+                                                                })}
+                                                            </div>
+
+                                                            {/* Changes needed */}
+                                                            {!isActive && (toAdd.length > 0 || toRemove.length > 0) ? (
+                                                                <div className="mt-1.5 text-[10px] text-slate-400">
+                                                                    {toAdd.length > 0 && (
+                                                                        <span className="text-emerald-300">+ {toAdd.map(findCanonNameById).join(", ")}</span>
+                                                                    )}
+                                                                    {toAdd.length > 0 && toRemove.length > 0 && <span> · </span>}
+                                                                    {toRemove.length > 0 && (
+                                                                        <span className="text-rose-300">− {toRemove.map(findCanonNameById).join(", ")}</span>
+                                                                    )}
+                                                                </div>
+                                                            ) : null}
+                                                        </div>
+
+                                                        <div className="shrink-0 flex flex-col items-end gap-1.5">
+                                                            <div className="text-[10px] text-slate-400 font-mono">
+                                                                {combo.posCount}✓ {combo.negCount > 0 ? `${combo.negCount}✗` : ""}
+                                                            </div>
+                                                            {isActive ? (
+                                                                <span className="rounded-lg border border-emerald-700/50 bg-emerald-950/30 px-2.5 py-1 text-[11px] text-emerald-200">
+                                                                    Active
+                                                                </span>
+                                                            ) : (
+                                                                <button
+                                                                    className="rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
+                                                                    type="button"
+                                                                    onClick={() => applyCombo(combo.ids)}
+                                                                >
+                                                                    Apply
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="mt-2 text-[11px] text-slate-500">
+                                        Showing top {topRecommendations.length} combinations (of 42 total). Score: +1 pledged, +0.5 allied, −0.5 opposed, −1 enemy.
                                     </div>
                                 </div>
                             ) : null}
@@ -981,6 +1084,26 @@ export default function SyndicatesGrid() {
                     const standingInputValue = typeof standingDraft === "string" ? standingDraft : String(standing);
 
                     const canShowRanksButton = hasRanksForSyndicate(canon);
+
+                    // Missing offerings count (read from localStorage, refreshes after modal closes)
+                    const vendorEntry = getSyndicateVendorEntry(canon.id);
+                    const flatOfferings = flattenOfferings(vendorEntry);
+                    const ownedMapForCard = flatOfferings.length > 0
+                        // eslint-disable-next-line react-hooks/exhaustive-deps
+                        ? (() => { void ownedRefreshKey; return readOwnedMap(canon.id); })()
+                        : {};
+                    const { owned: ownedCount, total: totalOfferings } = countOwned(flatOfferings, ownedMapForCard);
+                    const missingCount = totalOfferings - ownedCount;
+
+                    // Currency reminder
+                    const currencyNames = collectCurrencyNames(vendorEntry);
+
+                    // Estimate to max rank (only for standing-based faction syndicates)
+                    const showEstimate = showCaps && canon.isFaction && rank < 5;
+                    const standingToMax = showEstimate ? estimateStandingToMaxRank(rank, standing) : 0;
+                    const daysToMax = showEstimate && dailyCapComputed > 0
+                        ? Math.ceil(standingToMax / dailyCapComputed)
+                        : null;
 
                     return (
                         <div
@@ -1054,11 +1177,39 @@ export default function SyndicatesGrid() {
                                     <button
                                         className={cardActionButtonClass()}
                                         onClick={() => openDetails(canon.id, `${canon.name} - Offerings`, "offerings")}
-                                        title="View vendor offerings"
+                                        title="View all vendor offerings"
                                     >
-                                        View Offerings
+                                        Offerings
                                     </button>
+
+                                    {totalOfferings > 0 ? (
+                                        <button
+                                            className={[
+                                                cardActionButtonClass(),
+                                                missingCount === 0 ? "opacity-60" : ""
+                                            ].join(" ")}
+                                            onClick={() => openDetails(canon.id, `${canon.name} - Missing`, "offerings", "unowned")}
+                                            title={`${missingCount} unowned of ${totalOfferings} offerings`}
+                                        >
+                                            Missing: {missingCount}/{totalOfferings}
+                                        </button>
+                                    ) : null}
                                 </div>
+
+                                {/* Currency reminder */}
+                                {currencyNames.length > 0 ? (
+                                    <div className="mt-3 flex flex-wrap gap-1.5">
+                                        {currencyNames.map((name) => (
+                                            <span
+                                                key={name}
+                                                className="inline-flex items-center rounded-full border border-white/15 bg-black/15 px-2 py-0.5 text-[11px] opacity-90"
+                                                title={`This syndicate uses ${name}`}
+                                            >
+                                                {name}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : null}
 
                                 {canon.isFaction && canon.relationship && (
                                     <div className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3">
@@ -1190,14 +1341,32 @@ export default function SyndicatesGrid() {
                                 {showCaps ? (
                                     <div className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3">
                                         <div className="text-sm font-semibold">Caps</div>
-                                        <div className="mt-2 grid grid-cols-1 gap-3">
+                                        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             <div className="rounded-xl border border-white/10 bg-black/10 p-3">
                                                 <div className="text-xs opacity-90 mb-1">Daily Standing Cap</div>
                                                 <div className="text-sm font-mono">{dailyCapComputed.toLocaleString()}</div>
                                                 <div className="mt-1 text-[11px] opacity-90">
-                                                    {mrMissing ? "Minimum (Set a MR in your profile information)." : "Based on MR."}
+                                                    {mrMissing ? "Minimum (Set MR in Profile)." : `Based on MR ${masteryRank}.`}
                                                 </div>
                                             </div>
+
+                                            {showEstimate ? (
+                                                <div className="rounded-xl border border-white/10 bg-black/10 p-3">
+                                                    <div className="text-xs opacity-90 mb-1">Est. to Max Rank</div>
+                                                    {rank >= 5 ? (
+                                                        <div className="text-sm font-mono">Max rank</div>
+                                                    ) : (
+                                                        <>
+                                                            <div className="text-sm font-mono">{standingToMax.toLocaleString()} standing</div>
+                                                            {daysToMax !== null ? (
+                                                                <div className="mt-1 text-[11px] opacity-90">
+                                                                    ~{daysToMax.toLocaleString()} day{daysToMax !== 1 ? "s" : ""} at daily cap
+                                                                </div>
+                                                            ) : null}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            ) : null}
                                         </div>
                                     </div>
                                 ) : null}
@@ -1209,10 +1378,12 @@ export default function SyndicatesGrid() {
 
             <SyndicateDetailsModal
                 open={detailsOpen}
-                onClose={() => setDetailsOpen(false)}
+                onClose={closeDetails}
                 title={detailsTitle || "Syndicate Details"}
                 entry={detailsEntry}
                 initialTab={detailsInitialTab}
+                initialOwnedFilter={detailsInitialOwnedFilter}
+                initialSortKey={detailsInitialOwnedFilter === "unowned" ? "rankAsc" : undefined}
             />
         </div>
     );

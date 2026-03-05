@@ -6,10 +6,16 @@ import type {
     SyndicateRankUpRequirement,
     SyndicateVendorEntry
 } from "../domain/catalog/syndicates/syndicateVendorCatalog";
+import {
+    offeringKey as _offeringKey,
+    readOwnedMap,
+    writeOwnedMap,
+    type OwnedMap
+} from "../domain/syndicates/ownedOfferings";
 
 type ModalTab = "ranks" | "offerings";
 
-type OwnedMap = Record<string, boolean>;
+// OwnedMap is imported from ownedOfferings
 type ChecklistMap = Record<string, boolean>;
 
 type OfferSortKey = "rankAsc" | "rankDesc" | "nameAsc" | "nameDesc" | "standingAsc" | "standingDesc";
@@ -36,8 +42,7 @@ function offeringRankRequired(o: { rankRequired?: number }): number {
 }
 
 function offeringKey(o: OfferingWithVendor): string {
-    // Unique within a syndicate even if two vendors sell the same named item.
-    return `${o.vendorId}::${o.name}`;
+    return _offeringKey(o.vendorId, o.name);
 }
 
 function formatCostLine(c: SyndicateCostLine): string {
@@ -206,8 +211,13 @@ function rankChecklistStorageKey(syndicateId: string): string {
     return `wfpt:syndicateRankChecklist:${syndicateId}`;
 }
 
-function ownedStorageKey(syndicateId: string): string {
-    return `wfpt:syndicateOwned:${syndicateId}`;
+function safeJsonParse<T>(raw: string | null, fallback: T): T {
+    if (!raw) return fallback;
+    try {
+        return JSON.parse(raw) as T;
+    } catch {
+        return fallback;
+    }
 }
 
 function canUseLocalStorage(): boolean {
@@ -220,15 +230,6 @@ function canUseLocalStorage(): boolean {
         return true;
     } catch {
         return false;
-    }
-}
-
-function safeJsonParse<T>(raw: string | null, fallback: T): T {
-    if (!raw) return fallback;
-    try {
-        return JSON.parse(raw) as T;
-    } catch {
-        return fallback;
     }
 }
 
@@ -553,6 +554,13 @@ export default function SyndicateDetailsModal(props: {
     entry: SyndicateVendorEntry | null;
 
     initialTab: ModalTab;
+
+    // Open-context props: pre-configure the offerings view when opened from a specific context
+    initialOwnedFilter?: OwnedFilter;
+    initialSortKey?: OfferSortKey;
+    initialQuery?: string;
+    initialMaxRank?: number | null;
+    initialVendorId?: string;
 }) {
     const [tab, setTab] = useState<ModalTab>(props.initialTab);
 
@@ -574,15 +582,15 @@ export default function SyndicateDetailsModal(props: {
         if (props.open) setTab(props.initialTab);
     }, [props.open, props.initialTab]);
 
-    // Reset controls when opening
+    // Reset controls when opening, applying any open-context props
     useEffect(() => {
         if (!props.open) return;
-        setQuery("");
-        setMaxRank(null);
-        setOwnedFilter("all");
-        setSortKey("rankAsc");
-        setSelectedVendorId("all");
-    }, [props.open, syndicateId]);
+        setQuery(props.initialQuery ?? "");
+        setMaxRank(props.initialMaxRank !== undefined ? props.initialMaxRank : null);
+        setOwnedFilter(props.initialOwnedFilter ?? "all");
+        setSortKey(props.initialSortKey ?? "rankAsc");
+        setSelectedVendorId(props.initialVendorId ?? "all");
+    }, [props.open, syndicateId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // ESC close
     useEffect(() => {
@@ -599,34 +607,14 @@ export default function SyndicateDetailsModal(props: {
     // Load owned map for this syndicate on open / id change
     useEffect(() => {
         if (!props.open) return;
-        if (!syndicateId) {
-            setOwned({});
-            return;
-        }
-        if (!canUseLocalStorage()) {
-            setOwned({});
-            return;
-        }
-
-        try {
-            const raw = localStorage.getItem(ownedStorageKey(syndicateId));
-            setOwned(safeJsonParse<OwnedMap>(raw, {}));
-        } catch {
-            setOwned({});
-        }
+        setOwned(readOwnedMap(syndicateId));
     }, [props.open, syndicateId]);
 
-    // Persist owned map
+    // Persist owned map whenever it changes
     useEffect(() => {
         if (!props.open) return;
         if (!syndicateId) return;
-        if (!canUseLocalStorage()) return;
-
-        try {
-            localStorage.setItem(ownedStorageKey(syndicateId), JSON.stringify(owned));
-        } catch {
-            // ignore
-        }
+        writeOwnedMap(syndicateId, owned);
     }, [props.open, syndicateId, owned]);
 
     // Load rank-up checklist on open / id change
