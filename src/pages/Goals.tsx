@@ -10,6 +10,13 @@ type GoalsTab = "personal" | "requirements" | "total";
 const EMPTY_OBJ: Record<string, boolean> = {};
 const EMPTY_ARR: any[] = [];
 
+// Stable module-level constant — avoids recreating on every render
+const COMPONENT_LABELS: Record<string, string> = {
+    blueprint: "Blueprint obtained",
+    resources: "Resources farmed",
+    crafted: "Item crafted"
+};
+
 function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
@@ -880,6 +887,154 @@ function TreeModal(props: {
 
 /* ========================================================================================= */
 
+type GoalCardProps = {
+    goalId: string;
+    catalogId: CatalogId;
+    name: string;
+    qty: number;
+    note: string;
+    isActive: boolean;
+    have: number;
+    remaining: number;
+    completedComponents: Record<string, boolean>;
+    inventoryCounts: Record<string, number>;
+    expandedEdges: Record<string, boolean>;
+    isTreeOpen: boolean;
+    onToggleActive: () => void;
+    onRemove: () => void;
+    onQtyChange: (qty: number) => void;
+    onNoteChange: (note: string) => void;
+    onComponentChange: (key: string, done: boolean) => void;
+    onOpenTree: () => void;
+    onCloseTree: () => void;
+    onToggleEdge: (edgeId: string) => void;
+};
+
+const GoalCard = memo(function GoalCard(props: GoalCardProps) {
+    const {
+        goalId, catalogId, name, qty, note, isActive, have, remaining,
+        completedComponents, inventoryCounts, expandedEdges, isTreeOpen,
+        onToggleActive, onRemove, onQtyChange, onNoteChange,
+        onComponentChange, onOpenTree, onCloseTree, onToggleEdge
+    } = props;
+
+    return (
+        <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <div className="text-sm font-semibold break-words">{name}</div>
+                        <span
+                            className={[
+                                "text-[11px] rounded-full border px-2 py-0.5",
+                                isActive
+                                    ? "border-emerald-800 text-emerald-300"
+                                    : "border-slate-700 text-slate-400"
+                            ].join(" ")}
+                        >
+                            {isActive ? "Active" : "Inactive"}
+                        </span>
+                    </div>
+                    <div className="text-xs text-slate-400 mt-1">
+                        Need {qty.toLocaleString()} · Have {have.toLocaleString()} · Remaining{" "}
+                        {remaining.toLocaleString()}
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-xs hover:bg-slate-900/40"
+                        onClick={onToggleActive}
+                    >
+                        Toggle
+                    </button>
+                    <button
+                        className="rounded-lg border border-red-900/40 bg-red-950/20 px-3 py-2 text-red-200 text-xs hover:bg-red-950/30"
+                        onClick={onRemove}
+                    >
+                        Remove
+                    </button>
+                </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-[160px_1fr] gap-3">
+                <label className="flex flex-col gap-1">
+                    <span className="text-xs text-slate-400">Goal Qty</span>
+                    <input
+                        className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100"
+                        type="number"
+                        min={1}
+                        value={qty}
+                        onChange={(e) => onQtyChange(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
+                    />
+                </label>
+                <label className="flex flex-col gap-1">
+                    <span className="text-xs text-slate-400">Note</span>
+                    <input
+                        className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100"
+                        value={note}
+                        onChange={(e) => onNoteChange(e.target.value)}
+                        placeholder="Optional"
+                    />
+                </label>
+            </div>
+
+            <div className="mt-3 rounded-xl border border-slate-700/50 bg-slate-950/20 p-3">
+                <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+                    Crafting Progress
+                </div>
+                <div className="flex flex-wrap gap-x-5 gap-y-1.5">
+                    {(["blueprint", "resources", "crafted"] as const).map((key) => {
+                        const done = Boolean(completedComponents[key]);
+                        return (
+                            <label key={key} className="flex items-center gap-1.5 cursor-pointer text-xs">
+                                <input
+                                    type="checkbox"
+                                    checked={done}
+                                    onChange={(e) => onComponentChange(key, e.target.checked)}
+                                />
+                                <span className={done ? "line-through text-slate-500" : "text-slate-300"}>
+                                    {COMPONENT_LABELS[key]}
+                                </span>
+                            </label>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <div className="mt-3 rounded-2xl border border-slate-800 bg-slate-950/20 p-3">
+                <div className="flex items-center justify-between gap-3">
+                    <div className="text-xs uppercase tracking-wide text-slate-400">Expanded Requirements</div>
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
+                        onClick={onOpenTree}
+                    >
+                        Open Tree
+                    </button>
+                </div>
+                <div className="mt-2 text-xs text-slate-500">
+                    Viewer supports local zoom (Ctrl+wheel / pinch) and pan (drag).
+                </div>
+            </div>
+
+            {/* Only mount TreeModal when open — avoids heavy renders for all closed modals */}
+            {isTreeOpen && (
+                <TreeModal
+                    isOpen={true}
+                    title={name}
+                    subtitle={`Need ${qty.toLocaleString()} · Have ${have.toLocaleString()} · Remaining ${remaining.toLocaleString()}`}
+                    onClose={onCloseTree}
+                    rootCatalogId={catalogId}
+                    rootNeed={Math.max(1, Math.floor(Number(qty) || 1))}
+                    inventoryCounts={inventoryCounts}
+                    expandedEdges={expandedEdges}
+                    onToggleEdge={onToggleEdge}
+                />
+            )}
+        </div>
+    );
+});
+
 export default function Goals() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
 
@@ -932,15 +1087,18 @@ export default function Goals() {
         setTreeOpenByGoalId((prev) => ({ ...prev, [goalId]: false }));
     }, []);
 
-    // Requirements-only snapshot (syndicates + inventory; NO personal goals included)
+    // Requirements-only snapshot — only computed when the tab needs it
+    const needsRequirements = tab === "requirements" || tab === "total";
     const requirementsOnly = useMemo(() => {
+        if (!needsRequirements) return { itemLines: [] as any[] };
         return buildRequirementsSnapshot({
             syndicates,
             goals: [],
             completedPrereqs,
             inventory
         });
-    }, [syndicates, completedPrereqs, inventory]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [needsRequirements, syndicates, completedPrereqs, inventory]);
 
     // Personal goals lines (only active item goals)
     const personalLines = useMemo(() => {
@@ -1096,136 +1254,31 @@ export default function Goals() {
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            {personalLines.map((g) => {
-                                const goalExpandedEdges = expandedEdgesByGoalId[g.goalId] ?? {};
-                                const isTreeOpen = Boolean(treeOpenByGoalId[g.goalId]);
-
-                                return (
-                                    <div key={g.goalId} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                                        <div className="flex flex-wrap items-start justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    <div className="text-sm font-semibold break-words">{g.name}</div>
-                                                    <span
-                                                        className={[
-                                                            "text-[11px] rounded-full border px-2 py-0.5",
-                                                            g.isActive
-                                                                ? "border-emerald-800 text-emerald-300"
-                                                                : "border-slate-700 text-slate-400"
-                                                        ].join(" ")}
-                                                    >
-                                                        {g.isActive ? "Active" : "Inactive"}
-                                                    </span>
-                                                </div>
-                                                <div className="text-xs text-slate-400 mt-1">
-                                                    Need {g.qty.toLocaleString()} · Have {g.have.toLocaleString()} · Remaining{" "}
-                                                    {g.remaining.toLocaleString()}
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <button
-                                                    className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-xs hover:bg-slate-900/40"
-                                                    onClick={() => toggleGoalActive(g.goalId)}
-                                                >
-                                                    Toggle
-                                                </button>
-
-                                                <button
-                                                    className="rounded-lg border border-red-900/40 bg-red-950/20 px-3 py-2 text-red-200 text-xs hover:bg-red-950/30"
-                                                    onClick={() => removeGoal(g.goalId)}
-                                                >
-                                                    Remove
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-3 grid grid-cols-1 md:grid-cols-[160px_1fr] gap-3">
-                                            <label className="flex flex-col gap-1">
-                                                <span className="text-xs text-slate-400">Goal Qty</span>
-                                                <input
-                                                    className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100"
-                                                    type="number"
-                                                    min={1}
-                                                    value={g.qty}
-                                                    onChange={(e) => {
-                                                        const n = Math.max(1, Math.floor(Number(e.target.value) || 1));
-                                                        setGoalQty(g.goalId, n);
-                                                    }}
-                                                />
-                                            </label>
-
-                                            <label className="flex flex-col gap-1">
-                                                <span className="text-xs text-slate-400">Note</span>
-                                                <input
-                                                    className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100"
-                                                    value={g.note}
-                                                    onChange={(e) => setGoalNote(g.goalId, e.target.value)}
-                                                    placeholder="Optional"
-                                                />
-                                            </label>
-                                        </div>
-
-                                        <div className="mt-3 rounded-xl border border-slate-700/50 bg-slate-950/20 p-3">
-                                            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                                                Crafting Progress
-                                            </div>
-                                            <div className="flex flex-wrap gap-x-5 gap-y-1.5">
-                                                {(["blueprint", "resources", "crafted"] as const).map((key) => {
-                                                    const labels: Record<string, string> = {
-                                                        blueprint: "Blueprint obtained",
-                                                        resources: "Resources farmed",
-                                                        crafted: "Item crafted"
-                                                    };
-                                                    const done = Boolean(g.completedComponents[key]);
-                                                    return (
-                                                        <label key={key} className="flex items-center gap-1.5 cursor-pointer text-xs">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={done}
-                                                                onChange={(e) =>
-                                                                    setGoalComponentCompleted(g.goalId, key, e.target.checked)
-                                                                }
-                                                            />
-                                                            <span className={done ? "line-through text-slate-500" : "text-slate-300"}>
-                                                                {labels[key]}
-                                                            </span>
-                                                        </label>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-3 rounded-2xl border border-slate-800 bg-slate-950/20 p-3">
-                                            <div className="flex items-center justify-between gap-3">
-                                                <div className="text-xs uppercase tracking-wide text-slate-400">Expanded Requirements</div>
-                                                <button
-                                                    className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
-                                                    onClick={() => openTreeForGoal(g.goalId, g.catalogId)}
-                                                >
-                                                    Open Tree
-                                                </button>
-                                            </div>
-
-                                            <div className="mt-2 text-xs text-slate-500">
-                                                Viewer supports local zoom (Ctrl+wheel / pinch) and pan (drag).
-                                            </div>
-                                        </div>
-
-                                        <TreeModal
-                                            isOpen={isTreeOpen}
-                                            title={g.name}
-                                            subtitle={`Need ${g.qty.toLocaleString()} · Have ${g.have.toLocaleString()} · Remaining ${g.remaining.toLocaleString()}`}
-                                            onClose={() => closeTreeForGoal(g.goalId)}
-                                            rootCatalogId={g.catalogId}
-                                            rootNeed={Math.max(1, Math.floor(Number(g.qty) || 1))}
-                                            inventoryCounts={inventoryCounts}
-                                            expandedEdges={goalExpandedEdges}
-                                            onToggleEdge={(eid) => toggleEdgeForGoal(g.goalId, eid)}
-                                        />
-                                    </div>
-                                );
-                            })}
+                            {personalLines.map((g) => (
+                                <GoalCard
+                                    key={g.goalId}
+                                    goalId={g.goalId}
+                                    catalogId={g.catalogId}
+                                    name={g.name}
+                                    qty={g.qty}
+                                    note={g.note}
+                                    isActive={g.isActive}
+                                    have={g.have}
+                                    remaining={g.remaining}
+                                    completedComponents={g.completedComponents}
+                                    inventoryCounts={inventoryCounts}
+                                    expandedEdges={expandedEdgesByGoalId[g.goalId] ?? EMPTY_OBJ}
+                                    isTreeOpen={Boolean(treeOpenByGoalId[g.goalId])}
+                                    onToggleActive={() => toggleGoalActive(g.goalId)}
+                                    onRemove={() => removeGoal(g.goalId)}
+                                    onQtyChange={(qty) => setGoalQty(g.goalId, qty)}
+                                    onNoteChange={(note) => setGoalNote(g.goalId, note)}
+                                    onComponentChange={(key, done) => setGoalComponentCompleted(g.goalId, key, done)}
+                                    onOpenTree={() => openTreeForGoal(g.goalId, g.catalogId)}
+                                    onCloseTree={() => closeTreeForGoal(g.goalId)}
+                                    onToggleEdge={(eid) => toggleEdgeForGoal(g.goalId, eid)}
+                                />
+                            ))}
                         </div>
                     )}
                 </Section>
