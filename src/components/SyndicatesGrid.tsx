@@ -778,9 +778,9 @@ export default function SyndicatesGrid() {
 
     // Conflict simulation: top recommendations from all 42 pledge combinations
     const rankedCombos = useMemo(() => computeRankedCombos(primaryCanon), [primaryCanon]);
-    // Show top 6 non-empty combos as recommendations
-    const topRecommendations = useMemo(
-        () => rankedCombos.filter((c) => c.ids.length > 0).slice(0, 6),
+    // Top 4 two-syndicate pairs from the algorithm (cross-chain pairs ranked by coverage)
+    const topPairs = useMemo(
+        () => rankedCombos.filter((c) => c.ids.length === 2).slice(0, 4),
         [rankedCombos]
     );
 
@@ -879,14 +879,9 @@ export default function SyndicatesGrid() {
                                         </button>
 
                                         {simOpen ? (
-                                            <div className="absolute right-0 mt-2 w-[400px] z-30 rounded-xl border border-slate-800 bg-slate-950/95 p-3 shadow-xl">
+                                            <div className="absolute right-0 mt-2 w-[440px] z-30 rounded-xl border border-slate-800 bg-slate-950/95 p-3 shadow-xl">
                                                 <div className="flex items-start justify-between gap-2">
-                                                    <div>
-                                                        <div className="text-xs font-semibold text-slate-100">Recommended combinations</div>
-                                                        <div className="mt-1 text-[11px] text-slate-400">
-                                                            Ranked by: most positives → fewest negatives → highest net. Apply to set pledges.
-                                                        </div>
-                                                    </div>
+                                                    <div className="text-xs font-semibold text-slate-100">Pledge recommendations</div>
                                                     <button
                                                         className="shrink-0 rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
                                                         type="button"
@@ -896,57 +891,112 @@ export default function SyndicatesGrid() {
                                                     </button>
                                                 </div>
 
-                                                <div className="mt-3 flex flex-col gap-2">
-                                                    {topRecommendations.map((combo, idx) => {
-                                                        const currentSet = new Set(currentPledgedIds);
-                                                        const isActive =
-                                                            combo.ids.length === currentPledgedIds.length &&
-                                                            combo.ids.every((id) => currentSet.has(id));
-
-                                                        return (
-                                                            <div
-                                                                key={`combo-${idx}`}
-                                                                className={[
-                                                                    "flex items-center justify-between gap-2 rounded-lg border p-2",
-                                                                    isActive
-                                                                        ? "border-emerald-700/50 bg-emerald-950/20"
-                                                                        : "border-slate-800 bg-slate-950/40"
-                                                                ].join(" ")}
-                                                            >
-                                                                <div className="min-w-0 flex flex-wrap gap-1.5">
-                                                                    {combo.ids.map((id) => (
-                                                                        <span
-                                                                            key={id}
-                                                                            className="inline-flex items-center rounded-full border border-slate-700 bg-slate-950/30 px-2 py-0.5 text-[11px] text-slate-200"
-                                                                        >
-                                                                            {findCanonNameById(id)}
+                                                {/* Section 1: Triple allied chains */}
+                                                <div className="mt-3">
+                                                    <div className="text-[11px] font-semibold text-slate-300 mb-1">Triple-chain picks — max 3 syndicates, no swapping needed</div>
+                                                    <div className="mb-2 text-[11px] text-slate-400">
+                                                        Earning standing in any one chain member never hurts the other two. Pledge all three and rank each up to max at your own pace — the only syndicates that go negative are those in the opposite chain, which you never need.
+                                                    </div>
+                                                    <div className="flex flex-col gap-2">
+                                                        {[
+                                                            [SY.STEEL_MERIDIAN, SY.ARBITERS_OF_HEXIS, SY.CEPHALON_SUDA],
+                                                            [SY.THE_PERRIN_SEQUENCE, SY.NEW_LOKA, SY.RED_VEIL]
+                                                        ].map((chainIds, idx) => {
+                                                            const currentSet = new Set(currentPledgedIds);
+                                                            const isActive =
+                                                                chainIds.length === currentPledgedIds.length &&
+                                                                chainIds.every((id) => currentSet.has(id));
+                                                            return (
+                                                                <div
+                                                                    key={`chain-${idx}`}
+                                                                    className={[
+                                                                        "flex items-center justify-between gap-2 rounded-lg border p-2",
+                                                                        isActive
+                                                                            ? "border-emerald-700/50 bg-emerald-950/20"
+                                                                            : "border-slate-800 bg-slate-950/40"
+                                                                    ].join(" ")}
+                                                                >
+                                                                    <div className="min-w-0 flex flex-wrap gap-1.5">
+                                                                        {chainIds.map((id) => (
+                                                                            <span
+                                                                                key={id}
+                                                                                className="inline-flex items-center rounded-full border border-slate-700 bg-slate-950/30 px-2 py-0.5 text-[11px] text-slate-200"
+                                                                            >
+                                                                                {findCanonNameById(id)}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                    {isActive ? (
+                                                                        <span className="shrink-0 rounded-lg border border-emerald-700/50 bg-emerald-950/30 px-2.5 py-1 text-[11px] text-emerald-200">
+                                                                            Active
                                                                         </span>
-                                                                    ))}
-                                                                    <span className="text-[10px] text-slate-500 self-center">
-                                                                        {combo.posCount}✓{combo.negCount > 0 ? ` ${combo.negCount}✗` : ""}
-                                                                    </span>
+                                                                    ) : (
+                                                                        <button
+                                                                            className="shrink-0 rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
+                                                                            type="button"
+                                                                            onClick={() => { applyCombo(chainIds); setSimOpen(false); }}
+                                                                        >
+                                                                            Apply
+                                                                        </button>
+                                                                    )}
                                                                 </div>
-
-                                                                {isActive ? (
-                                                                    <span className="shrink-0 rounded-lg border border-emerald-700/50 bg-emerald-950/30 px-2.5 py-1 text-[11px] text-emerald-200">
-                                                                        Active
-                                                                    </span>
-                                                                ) : (
-                                                                    <button
-                                                                        className="shrink-0 rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
-                                                                        type="button"
-                                                                        onClick={() => { applyCombo(combo.ids); setSimOpen(false); }}
-                                                                    >
-                                                                        Apply
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        );
-                                                    })}
+                                                            );
+                                                        })}
+                                                    </div>
                                                 </div>
 
-                                                <div className="mt-2 text-[11px] text-slate-500">
-                                                    Top {topRecommendations.length} of 42 combinations. Score: +1 pledged, +0.5 allied, −0.5 opposed, −1 enemy.
+                                                {/* Section 2: Top cross-chain pairs */}
+                                                <div className="mt-3">
+                                                    <div className="text-[11px] font-semibold text-slate-300 mb-1">Cross-chain pairs — broader rewards, requires swapping</div>
+                                                    <div className="mb-2 text-[11px] text-slate-400">
+                                                        These pairs cover more unique offerings than a single chain, but the two syndicates belong to opposing networks and slightly drain each other's standing. Swap between them regularly — rank one up, then switch focus to the other before it falls below 0. Recovering from negative ranks costs rare resources.
+                                                    </div>
+                                                    <div className="flex flex-col gap-2">
+                                                        {topPairs.map((combo, idx) => {
+                                                            const currentSet = new Set(currentPledgedIds);
+                                                            const isActive =
+                                                                combo.ids.length === currentPledgedIds.length &&
+                                                                combo.ids.every((id) => currentSet.has(id));
+                                                            return (
+                                                                <div
+                                                                    key={`pair-${idx}`}
+                                                                    className={[
+                                                                        "flex items-center justify-between gap-2 rounded-lg border p-2",
+                                                                        isActive
+                                                                            ? "border-emerald-700/50 bg-emerald-950/20"
+                                                                            : "border-slate-800 bg-slate-950/40"
+                                                                    ].join(" ")}
+                                                                >
+                                                                    <div className="min-w-0 flex flex-wrap gap-1.5">
+                                                                        {combo.ids.map((id) => (
+                                                                            <span
+                                                                                key={id}
+                                                                                className="inline-flex items-center rounded-full border border-slate-700 bg-slate-950/30 px-2 py-0.5 text-[11px] text-slate-200"
+                                                                            >
+                                                                                {findCanonNameById(id)}
+                                                                            </span>
+                                                                        ))}
+                                                                        <span className="text-[10px] text-slate-500 self-center">
+                                                                            {combo.posCount}✓{combo.negCount > 0 ? ` ${combo.negCount}✗` : ""}
+                                                                        </span>
+                                                                    </div>
+                                                                    {isActive ? (
+                                                                        <span className="shrink-0 rounded-lg border border-emerald-700/50 bg-emerald-950/30 px-2.5 py-1 text-[11px] text-emerald-200">
+                                                                            Active
+                                                                        </span>
+                                                                    ) : (
+                                                                        <button
+                                                                            className="shrink-0 rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
+                                                                            type="button"
+                                                                            onClick={() => { applyCombo(combo.ids); setSimOpen(false); }}
+                                                                        >
+                                                                            Apply
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
                                                 </div>
                                             </div>
                                         ) : null}
