@@ -475,7 +475,7 @@ function cardActionButtonClass(): string {
 }
 
 function selectClass(): string {
-    return "w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-inherit font-mono";
+    return "w-full rounded-lg border border-white/20 bg-black/60 px-3 py-2 text-sm text-white font-mono";
 }
 
 function inputClass(): string {
