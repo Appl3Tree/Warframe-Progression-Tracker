@@ -52,7 +52,7 @@ Starts the Vite dev server with hot reload at `http://localhost:5173`.
 | Faction relationship display | ✅ Done | Allied / Opposed / Enemy relationship pills per card |
 | Pledge selector (primary syndicates) | ✅ Done | Up to 3 pledged at once with enforcement |
 | Conflict simulation / pledge recommendations | ✅ Done | Matrix scoring over all valid pledge combos; triple-chain and cross-chain recommendations with Apply |
-| Bundler-safe icon imports | ⏳ Pending | Currently uses `import.meta.env.BASE_URL` string paths; needs bundler import map |
+| Bundler-safe icon imports | ✅ Done | `import.meta.glob` map in `SyndicatesGrid.tsx`; drop PNGs into `src/assets/syndicates/` to activate |
 | Rank titles | ⏳ Pending | Field exists in types; data not yet populated |
 | Nightwave max rank (180) | ✅ Done | 30 normal + 150 prestige ranks |
 | Nightcap flavor text | ✅ Done | Corrected to Solaris/Fortuna Airlock vendor |
@@ -173,7 +173,7 @@ src/
 
 ### Pending Architecture Work
 
-- **Bundler-safe icons**: `syndicateIconUrl()` currently builds runtime strings from `import.meta.env.BASE_URL`. The correct Vite pattern is a `SYNDICATE_ICON_URLS: Record<SyndicateId, string>` map using static `import` statements so the bundler fingerprints and rewrites them. This eliminates deploy/base-path breakage.
+- **Icons**: `syndicateIconUrl()` uses `import.meta.glob` over `src/assets/syndicates/*.png`. The bundler fingerprints each file and rewrites URLs at build time, making them immune to deploy base-path configuration. To add an icon, drop the PNG into `src/assets/syndicates/` — no code changes needed.
 - **Rank titles**: `rankLabel` exists in `SyndicateState` types but there is no data map yet. The plan is a typed skeleton const in its own file with UI hooks that render titles only when data is present.
 
 ---
