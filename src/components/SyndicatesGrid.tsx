@@ -333,10 +333,23 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
     }
 ];
 
+// Bundler-managed icon map. Vite resolves and fingerprints each file at build
+// time, so URLs survive any deploy base-path configuration automatically.
+// To add an icon: drop the PNG into src/assets/syndicates/ and set iconFile
+// on the matching CANONICAL_SYNDICATES entry to the exact filename.
+const _iconModules = import.meta.glob<string>(
+    "../assets/syndicates/*.png",
+    { eager: true, import: "default" }
+);
+const ICON_BY_FILENAME: Record<string, string> = {};
+for (const [path, url] of Object.entries(_iconModules)) {
+    const filename = path.split("/").pop()!;
+    ICON_BY_FILENAME[filename] = url;
+}
+
 function syndicateIconUrl(iconFile?: string): string | null {
     if (!iconFile) return null;
-    const base = String((import.meta as any).env?.BASE_URL ?? "/");
-    return `${base}assets/syndicates/${iconFile}`;
+    return ICON_BY_FILENAME[iconFile] ?? null;
 }
 
 function pillClass(active: boolean): string {
