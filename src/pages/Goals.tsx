@@ -11,12 +11,27 @@ type GoalsTab = "personal" | "requirements" | "total";
 const EMPTY_OBJ: Record<string, boolean> = {};
 const EMPTY_ARR: any[] = [];
 
-// Stable module-level constant — avoids recreating on every render
-const COMPONENT_LABELS: Record<string, string> = {
-    blueprint: "Blueprint obtained",
-    resources: "Resources farmed",
-    crafted: "Item crafted"
-};
+// Cache for ingredient requirements — catalog data is static at runtime
+const _reqsCache = new Map<string, Array<{ catalogId: CatalogId; count: number }>>();
+function getCachedIngredients(bpCid: CatalogId): Array<{ catalogId: CatalogId; count: number }> {
+    const key = String(bpCid);
+    if (_reqsCache.has(key)) return _reqsCache.get(key)!;
+    const raw = getItemRequirements(bpCid);
+    const agg = new Map<string, number>();
+    if (Array.isArray(raw)) {
+        for (const r of raw) {
+            const cid = String((r as any).catalogId ?? "");
+            if (!cid) continue;
+            agg.set(cid, (agg.get(cid) ?? 0) + Math.max(1, safeInt((r as any).count ?? 1, 1)));
+        }
+    }
+    const result = Array.from(agg.entries()).map(([cid, count]) => ({ catalogId: cid as CatalogId, count }));
+    _reqsCache.set(key, result);
+    return result;
+}
+
+// Inline style object for CSS content-visibility (skips off-screen rendering — free virtualization)
+const CARD_STYLE = { contentVisibility: "auto", containIntrinsicSize: "auto 110px" } as React.CSSProperties;
 
 function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {
     return (
@@ -890,110 +905,178 @@ function TreeModal(props: {
 
 /**
  * Self-contained goal card. Receives only a stable `goalId` string from the parent.
- * All data is fetched directly from the store with shallow equality so that only the
- * card whose goal actually changed re-renders — regardless of how many other goals
- * were touched by the same Immer update.
+ *
+ * All goal data + relevant inventory counts are fetched in a single useShallow selector
+ * so only the card whose data actually changed re-renders.
+ *
+ * Crafting status (blueprint / resources / built) is derived automatically from inventory
+ * counts rather than manual checkboxes — this keeps it accurate regardless of whether
+ * the blueprint is tracked as a separate goal.
+ *
+ * content-visibility:auto on the outer div lets the browser skip off-screen rendering,
+ * giving virtualization-like perf without any JS scrolling logic.
  */
 const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
-    // Shallow-compared selector: Immer preserves unchanged goal object references,
-    // so sibling cards see the same reference and memo prevents their re-render.
-    const g = useTrackerStore(useShallow((s) => {
+    const d = useTrackerStore(useShallow((s) => {
         const goals = (s.state as any).goals;
         if (!Array.isArray(goals)) return null;
+
+        let g: any = null;
         for (let i = 0; i < goals.length; i++) {
-            if (String(goals[i]?.id) === goalId) return goals[i] as any;
+            if (String(goals[i]?.id) === goalId) { g = goals[i]; break; }
         }
-        return null;
+        if (!g) return null;
+
+        const cid = String(g.catalogId) as CatalogId;
+        const counts = (s.state.inventory?.counts ?? EMPTY_OBJ) as Record<string, number>;
+        const have = safeInt(counts[cid] ?? 0, 0);
+        const qty = Math.max(1, safeInt(g.qty ?? 1, 1));
+
+        // Blueprint sibling: "AcceltraBlueprint" for "Acceltra", etc.
+        const bpCid = `${cid}Blueprint` as CatalogId;
+        const hasBp = Boolean(FULL_CATALOG.recordsById[bpCid]);
+
+        let blueprintObtained = false;
+        let resourcesReady = 0;
+        let resourcesTotal = 0;
+
+        if (hasBp) {
+            // Blueprint is obtained if we have one in inventory, OR if the item is already built
+            blueprintObtained = safeInt(counts[bpCid] ?? 0, 0) >= 1 || have >= qty;
+
+            const ingredients = getCachedIngredients(bpCid);
+            for (const ing of ingredients) {
+                const needed = ing.count * qty;
+                resourcesTotal++;
+                if (safeInt(counts[String(ing.catalogId)] ?? 0, 0) >= needed) resourcesReady++;
+            }
+        }
+
+        return {
+            catalogId: cid,
+            bpCid: hasBp ? bpCid : null as CatalogId | null,
+            qty,
+            note: String(g.note ?? ""),
+            isActive: g.isActive !== false,
+            have,
+            hasBp,
+            blueprintObtained,
+            resourcesReady,
+            resourcesTotal,
+        };
     }));
 
-    const have = useTrackerStore((s) => {
-        if (!g?.catalogId) return 0;
-        return safeInt(s.state.inventory?.counts?.[String(g.catalogId)] ?? 0, 0);
-    });
-
-    // Store actions are stable references — safe to select individually
     const toggleGoalActive = useTrackerStore((s) => s.toggleGoalActive);
     const removeGoal = useTrackerStore((s) => s.removeGoal);
     const setGoalQty = useTrackerStore((s) => s.setGoalQty);
     const setGoalNote = useTrackerStore((s) => s.setGoalNote);
-    const setGoalComponentCompleted = useTrackerStore((s) => s.setGoalComponentCompleted);
 
-    // Tree state is local — doesn't need to live in the parent
     const [expandedEdges, setExpandedEdges] = useState<Record<string, boolean>>({});
     const [isTreeOpen, setIsTreeOpen] = useState(false);
+    const [showDetails, setShowDetails] = useState(false);
 
     const openTree = useCallback(() => {
-        if (!g?.catalogId) return;
-        const rootEdgeId = `root=>${String(g.catalogId)}`;
+        if (!d?.catalogId) return;
+        const rootEdgeId = `root=>${d.catalogId}`;
         setExpandedEdges((prev) => prev[rootEdgeId] ? prev : { ...prev, [rootEdgeId]: true });
         setIsTreeOpen(true);
-    }, [g?.catalogId]);
+    }, [d?.catalogId]);
 
     const toggleEdge = useCallback((edgeId: string) => {
         setExpandedEdges((prev) => ({ ...prev, [edgeId]: !prev[edgeId] }));
     }, []);
 
-    // Collapsed by default — dramatically reduces DOM with many goals
-    const [expanded, setExpanded] = useState(false);
+    if (!d) return null;
 
-    if (!g) return null;
-
-    const catalogId = String(g.catalogId) as CatalogId;
+    const { catalogId, qty, note, isActive, have, hasBp, blueprintObtained, resourcesReady, resourcesTotal } = d;
     const name = FULL_CATALOG.recordsById[catalogId]?.displayName ?? catalogId;
-    const qty = Math.max(1, safeInt(g.qty ?? 1, 1));
     const remaining = Math.max(0, qty - have);
-    const isActive = g.isActive !== false;
-    const note = String(g.note ?? "");
-    const completedComponents = (g.completedComponents ?? {}) as Record<string, boolean>;
-    const inventoryCounts = {} as Record<string, number>; // tree only needs counts when open
+    const pct = qty > 0 ? Math.min(100, Math.round((have / qty) * 100)) : 100;
+    const done = remaining === 0;
 
     return (
-        <div className="rounded-xl border border-slate-800 bg-slate-950/30">
-            {/* Summary row — always visible */}
-            <div
-                className="flex flex-wrap items-center justify-between gap-3 p-3 cursor-pointer select-none"
-                onClick={() => setExpanded((v) => !v)}
-            >
-                <div className="min-w-0 flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-slate-500">{expanded ? "▾" : "▸"}</span>
-                    <div className="text-sm font-semibold break-words">{name}</div>
+        <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3" style={CARD_STYLE}>
+            {/* Row 1: name + active badge + have/need */}
+            <div className="flex flex-wrap items-start gap-x-3 gap-y-1">
+                <div className="flex-1 min-w-0 flex flex-wrap items-center gap-1.5">
+                    <span className="text-sm font-semibold break-words">{name}</span>
                     <span className={[
-                        "text-[11px] rounded-full border px-2 py-0.5",
-                        isActive ? "border-emerald-800 text-emerald-300" : "border-slate-700 text-slate-400"
+                        "text-[10px] rounded-full border px-1.5 py-0.5 shrink-0",
+                        isActive ? "border-emerald-800 text-emerald-300" : "border-slate-700 text-slate-500"
                     ].join(" ")}>
                         {isActive ? "Active" : "Inactive"}
                     </span>
                 </div>
-                <div className="text-xs text-slate-400 shrink-0">
-                    {have.toLocaleString()} / {qty.toLocaleString()}
-                    {remaining > 0 && <span className="ml-2 text-amber-300 font-semibold">{remaining.toLocaleString()} left</span>}
-                    {remaining === 0 && <span className="ml-2 text-emerald-400 font-semibold">✓ Done</span>}
+                <div className="shrink-0 flex items-center gap-1.5 text-xs">
+                    <span className="text-slate-400">{have.toLocaleString()} / {qty.toLocaleString()}</span>
+                    {!done && <span className="text-amber-300 font-semibold">{remaining.toLocaleString()} left</span>}
+                    {done && <span className="text-emerald-400 font-semibold">✓ Done</span>}
                 </div>
             </div>
 
-            {/* Expanded content */}
-            {expanded && (
-                <div className="border-t border-slate-800 p-3 space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <button
-                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-1.5 text-slate-100 text-xs hover:bg-slate-900/40"
-                            onClick={() => toggleGoalActive(goalId)}
-                        >
-                            Toggle Active
-                        </button>
-                        <button
-                            className="rounded-lg border border-red-900/40 bg-red-950/20 px-3 py-1.5 text-red-200 text-xs hover:bg-red-950/30"
-                            onClick={() => removeGoal(goalId)}
-                        >
-                            Remove
-                        </button>
-                    </div>
+            {/* Progress bar */}
+            <div className="mt-1.5 h-1 w-full rounded-full bg-slate-800 overflow-hidden">
+                <div
+                    className={["h-full rounded-full transition-[width]", done ? "bg-emerald-500" : "bg-blue-500"].join(" ")}
+                    style={{ width: `${pct}%` }}
+                />
+            </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-3">
+            {/* Crafting pipeline status — derived from inventory, not manual checkboxes */}
+            {hasBp && (
+                <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px]">
+                    <span className={blueprintObtained ? "text-emerald-400" : "text-slate-500"}>
+                        {blueprintObtained ? "✓" : "○"} Blueprint
+                    </span>
+                    {resourcesTotal > 0 && (
+                        <span className={
+                            resourcesReady === resourcesTotal ? "text-emerald-400" :
+                            resourcesReady > 0 ? "text-amber-400" : "text-slate-500"
+                        }>
+                            {resourcesReady === resourcesTotal ? "✓" : `${resourcesReady}/${resourcesTotal}`} Resources
+                        </span>
+                    )}
+                    <span className={done ? "text-emerald-400" : "text-slate-500"}>
+                        {done ? "✓" : "○"} Built
+                    </span>
+                </div>
+            )}
+
+            {/* Actions row */}
+            <div className="mt-2 flex flex-wrap gap-1.5">
+                <button
+                    className="rounded-md border border-slate-700 bg-slate-950/20 px-2 py-1 text-slate-300 text-xs hover:bg-slate-900/40"
+                    onClick={() => toggleGoalActive(goalId)}
+                >
+                    {isActive ? "Set Inactive" : "Set Active"}
+                </button>
+                <button
+                    className={[
+                        "rounded-md border px-2 py-1 text-xs",
+                        showDetails
+                            ? "border-slate-600 bg-slate-800 text-slate-200"
+                            : "border-slate-700 bg-slate-950/20 text-slate-400 hover:bg-slate-900/40"
+                    ].join(" ")}
+                    onClick={() => setShowDetails((v) => !v)}
+                >
+                    {showDetails ? "Hide Details" : "Qty / Note / Tree"}
+                </button>
+                <button
+                    className="rounded-md border border-red-900/40 bg-red-950/20 px-2 py-1 text-red-300 text-xs hover:bg-red-950/30"
+                    onClick={() => removeGoal(goalId)}
+                >
+                    Remove
+                </button>
+            </div>
+
+            {/* Details panel: qty, note, requirements tree */}
+            {showDetails && (
+                <div className="mt-3 border-t border-slate-800 pt-3 space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-2">
                         <label className="flex flex-col gap-1">
                             <span className="text-xs text-slate-400">Goal Qty</span>
                             <input
-                                className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100"
+                                className="rounded-lg bg-slate-900 border border-slate-700 px-2 py-1.5 text-slate-100 text-sm"
                                 type="number"
                                 min={1}
                                 value={qty}
@@ -1003,64 +1086,37 @@ const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
                         <label className="flex flex-col gap-1">
                             <span className="text-xs text-slate-400">Note</span>
                             <input
-                                className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100"
+                                className="rounded-lg bg-slate-900 border border-slate-700 px-2 py-1.5 text-slate-100 text-sm"
                                 value={note}
                                 onChange={(e) => setGoalNote(goalId, e.target.value)}
-                                placeholder="Optional"
+                                placeholder="Optional note"
                             />
                         </label>
                     </div>
-
-                    <div className="rounded-xl border border-slate-700/50 bg-slate-950/20 p-3">
-                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Crafting Progress</div>
-                        <div className="flex flex-wrap gap-x-5 gap-y-1.5">
-                            {(["blueprint", "resources", "crafted"] as const).map((key) => {
-                                const done = Boolean(completedComponents[key]);
-                                return (
-                                    <label key={key} className="flex items-center gap-1.5 cursor-pointer text-xs" onClick={(e) => e.stopPropagation()}>
-                                        <input
-                                            type="checkbox"
-                                            checked={done}
-                                            onChange={(e) => setGoalComponentCompleted(goalId, key, e.target.checked)}
-                                        />
-                                        <span className={done ? "line-through text-slate-500" : "text-slate-300"}>
-                                            {COMPONENT_LABELS[key]}
-                                        </span>
-                                    </label>
-                                );
-                            })}
-                        </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                            className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
+                            onClick={openTree}
+                        >
+                            Open Requirements Tree
+                        </button>
+                        <span className="text-[10px] text-slate-500">Ctrl+wheel / pinch to zoom · drag to pan</span>
                     </div>
-
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950/20 p-3">
-                        <div className="flex items-center justify-between gap-3">
-                            <div className="text-xs uppercase tracking-wide text-slate-400">Expanded Requirements</div>
-                            <button
-                                className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
-                                onClick={openTree}
-                            >
-                                Open Tree
-                            </button>
-                        </div>
-                        <div className="mt-2 text-xs text-slate-500">
-                            Viewer supports local zoom (Ctrl+wheel / pinch) and pan (drag).
-                        </div>
-                    </div>
-
-                    {isTreeOpen && (
-                        <TreeModal
-                            isOpen={true}
-                            title={name}
-                            subtitle={`Need ${qty.toLocaleString()} · Have ${have.toLocaleString()} · Remaining ${remaining.toLocaleString()}`}
-                            onClose={() => setIsTreeOpen(false)}
-                            rootCatalogId={catalogId}
-                            rootNeed={Math.max(1, qty)}
-                            inventoryCounts={inventoryCounts}
-                            expandedEdges={expandedEdges}
-                            onToggleEdge={toggleEdge}
-                        />
-                    )}
                 </div>
+            )}
+
+            {isTreeOpen && (
+                <TreeModal
+                    isOpen={true}
+                    title={name}
+                    subtitle={`Need ${qty.toLocaleString()} · Have ${have.toLocaleString()} · Remaining ${remaining.toLocaleString()}`}
+                    onClose={() => setIsTreeOpen(false)}
+                    rootCatalogId={catalogId}
+                    rootNeed={Math.max(1, qty)}
+                    inventoryCounts={{} as Record<string, number>}
+                    expandedEdges={expandedEdges}
+                    onToggleEdge={toggleEdge}
+                />
             )}
         </div>
     );
