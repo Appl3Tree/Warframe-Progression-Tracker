@@ -8,6 +8,7 @@ import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { deriveDropDataAcquisitionByCatalogId } from "../catalog/items/acquisitionFromDropData";
+import UNRESOLVED_RAW from "../data/_generated/wfcd-acquisition.unresolved.json";
 
 function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {
     return (
@@ -439,6 +440,50 @@ export default function Diagnostics() {
         overlapSourceCount: 0
     };
 
+    // 11.2 Data Coverage Indicator
+    const dataCoverage = useMemo(() => {
+        const total = completeness.displayableInventoryCount;
+        const missing = completeness.missingAcquisitionCount;
+        const covered = Math.max(0, total - missing);
+        const pct = total > 0 ? Math.round((covered / total) * 100) : 0;
+        return { total, covered, missing, pct };
+    }, [completeness]);
+
+    // 11.3 Progress Audit
+    const progressAudit = useMemo(() => {
+        const hidden = Array.isArray(farming?.hidden) ? farming.hidden : [];
+
+        const lockedByPrereq = hidden.filter((h) => h?.reason === "missing-prereqs");
+        const lockedByNoSource = hidden.filter((h) => h?.reason === "no-accessible-sources");
+        const lockedByUnknownAcq = hidden.filter((h) => h?.reason === "unknown-acquisition");
+
+        const actionable = Array.isArray(farming?.itemLines) ? farming.itemLines : [];
+        const resourceShortages = actionable
+            .filter((l: any) => (l?.remaining ?? 0) > 0)
+            .slice(0, 20)
+            .map((l: any) => ({
+                name: String(l?.name ?? "Unknown"),
+                remaining: Math.max(0, Math.floor(Number(l?.remaining ?? 0))),
+                have: Math.max(0, Math.floor(Number(l?.have ?? 0))),
+                totalNeed: Math.max(0, Math.floor(Number(l?.totalNeed ?? 0)))
+            }));
+
+        return {
+            lockedByPrereqCount: lockedByPrereq.length,
+            lockedByNoSourceCount: lockedByNoSource.length,
+            lockedByUnknownAcqCount: lockedByUnknownAcq.length,
+            actionableWithRemainingCount: actionable.filter((l: any) => (l?.remaining ?? 0) > 0).length,
+            resourceShortages
+        };
+    }, [farming]);
+
+    // 14.2 Data Defect Registry
+    const unresolvedDefects = useMemo(() => {
+        const entries = Object.entries(UNRESOLVED_RAW as Record<string, { itemName: string; count: number; examples: string[] }>);
+        entries.sort((a, b) => b[1].count - a[1].count || a[1].itemName.localeCompare(b[1].itemName));
+        return entries;
+    }, []);
+
     // Base export object (without meta). We’ll attach meta + stamp at download time.
     const completenessExportObject = useMemo(() => {
         return {
@@ -460,6 +505,115 @@ export default function Diagnostics() {
 
     return (
         <div className="space-y-6">
+            {/* 11.2 Data Coverage Indicator */}
+            <Section
+                title="Data Coverage"
+                subtitle="What percentage of displayable inventory items have known acquisition sources."
+            >
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <StatCard label="Total displayable items" value={fmtI(dataCoverage.total)} />
+                    <StatCard label="With acquisition data" value={fmtI(dataCoverage.covered)} />
+                    <StatCard label="Missing acquisition" value={fmtI(dataCoverage.missing)} />
+                    <StatCard label="Coverage %" value={`${dataCoverage.pct}%`} />
+                </div>
+                <div className="mt-4 rounded-xl bg-slate-900 border border-slate-800 p-3">
+                    <div className="text-xs text-slate-400 mb-2">Acquisition coverage</div>
+                    <div className="h-3 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                            className="h-full rounded-full bg-emerald-600 transition-all"
+                            style={{ width: `${dataCoverage.pct}%` }}
+                        />
+                    </div>
+                    <div className="mt-1 text-xs text-slate-500">
+                        {dataCoverage.covered.toLocaleString()} / {dataCoverage.total.toLocaleString()} items covered
+                    </div>
+                </div>
+            </Section>
+
+            {/* 11.3 Progress Audit */}
+            <Section
+                title="Progress Audit"
+                subtitle="Unified view of what is blocking or slowing progress right now."
+            >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <StatCard label="Locked by prereqs" value={fmtI(progressAudit.lockedByPrereqCount)} />
+                    <StatCard label="Locked (no sources)" value={fmtI(progressAudit.lockedByNoSourceCount)} />
+                    <StatCard label="Unknown acquisition" value={fmtI(progressAudit.lockedByUnknownAcqCount)} />
+                    <StatCard label="Actionable with shortages" value={fmtI(progressAudit.actionableWithRemainingCount)} />
+                </div>
+
+                {progressAudit.resourceShortages.length > 0 && (
+                    <div className="mt-4">
+                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+                            Top resource shortages (actionable items, by remaining)
+                        </div>
+                        <div className="max-h-64 overflow-auto rounded-xl border border-slate-800 bg-slate-950/30">
+                            <table className="w-full text-sm">
+                                <thead className="sticky top-0 bg-slate-950/90">
+                                    <tr className="border-b border-slate-800">
+                                        <th className="text-left px-3 py-2 text-slate-300 font-semibold">Item</th>
+                                        <th className="text-right px-3 py-2 text-slate-300 font-semibold w-24">Need</th>
+                                        <th className="text-right px-3 py-2 text-slate-300 font-semibold w-24">Have</th>
+                                        <th className="text-right px-3 py-2 text-slate-300 font-semibold w-24">Remaining</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {progressAudit.resourceShortages.map((r) => (
+                                        <tr key={r.name} className="border-b border-slate-800/50 hover:bg-slate-900/20">
+                                            <td className="px-3 py-2 text-slate-100 break-words">{r.name}</td>
+                                            <td className="px-3 py-2 text-right text-slate-300">{r.totalNeed.toLocaleString()}</td>
+                                            <td className="px-3 py-2 text-right text-slate-300">{r.have.toLocaleString()}</td>
+                                            <td className="px-3 py-2 text-right font-semibold text-amber-300">{r.remaining.toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+            </Section>
+
+            {/* 14.2 Data Defect Registry */}
+            <Section
+                title="Data Defect Registry"
+                subtitle={`Acquisition entries from the WFCD data that could not be mapped to a catalogId. ${unresolvedDefects.length} unresolved items.`}
+            >
+                {unresolvedDefects.length === 0 ? (
+                    <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
+                        No unresolved defects.
+                    </div>
+                ) : (
+                    <details>
+                        <summary className="cursor-pointer text-sm text-slate-300 rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 inline-block hover:bg-slate-900">
+                            Show {unresolvedDefects.length} unresolved entries
+                        </summary>
+                        <div className="mt-3 max-h-96 overflow-auto rounded-xl border border-slate-800 bg-slate-950/30">
+                            <table className="w-full text-sm">
+                                <thead className="sticky top-0 bg-slate-950/90">
+                                    <tr className="border-b border-slate-800">
+                                        <th className="text-left px-3 py-2 text-slate-300 font-semibold">Item Name</th>
+                                        <th className="text-right px-3 py-2 text-slate-300 font-semibold w-20">Count</th>
+                                        <th className="text-left px-3 py-2 text-slate-300 font-semibold">Example Sources</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {unresolvedDefects.map(([key, def]) => (
+                                        <tr key={key} className="border-b border-slate-800/50 hover:bg-slate-900/20">
+                                            <td className="px-3 py-2 text-slate-100 break-words">{def.itemName}</td>
+                                            <td className="px-3 py-2 text-right text-slate-400">{def.count}</td>
+                                            <td className="px-3 py-2 text-slate-500 text-xs break-words">
+                                                {(def.examples ?? []).slice(0, 2).join("; ")}
+                                                {def.examples.length > 2 && ` …+${def.examples.length - 2} more`}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
+                )}
+            </Section>
+
             <Section
                 title="Snapshot Export"
                 subtitle="Downloads the exact JSON used by the planner so you can run jq tests locally (no placeholders)."

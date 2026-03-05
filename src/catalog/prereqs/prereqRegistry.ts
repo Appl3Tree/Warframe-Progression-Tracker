@@ -8,12 +8,47 @@ export type PrereqCategory =
     | "Hubs"
     | "Systems";
 
+/**
+ * 1.6 Standardized Prerequisite Condition Types.
+ *
+ * These typed conditions describe what is required to satisfy a prerequisite.
+ * They are richer than raw PrereqId chains and allow the engine to surface
+ * human-readable explanations ("MR 10 required", "quest incomplete", etc.).
+ */
+export type PrereqCondition =
+    | { type: "mastery_rank"; value: number }
+    | { type: "quest_complete"; prereqId: PrereqId }
+    | { type: "junction_complete"; junctionId: string }
+    | { type: "node_complete"; nodeId: string }
+    | { type: "planet_unlock"; planetId: string }
+    | { type: "syndicate_rank"; syndicateId: string; rank: number }
+    | { type: "item_owned"; catalogId: string }
+    | { type: "resource_owned"; catalogId: string; quantity: number };
+
+export function describePrereqCondition(cond: PrereqCondition): string {
+    switch (cond.type) {
+        case "mastery_rank": return `Mastery Rank ${cond.value} required`;
+        case "quest_complete": return `Quest complete: ${cond.prereqId}`;
+        case "junction_complete": return `Junction complete: ${cond.junctionId}`;
+        case "node_complete": return `Node complete: ${cond.nodeId}`;
+        case "planet_unlock": return `Planet unlocked: ${cond.planetId}`;
+        case "syndicate_rank": return `${cond.syndicateId} rank ${cond.rank} required`;
+        case "item_owned": return `Item owned: ${cond.catalogId}`;
+        case "resource_owned": return `${cond.quantity}x ${cond.catalogId} required`;
+    }
+}
+
 export interface PrereqDef {
     id: PrereqId;
     label: string;
     category: PrereqCategory;
     description: string;
     prerequisites: PrereqId[];
+    /**
+     * Optional structured conditions for rich explainability.
+     * When present, these are surfaced by the reason trace system.
+     */
+    conditions?: PrereqCondition[];
 }
 
 /**
