@@ -263,7 +263,10 @@ function RankUpTransitionsList(props: {
     checklist: ChecklistMap;
     onToggleChecklist: (key: string) => void;
     onSetChecklistMany: (keys: string[], value: boolean) => void;
+    playerRank: number;
 }) {
+    const [showCompleted, setShowCompleted] = useState(false);
+
     const rows = props.rows ?? [];
     if (rows.length === 0) {
         return (
@@ -291,9 +294,30 @@ function RankUpTransitionsList(props: {
         );
     }
 
+    // A transition "Rank N-1 → N" is completed when the player is already at rank N or above.
+    const pendingRanks = ranks.slice(1).filter((toRank) => toRank > props.playerRank);
+    const completedRanks = ranks.slice(1).filter((toRank) => toRank <= props.playerRank);
+    const visibleRanks = showCompleted ? ranks.slice(1) : pendingRanks;
+
     return (
         <div className="flex flex-col gap-3">
-            {ranks.slice(1).map((toRank) => {
+            {completedRanks.length > 0 && (
+                <button
+                    className="self-start rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-400 hover:bg-slate-900 hover:text-slate-200"
+                    onClick={() => setShowCompleted((v) => !v)}
+                >
+                    {showCompleted
+                        ? `Hide completed (${completedRanks.length})`
+                        : `Show completed (${completedRanks.length})`}
+                </button>
+            )}
+            {visibleRanks.length === 0 && pendingRanks.length === 0 && (
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/30 p-4 text-sm text-slate-400">
+                    All rank-up transitions completed.
+                </div>
+            )}
+            {visibleRanks.map((toRank) => {
+                const completed = toRank <= props.playerRank;
                 const to = byRank.get(toRank);
                 if (!to) return null;
 
@@ -307,11 +331,26 @@ function RankUpTransitionsList(props: {
                 const checkedN = keys.reduce((acc, k) => acc + (props.checklist[k] ? 1 : 0), 0);
 
                 return (
-                    <div key={`transition-${fromRank}-${toRank}`} className="rounded-2xl border border-slate-800 bg-slate-950/30 p-4">
+                    <div
+                        key={`transition-${fromRank}-${toRank}`}
+                        className={[
+                            "rounded-2xl border p-4",
+                            completed
+                                ? "border-emerald-900/40 bg-emerald-950/10 opacity-60"
+                                : "border-slate-800 bg-slate-950/30"
+                        ].join(" ")}
+                    >
                         <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                                <div className="text-sm font-semibold text-slate-100">
-                                    Rank {fromRank} → Rank {toRank}
+                                <div className="flex items-center gap-2">
+                                    <div className="text-sm font-semibold text-slate-100">
+                                        Rank {fromRank} → Rank {toRank}
+                                    </div>
+                                    {completed && (
+                                        <span className="rounded-full border border-emerald-700/40 bg-emerald-950/30 px-2 py-0.5 text-[10px] text-emerald-400">
+                                            Completed
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="mt-1 text-[11px] text-slate-400">
@@ -560,6 +599,9 @@ export default function SyndicateDetailsModal(props: {
     initialQuery?: string;
     initialMaxRank?: number | null;
     initialVendorId?: string;
+
+    /** Player's current rank — used to hide already-completed rank-up transitions. */
+    playerRank?: number;
 }) {
     const [tab, setTab] = useState<ModalTab>(props.initialTab);
 
@@ -914,6 +956,7 @@ export default function SyndicateDetailsModal(props: {
                                                         checklist={rankChecklist}
                                                         onToggleChecklist={toggleRankChecklist}
                                                         onSetChecklistMany={setRankChecklistMany}
+                                                        playerRank={props.playerRank ?? 0}
                                                     />
                                                 ) : entry.rankInfo ? (
                                                     <div className="rounded-2xl border border-slate-800 bg-slate-950/30 p-4">
