@@ -14,11 +14,11 @@ export default function Settings() {
             <div className="mt-4 space-y-3">
                 <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                     <div className="text-sm font-semibold text-slate-100">Reset to Defaults</div>
-                    <div className=”mt-1 text-sm text-slate-400”>
+                    <div className="mt-1 text-sm text-slate-400">
                         Resets all your tracked progress back to the default starting state.
-                        <span className=”text-slate-300”> Your browser save is kept — refreshing the page will restore this reset.</span>
+                        <span className="text-slate-300"> Your browser save is kept &mdash; refreshing the page will restore this reset.</span>
                     </div>
-                    <div className=”mt-1 text-xs text-slate-500”>
+                    <div className="mt-1 text-xs text-slate-500">
                         Use this when you want a clean slate without fully wiping your saved data.
                     </div>
 
@@ -42,11 +42,11 @@ export default function Settings() {
 
                 <div className="rounded-xl border border-rose-900/70 bg-rose-950/10 p-3">
                     <div className="text-sm font-semibold text-rose-200">Reset All Local Data</div>
-                    <div className=”mt-1 text-sm text-slate-400”>
+                    <div className="mt-1 text-sm text-slate-400">
                         Permanently deletes all saved browser data for this app and rebuilds from scratch.
-                        <span className=”text-slate-300”> This cannot be undone — old data will not come back on refresh.</span>
+                        <span className="text-slate-300"> This cannot be undone &mdash; old data will not come back on refresh.</span>
                     </div>
-                    <div className=”mt-1 text-xs text-slate-500”>
+                    <div className="mt-1 text-xs text-slate-500">
                         Use this when you want to fully start over, as if you had never opened the app before.
                     </div>
 
@@ -71,4 +71,3 @@ export default function Settings() {
         </div>
     );
 }
-
