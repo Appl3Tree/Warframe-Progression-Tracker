@@ -1134,6 +1134,12 @@ export default function Goals() {
 
     const [tab, setTab] = useState<GoalsTab>("personal");
 
+    // Personal goals filter / sort state
+    const [search, setSearch] = useState("");
+    const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
+    const [filterDone, setFilterDone] = useState<"all" | "remaining" | "done">("all");
+    const [sortBy, setSortBy] = useState<"default" | "nameAZ" | "nameZA" | "mostRemaining" | "leastRemaining" | "mostProgress" | "leastProgress">("default");
+
     // Requirements-only snapshot — only computed when the tab needs it
     const needsRequirements = tab === "requirements" || tab === "total";
     const requirementsOnly = useMemo(() => {
@@ -1147,33 +1153,54 @@ export default function Goals() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [needsRequirements, syndicates, completedPrereqs, inventory]);
 
-    // Sorted goal IDs only — GoalCard fetches its own data from the store
-    const sortedGoalIds = useMemo(() => {
-        if (!Array.isArray(goals)) return [] as string[];
+    // Sorted + filtered goal IDs — GoalCard fetches its own data from the store
+    const { sortedGoalIds, totalGoalCount } = useMemo(() => {
+        if (!Array.isArray(goals)) return { sortedGoalIds: [] as string[], totalGoalCount: 0 };
 
-        const items = (goals as any[])
+        const raw = (goals as any[])
             .filter((g) => g && g.type === "item")
             .map((g) => {
                 const cid = String(g.catalogId) as CatalogId;
                 const name = FULL_CATALOG.recordsById[cid]?.displayName ?? cid;
                 const qty = Math.max(1, safeInt(g.qty ?? 1, 1));
                 const have = safeInt(inventory?.counts?.[cid] ?? 0, 0);
-                return {
-                    id: String(g.id),
-                    isActive: g.isActive !== false,
-                    remaining: Math.max(0, qty - have),
-                    name
-                };
+                const remaining = Math.max(0, qty - have);
+                return { id: String(g.id), isActive: g.isActive !== false, remaining, have, qty, name };
             });
 
-        items.sort((a, b) => {
-            if (a.isActive !== b.isActive) return a.isActive ? -1 : 1;
-            if (a.remaining !== b.remaining) return b.remaining - a.remaining;
-            return a.name.localeCompare(b.name);
+        const totalGoalCount = raw.length;
+
+        const searchLower = search.trim().toLowerCase();
+        let filtered = raw;
+        if (searchLower) filtered = filtered.filter((x) => x.name.toLowerCase().includes(searchLower));
+        if (filterStatus !== "all") filtered = filtered.filter((x) => x.isActive === (filterStatus === "active"));
+        if (filterDone !== "all") filtered = filtered.filter((x) => filterDone === "done" ? x.remaining === 0 : x.remaining > 0);
+
+        filtered.sort((a, b) => {
+            switch (sortBy) {
+                case "nameAZ": return a.name.localeCompare(b.name);
+                case "nameZA": return b.name.localeCompare(a.name);
+                case "mostRemaining": return b.remaining - a.remaining || a.name.localeCompare(b.name);
+                case "leastRemaining": return a.remaining - b.remaining || a.name.localeCompare(b.name);
+                case "mostProgress": {
+                    const pa = a.qty > 0 ? a.have / a.qty : 1;
+                    const pb = b.qty > 0 ? b.have / b.qty : 1;
+                    return pb - pa || a.name.localeCompare(b.name);
+                }
+                case "leastProgress": {
+                    const pa = a.qty > 0 ? a.have / a.qty : 1;
+                    const pb = b.qty > 0 ? b.have / b.qty : 1;
+                    return pa - pb || a.name.localeCompare(b.name);
+                }
+                default:
+                    if (a.isActive !== b.isActive) return a.isActive ? -1 : 1;
+                    if (a.remaining !== b.remaining) return b.remaining - a.remaining;
+                    return a.name.localeCompare(b.name);
+            }
         });
 
-        return items.map((x) => x.id);
-    }, [goals, inventory]);
+        return { sortedGoalIds: filtered.map((x) => x.id), totalGoalCount };
+    }, [goals, inventory, search, filterStatus, filterDone, sortBy]);
 
     // Requirements goals lines (actionable items; remaining > 0 already filtered by engine)
     const requirementsLines = useMemo(() => {
@@ -1273,10 +1300,89 @@ export default function Goals() {
             </Section>
 
             {tab === "personal" && (
-                <Section title="Personal Goals" subtitle={`Count: ${sortedGoalIds.length.toLocaleString()} (includes inactive)`}>
-                    {sortedGoalIds.length === 0 ? (
+                <Section
+                    title="Personal Goals"
+                    subtitle={
+                        search.trim() || filterStatus !== "all" || filterDone !== "all"
+                            ? `Showing ${sortedGoalIds.length.toLocaleString()} of ${totalGoalCount.toLocaleString()} goals`
+                            : `${totalGoalCount.toLocaleString()} goals (includes inactive)`
+                    }
+                >
+                    {/* Search + filter + sort bar */}
+                    <div className="mb-3 flex flex-wrap gap-2">
+                        <input
+                            type="search"
+                            placeholder="Search by name…"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="flex-1 min-w-[160px] rounded-lg bg-slate-900 border border-slate-700 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-500"
+                        />
+
+                        {/* Active filter */}
+                        <div className="flex items-center gap-0.5 rounded-lg border border-slate-800 bg-slate-900/60 p-1">
+                            {(["all", "active", "inactive"] as const).map((s) => (
+                                <button
+                                    key={s}
+                                    onClick={() => setFilterStatus(s)}
+                                    className={[
+                                        "rounded-md px-2.5 py-1 text-xs transition-colors",
+                                        filterStatus === s
+                                            ? "bg-slate-200 text-slate-900 font-semibold"
+                                            : "text-slate-400 hover:text-slate-200"
+                                    ].join(" ")}
+                                >
+                                    {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Done filter */}
+                        <div className="flex items-center gap-0.5 rounded-lg border border-slate-800 bg-slate-900/60 p-1">
+                            {(["all", "remaining", "done"] as const).map((s) => (
+                                <button
+                                    key={s}
+                                    onClick={() => setFilterDone(s)}
+                                    className={[
+                                        "rounded-md px-2.5 py-1 text-xs transition-colors",
+                                        filterDone === s
+                                            ? "bg-slate-200 text-slate-900 font-semibold"
+                                            : "text-slate-400 hover:text-slate-200"
+                                    ].join(" ")}
+                                >
+                                    {s === "all" ? "All" : s === "remaining" ? "In Progress" : "Done"}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Sort */}
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                            className="rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1.5 text-xs text-slate-200"
+                        >
+                            <option value="default">Active first</option>
+                            <option value="nameAZ">Name A → Z</option>
+                            <option value="nameZA">Name Z → A</option>
+                            <option value="mostRemaining">Most remaining</option>
+                            <option value="leastRemaining">Least remaining</option>
+                            <option value="mostProgress">Most progress</option>
+                            <option value="leastProgress">Least progress</option>
+                        </select>
+                    </div>
+
+                    {totalGoalCount === 0 ? (
                         <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
                             No personal goals yet. Add them from Inventory.
+                        </div>
+                    ) : sortedGoalIds.length === 0 ? (
+                        <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
+                            No goals match the current filters.{" "}
+                            <button
+                                className="underline text-slate-300 hover:text-slate-100"
+                                onClick={() => { setSearch(""); setFilterStatus("all"); setFilterDone("all"); }}
+                            >
+                                Clear filters
+                            </button>
                         </div>
                     ) : (
                         <div className="space-y-2">
