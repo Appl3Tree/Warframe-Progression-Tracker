@@ -325,9 +325,9 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
     {
         id: SY.NIGHTCAP,
         name: "Nightcap",
-        tab: "other",
+        tab: "fortuna",
         model: "no-standing",
-        detail: "A Höllvania syndicate tracked by myconics analyzed (0–16). Unlocks rewards through mushroom sample collection.",
+        detail: "A Solaris hidden in Fortuna's secret Airlock. Rank up by analyzing mushrooms found in the Deepmines — no daily Standing cap. Requires Old Mate rank with Solaris United to fully unlock.",
         bg: "#1f2430",
         fg: "#cbd5e1"
     }
