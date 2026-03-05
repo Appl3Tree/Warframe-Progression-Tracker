@@ -12,6 +12,8 @@ import { getRegionResourcesForPlanet } from "../domain/catalog/starChart/regionR
 import { PREREQ_REGISTRY } from "../catalog/prereqs/prereqRegistry";
 import { useTrackerStore } from "../store/store";
 
+const EMPTY_NODE_COMPLETED: Record<string, boolean> = {};
+
 type ItemRow = { catalogId: string; name: string };
 
 function Section(props: { title: string; subtitle?: string; children: React.ReactNode; actions?: React.ReactNode }) {
@@ -608,7 +610,7 @@ function StarChartMap(props: {
 
     // 4.4: Per-node completion tracking
     const setNodeCompleted = useTrackerStore((s) => s.setNodeCompleted);
-    const nodeCompletedMap = useTrackerStore((s) => s.state.missions?.nodeCompleted ?? {});
+    const nodeCompletedMap = useTrackerStore((s) => s.state.missions?.nodeCompleted ?? EMPTY_NODE_COMPLETED);
 
     const svgRef = useRef<SVGSVGElement | null>(null);
     const vbRef = useRef<ViewBox>(vb);
