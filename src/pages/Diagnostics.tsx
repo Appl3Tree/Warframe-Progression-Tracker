@@ -457,7 +457,7 @@ export default function Diagnostics() {
         const lockedByNoSource = hidden.filter((h) => h?.reason === "no-accessible-sources");
         const lockedByUnknownAcq = hidden.filter((h) => h?.reason === "unknown-acquisition");
 
-        const actionable = Array.isArray(farming?.itemLines) ? farming.itemLines : [];
+        const actionable = Array.isArray(farming?.targeted) ? farming.targeted : [];
         const resourceShortages = actionable
             .filter((l: any) => (l?.remaining ?? 0) > 0)
             .slice(0, 20)

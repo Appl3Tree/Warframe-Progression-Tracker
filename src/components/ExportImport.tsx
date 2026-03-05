@@ -92,7 +92,6 @@ function buildMarkdownPlan(state: UserStateV2): string {
 }
 
 function buildChecklistPlan(state: UserStateV2): string {
-    const prereqIndex = buildPrereqIndex(PREREQ_REGISTRY);
     const completedMap = state.prereqs?.completed ?? {};
     const plan = buildProgressionPlan(completedMap);
     const inventory = state.inventory;
