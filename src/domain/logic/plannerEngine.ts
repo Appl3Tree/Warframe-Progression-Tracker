@@ -366,3 +366,86 @@ export function canAccessItemByName(
 
     return canAccessCatalogItem(cid, completedMap, masteryRank);
 }
+
+/* ---------- 3.4 Availability Determination ---------- */
+
+export type ItemAvailability = "available" | "partial" | "blocked";
+
+/**
+ * Determines item availability by checking each acquisition source individually.
+ * - "available": at least one source is fully accessible now
+ * - "partial": item has acquisition sources, but all are locked (some by prereqs, some by MR)
+ *   AND the item is partially crafted (some components owned) — or more sources exist than accessible ones
+ * - "blocked": no sources accessible AND no partial progress
+ */
+export function determineItemAvailability(
+    catalogId: CatalogId,
+    completedMap: Record<string, boolean>,
+    masteryRank?: number | null
+): ItemAvailability {
+    if (!isInProgressionScope(catalogId)) return "blocked";
+
+    const acq = getAcquisitionByCatalogId(catalogId);
+    if (!acq || !Array.isArray(acq.sources) || acq.sources.length === 0) return "blocked";
+
+    let accessibleCount = 0;
+    let totalChecked = 0;
+
+    for (const rawSource of acq.sources) {
+        let s: SourceId;
+        try {
+            s = normalizeSourceId(String(rawSource));
+        } catch {
+            continue;
+        }
+        totalChecked++;
+        const check = isSourceAccessible(s, completedMap, masteryRank);
+        if (check.ok) accessibleCount++;
+    }
+
+    if (totalChecked === 0) return "blocked";
+    if (accessibleCount === 0) return "blocked";
+    if (accessibleCount < totalChecked) return "partial";
+    return "available";
+}
+
+/* ---------- 3.5 Blocking Reason Engine ---------- */
+
+/**
+ * Returns human-readable blocking reasons for why an item cannot be accessed.
+ * Returns an empty array if the item is accessible.
+ */
+export function getBlockingReasons(
+    catalogId: CatalogId,
+    completedMap: Record<string, boolean>,
+    masteryRank?: number | null
+): string[] {
+    const result = canAccessCatalogItem(catalogId, completedMap, masteryRank);
+    if (result.allowed) return [];
+
+    const reasons: string[] = [];
+
+    if (result.missingMr !== null) {
+        reasons.push(`Mastery Rank ${result.missingMr} required`);
+    }
+
+    if (result.missingPrereqs.length > 0) {
+        const PREREQ_INDEX = Object.fromEntries(
+            PREREQ_REGISTRY.map((d) => [d.id, d])
+        );
+        for (const pid of result.missingPrereqs) {
+            const def = PREREQ_INDEX[String(pid)];
+            reasons.push(def ? `Quest/hub required: ${def.label}` : `Prerequisite required: ${pid}`);
+        }
+    }
+
+    if (reasons.length === 0 && result.reasons.length > 0) {
+        reasons.push(...result.reasons.slice(0, 5));
+    }
+
+    if (reasons.length === 0) {
+        reasons.push("Acquisition source not accessible");
+    }
+
+    return reasons;
+}

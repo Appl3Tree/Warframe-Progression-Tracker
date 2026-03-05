@@ -9,6 +9,8 @@ import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { normalizeSourceId } from "../domain/ids/sourceIds";
 import { getRegionResourcesForPlanet } from "../domain/catalog/starChart/regionResources";
+import { PREREQ_REGISTRY } from "../catalog/prereqs/prereqRegistry";
+import { useTrackerStore } from "../store/store";
 
 type ItemRow = { catalogId: string; name: string };
 
@@ -563,6 +565,10 @@ function StarChartMap(props: {
     activeTab: TabSpec | null;
     focusedTitle: string | null;
     showDropsPanel: boolean;
+    /** 6.5: Junction inspector — populated when the selected node is a junction */
+    junctionNode: StarChartNode | null;
+    /** 4.4: Base node ID for the selected group (for node completion tracking) */
+    selectedGroupBaseNodeId: NodeId | null;
 }) {
     const {
         isInModal,
@@ -579,8 +585,30 @@ function StarChartMap(props: {
         tabsForPanel,
         activeTab,
         focusedTitle,
-        showDropsPanel
+        showDropsPanel,
+        junctionNode,
+        selectedGroupBaseNodeId
     } = props;
+
+    // 6.5: Build prereq label index for junction inspector
+    const prereqLabelIndex = useMemo(() => {
+        const m: Record<string, string> = {};
+        for (const d of PREREQ_REGISTRY) {
+            m[d.id] = d.label;
+        }
+        return m;
+    }, []);
+
+    // 6.5: Derive unlocked planet name for junction node
+    const planetsById = useMemo(() => {
+        const m = new Map<string, StarChartPlanet>();
+        for (const p of STAR_CHART_DATA.planets) m.set(p.id, p);
+        return m;
+    }, []);
+
+    // 4.4: Per-node completion tracking
+    const setNodeCompleted = useTrackerStore((s) => s.setNodeCompleted);
+    const nodeCompletedMap = useTrackerStore((s) => s.state.missions?.nodeCompleted ?? {});
 
     const svgRef = useRef<SVGSVGElement | null>(null);
     const vbRef = useRef<ViewBox>(vb);
@@ -1401,6 +1429,54 @@ function StarChartMap(props: {
                                 </div>
                             </div>
 
+                            {/* 6.5 Junction Inspector */}
+                            {junctionNode && junctionNode.nodeType === "junction" && (
+                                <div className="mt-3 rounded-xl border border-cyan-900/50 bg-cyan-950/20 p-3 space-y-3">
+                                    <div className="text-xs font-semibold uppercase tracking-wide text-cyan-300">Junction</div>
+
+                                    {junctionNode.unlocksPlanetId && (
+                                        <div>
+                                            <div className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Unlocks</div>
+                                            <div className="text-sm text-slate-200 font-semibold">
+                                                {planetsById.get(junctionNode.unlocksPlanetId)?.name ?? junctionNode.unlocksPlanetId}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {Array.isArray(junctionNode.prereqIds) && junctionNode.prereqIds.length > 0 && (
+                                        <div>
+                                            <div className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Requirements</div>
+                                            <ul className="space-y-1">
+                                                {junctionNode.prereqIds.map((pid) => (
+                                                    <li key={pid} className="text-xs text-slate-300 flex items-center gap-1">
+                                                        <span className="text-cyan-500">—</span>
+                                                        {prereqLabelIndex[pid] ?? pid}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    <div className="text-[11px] text-slate-500">
+                                        Completing this junction unlocks access to the next planet and its mission nodes.
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 4.4: Node completion toggle */}
+                            {selectedGroupBaseNodeId && (
+                                <div className="mt-3 flex items-center gap-2">
+                                    <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300 select-none">
+                                        <input
+                                            type="checkbox"
+                                            checked={Boolean(nodeCompletedMap[selectedGroupBaseNodeId])}
+                                            onChange={(e) => setNodeCompleted(selectedGroupBaseNodeId, e.target.checked)}
+                                        />
+                                        <span>Mark node as completed</span>
+                                    </label>
+                                </div>
+                            )}
+
                             {selectedGroupKey && (
                                 <>
                                     {tabsForPanel.length > 0 && (
@@ -1660,9 +1736,18 @@ function StarChartMap(props: {
 
                                             {zl.layouts.map((nd) => {
                                                 const isActive = selectedPlanetId === pid && selectedGroupKey === nd.group.key;
+                                                const isCompleted = Boolean(nodeCompletedMap[nd.group.baseNodeId]);
 
-                                                const nodeFill = isActive ? "rgba(226,232,240,0.34)" : "rgba(2,6,23,0.72)";
-                                                const nodeStrokeCol = isActive ? "rgba(226,232,240,0.95)" : "rgba(148,163,184,0.60)";
+                                                const nodeFill = isActive
+                                                    ? "rgba(226,232,240,0.34)"
+                                                    : isCompleted
+                                                        ? "rgba(16,185,129,0.18)"
+                                                        : "rgba(2,6,23,0.72)";
+                                                const nodeStrokeCol = isActive
+                                                    ? "rgba(226,232,240,0.95)"
+                                                    : isCompleted
+                                                        ? "rgba(52,211,153,0.75)"
+                                                        : "rgba(148,163,184,0.60)";
 
                                                 return (
                                                     <g
@@ -2026,6 +2111,14 @@ export default function StarChart() {
 
     const showDropsPanel = Boolean(selectedGroupKey);
 
+    // 6.5: Resolve junction node for the selected group
+    const junctionNode = useMemo<StarChartNode | null>(() => {
+        if (!selectedGroup) return null;
+        const baseId = selectedGroup.baseNodeId;
+        const node = STAR_CHART_DATA.nodes.find((n) => n.id === baseId) ?? null;
+        return node?.nodeType === "junction" ? node : null;
+    }, [selectedGroup]);
+
     return (
         <div className="space-y-6">
             <StarChartModalStyles />
@@ -2066,6 +2159,8 @@ export default function StarChart() {
                     activeTab={activeTab}
                     focusedTitle={focusedTitle}
                     showDropsPanel={showDropsPanel}
+                    junctionNode={junctionNode}
+                    selectedGroupBaseNodeId={selectedGroup?.baseNodeId ?? null}
                 />
             </Section>
 
@@ -2091,6 +2186,8 @@ export default function StarChart() {
                     activeTab={activeTab}
                     focusedTitle={focusedTitle}
                     showDropsPanel={showDropsPanel}
+                    junctionNode={junctionNode}
+                    selectedGroupBaseNodeId={selectedGroup?.baseNodeId ?? null}
                 />
             </StarChartModal>
         </div>

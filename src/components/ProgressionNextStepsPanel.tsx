@@ -3,6 +3,8 @@ import { useTrackerStore } from "../store/store";
 import { buildProgressionPlan } from "../domain/logic/plannerEngine";
 import { buildPrereqIndex } from "../domain/logic/prereqEngine";
 import { PREREQ_REGISTRY } from "../catalog/prereqs/prereqRegistry";
+import { computeUnlockGraphSnapshot } from "../domain/logic/unlockGraph";
+import type { PrereqId } from "../domain/ids/prereqIds";
 
 export default function ProgressionNextStepsPanel() {
     const completedMap = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
@@ -12,6 +14,38 @@ export default function ProgressionNextStepsPanel() {
     const plan = useMemo(() => buildProgressionPlan(completedMap), [completedMap]);
 
     const steps = plan.steps ?? [];
+
+    // 9.2: Unlock Impact Preview — for each step, compute what NEW items become actionable
+    // if this step were marked complete.
+    const unlockImpactByStepId = useMemo(() => {
+        const result: Record<string, string[]> = {};
+
+        // Current actionable set
+        const currentSnap = computeUnlockGraphSnapshot(completedMap, PREREQ_REGISTRY);
+        const currentActionableIds = new Set(currentSnap.actionable.map((s) => s.id));
+
+        for (const step of steps) {
+            // Simulate completing this prereq
+            const simMap = { ...completedMap, [step.prereqId]: true };
+            const simSnap = computeUnlockGraphSnapshot(simMap, PREREQ_REGISTRY);
+
+            // What becomes newly actionable?
+            const newlyActionable = simSnap.actionable
+                .map((s) => s.id)
+                .filter((id) => !currentActionableIds.has(id) && id !== step.prereqId)
+                .map((id) => {
+                    const def = prereqIndex[id as PrereqId];
+                    return def ? def.label : id;
+                })
+                .slice(0, 5);
+
+            if (newlyActionable.length > 0) {
+                result[step.id] = newlyActionable;
+            }
+        }
+
+        return result;
+    }, [completedMap, steps, prereqIndex]);
 
     function labelFor(id: string): string {
         const def = prereqIndex[id];
@@ -86,6 +120,20 @@ export default function ProgressionNextStepsPanel() {
                                     <ul className="mt-1 list-disc pl-5 text-xs text-amber-100">
                                         {step.missingPrereqs.map((m) => (
                                             <li key={m}>{labelFor(m)}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* 9.2 Unlock Impact Preview */}
+                            {unlockImpactByStepId[step.id]?.length > 0 && (
+                                <div className="mt-2 rounded-lg border border-emerald-900/40 bg-emerald-950/20 p-2">
+                                    <div className="text-xs font-semibold text-emerald-300">
+                                        Completing this unlocks:
+                                    </div>
+                                    <ul className="mt-1 list-disc pl-5 text-xs text-emerald-200">
+                                        {unlockImpactByStepId[step.id].map((label) => (
+                                            <li key={label}>{label}</li>
                                         ))}
                                     </ul>
                                 </div>
