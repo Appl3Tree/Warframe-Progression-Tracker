@@ -157,6 +157,7 @@ export default function ExportImport() {
     const fileRef = useRef<HTMLInputElement | null>(null);
 
     return (
+        <>
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
             <div className="text-lg font-semibold">Progress Pack (Export / Import)</div>
             <div className="text-sm text-slate-400 mt-1">
@@ -294,6 +295,7 @@ export default function ExportImport() {
                 Previewed text appears in the "Export will appear here" textarea above.
             </div>
         </div>
+        </>
     );
 }
 
