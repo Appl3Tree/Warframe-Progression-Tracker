@@ -62,7 +62,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Steel Meridian",
         tab: "primary",
         model: "standing",
-        detail: "Relay faction syndicate.",
+        detail: "Fighters and refugees protecting the colonists of the Origin System. Allied with Red Veil.",
         iconFile: "120px-SteelIconPink.png",
         bg: "#2C3F46",
         fg: "#f9bc93",
@@ -78,7 +78,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Arbiters of Hexis",
         tab: "primary",
         model: "standing",
-        detail: "Relay faction syndicate.",
+        detail: "Scholars dedicated to pushing the Tenno beyond their limits and unlocking their true potential.",
         iconFile: "120px-ArbitarIconGrey.png",
         bg: "#374045",
         fg: "#cfe1e4",
@@ -94,7 +94,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Cephalon Suda",
         tab: "primary",
         model: "standing",
-        detail: "Relay faction syndicate.",
+        detail: "A Cephalon obsessed with gathering and preserving all knowledge across the Origin System.",
         iconFile: "120px-CephalonIconLightGold.png",
         bg: "#3D375D",
         fg: "#fbfed0",
@@ -110,7 +110,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "The Perrin Sequence",
         tab: "primary",
         model: "standing",
-        detail: "Relay faction syndicate.",
+        detail: "Corpus-affiliated merchants who believe trade and commerce will shape the future of humanity.",
         iconFile: "120px-PerrinSequenceIconBlue.png",
         bg: "#3D4963",
         fg: "#92dbff",
@@ -126,7 +126,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Red Veil",
         tab: "primary",
         model: "standing",
-        detail: "Relay faction syndicate.",
+        detail: "Radical purifiers who seek to cleanse the Origin System of Orokin corruption by any means necessary.",
         iconFile: "120px-RedVeilIconLightRed.png",
         bg: "#3D1839",
         fg: "#fe8a88",
@@ -142,7 +142,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "New Loka",
         tab: "primary",
         model: "standing",
-        detail: "Relay faction syndicate.",
+        detail: "Naturalists devoted to restoring humanity to its pure, pre-Orokin state, free of all augmentation.",
         iconFile: "120px-LokaIconGreen.png",
         bg: "#2A3C2E",
         fg: "#c2ffbf",
@@ -160,7 +160,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Ostron",
         tab: "cetus",
         model: "standing",
-        detail: "Cetus hub syndicate.",
+        detail: "The people of Cetus, a trading post on the Plains of Eidolon. Fish, hunt, and complete bounties to earn standing.",
         iconFile: "120px-OstronSigil.png",
         bg: "#B74624",
         fg: "#e8ddaf"
@@ -170,7 +170,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "The Quills",
         tab: "cetus",
         model: "standing",
-        detail: "Cetus hub syndicate.",
+        detail: "Mysterious servants of the Unum who deal in Eidolon Shards and Amp crafting components.",
         iconFile: "120px-TheQuillsSigil.png",
         bg: "#F7FACB",
         fg: "#b43419"
@@ -182,7 +182,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Solaris United",
         tab: "fortuna",
         model: "standing",
-        detail: "Fortuna hub syndicate.",
+        detail: "Debt-enslaved workers of Fortuna on Venus, fighting for freedom. Earn standing through bounties and conservation.",
         iconFile: "120px-SolarisUnited1.png",
         bg: "#5F3C0D",
         fg: "#e8ddaf"
@@ -192,7 +192,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Ventkids",
         tab: "fortuna",
         model: "standing",
-        detail: "Fortuna hub syndicate.",
+        detail: "Grind-obsessed youth who rule the Orb Vallis vents. Earn standing through K-Drive tricks and races.",
         iconFile: "120px-VentkidsIcon.png",
         bg: "#B97EF9",
         fg: "#FFF58F"
@@ -202,7 +202,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Vox Solaris",
         tab: "fortuna",
         model: "standing",
-        detail: "Fortuna hub syndicate.",
+        detail: "The secret inner circle of Solaris United. Unlocks access to Operator Amps and Arcanes from Little Duck.",
         iconFile: "120px-VoxSolarisIcon.png",
         bg: "#F2E5A7",
         fg: "#4A2B18"
@@ -214,7 +214,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Entrati",
         tab: "necralisk",
         model: "standing",
-        detail: "Deimos hub syndicate.",
+        detail: "The Orokin family who built the Necralisk on Deimos. Earn standing through conservation, mining, and bounties.",
         iconFile: "120px-EntratiIcon.png",
         bg: "#4E5360",
         fg: "#FFC12F"
@@ -224,7 +224,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Cavia",
         tab: "necralisk",
         model: "standing",
-        detail: "Deimos hub syndicate.",
+        detail: "Former Entrati test subjects exploring the Undercroft beneath Deimos. Associated with Duviri content.",
         iconFile: "120px-Cavia_Syndicate_Logo_1.png",
         bg: "#282624",
         fg: "#A5A394"
@@ -234,7 +234,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Necraloid",
         tab: "necralisk",
         model: "standing",
-        detail: "Deimos hub syndicate.",
+        detail: "Loid and Otak, the Necralisk’s keepers. Earn standing with Orokin Matrices to unlock Necramech parts and mods.",
         iconFile: "120px-NecraloidIcon.png",
         bg: "#333334",
         fg: "#BA9E5E"
@@ -246,7 +246,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "The Holdfasts",
         tab: "chrysalith",
         model: "standing",
-        detail: "Zariman hub syndicate.",
+        detail: "Void-touched survivors sheltering aboard the Zariman Ten Zero. Earn standing through Zariman bounties and activities.",
         iconFile: "120px-TheHoldfastsIcon.png",
         bg: "#21242e",
         fg: "#a9b5cc"
@@ -258,7 +258,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "The Hex",
         tab: "1999",
         model: "standing",
-        detail: "1999 syndicate.",
+        detail: "A crew of six navigating war-torn Höllvania in 1999. Earn standing through missions and activities in that era.",
         iconFile: "120px-HexIcon.png",
         bg: "#556033",
         fg: "#171b0e"
@@ -270,7 +270,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Conclave",
         tab: "misc",
         model: "standing",
-        detail: "Neutral syndicate.",
+        detail: "PvP arena syndicate run by the Teshin. Earn standing through player-versus-player combat in the Conclave.",
         iconFile: "120px-ConclaveSigil.png",
         bg: "#000000",
         fg: "#ffffff"
@@ -280,7 +280,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Cephalon Simaris",
         tab: "misc",
         model: "standing",
-        detail: "Standing only (no ranks).",
+        detail: "The Synthesis Cephalon located in every Relay. Earn standing by scanning targets in the wild using a Synthesis Scanner.",
         iconFile: "120px-Simaris_Sigil_gold.png",
         bg: "#5F3C0D",
         fg: "#ebd18f"
@@ -292,7 +292,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Kahl’s Garrison",
         tab: "other",
         model: "no-standing",
-        detail: "No standing meter. Weekly progression.",
+        detail: "Kahl-175’s hideout. Complete weekly Break Narmer missions to earn Stock and unlock cosmetics and upgrades.",
         iconFile: "120px-GarrisonIcon.png",
         bg: "#0a2a1b",
         fg: "#a16042"
@@ -302,7 +302,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Operational Supply",
         tab: "other",
         model: "event-standing",
-        detail: "Event-scoped standing progression.",
+        detail: "Limited-time event syndicate run by Operational Supply. Standing is earned during active operations only.",
         iconFile: "120px-OperationSyndicateSigil.png",
         bg: "#6A5574",
         fg: "#ffffff"
@@ -312,7 +312,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Nightwave",
         tab: "other",
         model: "nightwave",
-        detail: "System progression via Acts/points; separate currency.",
+        detail: "Nora Night’s radio syndicate. Complete Acts to earn Standing and rank up for Nora’s Creds and exclusive rewards.",
         iconFile: "120px-NightwaveSyndicate.png",
         bg: "#6C1822",
         fg: "#F4ABAB"
@@ -322,7 +322,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Nightcap",
         tab: "other",
         model: "no-standing",
-        detail: "Mushrooms analyzed progression (0–16).",
+        detail: "A Höllvania syndicate tracked by myconics analyzed (0–16). Unlocks rewards through mushroom sample collection.",
         bg: "#1f2430",
         fg: "#cbd5e1"
     }

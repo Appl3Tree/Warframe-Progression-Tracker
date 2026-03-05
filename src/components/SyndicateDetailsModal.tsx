@@ -268,8 +268,8 @@ function RankUpTransitionsList(props: {
     if (rows.length === 0) {
         return (
             <EmptyState
-                title="No rank-up data yet"
-                body="Populate src/domain/catalog/syndicates/syndicateVendorCatalog.ts and this will render automatically."
+                title="Rank-up costs not yet added"
+                body="Rank-up sacrifice data hasn't been filled in for this syndicate yet. Check back after a catalog update."
             />
         );
     }
@@ -285,8 +285,8 @@ function RankUpTransitionsList(props: {
         const only = byRank.get(ranks[0])!;
         return (
             <EmptyState
-                title="Not enough rank rows to show transitions"
-                body={`Only Rank ${only.rank} exists in the catalog. Add adjacent ranks so we can show "Rank A → Rank B" transitions.`}
+                title="Rank-up data incomplete"
+                body={`Only Rank ${only.rank} has been entered so far. Additional rank data is needed to display the full transition list.`}
             />
         );
     }
@@ -355,8 +355,7 @@ function RankUpTransitionsList(props: {
 
                         {!from ? (
                             <div className="mt-2 text-xs text-amber-300/90">
-                                Note: Rank {fromRank} row is not present in the catalog yet. This transition is shown using the costs stored on Rank{" "}
-                                {toRank}, but the previous-rank metadata is missing.
+                                Note: Rank {fromRank} data is incomplete — costs shown here are what was recorded for Rank {toRank}.
                             </div>
                         ) : null}
 
@@ -423,7 +422,7 @@ function RankUpTransitionsList(props: {
                                 </div>
                             ) : (
                                 <div className="text-xs text-amber-300/90">
-                                    Rank-up data not populated for this transition. (Do not assume this is free.)
+                                    Costs not yet recorded for this rank-up. Check the Warframe wiki for current requirements.
                                 </div>
                             )}
                         </div>
@@ -808,7 +807,7 @@ export default function SyndicateDetailsModal(props: {
                         <div className="min-w-0">
                             <div className="text-lg font-semibold text-slate-100 truncate">{props.title}</div>
                             <div className="mt-1 text-xs text-slate-400">
-                                {entry ? "Data is rendered from the syndicate vendor catalog." : "No catalog entry found for this syndicate yet."}
+                                {entry ? "Mark offerings as owned to track your collection and see what you still need." : "No data available for this syndicate yet."}
                             </div>
                         </div>
 
@@ -923,14 +922,14 @@ export default function SyndicateDetailsModal(props: {
                                                     </div>
                                                 ) : (
                                                     <EmptyState
-                                                        title="No rank-up data"
-                                                        body="This syndicate does not have rank-up sacrifices, or the catalog entry is not populated."
+                                                        title="No rank-up sacrifices"
+                                                        body="This syndicate has no rank-up sacrifice requirements, or they haven't been recorded yet."
                                                     />
                                                 )}
                                             </div>
                                         </>
                                     ) : (
-                                        <EmptyState title="Missing catalog entry" body="Add a matching entry in syndicateVendorCatalog.ts." />
+                                        <EmptyState title="No data yet" body="Rank and offering data for this syndicate hasn't been added yet." />
                                     )
                                 ) : entry ? (
                                     offerings.length ? (
@@ -953,12 +952,12 @@ export default function SyndicateDetailsModal(props: {
                                         </div>
                                     ) : (
                                         <EmptyState
-                                            title="No offerings data yet"
-                                            body="Populate src/domain/catalog/syndicates/syndicateVendorCatalog.ts and this will render automatically."
+                                            title="No offerings recorded yet"
+                                            body="Vendor offerings for this syndicate haven't been added yet. Check back after a catalog update."
                                         />
                                     )
                                 ) : (
-                                    <EmptyState title="Missing catalog entry" body="Add a matching entry in syndicateVendorCatalog.ts." />
+                                    <EmptyState title="No data yet" body="Offering data for this syndicate hasn't been added yet." />
                                 )}
                             </div>
                         </div>
