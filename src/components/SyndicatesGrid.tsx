@@ -41,6 +41,8 @@ type CanonicalSyndicate = {
 
     relationship?: Relationship;
     isFaction?: boolean;
+    /** Maximum achievable rank. Defaults to 5 if not set. */
+    maxRank?: number;
 };
 
 const TABS: Array<{ key: TabKey; label: string }> = [
@@ -237,7 +239,8 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         detail: "Loid and Otak, the Necralisk’s keepers. Earn standing with Orokin Matrices to unlock Necramech parts and mods.",
         iconFile: "120px-NecraloidIcon.png",
         bg: "#333334",
-        fg: "#BA9E5E"
+        fg: "#BA9E5E",
+        maxRank: 3
     },
 
     // Chrysalith
@@ -546,8 +549,8 @@ function formatNet(net: number): string {
 
 // ===== Estimate standing to reach max rank =====
 
-function estimateStandingToMaxRank(rank: number, standing: number): number {
-    if (rank >= 5) return 0;
+function estimateStandingToMaxRank(rank: number, standing: number, maxRank = 5): number {
+    if (rank >= maxRank) return 0;
 
     let total = 0;
 
@@ -555,13 +558,24 @@ function estimateStandingToMaxRank(rank: number, standing: number): number {
     const currentRange = rankStandingRange(rank);
     total += currentRange.max - standing;
 
-    // Full bands for each subsequent rank up to (and including) rank 4 → rank up to 5
-    for (let r = rank + 1; r <= 4; r++) {
+    // Full bands for each subsequent rank up to (but not including) maxRank
+    for (let r = rank + 1; r < maxRank; r++) {
         const rng = rankStandingRange(r);
         total += rng.max - rng.min;
     }
 
     return Math.max(0, total);
+}
+
+// ===== Nightcap: rank derived from cumulative mushrooms analyzed =====
+
+function nightcapRankFromMushrooms(mushrooms: number): number {
+    if (mushrooms >= 16) return 5;
+    if (mushrooms >= 12) return 4;
+    if (mushrooms >= 6) return 3;
+    if (mushrooms >= 2) return 2;
+    if (mushrooms >= 1) return 1;
+    return 0;
 }
 
 // ===== Conflict simulation: ranked combinations =====
@@ -802,11 +816,16 @@ export default function SyndicatesGrid() {
     function commitStanding(canon: CanonicalSyndicate, range: { min: number; max: number } | null, raw: string) {
         const parsed = parseIntSafeSigned(raw);
         const clamped = range ? clamp(parsed, range.min, range.max) : Math.max(0, parsed);
-        upsertSyndicate({
+        const patch: Parameters<typeof upsertSyndicate>[0] = {
             id: canon.id,
             name: canon.name,
             standing: clamped
-        });
+        };
+        // Nightcap rank is auto-derived from mushrooms analyzed
+        if (canon.id === SY.NIGHTCAP) {
+            patch.rank = nightcapRankFromMushrooms(clamped);
+        }
+        upsertSyndicate(patch);
 
         setStandingDraftById((prev) => {
             const next = { ...prev };
@@ -1071,7 +1090,14 @@ export default function SyndicatesGrid() {
                     const overlay = overlayById.get(canon.id);
 
                     const rawRank = overlay && typeof overlay.rank === "number" ? overlay.rank : 0;
-                    const rank = canon.isFaction ? clamp(rawRank, -2, 5) : Math.max(0, rawRank);
+                    const maxRank = canon.maxRank ?? 5;
+                    const rank = canon.isFaction
+                        ? clamp(rawRank, -2, 5)
+                        : canon.id === SY.NIGHTCAP
+                            ? nightcapRankFromMushrooms(
+                                overlay && typeof overlay.standing === "number" ? clamp(overlay.standing, 0, 16) : 0
+                              )
+                            : clamp(rawRank, 0, maxRank);
 
                     const range = standingRangeForSyndicate(canon, rank);
 
@@ -1111,8 +1137,8 @@ export default function SyndicatesGrid() {
                     const currencyNames = collectCurrencyNames(vendorEntry);
 
                     // Estimate to max rank (all standard standing-based syndicates)
-                    const showEstimate = showCaps && rank < 5;
-                    const standingToMax = showEstimate ? estimateStandingToMaxRank(rank, standing) : 0;
+                    const showEstimate = showCaps && rank < maxRank;
+                    const standingToMax = showEstimate ? estimateStandingToMaxRank(rank, standing, maxRank) : 0;
                     const daysToMax = showEstimate && dailyCapComputed > 0
                         ? Math.ceil(standingToMax / dailyCapComputed)
                         : null;
@@ -1278,25 +1304,33 @@ export default function SyndicatesGrid() {
                                                     <option value="4">4</option>
                                                     <option value="5">5</option>
                                                 </select>
+                                            ) : canon.id === SY.NIGHTCAP ? (
+                                                <div className="text-sm font-mono">{rank}</div>
                                             ) : (
-                                                <input
-                                                    className={inputClass()}
+                                                <select
+                                                    className={selectClass()}
                                                     value={String(rank)}
-                                                    inputMode="numeric"
-                                                    onChange={(e) =>
+                                                    onChange={(e) => {
+                                                        const next = parseIntSafeSigned(e.target.value);
                                                         upsertSyndicate({
                                                             id: canon.id,
                                                             name: canon.name,
-                                                            rank: Math.max(0, parseIntSafeSigned(e.target.value))
-                                                        })
-                                                    }
-                                                />
+                                                            rank: clamp(next, 0, maxRank)
+                                                        });
+                                                    }}
+                                                >
+                                                    {Array.from({ length: maxRank + 1 }, (_, i) => (
+                                                        <option key={i} value={String(i)}>{i}</option>
+                                                    ))}
+                                                </select>
                                             )}
 
                                             {canon.isFaction ? (
                                                 <div className="mt-1 text-[11px] opacity-90">Relay factions support ranks -2..5.</div>
+                                            ) : canon.id === SY.NIGHTCAP ? (
+                                                <div className="mt-1 text-[11px] opacity-90">Auto-derived from mushrooms analyzed.</div>
                                             ) : (
-                                                <div className="mt-1 text-[11px] opacity-90">Non-faction ranks are tracked as 0+.</div>
+                                                <div className="mt-1 text-[11px] opacity-90">Ranks 0–{maxRank}.</div>
                                             )}
                                         </div>
                                     ) : (
@@ -1370,7 +1404,7 @@ export default function SyndicatesGrid() {
                                             {showEstimate ? (
                                                 <div className="rounded-xl border border-white/10 bg-black/10 p-3">
                                                     <div className="text-xs opacity-90 mb-1">Est. to Max Rank</div>
-                                                    {rank >= 5 ? (
+                                                    {rank >= maxRank ? (
                                                         <div className="text-sm font-mono">Max rank</div>
                                                     ) : (
                                                         <>
