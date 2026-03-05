@@ -1110,11 +1110,16 @@ export default function SyndicatesGrid() {
                     // Currency reminder
                     const currencyNames = collectCurrencyNames(vendorEntry);
 
-                    // Estimate to max rank (only for standing-based faction syndicates)
-                    const showEstimate = showCaps && canon.isFaction && rank < 5;
+                    // Estimate to max rank (all standard standing-based syndicates)
+                    const showEstimate = showCaps && rank < 5;
                     const standingToMax = showEstimate ? estimateStandingToMaxRank(rank, standing) : 0;
                     const daysToMax = showEstimate && dailyCapComputed > 0
                         ? Math.ceil(standingToMax / dailyCapComputed)
+                        : null;
+
+                    // Kahl's Garrison: weekly mission progression, max rank 5
+                    const kahlWeeksToMax = canon.id === SY.KAHLS_GARRISON && rank < 5
+                        ? 5 - rank
                         : null;
 
                     return (
@@ -1377,6 +1382,13 @@ export default function SyndicatesGrid() {
                                                             ) : null}
                                                         </>
                                                     )}
+                                                </div>
+                                            ) : kahlWeeksToMax !== null ? (
+                                                <div className="rounded-xl border border-white/10 bg-black/10 p-3">
+                                                    <div className="text-xs opacity-90 mb-1">Est. to Max Rank</div>
+                                                    <div className="text-sm font-mono">
+                                                        {kahlWeeksToMax} week{kahlWeeksToMax !== 1 ? "s" : ""} of weekly missions
+                                                    </div>
                                                 </div>
                                             ) : null}
                                         </div>
