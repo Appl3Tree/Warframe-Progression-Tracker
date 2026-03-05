@@ -1,5 +1,6 @@
 // ===== FILE: src/pages/Goals.tsx =====
 import React, { useEffect, useMemo, useRef, useState, memo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
@@ -1105,7 +1106,7 @@ const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
                 </div>
             )}
 
-            {isTreeOpen && (
+            {isTreeOpen && createPortal(
                 <TreeModal
                     isOpen={true}
                     title={name}
@@ -1116,7 +1117,8 @@ const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
                     inventoryCounts={{} as Record<string, number>}
                     expandedEdges={expandedEdges}
                     onToggleEdge={toggleEdge}
-                />
+                />,
+                document.body
             )}
         </div>
     );
