@@ -327,7 +327,7 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         name: "Nightcap",
         tab: "other",
         model: "no-standing",
-        detail: "A Solaris hidden in Fortuna's secret Airlock. Rank up by analyzing mushrooms found in the Deepmines — no daily Standing cap. Requires Old Mate rank with Solaris United to fully unlock.",
+        detail: "A Solaris hidden in Fortuna's secret Airlock. Rank up by analyzing mushrooms found in the Deepmines — no daily Standing cap.",
         bg: "#1f2430",
         fg: "#cbd5e1"
     }
