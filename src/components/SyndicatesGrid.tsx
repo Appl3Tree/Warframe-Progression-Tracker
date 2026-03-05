@@ -844,19 +844,94 @@ export default function SyndicatesGrid() {
                             <div className="flex items-center justify-between gap-3">
                                 <div>
                                     <div className="text-sm font-semibold text-slate-100">Primary Pledges</div>
-                                    <div className="text-xs text-slate-400 mt-0.5">Toggle up to 3 pledges to simulate standing rates. ({pledgedCount}/3)</div>
+                                    <div className="text-xs text-slate-400 mt-0.5">Pledge to a syndicate to view the simulator. Toggle up to 3. ({pledgedCount}/3)</div>
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                    <button
-                                        className="rounded-full border border-slate-700 bg-slate-950/30 px-3 py-1 text-xs text-slate-200 hover:bg-slate-900"
-                                        type="button"
-                                        onClick={() => setSimOpen((v) => !v)}
-                                        aria-expanded={simOpen}
-                                        title="Show ranked pledge combinations"
-                                    >
-                                        {simOpen ? "Hide Simulator" : "Simulator"}
-                                    </button>
+                                    <div className="relative">
+                                        <button
+                                            className="rounded-full border border-slate-700 bg-slate-950/30 px-3 py-1 text-xs text-slate-200 hover:bg-slate-900"
+                                            type="button"
+                                            onClick={() => setSimOpen((v) => !v)}
+                                            aria-expanded={simOpen}
+                                            title="Show recommended pledge combinations"
+                                        >
+                                            Hint
+                                        </button>
+
+                                        {simOpen ? (
+                                            <div className="absolute right-0 mt-2 w-[400px] z-30 rounded-xl border border-slate-800 bg-slate-950/95 p-3 shadow-xl">
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div>
+                                                        <div className="text-xs font-semibold text-slate-100">Recommended combinations</div>
+                                                        <div className="mt-1 text-[11px] text-slate-400">
+                                                            Ranked by: most positives → fewest negatives → highest net. Apply to set pledges.
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        className="shrink-0 rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
+                                                        type="button"
+                                                        onClick={() => setSimOpen(false)}
+                                                    >
+                                                        Close
+                                                    </button>
+                                                </div>
+
+                                                <div className="mt-3 flex flex-col gap-2">
+                                                    {topRecommendations.map((combo, idx) => {
+                                                        const currentSet = new Set(currentPledgedIds);
+                                                        const isActive =
+                                                            combo.ids.length === currentPledgedIds.length &&
+                                                            combo.ids.every((id) => currentSet.has(id));
+
+                                                        return (
+                                                            <div
+                                                                key={`combo-${idx}`}
+                                                                className={[
+                                                                    "flex items-center justify-between gap-2 rounded-lg border p-2",
+                                                                    isActive
+                                                                        ? "border-emerald-700/50 bg-emerald-950/20"
+                                                                        : "border-slate-800 bg-slate-950/40"
+                                                                ].join(" ")}
+                                                            >
+                                                                <div className="min-w-0 flex flex-wrap gap-1.5">
+                                                                    {combo.ids.map((id) => (
+                                                                        <span
+                                                                            key={id}
+                                                                            className="inline-flex items-center rounded-full border border-slate-700 bg-slate-950/30 px-2 py-0.5 text-[11px] text-slate-200"
+                                                                        >
+                                                                            {findCanonNameById(id)}
+                                                                        </span>
+                                                                    ))}
+                                                                    <span className="text-[10px] text-slate-500 self-center">
+                                                                        {combo.posCount}✓{combo.negCount > 0 ? ` ${combo.negCount}✗` : ""}
+                                                                    </span>
+                                                                </div>
+
+                                                                {isActive ? (
+                                                                    <span className="shrink-0 rounded-lg border border-emerald-700/50 bg-emerald-950/30 px-2.5 py-1 text-[11px] text-emerald-200">
+                                                                        Active
+                                                                    </span>
+                                                                ) : (
+                                                                    <button
+                                                                        className="shrink-0 rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
+                                                                        type="button"
+                                                                        onClick={() => { applyCombo(combo.ids); setSimOpen(false); }}
+                                                                    >
+                                                                        Apply
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+
+                                                <div className="mt-2 text-[11px] text-slate-500">
+                                                    Top {topRecommendations.length} of 42 combinations. Score: +1 pledged, +0.5 allied, −0.5 opposed, −1 enemy.
+                                                </div>
+                                            </div>
+                                        ) : null}
+                                    </div>
 
                                     <button
                                         className="rounded-full border border-slate-700 bg-slate-950/30 px-3 py-1 text-xs text-slate-200 hover:bg-slate-900"
@@ -916,136 +991,73 @@ export default function SyndicatesGrid() {
                                 })}
                             </div>
 
-                            {/* Live simulation of current pledges */}
+                            {/* Simulation appears only after the player selects at least one pledge */}
                             {currentPledgedIds.length > 0 ? (
                                 <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-3">
-                                    {(["pos", "zero", "neg"] as const).map((tone) => {
-                                        const bucket = netBuckets[tone];
-                                        const label = tone === "pos" ? "Positives" : tone === "zero" ? "Neutrals" : "Negatives";
-                                        const labelCls = tone === "pos" ? "text-emerald-200" : tone === "zero" ? "text-amber-200" : "text-rose-200";
-                                        return (
-                                            <div key={tone} className="rounded-xl border border-slate-800 bg-slate-950/20 p-3">
-                                                <div className={`text-xs font-semibold ${labelCls}`}>{label}</div>
-                                                <div className="mt-2 flex flex-wrap gap-2">
-                                                    {bucket.length ? bucket.map((r) => (
-                                                        <span
-                                                            key={`${tone}-${r.id}`}
-                                                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${netChipClass(tone)}`}
-                                                            title={r.id}
-                                                        >
-                                                            {r.name}: <span className="ml-1 font-mono">{formatNet(r.net)}</span>
-                                                        </span>
-                                                    )) : (
-                                                        <span className="text-[11px] text-slate-500">None</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            ) : null}
-
-                            {/* Conflict simulator: ranked combinations panel */}
-                            {simOpen ? (
-                                <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/20 p-3">
-                                    <div className="text-xs font-semibold text-slate-100 mb-1">Conflict Simulator</div>
-                                    <div className="text-[11px] text-slate-400 mb-3">
-                                        All pledge combinations scored by: most positives → fewest negatives → highest net rate.
-                                        Click Apply to set those pledges.
+                                    <div className="rounded-xl border border-slate-800 bg-slate-950/20 p-3">
+                                        <div className="text-xs font-semibold text-emerald-200">Positives</div>
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {netBuckets.pos.length ? (
+                                                netBuckets.pos.map((r) => (
+                                                    <span
+                                                        key={`pos-${r.id}`}
+                                                        className={[
+                                                            "inline-flex items-center rounded-full border px-2 py-0.5 text-xs",
+                                                            netChipClass("pos")
+                                                        ].join(" ")}
+                                                        title={r.id}
+                                                    >
+                                                        {r.name}: <span className="ml-1 font-mono">{formatNet(r.net)}</span>
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-[11px] text-slate-500">None</span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col gap-2">
-                                        {topRecommendations.map((combo, idx) => {
-                                            // Changes needed from current pledges
-                                            const currentSet = new Set(currentPledgedIds);
-                                            const comboSet = new Set(combo.ids);
-                                            const toAdd = combo.ids.filter((id) => !currentSet.has(id));
-                                            const toRemove = currentPledgedIds.filter((id) => !comboSet.has(id));
 
-                                            const isActive =
-                                                combo.ids.length === currentPledgedIds.length &&
-                                                combo.ids.every((id) => currentSet.has(id));
-
-                                            return (
-                                                <div
-                                                    key={`combo-${idx}`}
-                                                    className={[
-                                                        "rounded-lg border p-2",
-                                                        isActive
-                                                            ? "border-emerald-700/50 bg-emerald-950/20"
-                                                            : "border-slate-800 bg-slate-950/40"
-                                                    ].join(" ")}
-                                                >
-                                                    <div className="flex items-start justify-between gap-2">
-                                                        <div className="min-w-0 flex-1">
-                                                            {/* Pledge names */}
-                                                            <div className="flex flex-wrap gap-1.5 mb-2">
-                                                                {combo.ids.length === 0 ? (
-                                                                    <span className="text-[11px] text-slate-500">No pledges</span>
-                                                                ) : combo.ids.map((id) => (
-                                                                    <span
-                                                                        key={id}
-                                                                        className="inline-flex items-center rounded-full border border-slate-600 bg-slate-900/50 px-2 py-0.5 text-[11px] text-slate-200"
-                                                                    >
-                                                                        {findCanonNameById(id)}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-
-                                                            {/* Net rates for all 6 */}
-                                                            <div className="flex flex-wrap gap-1.5">
-                                                                {primaryCanon.map((c) => {
-                                                                    const net = combo.nets[c.id] ?? 0;
-                                                                    const tone = netTone(net);
-                                                                    return (
-                                                                        <span
-                                                                            key={c.id}
-                                                                            className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] ${netChipClass(tone)}`}
-                                                                        >
-                                                                            {c.name.split(" ").pop()}: <span className="ml-0.5 font-mono">{formatNet(net)}</span>
-                                                                        </span>
-                                                                    );
-                                                                })}
-                                                            </div>
-
-                                                            {/* Changes needed */}
-                                                            {!isActive && (toAdd.length > 0 || toRemove.length > 0) ? (
-                                                                <div className="mt-1.5 text-[10px] text-slate-400">
-                                                                    {toAdd.length > 0 && (
-                                                                        <span className="text-emerald-300">+ {toAdd.map(findCanonNameById).join(", ")}</span>
-                                                                    )}
-                                                                    {toAdd.length > 0 && toRemove.length > 0 && <span> · </span>}
-                                                                    {toRemove.length > 0 && (
-                                                                        <span className="text-rose-300">− {toRemove.map(findCanonNameById).join(", ")}</span>
-                                                                    )}
-                                                                </div>
-                                                            ) : null}
-                                                        </div>
-
-                                                        <div className="shrink-0 flex flex-col items-end gap-1.5">
-                                                            <div className="text-[10px] text-slate-400 font-mono">
-                                                                {combo.posCount}✓ {combo.negCount > 0 ? `${combo.negCount}✗` : ""}
-                                                            </div>
-                                                            {isActive ? (
-                                                                <span className="rounded-lg border border-emerald-700/50 bg-emerald-950/30 px-2.5 py-1 text-[11px] text-emerald-200">
-                                                                    Active
-                                                                </span>
-                                                            ) : (
-                                                                <button
-                                                                    className="rounded-lg border border-slate-700 bg-slate-950/30 px-2.5 py-1 text-[11px] text-slate-200 hover:bg-slate-900"
-                                                                    type="button"
-                                                                    onClick={() => applyCombo(combo.ids)}
-                                                                >
-                                                                    Apply
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
+                                    <div className="rounded-xl border border-slate-800 bg-slate-950/20 p-3">
+                                        <div className="text-xs font-semibold text-amber-200">Neutrals</div>
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {netBuckets.zero.length ? (
+                                                netBuckets.zero.map((r) => (
+                                                    <span
+                                                        key={`zero-${r.id}`}
+                                                        className={[
+                                                            "inline-flex items-center rounded-full border px-2 py-0.5 text-xs",
+                                                            netChipClass("zero")
+                                                        ].join(" ")}
+                                                        title={r.id}
+                                                    >
+                                                        {r.name}: <span className="ml-1 font-mono">{formatNet(r.net)}</span>
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-[11px] text-slate-500">None</span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="mt-2 text-[11px] text-slate-500">
-                                        Showing top {topRecommendations.length} combinations (of 42 total). Score: +1 pledged, +0.5 allied, −0.5 opposed, −1 enemy.
+
+                                    <div className="rounded-xl border border-slate-800 bg-slate-950/20 p-3">
+                                        <div className="text-xs font-semibold text-rose-200">Negatives</div>
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {netBuckets.neg.length ? (
+                                                netBuckets.neg.map((r) => (
+                                                    <span
+                                                        key={`neg-${r.id}`}
+                                                        className={[
+                                                            "inline-flex items-center rounded-full border px-2 py-0.5 text-xs",
+                                                            netChipClass("neg")
+                                                        ].join(" ")}
+                                                        title={r.id}
+                                                    >
+                                                        {r.name}: <span className="ml-1 font-mono">{formatNet(r.net)}</span>
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-[11px] text-slate-500">None</span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ) : null}
