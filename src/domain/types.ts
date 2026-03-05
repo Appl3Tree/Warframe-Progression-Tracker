@@ -27,10 +27,6 @@ export interface DailyTask {
     isDone: boolean;
 }
 
-/**
- * Minimal syndicate state shape. Phase E will replace/extend this with a
- * fully-typed syndicate catalog model.
- */
 export interface SyndicateState {
     id: Id;
     name: string;

@@ -45,10 +45,8 @@ function makeDefaultState(): UserStateV2 {
         },
         ui: {
             activePage: "dashboard",
-            // NOTE: This is intentionally not part of the strict UserStateV2 type yet.
-            // We store it anyway and access via (ui as any) so it persists without a typing migration.
             expandedGoalNodes: {}
-        } as any,
+        },
         prereqs: {
             completed: {}
         },
@@ -148,10 +146,12 @@ function mergeProgressPackIntoState(current: UserStateV2, incoming: any): UserSt
 
     if (incoming.ui) {
         next.ui = {
-            ...(next.ui as any),
-            ...(incoming.ui as any),
-            activePage: (incoming.ui.activePage as any) ?? (next.ui as any).activePage
-        } as any;
+            activePage: (incoming.ui.activePage as PageKey) ?? next.ui.activePage,
+            expandedGoalNodes: {
+                ...next.ui.expandedGoalNodes,
+                ...((incoming.ui as any).expandedGoalNodes as Record<string, boolean> | undefined)
+            }
+        };
     }
 
     if (incoming.prereqs?.completed && typeof incoming.prereqs.completed === "object") {
@@ -201,8 +201,8 @@ function mergeProgressPackIntoState(current: UserStateV2, incoming: any): UserSt
         next.missions = incoming.missions;
     }
 
-    ensureGoalsArray(next as any);
-    ensureUiExpansion(next as any);
+    ensureGoalsArray(next);
+    ensureUiExpansion(next);
 
     return next;
 }
@@ -439,11 +439,15 @@ export interface TrackerStore {
     setGoalQty: (goalId: string, qty: number) => void;
     setGoalNote: (goalId: string, note: string) => void;
     toggleGoalActive: (goalId: string) => void;
+    setGoalComponentCompleted: (goalId: string, componentKey: string, done: boolean) => void;
     clearAllGoals: () => void;
 
     toggleExpandedGoalNode: (nodeId: string) => void;
     setExpandedGoalNode: (nodeId: string, expanded: boolean) => void;
     isExpandedGoalNode: (nodeId: string) => boolean;
+
+    setNodeCompleted: (starChartNodeId: string, completed: boolean) => void;
+    isNodeCompleted: (starChartNodeId: string) => boolean;
 }
 
 const PERSIST_KEY = "wf_tracker_state_v3";
@@ -455,7 +459,7 @@ export const useTrackerStore = create<TrackerStore>()(
 
             setActivePage: (page) => {
                 set((s) => {
-                    (s.state.ui as any).activePage = page;
+                    s.state.ui.activePage = page;
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
@@ -562,8 +566,8 @@ export const useTrackerStore = create<TrackerStore>()(
                         s.state.mastery = parsed.mastery;
                         s.state.missions = parsed.missions;
 
-                        ensureGoalsArray(s.state as any);
-                        ensureUiExpansion(s.state as any);
+                        ensureGoalsArray(s.state);
+                        ensureUiExpansion(s.state);
 
                         s.state.meta.updatedAtIso = nowIso();
                     });
@@ -714,8 +718,8 @@ export const useTrackerStore = create<TrackerStore>()(
 
                     set((s) => {
                         s.state = mergeProgressPackIntoState(s.state, ok.data);
-                        ensureGoalsArray(s.state as any);
-                        ensureUiExpansion(s.state as any);
+                        ensureGoalsArray(s.state);
+                        ensureUiExpansion(s.state);
                     });
 
                     return { ok: true };
@@ -798,8 +802,8 @@ export const useTrackerStore = create<TrackerStore>()(
                 const q = Number.isFinite(Number(qty)) ? Math.max(1, Math.floor(Number(qty))) : 1;
 
                 set((s) => {
-                    ensureGoalsArray(s.state as any);
-                    ensureUiExpansion(s.state as any);
+                    ensureGoalsArray(s.state);
+                    ensureUiExpansion(s.state);
 
                     const existing = s.state.goals.find((g: any) => g.type === "item" && g.catalogId === cid);
                     if (existing) {
@@ -825,8 +829,8 @@ export const useTrackerStore = create<TrackerStore>()(
 
             removeGoal: (goalId) => {
                 set((s) => {
-                    ensureGoalsArray(s.state as any);
-                    ensureUiExpansion(s.state as any);
+                    ensureGoalsArray(s.state);
+                    ensureUiExpansion(s.state);
                     s.state.goals = s.state.goals.filter((g: any) => g.id !== goalId);
                     s.state.meta.updatedAtIso = nowIso();
                 });
@@ -835,8 +839,8 @@ export const useTrackerStore = create<TrackerStore>()(
             setGoalQty: (goalId, qty) => {
                 const q = Number.isFinite(Number(qty)) ? Math.max(1, Math.floor(Number(qty))) : 1;
                 set((s) => {
-                    ensureGoalsArray(s.state as any);
-                    ensureUiExpansion(s.state as any);
+                    ensureGoalsArray(s.state);
+                    ensureUiExpansion(s.state);
                     const g = s.state.goals.find((x: any) => x.id === goalId);
                     if (!g) return;
                     g.qty = q;
@@ -847,8 +851,8 @@ export const useTrackerStore = create<TrackerStore>()(
 
             setGoalNote: (goalId, note) => {
                 set((s) => {
-                    ensureGoalsArray(s.state as any);
-                    ensureUiExpansion(s.state as any);
+                    ensureGoalsArray(s.state);
+                    ensureUiExpansion(s.state);
                     const g = s.state.goals.find((x: any) => x.id === goalId);
                     if (!g) return;
                     g.note = String(note ?? "");
@@ -859,11 +863,25 @@ export const useTrackerStore = create<TrackerStore>()(
 
             toggleGoalActive: (goalId) => {
                 set((s) => {
-                    ensureGoalsArray(s.state as any);
-                    ensureUiExpansion(s.state as any);
+                    ensureGoalsArray(s.state);
+                    ensureUiExpansion(s.state);
                     const g = s.state.goals.find((x: any) => x.id === goalId);
                     if (!g) return;
                     g.isActive = !g.isActive;
+                    g.updatedAtIso = nowIso();
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setGoalComponentCompleted: (goalId, componentKey, done) => {
+                set((s) => {
+                    ensureGoalsArray(s.state);
+                    const g = s.state.goals.find((x: any) => x.id === goalId);
+                    if (!g) return;
+                    if (!g.completedComponents || typeof g.completedComponents !== "object") {
+                        g.completedComponents = {};
+                    }
+                    g.completedComponents[componentKey] = done;
                     g.updatedAtIso = nowIso();
                     s.state.meta.updatedAtIso = nowIso();
                 });
@@ -878,28 +896,47 @@ export const useTrackerStore = create<TrackerStore>()(
 
             toggleExpandedGoalNode: (nodeId) => {
                 set((s) => {
-                    ensureUiExpansion(s.state as any);
-                    const ui: any = s.state.ui as any;
+                    ensureUiExpansion(s.state);
                     const k = String(nodeId);
-                    const cur = Boolean(ui.expandedGoalNodes?.[k]);
-                    ui.expandedGoalNodes[k] = !cur;
+                    const cur = Boolean(s.state.ui.expandedGoalNodes?.[k]);
+                    s.state.ui.expandedGoalNodes[k] = !cur;
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
 
             setExpandedGoalNode: (nodeId, expanded) => {
                 set((s) => {
-                    ensureUiExpansion(s.state as any);
-                    const ui: any = s.state.ui as any;
-                    ui.expandedGoalNodes[String(nodeId)] = Boolean(expanded);
+                    ensureUiExpansion(s.state);
+                    s.state.ui.expandedGoalNodes[String(nodeId)] = Boolean(expanded);
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
 
             isExpandedGoalNode: (nodeId) => {
-                const ui: any = (get().state.ui as any) ?? {};
-                const m: any = ui.expandedGoalNodes ?? {};
+                const m = get().state.ui.expandedGoalNodes ?? {};
                 return Boolean(m[String(nodeId)]);
+            },
+
+            setNodeCompleted: (starChartNodeId, completed) => {
+                set((s) => {
+                    if (!s.state.missions) {
+                        s.state.missions = { completesByTag: {} };
+                    }
+                    if (!s.state.missions.nodeCompleted) {
+                        s.state.missions.nodeCompleted = {};
+                    }
+                    if (completed) {
+                        s.state.missions.nodeCompleted[starChartNodeId] = true;
+                    } else {
+                        delete s.state.missions.nodeCompleted[starChartNodeId];
+                    }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            isNodeCompleted: (starChartNodeId) => {
+                const nc = get().state.missions?.nodeCompleted;
+                return Boolean(nc?.[starChartNodeId]);
             }
         })),
         {

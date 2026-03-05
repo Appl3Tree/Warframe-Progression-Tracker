@@ -253,7 +253,8 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
                 masteryRank: null
             },
             ui: {
-                activePage: "dashboard"
+                activePage: "dashboard",
+                expandedGoalNodes: {}
             },
             prereqs: {
                 completed: {}

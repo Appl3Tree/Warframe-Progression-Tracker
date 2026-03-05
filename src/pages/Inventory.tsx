@@ -3,6 +3,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
 import { useTrackerStore } from "../store/store";
+import { determineItemAvailability, getBlockingReasons } from "../domain/logic/plannerEngine";
+import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
+import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
+import { getItemRequirements } from "../catalog/items/itemRequirements";
 
 type PrimaryTab =
     | "all"
@@ -627,9 +631,15 @@ type VirtualWindow = {
     scrollTop: number;
 };
 
+// 5.2 Filter mode types
+type OwnershipFilter = "all" | "owned" | "unowned";
+
 export default function Inventory() {
     const counts = useTrackerStore((s) => s.state.inventory.counts) ?? {};
     const setCount = useTrackerStore((s) => s.setCount);
+    const mastered = useTrackerStore((s) => s.state.mastery?.mastered ?? {});
+    const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
+    const masteryRank = useTrackerStore((s) => s.state.player?.masteryRank ?? null);
 
     const goals = useTrackerStore((s) => s.state.goals ?? []);
     const addGoalItem = useTrackerStore((s) => s.addGoalItem);
@@ -649,6 +659,14 @@ export default function Inventory() {
 
     const [query, setQuery] = useState("");
     const [hideZero, setHideZero] = useState(false);
+
+    // 5.2: Additional filter state
+    const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>("all");
+    const [showMasteryAvailable, setShowMasteryAvailable] = useState(false);
+    const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+
+    // 5.3: Item detail panel
+    const [selectedDetailId, setSelectedDetailId] = useState<CatalogId | null>(null);
 
     const [primaryTab, setPrimaryTab] = useState<PrimaryTab>("all");
 
@@ -739,6 +757,9 @@ export default function Inventory() {
         return base;
     }, [counts, query, hideZero]);
 
+    // 5.2: Ownership + availability filter applied after category filtering
+    // (computationally expensive filters run only on already-filtered set)
+
     const weaponTypeOptions = useMemo(() => {
         const set = new Set<string>();
         for (const r of rows) {
@@ -793,13 +814,44 @@ export default function Inventory() {
         });
     }, [rows, primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters]);
 
+    // 5.2: Apply additional filters after category tab filtering
+    const finalFiltered = useMemo(() => {
+        let result = filtered;
+
+        // Ownership filter
+        if (ownershipFilter === "owned") {
+            result = result.filter((r) => safeInt(counts[String(r.id)] ?? 0, 0) > 0);
+        } else if (ownershipFilter === "unowned") {
+            result = result.filter((r) => safeInt(counts[String(r.id)] ?? 0, 0) === 0);
+        }
+
+        // Mastery available: owned but not yet mastered
+        if (showMasteryAvailable) {
+            result = result.filter((r) => {
+                const owned = safeInt(counts[String(r.id)] ?? 0, 0) > 0;
+                const isMastered = mastered[String(r.id)] === true;
+                return owned && !isMastered;
+            });
+        }
+
+        // Available only: at least one acquisition source is accessible
+        if (showAvailableOnly) {
+            result = result.filter((r) => {
+                const avail = determineItemAvailability(r.id, completedPrereqs, masteryRank);
+                return avail === "available" || avail === "partial";
+            });
+        }
+
+        return result;
+    }, [filtered, ownershipFilter, showMasteryAvailable, showAvailableOnly, counts, mastered, completedPrereqs, masteryRank]);
+
     /**
      * Batch update goals for the *currently filtered* item list.
      * This is intentionally a single store transaction to avoid OOM from thousands of renders.
      */
     function setGoalsForFiltered(goalQty: number) {
         const qty = Math.max(0, safeInt(goalQty, 0));
-        const ids = new Set<string>(filtered.map((r) => String(r.id)));
+        const ids = new Set<string>(finalFiltered.map((r) => String(r.id)));
 
         useTrackerStore.setState((st: any) => {
             const nextGoals: any[] = Array.isArray(st?.state?.goals) ? [...st.state.goals] : [];
@@ -890,13 +942,13 @@ export default function Inventory() {
         // Next tick so layout is stable.
         requestAnimationFrame(() => recomputeWindow());
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters, query, hideZero]);
+    }, [primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters, query, hideZero, ownershipFilter, showMasteryAvailable, showAvailableOnly]);
 
     useEffect(() => {
         // Recompute on data length changes.
         requestAnimationFrame(() => recomputeWindow());
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filtered.length]);
+    }, [finalFiltered.length]);
 
     useEffect(() => {
         const onResize = () => recomputeWindow();
@@ -906,8 +958,8 @@ export default function Inventory() {
     }, []);
     // -----------------------------------------------
 
-    const totalHeight = filtered.length * ROW_H;
-    const slice = filtered.slice(vw.start, vw.end);
+    const totalHeight = finalFiltered.length * ROW_H;
+    const slice = finalFiltered.slice(vw.start, vw.end);
     const translateY = vw.start * ROW_H;
 
     return (
@@ -943,9 +995,33 @@ export default function Inventory() {
                     </div>
                 </div>
 
+                {/* 5.2 Additional filters */}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-slate-500">Ownership:</span>
+                    {(["all", "owned", "unowned"] as OwnershipFilter[]).map((f) => (
+                        <PillButton
+                            key={f}
+                            label={f === "all" ? "All" : f === "owned" ? "Owned only" : "Unowned only"}
+                            active={ownershipFilter === f}
+                            onClick={() => setOwnershipFilter(f)}
+                        />
+                    ))}
+                    <span className="ml-2 text-xs text-slate-500">Mastery:</span>
+                    <PillButton
+                        label="Mastery available"
+                        active={showMasteryAvailable}
+                        onClick={() => setShowMasteryAvailable(!showMasteryAvailable)}
+                    />
+                    <PillButton
+                        label="Accessible sources"
+                        active={showAvailableOnly}
+                        onClick={() => setShowAvailableOnly(!showAvailableOnly)}
+                    />
+                </div>
+
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                     <div className="text-xs text-slate-400">
-                        Filtered: <span className="text-slate-200">{filtered.length}</span>
+                        Filtered: <span className="text-slate-200">{finalFiltered.length}</span>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
@@ -1119,15 +1195,22 @@ export default function Inventory() {
                                 {slice.map((r) => {
                                     const goal = goalByCatalogId.get(String(r.id));
                                     const goalTarget = goal ? safeInt(goal.qty ?? 1, 1) : 0;
+                                    const isSelected = selectedDetailId === r.id;
 
                                     return (
                                         <div
                                             key={String(r.id)}
-                                            className="grid grid-cols-[1fr_140px_170px] border-b border-slate-800/70 items-start"
+                                            className={["grid grid-cols-[1fr_140px_170px] border-b border-slate-800/70 items-start", isSelected ? "bg-slate-900/60" : ""].join(" ")}
                                             style={{ height: ROW_H }}
                                         >
                                             <div className="px-3 py-2 text-slate-100 flex items-center">
-                                                {r.label}
+                                                <button
+                                                    className="text-left hover:text-cyan-300 transition-colors truncate max-w-full"
+                                                    onClick={() => setSelectedDetailId(isSelected ? null : r.id)}
+                                                    title="Click for details"
+                                                >
+                                                    {r.label}
+                                                </button>
                                             </div>
 
                                             <div className="px-3 py-2">
@@ -1185,12 +1268,128 @@ export default function Inventory() {
                             </div>
                         </div>
 
-                        {filtered.length === 0 && (
+                        {finalFiltered.length === 0 && (
                             <div className="px-3 py-3 text-sm text-slate-400">No matches.</div>
                         )}
                     </div>
                 </div>
             </Section>
+
+            {/* 5.3 Item Detail Panel */}
+            {selectedDetailId && (() => {
+                const rec: any = FULL_CATALOG.recordsById[selectedDetailId];
+                const name = rec?.displayName ?? String(selectedDetailId);
+                const categories: string[] = Array.isArray(rec?.categories) ? rec.categories : [];
+                const acq = getAcquisitionByCatalogId(selectedDetailId);
+                const sources: string[] = Array.isArray(acq?.sources) ? (acq.sources as string[]) : [];
+                const recipe = getItemRequirements(selectedDetailId) ?? [];
+                const avail = determineItemAvailability(selectedDetailId, completedPrereqs, masteryRank);
+                const blockingReasons = avail !== "available" ? getBlockingReasons(selectedDetailId, completedPrereqs, masteryRank) : [];
+                const masteryReq = typeof (rec?.raw as any)?.masteryReq === "number" ? (rec.raw as any).masteryReq : null;
+                const isOwned = safeInt(counts[String(selectedDetailId)] ?? 0, 0) > 0;
+                const isMastered = mastered[String(selectedDetailId)] === true;
+
+                const availColor = avail === "available" ? "text-emerald-400" : avail === "partial" ? "text-amber-400" : "text-rose-400";
+                const availLabel = avail === "available" ? "Available" : avail === "partial" ? "Partial Access" : "Blocked";
+
+                return (
+                    <Section title={`Item Detail: ${name}`}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">Status</div>
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className={["text-sm font-semibold", availColor].join(" ")}>{availLabel}</span>
+                                        {isOwned && <span className="text-xs rounded-full border border-emerald-700 bg-emerald-950/30 px-2 py-0.5 text-emerald-300">Owned</span>}
+                                        {isMastered && <span className="text-xs rounded-full border border-cyan-700 bg-cyan-950/30 px-2 py-0.5 text-cyan-300">Mastered</span>}
+                                    </div>
+                                </div>
+
+                                {masteryReq !== null && (
+                                    <div>
+                                        <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">Mastery Required</div>
+                                        <div className="text-sm text-slate-200">MR {masteryReq}</div>
+                                    </div>
+                                )}
+
+                                {categories.length > 0 && (
+                                    <div>
+                                        <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">Categories</div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {categories.slice(0, 8).map((c) => (
+                                                <span key={c} className="text-xs rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-slate-300">{c}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {blockingReasons.length > 0 && (
+                                    <div>
+                                        <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">Blocking Reasons</div>
+                                        <ul className="space-y-1">
+                                            {blockingReasons.map((r, i) => (
+                                                <li key={i} className="text-xs text-rose-300 flex items-start gap-1">
+                                                    <span className="mt-0.5 shrink-0">—</span>
+                                                    <span>{r}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="space-y-4">
+                                {sources.length > 0 && (
+                                    <div>
+                                        <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">Acquisition Sources ({sources.length})</div>
+                                        <ul className="space-y-1 max-h-40 overflow-auto">
+                                            {sources.slice(0, 20).map((s) => {
+                                                const label = SOURCE_INDEX[s as any]?.label ?? s;
+                                                return (
+                                                    <li key={s} className="text-xs text-slate-300">
+                                                        {label}
+                                                    </li>
+                                                );
+                                            })}
+                                            {sources.length > 20 && <li className="text-xs text-slate-500">+{sources.length - 20} more</li>}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {recipe.length > 0 && (
+                                    <div>
+                                        <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">Recipe Components ({recipe.length})</div>
+                                        <ul className="space-y-1 max-h-40 overflow-auto">
+                                            {recipe.map((comp) => {
+                                                const compRec: any = FULL_CATALOG.recordsById[comp.catalogId];
+                                                const compName = compRec?.displayName ?? String(comp.catalogId);
+                                                return (
+                                                    <li key={String(comp.catalogId)} className="text-xs text-slate-300">
+                                                        {comp.count}x {compName}
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {sources.length === 0 && recipe.length === 0 && (
+                                    <div className="text-sm text-slate-500">No acquisition data found for this item.</div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="mt-4 flex justify-end">
+                            <button
+                                className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-900"
+                                onClick={() => setSelectedDetailId(null)}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </Section>
+                );
+            })()}
         </div>
     );
 }
