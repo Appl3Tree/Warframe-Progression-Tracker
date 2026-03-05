@@ -1272,7 +1272,7 @@ export default function Goals() {
 
             <Section
                 title="Goals"
-                subtitle="This page is a read-only view of what you are farming for. Add/remove Personal Goals from Inventory; Requirements Goals come from your Syndicate next-rank steps."
+                subtitle="Track items you're farming and see what your next syndicate rank-ups require. Add personal goals from the Inventory page."
             >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2">
