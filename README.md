@@ -73,10 +73,13 @@ Starts the Vite dev server with hot reload at `http://localhost:5173`.
 
 | Feature | Status | Notes |
 |---|---|---|
-| Interactive map with planet navigation | ⏳ Planned | |
-| Node-level completion tracking | ⏳ Planned | |
-| Junction requirements and unlock visualization | ⏳ Planned | |
-| Node/junction impact preview | ⏳ Planned | |
+| Interactive SVG map with pan/zoom | ✅ Done | Drag to pan, wheel to zoom, click planet to zoom in; full-screen modal via "Open Map" |
+| Planet disk expansion on zoom | ✅ Done | Planet disks expand as you zoom in, revealing mission nodes; neighbor-distance capping prevents overlap |
+| Node-level completion tracking | ✅ Done | Checkbox per node stored in `store.state.missions.nodeCompleted`; persisted in localStorage |
+| Drop panel per node | ✅ Done | Tabbed (Drops / Mission Rewards / Caches); exclusive item assignment per tab; item dedup by display name |
+| Junction nodes with prereq inspector | ✅ Done | 17 junctions defined (full chain Mercury→Eris + Lua + Kuva Fortress); prereqs shown in the panel |
+| Junction prereq chain | ✅ Done | `prereqIds.ts` + `prereqRegistry.ts` model each junction's quest and prior-junction requirements |
+| Node/junction impact preview | ⏳ Planned | "If I complete this junction, what unlocks?" not yet surfaced |
 
 ### Item Progression
 
