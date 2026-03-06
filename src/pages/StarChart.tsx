@@ -349,7 +349,7 @@ type NodeGroup = {
 
 function baseKeyFromNode(n: StarChartNode): string {
     const id = String(n.id);
-    const stripId = id.replace(/\-\(caches\)$/i, "").replace(/\-\(extra\)$/i, "");
+    const stripId = id.replace(/-(caches)$/i, "").replace(/-(extra)$/i, "");
 
     const nm = String(n.name ?? "");
     const stripName = nm
@@ -2194,6 +2194,7 @@ export default function StarChart() {
         if (allowed.size === 0) return;
 
         if (!allowed.has(selectedTab)) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setSelectedTab(tabsForPanel[0]?.kind ?? "base");
         }
     }, [selectedGroupKey, tabsForPanel, selectedTab]);

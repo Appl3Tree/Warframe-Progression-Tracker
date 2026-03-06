@@ -620,17 +620,20 @@ export default function SyndicateDetailsModal(props: {
     const [rankChecklist, setRankChecklist] = useState<ChecklistMap>({});
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (props.open) setTab(props.initialTab);
     }, [props.open, props.initialTab]);
 
     // Reset controls when opening, applying any open-context props
     useEffect(() => {
         if (!props.open) return;
+        /* eslint-disable react-hooks/set-state-in-effect */
         setQuery(props.initialQuery ?? "");
         setMaxRank(props.initialMaxRank !== undefined ? props.initialMaxRank : null);
         setOwnedFilter(props.initialOwnedFilter ?? "all");
         setSortKey(props.initialSortKey ?? "rankAsc");
         setSelectedVendorId(props.initialVendorId ?? "all");
+        /* eslint-enable react-hooks/set-state-in-effect */
     }, [props.open, syndicateId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // ESC close
@@ -648,6 +651,7 @@ export default function SyndicateDetailsModal(props: {
     // Load owned map for this syndicate on open / id change
     useEffect(() => {
         if (!props.open) return;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setOwned(readOwnedMap(syndicateId));
     }, [props.open, syndicateId]);
 
@@ -662,6 +666,7 @@ export default function SyndicateDetailsModal(props: {
     useEffect(() => {
         if (!props.open) return;
         if (!syndicateId) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setRankChecklist({});
             return;
         }
@@ -694,7 +699,7 @@ export default function SyndicateDetailsModal(props: {
     function toggleOwned(key: string) {
         setOwned((prev) => {
             const next = { ...prev };
-            next[key] = !Boolean(next[key]);
+            next[key] = !next[key];
             return next;
         });
     }
@@ -702,7 +707,7 @@ export default function SyndicateDetailsModal(props: {
     function toggleRankChecklist(key: string) {
         setRankChecklist((prev) => {
             const next = { ...prev };
-            next[key] = !Boolean(next[key]);
+            next[key] = !next[key];
             return next;
         });
     }

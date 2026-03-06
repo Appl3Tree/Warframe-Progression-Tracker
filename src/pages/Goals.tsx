@@ -768,11 +768,8 @@ const ChildrenList = memo(function ChildrenList(props: ChildrenListProps) {
         return out;
     }, [parentCatalogId, parentNeed]);
 
-    if (children.length === 0) {
-        return null;
-    }
-
     // Blueprint-skip: if the only child is a blueprint, show that blueprint's ingredients directly
+    // NOTE: must be declared before any early return to satisfy Rules of Hooks
     const maybeFlattened = useMemo(() => {
         if (children.length !== 1) return children;
 
@@ -807,6 +804,10 @@ const ChildrenList = memo(function ChildrenList(props: ChildrenListProps) {
 
         return flattened;
     }, [children]);
+
+    if (children.length === 0) {
+        return null;
+    }
 
     return (
         <ul className="wf-tree-ul wf-tree-ul-children">
