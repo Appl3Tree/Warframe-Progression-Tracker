@@ -187,7 +187,7 @@ export function computeMasteryBacklog(args: {
         if (!name) continue;
 
         const category = getItemCategory(catalogId).toLowerCase();
-        let xp = MASTERY_XP_BY_CATEGORY.default;
+        let xp: number = MASTERY_XP_BY_CATEGORY.default;
 
         if (category.includes("warframe") || category.includes("archwing") || category.includes("necramech")) {
             xp = MASTERY_XP_BY_CATEGORY.warframe;
@@ -227,7 +227,7 @@ export function forecastMrFromGoals(args: {
     let additionalXp = 0;
     for (const cid of goalCatalogIds) {
         const category = getItemCategory(cid).toLowerCase();
-        let xp = MASTERY_XP_BY_CATEGORY.default;
+        let xp: number = MASTERY_XP_BY_CATEGORY.default;
 
         if (category.includes("warframe") || category.includes("archwing") || category.includes("necramech")) {
             xp = MASTERY_XP_BY_CATEGORY.warframe;

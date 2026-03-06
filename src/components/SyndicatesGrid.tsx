@@ -6,7 +6,7 @@ import type { SyndicateState } from "../domain/types";
 import SyndicateDetailsModal from "./SyndicateDetailsModal";
 import { getSyndicateVendorEntry } from "../domain/catalog/syndicates/syndicateVendorCatalog";
 import type { SyndicateVendorEntry } from "../domain/catalog/syndicates/syndicateVendorCatalog";
-import { readOwnedMap, offeringKey, countOwned } from "../domain/syndicates/ownedOfferings";
+import { readOwnedMap, countOwned } from "../domain/syndicates/ownedOfferings";
 
 type TabKey =
     | "all"
