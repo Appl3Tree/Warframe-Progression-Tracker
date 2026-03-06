@@ -226,8 +226,8 @@ function isInMainMap(p: StarChartPlanet): boolean {
 type ViewBox = { x: number; y: number; w: number; h: number };
 
 // World bounds — large enough that expanded planet disks never clip at the edges.
-const WORLD_MIN = -100;
-const WORLD_MAX = 200;
+const WORLD_MIN = -160;
+const WORLD_MAX = 260;
 
 // Kuva Fortress completes its route every ~50 hours.
 const KUVA_PERIOD_MS = 50 * 3600 * 1000;
