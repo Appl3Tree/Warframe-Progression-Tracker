@@ -30,8 +30,23 @@ export const PR = {
     // -----------------------------
     // Star Chart junction gates (modeled as prereqs; user marks as completed)
     // -----------------------------
+    JUNCTION_MERCURY_VENUS: "junction_mercury_venus",
+    JUNCTION_VENUS_EARTH: "junction_venus_earth",
     JUNCTION_EARTH_MARS: "junction_earth_mars",
+    JUNCTION_MARS_PHOBOS: "junction_mars_phobos",
+    JUNCTION_MARS_CERES: "junction_mars_ceres",
+    JUNCTION_MARS_DEIMOS: "junction_mars_deimos",
+    JUNCTION_PHOBOS_CERES: "junction_phobos_ceres",
+    JUNCTION_CERES_JUPITER: "junction_ceres_jupiter",
+    JUNCTION_JUPITER_EUROPA: "junction_jupiter_europa",
+    JUNCTION_EUROPA_SATURN: "junction_europa_saturn",
     JUNCTION_SATURN_URANUS: "junction_saturn_uranus",
+    JUNCTION_URANUS_NEPTUNE: "junction_uranus_neptune",
+    JUNCTION_NEPTUNE_PLUTO: "junction_neptune_pluto",
+    JUNCTION_PLUTO_SEDNA: "junction_pluto_sedna",
+    JUNCTION_SEDNA_ERIS: "junction_sedna_eris",
+    JUNCTION_EARTH_LUA: "junction_earth_lua",
+    JUNCTION_ERIS_KUVA_FORTRESS: "junction_eris_kuva_fortress",
 
     // -----------------------------
     // Hubs / Regions
