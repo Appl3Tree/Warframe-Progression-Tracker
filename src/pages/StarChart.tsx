@@ -163,35 +163,46 @@ function smoothstep01(t: number): number {
 type ManualPos = { x: number; y: number };
 
 const MANUAL_POS: Record<string, ManualPos> = {
-    // Positions calibrated against the in-game star chart screenshot.
-    // Coordinate space: 0–100 before MAP_POS_SCALE is applied.
-    "region:void":    { x: 16, y: 47 },
-    "region:zariman": { x: 15, y: 36 },
+    // Positions matched against the in-game star chart screenshot.
+    // Coordinate space: 0–100 before MAP_POS_SCALE is applied, origin top-left.
 
-    "planet:sedna":  { x: 54, y: 14 },
-    "planet:ceres":  { x: 41, y: 28 },
-    "planet:phobos": { x: 67, y: 25 },
-    "planet:mars":   { x: 64, y: 33 },
-    "planet:eris":   { x: 76, y: 32 },
+    // Far left
+    "region:void":    { x: 14, y: 44 },
+    "region:zariman": { x: 13, y: 29 },
 
-    "planet:jupiter": { x: 34, y: 50 },
-    "planet:europa":  { x: 26, y: 47 },
-    "planet:deimos":  { x: 56, y: 39 },
-    "planet:earth":   { x: 65, y: 51 },
+    // Top cluster (inner system / Grineer territory)
+    "planet:sedna":  { x: 51, y: 10 },
+    "planet:ceres":  { x: 41, y: 26 },
+    "planet:phobos": { x: 65, y: 22 },
+    "planet:mars":   { x: 60, y: 29 },
+    "planet:eris":   { x: 75, y: 29 },
 
-    // Lua kept a bit further from Earth to prevent disk overlap when expanded.
-    "region:lua": { x: 70, y: 48 },
+    // Mid left
+    "planet:europa":  { x: 25, y: 46 },
+    "planet:jupiter": { x: 33, y: 43 },
 
-    "planet:pluto": { x: 86, y: 49 },
+    // Mid centre
+    "planet:deimos":  { x: 55, y: 33 },
 
-    "planet:mercury": { x: 47, y: 55 },
-    "planet:venus":   { x: 57, y: 64 },
-    "planet:neptune": { x: 74, y: 75 },
-    "planet:saturn":  { x: 39, y: 72 },
-    "planet:uranus":  { x: 52, y: 82 },
+    // Mid right — Earth/Lua/Pluto band
+    "planet:earth":   { x: 63, y: 46 },
+    "region:lua":     { x: 68, y: 47 },
+    "planet:pluto":   { x: 83, y: 47 },
 
-    // Kuva Fortress: orbit anchor — see overviewPlanets useMemo for animation.
-    // x/y here are ignored; the orbit is computed from MAP_CENTER instead.
+    // Lower centre
+    "planet:mercury": { x: 45, y: 55 },
+    "planet:venus":   { x: 55, y: 62 },
+
+    // Lower right
+    "planet:neptune": { x: 73, y: 73 },
+
+    // Lower left
+    "planet:saturn":  { x: 37, y: 70 },
+
+    // Bottom centre
+    "planet:uranus":  { x: 50, y: 81 },
+
+    // Kuva Fortress: orbit anchor — x/y ignored, position computed from MAP_CENTER.
     "region:kuva_fortress": { x: 50, y: 50 }
 };
 
@@ -681,6 +692,55 @@ function StarChartMap(props: {
         vbRef.current = vb;
     }, [vb]);
 
+    // Smooth zoom animation: lerp current vb toward a target vb.
+    const zoomAnimTargetRef = useRef<ViewBox | null>(null);
+    const zoomAnimRafRef = useRef<number | null>(null);
+
+    function cancelZoomAnim() {
+        if (zoomAnimRafRef.current !== null) {
+            cancelAnimationFrame(zoomAnimRafRef.current);
+            zoomAnimRafRef.current = null;
+        }
+        zoomAnimTargetRef.current = null;
+    }
+
+    function animateToVb(target: ViewBox) {
+        zoomAnimTargetRef.current = target;
+        if (zoomAnimRafRef.current !== null) return; // loop already running
+
+        const SPRING = 0.011; // exponential decay rate — higher = snappier
+        let lastT = 0;
+
+        const step = (t: number) => {
+            zoomAnimRafRef.current = null;
+            const dt = lastT ? Math.min(t - lastT, 64) : 16;
+            lastT = t;
+
+            const tgt = zoomAnimTargetRef.current;
+            if (!tgt) return;
+
+            const cur = vbRef.current;
+            const alpha = 1 - Math.exp(-SPRING * dt);
+
+            const nx = lerp(cur.x, tgt.x, alpha);
+            const ny = lerp(cur.y, tgt.y, alpha);
+            const nw = lerp(cur.w, tgt.w, alpha);
+            const nh = lerp(cur.h, tgt.h, alpha);
+
+            // Stop animating once within 0.3 world-units of target
+            if (Math.abs(nw - tgt.w) < 0.3 && Math.abs(nx - tgt.x) < 0.3 && Math.abs(ny - tgt.y) < 0.3) {
+                setVb(tgt);
+                zoomAnimTargetRef.current = null;
+                return;
+            }
+
+            setVb(clampViewBox({ x: nx, y: ny, w: nw, h: nh }));
+            zoomAnimRafRef.current = requestAnimationFrame(step);
+        };
+
+        zoomAnimRafRef.current = requestAnimationFrame(step);
+    }
+
     // If the pointer moved enough to be considered a drag, suppress all click handlers for this gesture.
     const suppressClickRef = useRef<boolean>(false);
 
@@ -918,6 +978,7 @@ function StarChartMap(props: {
 
                 didStartDragging = true;
                 suppressClickRef.current = true;
+                cancelZoomAnim();
                 setIsDragging(true);
 
                 try {
@@ -997,10 +1058,11 @@ function StarChartMap(props: {
             const p = svgPointFromClient(e);
             if (!p) return;
 
-            const delta = clamp(e.deltaY, -180, 180);
+            // Cancel any smooth click-zoom so scroll feels immediate.
+            cancelZoomAnim();
 
-            // Slightly gentler per-notch zoom, but the lower minW enables much deeper zoom overall.
-            const factor = delta < 0 ? 1 / 1.10 : 1.10;
+            const delta = clamp(e.deltaY, -180, 180);
+            const factor = delta < 0 ? 1 / 1.18 : 1.18;
 
             setVb((prev) => vbZoomAt(prev, p, factor));
         };
@@ -1330,21 +1392,17 @@ function StarChartMap(props: {
 
         const diskR = expandedRadiusByPlanetId.get(pid) ?? Math.max(c.r, 16);
 
-        // Planet circle nearly fills view.
+        // Planet circle nearly fills view (only zoom in, never out).
         const targetW = clamp(diskR * 2.28, 12, WORLD_MAX - WORLD_MIN + 20);
-        const targetH = targetW;
+        const cur = vbRef.current;
+        const nextW = Math.min(cur.w, targetW);
 
-        setVb((prev) => {
-            const nextW = Math.min(prev.w, targetW);
-            const nextH = Math.min(prev.h, targetH);
-
-            return clampViewBox({
-                x: c.x - nextW / 2,
-                y: c.y - nextH / 2,
-                w: nextW,
-                h: nextH
-            });
-        });
+        animateToVb(clampViewBox({
+            x: c.x - nextW / 2,
+            y: c.y - nextW / 2,
+            w: nextW,
+            h: nextW
+        }));
     }
 
     function onClickPlanet(pid: PlanetId) {
