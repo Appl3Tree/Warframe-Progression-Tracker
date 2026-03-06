@@ -214,13 +214,18 @@ function isInMainMap(p: StarChartPlanet): boolean {
 
 type ViewBox = { x: number; y: number; w: number; h: number };
 
-// World bounds (bigger than 0..100) so expanded planet disks don’t collide near edges.
-const WORLD_MIN = -30;
-const WORLD_MAX = 130;
+// World bounds — large enough that expanded planet disks never clip at the edges.
+const WORLD_MIN = -160;
+const WORLD_MAX = 260;
 
-// Keep the same positional ratios, but push the whole layout outward from center.
-// This is what prevents expanded planet disks from overlapping.
-const MAP_POS_SCALE = 2.10;
+// Kuva Fortress completes its route every ~50 hours.
+const KUVA_PERIOD_MS = 50 * 3600 * 1000;
+const KUVA_RAD_PER_MS = (Math.PI * 2) / KUVA_PERIOD_MS;
+
+// Push the whole layout outward from center so planets are well-separated.
+// At scale 5.0 the closest pair (Earth/Lua) is ~29 world units apart, so zooming
+// into a single planet won't show its neighbour on screen.
+const MAP_POS_SCALE = 5.0;
 const MAP_CENTER = { x: 50, y: 50 };
 
 function mapScalePos(p: { x: number; y: number }): { x: number; y: number } {
@@ -761,7 +766,11 @@ function StarChartMap(props: {
         return arr;
     }, []);
 
-    const [kuvaPhase, setKuvaPhase] = useState<number>(0);
+    // Kuva Fortress: initialise phase from real time so it's at an approximate
+    // position on first render, then animate at the correct 50-hour rate.
+    const [kuvaPhase, setKuvaPhase] = useState<number>(
+        () => ((Date.now() % KUVA_PERIOD_MS) / KUVA_PERIOD_MS) * Math.PI * 2
+    );
     useEffect(() => {
         let raf: number | null = null;
         let last = 0;
@@ -769,14 +778,15 @@ function StarChartMap(props: {
             if (!last) last = t;
             const dt = Math.min(64, t - last);
             last = t;
-            setKuvaPhase((prev) => prev + dt * 0.00012);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setKuvaPhase((prev) => prev + dt * KUVA_RAD_PER_MS);
             raf = requestAnimationFrame(step);
         };
         raf = requestAnimationFrame(step);
         return () => {
             if (raf) cancelAnimationFrame(raf);
         };
-    }, []);
+    }, [KUVA_RAD_PER_MS]);
 
     const overviewPlanets = useMemo((): PlanetLayout[] => {
         const filtered = sortedPlanets.filter((p) => isInMainMap(p));
@@ -794,9 +804,9 @@ function StarChartMap(props: {
             let y0 = manual?.y ?? fy;
 
             if (p.id === "region:kuva_fortress") {
-                // Kuva Fortress orbits the chart centre — radius chosen to sit
-                // between Europa and the Void, matching the in-game behaviour.
-                const orbitR = 32; // MANUAL_POS units → 67 world units from centre
+                // Kuva Fortress orbits the chart centre. After mapScalePos the
+                // effective world-space radius is orbitR * MAP_POS_SCALE.
+                const orbitR = 16; // 16 × 5 = 80 world units — covers Venus/Earth/Pluto arc
                 x0 = MAP_CENTER.x + Math.cos(kuvaPhase) * orbitR;
                 y0 = MAP_CENTER.y + Math.sin(kuvaPhase) * orbitR;
             }
@@ -1062,7 +1072,9 @@ function StarChartMap(props: {
     const expandedRadiusByPlanetId = useMemo(() => {
         const out = new Map<string, number>();
 
-        const desired = clamp(vb.w * 0.32, 14.0, 34.0);
+        // World is now 420 units wide; cap disk radius so isolated planets don't
+        // dominate the screen and close pairs stay comfortably separate.
+        const desired = clamp(vb.w * 0.28, 10.0, 26.0);
 
         for (let i = 0; i < overviewPlanets.length; i++) {
             const a = overviewPlanets[i];
@@ -1364,9 +1376,11 @@ function StarChartMap(props: {
         setSelectedTab("base");
     }
 
-    // Global orbit rings (scaled to the expanded map)
+    // Global orbit rings (world-space radii from MAP_CENTER).
+    // These are decorative concentric rings that frame the planet layout.
+    // Values are in MANUAL_POS units; mapScalePos multiplies by MAP_POS_SCALE.
     const orbitRings = useMemo(() => {
-        const base = [34, 44, 52];
+        const base = [14, 18, 22]; // × 5.0 = 70, 90, 110 world units
         return base.map((r) => r * MAP_POS_SCALE);
     }, []);
 
