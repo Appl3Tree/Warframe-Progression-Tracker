@@ -15,8 +15,28 @@ import { PR } from "../../ids/prereqIds";
  */
 export const STAR_CHART_NODES: StarChartNode[] = [
     // =============================
-    // Junctions (placeholders for now)
+    // Junctions — full Star Chart progression chain
     // =============================
+    {
+        id: "node:junction_mercury_venus",
+        planetId: "planet:mercury",
+        name: "Mercury → Venus Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:venus",
+        prereqIds: []
+    },
+    {
+        id: "node:junction_venus_earth",
+        planetId: "planet:venus",
+        name: "Venus → Earth Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:earth",
+        prereqIds: [PR.JUNCTION_MERCURY_VENUS]
+    },
     {
         id: "node:junction_earth_mars",
         planetId: "planet:earth",
@@ -25,7 +45,77 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         pos: undefined,
         edges: [],
         unlocksPlanetId: "planet:mars",
-        prereqIds: [PR.VORS_PRIZE]
+        prereqIds: [PR.VORS_PRIZE, PR.JUNCTION_VENUS_EARTH]
+    },
+    {
+        id: "node:junction_mars_phobos",
+        planetId: "planet:mars",
+        name: "Mars → Phobos Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:phobos",
+        prereqIds: [PR.JUNCTION_EARTH_MARS]
+    },
+    {
+        id: "node:junction_mars_ceres",
+        planetId: "planet:mars",
+        name: "Mars → Ceres Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:ceres",
+        prereqIds: [PR.JUNCTION_EARTH_MARS]
+    },
+    {
+        id: "node:junction_mars_deimos",
+        planetId: "planet:mars",
+        name: "Mars → Deimos Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:deimos",
+        prereqIds: [PR.JUNCTION_EARTH_MARS, PR.HEART_OF_DEIMOS]
+    },
+    {
+        id: "node:junction_phobos_ceres",
+        planetId: "planet:phobos",
+        name: "Phobos → Ceres Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:ceres",
+        prereqIds: [PR.JUNCTION_MARS_PHOBOS]
+    },
+    {
+        id: "node:junction_ceres_jupiter",
+        planetId: "planet:ceres",
+        name: "Ceres → Jupiter Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:jupiter",
+        prereqIds: [PR.JUNCTION_PHOBOS_CERES]
+    },
+    {
+        id: "node:junction_jupiter_europa",
+        planetId: "planet:jupiter",
+        name: "Jupiter → Europa Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:europa",
+        prereqIds: [PR.JUNCTION_CERES_JUPITER]
+    },
+    {
+        id: "node:junction_europa_saturn",
+        planetId: "planet:europa",
+        name: "Europa → Saturn Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:saturn",
+        prereqIds: [PR.JUNCTION_JUPITER_EUROPA, PR.ARCHWING]
     },
     {
         id: "node:junction_saturn_uranus",
@@ -35,7 +125,67 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         pos: undefined,
         edges: [],
         unlocksPlanetId: "planet:uranus",
-        prereqIds: [PR.VORS_PRIZE]
+        prereqIds: [PR.JUNCTION_EUROPA_SATURN, PR.STOLEN_DREAMS]
+    },
+    {
+        id: "node:junction_uranus_neptune",
+        planetId: "planet:uranus",
+        name: "Uranus → Neptune Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:neptune",
+        prereqIds: [PR.JUNCTION_SATURN_URANUS]
+    },
+    {
+        id: "node:junction_neptune_pluto",
+        planetId: "planet:neptune",
+        name: "Neptune → Pluto Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:pluto",
+        prereqIds: [PR.JUNCTION_URANUS_NEPTUNE]
+    },
+    {
+        id: "node:junction_pluto_sedna",
+        planetId: "planet:pluto",
+        name: "Pluto → Sedna Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:sedna",
+        prereqIds: [PR.JUNCTION_NEPTUNE_PLUTO]
+    },
+    {
+        id: "node:junction_sedna_eris",
+        planetId: "planet:sedna",
+        name: "Sedna → Eris Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "planet:eris",
+        prereqIds: [PR.JUNCTION_PLUTO_SEDNA, PR.NEW_STRANGE]
+    },
+    {
+        id: "node:junction_earth_lua",
+        planetId: "planet:earth",
+        name: "Earth → Lua Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "region:lua",
+        prereqIds: [PR.SECOND_DREAM]
+    },
+    {
+        id: "node:junction_eris_kuva_fortress",
+        planetId: "planet:eris",
+        name: "Eris → Kuva Fortress Junction",
+        nodeType: "junction",
+        pos: undefined,
+        edges: [],
+        unlocksPlanetId: "region:kuva_fortress",
+        prereqIds: [PR.JUNCTION_SEDNA_ERIS, PR.WAR_WITHIN]
     },
 
     // =============================

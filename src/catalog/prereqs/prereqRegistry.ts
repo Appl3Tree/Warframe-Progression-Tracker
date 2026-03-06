@@ -286,18 +286,123 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     // Star Chart junction prereqs
     // -----------------------------
     {
-        id: PR.JUNCTION_EARTH_MARS,
-        label: "Junction: Earth → Mars",
+        id: PR.JUNCTION_MERCURY_VENUS,
+        label: "Junction: Mercury \u2192 Venus",
         category: "Systems",
-        description: "You have completed the Earth → Mars Junction (Star Chart progression gate).",
-        prerequisites: [PR.VORS_PRIZE]
+        description: "You have completed the Mercury \u2192 Venus Junction.",
+        prerequisites: []
+    },
+    {
+        id: PR.JUNCTION_VENUS_EARTH,
+        label: "Junction: Venus \u2192 Earth",
+        category: "Systems",
+        description: "You have completed the Venus \u2192 Earth Junction.",
+        prerequisites: [PR.JUNCTION_MERCURY_VENUS]
+    },
+    {
+        id: PR.JUNCTION_EARTH_MARS,
+        label: "Junction: Earth \u2192 Mars",
+        category: "Systems",
+        description: "You have completed the Earth \u2192 Mars Junction.",
+        prerequisites: [PR.VORS_PRIZE, PR.JUNCTION_VENUS_EARTH]
+    },
+    {
+        id: PR.JUNCTION_MARS_PHOBOS,
+        label: "Junction: Mars \u2192 Phobos",
+        category: "Systems",
+        description: "You have completed the Mars \u2192 Phobos Junction.",
+        prerequisites: [PR.JUNCTION_EARTH_MARS]
+    },
+    {
+        id: PR.JUNCTION_MARS_CERES,
+        label: "Junction: Mars \u2192 Ceres",
+        category: "Systems",
+        description: "You have completed the Mars \u2192 Ceres Junction (direct path).",
+        prerequisites: [PR.JUNCTION_EARTH_MARS]
+    },
+    {
+        id: PR.JUNCTION_MARS_DEIMOS,
+        label: "Junction: Mars \u2192 Deimos",
+        category: "Systems",
+        description: "You have completed the Mars \u2192 Deimos Junction.",
+        prerequisites: [PR.JUNCTION_EARTH_MARS, PR.HEART_OF_DEIMOS]
+    },
+    {
+        id: PR.JUNCTION_PHOBOS_CERES,
+        label: "Junction: Phobos \u2192 Ceres",
+        category: "Systems",
+        description: "You have completed the Phobos \u2192 Ceres Junction.",
+        prerequisites: [PR.JUNCTION_MARS_PHOBOS]
+    },
+    {
+        id: PR.JUNCTION_CERES_JUPITER,
+        label: "Junction: Ceres \u2192 Jupiter",
+        category: "Systems",
+        description: "You have completed the Ceres \u2192 Jupiter Junction.",
+        prerequisites: [PR.JUNCTION_PHOBOS_CERES]
+    },
+    {
+        id: PR.JUNCTION_JUPITER_EUROPA,
+        label: "Junction: Jupiter \u2192 Europa",
+        category: "Systems",
+        description: "You have completed the Jupiter \u2192 Europa Junction.",
+        prerequisites: [PR.JUNCTION_CERES_JUPITER]
+    },
+    {
+        id: PR.JUNCTION_EUROPA_SATURN,
+        label: "Junction: Europa \u2192 Saturn",
+        category: "Systems",
+        description: "You have completed the Europa \u2192 Saturn Junction.",
+        prerequisites: [PR.JUNCTION_JUPITER_EUROPA, PR.ARCHWING]
     },
     {
         id: PR.JUNCTION_SATURN_URANUS,
-        label: "Junction: Saturn → Uranus",
+        label: "Junction: Saturn \u2192 Uranus",
         category: "Systems",
-        description: "You have completed the Saturn → Uranus Junction (Star Chart progression gate).",
-        prerequisites: [PR.VORS_PRIZE]
+        description: "You have completed the Saturn \u2192 Uranus Junction.",
+        prerequisites: [PR.JUNCTION_EUROPA_SATURN, PR.STOLEN_DREAMS]
+    },
+    {
+        id: PR.JUNCTION_URANUS_NEPTUNE,
+        label: "Junction: Uranus \u2192 Neptune",
+        category: "Systems",
+        description: "You have completed the Uranus \u2192 Neptune Junction.",
+        prerequisites: [PR.JUNCTION_SATURN_URANUS]
+    },
+    {
+        id: PR.JUNCTION_NEPTUNE_PLUTO,
+        label: "Junction: Neptune \u2192 Pluto",
+        category: "Systems",
+        description: "You have completed the Neptune \u2192 Pluto Junction.",
+        prerequisites: [PR.JUNCTION_URANUS_NEPTUNE]
+    },
+    {
+        id: PR.JUNCTION_PLUTO_SEDNA,
+        label: "Junction: Pluto \u2192 Sedna",
+        category: "Systems",
+        description: "You have completed the Pluto \u2192 Sedna Junction.",
+        prerequisites: [PR.JUNCTION_NEPTUNE_PLUTO]
+    },
+    {
+        id: PR.JUNCTION_SEDNA_ERIS,
+        label: "Junction: Sedna \u2192 Eris",
+        category: "Systems",
+        description: "You have completed the Sedna \u2192 Eris Junction.",
+        prerequisites: [PR.JUNCTION_PLUTO_SEDNA, PR.NEW_STRANGE]
+    },
+    {
+        id: PR.JUNCTION_EARTH_LUA,
+        label: "Junction: Earth \u2192 Lua",
+        category: "Systems",
+        description: "You have completed the Earth \u2192 Lua Junction (requires The Second Dream).",
+        prerequisites: [PR.SECOND_DREAM]
+    },
+    {
+        id: PR.JUNCTION_ERIS_KUVA_FORTRESS,
+        label: "Junction: Eris \u2192 Kuva Fortress",
+        category: "Systems",
+        description: "You have completed the Eris \u2192 Kuva Fortress Junction.",
+        prerequisites: [PR.JUNCTION_SEDNA_ERIS, PR.WAR_WITHIN]
     },
 
     // -----------------------------
