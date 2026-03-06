@@ -226,6 +226,60 @@ function mapScalePos(p: { x: number; y: number }): { x: number; y: number } {
     return { x: MAP_CENTER.x + dx * MAP_POS_SCALE, y: MAP_CENTER.y + dy * MAP_POS_SCALE };
 }
 
+// ── Planet visual palette ────────────────────────────────────────────────────
+// Colours match Warframe's in-game appearance as closely as possible.
+// `light` = sphere highlight, `base` = midtone, `dark` = shadow, `glow` = halo fill.
+const PLANET_COLORS: Record<string, { base: string; light: string; dark: string; glow: string }> = {
+    "planet:mercury":        { base: "#9c9090", light: "#d8d0cc", dark: "#3e3030", glow: "rgba(180,160,160,0.40)" },
+    "planet:venus":          { base: "#d09c30", light: "#f0cc70", dark: "#705010", glow: "rgba(220,170,50,0.50)" },
+    "planet:earth":          { base: "#2868d0", light: "#60a8f8", dark: "#0a1e5c", glow: "rgba(50,120,240,0.55)" },
+    "planet:mars":           { base: "#c84028", light: "#f07060", dark: "#600808", glow: "rgba(220,70,40,0.55)" },
+    "planet:deimos":         { base: "#9a6040", light: "#c49070", dark: "#401808", glow: "rgba(170,100,60,0.40)" },
+    "planet:phobos":         { base: "#706898", light: "#a098c8", dark: "#282048", glow: "rgba(120,110,180,0.40)" },
+    "planet:ceres":          { base: "#5888a0", light: "#80b8d0", dark: "#183040", glow: "rgba(80,150,190,0.45)" },
+    "planet:jupiter":        { base: "#c07838", light: "#eaa868", dark: "#603010", glow: "rgba(210,140,60,0.50)" },
+    "planet:europa":         { base: "#78c0e8", light: "#b8e0f8", dark: "#103860", glow: "rgba(120,200,240,0.55)" },
+    "planet:saturn":         { base: "#c8a030", light: "#f0c860", dark: "#604808", glow: "rgba(220,175,50,0.50)" },
+    "planet:uranus":         { base: "#40b8c8", light: "#70dae8", dark: "#084850", glow: "rgba(60,190,210,0.50)" },
+    "planet:neptune":        { base: "#183cb8", light: "#4070e8", dark: "#080e50", glow: "rgba(30,80,220,0.55)" },
+    "planet:pluto":          { base: "#887060", light: "#b09080", dark: "#302018", glow: "rgba(150,130,110,0.38)" },
+    "planet:sedna":          { base: "#c03848", light: "#f06878", dark: "#601018", glow: "rgba(210,60,70,0.50)" },
+    "planet:eris":           { base: "#7030b8", light: "#a060e0", dark: "#300858", glow: "rgba(130,50,200,0.50)" },
+    "region:lua":            { base: "#b0b0c0", light: "#e0e0f0", dark: "#404050", glow: "rgba(200,200,220,0.50)" },
+    "region:kuva_fortress":  { base: "#b82020", light: "#e05050", dark: "#580808", glow: "rgba(200,40,40,0.60)" },
+    "region:void":           { base: "#6840c0", light: "#9870e8", dark: "#200858", glow: "rgba(120,80,210,0.50)" },
+    "region:zariman":        { base: "#b88820", light: "#e0b050", dark: "#583808", glow: "rgba(200,150,40,0.50)" },
+    "region:duviri":         { base: "#607090", light: "#88a0c0", dark: "#182030", glow: "rgba(100,130,170,0.40)" },
+    "region:sanctuary":      { base: "#409880", light: "#68c8a8", dark: "#104028", glow: "rgba(60,170,140,0.45)" },
+    "region:hollvania":      { base: "#507060", light: "#789090", dark: "#182820", glow: "rgba(80,120,100,0.38)" },
+    "region:dark_refractory_deimos": { base: "#806048", light: "#b09070", dark: "#302010", glow: "rgba(150,110,80,0.38)" },
+};
+const DEFAULT_PLANET_COLOR = { base: "#507090", light: "#80a0c0", dark: "#182030", glow: "rgba(80,120,170,0.40)" };
+
+function planetGradId(planetId: string): string {
+    return `pg_${String(planetId).replace(/[^a-z0-9]/gi, "_")}`;
+}
+
+// Stable star field (precomputed at module load so it never flickers).
+const STARFIELD: Array<{ x: number; y: number; r: number; o: number }> = (() => {
+    const out: Array<{ x: number; y: number; r: number; o: number }> = [];
+    let s = 0xf3a1b5c7;
+    const rand = () => {
+        s = Math.imul(s ^ (s >>> 16), 0x45d9f3b) >>> 0;
+        s = Math.imul(s ^ (s >>> 16), 0x45d9f3b) >>> 0;
+        return (s >>> 0) / 4294967296;
+    };
+    for (let i = 0; i < 200; i++) {
+        out.push({
+            x: WORLD_MIN - 15 + rand() * (WORLD_MAX - WORLD_MIN + 30),
+            y: WORLD_MIN - 15 + rand() * (WORLD_MAX - WORLD_MIN + 30),
+            r: 0.08 + rand() * 0.24,
+            o: 0.15 + rand() * 0.72,
+        });
+    }
+    return out;
+})();
+
 function clampViewBox(vb: ViewBox): ViewBox {
     const margin = 10;
 
@@ -757,6 +811,19 @@ function StarChartMap(props: {
         }
         return m;
     }, [overviewPlanets]);
+
+    // Lines between planets derived from junction nodes — shown in the overview layer.
+    const junctionEdges = useMemo(() => {
+        const out: Array<{ from: { x: number; y: number }; to: { x: number; y: number } }> = [];
+        for (const node of STAR_CHART_DATA.nodes) {
+            if (node.nodeType !== "junction" || !node.unlocksPlanetId) continue;
+            const from = planetCenterById.get(node.planetId);
+            const to = planetCenterById.get(node.unlocksPlanetId);
+            if (!from || !to) continue;
+            out.push({ from, to });
+        }
+        return out;
+    }, [planetCenterById]);
 
     function svgPointFromClient(e: { clientX: number; clientY: number }): { x: number; y: number } | null {
         const svg = svgRef.current;
@@ -1599,19 +1666,46 @@ function StarChartMap(props: {
                     }}
                 >
                     <defs>
+                        {/* Nebula background gradients */}
                         <radialGradient id="bg0" cx="50%" cy="50%" r="70%">
-                            <stop offset="0%" stopColor="rgba(148,163,184,0.14)" />
-                            <stop offset="58%" stopColor="rgba(2,6,23,0.0)" />
+                            <stop offset="0%" stopColor="rgba(20,40,110,0.24)" />
+                            <stop offset="60%" stopColor="rgba(2,6,23,0.0)" />
                         </radialGradient>
-                        <radialGradient id="bg1" cx="25%" cy="45%" r="62%">
-                            <stop offset="0%" stopColor="rgba(56,189,248,0.10)" />
+                        <radialGradient id="bg1" cx="20%" cy="38%" r="56%">
+                            <stop offset="0%" stopColor="rgba(50,20,150,0.18)" />
                             <stop offset="52%" stopColor="rgba(2,6,23,0.0)" />
                         </radialGradient>
-                        <radialGradient id="bg2" cx="80%" cy="30%" r="58%">
-                            <stop offset="0%" stopColor="rgba(16,185,129,0.10)" />
-                            <stop offset="45%" stopColor="rgba(2,6,23,0.0)" />
+                        <radialGradient id="bg2" cx="78%" cy="28%" r="54%">
+                            <stop offset="0%" stopColor="rgba(20,60,170,0.16)" />
+                            <stop offset="48%" stopColor="rgba(2,6,23,0.0)" />
+                        </radialGradient>
+                        <radialGradient id="bg3" cx="60%" cy="74%" r="46%">
+                            <stop offset="0%" stopColor="rgba(90,20,130,0.13)" />
+                            <stop offset="44%" stopColor="rgba(2,6,23,0.0)" />
                         </radialGradient>
 
+                        {/* Sun glow at chart centre */}
+                        <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%"   stopColor="rgba(255,248,190,0.98)" />
+                            <stop offset="30%"  stopColor="rgba(255,210,90,0.60)" />
+                            <stop offset="65%"  stopColor="rgba(255,150,30,0.22)" />
+                            <stop offset="100%" stopColor="rgba(255,100,0,0)" />
+                        </radialGradient>
+
+                        {/* Per-planet sphere gradients — highlight upper-left like a lit sphere */}
+                        {STAR_CHART_DATA.planets.map((p) => {
+                            const col = PLANET_COLORS[p.id] ?? DEFAULT_PLANET_COLOR;
+                            const gId = planetGradId(p.id);
+                            return (
+                                <radialGradient key={gId} id={gId} cx="30%" cy="25%" r="72%">
+                                    <stop offset="0%"   stopColor={col.light} stopOpacity={0.95} />
+                                    <stop offset="48%"  stopColor={col.base}  stopOpacity={0.95} />
+                                    <stop offset="100%" stopColor={col.dark}  stopOpacity={0.95} />
+                                </radialGradient>
+                            );
+                        })}
+
+                        {/* ClipPaths for zoomed planet disks */}
                         {zoomedPlanetLayers.map((zl) => (
                             <clipPath key={`clipdef-${zl.clipId}`} id={zl.clipId}>
                                 <circle cx={zl.cx} cy={zl.cy} r={zl.diskR} />
@@ -1619,39 +1713,22 @@ function StarChartMap(props: {
                         ))}
                     </defs>
 
-                    <rect
-                        x={WORLD_MIN - 80}
-                        y={WORLD_MIN - 80}
-                        width={WORLD_MAX - WORLD_MIN + 160}
-                        height={WORLD_MAX - WORLD_MIN + 160}
-                        fill="rgba(2,6,23,1)"
-                    />
-                    <rect
-                        x={WORLD_MIN - 80}
-                        y={WORLD_MIN - 80}
-                        width={WORLD_MAX - WORLD_MIN + 160}
-                        height={WORLD_MAX - WORLD_MIN + 160}
-                        fill="url(#bg0)"
-                    />
-                    <rect
-                        x={WORLD_MIN - 80}
-                        y={WORLD_MIN - 80}
-                        width={WORLD_MAX - WORLD_MIN + 160}
-                        height={WORLD_MAX - WORLD_MIN + 160}
-                        fill="url(#bg1)"
-                        opacity={0.85}
-                    />
-                    <rect
-                        x={WORLD_MIN - 80}
-                        y={WORLD_MIN - 80}
-                        width={WORLD_MAX - WORLD_MIN + 160}
-                        height={WORLD_MAX - WORLD_MIN + 160}
-                        fill="url(#bg2)"
-                        opacity={0.8}
-                    />
+                    {/* ── Deep-space background ──────────────────────────────────── */}
+                    <rect x={WORLD_MIN - 80} y={WORLD_MIN - 80} width={WORLD_MAX - WORLD_MIN + 160} height={WORLD_MAX - WORLD_MIN + 160} fill="rgba(1,4,18,1)" />
+                    <rect x={WORLD_MIN - 80} y={WORLD_MIN - 80} width={WORLD_MAX - WORLD_MIN + 160} height={WORLD_MAX - WORLD_MIN + 160} fill="url(#bg0)" />
+                    <rect x={WORLD_MIN - 80} y={WORLD_MIN - 80} width={WORLD_MAX - WORLD_MIN + 160} height={WORLD_MAX - WORLD_MIN + 160} fill="url(#bg1)" />
+                    <rect x={WORLD_MIN - 80} y={WORLD_MIN - 80} width={WORLD_MAX - WORLD_MIN + 160} height={WORLD_MAX - WORLD_MIN + 160} fill="url(#bg2)" />
+                    <rect x={WORLD_MIN - 80} y={WORLD_MIN - 80} width={WORLD_MAX - WORLD_MIN + 160} height={WORLD_MAX - WORLD_MIN + 160} fill="url(#bg3)" />
 
-                    {/* Global orbit rings (back) */}
-                    <g opacity={0.9}>
+                    {/* ── Star field ─────────────────────────────────────────────── */}
+                    <g pointerEvents="none">
+                        {STARFIELD.map((s, i) => (
+                            <circle key={`star-${i}`} cx={s.x} cy={s.y} r={s.r} fill="white" fillOpacity={s.o} />
+                        ))}
+                    </g>
+
+                    {/* ── Orbital rings (dashed, fade with zoom) ─────────────────── */}
+                    <g opacity={overviewLayerOpacity * 0.7} pointerEvents="none">
                         {orbitRings.map((r, idx) => (
                             <circle
                                 key={`ring-${idx}`}
@@ -1659,31 +1736,51 @@ function StarChartMap(props: {
                                 cy={MAP_CENTER.y}
                                 r={r}
                                 fill="none"
-                                stroke={
-                                    idx === 0
-                                        ? "rgba(148,163,184,0.14)"
-                                        : idx === 1
-                                            ? "rgba(148,163,184,0.10)"
-                                            : "rgba(148,163,184,0.07)"
-                                }
-                                strokeWidth={lineStroke}
-                                pointerEvents="none"
+                                stroke="rgba(80,130,220,0.28)"
+                                strokeWidth={lineStroke * 0.85}
+                                strokeDasharray="0.9 1.8"
                             />
                         ))}
                     </g>
 
-                    {/* Overview baseline */}
+                    {/* ── Sun at chart centre ─────────────────────────────────────── */}
+                    <g pointerEvents="none" opacity={overviewLayerOpacity}>
+                        <circle cx={MAP_CENTER.x} cy={MAP_CENTER.y} r={10} fill="url(#sunGlow)" />
+                        <circle cx={MAP_CENTER.x} cy={MAP_CENTER.y} r={2.0} fill="rgba(255,252,200,0.98)" />
+                    </g>
+
+                    {/* ── Overview: junction connection lines between planets ──────── */}
+                    <g opacity={overviewLayerOpacity * 0.55} pointerEvents="none">
+                        {junctionEdges.map((e, i) => (
+                            <line
+                                key={`jline-${i}`}
+                                x1={e.from.x} y1={e.from.y}
+                                x2={e.to.x}   y2={e.to.y}
+                                stroke="rgba(100,160,230,0.55)"
+                                strokeWidth={lineStroke * 0.75}
+                                strokeDasharray="0.7 1.4"
+                            />
+                        ))}
+                    </g>
+
+                    {/* ── Overview: planet spheres ─────────────────────────────────── */}
                     <g opacity={overviewLayerOpacity}>
                         {overviewPlanets.map((pl) => {
                             const p = pl.planet;
                             const isSelected = p.id === selectedPlanetId;
-
-                            const fill = isSelected ? "rgba(226,232,240,0.18)" : "rgba(2,6,23,0.45)";
-                            const stroke = isSelected ? "rgba(226,232,240,0.85)" : "rgba(148,163,184,0.35)";
+                            const col = PLANET_COLORS[p.id] ?? DEFAULT_PLANET_COLOR;
+                            const gId = planetGradId(p.id);
 
                             return (
                                 <g key={p.id} data-clickable="true" onClick={() => onClickPlanet(p.id)} style={{ cursor: "pointer" }}>
-                                    <circle cx={pl.x} cy={pl.y} r={pl.r} fill={fill} stroke={stroke} strokeWidth={circleStroke} />
+                                    {/* Glow halo */}
+                                    <circle cx={pl.x} cy={pl.y} r={pl.r * 1.80} fill={col.glow} />
+                                    {/* Selection ring */}
+                                    {isSelected && (
+                                        <circle cx={pl.x} cy={pl.y} r={pl.r * 1.42} fill="none" stroke={col.light} strokeWidth={circleStroke * 0.85} strokeOpacity={0.80} />
+                                    )}
+                                    {/* Sphere */}
+                                    <circle cx={pl.x} cy={pl.y} r={pl.r} fill={`url(#${gId})`} stroke={col.light} strokeWidth={circleStroke} strokeOpacity={isSelected ? 1.0 : 0.55} />
                                 </g>
                             );
                         })}
@@ -1695,24 +1792,19 @@ function StarChartMap(props: {
                             {zoomedPlanetLayers.map((zl) => {
                                 const pid = zl.planet.id as PlanetId;
 
+                                const zCol = PLANET_COLORS[pid] ?? DEFAULT_PLANET_COLOR;
+                                const zGId = planetGradId(pid);
                                 return (
                                     <g key={`zl-${zl.planet.id}`}>
                                         <g data-clickable="true" onClick={() => onClickPlanet(pid)} style={{ cursor: "pointer" }}>
-                                            <circle
-                                                cx={zl.cx}
-                                                cy={zl.cy}
-                                                r={zl.grownR}
-                                                fill="rgba(2,6,23,0.55)"
-                                                stroke="rgba(148,163,184,0.22)"
-                                                strokeWidth={circleStroke}
-                                            />
-
-                                            <circle
-                                                cx={zl.cx - zl.grownR * 0.22}
-                                                cy={zl.cy - zl.grownR * 0.22}
-                                                r={zl.grownR * 0.62}
-                                                fill="rgba(226,232,240,0.05)"
-                                            />
+                                            {/* Outer glow halo */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 1.14} fill={zCol.glow} fillOpacity={0.28 * reveal} />
+                                            {/* Dark disk interior so node dots remain readable */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="rgba(1,4,18,0.78)" stroke={zCol.base} strokeWidth={circleStroke} strokeOpacity={0.50} />
+                                            {/* Thin coloured inner rim */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 0.97} fill="none" stroke={zCol.light} strokeWidth={circleStroke * 0.35} strokeOpacity={0.22} />
+                                            {/* Sphere-highlight — off-centre bright spot using the planet gradient */}
+                                            <circle cx={zl.cx - zl.grownR * 0.20} cy={zl.cy - zl.grownR * 0.20} r={zl.grownR * 0.55} fill={`url(#${zGId})`} fillOpacity={0.08} />
                                         </g>
 
                                         <g pointerEvents={canInteractPlanetNodes ? "auto" : "none"}>
@@ -1741,15 +1833,15 @@ function StarChartMap(props: {
                                                 const isCompleted = Boolean(nodeCompletedMap[nd.group.baseNodeId]);
 
                                                 const nodeFill = isActive
-                                                    ? "rgba(226,232,240,0.34)"
+                                                    ? zCol.base + "44"
                                                     : isCompleted
-                                                        ? "rgba(16,185,129,0.18)"
-                                                        : "rgba(2,6,23,0.72)";
+                                                        ? "rgba(16,185,129,0.22)"
+                                                        : "rgba(1,4,18,0.80)";
                                                 const nodeStrokeCol = isActive
-                                                    ? "rgba(226,232,240,0.95)"
+                                                    ? zCol.light
                                                     : isCompleted
-                                                        ? "rgba(52,211,153,0.75)"
-                                                        : "rgba(148,163,184,0.60)";
+                                                        ? "rgba(52,211,153,0.80)"
+                                                        : "rgba(140,160,200,0.58)";
 
                                                 return (
                                                     <g
