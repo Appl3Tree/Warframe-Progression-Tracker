@@ -826,12 +826,14 @@ export default function SyndicateDetailsModal(props: {
         const ranks = [...byRank.keys()].sort((a, b) => a - b);
         if (ranks.length < 2) return sumCosts([]);
 
-        return ranks.slice(1).reduce((acc, toRank) => {
+        const currentRank = props.playerRank ?? 0;
+        // Only sum transitions the player hasn't completed yet (toRank > currentRank)
+        return ranks.slice(1).filter((toRank) => toRank > currentRank).reduce((acc, toRank) => {
             const to = byRank.get(toRank);
             const costs = Array.isArray((to as any)?.costs) ? ((to as any).costs as SyndicateCostLine[]) : [];
             return mergeCostSums(acc, sumCosts(costs));
         }, sumCosts([]));
-    }, [rankUps]);
+    }, [rankUps, props.playerRank]);
 
     if (!props.open) return null;
 
@@ -1069,12 +1071,16 @@ export default function SyndicateDetailsModal(props: {
                                 ) : (
                                     <>
                                         <div className="mt-3">
-                                            <div className="text-xs text-slate-400 mb-2">Total Rank-Up Cost</div>
+                                            <div className="text-xs text-slate-400 mb-2">
+                                                {(props.playerRank ?? 0) > 0
+                                                    ? `Remaining Cost (Rank ${props.playerRank} \u2192 Max)`
+                                                    : "Total Rank-Up Cost"}
+                                            </div>
                                             {renderCostSummaryBlocks(rankUpSum)}
                                         </div>
 
                                         <div className="mt-4 text-[11px] text-slate-500">
-                                            Totals are summed from the “to-rank” costs across transitions shown in this panel.
+                                            Totals reflect only the rank-up costs still ahead of your current rank.
                                         </div>
 
                                         <div className="mt-4 text-[11px] text-slate-500">
