@@ -53,6 +53,7 @@ Starts the Vite dev server with hot reload at `http://localhost:5173`.
 | Pledge selector (primary syndicates) | ✅ Done | Up to 3 pledged at once with enforcement |
 | Conflict simulation / pledge recommendations | ✅ Done | Matrix scoring over all valid pledge combos; triple-chain and cross-chain recommendations with Apply |
 | Bundler-safe icon imports | ✅ Done | `import.meta.glob` map in `SyndicatesGrid.tsx`; drop PNGs into `src/assets/syndicates/` to activate |
+| Kahl's Garrison weeks-to-max ETA | ✅ Done | Standalone block below Caps; `5 − rank` weeks at 1 mission per week |
 | Rank titles | ⏳ Pending | Field exists in types; data not yet populated |
 | Nightwave max rank (180) | ✅ Done | 30 normal + 150 prestige ranks |
 | Nightcap flavor text | ✅ Done | Corrected to Solaris/Fortuna Airlock vendor |
