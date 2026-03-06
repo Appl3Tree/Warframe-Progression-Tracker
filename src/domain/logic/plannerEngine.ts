@@ -221,7 +221,7 @@ function isSourceAccessible(
 ): { ok: boolean; missing: PrereqId[]; missingMr: number | null; reason?: string } {
     const sidStr = String(sourceId);
 
-    hookup: {
+    {
         // Drop-table sources are actionable locations by default.
         if (sidStr.startsWith("data:drop:")) {
             return { ok: true, missing: [], missingMr: null };

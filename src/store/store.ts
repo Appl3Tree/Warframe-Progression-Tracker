@@ -735,7 +735,8 @@ export const useTrackerStore = create<TrackerStore>()(
             resetAllLocalData: () => {
                 try {
                     localStorage.removeItem(PERSIST_KEY);
-                } catch {
+                } catch (_e) {
+                    // ignore storage errors
                 }
                 set(() => ({ state: makeDefaultState() }));
             },
