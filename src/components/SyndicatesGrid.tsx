@@ -2,11 +2,13 @@
 import React, { useMemo, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import { SY } from "../domain/ids/syndicateIds";
+import type { SyndicateId } from "../domain/ids/syndicateIds";
 import type { SyndicateState } from "../domain/types";
 import SyndicateDetailsModal from "./SyndicateDetailsModal";
 import { getSyndicateVendorEntry } from "../domain/catalog/syndicates/syndicateVendorCatalog";
 import type { SyndicateVendorEntry } from "../domain/catalog/syndicates/syndicateVendorCatalog";
 import { readOwnedMap, countOwned } from "../domain/syndicates/ownedOfferings";
+import { getRankTitle } from "../domain/catalog/syndicates/rankTitles";
 
 type TabKey =
     | "all"
@@ -1211,6 +1213,9 @@ export default function SyndicatesGrid() {
                         ? Math.ceil(standingToMax / dailyCapComputed)
                         : null;
 
+                    // Rank title lookup
+                    const rankTitle = getRankTitle(canon.id as SyndicateId, rank);
+
                     // Kahl's Garrison: weekly mission progression, max rank 5
                     const kahlWeeksToMax = canon.id === SY.KAHLS_GARRISON && rank < 5
                         ? 5 - rank
@@ -1406,14 +1411,18 @@ export default function SyndicatesGrid() {
                                                 </select>
                                             )}
 
+                                            {rankTitle && (
+                                                <div className="mt-1 text-sm font-medium opacity-90">{rankTitle}</div>
+                                            )}
+
                                             {canon.isFaction ? (
-                                                <div className="mt-1 text-[11px] opacity-90">Relay factions support ranks -2..5.</div>
+                                                <div className="mt-1 text-[11px] opacity-75">Relay factions support ranks -2..5.</div>
                                             ) : canon.id === SY.NIGHTCAP ? (
-                                                <div className="mt-1 text-[11px] opacity-90">Auto-derived from mushrooms analyzed.</div>
+                                                <div className="mt-1 text-[11px] opacity-75">Auto-derived from mushrooms analyzed.</div>
                                             ) : canon.id === SY.NIGHTWAVE ? (
-                                                <div className="mt-1 text-[11px] opacity-90">Ranks 1–30 (normal) + 31–180 (prestige).</div>
+                                                <div className="mt-1 text-[11px] opacity-75">Ranks 1–30 (normal) + 31–180 (prestige).</div>
                                             ) : (
-                                                <div className="mt-1 text-[11px] opacity-90">Ranks 0–{maxRank}.</div>
+                                                <div className="mt-1 text-[11px] opacity-75">Ranks 0–{maxRank}.</div>
                                             )}
                                         </div>
                                     ) : (
