@@ -82,7 +82,7 @@ export function calculateStandingNeeded(args: {
     let totalCredits = 0;
     const itemsMap: Record<string, number> = {};
     const rankSteps: StandingRankStep[] = [];
-    let requiresNegativeRecovery = currentRank < 0;
+    const requiresNegativeRecovery = currentRank < 0;
 
     for (let i = 0; i < stepsToProcess.length; i++) {
         const step = stepsToProcess[i];
