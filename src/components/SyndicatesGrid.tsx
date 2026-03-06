@@ -1500,15 +1500,18 @@ export default function SyndicatesGrid() {
                                                         </>
                                                     )}
                                                 </div>
-                                            ) : kahlWeeksToMax !== null ? (
-                                                <div className="rounded-xl border border-white/10 bg-black/10 p-3">
-                                                    <div className="text-xs opacity-90 mb-1">Est. to Max Rank</div>
-                                                    <div className="text-sm font-mono">
-                                                        {kahlWeeksToMax} week{kahlWeeksToMax !== 1 ? "s" : ""} of weekly missions
-                                                    </div>
-                                                </div>
                                             ) : null}
                                         </div>
+                                    </div>
+                                ) : null}
+
+                                {kahlWeeksToMax !== null ? (
+                                    <div className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3">
+                                        <div className="text-sm font-semibold">Est. to Max Rank</div>
+                                        <div className="mt-2 text-sm font-mono">
+                                            {kahlWeeksToMax} week{kahlWeeksToMax !== 1 ? "s" : ""} of weekly missions
+                                        </div>
+                                        <div className="mt-1 text-[11px] opacity-75">1 Break Narmer mission advances 1 rank.</div>
                                     </div>
                                 ) : null}
                             </div>
