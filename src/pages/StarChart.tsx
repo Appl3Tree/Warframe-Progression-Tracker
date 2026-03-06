@@ -163,33 +163,36 @@ function smoothstep01(t: number): number {
 type ManualPos = { x: number; y: number };
 
 const MANUAL_POS: Record<string, ManualPos> = {
-    "region:void": { x: 16, y: 52 },
-    "region:zariman": { x: 12, y: 35 },
+    // Positions calibrated against the in-game star chart screenshot.
+    // Coordinate space: 0–100 before MAP_POS_SCALE is applied.
+    "region:void":    { x: 16, y: 47 },
+    "region:zariman": { x: 15, y: 36 },
 
-    "planet:sedna": { x: 51, y: 14 },
-    "planet:ceres": { x: 41, y: 26 },
-    "planet:phobos": { x: 67, y: 26 },
-    "planet:mars": { x: 62, y: 33 },
-    "planet:eris": { x: 79, y: 37 },
+    "planet:sedna":  { x: 54, y: 14 },
+    "planet:ceres":  { x: 41, y: 28 },
+    "planet:phobos": { x: 67, y: 25 },
+    "planet:mars":   { x: 64, y: 33 },
+    "planet:eris":   { x: 76, y: 32 },
 
-    "planet:jupiter": { x: 34, y: 44 },
-    "planet:europa": { x: 22, y: 45 },
-    "planet:deimos": { x: 55, y: 35 },
-    "planet:earth": { x: 62, y: 47 },
+    "planet:jupiter": { x: 34, y: 50 },
+    "planet:europa":  { x: 26, y: 47 },
+    "planet:deimos":  { x: 56, y: 39 },
+    "planet:earth":   { x: 65, y: 51 },
 
-    // IMPORTANT: Lua needs to be significantly farther from Earth (matches in-game spacing better and prevents overlap
-    // when all planets expand in the zoomed-in map).
-    "region:lua": { x: 75, y: 48 },
+    // Lua kept a bit further from Earth to prevent disk overlap when expanded.
+    "region:lua": { x: 70, y: 48 },
 
-    "planet:pluto": { x: 86, y: 46 },
+    "planet:pluto": { x: 86, y: 49 },
 
-    "planet:mercury": { x: 45, y: 56 },
-    "planet:venus": { x: 56, y: 64 },
-    "planet:neptune": { x: 78, y: 75 },
-    "planet:saturn": { x: 33, y: 71 },
-    "planet:uranus": { x: 52, y: 82 },
+    "planet:mercury": { x: 47, y: 55 },
+    "planet:venus":   { x: 57, y: 64 },
+    "planet:neptune": { x: 74, y: 75 },
+    "planet:saturn":  { x: 39, y: 72 },
+    "planet:uranus":  { x: 52, y: 82 },
 
-    "region:kuva_fortress": { x: 34, y: 58 }
+    // Kuva Fortress: orbit anchor — see overviewPlanets useMemo for animation.
+    // x/y here are ignored; the orbit is computed from MAP_CENTER instead.
+    "region:kuva_fortress": { x: 50, y: 50 }
 };
 
 function isInMainMap(p: StarChartPlanet): boolean {
@@ -320,7 +323,8 @@ function viewBoxToScale(vb: ViewBox): number {
 }
 
 function nodeRevealAlpha(scale: number): number {
-    const a = (scale - 1.55) / 0.9;
+    // Wider window (0.9 → 2.5) so the disk grows gradually rather than popping in.
+    const a = (scale - 1.55) / 2.5;
     return clamp(a, 0, 1);
 }
 
@@ -790,10 +794,11 @@ function StarChartMap(props: {
             let y0 = manual?.y ?? fy;
 
             if (p.id === "region:kuva_fortress") {
-                const anchor = manual ?? { x: 34, y: 58 };
-                const amp = 1.8;
-                x0 = anchor.x + Math.cos(kuvaPhase) * amp;
-                y0 = anchor.y + Math.sin(kuvaPhase) * amp;
+                // Kuva Fortress orbits the chart centre — radius chosen to sit
+                // between Europa and the Void, matching the in-game behaviour.
+                const orbitR = 32; // MANUAL_POS units → 67 world units from centre
+                x0 = MAP_CENTER.x + Math.cos(kuvaPhase) * orbitR;
+                y0 = MAP_CENTER.y + Math.sin(kuvaPhase) * orbitR;
             }
 
             const scaled = mapScalePos({ x: x0, y: y0 });
@@ -1366,7 +1371,7 @@ function StarChartMap(props: {
     }, []);
 
     const overviewLayerOpacity = useMemo(() => clamp(1 - reveal * 1.15, 0, 1), [reveal]);
-    const detailLayerOpacity = useMemo(() => reveal, [reveal]);
+
 
     // SCREEN-SPACE locked label: put it a fixed PX amount above the *screen-projected* circle top.
     function circleTopLabelPx(centerWorld: { x: number; y: number }, rWorld: number, padPx: number): { x: number; y: number } | null {
@@ -1788,26 +1793,31 @@ function StarChartMap(props: {
 
                     {/* Zoomed-in layer: all planets expanded + nodes inside each */}
                     {reveal > 0.01 && (
-                        <g opacity={detailLayerOpacity}>
+                        <g>
                             {zoomedPlanetLayers.map((zl) => {
                                 const pid = zl.planet.id as PlanetId;
 
                                 const zCol = PLANET_COLORS[pid] ?? DEFAULT_PLANET_COLOR;
                                 const zGId = planetGradId(pid);
+                                // At low reveal the disk looks identical to the overview sphere (gradient fill,
+                                // no dark interior) so the crossfade is seamless.  As reveal increases the
+                                // gradient fades out and the dark interior fades in to keep nodes readable.
+                                const sphereAlpha = clamp(1 - reveal * 2.2, 0, 1);
+                                const diskAlpha   = clamp(reveal * 1.6,     0, 1);
                                 return (
                                     <g key={`zl-${zl.planet.id}`}>
                                         <g data-clickable="true" onClick={() => onClickPlanet(pid)} style={{ cursor: "pointer" }}>
-                                            {/* Outer glow halo */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 1.14} fill={zCol.glow} fillOpacity={0.28 * reveal} />
-                                            {/* Dark disk interior so node dots remain readable */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="rgba(1,4,18,0.78)" stroke={zCol.base} strokeWidth={circleStroke} strokeOpacity={0.50} />
-                                            {/* Thin coloured inner rim */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 0.97} fill="none" stroke={zCol.light} strokeWidth={circleStroke * 0.35} strokeOpacity={0.22} />
-                                            {/* Sphere-highlight — off-centre bright spot using the planet gradient */}
-                                            <circle cx={zl.cx - zl.grownR * 0.20} cy={zl.cy - zl.grownR * 0.20} r={zl.grownR * 0.55} fill={`url(#${zGId})`} fillOpacity={0.08} />
+                                            {/* Glow halo — always present */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 1.14} fill={zCol.glow} fillOpacity={0.32} />
+                                            {/* Sphere gradient at low reveal — matches overview appearance */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill={`url(#${zGId})`} fillOpacity={sphereAlpha} />
+                                            {/* Dark interior fades in so nodes become readable */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="rgba(1,4,18,0.80)" fillOpacity={diskAlpha} stroke={zCol.base} strokeWidth={circleStroke} strokeOpacity={0.50} />
+                                            {/* Thin inner rim accent */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 0.97} fill="none" stroke={zCol.light} strokeWidth={circleStroke * 0.35} strokeOpacity={0.22 * diskAlpha} />
                                         </g>
 
-                                        <g pointerEvents={canInteractPlanetNodes ? "auto" : "none"}>
+                                        <g pointerEvents={canInteractPlanetNodes ? "auto" : "none"} opacity={clamp(reveal * 3.0, 0, 1)}>
                                             <g opacity={0.85}>
                                                 {zl.links.map((l, idx) => {
                                                     const isSelectedA = selectedGroupKey === l.a.group.key && selectedPlanetId === pid;
@@ -1908,7 +1918,7 @@ function StarChartMap(props: {
                                 style={{
                                     left: l.x,
                                     top: l.y,
-                                    opacity: detailLayerOpacity,
+                                    opacity: clamp(reveal * 3.0, 0, 1),
                                     transform: l.anchor === "end" ? "translate(-100%, -50%)" : "translate(0%, -50%)",
                                     textTransform: "uppercase",
                                     textShadow: "0 2px 10px rgba(0,0,0,0.65)",
