@@ -67,6 +67,7 @@ Starts the Vite dev server with hot reload at `http://localhost:5173`.
 | Open pre-filtered from grid | ✅ Done | `initialTab`, `initialOwnedFilter`, `initialSortKey`, `initialMaxRank`, `initialVendorId` props |
 | Summary panel (total costs for filtered set) | ✅ Done | Credits, standing, currencies, items |
 | Player rank passed into modal | ✅ Done | Used to dim/hide completed rank-up transitions |
+| Remaining rank-up cost summary | ✅ Done | Summary panel sums only transitions still ahead of player rank; label reads "Remaining Cost (Rank N → Max)" |
 
 ### Star Chart
 
@@ -172,10 +173,10 @@ src/
     store.ts                    # Zustand store — player state, pledge logic, reserve system
 ```
 
-### Pending Architecture Work
+### Architecture Notes (Syndicate details)
 
 - **Icons**: `syndicateIconUrl()` uses `import.meta.glob` over `src/assets/syndicates/*.png`. The bundler fingerprints each file and rewrites URLs at build time, making them immune to deploy base-path configuration. To add an icon, drop the PNG into `src/assets/syndicates/` — no code changes needed.
-- **Rank titles**: Implemented in `src/domain/catalog/syndicates/rankTitles.ts`. The `getRankTitle(id, rank)` helper is called in `SyndicatesGrid.tsx` and the title is rendered below the rank selector when present.
+- **Rank titles**: `src/domain/catalog/syndicates/rankTitles.ts`. The `getRankTitle(id, rank)` helper covers all 22 syndicates with named ranks; called in `SyndicatesGrid.tsx` and rendered below the rank selector.
 
 ---
 
