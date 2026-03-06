@@ -1151,8 +1151,12 @@ function StarChartMap(props: {
                 if (d < minDist) minDist = d;
             }
 
-            const padBetween = 5.0;
-            const neighborCap = Number.isFinite(minDist) ? Math.max(8.0, minDist / 2 - padBetween) : desired;
+            // Use the planet's own base radius as the minimum cap so that when
+            // Kuva Fortress (or any two closely-spaced planets) approaches,
+            // their disks never visually overlap — Math.max(8) was too large
+            // for the ~12-world-unit closest approach Kuva makes to Earth.
+            const padBetween = 4.0;
+            const neighborCap = Number.isFinite(minDist) ? Math.max(a.r, minDist / 2 - padBetween) : desired;
 
             out.set(a.planet.id, Math.min(desired, neighborCap));
         }
@@ -1390,18 +1394,14 @@ function StarChartMap(props: {
         const c = planetCenterById.get(pid);
         if (!c) return;
 
-        const diskR = expandedRadiusByPlanetId.get(pid) ?? Math.max(c.r, 16);
-
-        // Planet circle nearly fills view (only zoom in, never out).
-        const targetW = clamp(diskR * 2.28, 12, WORLD_MAX - WORLD_MIN + 20);
-        const cur = vbRef.current;
-        const nextW = Math.min(cur.w, targetW);
-
+        // Always zoom all the way in (vb.w=20 → scale=5 → past the full-reveal threshold).
+        // This guarantees one click takes you from any zoom level straight to the node view.
+        const zoomW = 20;
         animateToVb(clampViewBox({
-            x: c.x - nextW / 2,
-            y: c.y - nextW / 2,
-            w: nextW,
-            h: nextW
+            x: c.x - zoomW / 2,
+            y: c.y - zoomW / 2,
+            w: zoomW,
+            h: zoomW
         }));
     }
 
@@ -1435,11 +1435,24 @@ function StarChartMap(props: {
     }
 
     // Global orbit rings (world-space radii from MAP_CENTER).
-    // These are decorative concentric rings that frame the planet layout.
-    // Values are in MANUAL_POS units; mapScalePos multiplies by MAP_POS_SCALE.
+    // Five evenly-spaced rings from inner planets out to the edge — matches
+    // the faint concentric circles visible in the in-game star chart.
     const orbitRings = useMemo(() => {
-        const base = [14, 18, 22]; // × 5.0 = 70, 90, 110 world units
+        const base = [8, 16, 24, 32, 40]; // × 5.0 = 40, 80, 120, 160, 200 world units
         return base.map((r) => r * MAP_POS_SCALE);
+    }, []);
+
+    // Radial sector spokes emanating from MAP_CENTER — the faint "pie-slice"
+    // lines visible in the in-game star chart (12 spokes = every 30°).
+    const sectorSpokes = useMemo(() => {
+        const spokeLen = 240; // world units — long enough to reach map edges
+        return Array.from({ length: 12 }, (_, i) => {
+            const angle = (i * Math.PI * 2) / 12;
+            return {
+                x2: MAP_CENTER.x + Math.cos(angle) * spokeLen,
+                y2: MAP_CENTER.y + Math.sin(angle) * spokeLen
+            };
+        });
     }, []);
 
     const overviewLayerOpacity = useMemo(() => clamp(1 - reveal * 1.15, 0, 1), [reveal]);
@@ -1804,8 +1817,24 @@ function StarChartMap(props: {
                         ))}
                     </g>
 
+                    {/* ── Radial sector spokes (very faint, match in-game chart) ──── */}
+                    <g opacity={overviewLayerOpacity * 0.35} pointerEvents="none">
+                        {sectorSpokes.map((s, idx) => (
+                            <line
+                                key={`spoke-${idx}`}
+                                x1={MAP_CENTER.x}
+                                y1={MAP_CENTER.y}
+                                x2={s.x2}
+                                y2={s.y2}
+                                stroke="rgba(100,160,240,0.22)"
+                                strokeWidth={lineStroke * 0.6}
+                                strokeDasharray="1.2 2.4"
+                            />
+                        ))}
+                    </g>
+
                     {/* ── Orbital rings (dashed, fade with zoom) ─────────────────── */}
-                    <g opacity={overviewLayerOpacity * 0.7} pointerEvents="none">
+                    <g opacity={overviewLayerOpacity * 0.6} pointerEvents="none">
                         {orbitRings.map((r, idx) => (
                             <circle
                                 key={`ring-${idx}`}
@@ -1813,8 +1842,8 @@ function StarChartMap(props: {
                                 cy={MAP_CENTER.y}
                                 r={r}
                                 fill="none"
-                                stroke="rgba(80,130,220,0.28)"
-                                strokeWidth={lineStroke * 0.85}
+                                stroke="rgba(80,130,220,0.22)"
+                                strokeWidth={lineStroke * 0.75}
                                 strokeDasharray="0.9 1.8"
                             />
                         ))}
