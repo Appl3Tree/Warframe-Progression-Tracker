@@ -226,17 +226,17 @@ function isInMainMap(p: StarChartPlanet): boolean {
 type ViewBox = { x: number; y: number; w: number; h: number };
 
 // World bounds — large enough that expanded planet disks never clip at the edges.
-const WORLD_MIN = -160;
-const WORLD_MAX = 260;
+const WORLD_MIN = -100;
+const WORLD_MAX = 200;
 
 // Kuva Fortress completes its route every ~50 hours.
 const KUVA_PERIOD_MS = 50 * 3600 * 1000;
 const KUVA_RAD_PER_MS = (Math.PI * 2) / KUVA_PERIOD_MS;
 
-// Push the whole layout outward from center so planets are well-separated.
-// At scale 5.0 the closest pair (Earth/Lua) is ~29 world units apart, so zooming
-// into a single planet won't show its neighbour on screen.
-const MAP_POS_SCALE = 5.0;
+// Scale from 0-100 manual space to world space.  Reduced from 5.0 → 3.5 so
+// planets appear as compactly clustered as the in-game star chart rather than
+// spread across the full canvas with large empty gaps.
+const MAP_POS_SCALE = 3.5;
 const MAP_CENTER = { x: 50, y: 50 };
 
 function mapScalePos(p: { x: number; y: number }): { x: number; y: number } {
@@ -864,9 +864,11 @@ function StarChartMap(props: {
             let y0 = manual?.y ?? fy;
 
             if (p.id === "region:kuva_fortress") {
-                // Kuva Fortress orbits the chart centre. After mapScalePos the
-                // effective world-space radius is orbitR * MAP_POS_SCALE.
-                const orbitR = 16; // 16 × 5 = 80 world units — covers Venus/Earth/Pluto arc
+                // Kuva Fortress orbits the chart centre.  At MAP_POS_SCALE=3.5
+                // orbitR=9.8 manual → 34.3 world, safely between Mercury (24.8)
+                // and Venus (45.5) — minimum clearance ~9.5 world > 8.4 sum of
+                // base radii, so disks never overlap at any phase.
+                const orbitR = 9.8;
                 x0 = MAP_CENTER.x + Math.cos(kuvaPhase) * orbitR;
                 y0 = MAP_CENTER.y + Math.sin(kuvaPhase) * orbitR;
             }
@@ -1445,7 +1447,7 @@ function StarChartMap(props: {
     // Radial sector spokes emanating from MAP_CENTER — the faint "pie-slice"
     // lines visible in the in-game star chart (12 spokes = every 30°).
     const sectorSpokes = useMemo(() => {
-        const spokeLen = 240; // world units — long enough to reach map edges
+        const spokeLen = 200; // world units — long enough to reach map edges
         return Array.from({ length: 12 }, (_, i) => {
             const angle = (i * Math.PI * 2) / 12;
             return {
