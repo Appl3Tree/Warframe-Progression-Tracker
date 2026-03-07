@@ -422,13 +422,15 @@ function parseNodeVariant(n: StarChartNode): { baseKey: string; kind: Exclude<No
     return { baseKey: baseKeyFromNode(n), kind: "base" };
 }
 
+// Node positions are stored as fractions of the disk radius so they remain
+// stable regardless of zoom level or the animated grownR.
+// Multiply by zl.grownR at render time to get world coordinates.
 type NodeLayout = {
     group: NodeGroup;
-    cx: number;
-    cy: number;
-    r: number;
-    lx: number;
-    ly: number;
+    ncx: number; // (node_world_x - planet_cx) / diskR
+    ncy: number;
+    nlx: number; // (label_world_x - planet_cx) / diskR
+    nly: number;
     lAnchor: "start" | "end";
 };
 
@@ -1197,24 +1199,24 @@ function StarChartMap(props: {
         return out;
     }, [overviewPlanets, vb.w]);
 
+    // Physics runs in a unit disk (center = 0, radius = 1) with a fixed node
+    // size so that the resulting normalized positions never shift with zoom.
+    const LAYOUT_NODE_R = 0.035; // node radius as a fraction of diskR
+
     function computePlanetNodeLayout(args: {
         planetId: PlanetId;
-        planetCx: number;
-        planetCy: number;
-        diskR: number;
         groups: NodeGroup[];
     }): { layouts: NodeLayout[]; links: Array<{ a: NodeLayout; b: NodeLayout }> } {
-        const { planetCx: cx, planetCy: cy, diskR, groups } = args;
+        const { groups } = args;
 
         if (!groups.length) return { layouts: [], links: [] };
 
-        const clusterR = diskR * 0.92;
+        const clusterR = 0.92; // fraction of unit disk
 
         const pts: Array<{
             group: NodeGroup;
             x: number;
             y: number;
-            r: number;
             hasManual: boolean;
         }> = [];
 
@@ -1224,13 +1226,10 @@ function StarChartMap(props: {
             const manual = base ? nodeManualLocal(base) : null;
 
             if (manual) {
-                const mx = clamp(manual.x, -0.98, 0.98);
-                const my = clamp(manual.y, -0.98, 0.98);
                 pts.push({
                     group: g,
-                    x: cx + mx * diskR,
-                    y: cy + my * diskR,
-                    r: nodeDotR,
+                    x: clamp(manual.x, -0.98, 0.98),
+                    y: clamp(manual.y, -0.98, 0.98),
                     hasManual: true
                 });
                 continue;
@@ -1240,15 +1239,14 @@ function StarChartMap(props: {
             const r0 = clusterR * (0.48 + 0.48 * hashToUnitFloat(g.key + ":r"));
             pts.push({
                 group: g,
-                x: cx + Math.cos(a) * r0,
-                y: cy + Math.sin(a) * r0,
-                r: nodeDotR,
+                x: Math.cos(a) * r0,
+                y: Math.sin(a) * r0,
                 hasManual: false
             });
         }
 
         const steps = 70;
-        const padding = nodeDotR * 3.1;
+        const padding = LAYOUT_NODE_R * 3.1;
         const pull = 0.008;
 
         for (let s = 0; s < steps; s++) {
@@ -1256,10 +1254,9 @@ function StarChartMap(props: {
                 const a = pts[i];
                 if (a.hasManual) continue;
 
-                const dx0 = a.x - cx;
-                const dy0 = a.y - cy;
-                a.x -= dx0 * pull;
-                a.y -= dy0 * pull;
+                // Gentle pull toward center (coords are relative to 0,0)
+                a.x -= a.x * pull;
+                a.y -= a.y * pull;
 
                 for (let j = 0; j < pts.length; j++) {
                     if (i === j) continue;
@@ -1268,7 +1265,7 @@ function StarChartMap(props: {
                     const dx = a.x - b.x;
                     const dy = a.y - b.y;
                     const d = Math.sqrt(dx * dx + dy * dy) || 0.0001;
-                    const minD = a.r + b.r + padding;
+                    const minD = LAYOUT_NODE_R * 2 + padding;
 
                     if (d < minD) {
                         const push = (minD - d) * 0.42;
@@ -1288,17 +1285,12 @@ function StarChartMap(props: {
             }
         }
 
+        const labelDist = LAYOUT_NODE_R * 3.1;
+
         const layouts: NodeLayout[] = pts.map((p) => {
-            const ang = Math.atan2(p.y - cy, p.x - cx);
+            const ang = Math.atan2(p.y, p.x);
             const preferRight = Math.cos(ang) >= 0;
-
-            const labelDist = nodeDotR * 3.1;
-            const lxA = p.x + (preferRight ? labelDist : -labelDist);
-            const lyA = p.y;
-
             const altRight = !preferRight;
-            const lxB = p.x + (altRight ? labelDist : -labelDist);
-            const lyB = p.y;
 
             function penalty(lx: number, ly: number): number {
                 let pen = 0;
@@ -1306,24 +1298,22 @@ function StarChartMap(props: {
                     const dx = lx - q.x;
                     const dy = ly - q.y;
                     const d = Math.sqrt(dx * dx + dy * dy);
-                    const minD = q.r + nodeDotR * 3.4;
+                    const minD = LAYOUT_NODE_R * 4.4;
                     if (d < minD) pen += minD - d;
                 }
                 return pen;
             }
 
-            const pA = penalty(lxA, lyA);
-            const pB = penalty(lxB, lyB);
-
-            const useRight = pA <= pB ? preferRight : altRight;
+            const lxA = p.x + (preferRight ? labelDist : -labelDist);
+            const lxB = p.x + (altRight ? labelDist : -labelDist);
+            const useRight = penalty(lxA, p.y) <= penalty(lxB, p.y) ? preferRight : altRight;
 
             return {
                 group: p.group,
-                cx: p.x,
-                cy: p.y,
-                r: p.r,
-                lx: p.x + (useRight ? labelDist : -labelDist),
-                ly: p.y,
+                ncx: p.x,
+                ncy: p.y,
+                nlx: p.x + (useRight ? labelDist : -labelDist),
+                nly: p.y,
                 lAnchor: useRight ? "start" : "end"
             };
         });
@@ -1361,6 +1351,15 @@ function StarChartMap(props: {
         return { layouts, links: uniq };
     }
 
+    // Stable layout: only recomputes when planet groupings change, not on zoom/pan.
+    const planetNodeLayouts = useMemo(() => {
+        const out = new Map<string, { layouts: NodeLayout[]; links: Array<{ a: NodeLayout; b: NodeLayout }> }>();
+        for (const [planetId, groups] of groupedByPlanet) {
+            out.set(planetId, computePlanetNodeLayout({ planetId: planetId as PlanetId, groups }));
+        }
+        return out;
+    }, [groupedByPlanet, edgesById]);
+
     const zoomedPlanetLayers = useMemo(() => {
         if (reveal <= 0.01) {
             return [] as Array<{
@@ -1390,20 +1389,11 @@ function StarChartMap(props: {
 
         for (const pl of overviewPlanets) {
             const pid = pl.planet.id as PlanetId;
-            const groups = groupedByPlanet.get(String(pid)) ?? [];
             const diskR = expandedRadiusByPlanetId.get(pid) ?? 18;
             const grownR = lerp(pl.r, diskR, reveal);
-
             const clipBase = String(pid).replace(/[^a-z0-9_:-]/gi, "_");
             const clipId = `clip_${clipBase}`;
-
-            const { layouts, links } = computePlanetNodeLayout({
-                planetId: pid,
-                planetCx: pl.x,
-                planetCy: pl.y,
-                diskR,
-                groups
-            });
+            const { layouts, links } = planetNodeLayouts.get(String(pid)) ?? { layouts: [], links: [] };
 
             out.push({
                 planet: pl.planet,
@@ -1419,7 +1409,7 @@ function StarChartMap(props: {
         }
 
         return out;
-    }, [overviewPlanets, groupedByPlanet, expandedRadiusByPlanetId, reveal, nodeDotR, edgesById]);
+    }, [overviewPlanets, planetNodeLayouts, expandedRadiusByPlanetId, reveal]);
 
     const canInteractPlanetNodes = reveal > 0.18;
 
@@ -1545,7 +1535,10 @@ function StarChartMap(props: {
 
         for (const zl of zoomedPlanetLayers) {
             for (const nd of zl.layouts) {
-                const p = worldToOverlayPx({ x: nd.lx, y: nd.ly });
+                const p = worldToOverlayPx({
+                    x: zl.cx + nd.nlx * zl.grownR,
+                    y: zl.cy + nd.nly * zl.grownR
+                });
                 if (!p) continue;
                 out.push({
                     key: `${zl.planet.id}::${nd.group.key}`,
@@ -1970,13 +1963,16 @@ function StarChartMap(props: {
                                                     const isSelectedB = selectedGroupKey === l.b.group.key && selectedPlanetId === pid;
                                                     const hi = isSelectedA || isSelectedB;
 
+                                                    // Expand normalized coords to world space
+                                                    const ax1 = zl.cx + l.a.ncx * zl.grownR;
+                                                    const ay1 = zl.cy + l.a.ncy * zl.grownR;
+                                                    const ax2 = zl.cx + l.b.ncx * zl.grownR;
+                                                    const ay2 = zl.cy + l.b.ncy * zl.grownR;
                                                     return (
                                                         <line
                                                             key={`ln-${zl.planet.id}-${idx}`}
-                                                            x1={l.a.cx}
-                                                            y1={l.a.cy}
-                                                            x2={l.b.cx}
-                                                            y2={l.b.cy}
+                                                            x1={ax1} y1={ay1}
+                                                            x2={ax2} y2={ay2}
                                                             stroke={hi ? "rgba(255,255,255,0.75)" : "rgba(200,215,235,0.38)"}
                                                             strokeWidth={hi ? lineStrokeHi : lineStroke}
                                                         />
@@ -1999,9 +1995,13 @@ function StarChartMap(props: {
                                                         ? "rgba(134,239,172,0.85)"
                                                         : "rgba(160,185,220,0.62)";
 
+                                                // Expand normalized coords to world space
+                                                const acx = zl.cx + nd.ncx * zl.grownR;
+                                                const acy = zl.cy + nd.ncy * zl.grownR;
+
                                                 // Diamond (rotated square) matching the in-game node style.
-                                                const r = nd.r;
-                                                const diamondPts = `${nd.cx},${nd.cy - r} ${nd.cx + r},${nd.cy} ${nd.cx},${nd.cy + r} ${nd.cx - r},${nd.cy}`;
+                                                const r = nodeDotR;
+                                                const diamondPts = `${acx},${acy - r} ${acx + r},${acy} ${acx},${acy + r} ${acx - r},${acy}`;
 
                                                 return (
                                                     <g
@@ -2011,7 +2011,7 @@ function StarChartMap(props: {
                                                         style={{ cursor: "pointer" }}
                                                     >
                                                         {/* Invisible hit circle — easier to click than the diamond alone */}
-                                                        <circle cx={nd.cx} cy={nd.cy} r={nd.r * 2} fill="transparent" />
+                                                        <circle cx={acx} cy={acy} r={nodeDotR * 2} fill="transparent" />
                                                         {/* Diamond node */}
                                                         <polygon points={diamondPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />
                                                     </g>
