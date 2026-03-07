@@ -162,6 +162,37 @@ function smoothstep01(t: number): number {
 
 type ManualPos = { x: number; y: number };
 
+// Map planet/region IDs → the webp filename in /public/planets/
+const PLANET_IMAGES: Record<string, string> = {
+    "planet:mercury":       "Mercury.webp",
+    "planet:venus":         "Venus.webp",
+    "planet:earth":         "Earth.webp",
+    "planet:mars":          "Mars.webp",
+    "planet:phobos":        "Phobos.webp",
+    "planet:deimos":        "Deimos.webp",
+    "planet:ceres":         "Ceres.webp",
+    "planet:jupiter":       "Jupiter.webp",
+    "planet:europa":        "Europa.webp",
+    "planet:saturn":        "Saturn.webp",
+    "planet:uranus":        "Uranus.webp",
+    "planet:neptune":       "Neptune.webp",
+    "planet:pluto":         "Pluto.webp",
+    "planet:sedna":         "Sedna.webp",
+    "planet:eris":          "Eris.webp",
+    "region:void":          "Void.webp",
+    "region:lua":           "Lua.webp",
+    "region:kuva_fortress": "Kuva_Fortress.webp",
+    "region:zariman":       "New_Zariman.webp",
+};
+
+// Returns the URL for a planet's image, or null if not mapped.
+// Uses Vite's BASE_URL so it works in both dev (/) and production (/Warframe-Progression-Tracker/).
+function planetImgUrl(planetId: string): string | null {
+    const file = PLANET_IMAGES[planetId];
+    if (!file) return null;
+    return `${import.meta.env.BASE_URL}planets/${file}`;
+}
+
 const MANUAL_POS: Record<string, ManualPos> = {
     // Positions matched against the in-game star chart screenshot.
     // Coordinate space: 0–100 before MAP_POS_SCALE is applied, origin top-left.
@@ -1879,6 +1910,7 @@ function StarChartMap(props: {
                             const col = PLANET_COLORS[p.id] ?? DEFAULT_PLANET_COLOR;
                             const gId = planetGradId(p.id);
 
+                            const imgUrl = planetImgUrl(p.id);
                             return (
                                 <g key={p.id} data-clickable="true" onClick={() => onClickPlanet(p.id)} style={{ cursor: "pointer" }}>
                                     {/* Glow halo */}
@@ -1887,8 +1919,20 @@ function StarChartMap(props: {
                                     {isSelected && (
                                         <circle cx={pl.x} cy={pl.y} r={pl.r * 1.42} fill="none" stroke={col.light} strokeWidth={circleStroke * 0.85} strokeOpacity={0.80} />
                                     )}
-                                    {/* Sphere */}
-                                    <circle cx={pl.x} cy={pl.y} r={pl.r} fill={`url(#${gId})`} stroke={col.light} strokeWidth={circleStroke} strokeOpacity={isSelected ? 1.0 : 0.55} />
+                                    {/* Sphere — planet image if available, gradient fallback */}
+                                    {imgUrl ? (
+                                        <image
+                                            href={imgUrl}
+                                            x={pl.x - pl.r} y={pl.y - pl.r}
+                                            width={pl.r * 2} height={pl.r * 2}
+                                            preserveAspectRatio="xMidYMid slice"
+                                            style={{ clipPath: "circle(50%)" }}
+                                        />
+                                    ) : (
+                                        <circle cx={pl.x} cy={pl.y} r={pl.r} fill={`url(#${gId})`} />
+                                    )}
+                                    {/* Stroke ring on top */}
+                                    <circle cx={pl.x} cy={pl.y} r={pl.r} fill="none" stroke={col.light} strokeWidth={circleStroke} strokeOpacity={isSelected ? 1.0 : 0.55} />
                                 </g>
                             );
                         })}
@@ -1912,8 +1956,21 @@ function StarChartMap(props: {
                                         <g data-clickable="true" onClick={() => onClickPlanet(pid)} style={{ cursor: "pointer" }}>
                                             {/* Glow halo — always present */}
                                             <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 1.14} fill={zCol.glow} fillOpacity={0.32} />
-                                            {/* Sphere gradient at low reveal — matches overview appearance */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill={`url(#${zGId})`} fillOpacity={sphereAlpha} />
+                                            {/* Planet image (or gradient fallback) — shrinks/grows with grownR */}
+                                            {(() => {
+                                                const imgUrl = planetImgUrl(pid);
+                                                return imgUrl ? (
+                                                    <image
+                                                        href={imgUrl}
+                                                        x={zl.cx - zl.grownR} y={zl.cy - zl.grownR}
+                                                        width={zl.grownR * 2} height={zl.grownR * 2}
+                                                        preserveAspectRatio="xMidYMid slice"
+                                                        style={{ clipPath: "circle(50%)" }}
+                                                    />
+                                                ) : (
+                                                    <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill={`url(#${zGId})`} fillOpacity={sphereAlpha} />
+                                                );
+                                            })()}
                                             {/* Dark interior fades in so nodes become readable */}
                                             <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="rgba(1,4,18,0.80)" fillOpacity={diskAlpha} stroke={zCol.base} strokeWidth={circleStroke} strokeOpacity={0.50} />
                                             {/* Thin inner rim accent */}
