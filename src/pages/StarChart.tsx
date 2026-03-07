@@ -378,10 +378,9 @@ function nodeRevealAlpha(scale: number): number {
 type PlanetLayout = { planet: StarChartPlanet; x: number; y: number; r: number };
 
 function getPlanetRadius(p: StarChartPlanet): number {
-    // Doubled vs original sizing.
-    if (p.kind === "planet") return 4.2;
-    if (p.kind === "region") return 3.8;
-    return 3.2;
+    if (p.kind === "planet") return 5.5;
+    if (p.kind === "region") return 5.0;
+    return 4.5;
 }
 
 type NodeGroupKind = "all" | "base" | "mission_rewards" | "caches" | "extra" | "other";
@@ -391,6 +390,7 @@ type NodeGroup = {
     planetId: PlanetId;
     displayName: string;
     baseNodeId: NodeId;
+    nodeType: "mission" | "hub" | "junction" | "special";
     kinds: Partial<Record<Exclude<NodeGroupKind, "all">, NodeId[]>>;
 };
 
@@ -719,6 +719,18 @@ function StarChartMap(props: {
     const setNodeCompleted = useTrackerStore((s) => s.setNodeCompleted);
     const nodeCompletedMap = useTrackerStore((s) => s.state.missions?.nodeCompleted ?? EMPTY_NODE_COMPLETED);
 
+    // Derive which planets are unlocked from completed junctions.
+    // Mercury is the starting planet and is always accessible.
+    const unlockedPlanetIds = useMemo(() => {
+        const unlocked = new Set<string>(["planet:mercury"]);
+        for (const n of STAR_CHART_DATA.nodes) {
+            if (n.nodeType === "junction" && n.unlocksPlanetId && nodeCompletedMap[n.id]) {
+                unlocked.add(n.unlocksPlanetId);
+            }
+        }
+        return unlocked;
+    }, [nodeCompletedMap]);
+
     const svgRef = useRef<SVGSVGElement | null>(null);
     const vbRef = useRef<ViewBox>(vb);
     useEffect(() => {
@@ -786,6 +798,7 @@ function StarChartMap(props: {
     const [isDragging, setIsDragging] = useState(false);
 
     // Panel UX state (end-user friendly)
+    const [showLegend, setShowLegend] = useState(false);
     const [showDebugSources, setShowDebugSources] = useState(false);
     const [itemFilter, setItemFilter] = useState("");
 
@@ -834,6 +847,7 @@ function StarChartMap(props: {
                     planetId: n.planetId,
                     displayName: displayNameFromBase(n),
                     baseNodeId: n.id,
+                    nodeType: n.nodeType,
                     kinds: {}
                 };
                 arr.push(g);
@@ -1997,25 +2011,60 @@ function StarChartMap(props: {
                                             {zl.layouts.map((nd) => {
                                                 const isActive = selectedPlanetId === pid && selectedGroupKey === nd.group.key;
                                                 const isCompleted = Boolean(nodeCompletedMap[nd.group.baseNodeId]);
+                                                const isAvailable = !isCompleted && unlockedPlanetIds.has(String(pid));
 
+                                                // 3-state color: active > completed > available > locked
                                                 const nodeFill = isActive
                                                     ? "rgba(255,255,255,0.18)"
                                                     : isCompleted
-                                                        ? "rgba(52,211,153,0.10)"
-                                                        : "rgba(1,4,18,0.35)";
+                                                        ? "rgba(52,211,153,0.12)"
+                                                        : isAvailable
+                                                            ? "rgba(59,130,246,0.10)"
+                                                            : "rgba(1,4,18,0.35)";
                                                 const nodeStrokeCol = isActive
                                                     ? "rgba(255,255,255,0.95)"
                                                     : isCompleted
                                                         ? "rgba(134,239,172,0.85)"
-                                                        : "rgba(160,185,220,0.62)";
+                                                        : isAvailable
+                                                            ? "rgba(147,197,253,0.85)"
+                                                            : "rgba(100,116,139,0.50)";
 
                                                 // Expand normalized coords to world space
                                                 const acx = zl.cx + nd.ncx * zl.grownR;
                                                 const acy = zl.cy + nd.ncy * zl.grownR;
-
-                                                // Diamond (rotated square) matching the in-game node style.
                                                 const r = nodeDotR;
-                                                const diamondPts = `${acx},${acy - r} ${acx + r},${acy} ${acx},${acy + r} ${acx - r},${acy}`;
+
+                                                // Shape by nodeType
+                                                let shape: React.ReactNode;
+                                                switch (nd.group.nodeType) {
+                                                    case "junction": {
+                                                        // Circle — junctions are circular in-game
+                                                        shape = <circle cx={acx} cy={acy} r={r * 1.1} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
+                                                        break;
+                                                    }
+                                                    case "special": {
+                                                        // 6-pointed star (two overlapping triangles)
+                                                        const sr = r * 1.15;
+                                                        const starPts = [0,1,2,3,4,5].map((i) => {
+                                                            const a = (i * Math.PI) / 3 - Math.PI / 2;
+                                                            const rr = i % 2 === 0 ? sr : sr * 0.5;
+                                                            return `${acx + Math.cos(a) * rr},${acy + Math.sin(a) * rr}`;
+                                                        }).join(" ");
+                                                        shape = <polygon points={starPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
+                                                        break;
+                                                    }
+                                                    case "hub": {
+                                                        // Square (axis-aligned)
+                                                        const hs = r * 0.9;
+                                                        shape = <rect x={acx - hs} y={acy - hs} width={hs * 2} height={hs * 2} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
+                                                        break;
+                                                    }
+                                                    default: {
+                                                        // Diamond — standard mission node
+                                                        const diamondPts = `${acx},${acy - r} ${acx + r},${acy} ${acx},${acy + r} ${acx - r},${acy}`;
+                                                        shape = <polygon points={diamondPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
+                                                    }
+                                                }
 
                                                 return (
                                                     <g
@@ -2024,10 +2073,8 @@ function StarChartMap(props: {
                                                         onClick={() => onClickGroup(pid, nd.group)}
                                                         style={{ cursor: "pointer" }}
                                                     >
-                                                        {/* Invisible hit circle — easier to click than the diamond alone */}
                                                         <circle cx={acx} cy={acy} r={nodeDotR * 2} fill="transparent" />
-                                                        {/* Diamond node */}
-                                                        <polygon points={diamondPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />
+                                                        {shape}
                                                     </g>
                                                 );
                                             })}
@@ -2047,7 +2094,8 @@ function StarChartMap(props: {
                             style={{
                                 left: p.x,
                                 top: p.y,
-                                opacity: p.opacity,
+                                // Selected planet label stays fully visible as overview fades
+                                opacity: p.id === selectedPlanetId ? 1 : p.opacity,
                                 transform: "translate(-50%, -50%)",
                                 textTransform: "uppercase",
                                 textShadow: "-1px -1px 0 rgba(0,0,0,0.95), 1px -1px 0 rgba(0,0,0,0.95), -1px 1px 0 rgba(0,0,0,0.95), 1px 1px 0 rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.8)",
@@ -2065,7 +2113,8 @@ function StarChartMap(props: {
                             style={{
                                 left: p.x,
                                 top: p.y,
-                                opacity: p.opacity,
+                                // Selected planet label stays fully visible as zoom reveal fades
+                                opacity: p.id === selectedPlanetId ? 1 : p.opacity,
                                 transform: "translate(-50%, -50%)",
                                 textTransform: "uppercase",
                                 textShadow: "-1px -1px 0 rgba(0,0,0,0.95), 1px -1px 0 rgba(0,0,0,0.95), -1px 1px 0 rgba(0,0,0,0.95), 1px 1px 0 rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.8)",
@@ -2095,6 +2144,54 @@ function StarChartMap(props: {
                                 {l.text}
                             </div>
                         ))}
+                </div>
+
+                {/* ── Legend (bottom-right, toggleable) ──────────────────────── */}
+                <div className="absolute bottom-3 right-3 z-30 flex flex-col items-end gap-2">
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-1.5 text-xs text-slate-300 backdrop-blur-sm hover:bg-slate-900/80 transition-colors"
+                        onClick={() => setShowLegend((v) => !v)}
+                        title="Toggle node legend"
+                    >
+                        {showLegend ? "Hide Legend" : "Legend"}
+                    </button>
+                    {showLegend && (
+                        <div className="rounded-xl border border-slate-700 bg-slate-950/85 px-4 py-3 text-xs text-slate-300 backdrop-blur-sm">
+                            <div className="mb-2 text-[10px] uppercase tracking-widest text-slate-500">Node Types</div>
+                            {([
+                                { label: "Mission",  desc: "Standard mission node",        shape: "diamond" },
+                                { label: "Junction", desc: "Unlocks the next planet",      shape: "circle"  },
+                                { label: "Special",  desc: "Boss / quest / unique node",   shape: "star"    },
+                                { label: "Hub",      desc: "Social or relay hub",          shape: "square"  },
+                            ] as const).map(({ label, desc, shape }) => (
+                                <div key={label} className="flex items-center gap-2.5 py-1">
+                                    <svg width="16" height="16" viewBox="-8 -8 16 16" className="shrink-0">
+                                        {shape === "diamond" && <polygon points="0,-6 6,0 0,6 -6,0" fill="rgba(160,185,220,0.15)" stroke="rgba(160,185,220,0.75)" strokeWidth="1.2" />}
+                                        {shape === "circle"  && <circle cx="0" cy="0" r="5.5" fill="rgba(160,185,220,0.15)" stroke="rgba(160,185,220,0.75)" strokeWidth="1.2" />}
+                                        {shape === "star"    && <polygon points="0,-7 2.0,-2.5 7,-2.5 3,0.8 5,6 0,3 -5,6 -3,0.8 -7,-2.5 -2.0,-2.5" fill="rgba(160,185,220,0.15)" stroke="rgba(160,185,220,0.75)" strokeWidth="1.2" />}
+                                        {shape === "square"  && <rect x="-5" y="-5" width="10" height="10" fill="rgba(160,185,220,0.15)" stroke="rgba(160,185,220,0.75)" strokeWidth="1.2" />}
+                                    </svg>
+                                    <div>
+                                        <span className="font-semibold text-slate-200">{label}</span>
+                                        <span className="ml-1.5 text-slate-500">{desc}</span>
+                                    </div>
+                                </div>
+                            ))}
+                            <div className="mt-2 border-t border-slate-800 pt-2">
+                                <div className="mb-1 text-[10px] uppercase tracking-widest text-slate-500">Completion</div>
+                                {([
+                                    { label: "Completed",  color: "rgba(134,239,172,0.85)" },
+                                    { label: "Available",  color: "rgba(147,197,253,0.85)" },
+                                    { label: "Locked",     color: "rgba(100,116,139,0.50)" },
+                                ] as const).map(({ label, color }) => (
+                                    <div key={label} className="flex items-center gap-2.5 py-0.5">
+                                        <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full border" style={{ borderColor: color, background: color.replace(/[\d.]+\)$/, "0.12)") }} />
+                                        <span className="text-slate-300">{label}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="pointer-events-none absolute bottom-3 left-3 z-30 rounded-xl border border-slate-800 bg-slate-950/55 px-3 py-2 text-xs text-slate-400 backdrop-blur-sm">
@@ -2292,6 +2389,7 @@ export default function StarChart() {
                     planetId: n.planetId,
                     displayName: displayNameFromBase(n),
                     baseNodeId: n.id,
+                    nodeType: n.nodeType,
                     kinds: {}
                 };
                 arr.push(g);
