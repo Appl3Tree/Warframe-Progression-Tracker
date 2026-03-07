@@ -1907,17 +1907,14 @@ function StarChartMap(props: {
                         {overviewPlanets.map((pl) => {
                             const p = pl.planet;
                             const isSelected = p.id === selectedPlanetId;
-                            const col = PLANET_COLORS[p.id] ?? DEFAULT_PLANET_COLOR;
                             const gId = planetGradId(p.id);
 
                             const imgUrl = planetImgUrl(p.id);
                             return (
                                 <g key={p.id} data-clickable="true" onClick={() => onClickPlanet(p.id)} style={{ cursor: "pointer" }}>
-                                    {/* Glow halo */}
-                                    <circle cx={pl.x} cy={pl.y} r={pl.r * 1.80} fill={col.glow} />
-                                    {/* Selection ring */}
+                                    {/* Selection ring — neutral white, no color fill */}
                                     {isSelected && (
-                                        <circle cx={pl.x} cy={pl.y} r={pl.r * 1.42} fill="none" stroke={col.light} strokeWidth={circleStroke * 0.85} strokeOpacity={0.80} />
+                                        <circle cx={pl.x} cy={pl.y} r={pl.r * 1.45} fill="none" stroke="rgba(226,232,240,0.90)" strokeWidth={circleStroke * 1.1} />
                                     )}
                                     {/* Sphere — planet image if available, gradient fallback */}
                                     {imgUrl ? (
@@ -1929,10 +1926,8 @@ function StarChartMap(props: {
                                             style={{ clipPath: "circle(50%)" }}
                                         />
                                     ) : (
-                                        <circle cx={pl.x} cy={pl.y} r={pl.r} fill={`url(#${gId})`} />
+                                        <circle cx={pl.x} cy={pl.y} r={pl.r} fill={`url(#${gId})`} stroke="rgba(180,200,230,0.55)" strokeWidth={circleStroke} />
                                     )}
-                                    {/* Stroke ring on top */}
-                                    <circle cx={pl.x} cy={pl.y} r={pl.r} fill="none" stroke={col.light} strokeWidth={circleStroke} strokeOpacity={isSelected ? 1.0 : 0.55} />
                                 </g>
                             );
                         })}
@@ -1946,17 +1941,12 @@ function StarChartMap(props: {
 
                                 const zCol = PLANET_COLORS[pid] ?? DEFAULT_PLANET_COLOR;
                                 const zGId = planetGradId(pid);
-                                // At low reveal the disk looks identical to the overview sphere (gradient fill,
-                                // no dark interior) so the crossfade is seamless.  As reveal increases the
-                                // gradient fades out and the dark interior fades in to keep nodes readable.
-                                const sphereAlpha = clamp(1 - reveal * 2.2, 0, 1);
-                                const diskAlpha   = clamp(reveal * 1.6,     0, 1);
+                                // Dark overlay fades in as you zoom in so mission nodes stay readable.
+                                const diskAlpha = clamp(reveal * 1.6, 0, 1);
                                 return (
                                     <g key={`zl-${zl.planet.id}`}>
                                         <g data-clickable="true" onClick={() => onClickPlanet(pid)} style={{ cursor: "pointer" }}>
-                                            {/* Glow halo — always present */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 1.14} fill={zCol.glow} fillOpacity={0.32} />
-                                            {/* Planet image (or gradient fallback) — shrinks/grows with grownR */}
+                                            {/* Planet image grows with grownR — gradient fallback for unmapped planets */}
                                             {(() => {
                                                 const imgUrl = planetImgUrl(pid);
                                                 return imgUrl ? (
@@ -1968,13 +1958,13 @@ function StarChartMap(props: {
                                                         style={{ clipPath: "circle(50%)" }}
                                                     />
                                                 ) : (
-                                                    <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill={`url(#${zGId})`} fillOpacity={sphereAlpha} />
+                                                    <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill={`url(#${zGId})`} />
                                                 );
                                             })()}
                                             {/* Dark interior fades in so nodes become readable */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="rgba(1,4,18,0.80)" fillOpacity={diskAlpha} stroke={zCol.base} strokeWidth={circleStroke} strokeOpacity={0.50} />
-                                            {/* Thin inner rim accent */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 0.97} fill="none" stroke={zCol.light} strokeWidth={circleStroke * 0.35} strokeOpacity={0.22 * diskAlpha} />
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="rgba(1,4,18,0.80)" fillOpacity={diskAlpha} stroke="rgba(180,200,230,0.50)" strokeWidth={circleStroke} />
+                                            {/* Thin inner rim */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 0.97} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth={circleStroke * 0.35} strokeOpacity={diskAlpha} />
                                         </g>
 
                                         <g pointerEvents={canInteractPlanetNodes ? "auto" : "none"} opacity={clamp(reveal * 3.0, 0, 1)}>
@@ -2254,8 +2244,10 @@ export default function StarChart() {
     const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
     const [selectedTab, setSelectedTab] = useState<NodeGroupKind>("base");
 
-    const initialWorldSpan = WORLD_MAX - WORLD_MIN;
-    const [vb, setVb] = useState<ViewBox>({ x: WORLD_MIN, y: WORLD_MIN, w: initialWorldSpan, h: initialWorldSpan });
+    // ~35% zoom (vb.w=286 → scale=100/286≈0.35), centered on the actual planet
+    // cluster centroid rather than the mathematical world center.
+    const INITIAL_VB: ViewBox = { x: -100, y: -109, w: 286, h: 286 };
+    const [vb, setVb] = useState<ViewBox>(INITIAL_VB);
 
     const sourceToItemsIndex = useMemo(() => buildSourceToItemsIndex(), []);
 
@@ -2365,7 +2357,7 @@ export default function StarChart() {
         setSelectedGroupKey(null);
         setSelectedTab("base");
         setSelectedPlanetId(null);
-        setVb({ x: WORLD_MIN, y: WORLD_MIN, w: initialWorldSpan, h: initialWorldSpan });
+        setVb(INITIAL_VB);
     }
 
     const focusedTitle = useMemo(() => {
