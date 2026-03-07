@@ -1828,6 +1828,18 @@ function StarChartMap(props: {
                             </clipPath>
                         ))}
 
+                        {/* Soft circular vignette mask reused by all planet images.
+                             maskContentUnits="objectBoundingBox" means x/y/w/h=0..1
+                             maps to the exact bounding box of whatever element uses it,
+                             so one mask definition works for every planet size. */}
+                        <radialGradient id="sphereVignette" cx="50%" cy="50%" r="50%" gradientUnits="objectBoundingBox">
+                            <stop offset="68%" stopColor="white" stopOpacity="1" />
+                            <stop offset="100%" stopColor="white" stopOpacity="0" />
+                        </radialGradient>
+                        <mask id="sphereVignetteMask" maskContentUnits="objectBoundingBox">
+                            <rect x="0" y="0" width="1" height="1" fill="url(#sphereVignette)" />
+                        </mask>
+
                     </defs>
 
                     {/* ── Deep-space background ──────────────────────────────────── */}
@@ -1917,6 +1929,7 @@ function StarChartMap(props: {
                                             x={pl.x - pl.r} y={pl.y - pl.r}
                                             width={pl.r * 2} height={pl.r * 2}
                                             preserveAspectRatio="xMidYMid meet"
+                                            mask="url(#sphereVignetteMask)"
                                         />
                                     ) : (
                                         <circle cx={pl.x} cy={pl.y} r={pl.r} fill={`url(#${gId})`} stroke="rgba(180,200,230,0.55)" strokeWidth={circleStroke} />
@@ -1947,6 +1960,7 @@ function StarChartMap(props: {
                                                         x={zl.cx - zl.grownR} y={zl.cy - zl.grownR}
                                                         width={zl.grownR * 2} height={zl.grownR * 2}
                                                         preserveAspectRatio="xMidYMid meet"
+                                                        mask="url(#sphereVignetteMask)"
                                                     />
                                                 ) : (
                                                     <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill={`url(#${zGId})`} />
