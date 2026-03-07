@@ -2036,7 +2036,7 @@ function StarChartMap(props: {
                                 opacity: p.opacity,
                                 transform: "translate(-50%, -50%)",
                                 textTransform: "uppercase",
-                                textShadow: "0 2px 10px rgba(0,0,0,0.65)",
+                                textShadow: "-1px -1px 0 rgba(0,0,0,0.95), 1px -1px 0 rgba(0,0,0,0.95), -1px 1px 0 rgba(0,0,0,0.95), 1px 1px 0 rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.8)",
                                 whiteSpace: "nowrap"
                             }}
                         >
@@ -2054,7 +2054,7 @@ function StarChartMap(props: {
                                 opacity: p.opacity,
                                 transform: "translate(-50%, -50%)",
                                 textTransform: "uppercase",
-                                textShadow: "0 2px 10px rgba(0,0,0,0.65)",
+                                textShadow: "-1px -1px 0 rgba(0,0,0,0.95), 1px -1px 0 rgba(0,0,0,0.95), -1px 1px 0 rgba(0,0,0,0.95), 1px 1px 0 rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.8)",
                                 whiteSpace: "nowrap"
                             }}
                         >
@@ -2074,7 +2074,7 @@ function StarChartMap(props: {
                                     opacity: clamp(reveal * 3.0, 0, 1),
                                     transform: l.anchor === "end" ? "translate(-100%, -50%)" : "translate(0%, -50%)",
                                     textTransform: "uppercase",
-                                    textShadow: "0 2px 10px rgba(0,0,0,0.65)",
+                                    textShadow: "-1px -1px 0 rgba(0,0,0,0.95), 1px -1px 0 rgba(0,0,0,0.95), -1px 1px 0 rgba(0,0,0,0.95), 1px 1px 0 rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.8)",
                                     whiteSpace: "nowrap"
                                 }}
                             >
