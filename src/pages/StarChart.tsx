@@ -1114,8 +1114,8 @@ function StarChartMap(props: {
 
     // Keep nodes/lines from getting “noisy” as you zoom further in.
     const nodeDotR = useMemo(() => {
-        const r = 0.86 / scale;
-        return clamp(r, 0.16, 0.36);
+        const r = 1.1 / scale;
+        return clamp(r, 0.22, 0.48);
     }, [scale]);
 
     const lineStroke = useMemo(() => {
@@ -1939,7 +1939,6 @@ function StarChartMap(props: {
                             {zoomedPlanetLayers.map((zl) => {
                                 const pid = zl.planet.id as PlanetId;
 
-                                const zCol = PLANET_COLORS[pid] ?? DEFAULT_PLANET_COLOR;
                                 const zGId = planetGradId(pid);
                                 // Dark overlay fades in as you zoom in so mission nodes stay readable.
                                 const diskAlpha = clamp(reveal * 1.6, 0, 1);
@@ -1961,14 +1960,16 @@ function StarChartMap(props: {
                                                     <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill={`url(#${zGId})`} />
                                                 );
                                             })()}
-                                            {/* Dark interior fades in so nodes become readable */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="rgba(1,4,18,0.80)" fillOpacity={diskAlpha} stroke="rgba(180,200,230,0.50)" strokeWidth={circleStroke} />
-                                            {/* Thin inner rim */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 0.97} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth={circleStroke * 0.35} strokeOpacity={diskAlpha} />
+                                            {/* Very subtle dark tint — just enough to lift node text without hiding the image */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="rgba(1,4,18,0.28)" fillOpacity={diskAlpha} />
+                                            {/* Elegant outer border ring */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="none" stroke="rgba(160,195,240,0.55)" strokeWidth={circleStroke * 1.4} />
+                                            {/* Inner atmosphere ring */}
+                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 0.93} fill="none" stroke="rgba(160,195,240,0.18)" strokeWidth={circleStroke * 0.5} />
                                         </g>
 
                                         <g pointerEvents={canInteractPlanetNodes ? "auto" : "none"} opacity={clamp(reveal * 3.0, 0, 1)}>
-                                            <g opacity={0.85}>
+                                            <g opacity={0.90}>
                                                 {zl.links.map((l, idx) => {
                                                     const isSelectedA = selectedGroupKey === l.a.group.key && selectedPlanetId === pid;
                                                     const isSelectedB = selectedGroupKey === l.b.group.key && selectedPlanetId === pid;
@@ -1981,7 +1982,7 @@ function StarChartMap(props: {
                                                             y1={l.a.cy}
                                                             x2={l.b.cx}
                                                             y2={l.b.cy}
-                                                            stroke={hi ? "rgba(226,232,240,0.55)" : "rgba(226,232,240,0.22)"}
+                                                            stroke={hi ? "rgba(255,255,255,0.75)" : "rgba(200,215,235,0.38)"}
                                                             strokeWidth={hi ? lineStrokeHi : lineStroke}
                                                         />
                                                     );
@@ -1993,15 +1994,19 @@ function StarChartMap(props: {
                                                 const isCompleted = Boolean(nodeCompletedMap[nd.group.baseNodeId]);
 
                                                 const nodeFill = isActive
-                                                    ? zCol.base + "44"
+                                                    ? "rgba(255,255,255,0.18)"
                                                     : isCompleted
-                                                        ? "rgba(16,185,129,0.22)"
-                                                        : "rgba(1,4,18,0.80)";
+                                                        ? "rgba(52,211,153,0.10)"
+                                                        : "rgba(1,4,18,0.35)";
                                                 const nodeStrokeCol = isActive
-                                                    ? zCol.light
+                                                    ? "rgba(255,255,255,0.95)"
                                                     : isCompleted
-                                                        ? "rgba(52,211,153,0.80)"
-                                                        : "rgba(140,160,200,0.58)";
+                                                        ? "rgba(134,239,172,0.85)"
+                                                        : "rgba(160,185,220,0.62)";
+
+                                                // Diamond (rotated square) matching the in-game node style.
+                                                const r = nd.r;
+                                                const diamondPts = `${nd.cx},${nd.cy - r} ${nd.cx + r},${nd.cy} ${nd.cx},${nd.cy + r} ${nd.cx - r},${nd.cy}`;
 
                                                 return (
                                                     <g
@@ -2010,7 +2015,10 @@ function StarChartMap(props: {
                                                         onClick={() => onClickGroup(pid, nd.group)}
                                                         style={{ cursor: "pointer" }}
                                                     >
-                                                        <circle cx={nd.cx} cy={nd.cy} r={nd.r} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />
+                                                        {/* Invisible hit circle — easier to click than the diamond alone */}
+                                                        <circle cx={nd.cx} cy={nd.cy} r={nd.r * 2} fill="transparent" />
+                                                        {/* Diamond node */}
+                                                        <polygon points={diamondPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />
                                                     </g>
                                                 );
                                             })}
