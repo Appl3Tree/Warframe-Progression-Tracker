@@ -1962,10 +1962,6 @@ function StarChartMap(props: {
                                             })()}
                                             {/* Very subtle dark tint — just enough to lift node text without hiding the image */}
                                             <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="rgba(1,4,18,0.28)" fillOpacity={diskAlpha} />
-                                            {/* Elegant outer border ring */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill="none" stroke="rgba(160,195,240,0.55)" strokeWidth={circleStroke * 1.4} />
-                                            {/* Inner atmosphere ring */}
-                                            <circle cx={zl.cx} cy={zl.cy} r={zl.grownR * 0.93} fill="none" stroke="rgba(160,195,240,0.18)" strokeWidth={circleStroke * 0.5} />
                                         </g>
 
                                         <g pointerEvents={canInteractPlanetNodes ? "auto" : "none"} opacity={clamp(reveal * 3.0, 0, 1)}>
