@@ -1828,12 +1828,34 @@ function StarChartMap(props: {
                             );
                         })}
 
-                        {/* ClipPaths for zoomed planet disks */}
+                        {/* ClipPaths for zoomed planet disks (node clipping) */}
                         {zoomedPlanetLayers.map((zl) => (
                             <clipPath key={`clipdef-${zl.clipId}`} id={zl.clipId}>
                                 <circle cx={zl.cx} cy={zl.cy} r={zl.diskR} />
                             </clipPath>
                         ))}
+
+                        {/* ClipPaths for overview planet images */}
+                        {overviewPlanets.map((pl) => {
+                            if (!planetImgUrl(pl.planet.id)) return null;
+                            const pid = String(pl.planet.id).replace(/[^a-z0-9_:-]/gi, "_");
+                            return (
+                                <clipPath key={`ovimgclip-${pid}`} id={`ovimgclip_${pid}`}>
+                                    <circle cx={pl.x} cy={pl.y} r={pl.r} />
+                                </clipPath>
+                            );
+                        })}
+
+                        {/* ClipPaths for zoomed planet images (grownR) */}
+                        {zoomedPlanetLayers.map((zl) => {
+                            if (!planetImgUrl(zl.planet.id)) return null;
+                            const clipBase = String(zl.planet.id).replace(/[^a-z0-9_:-]/gi, "_");
+                            return (
+                                <clipPath key={`zimgclip-${clipBase}`} id={`zimgclip_${clipBase}`}>
+                                    <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} />
+                                </clipPath>
+                            );
+                        })}
                     </defs>
 
                     {/* ── Deep-space background ──────────────────────────────────── */}
@@ -1923,7 +1945,7 @@ function StarChartMap(props: {
                                             x={pl.x - pl.r} y={pl.y - pl.r}
                                             width={pl.r * 2} height={pl.r * 2}
                                             preserveAspectRatio="xMidYMid slice"
-                                            style={{ clipPath: "circle(50%)" }}
+                                            clipPath={`url(#ovimgclip_${String(pl.planet.id).replace(/[^a-z0-9_:-]/gi, "_")})`}
                                         />
                                     ) : (
                                         <circle cx={pl.x} cy={pl.y} r={pl.r} fill={`url(#${gId})`} stroke="rgba(180,200,230,0.55)" strokeWidth={circleStroke} />
@@ -1954,7 +1976,7 @@ function StarChartMap(props: {
                                                         x={zl.cx - zl.grownR} y={zl.cy - zl.grownR}
                                                         width={zl.grownR * 2} height={zl.grownR * 2}
                                                         preserveAspectRatio="xMidYMid slice"
-                                                        style={{ clipPath: "circle(50%)" }}
+                                                        clipPath={`url(#zimgclip_${String(zl.planet.id).replace(/[^a-z0-9_:-]/gi, "_")})`}
                                                     />
                                                 ) : (
                                                     <circle cx={zl.cx} cy={zl.cy} r={zl.grownR} fill={`url(#${zGId})`} />
