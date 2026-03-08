@@ -108,6 +108,8 @@ export interface UserStateV2 {
         completesByTag: Record<string, number>;
         /** Manually toggled per-node completion (boolean, by node ID). */
         nodeCompleted?: Record<string, boolean>;
+        /** Steel Path per-node completion — tracked separately from normal mode. */
+        steelPathNodeCompleted?: Record<string, boolean>;
     };
 }
 
