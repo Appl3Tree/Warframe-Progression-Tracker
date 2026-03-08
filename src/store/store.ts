@@ -447,6 +447,7 @@ export interface TrackerStore {
     isExpandedGoalNode: (nodeId: string) => boolean;
 
     setNodeCompleted: (starChartNodeId: string, completed: boolean) => void;
+    setBulkNodesCompleted: (starChartNodeIds: string[], completed: boolean) => void;
     isNodeCompleted: (starChartNodeId: string) => boolean;
 }
 
@@ -930,6 +931,25 @@ export const useTrackerStore = create<TrackerStore>()(
                         s.state.missions.nodeCompleted[starChartNodeId] = true;
                     } else {
                         delete s.state.missions.nodeCompleted[starChartNodeId];
+                    }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setBulkNodesCompleted: (starChartNodeIds, completed) => {
+                set((s) => {
+                    if (!s.state.missions) {
+                        s.state.missions = { completesByTag: {} };
+                    }
+                    if (!s.state.missions.nodeCompleted) {
+                        s.state.missions.nodeCompleted = {};
+                    }
+                    for (const id of starChartNodeIds) {
+                        if (completed) {
+                            s.state.missions.nodeCompleted[id] = true;
+                        } else {
+                            delete s.state.missions.nodeCompleted[id];
+                        }
                     }
                     s.state.meta.updatedAtIso = nowIso();
                 });
