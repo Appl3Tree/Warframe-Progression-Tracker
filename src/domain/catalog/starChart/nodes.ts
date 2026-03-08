@@ -3678,4 +3678,143 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         pos: undefined,
         edges: []
     },
+
+    // =============================
+    // Hub / Open World nodes
+    // These are nodes that appear as selectable locations in the Star Chart
+    // but lead to social hubs or open-world zones rather than standard missions.
+    // =============================
+
+    // --- Earth hubs & missing mission nodes ---
+    {
+        id: "node:mr/earth/e-prime",
+        planetId: "planet:earth",
+        name: "E Prime",
+        nodeType: "mission",
+        pos: undefined,
+        edges: []
+    },
+    {
+        id: "node:mr/earth/mariana",
+        planetId: "planet:earth",
+        name: "Mariana",
+        nodeType: "mission",
+        pos: undefined,
+        edges: []
+    },
+    {
+        id: "node:hub/earth/strata-relay",
+        planetId: "planet:earth",
+        name: "Strata Relay",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+    {
+        id: "node:hub/earth/cetus",
+        planetId: "planet:earth",
+        name: "Cetus",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+
+    // --- Venus hubs ---
+    {
+        id: "node:hub/venus/fortuna",
+        planetId: "planet:venus",
+        name: "Fortuna",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+    {
+        id: "node:hub/venus/vesper-relay",
+        planetId: "planet:venus",
+        name: "Vesper Relay",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+
+    // --- Mercury hubs ---
+    {
+        id: "node:hub/mercury/larunda-relay",
+        planetId: "planet:mercury",
+        name: "Larunda Relay",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+
+    // --- Deimos hubs ---
+    {
+        id: "node:hub/deimos/necralisk",
+        planetId: "planet:deimos",
+        name: "Necralisk",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+
+    // --- Europa hubs ---
+    {
+        id: "node:hub/europa/kuiper-relay",
+        planetId: "planet:europa",
+        name: "Kuiper Relay",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+
+    // --- Saturn hubs ---
+    {
+        id: "node:hub/saturn/kronia-relay",
+        planetId: "planet:saturn",
+        name: "Kronia Relay",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+
+    // --- Pluto hubs ---
+    {
+        id: "node:hub/pluto/orcus-relay",
+        planetId: "planet:pluto",
+        name: "Orcus Relay",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+
+    // --- Eris hubs ---
+    // Leonov Relay is located at Eris (named after cosmonaut Alexei Leonov).
+    {
+        id: "node:hub/eris/leonov-relay",
+        planetId: "planet:eris",
+        name: "Leonov Relay",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+
+    // --- Zariman hubs ---
+    {
+        id: "node:hub/zariman/chrysalith",
+        planetId: "region:zariman",
+        name: "Chrysalith",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+
+    // --- Höllvania hubs ---
+    {
+        id: "node:hub/hollvania/sanctum-anatomica",
+        planetId: "region:hollvania",
+        name: "Sanctum Anatomica",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
 ];
