@@ -10,6 +10,7 @@ import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { normalizeSourceId } from "../domain/ids/sourceIds";
 import { getRegionResourcesForPlanet } from "../domain/catalog/starChart/regionResources";
 import { PREREQ_REGISTRY } from "../catalog/prereqs/prereqRegistry";
+import { PR } from "../domain/ids/prereqIds";
 import { useTrackerStore } from "../store/store";
 
 const EMPTY_NODE_COMPLETED: Record<string, boolean> = {};
@@ -717,19 +718,46 @@ function StarChartMap(props: {
 
     // 4.4: Per-node completion tracking
     const setNodeCompleted = useTrackerStore((s) => s.setNodeCompleted);
+    const setBulkNodesCompleted = useTrackerStore((s) => s.setBulkNodesCompleted);
     const nodeCompletedMap = useTrackerStore((s) => s.state.missions?.nodeCompleted ?? EMPTY_NODE_COMPLETED);
+    const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? EMPTY_NODE_COMPLETED);
+
+    // Nodes that are implicitly completed by finishing specific quests/milestones.
+    // Completing Vor's Prize requires clearing these early Earth nodes, so we
+    // treat them as done whenever the quest prereq is marked complete.
+    const VORS_PRIZE_IMPLIES_COMPLETED: Record<string, true> = {
+        "node:junction_mercury_venus":  true,  // unlocks Venus
+        "node:junction_venus_earth":    true,  // unlocks Earth
+        "node:mr/earth/e-prime":        true,
+        "node:mr/earth/mariana":        true,
+        "node:mr/earth/mantle":         true,
+        "node:mr/earth/gaia":           true,
+        "node:mr/earth/pacific":        true,
+        "node:mr/earth/cambria":        true,
+        "node:hub/earth/strata-relay":  true,
+    };
+
+    // Merge prereq-derived completions with manually tracked ones.
+    // Manual entries always win (so a user can un-check a derived node if desired).
+    const effectiveNodeCompletedMap = useMemo(() => {
+        const derived: Record<string, boolean> = completedPrereqs[PR.VORS_PRIZE]
+            ? { ...VORS_PRIZE_IMPLIES_COMPLETED }
+            : {};
+        return { ...derived, ...nodeCompletedMap };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [completedPrereqs, nodeCompletedMap]);
 
     // Derive which planets are unlocked from completed junctions.
     // Mercury is the starting planet and is always accessible.
     const unlockedPlanetIds = useMemo(() => {
         const unlocked = new Set<string>(["planet:mercury"]);
         for (const n of STAR_CHART_DATA.nodes) {
-            if (n.nodeType === "junction" && n.unlocksPlanetId && nodeCompletedMap[n.id]) {
+            if (n.nodeType === "junction" && n.unlocksPlanetId && effectiveNodeCompletedMap[n.id]) {
                 unlocked.add(n.unlocksPlanetId);
             }
         }
         return unlocked;
-    }, [nodeCompletedMap]);
+    }, [effectiveNodeCompletedMap]);
 
     const svgRef = useRef<SVGSVGElement | null>(null);
     const vbRef = useRef<ViewBox>(vb);
@@ -1614,9 +1642,25 @@ function StarChartMap(props: {
                                     <div className="mt-1 text-xs text-slate-400">Click the selected node again to unselect.</div>
                                 </div>
 
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                    {selectedPlanetId && (
+                                        <button
+                                            className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800 hover:text-slate-100"
+                                            title="Mark every node on this planet as completed"
+                                            onClick={() => {
+                                                const ids = (groupedByPlanet.get(selectedPlanetId) ?? []).map((g) => g.baseNodeId);
+                                                const allDone = ids.every((id) => effectiveNodeCompletedMap[id]);
+                                                setBulkNodesCompleted(ids, !allDone);
+                                            }}
+                                        >
+                                            {(() => {
+                                                const ids = (groupedByPlanet.get(selectedPlanetId) ?? []).map((g) => g.baseNodeId);
+                                                return ids.every((id) => effectiveNodeCompletedMap[id]) ? "Unmark all" : "Mark all complete";
+                                            })()}
+                                        </button>
+                                    )}
                                     <button
-                                        className="rounded-lg border brder-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
+                                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
                                         onClick={() => {
                                             setSelectedGroupKey(null);
                                             setSelectedTab("base");
@@ -1668,7 +1712,7 @@ function StarChartMap(props: {
                                     <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300 select-none">
                                         <input
                                             type="checkbox"
-                                            checked={Boolean(nodeCompletedMap[selectedGroupBaseNodeId])}
+                                            checked={Boolean(effectiveNodeCompletedMap[selectedGroupBaseNodeId])}
                                             onChange={(e) => setNodeCompleted(selectedGroupBaseNodeId, e.target.checked)}
                                         />
                                         <span>Mark node as completed</span>
@@ -2010,7 +2054,7 @@ function StarChartMap(props: {
 
                                             {zl.layouts.map((nd) => {
                                                 const isActive = selectedPlanetId === pid && selectedGroupKey === nd.group.key;
-                                                const isCompleted = Boolean(nodeCompletedMap[nd.group.baseNodeId]);
+                                                const isCompleted = Boolean(effectiveNodeCompletedMap[nd.group.baseNodeId]);
                                                 const isAvailable = !isCompleted && unlockedPlanetIds.has(String(pid));
                                                 const isLocked = !isCompleted && !isAvailable;
 
