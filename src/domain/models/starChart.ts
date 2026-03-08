@@ -36,7 +36,7 @@ export interface StarChartNode {
 
     name: string;
 
-    nodeType: "mission" | "hub" | "junction" | "special";
+    nodeType: "mission" | "hub" | "junction" | "boss" | "quest" | "special";
 
     pos?: { x: number; y: number };
     /**

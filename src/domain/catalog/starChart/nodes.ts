@@ -366,7 +366,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/earth/oro",
         planetId: "planet:earth",
         name: "Oro",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -374,7 +374,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/earth/sayas-visions",
         planetId: "planet:earth",
         name: "Saya's Visions",
-        nodeType: "mission",
+        nodeType: "quest",
         pos: undefined,
         edges: []
     },
@@ -470,7 +470,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/venus/fossa",
         planetId: "planet:venus",
         name: "Fossa",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -713,7 +713,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/mercury/tolstoj",
         planetId: "planet:mercury",
         name: "Tolstoj",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -796,7 +796,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/mars/war",
         planetId: "planet:mars",
         name: "War",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -919,7 +919,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/jupiter/the-ropalolyst",
         planetId: "planet:jupiter",
         name: "The Ropalolyst",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -1086,7 +1086,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/phobos/iliad",
         planetId: "planet:phobos",
         name: "Iliad",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -1226,7 +1226,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/ceres/exta",
         planetId: "planet:ceres",
         name: "Exta",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -1382,7 +1382,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/europa/naamah",
         planetId: "planet:europa",
         name: "Naamah",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -1722,7 +1722,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/saturn/tethys",
         planetId: "planet:saturn",
         name: "Tethys",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -1942,7 +1942,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/uranus/titania",
         planetId: "planet:uranus",
         name: "Titania",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -2162,7 +2162,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/neptune/psamathe",
         planetId: "planet:neptune",
         name: "Psamathe",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -2318,7 +2318,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/pluto/hades",
         planetId: "planet:pluto",
         name: "Hades",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -2562,7 +2562,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/sedna/merrow",
         planetId: "planet:sedna",
         name: "Merrow",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -2846,7 +2846,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/eris/zabala",
         planetId: "planet:eris",
         name: "Zabala",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
@@ -2990,7 +2990,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         id: "node:mr/kuva-fortress/taveuni",
         planetId: "region:kuva_fortress",
         name: "Taveuni",
-        nodeType: "mission",
+        nodeType: "boss",
         pos: undefined,
         edges: []
     },
