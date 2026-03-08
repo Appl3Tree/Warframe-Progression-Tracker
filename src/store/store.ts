@@ -449,6 +449,8 @@ export interface TrackerStore {
     setNodeCompleted: (starChartNodeId: string, completed: boolean) => void;
     setBulkNodesCompleted: (starChartNodeIds: string[], completed: boolean) => void;
     isNodeCompleted: (starChartNodeId: string) => boolean;
+    setSteelPathNodeCompleted: (starChartNodeId: string, completed: boolean) => void;
+    setBulkSteelPathNodesCompleted: (starChartNodeIds: string[], completed: boolean) => void;
 }
 
 const PERSIST_KEY = "wf_tracker_state_v3";
@@ -958,7 +960,43 @@ export const useTrackerStore = create<TrackerStore>()(
             isNodeCompleted: (starChartNodeId) => {
                 const nc = get().state.missions?.nodeCompleted;
                 return Boolean(nc?.[starChartNodeId]);
-            }
+            },
+
+            setSteelPathNodeCompleted: (starChartNodeId, completed) => {
+                set((s) => {
+                    if (!s.state.missions) {
+                        s.state.missions = { completesByTag: {} };
+                    }
+                    if (!s.state.missions.steelPathNodeCompleted) {
+                        s.state.missions.steelPathNodeCompleted = {};
+                    }
+                    if (completed) {
+                        s.state.missions.steelPathNodeCompleted[starChartNodeId] = true;
+                    } else {
+                        delete s.state.missions.steelPathNodeCompleted[starChartNodeId];
+                    }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setBulkSteelPathNodesCompleted: (starChartNodeIds, completed) => {
+                set((s) => {
+                    if (!s.state.missions) {
+                        s.state.missions = { completesByTag: {} };
+                    }
+                    if (!s.state.missions.steelPathNodeCompleted) {
+                        s.state.missions.steelPathNodeCompleted = {};
+                    }
+                    for (const id of starChartNodeIds) {
+                        if (completed) {
+                            s.state.missions.steelPathNodeCompleted[id] = true;
+                        } else {
+                            delete s.state.missions.steelPathNodeCompleted[id];
+                        }
+                    }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
         })),
         {
             name: PERSIST_KEY,

@@ -679,6 +679,11 @@ function StarChartMap(props: {
     junctionNode: StarChartNode | null;
     /** 4.4: Base node ID for the selected group (for node completion tracking) */
     selectedGroupBaseNodeId: NodeId | null;
+    /** Whether we're tracking Steel Path completions instead of normal ones */
+    steelPathMode: boolean;
+    setSteelPathMode: React.Dispatch<React.SetStateAction<boolean>>;
+    /** Navigate to a different map view (proxima / duviri) */
+    setMainMapMode: (mode: "normal" | "proxima" | "duviri") => void;
 }) {
     const {
         isInModal,
@@ -697,7 +702,10 @@ function StarChartMap(props: {
         focusedTitle,
         showDropsPanel,
         junctionNode,
-        selectedGroupBaseNodeId
+        selectedGroupBaseNodeId,
+        steelPathMode,
+        setSteelPathMode,
+        setMainMapMode,
     } = props;
 
     // 6.5: Build prereq label index for junction inspector
@@ -717,14 +725,23 @@ function StarChartMap(props: {
     }, []);
 
     // 4.4: Per-node completion tracking
-    const setNodeCompleted = useTrackerStore((s) => s.setNodeCompleted);
-    const setBulkNodesCompleted = useTrackerStore((s) => s.setBulkNodesCompleted);
-    const nodeCompletedMap = useTrackerStore((s) => s.state.missions?.nodeCompleted ?? EMPTY_NODE_COMPLETED);
-    const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? EMPTY_NODE_COMPLETED);
+    const setNodeCompleted        = useTrackerStore((s) => s.setNodeCompleted);
+    const setBulkNodesCompleted   = useTrackerStore((s) => s.setBulkNodesCompleted);
+    const setSteelPathNodeCompleted      = useTrackerStore((s) => s.setSteelPathNodeCompleted);
+    const setBulkSteelPathNodesCompleted = useTrackerStore((s) => s.setBulkSteelPathNodesCompleted);
+    const nodeCompletedMap       = useTrackerStore((s) => s.state.missions?.nodeCompleted       ?? EMPTY_NODE_COMPLETED);
+    const spNodeCompletedMap     = useTrackerStore((s) => s.state.missions?.steelPathNodeCompleted ?? EMPTY_NODE_COMPLETED);
+    const completedPrereqs       = useTrackerStore((s) => s.state.prereqs?.completed            ?? EMPTY_NODE_COMPLETED);
+
+    // When in Steel Path mode, setters and raw map point to the SP tracking store.
+    const activeSetNodeCompleted      = steelPathMode ? setSteelPathNodeCompleted      : setNodeCompleted;
+    const activeSetBulkNodesCompleted = steelPathMode ? setBulkSteelPathNodesCompleted : setBulkNodesCompleted;
+    const activeRawNodeMap            = steelPathMode ? spNodeCompletedMap             : nodeCompletedMap;
 
     // Nodes that are implicitly completed by finishing specific quests/milestones.
     // Completing Vor's Prize requires clearing these early Earth nodes, so we
     // treat them as done whenever the quest prereq is marked complete.
+    // (Only applies to normal mode — Steel Path has no prereq derivations.)
     const VORS_PRIZE_IMPLIES_COMPLETED: Record<string, true> = {
         "node:junction_mercury_venus":  true,  // unlocks Venus
         "node:junction_venus_earth":    true,  // unlocks Earth
@@ -739,13 +756,15 @@ function StarChartMap(props: {
 
     // Merge prereq-derived completions with manually tracked ones.
     // Manual entries always win (so a user can un-check a derived node if desired).
+    // In Steel Path mode there are no prereq derivations — everything is manual.
     const effectiveNodeCompletedMap = useMemo(() => {
+        if (steelPathMode) return activeRawNodeMap;
         const derived: Record<string, boolean> = completedPrereqs[PR.VORS_PRIZE]
             ? { ...VORS_PRIZE_IMPLIES_COMPLETED }
             : {};
         return { ...derived, ...nodeCompletedMap };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [completedPrereqs, nodeCompletedMap]);
+    }, [steelPathMode, completedPrereqs, nodeCompletedMap, spNodeCompletedMap]);
 
     // Derive which planets are unlocked from completed junctions.
     // Mercury is the starting planet and is always accessible.
@@ -1643,22 +1662,6 @@ function StarChartMap(props: {
                                 </div>
 
                                 <div className="flex items-center gap-2 flex-shrink-0">
-                                    {selectedPlanetId && (
-                                        <button
-                                            className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800 hover:text-slate-100"
-                                            title="Mark every node on this planet as completed"
-                                            onClick={() => {
-                                                const ids = (groupedByPlanet.get(selectedPlanetId) ?? []).map((g) => g.baseNodeId);
-                                                const allDone = ids.every((id) => effectiveNodeCompletedMap[id]);
-                                                setBulkNodesCompleted(ids, !allDone);
-                                            }}
-                                        >
-                                            {(() => {
-                                                const ids = (groupedByPlanet.get(selectedPlanetId) ?? []).map((g) => g.baseNodeId);
-                                                return ids.every((id) => effectiveNodeCompletedMap[id]) ? "Unmark all" : "Mark all complete";
-                                            })()}
-                                        </button>
-                                    )}
                                     <button
                                         className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
                                         onClick={() => {
@@ -1713,7 +1716,7 @@ function StarChartMap(props: {
                                         <input
                                             type="checkbox"
                                             checked={Boolean(effectiveNodeCompletedMap[selectedGroupBaseNodeId])}
-                                            onChange={(e) => setNodeCompleted(selectedGroupBaseNodeId, e.target.checked)}
+                                            onChange={(e) => activeSetNodeCompleted(selectedGroupBaseNodeId, e.target.checked)}
                                         />
                                         <span>Mark node as completed</span>
                                     </label>
@@ -2335,8 +2338,349 @@ function StarChartMap(props: {
                         −
                     </button>
 
-                    {focusedTitle && <div className="ml-2 hidden text-xs text-slate-500 sm:block">{focusedTitle}</div>}
+                    {focusedTitle && (
+                        <div className="ml-2 hidden items-center gap-2 sm:flex">
+                            <div className="text-xs text-slate-400">{focusedTitle}</div>
+                            {selectedPlanetId && (() => {
+                                const ids = (groupedByPlanet.get(selectedPlanetId) ?? []).map((g) => g.baseNodeId);
+                                const allDone = ids.every((id) => effectiveNodeCompletedMap[id]);
+                                return (
+                                    <button
+                                        className="rounded border border-slate-700 bg-slate-950/60 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-slate-800 hover:text-slate-100 transition-colors"
+                                        title="Toggle completion for all nodes on this planet"
+                                        onClick={() => activeSetBulkNodesCompleted(ids, !allDone)}
+                                    >
+                                        {allDone ? "Unmark all" : "Mark all complete"}
+                                    </button>
+                                );
+                            })()}
+                        </div>
+                    )}
                 </div>
+
+                {/* ── Steel Path toggle (middle-right) ─────────────────────── */}
+                <div className="absolute right-3 top-1/2 z-30 -translate-y-1/2">
+                    <button
+                        className={[
+                            "flex flex-col items-center gap-1 rounded-xl border px-3 py-2 text-[10px] font-semibold uppercase tracking-widest backdrop-blur-sm transition-colors",
+                            steelPathMode
+                                ? "border-amber-500/70 bg-amber-950/70 text-amber-300 hover:bg-amber-900/80"
+                                : "border-slate-600 bg-slate-950/70 text-slate-400 hover:bg-slate-900/80 hover:text-slate-200"
+                        ].join(" ")}
+                        title={steelPathMode ? "Switch to Normal mode" : "Switch to Steel Path mode"}
+                        onClick={() => setSteelPathMode((v) => !v)}
+                    >
+                        {/* Steel Path crossed-swords icon (SVG approximation) */}
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <line x1="4" y1="18" x2="18" y2="4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+                            <line x1="4" y1="4"  x2="18" y2="18" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+                            <circle cx="11" cy="11" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.4"/>
+                        </svg>
+                        <span>{steelPathMode ? "Steel Path" : "Normal"}</span>
+                    </button>
+                </div>
+
+                {/* ── Alternative map buttons (top-right) ─────────────────── */}
+                <div className="absolute right-3 top-3 z-30 flex flex-col gap-2">
+                    {/* Railjack / Proxima */}
+                    <button
+                        className="group flex h-14 w-14 flex-col items-center justify-center gap-1 overflow-hidden rounded-xl border border-slate-600 bg-slate-950/80 backdrop-blur-sm hover:border-cyan-500/60 hover:bg-slate-900/90 transition-colors"
+                        title="Open Railjack / Proxima map"
+                        onClick={() => setMainMapMode("proxima")}
+                    >
+                        {/* Railjack silhouette */}
+                        <svg width="32" height="20" viewBox="0 0 32 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-300 group-hover:text-cyan-300 transition-colors">
+                            <path d="M16 2 L30 11 L24 12 L22 18 L16 13 L10 18 L8 12 L2 11 Z" stroke="currentColor" strokeWidth="1.2" fill="rgba(100,180,255,0.08)"/>
+                            <line x1="16" y1="2" x2="16" y2="13" stroke="currentColor" strokeWidth="0.8" opacity="0.5"/>
+                        </svg>
+                        <span className="text-[9px] font-semibold uppercase tracking-widest text-slate-400 group-hover:text-cyan-300 transition-colors">Proxima</span>
+                    </button>
+
+                    {/* Duviri */}
+                    <button
+                        className="group flex h-14 w-14 flex-col items-center justify-center gap-1 overflow-hidden rounded-xl border border-slate-600 bg-slate-950/80 backdrop-blur-sm hover:border-purple-500/60 hover:bg-slate-900/90 transition-colors"
+                        title="Open Duviri map"
+                        onClick={() => setMainMapMode("duviri")}
+                    >
+                        {/* Duviri mask silhouette */}
+                        <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-300 group-hover:text-purple-300 transition-colors">
+                            <path d="M11 2 C6 2 2 6 2 11 C2 16 5 20 9 21 L9 23 L13 23 L13 21 C17 20 20 16 20 11 C20 6 16 2 11 2 Z" stroke="currentColor" strokeWidth="1.2" fill="rgba(180,100,255,0.08)"/>
+                            <path d="M7 10 C7 9 8 8.5 9 9" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
+                            <path d="M15 10 C15 9 14 8.5 13 9" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
+                            <path d="M8 13 Q11 15.5 14 13" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" fill="none"/>
+                            <line x1="4"  y1="8"  x2="2"  y2="6"  stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                            <line x1="18" y1="8"  x2="20" y2="6"  stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                        </svg>
+                        <span className="text-[9px] font-semibold uppercase tracking-widest text-slate-400 group-hover:text-purple-300 transition-colors">Duviri</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// List view: flat planet/node list with completion checkboxes
+// ─────────────────────────────────────────────────────────────────────────────
+type SCListProps = {
+    steelPathMode: boolean;
+};
+
+function StarChartListView({ steelPathMode }: SCListProps) {
+    const setNodeCompleted          = useTrackerStore((s) => s.setNodeCompleted);
+    const setSteelPathNodeCompleted = useTrackerStore((s) => s.setSteelPathNodeCompleted);
+    const setBulkNodesCompleted          = useTrackerStore((s) => s.setBulkNodesCompleted);
+    const setBulkSteelPathNodesCompleted = useTrackerStore((s) => s.setBulkSteelPathNodesCompleted);
+    const nodeCompletedMap   = useTrackerStore((s) => s.state.missions?.nodeCompleted           ?? EMPTY_NODE_COMPLETED);
+    const spNodeCompletedMap = useTrackerStore((s) => s.state.missions?.steelPathNodeCompleted  ?? EMPTY_NODE_COMPLETED);
+    const completedPrereqs   = useTrackerStore((s) => s.state.prereqs?.completed               ?? EMPTY_NODE_COMPLETED);
+
+    const activeMap        = steelPathMode ? spNodeCompletedMap   : nodeCompletedMap;
+    const activeSetOne     = steelPathMode ? setSteelPathNodeCompleted : setNodeCompleted;
+    const activeSetBulk    = steelPathMode ? setBulkSteelPathNodesCompleted : setBulkNodesCompleted;
+
+    const VORS_PRIZE_IMPLIES_COMPLETED: Record<string, true> = {
+        "node:junction_mercury_venus": true,
+        "node:junction_venus_earth":   true,
+        "node:mr/earth/e-prime":       true,
+        "node:mr/earth/mariana":       true,
+        "node:mr/earth/mantle":        true,
+        "node:mr/earth/gaia":          true,
+        "node:mr/earth/pacific":       true,
+        "node:mr/earth/cambria":       true,
+        "node:hub/earth/strata-relay": true,
+    };
+
+    const effectiveMap = useMemo(() => {
+        if (steelPathMode) return activeMap;
+        const derived: Record<string, boolean> = completedPrereqs[PR.VORS_PRIZE]
+            ? { ...VORS_PRIZE_IMPLIES_COMPLETED }
+            : {};
+        return { ...derived, ...nodeCompletedMap };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [steelPathMode, completedPrereqs, nodeCompletedMap, spNodeCompletedMap]);
+
+    // Build unlocked set (always from normal junctions, not SP)
+    const unlockedPlanetIds = useMemo(() => {
+        const unlocked = new Set<string>(["planet:mercury"]);
+        for (const n of STAR_CHART_DATA.nodes) {
+            if (n.nodeType === "junction" && n.unlocksPlanetId) {
+                const base = n.id;
+                const vorsImplied = VORS_PRIZE_IMPLIES_COMPLETED[base];
+                if (vorsImplied && completedPrereqs[PR.VORS_PRIZE]) {
+                    unlocked.add(n.unlocksPlanetId);
+                } else if (nodeCompletedMap[base]) {
+                    unlocked.add(n.unlocksPlanetId);
+                }
+            }
+        }
+        return unlocked;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [completedPrereqs, nodeCompletedMap]);
+
+    // Planets in the main map, ordered by name
+    const planets = useMemo(() =>
+        STAR_CHART_DATA.planets.filter(isInMainMap).sort((a, b) => a.name.localeCompare(b.name)),
+    []);
+
+    // Nodes grouped by planet
+    const groupedByPlanet = useMemo(() => {
+        const m = new Map<string, StarChartNode[]>();
+        for (const n of STAR_CHART_DATA.nodes) {
+            const arr = m.get(n.planetId) ?? [];
+            arr.push(n);
+            m.set(n.planetId, arr);
+        }
+        return m;
+    }, []);
+
+    const [search, setSearch] = useState("");
+    const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+    const q = search.trim().toLowerCase();
+
+    const nodeTypeLabel: Record<string, string> = {
+        mission: "", junction: "Junction", boss: "Boss", quest: "Quest", hub: "Hub", special: "Special"
+    };
+
+    return (
+        <div className="space-y-2">
+            <div className="flex items-center gap-2">
+                <input
+                    className="flex-1 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    placeholder="Filter planets or nodes…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            </div>
+
+            {planets.map((planet) => {
+                const nodes = (groupedByPlanet.get(planet.id) ?? [])
+                    .filter((n) => !q || n.name.toLowerCase().includes(q) || planet.name.toLowerCase().includes(q))
+                    .sort((a, b) => a.name.localeCompare(b.name));
+
+                if (nodes.length === 0) return null;
+
+                const isUnlocked = steelPathMode || unlockedPlanetIds.has(planet.id);
+                const allDone = nodes.every((n) => effectiveMap[n.id]);
+                const isCollapsed = collapsed.has(planet.id);
+                const doneCount = nodes.filter((n) => effectiveMap[n.id]).length;
+
+                return (
+                    <div key={planet.id} className={["rounded-xl border", isUnlocked ? "border-slate-700" : "border-slate-800/60"].join(" ")}>
+                        {/* Planet header */}
+                        <div
+                            className="flex cursor-pointer items-center gap-2 px-3 py-2 select-none"
+                            onClick={() => setCollapsed((prev) => {
+                                const next = new Set(prev);
+                                if (next.has(planet.id)) next.delete(planet.id);
+                                else next.add(planet.id);
+                                return next;
+                            })}
+                        >
+                            <span className="text-xs text-slate-500 w-3">{isCollapsed ? "▶" : "▼"}</span>
+                            <span className={["flex-1 text-sm font-semibold uppercase tracking-widest", isUnlocked ? "text-slate-200" : "text-slate-600"].join(" ")}>
+                                {planet.name}
+                            </span>
+                            <span className="text-xs text-slate-500">{doneCount}/{nodes.length}</span>
+                            {isUnlocked && (
+                                <button
+                                    className="rounded border border-slate-700 bg-slate-950/60 px-2 py-0.5 text-[11px] text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        activeSetBulk(nodes.map((n) => n.id), !allDone);
+                                    }}
+                                >
+                                    {allDone ? "Unmark all" : "Mark all"}
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Node list */}
+                        {!isCollapsed && (
+                            <div className="border-t border-slate-800/60 px-3 py-1 space-y-0.5">
+                                {nodes.map((node) => {
+                                    const isCompleted = Boolean(effectiveMap[node.id]);
+                                    const isLocked    = !isUnlocked;
+                                    const typeLabel   = nodeTypeLabel[node.nodeType] ?? "";
+                                    return (
+                                        <label
+                                            key={node.id}
+                                            className={[
+                                                "flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-slate-800/40",
+                                                isLocked ? "opacity-40" : ""
+                                            ].join(" ")}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                disabled={isLocked}
+                                                checked={isCompleted}
+                                                onChange={(e) => activeSetOne(node.id, e.target.checked)}
+                                                className="accent-blue-400"
+                                            />
+                                            <span className={isCompleted ? "text-slate-500 line-through" : "text-slate-200"}>
+                                                {node.name}
+                                            </span>
+                                            {typeLabel && (
+                                                <span className="ml-auto text-[10px] text-slate-600 uppercase tracking-widest">{typeLabel}</span>
+                                            )}
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Proxima (Railjack) skeleton map
+// ─────────────────────────────────────────────────────────────────────────────
+function StarChartProximaView({ onBack }: { onBack: () => void }) {
+    const proximaPlanets = useMemo(() =>
+        STAR_CHART_DATA.planets.filter((p) => p.id.endsWith("_proxima")),
+    []);
+    const nodesByPlanet = useMemo(() => {
+        const m = new Map<string, StarChartNode[]>();
+        for (const n of STAR_CHART_DATA.nodes) {
+            const arr = m.get(n.planetId) ?? [];
+            arr.push(n);
+            m.set(n.planetId, arr);
+        }
+        return m;
+    }, []);
+
+    return (
+        <div className="flex h-full flex-col">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-800">
+                <button
+                    className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
+                    onClick={onBack}
+                >
+                    ← Back to Star Chart
+                </button>
+                <div>
+                    <div className="text-sm font-semibold text-slate-100">Proxima / Railjack</div>
+                    <div className="text-xs text-slate-500">Railjack mission regions — full map coming soon</div>
+                </div>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {proximaPlanets.map((p) => {
+                        const nodes = nodesByPlanet.get(p.id) ?? [];
+                        return (
+                            <div key={p.id} className="rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                                <div className="mb-1 text-xs font-semibold uppercase tracking-widest text-cyan-300">{p.name}</div>
+                                <div className="text-[11px] text-slate-500">{nodes.length} node{nodes.length !== 1 ? "s" : ""}</div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Duviri skeleton map
+// ─────────────────────────────────────────────────────────────────────────────
+function StarChartDuviriView({ onBack }: { onBack: () => void }) {
+    const duviriNodes = useMemo(() =>
+        STAR_CHART_DATA.nodes.filter((n) => n.planetId === "region:duviri"),
+    []);
+
+    return (
+        <div className="flex h-full flex-col">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-800">
+                <button
+                    className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
+                    onClick={onBack}
+                >
+                    ← Back to Star Chart
+                </button>
+                <div>
+                    <div className="text-sm font-semibold text-slate-100">Duviri Paradox</div>
+                    <div className="text-xs text-slate-500">The Undercroft & Spiral — full map coming soon</div>
+                </div>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+                {duviriNodes.length === 0 ? (
+                    <div className="flex h-full items-center justify-center text-sm text-slate-500">
+                        No Duviri node data yet — data will be added in a future update.
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {duviriNodes.map((n) => (
+                            <div key={n.id} className="rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                                <div className="text-xs font-semibold text-purple-300">{n.name}</div>
+                                <div className="text-[11px] text-slate-500 capitalize">{n.nodeType}</div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -2578,6 +2922,15 @@ export default function StarChart() {
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
+    // View mode: "map" shows the SVG star chart, "list" shows the flat node list.
+    const [viewMode, setViewMode] = useState<"map" | "list">("map");
+
+    // Which alternate map is displayed (normal = main star chart).
+    const [mainMapMode, setMainMapMode] = useState<"normal" | "proxima" | "duviri">("normal");
+
+    // Steel Path tracking toggle.
+    const [steelPathMode, setSteelPathMode] = useState(false);
+
     function resetView() {
         setSelectedGroupKey(null);
         setSelectedTab("base");
@@ -2601,49 +2954,82 @@ export default function StarChart() {
         return node?.nodeType === "junction" ? node : null;
     }, [selectedGroup]);
 
+    const sharedMapProps = {
+        vb, setVb,
+        selectedPlanetId, setSelectedPlanetId,
+        selectedPlanetName: focusedPlanet?.name ?? null,
+        selectedGroupKey, setSelectedGroupKey,
+        selectedTab, setSelectedTab,
+        selectedGroupDisplayName: selectedGroup?.displayName ?? null,
+        tabsForPanel, activeTab, focusedTitle,
+        showDropsPanel, junctionNode,
+        selectedGroupBaseNodeId: selectedGroup?.baseNodeId ?? null,
+        steelPathMode, setSteelPathMode,
+        setMainMapMode,
+    };
+
+    const sectionSubtitle =
+        viewMode === "list"
+            ? "Flat list of all star chart nodes. Check off nodes as you complete them."
+            : mainMapMode === "proxima"
+            ? "Railjack mission regions."
+            : mainMapMode === "duviri"
+            ? "The Duviri Paradox."
+            : "Drag to pan. Wheel to zoom. Click a planet to expand it. Click a node to view obtainable items.";
+
     return (
         <div className="space-y-6">
             <StarChartModalStyles />
 
             <Section
                 title="Star Chart"
-                subtitle="Drag to pan. Wheel to zoom. Click a planet to zoom into it. Zoom in to expand all planets and reveal nodes. Click a node to view obtainable items."
+                subtitle={sectionSubtitle}
                 actions={
                     <>
-                        <button
-                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900/40"
-                            onClick={() => setIsOpen(true)}
-                        >
-                            Open Map
-                        </button>
-                        <button
-                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900/40"
-                            onClick={resetView}
-                        >
-                            Reset View
-                        </button>
+                        {/* Map / List toggle */}
+                        <div className="flex rounded-lg border border-slate-700 overflow-hidden text-sm font-semibold">
+                            <button
+                                className={["px-3 py-2 transition-colors", viewMode === "map" ? "bg-slate-700 text-slate-100" : "bg-slate-950/20 text-slate-400 hover:bg-slate-900/40"].join(" ")}
+                                onClick={() => setViewMode("map")}
+                            >
+                                Map
+                            </button>
+                            <button
+                                className={["px-3 py-2 transition-colors border-l border-slate-700", viewMode === "list" ? "bg-slate-700 text-slate-100" : "bg-slate-950/20 text-slate-400 hover:bg-slate-900/40"].join(" ")}
+                                onClick={() => setViewMode("list")}
+                            >
+                                List
+                            </button>
+                        </div>
+
+                        {viewMode === "map" && mainMapMode === "normal" && (
+                            <>
+                                <button
+                                    className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900/40"
+                                    onClick={() => setIsOpen(true)}
+                                >
+                                    Open Map
+                                </button>
+                                <button
+                                    className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900/40"
+                                    onClick={resetView}
+                                >
+                                    Reset View
+                                </button>
+                            </>
+                        )}
                     </>
                 }
             >
-                <StarChartMap
-                    isInModal={false}
-                    vb={vb}
-                    setVb={setVb}
-                    selectedPlanetId={selectedPlanetId}
-                    setSelectedPlanetId={setSelectedPlanetId}
-                    selectedPlanetName={focusedPlanet?.name ?? null}
-                    selectedGroupKey={selectedGroupKey}
-                    setSelectedGroupKey={setSelectedGroupKey}
-                    selectedTab={selectedTab}
-                    setSelectedTab={setSelectedTab}
-                    selectedGroupDisplayName={selectedGroup?.displayName ?? null}
-                    tabsForPanel={tabsForPanel}
-                    activeTab={activeTab}
-                    focusedTitle={focusedTitle}
-                    showDropsPanel={showDropsPanel}
-                    junctionNode={junctionNode}
-                    selectedGroupBaseNodeId={selectedGroup?.baseNodeId ?? null}
-                />
+                {viewMode === "list" ? (
+                    <StarChartListView steelPathMode={steelPathMode} />
+                ) : mainMapMode === "proxima" ? (
+                    <StarChartProximaView onBack={() => setMainMapMode("normal")} />
+                ) : mainMapMode === "duviri" ? (
+                    <StarChartDuviriView onBack={() => setMainMapMode("normal")} />
+                ) : (
+                    <StarChartMap isInModal={false} {...sharedMapProps} />
+                )}
             </Section>
 
             <StarChartModal
@@ -2652,25 +3038,7 @@ export default function StarChart() {
                 subtitle="Drag to pan · Wheel to zoom · Click a planet to zoom into it · Click node again to unselect"
                 onClose={() => setIsOpen(false)}
             >
-                <StarChartMap
-                    isInModal={true}
-                    vb={vb}
-                    setVb={setVb}
-                    selectedPlanetId={selectedPlanetId}
-                    setSelectedPlanetId={setSelectedPlanetId}
-                    selectedPlanetName={focusedPlanet?.name ?? null}
-                    selectedGroupKey={selectedGroupKey}
-                    setSelectedGroupKey={setSelectedGroupKey}
-                    selectedTab={selectedTab}
-                    setSelectedTab={setSelectedTab}
-                    selectedGroupDisplayName={selectedGroup?.displayName ?? null}
-                    tabsForPanel={tabsForPanel}
-                    activeTab={activeTab}
-                    focusedTitle={focusedTitle}
-                    showDropsPanel={showDropsPanel}
-                    junctionNode={junctionNode}
-                    selectedGroupBaseNodeId={selectedGroup?.baseNodeId ?? null}
-                />
+                <StarChartMap isInModal={true} {...sharedMapProps} />
             </StarChartModal>
         </div>
     );
