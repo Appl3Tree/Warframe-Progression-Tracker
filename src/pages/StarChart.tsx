@@ -2012,57 +2012,99 @@ function StarChartMap(props: {
                                                 const isActive = selectedPlanetId === pid && selectedGroupKey === nd.group.key;
                                                 const isCompleted = Boolean(nodeCompletedMap[nd.group.baseNodeId]);
                                                 const isAvailable = !isCompleted && unlockedPlanetIds.has(String(pid));
+                                                const isLocked = !isCompleted && !isAvailable;
 
-                                                // 3-state color: active > completed > available > locked
+                                                // 3-state: active > completed (grey) > available (blue) > locked
                                                 const nodeFill = isActive
                                                     ? "rgba(255,255,255,0.18)"
                                                     : isCompleted
-                                                        ? "rgba(52,211,153,0.12)"
+                                                        ? "rgba(51,65,85,0.50)"
                                                         : isAvailable
                                                             ? "rgba(59,130,246,0.10)"
                                                             : "rgba(1,4,18,0.35)";
                                                 const nodeStrokeCol = isActive
                                                     ? "rgba(255,255,255,0.95)"
                                                     : isCompleted
-                                                        ? "rgba(134,239,172,0.85)"
+                                                        ? "rgba(148,163,184,0.70)"
                                                         : isAvailable
                                                             ? "rgba(147,197,253,0.85)"
-                                                            : "rgba(100,116,139,0.50)";
+                                                            : "rgba(100,116,139,0.45)";
 
                                                 // Expand normalized coords to world space
                                                 const acx = zl.cx + nd.ncx * zl.grownR;
                                                 const acy = zl.cy + nd.ncy * zl.grownR;
                                                 const r = nodeDotR;
 
-                                                // Shape by nodeType
+                                                // Shape by nodeType (locked nodes always show padlock)
                                                 let shape: React.ReactNode;
-                                                switch (nd.group.nodeType) {
-                                                    case "junction": {
-                                                        // Circle — junctions are circular in-game
-                                                        shape = <circle cx={acx} cy={acy} r={r * 1.1} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
-                                                        break;
-                                                    }
-                                                    case "special": {
-                                                        // 6-pointed star (two overlapping triangles)
-                                                        const sr = r * 1.15;
-                                                        const starPts = [0,1,2,3,4,5].map((i) => {
-                                                            const a = (i * Math.PI) / 3 - Math.PI / 2;
-                                                            const rr = i % 2 === 0 ? sr : sr * 0.5;
-                                                            return `${acx + Math.cos(a) * rr},${acy + Math.sin(a) * rr}`;
-                                                        }).join(" ");
-                                                        shape = <polygon points={starPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
-                                                        break;
-                                                    }
-                                                    case "hub": {
-                                                        // Square (axis-aligned)
-                                                        const hs = r * 0.9;
-                                                        shape = <rect x={acx - hs} y={acy - hs} width={hs * 2} height={hs * 2} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
-                                                        break;
-                                                    }
-                                                    default: {
-                                                        // Diamond — standard mission node
-                                                        const diamondPts = `${acx},${acy - r} ${acx + r},${acy} ${acx},${acy + r} ${acx - r},${acy}`;
-                                                        shape = <polygon points={diamondPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
+                                                if (isLocked) {
+                                                    const lk = r * 1.05;
+                                                    shape = (
+                                                        <g>
+                                                            <path
+                                                                d={`M ${acx - lk*0.45},${acy - lk*0.05} L ${acx - lk*0.45},${acy - lk*0.62} A ${lk*0.45},${lk*0.45} 0 0,1 ${acx + lk*0.45},${acy - lk*0.62} L ${acx + lk*0.45},${acy - lk*0.05}`}
+                                                                fill="none" stroke={nodeStrokeCol} strokeWidth={nodeStroke * 1.1} strokeLinecap="round"
+                                                            />
+                                                            <rect x={acx - lk*0.65} y={acy - lk*0.12} width={lk*1.3} height={lk*1.05} rx={lk*0.18}
+                                                                fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />
+                                                            <circle cx={acx} cy={acy + lk*0.25} r={lk*0.18} fill={nodeStrokeCol} />
+                                                        </g>
+                                                    );
+                                                } else {
+                                                    switch (nd.group.nodeType) {
+                                                        case "junction": {
+                                                            // Diamond outline + right-pointing arrow (matches in-game icon)
+                                                            const jd = r * 1.35;
+                                                            const arrowPts = `${acx - r*0.42},${acy - r*0.60} ${acx + r*0.68},${acy} ${acx - r*0.42},${acy + r*0.60}`;
+                                                            shape = (
+                                                                <g>
+                                                                    <polygon points={`${acx},${acy-jd} ${acx+jd},${acy} ${acx},${acy+jd} ${acx-jd},${acy}`}
+                                                                        fill="rgba(8,16,36,0.75)" stroke={nodeStrokeCol} strokeWidth={nodeStroke} />
+                                                                    <polygon points={arrowPts} fill={nodeStrokeCol} />
+                                                                </g>
+                                                            );
+                                                            break;
+                                                        }
+                                                        case "boss": {
+                                                            // 5-pointed star — assassination/boss encounter
+                                                            const bPts = Array.from({length: 10}, (_, i) => {
+                                                                const a = (i * Math.PI / 5) - Math.PI / 2;
+                                                                const rr = i % 2 === 0 ? r * 1.2 : r * 0.5;
+                                                                return `${acx + Math.cos(a) * rr},${acy + Math.sin(a) * rr}`;
+                                                            }).join(" ");
+                                                            shape = <polygon points={bPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
+                                                            break;
+                                                        }
+                                                        case "quest": {
+                                                            // Upward triangle — story/quest mission
+                                                            const qPts = `${acx},${acy - r*1.2} ${acx + r*1.1},${acy + r*0.75} ${acx - r*1.1},${acy + r*0.75}`;
+                                                            shape = <polygon points={qPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
+                                                            break;
+                                                        }
+                                                        case "hub": {
+                                                            // Two circles — relay/social hub
+                                                            shape = (
+                                                                <g>
+                                                                    <circle cx={acx - r*0.38} cy={acy - r*0.1} r={r*0.42} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke * 0.9} />
+                                                                    <circle cx={acx + r*0.38} cy={acy - r*0.1} r={r*0.42} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke * 0.9} />
+                                                                </g>
+                                                            );
+                                                            break;
+                                                        }
+                                                        case "special": {
+                                                            // Octagon — one-off unique node
+                                                            const oPts = Array.from({length: 8}, (_, i) => {
+                                                                const a = (i * Math.PI / 4) - Math.PI / 8;
+                                                                return `${acx + Math.cos(a) * r*1.05},${acy + Math.sin(a) * r*1.05}`;
+                                                            }).join(" ");
+                                                            shape = <polygon points={oPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
+                                                            break;
+                                                        }
+                                                        default: {
+                                                            // Diamond — standard mission
+                                                            const dPts = `${acx},${acy - r} ${acx + r},${acy} ${acx},${acy + r} ${acx - r},${acy}`;
+                                                            shape = <polygon points={dPts} fill={nodeFill} stroke={nodeStrokeCol} strokeWidth={nodeStroke} />;
+                                                        }
                                                     }
                                                 }
 
@@ -2146,56 +2188,80 @@ function StarChartMap(props: {
                         ))}
                 </div>
 
-                {/* ── Legend (bottom-right, toggleable) ──────────────────────── */}
-                <div className="absolute bottom-3 right-3 z-30 flex flex-col items-end gap-2">
-                    <button
-                        className="rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-1.5 text-xs text-slate-300 backdrop-blur-sm hover:bg-slate-900/80 transition-colors"
-                        onClick={() => setShowLegend((v) => !v)}
-                        title="Toggle node legend"
-                    >
-                        {showLegend ? "Hide Legend" : "Legend"}
-                    </button>
-                    {showLegend && (
-                        <div className="rounded-xl border border-slate-700 bg-slate-950/85 px-4 py-3 text-xs text-slate-300 backdrop-blur-sm">
-                            <div className="mb-2 text-[10px] uppercase tracking-widest text-slate-500">Node Types</div>
-                            {([
-                                { label: "Mission",  desc: "Standard mission node",        shape: "diamond" },
-                                { label: "Junction", desc: "Unlocks the next planet",      shape: "circle"  },
-                                { label: "Special",  desc: "Boss / quest / unique node",   shape: "star"    },
-                                { label: "Hub",      desc: "Social or relay hub",          shape: "square"  },
-                            ] as const).map(({ label, desc, shape }) => (
-                                <div key={label} className="flex items-center gap-2.5 py-1">
-                                    <svg width="16" height="16" viewBox="-8 -8 16 16" className="shrink-0">
-                                        {shape === "diamond" && <polygon points="0,-6 6,0 0,6 -6,0" fill="rgba(160,185,220,0.15)" stroke="rgba(160,185,220,0.75)" strokeWidth="1.2" />}
-                                        {shape === "circle"  && <circle cx="0" cy="0" r="5.5" fill="rgba(160,185,220,0.15)" stroke="rgba(160,185,220,0.75)" strokeWidth="1.2" />}
-                                        {shape === "star"    && <polygon points="0,-7 2.0,-2.5 7,-2.5 3,0.8 5,6 0,3 -5,6 -3,0.8 -7,-2.5 -2.0,-2.5" fill="rgba(160,185,220,0.15)" stroke="rgba(160,185,220,0.75)" strokeWidth="1.2" />}
-                                        {shape === "square"  && <rect x="-5" y="-5" width="10" height="10" fill="rgba(160,185,220,0.15)" stroke="rgba(160,185,220,0.75)" strokeWidth="1.2" />}
-                                    </svg>
-                                    <div>
-                                        <span className="font-semibold text-slate-200">{label}</span>
-                                        <span className="ml-1.5 text-slate-500">{desc}</span>
-                                    </div>
-                                </div>
-                            ))}
-                            <div className="mt-2 border-t border-slate-800 pt-2">
-                                <div className="mb-1 text-[10px] uppercase tracking-widest text-slate-500">Completion</div>
+                {/* ── Bottom-right controls: Legend + Help ────────────────────── */}
+                <div className="absolute bottom-3 right-3 z-30 flex items-end gap-2">
+                    {/* Collapsible legend panel */}
+                    <div className="flex flex-col items-end gap-2">
+                        {showLegend && (
+                            <div className="rounded-xl border border-slate-700 bg-slate-950/90 px-4 py-3 text-xs text-slate-300 backdrop-blur-sm">
+                                <div className="mb-2 text-[10px] uppercase tracking-widest text-slate-500">Node Types</div>
                                 {([
-                                    { label: "Completed",  color: "rgba(134,239,172,0.85)" },
-                                    { label: "Available",  color: "rgba(147,197,253,0.85)" },
-                                    { label: "Locked",     color: "rgba(100,116,139,0.50)" },
-                                ] as const).map(({ label, color }) => (
+                                    { label: "Mission",  desc: "Standard mission",           shape: "diamond"  },
+                                    { label: "Junction", desc: "Unlocks next planet",        shape: "junction" },
+                                    { label: "Boss",     desc: "Assassination encounter",    shape: "boss"     },
+                                    { label: "Quest",    desc: "Story mission",              shape: "quest"    },
+                                    { label: "Hub",      desc: "Relay / social hub",         shape: "hub"      },
+                                    { label: "Special",  desc: "Unique one-off node",        shape: "special"  },
+                                ] as const).map(({ label, desc, shape }) => (
                                     <div key={label} className="flex items-center gap-2.5 py-0.5">
-                                        <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full border" style={{ borderColor: color, background: color.replace(/[\d.]+\)$/, "0.12)") }} />
-                                        <span className="text-slate-300">{label}</span>
+                                        <svg width="18" height="18" viewBox="-9 -9 18 18" className="shrink-0">
+                                            {shape === "diamond"  && <polygon points="0,-6 6,0 0,6 -6,0" fill="rgba(147,197,253,0.10)" stroke="rgba(147,197,253,0.85)" strokeWidth="1.2" />}
+                                            {shape === "junction" && <>
+                                                <polygon points="0,-6.5 6.5,0 0,6.5 -6.5,0" fill="rgba(10,20,50,0.75)" stroke="rgba(147,197,253,0.85)" strokeWidth="1.2" />
+                                                <polygon points="-2.8,-3.5 4,0 -2.8,3.5" fill="rgba(147,197,253,0.85)" />
+                                            </>}
+                                            {shape === "boss"     && (() => {
+                                                const pts = Array.from({length:10},(_,i)=>{const a=(i*Math.PI/5)-Math.PI/2,rr=i%2===0?7:3;return `${Math.cos(a)*rr},${Math.sin(a)*rr}`;}).join(" ");
+                                                return <polygon points={pts} fill="rgba(147,197,253,0.10)" stroke="rgba(147,197,253,0.85)" strokeWidth="1.2" />;
+                                            })()}
+                                            {shape === "quest"    && <polygon points="0,-7 6.5,4.5 -6.5,4.5" fill="rgba(147,197,253,0.10)" stroke="rgba(147,197,253,0.85)" strokeWidth="1.2" />}
+                                            {shape === "hub"      && <>
+                                                <circle cx="-2.5" cy="-0.5" r="3" fill="rgba(147,197,253,0.10)" stroke="rgba(147,197,253,0.85)" strokeWidth="1.1" />
+                                                <circle cx="2.5"  cy="-0.5" r="3" fill="rgba(147,197,253,0.10)" stroke="rgba(147,197,253,0.85)" strokeWidth="1.1" />
+                                            </>}
+                                            {shape === "special"  && (() => {
+                                                const pts = Array.from({length:8},(_,i)=>{const a=(i*Math.PI/4)-Math.PI/8;return `${Math.cos(a)*6},${Math.sin(a)*6}`;}).join(" ");
+                                                return <polygon points={pts} fill="rgba(147,197,253,0.10)" stroke="rgba(147,197,253,0.85)" strokeWidth="1.2" />;
+                                            })()}
+                                        </svg>
+                                        <div>
+                                            <span className="font-semibold text-slate-200">{label}</span>
+                                            <span className="ml-1.5 text-slate-500">{desc}</span>
+                                        </div>
                                     </div>
                                 ))}
+                                <div className="mt-2 border-t border-slate-800 pt-2">
+                                    <div className="mb-1.5 text-[10px] uppercase tracking-widest text-slate-500">Completion</div>
+                                    {([
+                                        { label: "Available",  stroke: "rgba(147,197,253,0.85)", fill: "rgba(59,130,246,0.10)"  },
+                                        { label: "Completed",  stroke: "rgba(148,163,184,0.70)", fill: "rgba(51,65,85,0.50)"    },
+                                        { label: "Locked",     stroke: "rgba(100,116,139,0.45)", fill: "rgba(1,4,18,0.35)"      },
+                                    ] as const).map(({ label, stroke, fill }) => (
+                                        <div key={label} className="flex items-center gap-2.5 py-0.5">
+                                            <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm border" style={{ borderColor: stroke, background: fill }} />
+                                            <span className="text-slate-300">{label}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                        <button
+                            className="rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-1.5 text-xs text-slate-300 backdrop-blur-sm hover:bg-slate-900/80 transition-colors"
+                            onClick={() => setShowLegend((v) => !v)}
+                        >
+                            {showLegend ? "Hide Legend" : "Legend"}
+                        </button>
+                    </div>
 
-                <div className="pointer-events-none absolute bottom-3 left-3 z-30 rounded-xl border border-slate-800 bg-slate-950/55 px-3 py-2 text-xs text-slate-400 backdrop-blur-sm">
-                    Drag to pan · Wheel to zoom · Click a planet to zoom into it · Zoom in to expand all planets and reveal nodes · Click node again to unselect
+                    {/* Help tooltip — replaces the always-visible hint bar */}
+                    <div className="group relative">
+                        <button className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-950/70 text-xs text-slate-400 backdrop-blur-sm hover:bg-slate-900/80 transition-colors">
+                            ?
+                        </button>
+                        <div className="pointer-events-none absolute bottom-full right-0 mb-2 hidden w-72 rounded-xl border border-slate-700 bg-slate-950/90 px-3 py-2 text-xs leading-relaxed text-slate-400 backdrop-blur-sm group-hover:block">
+                            Drag to pan · Scroll to zoom · Click a planet to zoom in · Zoom in to expand planets and reveal nodes · Click a node to see drops · Click again to deselect
+                        </div>
+                    </div>
                 </div>
 
                 <div className="absolute left-3 top-3 z-30 flex items-center gap-2">
