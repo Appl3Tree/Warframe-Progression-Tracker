@@ -3757,11 +3757,22 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         edges: []
     },
 
-    // --- Europa hubs ---
+    // --- Mars hubs ---
     {
-        id: "node:hub/europa/kuiper-relay",
+        id: "node:hub/mars/maroos-bazaar",
+        planetId: "planet:mars",
+        name: "Maroo's Bazaar",
+        nodeType: "hub",
+        pos: undefined,
+        edges: []
+    },
+
+    // --- Europa hubs ---
+    // Leonov Relay is on Europa (destroyed; still appears as a node).
+    {
+        id: "node:hub/europa/leonov-relay",
         planetId: "planet:europa",
-        name: "Kuiper Relay",
+        name: "Leonov Relay",
         nodeType: "hub",
         pos: undefined,
         edges: []
@@ -3788,11 +3799,11 @@ export const STAR_CHART_NODES: StarChartNode[] = [
     },
 
     // --- Eris hubs ---
-    // Leonov Relay is located at Eris (named after cosmonaut Alexei Leonov).
+    // Kuiper Relay is on Eris (destroyed; still appears as a node).
     {
-        id: "node:hub/eris/leonov-relay",
+        id: "node:hub/eris/kuiper-relay",
         planetId: "planet:eris",
-        name: "Leonov Relay",
+        name: "Kuiper Relay",
         nodeType: "hub",
         pos: undefined,
         edges: []
