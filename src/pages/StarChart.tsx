@@ -391,7 +391,7 @@ type NodeGroup = {
     planetId: PlanetId;
     displayName: string;
     baseNodeId: NodeId;
-    nodeType: "mission" | "hub" | "junction" | "special";
+    nodeType: StarChartNode["nodeType"];
     kinds: Partial<Record<Exclude<NodeGroupKind, "all">, NodeId[]>>;
 };
 
@@ -400,16 +400,19 @@ function baseKeyFromNode(n: StarChartNode): string {
     const stripId = id.replace(/-(caches)$/i, "").replace(/-(extra)$/i, "");
 
     const nm = String(n.name ?? "");
-    const stripName = nm
-        .replace(/\s*\(Caches\)\s*$/i, "")
-        .replace(/\s*\(Extra\)\s*$/i, "")
-        .replace(/\s*\(Mission Rewards\)\s*$/i, "");
+    const stripName = stripTrailingNodeQualifier(nm);
 
     return `${String(n.planetId)}::${stripId}::${stripName}`;
 }
 
+function stripTrailingNodeQualifier(name: string): string {
+    return String(name ?? "")
+        .replace(/\s*\([^)]*\)\s*$/i, "")
+        .trim();
+}
+
 function displayNameFromBase(n: StarChartNode): string {
-    return String(n.name ?? "").replace(/\s*\((Caches|Extra|Mission Rewards)\)\s*$/i, "").trim();
+    return stripTrailingNodeQualifier(String(n.name ?? ""));
 }
 
 function parseNodeVariant(n: StarChartNode): { baseKey: string; kind: Exclude<NodeGroupKind, "all"> } {
@@ -421,6 +424,34 @@ function parseNodeVariant(n: StarChartNode): { baseKey: string; kind: Exclude<No
     if (name.includes("(mission rewards)") || name.includes("mission rewards")) return { baseKey: baseKeyFromNode(n), kind: "mission_rewards" };
 
     return { baseKey: baseKeyFromNode(n), kind: "base" };
+}
+
+function groupPlanetNodesForDisplay(nodes: StarChartNode[]): NodeGroup[] {
+    const byKey = new Map<string, NodeGroup>();
+
+    for (const n of nodes) {
+        const v = parseNodeVariant(n);
+        const key = v.baseKey;
+
+        let g = byKey.get(key) ?? null;
+        if (!g) {
+            g = {
+                key,
+                planetId: n.planetId,
+                displayName: displayNameFromBase(n),
+                baseNodeId: n.id,
+                nodeType: n.nodeType,
+                kinds: {}
+            };
+            byKey.set(key, g);
+        }
+
+        if (!g!.kinds[v.kind]) g!.kinds[v.kind] = [];
+        g!.kinds[v.kind]!.push(n.id);
+        if (v.kind === "base") g!.baseNodeId = n.id;
+    }
+
+    return [...byKey.values()].sort((a, b) => a.displayName.localeCompare(b.displayName));
 }
 
 // Node positions are stored as fractions of the disk radius so they remain
@@ -878,37 +909,17 @@ function StarChartMap(props: {
 
     const groupedByPlanet = useMemo(() => {
         const out = new Map<string, NodeGroup[]>();
+        const byPlanet = new Map<string, StarChartNode[]>();
 
         for (const n of STAR_CHART_DATA.nodes) {
             const pid = String(n.planetId);
-            const v = parseNodeVariant(n);
-            const key = v.baseKey;
-
-            if (!out.has(pid)) out.set(pid, []);
-            const arr = out.get(pid)!;
-
-            let g = arr.find((x) => x.key === key) ?? null;
-            if (!g) {
-                g = {
-                    key,
-                    planetId: n.planetId,
-                    displayName: displayNameFromBase(n),
-                    baseNodeId: n.id,
-                    nodeType: n.nodeType,
-                    kinds: {}
-                };
-                arr.push(g);
-            }
-
-            if (!g.kinds[v.kind]) g.kinds[v.kind] = [];
-            g.kinds[v.kind]!.push(n.id);
-
-            if (v.kind === "base") g.baseNodeId = n.id;
+            const arr = byPlanet.get(pid) ?? [];
+            arr.push(n);
+            byPlanet.set(pid, arr);
         }
 
-        for (const [pid, arr] of out.entries()) {
-            arr.sort((a, b) => a.displayName.localeCompare(b.displayName));
-            out.set(pid, arr);
+        for (const [pid, nodes] of byPlanet.entries()) {
+            out.set(pid, groupPlanetNodesForDisplay(nodes));
         }
 
         return out;
@@ -2579,7 +2590,7 @@ function StarChartListView({ steelPathMode }: SCListProps) {
                                                 className="accent-blue-400"
                                             />
                                             <span className={isCompleted ? "text-slate-500 line-through" : "text-slate-200"}>
-                                                {node.name}
+                                                {displayNameFromBase(node)}
                                             </span>
                                             {typeLabel && (
                                                 <span className="ml-auto text-[10px] text-slate-600 uppercase tracking-widest">{typeLabel}</span>
@@ -2675,7 +2686,7 @@ function StarChartDuviriView({ onBack }: { onBack: () => void }) {
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                         {duviriNodes.map((n) => (
                             <div key={n.id} className="rounded-xl border border-slate-700 bg-slate-900/40 p-3">
-                                <div className="text-xs font-semibold text-purple-300">{n.name}</div>
+                                <div className="text-xs font-semibold text-purple-300">{displayNameFromBase(n)}</div>
                                 <div className="text-[11px] text-slate-500 capitalize">{n.nodeType}</div>
                             </div>
                         ))}
@@ -2827,37 +2838,17 @@ export default function StarChart() {
 
     const groupedByPlanet = useMemo(() => {
         const out = new Map<string, NodeGroup[]>();
+        const byPlanet = new Map<string, StarChartNode[]>();
 
         for (const n of STAR_CHART_DATA.nodes) {
             const pid = String(n.planetId);
-            const v = parseNodeVariant(n);
-            const key = v.baseKey;
-
-            if (!out.has(pid)) out.set(pid, []);
-            const arr = out.get(pid)!;
-
-            let g = arr.find((x) => x.key === key) ?? null;
-            if (!g) {
-                g = {
-                    key,
-                    planetId: n.planetId,
-                    displayName: displayNameFromBase(n),
-                    baseNodeId: n.id,
-                    nodeType: n.nodeType,
-                    kinds: {}
-                };
-                arr.push(g);
-            }
-
-            if (!g.kinds[v.kind]) g.kinds[v.kind] = [];
-            g.kinds[v.kind]!.push(n.id);
-
-            if (v.kind === "base") g.baseNodeId = n.id;
+            const arr = byPlanet.get(pid) ?? [];
+            arr.push(n);
+            byPlanet.set(pid, arr);
         }
 
-        for (const [pid, arr] of out.entries()) {
-            arr.sort((a, b) => a.displayName.localeCompare(b.displayName));
-            out.set(pid, arr);
+        for (const [pid, nodes] of byPlanet.entries()) {
+            out.set(pid, groupPlanetNodesForDisplay(nodes));
         }
 
         return out;
