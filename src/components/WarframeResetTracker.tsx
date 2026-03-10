@@ -60,7 +60,9 @@ type TaskDef = {
 
 const LS_KEY = "wfpt:resetChecklist";
 
-const RELAY_FACTION_IDS = new Set([
+import type { SyndicateId } from "../domain/ids/syndicateIds";
+
+const RELAY_FACTION_IDS = new Set<SyndicateId>([
     SY.STEEL_MERIDIAN, SY.ARBITERS_OF_HEXIS, SY.CEPHALON_SUDA,
     SY.THE_PERRIN_SEQUENCE, SY.RED_VEIL, SY.NEW_LOKA,
 ]);
@@ -281,28 +283,30 @@ const URG_TITLE:     Record<string, string> = { safe: "text-emerald-400", warn: 
 
 // ─── Baro Ki'Teer live computation ─────────────────────────────────────────────
 
-function getBaroStatus(now: Date): { present: boolean; label: string; detail: string } {
+function getBaroStatus(now: Date): { present: boolean; label: string; detail: string; timeLeftMs: number; timeUntilMs: number } {
     const ms = now.getTime();
-    // How far into the current 14-day cycle are we?
     const offset = ((ms - BARO_ANCHOR_MS) % BARO_PERIOD_MS + BARO_PERIOD_MS) % BARO_PERIOD_MS;
-    const cycleStart = ms - offset;
-    const arrivalMs  = cycleStart; // Baro arrives at the cycle start
-    const leaveMs    = cycleStart + BARO_WINDOW_MS;
+    const cycleStart    = ms - offset;
+    const leaveMs       = cycleStart + BARO_WINDOW_MS;
     const nextArrivalMs = cycleStart + BARO_PERIOD_MS;
 
-    if (ms >= arrivalMs && ms < leaveMs) {
+    if (ms < leaveMs) {
         const remaining = leaveMs - ms;
         return {
-            present: true,
-            label:   "Baro Ki'Teer — HERE NOW",
-            detail:  `Leaves in ${fmtMs(remaining)} · Every other Friday, 48 h window`,
+            present:     true,
+            label:       "Baro Ki'Teer — HERE NOW",
+            detail:      `Leaves in ${fmtMs(remaining)} · Every other Friday, 48 h window`,
+            timeLeftMs:  remaining,
+            timeUntilMs: 0,
         };
     }
     const until = nextArrivalMs - ms;
     return {
-        present: false,
-        label:   "Baro Ki'Teer",
-        detail:  `Arrives in ${fmtMs(until)} · Every other Friday at 00:00 UTC, 48 h window`,
+        present:     false,
+        label:       "Baro Ki'Teer",
+        detail:      `Arrives in ${fmtMs(until)} · Every other Friday at 00:00 UTC, 48 h window`,
+        timeLeftMs:  0,
+        timeUntilMs: until,
     };
 }
 
@@ -371,7 +375,7 @@ function getEligibleTasks(
     syndicates: SyndicateState[],
 ): TaskDef[] {
     const pledgedIds = new Set(
-        syndicates.filter((s) => s.pledged && RELAY_FACTION_IDS.has(s.id)).map((s) => s.id)
+        syndicates.filter((s) => s.pledged && RELAY_FACTION_IDS.has(s.id as SyndicateId)).map((s) => s.id)
     );
     const anyPledged = pledgedIds.size > 0;
 
@@ -459,10 +463,11 @@ function TaskList({ tasks, completedIds, onToggle, netracellRuns, onNetracellCha
     netracellRuns?: number;
     onNetracellChange?: (n: number) => void;
 }) {
-    // Netracells uses a counter rather than a boolean toggle — always keep it in the
-    // pending section so the counter stays visible regardless of run count.
-    const pending   = tasks.filter((t) => !completedIds.includes(t.id) || t.id === "netracells");
-    const completed = tasks.filter((t) =>  completedIds.includes(t.id) && t.id !== "netracells");
+    const netracellDone = (netracellRuns ?? 0) >= 5;
+
+    // Netracells is complete when runs === 5 — sort it into the completed section then.
+    const pending   = tasks.filter((t) => t.id === "netracells" ? !netracellDone : !completedIds.includes(t.id));
+    const completed = tasks.filter((t) => t.id === "netracells" ? netracellDone  :  completedIds.includes(t.id));
 
     if (tasks.length === 0) return (
         <div className="px-3 py-4 text-sm text-slate-500 text-center">
@@ -504,21 +509,32 @@ function TaskList({ tasks, completedIds, onToggle, netracellRuns, onNetracellCha
                     <div className="flex-1 h-px bg-slate-800" />
                 </div>
             )}
-            {completed.map((t) => (
-                <button
-                    key={t.id}
-                    className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl border border-emerald-900/30 bg-emerald-950/10 text-left transition-colors w-full opacity-70 hover:opacity-100"
-                    onClick={() => onToggle(t.id)}
-                >
-                    <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-emerald-800 bg-emerald-950/30 flex items-center justify-center">
-                        <CheckIcon />
-                    </div>
-                    <div className="min-w-0">
-                        <div className="text-sm font-medium text-emerald-500 leading-tight">{t.label}</div>
-                        <div className="text-xs text-slate-500 mt-0.5 leading-snug">{t.description}</div>
-                    </div>
-                </button>
-            ))}
+            {completed.map((t) => {
+                if (t.id === "netracells" && netracellRuns !== undefined && onNetracellChange) {
+                    return (
+                        <NetracellCounter
+                            key={t.id}
+                            runs={netracellRuns}
+                            onChange={onNetracellChange}
+                        />
+                    );
+                }
+                return (
+                    <button
+                        key={t.id}
+                        className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl border border-emerald-900/30 bg-emerald-950/10 text-left transition-colors w-full opacity-70 hover:opacity-100"
+                        onClick={() => onToggle(t.id)}
+                    >
+                        <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-emerald-800 bg-emerald-950/30 flex items-center justify-center">
+                            <CheckIcon />
+                        </div>
+                        <div className="min-w-0">
+                            <div className="text-sm font-medium text-emerald-500 leading-tight">{t.label}</div>
+                            <div className="text-xs text-slate-500 mt-0.5 leading-snug">{t.description}</div>
+                        </div>
+                    </button>
+                );
+            })}
         </div>
     );
 }
@@ -821,7 +837,7 @@ export default function WarframeResetTracker() {
 
     // Pledge nudge
     const anyPledged = useMemo(
-        () => syndicates.some((s) => s.pledged && RELAY_FACTION_IDS.has(s.id)),
+        () => syndicates.some((s) => s.pledged && RELAY_FACTION_IDS.has(s.id as SyndicateId)),
         [syndicates]
     );
 
@@ -939,6 +955,33 @@ export default function WarframeResetTracker() {
                     </div>
                 </div>
             </div>
+
+            {/* Baro Ki'Teer presence banner */}
+            {baro.present && (
+                <div className="rounded-xl border border-amber-600/60 bg-amber-950/30 px-4 py-3 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                        {/* Pulsing dot */}
+                        <span className="relative flex-shrink-0 flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500" />
+                        </span>
+                        <div className="min-w-0">
+                            <div className="text-sm font-semibold text-amber-300">
+                                Baro Ki'Teer is at the Relay
+                            </div>
+                            <div className="text-xs text-amber-500/80 mt-0.5">
+                                Visit before he leaves — check the Void Trader at any Relay
+                            </div>
+                        </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                        <div className="text-xs text-amber-500/70 uppercase tracking-wider font-medium">Leaves in</div>
+                        <div className="text-lg font-semibold tabular-nums text-amber-300 leading-tight">
+                            {fmtMs(baro.timeLeftMs)}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Pledge nudge */}
             {!anyPledged && (

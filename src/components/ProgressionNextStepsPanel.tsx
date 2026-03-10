@@ -12,8 +12,12 @@ export default function ProgressionNextStepsPanel() {
     const setPrereqCompleted = useTrackerStore((s) => s.setPrereqCompleted);
 
     const prereqIndex = useMemo(() => buildPrereqIndex(PREREQ_REGISTRY), []);
-    const plan        = useMemo(() => buildProgressionPlan(completedMap), [completedMap]);
-    const steps       = plan.steps ?? [];
+    const steps = useMemo(() => {
+        try {
+            return (buildProgressionPlan(completedMap).steps ?? [])
+                .filter((s: any) => s.id !== "planner_error_no_steps");
+        } catch { return []; }
+    }, [completedMap]);
 
     const unlockImpactByStepId = useMemo(() => {
         const result: Record<string, string[]> = {};
@@ -35,6 +39,8 @@ export default function ProgressionNextStepsPanel() {
 
     function labelFor(id: string) { const def = prereqIndex[id]; return def ? def.label : id; }
     function isComplete(id: string) { return completedMap[id] === true; }
+
+    if (steps.length === 0) return null;
 
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
@@ -99,12 +105,6 @@ export default function ProgressionNextStepsPanel() {
                     );
                 })}
             </div>
-
-            {steps.length === 0 && (
-                <div className="mt-4 rounded-xl border border-red-900/40 bg-red-950/20 p-3 text-sm text-red-200">
-                    Planner returned no steps. This should only happen if everything is completed or the prereq registry is empty/misconfigured.
-                </div>
-            )}
         </div>
     );
 }

@@ -59,6 +59,7 @@ export const PR = {
     HUB_ZARIMAN: "hub_zariman",
     HUB_SANCTUM: "hub_sanctum_anatomica",
     HUB_HOLLVANIA: "hub_hollvania",
+    HUB_RELAY: "hub_relay",
 
     // -----------------------------
     // Systems (high-level gates; player-confirmed)

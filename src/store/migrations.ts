@@ -1,6 +1,7 @@
 // ===== FILE: src/store/migrations.ts =====
 import { z } from "zod";
 import type { UserStateV2 } from "../domain/models/userState";
+import type { ResetDisplayMode } from "../domain/types";
 
 const LegacyPayloadSchema = z
     .object({
@@ -222,6 +223,7 @@ function normalizeStringArray(raw: unknown): string[] {
 
 function normalizeResetChecklist(raw: any) {
     const now = new Date();
+    const timeMode: ResetDisplayMode = raw?.timeMode === "local" ? "local" : "utc";
 
     return {
         primaryDailyResetKey:
@@ -248,7 +250,7 @@ function normalizeResetChecklist(raw: any) {
         completedSecondaryDailyTaskIds: normalizeStringArray(raw?.completedSecondaryDailyTaskIds),
         completedWeeklyMondayTaskIds: normalizeStringArray(raw?.completedWeeklyMondayTaskIds ?? raw?.completedWeeklyTaskIds),
         completedWeeklyFridayTaskIds: normalizeStringArray(raw?.completedWeeklyFridayTaskIds),
-        timeMode: raw?.timeMode === "local" ? "local" : "utc"
+        timeMode,
     };
 }
 
