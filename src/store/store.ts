@@ -4,10 +4,15 @@ import { immer } from "zustand/middleware/immer";
 import { persist } from "zustand/middleware";
 import { z } from "zod";
 import { toYMD } from "../domain/ymd";
-import type { DailyTask, SyndicateState } from "../domain/types";
+import type {
+    DailyTask,
+    ResetChecklistBucket,
+    ResetChecklistState,
+    ResetDisplayMode,
+    SyndicateState
+} from "../domain/types";
 import { SEED_INVENTORY, SEED_MASTERY, SEED_MISSIONS, SEED_SYNDICATES } from "../domain/seed";
-import type { PageKey, UserStateV2 } from "../domain/models/userState";
-import type { UserGoalV1 } from "../domain/models/userState";
+import type { PageKey, UserGoalV1, UserStateV2 } from "../domain/models/userState";
 import { migrateToUserStateV2 } from "./migrations";
 import { parseProfileViewingData } from "../utils/profileImport";
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
@@ -23,6 +28,148 @@ function nowIso(): string {
 
 function uid(prefix: string): string {
     return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now()}`;
+}
+
+function utcDateKey(date: Date): string {
+    return date.toISOString().slice(0, 10);
+}
+
+function getCurrentPrimaryDailyResetKey(now: Date): string {
+    return utcDateKey(now);
+}
+
+function getCurrentSecondaryDailyResetKey(now: Date): string {
+    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 17, 0, 0, 0));
+    if (now.getTime() >= start.getTime()) {
+        return utcDateKey(start);
+    }
+
+    start.setUTCDate(start.getUTCDate() - 1);
+    return utcDateKey(start);
+}
+
+function getCurrentWeeklyMondayResetKey(now: Date): string {
+    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const day = start.getUTCDay();
+    const diffToMonday = (day + 6) % 7;
+    start.setUTCDate(start.getUTCDate() - diffToMonday);
+    return utcDateKey(start);
+}
+
+function getCurrentWeeklyFridayResetKey(now: Date): string {
+    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const day = start.getUTCDay();
+    const diffToFriday = (day + 2) % 7;
+    start.setUTCDate(start.getUTCDate() - diffToFriday);
+    return utcDateKey(start);
+}
+
+function normalizeStringArray(raw: unknown): string[] {
+    if (!Array.isArray(raw)) return [];
+
+    const out: string[] = [];
+    const seen = new Set<string>();
+
+    for (const v of raw) {
+        const s = String(v ?? "").trim();
+        if (!s || seen.has(s)) continue;
+        seen.add(s);
+        out.push(s);
+    }
+
+    return out;
+}
+
+function makeDefaultResetChecklistState(now = new Date()): ResetChecklistState {
+    return {
+        primaryDailyResetKey: getCurrentPrimaryDailyResetKey(now),
+        secondaryDailyResetKey: getCurrentSecondaryDailyResetKey(now),
+        weeklyMondayResetKey: getCurrentWeeklyMondayResetKey(now),
+        weeklyFridayResetKey: getCurrentWeeklyFridayResetKey(now),
+        completedPrimaryDailyTaskIds: [],
+        completedSecondaryDailyTaskIds: [],
+        completedWeeklyMondayTaskIds: [],
+        completedWeeklyFridayTaskIds: [],
+        timeMode: "utc"
+    };
+}
+
+function ensureResetChecklistState(state: any): void {
+    const fallback = makeDefaultResetChecklistState();
+
+    if (!state || typeof state !== "object") return;
+
+    if (!state.resetChecklist || typeof state.resetChecklist !== "object") {
+        state.resetChecklist = fallback;
+        return;
+    }
+
+    const raw = state.resetChecklist;
+
+    state.resetChecklist = {
+        primaryDailyResetKey:
+            typeof raw.primaryDailyResetKey === "string" && raw.primaryDailyResetKey.trim()
+                ? raw.primaryDailyResetKey
+                : typeof raw.dailyResetKey === "string" && raw.dailyResetKey.trim()
+                    ? raw.dailyResetKey
+                    : fallback.primaryDailyResetKey,
+        secondaryDailyResetKey:
+            typeof raw.secondaryDailyResetKey === "string" && raw.secondaryDailyResetKey.trim()
+                ? raw.secondaryDailyResetKey
+                : fallback.secondaryDailyResetKey,
+        weeklyMondayResetKey:
+            typeof raw.weeklyMondayResetKey === "string" && raw.weeklyMondayResetKey.trim()
+                ? raw.weeklyMondayResetKey
+                : typeof raw.weeklyResetKey === "string" && raw.weeklyResetKey.trim()
+                    ? raw.weeklyResetKey
+                    : fallback.weeklyMondayResetKey,
+        weeklyFridayResetKey:
+            typeof raw.weeklyFridayResetKey === "string" && raw.weeklyFridayResetKey.trim()
+                ? raw.weeklyFridayResetKey
+                : fallback.weeklyFridayResetKey,
+        completedPrimaryDailyTaskIds: normalizeStringArray(raw.completedPrimaryDailyTaskIds ?? raw.completedDailyTaskIds),
+        completedSecondaryDailyTaskIds: normalizeStringArray(raw.completedSecondaryDailyTaskIds),
+        completedWeeklyMondayTaskIds: normalizeStringArray(raw.completedWeeklyMondayTaskIds ?? raw.completedWeeklyTaskIds),
+        completedWeeklyFridayTaskIds: normalizeStringArray(raw.completedWeeklyFridayTaskIds),
+        timeMode: raw.timeMode === "local" ? "local" : "utc"
+    };
+}
+
+function syncResetChecklistState(state: UserStateV2, now = new Date()): boolean {
+    ensureResetChecklistState(state);
+
+    const nextPrimaryDailyKey = getCurrentPrimaryDailyResetKey(now);
+    const nextSecondaryDailyKey = getCurrentSecondaryDailyResetKey(now);
+    const nextWeeklyMondayKey = getCurrentWeeklyMondayResetKey(now);
+    const nextWeeklyFridayKey = getCurrentWeeklyFridayResetKey(now);
+
+    let changed = false;
+
+    if (state.resetChecklist.primaryDailyResetKey !== nextPrimaryDailyKey) {
+        state.resetChecklist.primaryDailyResetKey = nextPrimaryDailyKey;
+        state.resetChecklist.completedPrimaryDailyTaskIds = [];
+        changed = true;
+    }
+
+    if (state.resetChecklist.secondaryDailyResetKey !== nextSecondaryDailyKey) {
+        state.resetChecklist.secondaryDailyResetKey = nextSecondaryDailyKey;
+        state.resetChecklist.completedSecondaryDailyTaskIds = [];
+        changed = true;
+    }
+
+    if (state.resetChecklist.weeklyMondayResetKey !== nextWeeklyMondayKey) {
+        state.resetChecklist.weeklyMondayResetKey = nextWeeklyMondayKey;
+        state.resetChecklist.completedWeeklyMondayTaskIds = [];
+        changed = true;
+    }
+
+    if (state.resetChecklist.weeklyFridayResetKey !== nextWeeklyFridayKey) {
+        state.resetChecklist.weeklyFridayResetKey = nextWeeklyFridayKey;
+        state.resetChecklist.completedWeeklyFridayTaskIds = [];
+        changed = true;
+    }
+
+    return changed;
 }
 
 function makeDefaultState(): UserStateV2 {
@@ -53,6 +200,7 @@ function makeDefaultState(): UserStateV2 {
         inventory: SEED_INVENTORY,
         syndicates: SEED_SYNDICATES,
         dailyTasks: [],
+        resetChecklist: makeDefaultResetChecklistState(),
         goals: [],
         mastery: SEED_MASTERY,
         missions: SEED_MISSIONS
@@ -104,6 +252,7 @@ const ProgressPackSchemaV2 = z
         inventory: InventorySchema.optional(),
         syndicates: z.any().optional(),
         dailyTasks: z.any().optional(),
+        resetChecklist: z.any().optional(),
         goals: z.any().optional(),
         mastery: z.any().optional(),
         missions: z.any().optional()
@@ -123,11 +272,6 @@ function ensureUiExpansion(state: any): void {
     }
 }
 
-/**
- * Merge-only import behavior:
- * - Only overwrite fields present in the incoming pack
- * - Do not reset untouched sections
- */
 function mergeProgressPackIntoState(current: UserStateV2, incoming: any): UserStateV2 {
     const next: UserStateV2 = {
         ...current,
@@ -189,6 +333,10 @@ function mergeProgressPackIntoState(current: UserStateV2, incoming: any): UserSt
         next.dailyTasks = incoming.dailyTasks;
     }
 
+    if (incoming.resetChecklist !== undefined) {
+        (next as any).resetChecklist = incoming.resetChecklist;
+    }
+
     if (incoming.goals !== undefined) {
         next.goals = incoming.goals;
     }
@@ -203,6 +351,7 @@ function mergeProgressPackIntoState(current: UserStateV2, incoming: any): UserSt
 
     ensureGoalsArray(next);
     ensureUiExpansion(next);
+    ensureResetChecklistState(next);
 
     return next;
 }
@@ -394,6 +543,15 @@ function countPrimaryPledges(list: SyndicateState[]): number {
     return n;
 }
 
+function getResetTaskArray(state: UserStateV2, bucket: ResetChecklistBucket): string[] {
+    ensureResetChecklistState(state);
+
+    if (bucket === "primary_daily") return state.resetChecklist.completedPrimaryDailyTaskIds;
+    if (bucket === "secondary_daily") return state.resetChecklist.completedSecondaryDailyTaskIds;
+    if (bucket === "weekly_monday") return state.resetChecklist.completedWeeklyMondayTaskIds;
+    return state.resetChecklist.completedWeeklyFridayTaskIds;
+}
+
 export interface TrackerStore {
     state: UserStateV2;
 
@@ -417,9 +575,14 @@ export interface TrackerStore {
     toggleDailyTask: (taskId: string) => void;
     deleteDailyTask: (taskId: string) => void;
 
+    syncResetChecklistResets: () => void;
+    toggleResetChecklistTask: (taskId: string, bucket: ResetChecklistBucket) => void;
+    clearResetChecklistTasks: (bucket: ResetChecklistBucket) => void;
+    isResetChecklistTaskCompleted: (taskId: string, bucket: ResetChecklistBucket) => boolean;
+    setResetChecklistTimeMode: (mode: ResetDisplayMode) => void;
+
     upsertSyndicate: (patch: Partial<SyndicateState>) => void;
 
-    // NEW: Primary pledge set supports up to 3 concurrent pledges
     togglePrimaryPledge: (syndicateId: string) => void;
     clearPrimaryPledges: () => void;
 
@@ -544,7 +707,6 @@ export const useTrackerStore = create<TrackerStore>()(
                         s.state.player.clanClass = parsed.clan?.clanClass;
                         s.state.player.clanXp = parsed.clan?.xp;
 
-                        // Merge syndicates by id, preserving pledge flags if already set locally.
                         const existingById = new Map<string, SyndicateState>();
                         for (const syn of s.state.syndicates ?? []) {
                             if (syn && typeof syn.id === "string") existingById.set(syn.id, syn);
@@ -571,6 +733,7 @@ export const useTrackerStore = create<TrackerStore>()(
 
                         ensureGoalsArray(s.state);
                         ensureUiExpansion(s.state);
+                        ensureResetChecklistState(s.state);
 
                         s.state.meta.updatedAtIso = nowIso();
                     });
@@ -624,6 +787,90 @@ export const useTrackerStore = create<TrackerStore>()(
                 });
             },
 
+            syncResetChecklistResets: () => {
+                set((s) => {
+                    const changed = syncResetChecklistState(s.state, new Date());
+                    if (changed) {
+                        s.state.meta.updatedAtIso = nowIso();
+                    }
+                });
+            },
+
+            toggleResetChecklistTask: (taskId, bucket) => {
+                const id = String(taskId ?? "").trim();
+                if (!id) return;
+
+                set((s) => {
+                    syncResetChecklistState(s.state, new Date());
+
+                    const arr = getResetTaskArray(s.state, bucket);
+                    const idx = arr.indexOf(id);
+
+                    if (idx >= 0) {
+                        arr.splice(idx, 1);
+                    } else {
+                        arr.push(id);
+                    }
+
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            clearResetChecklistTasks: (bucket) => {
+                set((s) => {
+                    syncResetChecklistState(s.state, new Date());
+
+                    if (bucket === "primary_daily") {
+                        s.state.resetChecklist.completedPrimaryDailyTaskIds = [];
+                    } else if (bucket === "secondary_daily") {
+                        s.state.resetChecklist.completedSecondaryDailyTaskIds = [];
+                    } else if (bucket === "weekly_monday") {
+                        s.state.resetChecklist.completedWeeklyMondayTaskIds = [];
+                    } else {
+                        s.state.resetChecklist.completedWeeklyFridayTaskIds = [];
+                    }
+
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            isResetChecklistTaskCompleted: (taskId, bucket) => {
+                const state = get().state;
+                ensureResetChecklistState(state);
+
+                const now = new Date();
+
+                const activeKey =
+                    bucket === "primary_daily"
+                        ? getCurrentPrimaryDailyResetKey(now)
+                        : bucket === "secondary_daily"
+                            ? getCurrentSecondaryDailyResetKey(now)
+                            : bucket === "weekly_monday"
+                                ? getCurrentWeeklyMondayResetKey(now)
+                                : getCurrentWeeklyFridayResetKey(now);
+
+                const matchesWindow =
+                    bucket === "primary_daily"
+                        ? state.resetChecklist.primaryDailyResetKey === activeKey
+                        : bucket === "secondary_daily"
+                            ? state.resetChecklist.secondaryDailyResetKey === activeKey
+                            : bucket === "weekly_monday"
+                                ? state.resetChecklist.weeklyMondayResetKey === activeKey
+                                : state.resetChecklist.weeklyFridayResetKey === activeKey;
+
+                if (!matchesWindow) return false;
+
+                return getResetTaskArray(state, bucket).includes(String(taskId));
+            },
+
+            setResetChecklistTimeMode: (mode) => {
+                set((s) => {
+                    ensureResetChecklistState(s.state);
+                    s.state.resetChecklist.timeMode = mode === "local" ? "local" : "utc";
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
             upsertSyndicate: (patch) => {
                 const p = normalizeSyndicatePatch(patch);
                 if (!p.id) return;
@@ -635,16 +882,13 @@ export const useTrackerStore = create<TrackerStore>()(
 
                     upsertSyndicateIntoList(s.state.syndicates as any, p);
 
-                    // If caller sets pledged directly, enforce "max 3" for primary factions.
                     if (typeof p.pledged === "boolean" && isPrimaryFactionId(String(p.id))) {
                         const list = s.state.syndicates as any as SyndicateState[];
 
-                        // If setting to true and we're already at 3, refuse (fail-closed).
                         if (p.pledged === true) {
                             const currentCount = countPrimaryPledges(list);
                             const already = list.find((x) => x.id === p.id)?.pledged === true;
                             if (!already && currentCount >= 3) {
-                                // Do nothing.
                                 return;
                             }
                         }
@@ -661,7 +905,6 @@ export const useTrackerStore = create<TrackerStore>()(
                 set((s) => {
                     if (!Array.isArray(s.state.syndicates)) s.state.syndicates = [];
 
-                    // Ensure all 6 exist
                     const primary: Array<{ id: string; name: string }> = [
                         { id: SY.STEEL_MERIDIAN, name: "Steel Meridian" },
                         { id: SY.ARBITERS_OF_HEXIS, name: "Arbiters of Hexis" },
@@ -684,7 +927,6 @@ export const useTrackerStore = create<TrackerStore>()(
                     if (next === true) {
                         const current = countPrimaryPledges(list);
                         if (current >= 3) {
-                            // refuse: max 3 pledges
                             return;
                         }
                     }
@@ -723,6 +965,7 @@ export const useTrackerStore = create<TrackerStore>()(
                         s.state = mergeProgressPackIntoState(s.state, ok.data);
                         ensureGoalsArray(s.state);
                         ensureUiExpansion(s.state);
+                        ensureResetChecklistState(s.state);
                     });
 
                     return { ok: true };
@@ -808,6 +1051,7 @@ export const useTrackerStore = create<TrackerStore>()(
                 set((s) => {
                     ensureGoalsArray(s.state);
                     ensureUiExpansion(s.state);
+                    ensureResetChecklistState(s.state);
 
                     const existing = s.state.goals.find((g: any) => g.type === "item" && g.catalogId === cid);
                     if (existing) {
@@ -835,6 +1079,7 @@ export const useTrackerStore = create<TrackerStore>()(
                 set((s) => {
                     ensureGoalsArray(s.state);
                     ensureUiExpansion(s.state);
+                    ensureResetChecklistState(s.state);
                     s.state.goals = s.state.goals.filter((g: any) => g.id !== goalId);
                     s.state.meta.updatedAtIso = nowIso();
                 });
@@ -845,6 +1090,7 @@ export const useTrackerStore = create<TrackerStore>()(
                 set((s) => {
                     ensureGoalsArray(s.state);
                     ensureUiExpansion(s.state);
+                    ensureResetChecklistState(s.state);
                     const g = s.state.goals.find((x: any) => x.id === goalId);
                     if (!g) return;
                     g.qty = q;
@@ -857,6 +1103,7 @@ export const useTrackerStore = create<TrackerStore>()(
                 set((s) => {
                     ensureGoalsArray(s.state);
                     ensureUiExpansion(s.state);
+                    ensureResetChecklistState(s.state);
                     const g = s.state.goals.find((x: any) => x.id === goalId);
                     if (!g) return;
                     g.note = String(note ?? "");
@@ -869,6 +1116,7 @@ export const useTrackerStore = create<TrackerStore>()(
                 set((s) => {
                     ensureGoalsArray(s.state);
                     ensureUiExpansion(s.state);
+                    ensureResetChecklistState(s.state);
                     const g = s.state.goals.find((x: any) => x.id === goalId);
                     if (!g) return;
                     g.isActive = !g.isActive;
@@ -996,11 +1244,11 @@ export const useTrackerStore = create<TrackerStore>()(
                     }
                     s.state.meta.updatedAtIso = nowIso();
                 });
-            },
+            }
         })),
         {
             name: PERSIST_KEY,
-            version: 4,
+            version: 6,
             migrate: (persistedState: any) => {
                 const raw = persistedState?.state ?? persistedState;
                 const migrated = migrateToUserStateV2(raw);
@@ -1009,6 +1257,7 @@ export const useTrackerStore = create<TrackerStore>()(
                 }
                 ensureGoalsArray(migrated as any);
                 ensureUiExpansion(migrated as any);
+                ensureResetChecklistState(migrated as any);
                 return { state: migrated } as any;
             }
         }

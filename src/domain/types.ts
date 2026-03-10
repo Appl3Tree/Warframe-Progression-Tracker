@@ -27,6 +27,40 @@ export interface DailyTask {
     isDone: boolean;
 }
 
+export type ResetChecklistCadence = "daily" | "weekly";
+export type ResetDisplayMode = "utc" | "local";
+
+export type ResetChecklistBucket =
+    | "primary_daily"
+    | "secondary_daily"
+    | "weekly_monday"
+    | "weekly_friday";
+
+export interface ResetChecklistState {
+    /**
+     * Current active UTC reset window keys.
+     * When these keys change, completion lists are wiped for the new window.
+     */
+    primaryDailyResetKey: string;
+    secondaryDailyResetKey: string;
+    weeklyMondayResetKey: string;
+    weeklyFridayResetKey: string;
+
+    /**
+     * Task ids completed in the current active window.
+     */
+    completedPrimaryDailyTaskIds: string[];
+    completedSecondaryDailyTaskIds: string[];
+    completedWeeklyMondayTaskIds: string[];
+    completedWeeklyFridayTaskIds: string[];
+
+    /**
+     * Presentation-only toggle for the reset header pills.
+     * Reset boundaries remain game-accurate UTC.
+     */
+    timeMode: ResetDisplayMode;
+}
+
 export interface SyndicateState {
     id: Id;
     name: string;

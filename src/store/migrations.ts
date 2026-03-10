@@ -1,3 +1,4 @@
+// ===== FILE: src/store/migrations.ts =====
 import { z } from "zod";
 import type { UserStateV2 } from "../domain/models/userState";
 
@@ -75,6 +76,7 @@ const UserStateV2Schema = z
         syndicates: z.any().optional(),
         reserves: z.any().optional(),
         dailyTasks: z.any().optional(),
+        resetChecklist: z.any().optional(),
         mastery: z.any().optional(),
         missions: z.any().optional(),
         goals: z.any().optional()
@@ -83,6 +85,40 @@ const UserStateV2Schema = z
 
 function nowIso(): string {
     return new Date().toISOString();
+}
+
+function utcDateKey(date: Date): string {
+    return date.toISOString().slice(0, 10);
+}
+
+function getCurrentPrimaryDailyResetKey(now: Date): string {
+    return utcDateKey(now);
+}
+
+function getCurrentSecondaryDailyResetKey(now: Date): string {
+    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 17, 0, 0, 0));
+    if (now.getTime() >= start.getTime()) {
+        return utcDateKey(start);
+    }
+
+    start.setUTCDate(start.getUTCDate() - 1);
+    return utcDateKey(start);
+}
+
+function getCurrentWeeklyMondayResetKey(now: Date): string {
+    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const day = start.getUTCDay();
+    const diffToMonday = (day + 6) % 7;
+    start.setUTCDate(start.getUTCDate() - diffToMonday);
+    return utcDateKey(start);
+}
+
+function getCurrentWeeklyFridayResetKey(now: Date): string {
+    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const day = start.getUTCDay();
+    const diffToFriday = (day + 2) % 7;
+    start.setUTCDate(start.getUTCDate() - diffToFriday);
+    return utcDateKey(start);
 }
 
 function normalizeInventory(raw: any): any {
@@ -169,6 +205,53 @@ function normalizeGoals(raw: any): any[] {
     return raw.filter((g) => g && typeof g === "object");
 }
 
+function normalizeStringArray(raw: unknown): string[] {
+    if (!Array.isArray(raw)) return [];
+    const out: string[] = [];
+    const seen = new Set<string>();
+
+    for (const v of raw) {
+        const s = String(v ?? "").trim();
+        if (!s || seen.has(s)) continue;
+        seen.add(s);
+        out.push(s);
+    }
+
+    return out;
+}
+
+function normalizeResetChecklist(raw: any) {
+    const now = new Date();
+
+    return {
+        primaryDailyResetKey:
+            typeof raw?.primaryDailyResetKey === "string" && raw.primaryDailyResetKey.trim()
+                ? raw.primaryDailyResetKey
+                : typeof raw?.dailyResetKey === "string" && raw.dailyResetKey.trim()
+                    ? raw.dailyResetKey
+                    : getCurrentPrimaryDailyResetKey(now),
+        secondaryDailyResetKey:
+            typeof raw?.secondaryDailyResetKey === "string" && raw.secondaryDailyResetKey.trim()
+                ? raw.secondaryDailyResetKey
+                : getCurrentSecondaryDailyResetKey(now),
+        weeklyMondayResetKey:
+            typeof raw?.weeklyMondayResetKey === "string" && raw.weeklyMondayResetKey.trim()
+                ? raw.weeklyMondayResetKey
+                : typeof raw?.weeklyResetKey === "string" && raw.weeklyResetKey.trim()
+                    ? raw.weeklyResetKey
+                    : getCurrentWeeklyMondayResetKey(now),
+        weeklyFridayResetKey:
+            typeof raw?.weeklyFridayResetKey === "string" && raw.weeklyFridayResetKey.trim()
+                ? raw.weeklyFridayResetKey
+                : getCurrentWeeklyFridayResetKey(now),
+        completedPrimaryDailyTaskIds: normalizeStringArray(raw?.completedPrimaryDailyTaskIds ?? raw?.completedDailyTaskIds),
+        completedSecondaryDailyTaskIds: normalizeStringArray(raw?.completedSecondaryDailyTaskIds),
+        completedWeeklyMondayTaskIds: normalizeStringArray(raw?.completedWeeklyMondayTaskIds ?? raw?.completedWeeklyTaskIds),
+        completedWeeklyFridayTaskIds: normalizeStringArray(raw?.completedWeeklyFridayTaskIds),
+        timeMode: raw?.timeMode === "local" ? "local" : "utc"
+    };
+}
+
 export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
     const v2 = UserStateV2Schema.safeParse(raw);
     if (v2.success) {
@@ -190,6 +273,7 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
         if (!Array.isArray(data.syndicates)) data.syndicates = [];
         if (!Array.isArray(data.dailyTasks)) data.dailyTasks = [];
 
+        data.resetChecklist = normalizeResetChecklist(data.resetChecklist);
         data.goals = normalizeGoals(data.goals);
 
         return data as UserStateV2;
@@ -214,6 +298,7 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
             inventory: normalizeInventory(v1.data.inventory),
             syndicates: (v1.data as any).syndicates ?? [],
             dailyTasks: (v1.data as any).dailyTasks ?? [],
+            resetChecklist: normalizeResetChecklist(undefined),
             goals: normalizeGoals((v1.data as any).goals),
             mastery: normalizeMastery((v1.data as any).mastery),
             missions: normalizeMissions((v1.data as any).missions)
@@ -228,6 +313,7 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
                 inventory: z.any(),
                 syndicates: z.any(),
                 dailyTasks: z.any(),
+                resetChecklist: z.any(),
                 goals: z.any(),
                 mastery: z.any(),
                 missions: z.any()
@@ -262,6 +348,7 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
             inventory: normalizeInventory(legacy.data.inventory),
             syndicates: legacy.data.syndicates ?? [],
             dailyTasks: legacy.data.dailyTasks ?? [],
+            resetChecklist: normalizeResetChecklist(undefined),
             goals: normalizeGoals((legacy.data as any).goals),
             mastery: normalizeMastery((legacy.data as any).mastery),
             missions: normalizeMissions((legacy.data as any).missions)
@@ -276,6 +363,7 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
                 inventory: z.any(),
                 syndicates: z.any(),
                 dailyTasks: z.any(),
+                resetChecklist: z.any(),
                 goals: z.any(),
                 mastery: z.any(),
                 missions: z.any()
@@ -288,4 +376,3 @@ export function migrateToUserStateV2(raw: unknown): UserStateV2 | null {
 
     return null;
 }
-

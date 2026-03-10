@@ -1,3 +1,4 @@
+// ===== FILE: src/components/DailyChecklist.tsx =====
 import { useMemo, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import { toYMD } from "../domain/ymd";
@@ -5,16 +6,26 @@ import { toYMD } from "../domain/ymd";
 export default function DailyChecklist() {
     const [label, setLabel] = useState("");
 
-    const dailyTasks = useTrackerStore((s) => s.state.dailyTasks) ?? [];
+    const dailyTasks      = useTrackerStore((s) => s.state.dailyTasks) ?? [];
     const upsertDailyTask = useTrackerStore((s) => s.upsertDailyTask);
     const toggleDailyTask = useTrackerStore((s) => s.toggleDailyTask);
     const deleteDailyTask = useTrackerStore((s) => s.deleteDailyTask);
 
     const todayYmd = toYMD(new Date());
 
-    const todayTasks = useMemo(() => {
-        return (dailyTasks ?? []).filter((t) => t.dateYmd === todayYmd);
-    }, [dailyTasks, todayYmd]);
+    const todayTasks = useMemo(
+        () => (dailyTasks ?? []).filter((t) => t.dateYmd === todayYmd),
+        [dailyTasks, todayYmd]
+    );
+
+    function handleAdd() {
+        const trimmed = label.trim();
+        if (!trimmed) return;
+        upsertDailyTask(todayYmd, trimmed);
+        setLabel("");
+    }
+
+    const doneCount = todayTasks.filter((t) => t.isDone).length;
 
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
@@ -26,7 +37,7 @@ export default function DailyChecklist() {
                     </div>
                 </div>
                 <div className="text-sm text-slate-300">
-                    {todayTasks.filter((t) => t.isDone).length}/{todayTasks.length} done
+                    {doneCount}/{todayTasks.length} done
                 </div>
             </div>
 
@@ -35,18 +46,12 @@ export default function DailyChecklist() {
                     className="flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500"
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
-                    placeholder="Add a task for today (e.g., ‘Cap Ostron standing’)"
+                    onKeyDown={(e) => { if (e.key === "Enter") handleAdd(); }}
+                    placeholder="Add a task for today (e.g. 'Cap Ostron standing')"
                 />
                 <button
                     className="rounded-lg bg-slate-100 px-4 py-2 text-slate-900 font-semibold"
-                    onClick={() => {
-                        const trimmed = label.trim();
-                        if (!trimmed) {
-                            return;
-                        }
-                        upsertDailyTask(todayYmd, trimmed);
-                        setLabel("");
-                    }}
+                    onClick={handleAdd}
                 >
                     Add
                 </button>
@@ -70,9 +75,10 @@ export default function DailyChecklist() {
                             checked={t.isDone}
                             onChange={() => toggleDailyTask(t.id)}
                         />
-
                         <div className="min-w-0 flex-1">
-                            <div className="text-sm font-semibold break-words">{t.label}</div>
+                            <div className={`text-sm font-semibold break-words ${t.isDone ? "line-through text-slate-500" : ""}`}>
+                                {t.label}
+                            </div>
                             {(t.syndicate || t.details) && (
                                 <div className="text-xs text-slate-400 break-words">
                                     {t.syndicate ? `[${t.syndicate}] ` : ""}
@@ -80,7 +86,6 @@ export default function DailyChecklist() {
                                 </div>
                             )}
                         </div>
-
                         <button
                             className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-900"
                             onClick={() => deleteDailyTask(t.id)}
@@ -93,4 +98,3 @@ export default function DailyChecklist() {
         </div>
     );
 }
-

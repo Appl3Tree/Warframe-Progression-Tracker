@@ -6,43 +6,29 @@ import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
 function labelForKey(key: string): string {
     if (key === "credits") return "Credits";
     if (key === "platinum") return "Platinum";
-
     const rec = FULL_CATALOG.recordsById[key as any];
     if (rec?.displayName) return rec.displayName;
-
     return key;
 }
 
 export default function ReservesPanel() {
-    const inventory =
-        useTrackerStore((s) => s.state.inventory) ?? {
-            credits: 0,
-            platinum: 0,
-            counts: {}
-        };
-
+    const inventory = useTrackerStore((s) => s.state.inventory) ?? { credits: 0, platinum: 0, counts: {} };
     const getDerivedReserves = useTrackerStore((s) => s.getDerivedReserves);
-    const isBelowReserve = useTrackerStore((s) => s.isBelowReserve);
+    const isBelowReserve     = useTrackerStore((s) => s.isBelowReserve);
 
     const derived = useMemo(() => getDerivedReserves(), [getDerivedReserves]);
-
-    const keys = useMemo(() => {
+    const keys    = useMemo(() => {
         const out = derived.map((d) => d.key);
         out.sort((a, b) => a.localeCompare(b));
         return out;
     }, [derived]);
 
-    const [spendKey, setSpendKey] = useState<string>("");
-    const [spendAmount, setSpendAmount] = useState<number>(0);
+    const [spendKey,    setSpendKey]    = useState("");
+    const [spendAmount, setSpendAmount] = useState(0);
 
-    // If reserves appear later (e.g., after import), auto-select the first key.
     useEffect(() => {
-        if (!spendKey && keys.length > 0) {
-            setSpendKey(keys[0]);
-        }
-        if (spendKey && keys.length > 0 && !keys.includes(spendKey)) {
-            setSpendKey(keys[0]);
-        }
+        if (!spendKey && keys.length > 0) setSpendKey(keys[0]);
+        if (spendKey && keys.length > 0 && !keys.includes(spendKey)) setSpendKey(keys[0]);
     }, [keys, spendKey]);
 
     const check = useMemo(() => {
@@ -63,7 +49,7 @@ export default function ReservesPanel() {
             </div>
 
             <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                <div className="text-sm font-semibold">Quick “Would this spend be blocked?”</div>
+                <div className="text-sm font-semibold">Quick "Would this spend be blocked?"</div>
 
                 {keys.length === 0 ? (
                     <div className="mt-2 text-sm text-slate-400">
@@ -79,14 +65,9 @@ export default function ReservesPanel() {
                                 value={spendKey}
                                 onChange={(e) => setSpendKey(e.target.value)}
                             >
-                                {keys.map((k) => (
-                                    <option key={k} value={k}>
-                                        {labelForKey(k)}
-                                    </option>
-                                ))}
+                                {keys.map((k) => <option key={k} value={k}>{labelForKey(k)}</option>)}
                             </select>
                         </div>
-
                         <div className="flex flex-col gap-1">
                             <div className="text-xs text-slate-400">Spend amount</div>
                             <input
@@ -106,9 +87,7 @@ export default function ReservesPanel() {
                             <div className="rounded-lg border border-red-900/40 bg-red-950/20 px-3 py-2 text-red-200">
                                 <div className="font-semibold">Blocked</div>
                                 <ul className="mt-1 list-disc pl-5 space-y-1">
-                                    {check.reasons.map((r) => (
-                                        <li key={r}>{r}</li>
-                                    ))}
+                                    {check.reasons.map((r) => <li key={r}>{r}</li>)}
                                 </ul>
                             </div>
                         ) : (
@@ -129,12 +108,9 @@ export default function ReservesPanel() {
                     <div className="mt-2 space-y-3">
                         {derived.map((r) => {
                             const have =
-                                r.key === "credits"
-                                    ? (inventory.credits ?? 0)
-                                    : r.key === "platinum"
-                                        ? (inventory.platinum ?? 0)
-                                        : (inventory.counts?.[r.key] ?? 0);
-
+                                r.key === "credits"  ? (inventory.credits ?? 0) :
+                                r.key === "platinum" ? (inventory.platinum ?? 0) :
+                                (inventory.counts?.[r.key] ?? 0);
                             const ok = have >= r.minKeep;
 
                             return (
@@ -146,7 +122,6 @@ export default function ReservesPanel() {
                                                 Key: <span className="font-mono">{r.key}</span>
                                             </div>
                                         </div>
-
                                         <div className="text-right">
                                             <div className="font-mono text-slate-100">
                                                 {Number(have).toLocaleString()} / {Number(r.minKeep).toLocaleString()}
@@ -179,4 +154,3 @@ export default function ReservesPanel() {
         </div>
     );
 }
-

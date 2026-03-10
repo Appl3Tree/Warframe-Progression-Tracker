@@ -115,7 +115,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "The New Strange",
         category: "Quests",
         description: "Progression step that leads into later story arc.",
-        prerequisites: [PR.STOLEN_DREAMS]
+        prerequisites: [PR.STOLEN_DREAMS, PR.JUNCTION_MARS_CERES]
     },
     {
         id: PR.NATAH,
@@ -203,6 +203,20 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         description: "Duviri access gate (modeled as quest prereq for Duviri-sourced items/systems).",
         prerequisites: [PR.JUNCTION_SATURN_URANUS]
     },
+    {
+        id: PR.THE_HEX,
+        label: "The Hex",
+        category: "Quests",
+        description: "Introduces 1999 and the Höllvania Central Mall hub.",
+        prerequisites: [PR.DUVIRI_PARADOX, PR.THE_LOTUS_EATERS]
+    },
+    {
+        id: PR.THE_LOTUS_EATERS,
+        label: "The Lotus Eaters",
+        category: "Quests",
+        description: "Prologue to The Hex quest.",
+        prerequisites: [PR.WHISPERS_WALL]
+    },
 
     // -----------------------------
     // Hubs
@@ -242,6 +256,21 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         description: "You can enter Sanctum Anatomica and access Cavia.",
         prerequisites: [PR.WHISPERS_WALL, PR.HUB_NECRALISK]
     },
+    {
+        id: PR.HUB_HOLLVANIA,
+        label: "Hollvania Central Mall Access",
+        category: "Hubs",
+        description: "You can enter Höllvania Central Mall and access The Hex.",
+        prerequisites: [PR.THE_HEX]
+    },
+    {
+        id: PR.HUB_RELAY,
+        label: "Any Relay",
+        category: "Hubs",
+        description: "Provides access to the six primary factions, Tenshin, Baro, and others.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+
 
     // -----------------------------
     // Systems

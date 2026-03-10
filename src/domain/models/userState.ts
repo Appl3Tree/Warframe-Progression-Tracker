@@ -1,5 +1,10 @@
 // ===== FILE: src/domain/models/userState.ts =====
-import type { DailyTask, Inventory, SyndicateState } from "../types";
+import type {
+    DailyTask,
+    Inventory,
+    ResetChecklistState,
+    SyndicateState
+} from "../types";
 
 export type PageKey =
     | "dashboard"
@@ -96,6 +101,7 @@ export interface UserStateV2 {
     inventory: Inventory;
     syndicates: SyndicateState[];
     dailyTasks: DailyTask[];
+    resetChecklist: ResetChecklistState;
 
     goals: UserGoalV1[];
 
@@ -112,4 +118,3 @@ export interface UserStateV2 {
         steelPathNodeCompleted?: Record<string, boolean>;
     };
 }
-

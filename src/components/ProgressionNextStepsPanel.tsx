@@ -1,3 +1,4 @@
+// ===== FILE: src/components/ProgressionNextStepsPanel.tsx =====
 import { useMemo } from "react";
 import { useTrackerStore } from "../store/store";
 import { buildProgressionPlan } from "../domain/logic/plannerEngine";
@@ -7,54 +8,33 @@ import { computeUnlockGraphSnapshot } from "../domain/logic/unlockGraph";
 import type { PrereqId } from "../domain/ids/prereqIds";
 
 export default function ProgressionNextStepsPanel() {
-    const completedMap = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
+    const completedMap       = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
     const setPrereqCompleted = useTrackerStore((s) => s.setPrereqCompleted);
 
     const prereqIndex = useMemo(() => buildPrereqIndex(PREREQ_REGISTRY), []);
-    const plan = useMemo(() => buildProgressionPlan(completedMap), [completedMap]);
+    const plan        = useMemo(() => buildProgressionPlan(completedMap), [completedMap]);
+    const steps       = plan.steps ?? [];
 
-    const steps = plan.steps ?? [];
-
-    // 9.2: Unlock Impact Preview — for each step, compute what NEW items become actionable
-    // if this step were marked complete.
     const unlockImpactByStepId = useMemo(() => {
         const result: Record<string, string[]> = {};
-
-        // Current actionable set
         const currentSnap = computeUnlockGraphSnapshot(completedMap, PREREQ_REGISTRY);
         const currentActionableIds = new Set(currentSnap.actionable.map((s) => s.id));
 
         for (const step of steps) {
-            // Simulate completing this prereq
-            const simMap = { ...completedMap, [step.prereqId]: true };
+            const simMap  = { ...completedMap, [step.prereqId]: true };
             const simSnap = computeUnlockGraphSnapshot(simMap, PREREQ_REGISTRY);
-
-            // What becomes newly actionable?
             const newlyActionable = simSnap.actionable
                 .map((s) => s.id)
                 .filter((id) => !currentActionableIds.has(id) && id !== step.prereqId)
-                .map((id) => {
-                    const def = prereqIndex[id as PrereqId];
-                    return def ? def.label : id;
-                })
+                .map((id) => { const def = prereqIndex[id as PrereqId]; return def ? def.label : id; })
                 .slice(0, 5);
-
-            if (newlyActionable.length > 0) {
-                result[step.id] = newlyActionable;
-            }
+            if (newlyActionable.length > 0) result[step.id] = newlyActionable;
         }
-
         return result;
     }, [completedMap, steps, prereqIndex]);
 
-    function labelFor(id: string): string {
-        const def = prereqIndex[id];
-        return def ? def.label : id;
-    }
-
-    function isComplete(id: string): boolean {
-        return completedMap[id] === true;
-    }
+    function labelFor(id: string) { const def = prereqIndex[id]; return def ? def.label : id; }
+    function isComplete(id: string) { return completedMap[id] === true; }
 
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
@@ -70,39 +50,25 @@ export default function ProgressionNextStepsPanel() {
             <div className="mt-4 flex flex-col gap-2">
                 {steps.map((step) => {
                     const completed = isComplete(step.prereqId);
-
                     return (
-                        <div
-                            key={step.id}
-                            className="rounded-xl border border-slate-800 bg-slate-950/30 p-3"
-                        >
+                        <div key={step.id} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                    <div className="text-sm font-semibold break-words">
-                                        {step.title}
-                                    </div>
-
+                                    <div className="text-sm font-semibold break-words">{step.title}</div>
                                     {step.description && (
-                                        <div className="text-xs text-slate-400 break-words mt-1">
-                                            {step.description}
-                                        </div>
+                                        <div className="text-xs text-slate-400 break-words mt-1">{step.description}</div>
                                     )}
-
                                     {step.tags?.length > 0 && (
                                         <div className="mt-2 flex flex-wrap gap-2">
-                                            {step.tags.map((t) => (
-                                                <span
-                                                    key={t}
-                                                    className="text-[11px] rounded-full border border-slate-700 bg-slate-950/40 px-2 py-0.5 text-slate-300"
-                                                >
+                                            {step.tags.map((t: string) => (
+                                                <span key={t} className="text-[11px] rounded-full border border-slate-700 bg-slate-950/40 px-2 py-0.5 text-slate-300">
                                                     {t}
                                                 </span>
                                             ))}
                                         </div>
                                     )}
                                 </div>
-
-                                <label className="flex items-center gap-2 text-sm shrink-0">
+                                <label className="flex items-center gap-2 text-sm shrink-0 cursor-pointer">
                                     <input
                                         type="checkbox"
                                         checked={completed}
@@ -114,27 +80,18 @@ export default function ProgressionNextStepsPanel() {
 
                             {step.missingPrereqs?.length > 0 && (
                                 <div className="mt-3 rounded-lg border border-amber-900/40 bg-amber-950/20 p-2">
-                                    <div className="text-xs font-semibold text-amber-200">
-                                        Missing prerequisites:
-                                    </div>
+                                    <div className="text-xs font-semibold text-amber-200">Missing prerequisites:</div>
                                     <ul className="mt-1 list-disc pl-5 text-xs text-amber-100">
-                                        {step.missingPrereqs.map((m) => (
-                                            <li key={m}>{labelFor(m)}</li>
-                                        ))}
+                                        {step.missingPrereqs.map((m: string) => <li key={m}>{labelFor(m)}</li>)}
                                     </ul>
                                 </div>
                             )}
 
-                            {/* 9.2 Unlock Impact Preview */}
                             {unlockImpactByStepId[step.id]?.length > 0 && (
                                 <div className="mt-2 rounded-lg border border-emerald-900/40 bg-emerald-950/20 p-2">
-                                    <div className="text-xs font-semibold text-emerald-300">
-                                        Completing this unlocks:
-                                    </div>
+                                    <div className="text-xs font-semibold text-emerald-300">Completing this unlocks:</div>
                                     <ul className="mt-1 list-disc pl-5 text-xs text-emerald-200">
-                                        {unlockImpactByStepId[step.id].map((label) => (
-                                            <li key={label}>{label}</li>
-                                        ))}
+                                        {unlockImpactByStepId[step.id].map((label) => <li key={label}>{label}</li>)}
                                     </ul>
                                 </div>
                             )}
@@ -151,4 +108,3 @@ export default function ProgressionNextStepsPanel() {
         </div>
     );
 }
-

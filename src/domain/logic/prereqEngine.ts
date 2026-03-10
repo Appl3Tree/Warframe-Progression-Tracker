@@ -1,3 +1,4 @@
+// ===== FILE: src/domain/logic/prereqEngine.ts =====
 import type { PrereqDef } from "../../catalog/prereqs/prereqRegistry";
 import { PREREQ_REGISTRY } from "../../catalog/prereqs/prereqRegistry";
 
@@ -62,4 +63,3 @@ export function computePrereqStatuses(
         };
     });
 }
-

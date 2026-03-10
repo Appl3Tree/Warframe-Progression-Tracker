@@ -1,3 +1,4 @@
+// ===== FILE: src/domain/seed.ts =====
 import type { Inventory, SyndicateState } from "./types";
 
 export const SEED_INVENTORY: Inventory = {

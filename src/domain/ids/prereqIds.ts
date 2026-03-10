@@ -21,6 +21,8 @@ export const PR = {
     NEW_WAR: "quest_the_new_war",
     ANGELS_ZARIMAN: "quest_angels_of_the_zariman",
     WHISPERS_WALL: "quest_whispers_in_the_walls",
+    THE_HEX: "quest_the_hex",
+    THE_LOTUS_EATERS: "quest_the_lotus_eaters",
 
     // Additional quests / chains used as progression gates
     VEILBREAKER: "quest_veilbreaker",
@@ -56,6 +58,7 @@ export const PR = {
     HUB_NECRALISK: "hub_necralisk",
     HUB_ZARIMAN: "hub_zariman",
     HUB_SANCTUM: "hub_sanctum_anatomica",
+    HUB_HOLLVANIA: "hub_hollvania",
 
     // -----------------------------
     // Systems (high-level gates; player-confirmed)

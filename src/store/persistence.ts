@@ -1,3 +1,4 @@
+// ===== FILE: src/store/persistence.ts =====
 import type { UserStateV2 } from "../domain/models/userState";
 import { migrateToUserStateV2 } from "./migrations";
 
@@ -26,8 +27,7 @@ export function saveState(state: UserStateV2): void {
     // Mirror zustand persist envelope shape for consistency.
     const payload = {
         state,
-        version: 3
+        version: 5
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
-
