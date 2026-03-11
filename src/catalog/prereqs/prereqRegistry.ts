@@ -237,7 +237,8 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "Jade Shadows",
         category: "Quests",
         description: "Awards Jade Warframe blueprint. Requires The New War.",
-        prerequisites: [PR.NEW_WAR]
+        prerequisites: [PR.NEW_WAR],
+        showInPlanner: false
     },
 
     // =========================================================================
@@ -420,7 +421,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "Junction: Ceres → Jupiter",
         category: "Systems",
         description: "Unlocks Jupiter. Required for Deadlock Protocol and the mid-game chain.",
-        prerequisites: [PR.JUNCTION_PHOBOS_CERES]
+        prerequisites: [PR.JUNCTION_MARS_CERES]
     },
     {
         id: PR.JUNCTION_JUPITER_EUROPA,
@@ -441,7 +442,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "Junction: Saturn → Uranus",
         category: "Systems",
         description: "Unlocks Uranus. Required for The Duviri Paradox.",
-        prerequisites: [PR.JUNCTION_EUROPA_SATURN, PR.STOLEN_DREAMS]
+        prerequisites: [PR.JUNCTION_EUROPA_SATURN, PR.NEW_STRANGE]
     },
     {
         id: PR.JUNCTION_URANUS_NEPTUNE,
@@ -624,6 +625,18 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         category: "Railjack",
         description: "Your Railjack is built and ready for missions. Required for The New War.",
         prerequisites: [PR.RISING_TIDE]
+    },
+
+    // =========================================================================
+    // BOSS NODES (only those that gate specific items or systems)
+    // =========================================================================
+    {
+        id: PR.ACTIVITY_ROPALOLYST,
+        label: "Ropalolyst",
+        category: "Systems",
+        description: "Jupiter assassination boss. Drops Wisp parts. Unlocked by Chimera Prologue.",
+        prerequisites: [PR.CHIMERA_PROLOGUE],
+        showInPlanner: false
     },
 
     // =========================================================================
