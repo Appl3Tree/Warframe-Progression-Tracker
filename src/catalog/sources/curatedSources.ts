@@ -13,7 +13,7 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     { id: "data:pets/kubrow", label: "Breed a Kubrow (Incubator)", type: "other" },
     { id: "data:pets/helminth-charger", label: "Incubate a Helminth Charger", type: "other" },
     { id: "data:pets/moa", label: "Build a MOA companion (Fortuna)", type: "other" },
-    { id: "data:companions/hound-bhaira", label: "Claim a Hound with the Bhaira model (Sisters of Parvos)", type: "other", prereqIds: ["data:lich/tenet"] },
+    { id: "data:companions/hound-bhaira", label: "Claim a Hound with the Bhaira model (Sisters of Parvos)", type: "other", prereqIds: ["activity_sister_of_parvos"] },
 
     // Crafting
     { id: "data:crafting", label: "Craft in the Foundry", type: "crafting" },
@@ -117,10 +117,10 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     { id: "data:activity/souterrains/bounties", label: "Run Souterrains bounties", type: "drop" },
 
     // The Descendia (used for Uriel components)
-    { id: "data:activity/the-descendia/maphica", label: "Earn Maphica in The Descendia", type: "drop", prereqIds: ["data:quest/the-old-peace"] },
-    { id: "data:activity/the-descendia/oblivion-on-infernium-21", label: "Oblivion on Infernium 21 (The Descendia)", type: "other", prereqIds: ["data:quest/the-old-peace"] },
-    { id: "data:activity/the-descendia", label: "Run The Descendia", type: "drop", prereqIds: ["data:quest/the-old-peace"] },
-    { id: "data:vendor/marie-leroux/la-cathedrale", label: "Buy from Marie Leroux (La Cathédrale)", type: "vendor", prereqIds: ["data:quest/the-old-peace"] },
+    { id: "data:activity/the-descendia/maphica", label: "Earn Maphica in The Descendia", type: "drop", prereqIds: ["quest_the_old_peace"] },
+    { id: "data:activity/the-descendia/oblivion-on-infernium-21", label: "Oblivion on Infernium 21 (The Descendia)", type: "other", prereqIds: ["quest_the_old_peace"] },
+    { id: "data:activity/the-descendia", label: "Run The Descendia", type: "drop", prereqIds: ["quest_the_old_peace"] },
+    { id: "data:vendor/marie-leroux/la-cathedrale", label: "Buy from Marie Leroux (La Cathédrale)", type: "vendor", prereqIds: ["quest_the_old_peace"] },
 
     { id: "data:activity/deimos/conservation", label: "Earn from conservation in Cambion Drift", type: "drop" },
 
