@@ -2608,21 +2608,38 @@ function StarChartListView({ steelPathMode }: SCListProps) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Proxima (Railjack) skeleton map
+// Proxima (Railjack) — full list view with per-region completion tracking
 // ─────────────────────────────────────────────────────────────────────────────
-function StarChartProximaView({ onBack }: { onBack: () => void }) {
+function StarChartProximaView({ onBack, steelPathMode }: { onBack: () => void; steelPathMode: boolean }) {
+    const setNodeCompleted          = useTrackerStore((s) => s.setNodeCompleted);
+    const setSteelPathNodeCompleted = useTrackerStore((s) => s.setSteelPathNodeCompleted);
+    const setBulkNodesCompleted          = useTrackerStore((s) => s.setBulkNodesCompleted);
+    const setBulkSteelPathNodesCompleted = useTrackerStore((s) => s.setBulkSteelPathNodesCompleted);
+    const nodeCompletedMap   = useTrackerStore((s) => s.state.missions?.nodeCompleted          ?? EMPTY_NODE_COMPLETED);
+    const spNodeCompletedMap = useTrackerStore((s) => s.state.missions?.steelPathNodeCompleted ?? EMPTY_NODE_COMPLETED);
+
+    const activeMap     = steelPathMode ? spNodeCompletedMap : nodeCompletedMap;
+    const activeSetOne  = steelPathMode ? setSteelPathNodeCompleted : setNodeCompleted;
+    const activeSetBulk = steelPathMode ? setBulkSteelPathNodesCompleted : setBulkNodesCompleted;
+
     const proximaPlanets = useMemo(() =>
-        STAR_CHART_DATA.planets.filter((p) => p.id.endsWith("_proxima")),
+        STAR_CHART_DATA.planets
+            .filter((p) => p.id.endsWith("_proxima"))
+            .sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999)),
     []);
+
     const nodesByPlanet = useMemo(() => {
         const m = new Map<string, StarChartNode[]>();
         for (const n of STAR_CHART_DATA.nodes) {
+            if (!n.planetId.endsWith("_proxima")) continue;
             const arr = m.get(n.planetId) ?? [];
             arr.push(n);
             m.set(n.planetId, arr);
         }
         return m;
     }, []);
+
+    const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
     return (
         <div className="flex h-full flex-col">
@@ -2635,33 +2652,96 @@ function StarChartProximaView({ onBack }: { onBack: () => void }) {
                 </button>
                 <div>
                     <div className="text-sm font-semibold text-slate-100">Proxima / Railjack</div>
-                    <div className="text-xs text-slate-500">Railjack mission regions — full map coming soon</div>
+                    <div className="text-xs text-slate-500">Railjack mission regions</div>
                 </div>
             </div>
-            <div className="flex-1 overflow-auto p-4">
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {proximaPlanets.map((p) => {
-                        const nodes = nodesByPlanet.get(p.id) ?? [];
-                        return (
-                            <div key={p.id} className="rounded-xl border border-slate-700 bg-slate-900/40 p-3">
-                                <div className="mb-1 text-xs font-semibold uppercase tracking-widest text-cyan-300">{p.name}</div>
-                                <div className="text-[11px] text-slate-500">{nodes.length} node{nodes.length !== 1 ? "s" : ""}</div>
+            <div className="flex-1 overflow-auto p-4 space-y-2">
+                {proximaPlanets.map((planet) => {
+                    const nodes = (nodesByPlanet.get(planet.id) ?? []).sort((a, b) => a.name.localeCompare(b.name));
+                    if (nodes.length === 0) return null;
+                    const doneCount = nodes.filter((n) => activeMap[n.id]).length;
+                    const allDone   = doneCount === nodes.length;
+                    const isCollapsed = collapsed.has(planet.id);
+                    return (
+                        <div key={planet.id} className="rounded-xl border border-slate-700">
+                            <div
+                                className="flex cursor-pointer items-center gap-2 px-3 py-2 select-none"
+                                onClick={() => setCollapsed((prev) => {
+                                    const next = new Set(prev);
+                                    if (next.has(planet.id)) next.delete(planet.id);
+                                    else next.add(planet.id);
+                                    return next;
+                                })}
+                            >
+                                <span className="text-xs text-slate-500 w-3">{isCollapsed ? "▶" : "▼"}</span>
+                                <span className="flex-1 text-sm font-semibold uppercase tracking-widest text-cyan-300">
+                                    {planet.name}
+                                </span>
+                                <span className="text-xs text-slate-500">{doneCount}/{nodes.length}</span>
+                                <button
+                                    className="rounded border border-slate-700 bg-slate-950/60 px-2 py-0.5 text-[11px] text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        activeSetBulk(nodes.map((n) => n.id), !allDone);
+                                    }}
+                                >
+                                    {allDone ? "Unmark all" : "Mark all"}
+                                </button>
                             </div>
-                        );
-                    })}
-                </div>
+                            {!isCollapsed && (
+                                <div className="border-t border-slate-800/60 px-3 py-1 space-y-0.5">
+                                    {nodes.map((node) => {
+                                        const isCompleted = Boolean(activeMap[node.id]);
+                                        return (
+                                            <label
+                                                key={node.id}
+                                                className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-slate-800/40"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isCompleted}
+                                                    onChange={(e) => activeSetOne(node.id, e.target.checked)}
+                                                    className="accent-cyan-400"
+                                                />
+                                                <span className={isCompleted ? "text-slate-500 line-through" : "text-slate-200"}>
+                                                    {displayNameFromBase(node)}
+                                                </span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Duviri skeleton map
+// Duviri — selectable game modes with completion tracking
 // ─────────────────────────────────────────────────────────────────────────────
-function StarChartDuviriView({ onBack }: { onBack: () => void }) {
+function StarChartDuviriView({ onBack, steelPathMode }: { onBack: () => void; steelPathMode: boolean }) {
+    const setNodeCompleted          = useTrackerStore((s) => s.setNodeCompleted);
+    const setSteelPathNodeCompleted = useTrackerStore((s) => s.setSteelPathNodeCompleted);
+    const setBulkNodesCompleted          = useTrackerStore((s) => s.setBulkNodesCompleted);
+    const setBulkSteelPathNodesCompleted = useTrackerStore((s) => s.setBulkSteelPathNodesCompleted);
+    const nodeCompletedMap   = useTrackerStore((s) => s.state.missions?.nodeCompleted          ?? EMPTY_NODE_COMPLETED);
+    const spNodeCompletedMap = useTrackerStore((s) => s.state.missions?.steelPathNodeCompleted ?? EMPTY_NODE_COMPLETED);
+
+    const activeMap     = steelPathMode ? spNodeCompletedMap : nodeCompletedMap;
+    const activeSetOne  = steelPathMode ? setSteelPathNodeCompleted : setNodeCompleted;
+    const activeSetBulk = steelPathMode ? setBulkSteelPathNodesCompleted : setBulkNodesCompleted;
+
     const duviriNodes = useMemo(() =>
-        STAR_CHART_DATA.nodes.filter((n) => n.planetId === "region:duviri"),
+        STAR_CHART_DATA.nodes
+            .filter((n) => n.planetId === "region:duviri")
+            .sort((a, b) => a.name.localeCompare(b.name)),
     []);
+
+    const doneCount = duviriNodes.filter((n) => activeMap[n.id]).length;
+    const allDone   = doneCount === duviriNodes.length && duviriNodes.length > 0;
 
     return (
         <div className="flex h-full flex-col">
@@ -2672,26 +2752,42 @@ function StarChartDuviriView({ onBack }: { onBack: () => void }) {
                 >
                     ← Back to Star Chart
                 </button>
-                <div>
+                <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-slate-100">Duviri Paradox</div>
-                    <div className="text-xs text-slate-500">The Undercroft & Spiral — full map coming soon</div>
+                    <div className="text-xs text-slate-500">Game modes accessible from the star chart</div>
                 </div>
+                <span className="text-xs text-slate-500">{doneCount}/{duviriNodes.length}</span>
+                {duviriNodes.length > 0 && (
+                    <button
+                        className="rounded border border-slate-700 bg-slate-950/60 px-2 py-0.5 text-[11px] text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors"
+                        onClick={() => activeSetBulk(duviriNodes.map((n) => n.id), !allDone)}
+                    >
+                        {allDone ? "Unmark all" : "Mark all"}
+                    </button>
+                )}
             </div>
             <div className="flex-1 overflow-auto p-4">
-                {duviriNodes.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-sm text-slate-500">
-                        No Duviri node data yet — data will be added in a future update.
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                        {duviriNodes.map((n) => (
-                            <div key={n.id} className="rounded-xl border border-slate-700 bg-slate-900/40 p-3">
-                                <div className="text-xs font-semibold text-purple-300">{displayNameFromBase(n)}</div>
-                                <div className="text-[11px] text-slate-500 capitalize">{n.nodeType}</div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                <div className="rounded-xl border border-slate-700 px-3 py-1 space-y-0.5">
+                    {duviriNodes.map((node) => {
+                        const isCompleted = Boolean(activeMap[node.id]);
+                        return (
+                            <label
+                                key={node.id}
+                                className="flex cursor-pointer items-center gap-2 rounded px-1 py-1.5 text-sm hover:bg-slate-800/40"
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={isCompleted}
+                                    onChange={(e) => activeSetOne(node.id, e.target.checked)}
+                                    className="accent-purple-400"
+                                />
+                                <span className={isCompleted ? "text-slate-500 line-through" : "text-slate-200"}>
+                                    {displayNameFromBase(node)}
+                                </span>
+                            </label>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
@@ -3015,9 +3111,9 @@ export default function StarChart() {
                 {viewMode === "list" ? (
                     <StarChartListView steelPathMode={steelPathMode} />
                 ) : mainMapMode === "proxima" ? (
-                    <StarChartProximaView onBack={() => setMainMapMode("normal")} />
+                    <StarChartProximaView onBack={() => setMainMapMode("normal")} steelPathMode={steelPathMode} />
                 ) : mainMapMode === "duviri" ? (
-                    <StarChartDuviriView onBack={() => setMainMapMode("normal")} />
+                    <StarChartDuviriView onBack={() => setMainMapMode("normal")} steelPathMode={steelPathMode} />
                 ) : (
                     <StarChartMap isInModal={false} {...sharedMapProps} />
                 )}
