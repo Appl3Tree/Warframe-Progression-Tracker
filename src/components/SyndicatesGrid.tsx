@@ -192,16 +192,6 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         fg: "#e8ddaf"
     },
     {
-        id: SY.VENTKIDS,
-        name: "Ventkids",
-        tab: "fortuna",
-        model: "standing",
-        detail: "Grind-obsessed youth who rule the Orb Vallis vents. Earn standing through K-Drive tricks and races.",
-        iconFile: "120px-VentkidsIcon.png",
-        bg: "#B97EF9",
-        fg: "#FFF58F"
-    },
-    {
         id: SY.VOX_SOLARIS,
         name: "Vox Solaris",
         tab: "fortuna",
@@ -210,6 +200,16 @@ const CANONICAL_SYNDICATES: CanonicalSyndicate[] = [
         iconFile: "120px-VoxSolarisIcon.png",
         bg: "#F2E5A7",
         fg: "#4A2B18"
+    },
+    {
+        id: SY.VENTKIDS,
+        name: "Ventkids",
+        tab: "fortuna",
+        model: "standing",
+        detail: "Grind-obsessed youth who rule the Orb Vallis vents. Earn standing through K-Drive tricks and races.",
+        iconFile: "120px-VentkidsIcon.png",
+        bg: "#B97EF9",
+        fg: "#FFF58F"
     },
 
     // Necralisk

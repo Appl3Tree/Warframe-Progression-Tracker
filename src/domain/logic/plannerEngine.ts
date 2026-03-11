@@ -1,5 +1,4 @@
 // ===== FILE: src/domain/logic/plannerEngine.ts =====
-// src/domain/logic/plannerEngine.ts
 
 import { PR } from "../ids/prereqIds";
 import type { PrereqId } from "../ids/prereqIds";
@@ -95,6 +94,9 @@ export function buildProgressionPlan(
 
     const actionable = snap.actionable
         .map((s) => s.id)
+        // Exclude leaf nodes explicitly marked as not relevant to the planner.
+        // These still appear in the Prerequisites page; they just aren't "next steps".
+        .filter((id) => snap.index[id]?.showInPlanner !== false)
         .sort((a, b) => {
             const aIsMilestone = milestoneIds.has(a);
             const bIsMilestone = milestoneIds.has(b);

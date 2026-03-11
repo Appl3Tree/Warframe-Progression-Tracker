@@ -1,4 +1,9 @@
-// src/app/layout/Topbar.tsx
+// ===== FILE: src/app/layout/Topbar.tsx =====
+//
+// Slim top bar: shows MR · name · platform icon · expand chevron.
+// Clicking the profile area drops down the full edit panel (replaces old always-visible card).
+// The bar itself is always exactly h-12 (48px). The dropdown is absolutely positioned.
+
 import { useEffect, useRef, useState } from "react";
 import { useTrackerStore } from "../../store/store";
 
@@ -7,16 +12,15 @@ type PlatformKey = "pc" | "ps" | "xb" | "swi" | "mob";
 type PlatformOption = {
     key: PlatformKey;
     label: string;
-    // NOTE: Use HTTPS here because you'll open in a new tab; the browser can handle redirects.
     baseUrl: string;
 };
 
 const PLATFORM_OPTIONS: PlatformOption[] = [
-    { key: "pc", label: "PC", baseUrl: "https://content.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
-    { key: "ps", label: "PlayStation", baseUrl: "https://content-ps4.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
-    { key: "xb", label: "Xbox", baseUrl: "https://content-xb1.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
-    { key: "swi", label: "Switch", baseUrl: "https://content-swi.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
-    { key: "mob", label: "Mobile", baseUrl: "https://content-mob.warframe.com/dynamic/getProfileViewingData.php?playerId=" }
+    { key: "pc",  label: "PC",          baseUrl: "https://content.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
+    { key: "ps",  label: "PlayStation", baseUrl: "https://content-ps4.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
+    { key: "xb",  label: "Xbox",        baseUrl: "https://content-xb1.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
+    { key: "swi", label: "Switch",      baseUrl: "https://content-swi.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
+    { key: "mob", label: "Mobile",      baseUrl: "https://content-mob.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
 ];
 
 function clampInt(value: unknown, fallback: number): number {
@@ -56,12 +60,7 @@ function buildProfileUrl(accountId: string, platform: PlatformKey): string {
 
 function PlatformIcon(props: { platform: PlatformKey; className?: string }) {
     const cls = props.className ?? "h-4 w-4";
-    const common = {
-        className: cls,
-        viewBox: "0 0 24 24",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg"
-    };
+    const common = { className: cls, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" };
 
     switch (props.platform) {
         case "pc":
@@ -109,36 +108,37 @@ function PlatformIcon(props: { platform: PlatformKey; className?: string }) {
 }
 
 export default function Topbar() {
-    const masteryRank = useTrackerStore((s) => s.state.player.masteryRank);
-    const displayName = useTrackerStore((s) => s.state.player.displayName);
-    const accountId = useTrackerStore((s) => s.state.player.accountId ?? "");
-    const platformRaw = useTrackerStore((s) => s.state.player.platform);
-    const platform = normalizePlatformKey(platformRaw);
+    const masteryRank   = useTrackerStore((s) => s.state.player.masteryRank);
+    const displayName   = useTrackerStore((s) => s.state.player.displayName);
+    const accountId     = useTrackerStore((s) => s.state.player.accountId ?? "");
+    const platformRaw   = useTrackerStore((s) => s.state.player.platform);
+    const platform      = normalizePlatformKey(platformRaw);
+    const credits       = useTrackerStore((s) => s.state.inventory.credits);
+    const platinum      = useTrackerStore((s) => s.state.inventory.platinum);
 
-    const credits = useTrackerStore((s) => s.state.inventory.credits);
-    const platinum = useTrackerStore((s) => s.state.inventory.platinum);
-
-    const setMasteryRank = useTrackerStore((s) => s.setMasteryRank);
-    const setCredits = useTrackerStore((s) => s.setCredits);
-    const setPlatinum = useTrackerStore((s) => s.setPlatinum);
-    const setAccountId = useTrackerStore((s) => s.setAccountId);
-    const setPlatform = useTrackerStore((s) => s.setPlatform);
+    const setMasteryRank               = useTrackerStore((s) => s.setMasteryRank);
+    const setCredits                   = useTrackerStore((s) => s.setCredits);
+    const setPlatinum                  = useTrackerStore((s) => s.setPlatinum);
+    const setAccountId                 = useTrackerStore((s) => s.setAccountId);
+    const setPlatform                  = useTrackerStore((s) => s.setPlatform);
     const importProfileViewingDataJson = useTrackerStore((s) => s.importProfileViewingDataJson);
 
+    // Panel open/close
+    const [open, setOpen]   = useState(false);
     const [editing, setEditing] = useState(false);
 
-    const [mrDraft, setMrDraft] = useState<string>(masteryRank === null ? "" : String(masteryRank));
-    const [creditsDraft, setCreditsDraft] = useState<string>(String(credits ?? 0));
-    const [platDraft, setPlatDraft] = useState<string>(String(platinum ?? 0));
-    const [accountDraft, setAccountDraft] = useState<string>(String(accountId ?? ""));
-
+    const [mrDraft,       setMrDraft]       = useState<string>(masteryRank === null ? "" : String(masteryRank));
+    const [creditsDraft,  setCreditsDraft]  = useState<string>(String(credits ?? 0));
+    const [platDraft,     setPlatDraft]     = useState<string>(String(platinum ?? 0));
+    const [accountDraft,  setAccountDraft]  = useState<string>(String(accountId ?? ""));
     const [profileStatus, setProfileStatus] = useState<string>("");
+    const [platformOpen,  setPlatformOpen]  = useState(false);
 
-    const fileRef = useRef<HTMLInputElement | null>(null);
+    const fileRef            = useRef<HTMLInputElement | null>(null);
+    const panelRef           = useRef<HTMLDivElement | null>(null);
+    const platformDropRef    = useRef<HTMLDivElement | null>(null);
 
-    const [platformOpen, setPlatformOpen] = useState(false);
-    const platformDropdownRef = useRef<HTMLDivElement | null>(null);
-
+    // Sync drafts when not editing
     useEffect(() => {
         if (!editing) {
             setMrDraft(masteryRank === null ? "" : String(masteryRank));
@@ -148,17 +148,27 @@ export default function Topbar() {
         }
     }, [editing, masteryRank, credits, platinum, accountId]);
 
+    // Close panel on outside click
+    useEffect(() => {
+        if (!open) return;
+        function onMouseDown(e: MouseEvent) {
+            if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+                setOpen(false);
+                setEditing(false);
+            }
+        }
+        document.addEventListener("mousedown", onMouseDown);
+        return () => document.removeEventListener("mousedown", onMouseDown);
+    }, [open]);
+
+    // Close platform dropdown on outside click
     useEffect(() => {
         if (!platformOpen) return;
-
         function onMouseDown(e: MouseEvent) {
-            const el = platformDropdownRef.current;
-            if (!el) return;
-            if (!el.contains(e.target as Node)) {
+            if (platformDropRef.current && !platformDropRef.current.contains(e.target as Node)) {
                 setPlatformOpen(false);
             }
         }
-
         document.addEventListener("mousedown", onMouseDown);
         return () => document.removeEventListener("mousedown", onMouseDown);
     }, [platformOpen]);
@@ -185,13 +195,9 @@ export default function Topbar() {
 
     function openProfileLink() {
         const id = String(accountId ?? "").trim();
-        if (!id) {
-            setProfileStatus("Set Account ID first.");
-            return;
-        }
-        const url = buildProfileUrl(id, platform);
-        window.open(url, "_blank", "noopener,noreferrer");
-        setProfileStatus("Opened profile link. Save the response (often .htm), then import it.");
+        if (!id) { setProfileStatus("Set Account ID first."); return; }
+        window.open(buildProfileUrl(id, platform), "_blank", "noopener,noreferrer");
+        setProfileStatus("Opened profile link. Save the response, then import it.");
     }
 
     function choosePlatform(next: PlatformKey) {
@@ -201,24 +207,80 @@ export default function Topbar() {
     }
 
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 px-4 py-3">
-            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-6">
-                <div className="min-w-0 flex-1">
-                    <div className="text-xl font-bold">Warframe Roadmap Tracker</div>
-                    <div className="text-sm text-slate-400">
-                        Local-only tracker with progress packs. Default state assumes nothing is complete.
-                    </div>
+        // `relative` so the dropdown can be absolutely positioned below it
+        <div className="relative z-50" ref={panelRef}>
+
+            {/* ── Slim bar ── */}
+            <div className="h-12 flex items-center justify-between px-4 border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+
+                {/* App name */}
+                <div className="flex items-center gap-2">
+                    {/* Small Warframe-ish hex icon */}
+                    <svg className="h-5 w-5 text-blue-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                        <path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" />
+                        <path d="M12 8v8M8.5 10l3.5 2 3.5-2" />
+                    </svg>
+                    <span className="text-sm font-semibold text-slate-100 tracking-wide">
+                        Warframe Tracker
+                    </span>
                 </div>
 
-                <div className="w-full md:w-[460px] lg:w-[520px] max-w-full shrink-0 rounded-xl border border-slate-800 bg-slate-950/30 px-3 py-2">
-                    <div className="flex items-center justify-between gap-3">
-                        <div className="text-xs font-semibold text-slate-300">Profile</div>
+                {/* Profile pill — click to open panel */}
+                <button
+                    onClick={() => { setOpen((v) => !v); if (open) setEditing(false); }}
+                    className={[
+                        "flex items-center gap-2.5 rounded-lg border px-3 py-1.5 transition-colors",
+                        open
+                            ? "border-slate-600 bg-slate-800 text-slate-100"
+                            : "border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-700 hover:bg-slate-900"
+                    ].join(" ")}
+                >
+                    <PlatformIcon platform={platform} className="h-3.5 w-3.5 text-slate-400" />
 
+                    <span className="text-xs font-mono">
+                        MR <span className="text-slate-100 font-semibold">{masteryRank ?? "—"}</span>
+                    </span>
+
+                    <span className="text-slate-700">·</span>
+                    <span className="text-xs font-mono text-slate-400">
+                        <span className="text-yellow-400">₢</span>{" "}
+                        <span className="text-slate-200">{Number(credits ?? 0).toLocaleString()}</span>
+                    </span>
+
+                    <span className="text-slate-700">·</span>
+                    <span className="text-xs font-mono text-slate-400">
+                        <span className="text-cyan-400">◈</span>{" "}
+                        <span className="text-slate-200">{Number(platinum ?? 0).toLocaleString()}</span>
+                    </span>
+
+                    {displayName && (
+                        <>
+                            <span className="text-slate-700">·</span>
+                            <span className="text-xs text-slate-300 max-w-[120px] truncate">{displayName}</span>
+                        </>
+                    )}
+
+                    {/* Chevron */}
+                    <svg
+                        className={["h-3.5 w-3.5 text-slate-500 transition-transform", open ? "rotate-180" : ""].join(" ")}
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                    >
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            {/* ── Dropdown panel ── */}
+            {open && (
+                <div className="absolute right-4 top-full mt-1 w-[480px] max-w-[calc(100vw-2rem)] rounded-xl border border-slate-700 bg-slate-950 shadow-2xl shadow-black/60">
+
+                    {/* Panel header */}
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+                        <span className="text-sm font-semibold text-slate-200">Profile</span>
                         {!editing ? (
                             <button
-                                className="flex items-center gap-2 rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-900"
+                                className="flex items-center gap-1.5 rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-900"
                                 onClick={() => setEditing(true)}
-                                title="Edit profile values"
                             >
                                 <span className="text-sm leading-none">✎</span>
                                 Edit
@@ -241,173 +303,165 @@ export default function Topbar() {
                         )}
                     </div>
 
-                    {!editing ? (
-                        <>
-                            <div className="mt-2 grid grid-cols-3 gap-2 text-sm">
-                                <div className="rounded-lg border border-slate-800 bg-slate-950/30 px-2 py-2">
-                                    <div className="text-[11px] text-slate-400">MR</div>
-                                    <div className="font-mono text-slate-100">{formatInt(masteryRank)}</div>
-                                </div>
-                                <div className="rounded-lg border border-slate-800 bg-slate-950/30 px-2 py-2">
-                                    <div className="text-[11px] text-slate-400">Credits</div>
-                                    <div className="font-mono text-slate-100">{Number(credits ?? 0).toLocaleString()}</div>
-                                </div>
-                                <div className="rounded-lg border border-slate-800 bg-slate-950/30 px-2 py-2">
-                                    <div className="text-[11px] text-slate-400">Platinum</div>
-                                    <div className="font-mono text-slate-100">{Number(platinum ?? 0).toLocaleString()}</div>
-                                </div>
-                            </div>
-
-                            <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                                <div className="rounded-lg border border-slate-800 bg-slate-950/30 px-2 py-2">
-                                    <div className="text-[11px] text-slate-400">Name</div>
-                                    <div className="font-mono text-slate-100">{displayName || "—"}</div>
-                                </div>
-
-                                <div className="rounded-lg border border-slate-800 bg-slate-950/30 px-2 py-2">
-                                    <div className="text-[11px] text-slate-400">Account ID</div>
-                                    <div className="font-mono text-slate-100 truncate" title={accountId || ""}>
-                                        {accountId || "—"}
+                    {/* Panel body */}
+                    <div className="px-4 py-3">
+                        {!editing ? (
+                            <>
+                                {/* Read-only stat grid */}
+                                <div className="grid grid-cols-3 gap-2 text-sm">
+                                    <div className="rounded-lg border border-slate-800 bg-slate-950/50 px-2 py-2">
+                                        <div className="text-[11px] text-slate-400">MR</div>
+                                        <div className="font-mono text-slate-100">{formatInt(masteryRank)}</div>
+                                    </div>
+                                    <div className="rounded-lg border border-slate-800 bg-slate-950/50 px-2 py-2">
+                                        <div className="text-[11px] text-slate-400">Credits</div>
+                                        <div className="font-mono text-slate-100">{Number(credits ?? 0).toLocaleString()}</div>
+                                    </div>
+                                    <div className="rounded-lg border border-slate-800 bg-slate-950/50 px-2 py-2">
+                                        <div className="text-[11px] text-slate-400">Platinum</div>
+                                        <div className="font-mono text-slate-100">{Number(platinum ?? 0).toLocaleString()}</div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="mt-2 flex flex-wrap items-center gap-2">
-                                <button
-                                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-900 disabled:opacity-60"
-                                    onClick={openProfileLink}
-                                    disabled={!String(accountId ?? "").trim()}
-                                    title={!String(accountId ?? "").trim() ? "Set Account ID first" : "Open in a new tab"}
-                                >
-                                    Open Profile Link
-                                </button>
+                                <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                                    <div className="rounded-lg border border-slate-800 bg-slate-950/50 px-2 py-2">
+                                        <div className="text-[11px] text-slate-400">Name</div>
+                                        <div className="font-mono text-slate-100">{displayName || "—"}</div>
+                                    </div>
+                                    <div className="rounded-lg border border-slate-800 bg-slate-950/50 px-2 py-2">
+                                        <div className="text-[11px] text-slate-400">Account ID</div>
+                                        <div className="font-mono text-slate-100 truncate" title={accountId || ""}>{accountId || "—"}</div>
+                                    </div>
+                                </div>
 
-                                <button
-                                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-900"
-                                    onClick={() => fileRef.current?.click()}
-                                    title="Import a saved profile file (.json or .htm)"
-                                >
-                                    Import JSON/HTML
-                                </button>
-
-                                <div className="relative" ref={platformDropdownRef}>
+                                {/* Actions row */}
+                                <div className="mt-3 flex flex-wrap items-center gap-2">
                                     <button
-                                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-700 bg-slate-950/40 text-slate-200 hover:bg-slate-900"
-                                        onClick={() => setPlatformOpen((v) => !v)}
-                                        title={`Platform: ${platformLabel(platform)} (click to change)`}
+                                        className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-900 disabled:opacity-50"
+                                        onClick={openProfileLink}
+                                        disabled={!String(accountId ?? "").trim()}
+                                        title={!String(accountId ?? "").trim() ? "Set Account ID first" : "Open in new tab"}
                                     >
-                                        <PlatformIcon platform={platform} className="h-4 w-4" />
+                                        Open Profile Link
                                     </button>
 
-                                    {platformOpen && (
-                                        <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-800 bg-slate-950 shadow-lg">
-                                            <div className="px-3 py-2 text-[11px] text-slate-400 border-b border-slate-800">
-                                                Select Platform
+                                    <button
+                                        className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-900"
+                                        onClick={() => fileRef.current?.click()}
+                                    >
+                                        Import JSON/HTML
+                                    </button>
+
+                                    {/* Platform selector */}
+                                    <div className="relative" ref={platformDropRef}>
+                                        <button
+                                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-700 bg-slate-950/40 text-slate-200 hover:bg-slate-900"
+                                            onClick={() => setPlatformOpen((v) => !v)}
+                                            title={`Platform: ${platformLabel(platform)}`}
+                                        >
+                                            <PlatformIcon platform={platform} className="h-4 w-4" />
+                                        </button>
+
+                                        {platformOpen && (
+                                            <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-800 bg-slate-950 shadow-lg z-50">
+                                                <div className="px-3 py-2 text-[11px] text-slate-400 border-b border-slate-800">
+                                                    Select Platform
+                                                </div>
+                                                <div className="p-1">
+                                                    {PLATFORM_OPTIONS.map((opt) => (
+                                                        <button
+                                                            key={opt.key}
+                                                            className={[
+                                                                "w-full flex items-center gap-2 rounded-lg px-2 py-2 text-sm",
+                                                                opt.key === platform
+                                                                    ? "bg-slate-100 text-slate-900"
+                                                                    : "text-slate-200 hover:bg-slate-900"
+                                                            ].join(" ")}
+                                                            onClick={() => choosePlatform(opt.key)}
+                                                        >
+                                                            <PlatformIcon platform={opt.key} className="h-4 w-4" />
+                                                            <span>{opt.label}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <div className="p-1">
-                                                {PLATFORM_OPTIONS.map((opt) => (
-                                                    <button
-                                                        key={opt.key}
-                                                        className={[
-                                                            "w-full flex items-center gap-2 rounded-lg px-2 py-2 text-sm",
-                                                            opt.key === platform
-                                                                ? "bg-slate-100 text-slate-900"
-                                                                : "text-slate-200 hover:bg-slate-900"
-                                                        ].join(" ")}
-                                                        onClick={() => choosePlatform(opt.key)}
-                                                    >
-                                                        <PlatformIcon platform={opt.key} className="h-4 w-4" />
-                                                        <span>{opt.label}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
+                                        )}
+                                    </div>
+
+                                    <input
+                                        ref={fileRef}
+                                        type="file"
+                                        accept="application/json,.json,text/html,.htm,.html"
+                                        className="hidden"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+                                            const raw = await file.text();
+                                            const res = importProfileViewingDataJson(raw);
+                                            setProfileStatus(!res.ok ? (res.error ?? "Import failed.") : "Profile imported.");
+                                            e.target.value = "";
+                                        }}
+                                    />
+
+                                    {profileStatus && (
+                                        <div className="w-full text-xs text-slate-300 mt-0.5">{profileStatus}</div>
                                     )}
                                 </div>
 
-                                <input
-                                    ref={fileRef}
-                                    type="file"
-                                    accept="application/json,.json,text/html,.htm,.html"
-                                    className="hidden"
-                                    onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (!file) return;
-
-                                        const raw = await file.text();
-                                        const res = importProfileViewingDataJson(raw);
-                                        if (!res.ok) {
-                                            setProfileStatus(res.error ?? "Import failed.");
-                                        } else {
-                                            setProfileStatus("Profile imported.");
-                                        }
-
-                                        e.target.value = "";
-                                    }}
-                                />
-
-                                {profileStatus && <div className="text-xs text-slate-300">{profileStatus}</div>}
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <div className="mt-2 grid grid-cols-3 gap-2">
-                                <label className="flex flex-col gap-1">
-                                    <span className="text-[11px] text-slate-400">MR</span>
-                                    <input
-                                        className="h-9 w-20 rounded-lg bg-slate-900 border border-slate-700 px-2 text-sm text-slate-100"
-                                        type="number"
-                                        min={0}
-                                        value={mrDraft}
-                                        onChange={(e) => setMrDraft(e.target.value)}
-                                    />
-                                </label>
-
-                                <label className="flex flex-col gap-1">
-                                    <span className="text-[11px] text-slate-400">Credits</span>
-                                    <input
-                                        className="h-9 w-32 rounded-lg bg-slate-900 border border-slate-700 px-2 text-sm text-slate-100"
-                                        type="number"
-                                        min={0}
-                                        value={creditsDraft}
-                                        onChange={(e) => setCreditsDraft(e.target.value)}
-                                    />
-                                </label>
-
-                                <label className="flex flex-col gap-1">
-                                    <span className="text-[11px] text-slate-400">Platinum</span>
-                                    <input
-                                        className="h-9 w-28 rounded-lg bg-slate-900 border border-slate-700 px-2 text-sm text-slate-100"
-                                        type="number"
-                                        min={0}
-                                        value={platDraft}
-                                        onChange={(e) => setPlatDraft(e.target.value)}
-                                    />
-                                </label>
-                            </div>
-
-                            <div className="mt-2">
-                                <label className="flex flex-col gap-1">
-                                    <span className="text-[11px] text-slate-400">Account ID</span>
-                                    <input
-                                        className="h-9 w-full rounded-lg bg-slate-900 border border-slate-700 px-2 text-sm text-slate-100 font-mono"
-                                        value={accountDraft}
-                                        onChange={(e) => setAccountDraft(e.target.value)}
-                                        placeholder="e.g., 51c925bd1a4d80502e000046"
-                                    />
-                                </label>
-                            </div>
-                        </>
-                    )}
-
-                    <div className="mt-2 text-[11px] text-slate-500">
-                        Account ID + Platform are stored locally. Use “Open Profile Link”, save the response (browser may
-                        save as .htm), then import it to update Name, MR, clan, syndicates, mastery XP, missions, and
-                        inventory mapping.
+                                <div className="mt-3 text-[11px] text-slate-500 leading-relaxed">
+                                    Account ID + Platform are stored locally. Use "Open Profile Link", save the response
+                                    (browser may save as .htm), then import it to update Name, MR, syndicates, mastery XP,
+                                    missions, and inventory mapping.
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                {/* Edit form */}
+                                <div className="grid grid-cols-3 gap-2">
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-[11px] text-slate-400">MR</span>
+                                        <input
+                                            className="h-9 w-full rounded-lg bg-slate-900 border border-slate-700 px-2 text-sm text-slate-100"
+                                            type="number" min={0}
+                                            value={mrDraft}
+                                            onChange={(e) => setMrDraft(e.target.value)}
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-[11px] text-slate-400">Credits</span>
+                                        <input
+                                            className="h-9 w-full rounded-lg bg-slate-900 border border-slate-700 px-2 text-sm text-slate-100"
+                                            type="number" min={0}
+                                            value={creditsDraft}
+                                            onChange={(e) => setCreditsDraft(e.target.value)}
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-[11px] text-slate-400">Platinum</span>
+                                        <input
+                                            className="h-9 w-full rounded-lg bg-slate-900 border border-slate-700 px-2 text-sm text-slate-100"
+                                            type="number" min={0}
+                                            value={platDraft}
+                                            onChange={(e) => setPlatDraft(e.target.value)}
+                                        />
+                                    </label>
+                                </div>
+                                <div className="mt-2">
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-[11px] text-slate-400">Account ID</span>
+                                        <input
+                                            className="h-9 w-full rounded-lg bg-slate-900 border border-slate-700 px-2 text-sm text-slate-100 font-mono"
+                                            value={accountDraft}
+                                            onChange={(e) => setAccountDraft(e.target.value)}
+                                            placeholder="e.g., 51c925bd1a4d80502e000046"
+                                        />
+                                    </label>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }
-

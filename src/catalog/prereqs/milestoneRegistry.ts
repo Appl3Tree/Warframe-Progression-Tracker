@@ -17,20 +17,13 @@ export type MilestoneCategory =
     | "StarChart"
     | "Hubs"
     | "OpenWorlds"
-    | "Systems"
     | "Orbiter"
-    | "Segments"
     | "Focus"
-    | "Amps"
-    | "Companions"
     | "Necramech"
     | "Railjack"
     | "Helminth"
-    | "Activities"
     | "Syndicates"
-    | "Duviri"
-    | "Kahl"
-    | "Other";
+    | "Duviri";
 
 export type MilestoneRule =
     | { type: "all"; prereqIds: PrereqId[] }
@@ -64,7 +57,7 @@ export const MILESTONE_REGISTRY: MilestoneDef[] = [
         description: "Operator mode is active. Major turning point in the Tenno story.",
         category: "Mainline",
         showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.SECOND_DREAM, PR.FOCUS_UNLOCKED] }
+        rule: { type: "all", prereqIds: [PR.SECOND_DREAM] }
     },
     {
         id: "ms_main_war_within_complete",
@@ -117,7 +110,7 @@ export const MILESTONE_REGISTRY: MilestoneDef[] = [
     {
         id: "ms_main_arc6_reached",
         label: "Arc 6 Reached (The Old Peace)",
-        description: "⚠️ Update 41 content. The Old Peace complete. Dark Refractory and Descendia accessible.",
+        description: "The Old Peace complete. Continues the 1999 arc with further Höllvania content.",
         category: "Mainline",
         showWhenComplete: true,
         rule: { type: "all", prereqIds: [PR.THE_OLD_PEACE] }
@@ -158,17 +151,11 @@ export const MILESTONE_REGISTRY: MilestoneDef[] = [
         showWhenComplete: true,
         rule: { type: "all", prereqIds: [PR.JADE_SHADOWS] }
     },
-    {
-        id: "ms_sq_warframe_bp_quests_early",
-        label: "Early Warframe BP Quests Done",
-        description: "Hidden Messages (Mirage) and Howl of the Kubrow complete.",
-        category: "SideQuests",
-        rule: { type: "all", prereqIds: [PR.HIDDEN_MESSAGES, PR.HOWL_KUBROW] }
-    },
+
     {
         id: "ms_sq_warframe_bp_quests_mid",
         label: "Mid Warframe BP Quests Done",
-        description: "Limbo Theorem, Stolen Dreams, The New Strange, and Jordas Precept complete.",
+        description: "Limbo Theorem, Jordas Precept, and The Glast Gambit complete.",
         category: "SideQuests",
         rule: { type: "all", prereqIds: [PR.LIMBO_THEOREM, PR.JORDAS_PRECEPT, PR.GLAST_GAMBIT] }
     },
@@ -260,7 +247,7 @@ export const MILESTONE_REGISTRY: MilestoneDef[] = [
     {
         id: "ms_hub_fortuna",
         label: "Fortuna Access",
-        description: "Orb Vallis accessible. Solaris United and Vox Solaris standing available.",
+        description: "Orb Vallis accessible. Solaris United standing available.",
         category: "Hubs",
         rule: { type: "all", prereqIds: [PR.HUB_FORTUNA] }
     },
@@ -402,121 +389,6 @@ export const MILESTONE_REGISTRY: MilestoneDef[] = [
     },
 
     // =========================================================================
-    // FOCUS / OPERATOR
-    // =========================================================================
-    {
-        id: "ms_focus_partial",
-        label: "Focus System Active (Partial)",
-        description: "2 passives per school unlocked. Full tree requires The War Within + The Quills.",
-        category: "Focus",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.FOCUS_UNLOCKED] }
-    },
-    {
-        id: "ms_focus_full",
-        label: "Full Focus Trees Unlocked",
-        description: "All 10 Ways per school now unlockable. Requires War Within + Saya's Vigil + Quills rank 1.",
-        category: "Focus",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.FOCUS_FULL] }
-    },
-    {
-        id: "ms_focus_all_schools",
-        label: "All Five Focus Schools Owned",
-        description: "All five Focus schools available (one free at end of Second Dream; four more bought for 50k Focus each).",
-        category: "Focus",
-        rule: {
-            type: "all",
-            prereqIds: [
-                PR.FOCUS_SCHOOL_ZENURIK, PR.FOCUS_SCHOOL_VAZARIN,
-                PR.FOCUS_SCHOOL_NARAMON, PR.FOCUS_SCHOOL_UNAIRU,
-                PR.FOCUS_SCHOOL_MADURAI
-            ]
-        }
-    },
-
-    // =========================================================================
-    // AMPS
-    // =========================================================================
-    {
-        id: "ms_amp_starter",
-        label: "Mote Amp Available",
-        description: "Starter Amp obtainable from Quill Onkko at Cetus.",
-        category: "Amps",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.AMP_MOTE] }
-    },
-    {
-        id: "ms_amp_eidolon_ready",
-        label: "Amp: Eidolon-Ready (T4 Propa Build)",
-        description: "T4 Amp parts unlocked from The Quills. Propa scaffold available for Tridolon runs.",
-        category: "Amps",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.AMP_TIER4] }
-    },
-    {
-        id: "ms_amp_endgame",
-        label: "Amp: Endgame Tier (T7 Vox Solaris)",
-        description: "Best-in-slot T7 Amp parts from Vox Solaris rank 3 available.",
-        category: "Amps",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.AMP_TIER7] }
-    },
-    {
-        id: "ms_amp_gilded",
-        label: "Amp Gilding Unlocked",
-        description: "Can gild Amps to boost base damage and add a Focus Lens slot.",
-        category: "Amps",
-        rule: { type: "all", prereqIds: [PR.AMP_GILDING] }
-    },
-
-    // =========================================================================
-    // COMPANIONS
-    // =========================================================================
-    {
-        id: "ms_companion_kubrow",
-        label: "Kubrow Breeding Available",
-        description: "Can breed Kubrow companions. Requires Howl of the Kubrow + Incubator.",
-        category: "Companions",
-        rule: { type: "all", prereqIds: [PR.COMPANION_KUBROW] }
-    },
-    {
-        id: "ms_companion_kavat",
-        label: "Kavat Breeding Available",
-        description: "Can breed Kavat companions using Kavat Genetic Code (Mars Survival).",
-        category: "Companions",
-        rule: { type: "all", prereqIds: [PR.COMPANION_KAVAT] }
-    },
-    {
-        id: "ms_companion_moa",
-        label: "MOA Companion Available",
-        description: "Can build MOA robotic companions in Fortuna.",
-        category: "Companions",
-        rule: { type: "all", prereqIds: [PR.COMPANION_MOA] }
-    },
-    {
-        id: "ms_companion_deimos",
-        label: "Deimos Companions Available",
-        description: "Predasites and Vulpaphylas can be acquired through the Daughter at Necralisk.",
-        category: "Companions",
-        rule: { type: "any", prereqIds: [PR.COMPANION_PREDASITE, PR.COMPANION_VULPAPHYLA], need: 1 }
-    },
-    {
-        id: "ms_companion_all_types",
-        label: "All Companion Types Accessible",
-        description: "All companion types are accessible: Kubrow, Kavat, Helminth Charger, MOA, Predasite, Vulpaphyla, and Nautilus.",
-        category: "Companions",
-        rule: {
-            type: "all",
-            prereqIds: [
-                PR.COMPANION_KUBROW, PR.COMPANION_KAVAT, PR.COMPANION_HELMINTH_CHARGER,
-                PR.COMPANION_MOA, PR.COMPANION_PREDASITE, PR.COMPANION_VULPAPHYLA,
-                PR.COMPANION_NAUTILUS
-            ]
-        }
-    },
-
-    // =========================================================================
     // NECRAMECH
     // =========================================================================
     {
@@ -526,13 +398,6 @@ export const MILESTONE_REGISTRY: MilestoneDef[] = [
         category: "Necramech",
         showWhenComplete: true,
         rule: { type: "all", prereqIds: [PR.NECRAMECH_UNLOCKED] }
-    },
-    {
-        id: "ms_necramech_both",
-        label: "Both Necramechs Available",
-        description: "Both Voidrig and Bonewidow blueprint parts unlocked from Necraloid standing.",
-        category: "Necramech",
-        rule: { type: "all", prereqIds: [PR.NECRAMECH_VOIDRIG, PR.NECRAMECH_BONEWIDOW] }
     },
 
     // =========================================================================
@@ -545,189 +410,6 @@ export const MILESTONE_REGISTRY: MilestoneDef[] = [
         category: "Railjack",
         showWhenComplete: true,
         rule: { type: "all", prereqIds: [PR.RAILJACK_CONSTRUCTED] }
-    },
-    {
-        id: "ms_railjack_intrinsics",
-        label: "Railjack Intrinsics Active",
-        description: "Intrinsics skill tree unlocked on first Railjack mission.",
-        category: "Railjack",
-        rule: { type: "all", prereqIds: [PR.RAILJACK_INTRINSICS] }
-    },
-    {
-        id: "ms_railjack_full_access",
-        label: "Full Railjack Access (Corpus Proxima + Void Storms)",
-        description: "All Railjack node types available including Corpus Proxima and Void Storm Fissures.",
-        category: "Railjack",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.RAILJACK_CORPUS_NODES, PR.RAILJACK_VOID_STORMS] }
-    },
-
-    // =========================================================================
-    // ENDGAME ACTIVITIES
-    // =========================================================================
-    {
-        id: "ms_activity_sorties",
-        label: "Sorties Available",
-        description: "Daily Sortie missions unlocked.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_SORTIES] }
-    },
-    {
-        id: "ms_activity_arbitrations",
-        label: "Arbitrations Available",
-        description: "Endless endgame with instant-death mechanic unlocked.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_ARBITRATIONS] }
-    },
-    {
-        id: "ms_activity_eidolon_basic",
-        label: "Eidolon Hunting Started (Teralyst)",
-        description: "Can fight the Teralyst (1-cap) on the Plains at night.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_EIDOLON_TERALYST] }
-    },
-    {
-        id: "ms_activity_eidolon_full",
-        label: "Tridolon Hunting Ready",
-        description: "T4 Amp and Eidolon experience in place for full 3-cap runs.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_EIDOLON_TRIDOLON] }
-    },
-    {
-        id: "ms_activity_archon_hunts",
-        label: "Archon Hunts Available",
-        description: "Weekly Archon fights unlocked. Archon Shards are now a progression resource.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_ARCHON_HUNTS] }
-    },
-    {
-        id: "ms_activity_kahl",
-        label: "Kahl's Garrison Available",
-        description: "Kahl weekly missions unlocked.",
-        category: "Kahl",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_KAHL_BREAK_NARMER] }
-    },
-    {
-        id: "ms_activity_netracells",
-        label: "Netracells Available",
-        description: "Up to 5 weekly Netracell runs now available.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_NETRACELLS] }
-    },
-    {
-        id: "ms_activity_deep_archimedea",
-        label: "Deep Archimedea Available",
-        description: "Elite weekly endgame content available. Cavia Family rank required.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_DEEP_ARCHIMEDEA] }
-    },
-    {
-        id: "ms_activity_profit_taker",
-        label: "Profit-Taker Heist Available",
-        description: "Vox Solaris Old Mate rank reached. Profit-Taker heist unlocked.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_PROFIT_TAKER] }
-    },
-    {
-        id: "ms_activity_steel_path",
-        label: "Steel Path Available",
-        description: "Star chart fully cleared (up to New War). Steel Path toggle unlocked.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_STEEL_PATH] }
-    },
-    {
-        id: "ms_activity_steel_path_full",
-        label: "Steel Path Fully Active (Honors + Circuit)",
-        description: "Steel Path, Teshin's shop, and Steel Path Circuit all available.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: {
-            type: "all",
-            prereqIds: [PR.ACTIVITY_STEEL_PATH, PR.ACTIVITY_STEEL_PATH_HONORS, PR.ACTIVITY_CIRCUIT_STEEL_PATH]
-        }
-    },
-    {
-        id: "ms_activity_kuva_lich",
-        label: "Kuva Lich System Available",
-        description: "Kuva Lich nemesis system unlocked.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_KUVA_LICH] }
-    },
-    {
-        id: "ms_activity_sister_parvos",
-        label: "Sister of Parvos System Available",
-        description: "Sister of Parvos nemesis system unlocked.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_SISTER_PARVOS] }
-    },
-    {
-        id: "ms_activity_both_nemesis",
-        label: "Both Nemesis Systems Available",
-        description: "Both Kuva Lich and Sister of Parvos systems unlocked.",
-        category: "Activities",
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_KUVA_LICH, PR.ACTIVITY_SISTER_PARVOS] }
-    },
-    {
-        id: "ms_activity_void_fissures",
-        label: "Void Fissures Available",
-        description: "Can crack Void Relics in Void Fissure missions.",
-        category: "Activities",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_VOID_FISSURES] }
-    },
-    {
-        id: "ms_activity_void_storms",
-        label: "Void Storms Available",
-        description: "Can crack Void Relics inside Railjack missions.",
-        category: "Activities",
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_VOID_STORMS] }
-    },
-    {
-        id: "ms_activity_zariman_all",
-        label: "All Zariman Mission Types Available",
-        description: "All four Zariman mission types accessible: Void Flood, Void Cascade, Mirror Defense, Conjunction Survival.",
-        category: "Activities",
-        rule: {
-            type: "all",
-            prereqIds: [
-                PR.ACTIVITY_VOID_FLOOD, PR.ACTIVITY_VOID_ANGELS,
-                PR.ACTIVITY_MIRROR_DEFENSE, PR.ACTIVITY_CONJUNCTION_SURVIVAL
-            ]
-        }
-    },
-    {
-        id: "ms_activity_circuit",
-        label: "The Circuit Available",
-        description: "Duviri Circuit run mode accessible. Best source of Incarnon Genesis adapters.",
-        category: "Duviri",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.ACTIVITY_CIRCUIT] }
-    },
-    {
-        id: "ms_activity_all_bounties",
-        label: "All Open World Bounties Available",
-        description: "Bounty missions available across all five open worlds: Plains, Vallis, Deimos, Zariman, Sanctum.",
-        category: "Activities",
-        rule: {
-            type: "all",
-            prereqIds: [
-                PR.ACTIVITY_CETUS_BOUNTIES, PR.ACTIVITY_FORTUNA_BOUNTIES,
-                PR.ACTIVITY_DEIMOS_BOUNTIES, PR.ACTIVITY_ZARIMAN_BOUNTIES,
-                PR.ACTIVITY_CAVIA_BOUNTIES
-            ]
-        }
     },
 
     // =========================================================================
@@ -746,14 +428,6 @@ export const MILESTONE_REGISTRY: MilestoneDef[] = [
     // SYNDICATES — KEY MILESTONES
     // =========================================================================
     {
-        id: "ms_syndicate_quills_t4",
-        label: "The Quills: Architect Rank (T4 Amps)",
-        description: "Max Quills rank reached. Best Eidolon-tier Amp parts available.",
-        category: "Syndicates",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.SYNDICATE_QUILLS_RANK4] }
-    },
-    {
         id: "ms_syndicate_entrati_helminth",
         label: "Entrati: Helminth Segments Available",
         description: "Entrati Associate rank reached. Base Helminth segment purchasable.",
@@ -770,17 +444,9 @@ export const MILESTONE_REGISTRY: MilestoneDef[] = [
         rule: { type: "all", prereqIds: [PR.SYNDICATE_ENTRATI_RANK5] }
     },
     {
-        id: "ms_syndicate_vox_old_mate",
-        label: "Vox Solaris: Old Mate Rank",
-        description: "Max Vox Solaris rank reached. Profit-Taker Orb heist unlocked.",
-        category: "Syndicates",
-        showWhenComplete: true,
-        rule: { type: "all", prereqIds: [PR.SYNDICATE_VOX_RANK5] }
-    },
-    {
         id: "ms_syndicate_cavia_family",
         label: "Cavia: Family Rank",
-        description: "Max Cavia rank. Deep Archimedea and weekly Archon Shard purchasing unlocked.",
+        description: "Maximum Cavia rank. Weekly Archon Shard purchasing from Cavalero unlocked.",
         category: "Syndicates",
         showWhenComplete: true,
         rule: { type: "all", prereqIds: [PR.SYNDICATE_CAVIA_RANK5] }
