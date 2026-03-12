@@ -120,7 +120,7 @@ const ALL_TASKS: TaskDef[] = [
     { id: "daily_tribute",              label: "Daily Tribute",            bucket: "primary_daily",   description: "Claim the daily login reward." },
     { id: "daily_trade_limit",          label: "Daily Trade Limit",        bucket: "primary_daily",   description: "Use remaining trades before midnight UTC." },
     { id: "daily_gift_limit",           label: "Daily Gift Limit",         bucket: "primary_daily",   description: "Use remaining daily gifts." },
-    { id: "focus_daily_cap",            label: "Focus Daily Cap",          bucket: "primary_daily",   description: "Spend today's Focus cap.", prereqIds: [PR.SYSTEM_OPERATOR] },
+    { id: "focus_daily_cap",            label: "Focus Daily Cap",          bucket: "primary_daily",   description: "Spend today's Focus cap.", prereqIds: [PR.SECOND_DREAM] },
 
     // Relay faction standing — filtered to pledged faction(s) automatically
     { id: "standing_steel_meridian",    label: "Steel Meridian",           bucket: "primary_daily",   description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.STEEL_MERIDIAN },
@@ -134,7 +134,7 @@ const ALL_TASKS: TaskDef[] = [
     { id: "standing_ostron",            label: "Ostrons",                  bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_CETUS] },
     { id: "standing_the_quills",        label: "The Quills",               bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_CETUS] },
     { id: "standing_solaris",           label: "Solaris United",           bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_FORTUNA] },
-    { id: "standing_vox_solaris",       label: "Vox Solaris",              bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_FORTUNA, PR.SYSTEM_OPERATOR] },
+    { id: "standing_vox_solaris",       label: "Vox Solaris",              bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_FORTUNA, PR.SECOND_DREAM] },
     { id: "standing_ventkids",          label: "Ventkids",                 bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_FORTUNA] },
     { id: "standing_entrati",           label: "Entrati",                  bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_NECRALISK] },
     { id: "standing_cavia",             label: "Cavia",                    bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_SANCTUM] },
@@ -148,6 +148,7 @@ const ALL_TASKS: TaskDef[] = [
     { id: "argon_decay",                label: "Argon Crystal Check",      bucket: "primary_daily",   description: "Spend Argon before daily decay if needed." },
     { id: "circuit_stage_bonus",        label: "Circuit Stage Bonus",      bucket: "primary_daily",   description: "Use today's Circuit stage bonus.", prereqIds: [PR.DUVIRI_PARADOX] },
     { id: "acrithis_daily",             label: "Acrithis Daily",           bucket: "primary_daily",   description: "Check current daily Duviri shop offerings.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "kim_daily",                  label: "KIM Daily Conversations",  bucket: "primary_daily",   description: "Check new daily KIM messages from Hex members and Roundtable contacts.", prereqIds: [PR.THE_HEX] },
 
     // ── Secondary Daily — 16:00 UTC ────────────────────────────────────────────
     { id: "sortie_set",                 label: "Sortie Mission Set",       bucket: "secondary_daily", description: "Complete today's Sortie before missions rotate." },
@@ -155,7 +156,7 @@ const ALL_TASKS: TaskDef[] = [
 
     // ── Weekly — Monday 00:00 UTC ──────────────────────────────────────────────
     { id: "archon_hunt",                label: "Archon Hunt",              bucket: "weekly_monday",   description: "Complete this week's Archon Hunt.", prereqIds: [PR.NEW_WAR] },
-    { id: "netracells",                 label: "Netracells (5 runs)",      bucket: "weekly_monday",   description: "Use this week's Netracell reward runs.", prereqIds: [PR.WHISPERS_WALL] },
+    { id: "netracells",                 label: "Netracells (5 runs)",      bucket: "weekly_monday",   description: "Use this week's Netracell reward runs. Shares the 5-run Search Pulse pool with Deep Archimedea and Temporal Archimedea.", prereqIds: [PR.WHISPERS_WALL] },
     {
         id: "deep_archimedea",          label: "Deep Archimedea",          bucket: "weekly_monday",   description: "Complete this week's Deep Archimedea.",
         prereqIds: [PR.WHISPERS_WALL],
@@ -168,7 +169,7 @@ const ALL_TASKS: TaskDef[] = [
     { id: "circuit_incarnon",           label: "Circuit Incarnon Genesis", bucket: "weekly_monday",   description: "Use current weekly Incarnon rotation.", prereqIds: [PR.DUVIRI_PARADOX] },
     { id: "nightwave_weekly",           label: "Nightwave Weekly Acts",    bucket: "weekly_monday",   description: "Complete this week's Nightwave weekly acts." },
     { id: "nightwave_elite",            label: "Nightwave Elite Weekly",   bucket: "weekly_monday",   description: "Complete this week's Nightwave elite acts." },
-    { id: "helminth_invigoration",      label: "Helminth Invigoration",    bucket: "weekly_monday",   description: "Use the current weekly Helminth Invigoration.", prereqIds: [PR.SYSTEM_HELMINTH_INVIGORATIONS] },
+    { id: "helminth_invigoration",      label: "Helminth Invigoration",    bucket: "weekly_monday",   description: "Use the current weekly Helminth Invigoration.", prereqIds: [PR.SEGMENT_HELMINTH_INVIGORATION] },
     { id: "steel_path_honors",          label: "Steel Path Honors",        bucket: "weekly_monday",   description: "Check or buy this week's Steel Path Honors." },
     { id: "palladino_weekly",           label: "Palladino — Iron Wake",    bucket: "weekly_monday",   description: "Check this week's Palladino offerings." },
     { id: "yonta_weekly",               label: "Yonta — Weekly Kuva",      bucket: "weekly_monday",   description: "Claim Yonta's weekly Kuva purchase.", prereqIds: [PR.HUB_ZARIMAN] },
@@ -177,6 +178,18 @@ const ALL_TASKS: TaskDef[] = [
     { id: "break_narmer",               label: "Break Narmer (Kahl)",      bucket: "weekly_monday",   description: "Complete the weekly Kahl mission.", prereqIds: [PR.VEILBREAKER] },
     { id: "maroo",                      label: "Maroo — Ayatan Hunt",      bucket: "weekly_monday",   description: "Run the weekly Ayatan Treasure Hunt." },
     { id: "help_clem",                  label: "Help Clem",                bucket: "weekly_monday",   description: "Run the weekly Help Clem mission." },
+    { id: "the_descendia_normal",       label: "The Descendia (Normal)",   bucket: "weekly_monday",   description: "Complete this week's Normal Descendia run. Separate reward table from Steel Path.", prereqIds: [PR.THE_OLD_PEACE] },
+    { id: "the_descendia_sp",           label: "The Descendia (Steel Path)",bucket: "weekly_monday",   description: "Complete this week's Steel Path Descendia run. Separate reward table from Normal.", prereqIds: [PR.THE_OLD_PEACE] },
+    { id: "kaya_weekly",               label: "Kaya — Weekly Arcane",     bucket: "weekly_monday",   description: "Check Kaya's weekly Arcane Enhancement offering.", prereqIds: [PR.THE_HEX] },
+    {
+        id: "temporal_archimedea",      label: "Temporal Archimedea",      bucket: "weekly_monday",   description: "Complete this week's Temporal Archimedea. Uses the shared 5-run Search Pulse pool with Netracells and Deep Archimedea.",
+        prereqIds: [PR.THE_HEX],
+        isVisible: ({ completedPrereqs, syndicates }) => {
+            if (!completedPrereqs[PR.THE_HEX]) return false;
+            return (syndicates.find((s) => s.id === SY.THE_HEX)?.rank ?? 0) >= 5;
+        },
+    },
+    { id: "calendar_1999",              label: "1999 Calendar Season",     bucket: "weekly_monday",   description: "Check weekly calendar To Do tasks, prize selection, and Hex Override choices.", prereqIds: [PR.THE_HEX] },
 
     // ── Conclave — Daily 16:00 UTC ─────────────────────────────────────────────
     { id: "conclave_daily_standing",    label: "Conclave Standing",        bucket: "conclave",        conclaveSub: "conclave_daily",   description: "Use today's Conclave standing cap.", prereqIds: [PR.HUB_RELAY] },

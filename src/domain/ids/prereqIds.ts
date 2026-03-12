@@ -322,6 +322,9 @@ export const PR = {
     SYNDICATE_CAVIA_RANK2:          "syndicate_cavia_rank2",            // Researcher — Helminth Coalescent Segment BP (Bird 3)
     SYNDICATE_CAVIA_RANK5:          "syndicate_cavia_rank5",            // Family — Deep Archimedea + weekly Archon Shard purchase
 
+    // The Hex (Höllvania / 1999) — gates Temporal Archimedea:
+    SYNDICATE_HEX_RANK5:            "syndicate_hex_rank5",              // Pizza Party (rank 5) — Temporal Archimedea access
+
     // Vox Solaris (Fortuna) — gates Profit-Taker + T5–7 Amp parts:
     SYNDICATE_VOX_RANK1:            "syndicate_vox_rank1",              // Little Duck contact — T5 Amp parts
     SYNDICATE_VOX_RANK2:            "syndicate_vox_rank2",              // Neutral — T6 Amp parts

@@ -18,7 +18,6 @@ export type MilestoneCategory =
     | "Hubs"
     | "OpenWorlds"
     | "Orbiter"
-    | "Focus"
     | "Necramech"
     | "Railjack"
     | "Helminth"
@@ -151,7 +150,6 @@ export const MILESTONE_REGISTRY: MilestoneDef[] = [
         showWhenComplete: true,
         rule: { type: "all", prereqIds: [PR.JADE_SHADOWS] }
     },
-
     {
         id: "ms_sq_warframe_bp_quests_mid",
         label: "Mid Warframe BP Quests Done",

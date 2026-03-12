@@ -156,7 +156,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.CHIMERA_PROLOGUE,
         label: "Chimera Prologue",
         category: "Quests",
-        description: "Chapter 1 of Prelude to War. Required for Erra.",
+        description: "Chapter 1 of Prelude to War. Adds Ropalolyst assassination node to Jupiter. Required for Erra.",
         prerequisites: [PR.SACRIFICE],
         partOf: "Prelude to War",
         chapterIndex: 1
@@ -246,9 +246,10 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     // =========================================================================
     {
         id: PR.SAYA_VIGIL,
+        showInPlanner: false,
         label: "Saya's Vigil",
         category: "SideQuests",
-        description: "Unlocks Gara blueprint. Available in Cetus. Required (combined with The War Within) to unlock The Quills.",
+        description: "Unlocks Gara blueprint. Available in Cetus. Tracked for quest completion.",
         prerequisites: [PR.HUB_CETUS]
     },
     {
@@ -390,16 +391,17 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
     {
         id: PR.JUNCTION_MARS_PHOBOS,
+        showInPlanner: false,
         label: "Junction: Mars → Phobos",
         category: "Systems",
-        description: "Unlocks Phobos. Part of the path to the Ceres → Jupiter junction.",
+        description: "Unlocks Phobos. Alternate path to Ceres; tracked for star chart completion.",
         prerequisites: [PR.JUNCTION_EARTH_MARS]
     },
     {
         id: PR.JUNCTION_MARS_CERES,
         label: "Junction: Mars → Ceres",
         category: "Systems",
-        description: "Unlocks Ceres. Required for The New Strange and Deadlock Protocol.",
+        description: "Unlocks Ceres. Required for The New Strange, Deadlock Protocol, and the Ceres → Jupiter junction.",
         prerequisites: [PR.JUNCTION_EARTH_MARS]
     },
     {
@@ -411,9 +413,10 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
     {
         id: PR.JUNCTION_PHOBOS_CERES,
+        showInPlanner: false,
         label: "Junction: Phobos → Ceres",
         category: "Systems",
-        description: "Required for the Ceres → Jupiter junction.",
+        description: "Alternate Ceres path via Phobos. Tracked for star chart completion.",
         prerequisites: [PR.JUNCTION_MARS_PHOBOS]
     },
     {
@@ -543,7 +546,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.HUB_DRIFTERS_CAMP,
         label: "Drifter's Camp Access",
         category: "Hubs",
-        description: "Access to Kahl's Garrison missions. Required for Archon Hunt weekly resets.",
+        description: "Access to Kahl's Garrison weekly missions in the Drifter's Camp.",
         prerequisites: [PR.NEW_WAR]
     },
 
@@ -628,15 +631,15 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
 
     // =========================================================================
-    // BOSS NODES (only those that gate specific items or systems)
+    // BOSS NODES
     // =========================================================================
     {
         id: PR.ACTIVITY_ROPALOLYST,
+        showInPlanner: false,
         label: "Ropalolyst",
         category: "Systems",
-        description: "Jupiter assassination boss. Drops Wisp parts. Unlocked by Chimera Prologue.",
-        prerequisites: [PR.CHIMERA_PROLOGUE],
-        showInPlanner: false
+        description: "Jupiter assassination boss. Drops Wisp parts. Unlocked by completing Chimera Prologue.",
+        prerequisites: [PR.CHIMERA_PROLOGUE]
     },
 
     // =========================================================================
@@ -675,6 +678,14 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         category: "Syndicates",
         description: "Maximum Cavia rank. Unlocks weekly Archon Shard purchasing from Cavalero.",
         prerequisites: [PR.SYNDICATE_CAVIA_RANK2]
+    },
+    {
+        id: PR.SYNDICATE_HEX_RANK5,
+        validatedBySyndicate: { syndicateId: SY.THE_HEX, rank: 5 },
+        label: "The Hex: Rank 5 (Pizza Party)",
+        category: "Syndicates",
+        description: "Maximum Hex rank. Required to access Temporal Archimedea.",
+        prerequisites: [PR.HUB_HOLLVANIA]
     },
 
 ];
