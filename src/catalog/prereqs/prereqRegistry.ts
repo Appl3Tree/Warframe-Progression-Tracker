@@ -677,4 +677,596 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         prerequisites: [PR.SYNDICATE_CAVIA_RANK2]
     },
 
+    // =========================================================================
+    // SIDE QUESTS — Additional Feature Gates
+    // =========================================================================
+    {
+        id: PR.THE_TEACHER,
+        label: "The Teacher",
+        category: "SideQuests",
+        description: "Modding tutorial quest (Update 40). No hard prerequisites.",
+        prerequisites: [PR.VORS_PRIZE],
+        showInPlanner: false
+    },
+    {
+        id: PR.HOWL_KUBROW,
+        label: "Howl of the Kubrow",
+        category: "SideQuests",
+        description: "Unlocks Kubrow incubation and breeding. No hard quest prerequisite.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.VOX_SOLARIS,
+        label: "Vox Solaris",
+        category: "SideQuests",
+        description: "Auto-starts on first Fortuna visit. Unlocks Vox Solaris syndicate and Little Duck.",
+        prerequisites: [PR.HUB_FORTUNA]
+    },
+
+    // =========================================================================
+    // ORBITER SEGMENTS — Vor's Prize Base Segments
+    // =========================================================================
+    {
+        id: PR.SEGMENT_ARSENAL,
+        label: "Orbiter: Arsenal Segment",
+        category: "Segments",
+        description: "Loadout management console. Installed automatically by Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE],
+        showInPlanner: false
+    },
+    {
+        id: PR.SEGMENT_COMMUNICATIONS,
+        label: "Orbiter: Communications Segment",
+        category: "Segments",
+        description: "Navigation and inbox. Installed automatically by Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE],
+        showInPlanner: false
+    },
+    {
+        id: PR.SEGMENT_CODEX_SCANNER,
+        label: "Orbiter: Codex Scanner Segment",
+        category: "Segments",
+        description: "Codex entry tracking and lore browser. Installed automatically by Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE],
+        showInPlanner: false
+    },
+    {
+        id: PR.SEGMENT_FOUNDRY,
+        label: "Orbiter: Foundry Segment",
+        category: "Segments",
+        description: "Crafting station for Warframes, weapons, and components. Installed automatically by Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE],
+        showInPlanner: false
+    },
+    {
+        id: PR.SEGMENT_MODDING,
+        label: "Orbiter: Modding Table Segment",
+        category: "Segments",
+        description: "Mod fusion, transmutation, and management. Installed automatically by Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE],
+        showInPlanner: false
+    },
+
+    // =========================================================================
+    // OPERATOR / FOCUS SYSTEM
+    // =========================================================================
+    {
+        id: PR.FOCUS_UNLOCKED,
+        label: "Focus System (Partial)",
+        category: "Systems",
+        description: "Unlocks Focus passives (2 per school) via Operator Transference. Granted at the end of The Second Dream.",
+        prerequisites: [PR.SECOND_DREAM]
+    },
+    {
+        id: PR.FOCUS_FULL,
+        label: "Focus System (Full Trees)",
+        category: "Systems",
+        description: "Unlocks all 10 Ways per school. Requires The War Within, Saya's Vigil, and visiting The Quills.",
+        prerequisites: [PR.WAR_WITHIN, PR.SAYA_VIGIL, PR.SYNDICATE_QUILLS_RANK1]
+    },
+    {
+        id: PR.FOCUS_SCHOOL_ZENURIK,
+        label: "Focus School: Zenurik",
+        category: "Systems",
+        description: "Energy and Void regen school. Choose at the end of The Second Dream or purchase for 50,000 Focus.",
+        prerequisites: [PR.FOCUS_UNLOCKED],
+        showInPlanner: false
+    },
+    {
+        id: PR.FOCUS_SCHOOL_VAZARIN,
+        label: "Focus School: Vazarin",
+        category: "Systems",
+        description: "Healing and Operator survival school. Choose at the end of The Second Dream or purchase for 50,000 Focus.",
+        prerequisites: [PR.FOCUS_UNLOCKED],
+        showInPlanner: false
+    },
+    {
+        id: PR.FOCUS_SCHOOL_NARAMON,
+        label: "Focus School: Naramon",
+        category: "Systems",
+        description: "Melee combo and shadow step school. Choose at the end of The Second Dream or purchase for 50,000 Focus.",
+        prerequisites: [PR.FOCUS_UNLOCKED],
+        showInPlanner: false
+    },
+    {
+        id: PR.FOCUS_SCHOOL_UNAIRU,
+        label: "Focus School: Unairu",
+        category: "Systems",
+        description: "Defense stripping and armor break school. Choose at the end of The Second Dream or purchase for 50,000 Focus.",
+        prerequisites: [PR.FOCUS_UNLOCKED],
+        showInPlanner: false
+    },
+    {
+        id: PR.FOCUS_SCHOOL_MADURAI,
+        label: "Focus School: Madurai",
+        category: "Systems",
+        description: "Damage amp and Void Strike school — standard for Eidolon hunting. Choose at end of The Second Dream or purchase for 50,000 Focus.",
+        prerequisites: [PR.FOCUS_UNLOCKED],
+        showInPlanner: false
+    },
+
+    // =========================================================================
+    // AMP SYSTEM
+    // =========================================================================
+    {
+        id: PR.AMP_MOTE,
+        label: "Amp: Mote (Starter)",
+        category: "Systems",
+        description: "Starter Amp given by Quill Onkko. Requires The War Within and visiting The Quills in Cetus.",
+        prerequisites: [PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK1]
+    },
+    {
+        id: PR.AMP_SIROCCO,
+        label: "Amp: Sirocco",
+        category: "Systems",
+        description: "Pre-built Amp awarded as a reward for completing The New War.",
+        prerequisites: [PR.NEW_WAR],
+        showInPlanner: false
+    },
+    {
+        id: PR.AMP_TIER1,
+        label: "Amp: Tier 1 Parts (Quills)",
+        category: "Systems",
+        description: "Raplak/Pencha/Clapkra components. Requires The Quills rank 1 (Observer).",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK1]
+    },
+    {
+        id: PR.AMP_TIER2,
+        label: "Amp: Tier 2 Parts (Quills)",
+        category: "Systems",
+        description: "Shwaak/Shraksun/Juttni components. Requires The Quills rank 2 (Adherent).",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK2]
+    },
+    {
+        id: PR.AMP_TIER3,
+        label: "Amp: Tier 3 Parts (Quills)",
+        category: "Systems",
+        description: "Granmu/Phahd/Lohrin components. Requires The Quills rank 3 (Instrument).",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK3]
+    },
+    {
+        id: PR.AMP_TIER4,
+        label: "Amp: Tier 4 Parts (Quills)",
+        category: "Systems",
+        description: "Propa/Klebrik/Certus components — best available from The Quills. Requires rank 4 (Architect).",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK4]
+    },
+    {
+        id: PR.AMP_TIER5,
+        label: "Amp: Tier 5 Parts (Vox Solaris)",
+        category: "Systems",
+        description: "Tier 5 scaffold / brace parts. Requires Vox Solaris rank 1 (Little Duck contact).",
+        prerequisites: [PR.SYNDICATE_VOX_RANK1]
+    },
+    {
+        id: PR.AMP_TIER6,
+        label: "Amp: Tier 6 Parts (Vox Solaris)",
+        category: "Systems",
+        description: "Tier 6 components. Requires Vox Solaris rank 2 (Neutral).",
+        prerequisites: [PR.SYNDICATE_VOX_RANK2]
+    },
+    {
+        id: PR.AMP_TIER7,
+        label: "Amp: Tier 7 Parts (Vox Solaris)",
+        category: "Systems",
+        description: "Best-in-slot Amp components. Requires Vox Solaris rank 3 (Mistral).",
+        prerequisites: [PR.SYNDICATE_VOX_RANK3]
+    },
+    {
+        id: PR.AMP_GILDING,
+        label: "Amp Gilding Unlocked",
+        category: "Systems",
+        description: "Gild an Amp to boost base damage and unlock Lens slot. Requires Quills rank 3 (Instrument) or Vox Solaris rank 3.",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK3]
+    },
+
+    // =========================================================================
+    // COMPANION SYSTEMS
+    // =========================================================================
+    {
+        id: PR.COMPANION_KUBROW,
+        label: "Companion: Kubrow",
+        category: "Systems",
+        description: "Kubrow companion breeding. Requires Howl of the Kubrow quest and Incubator segment.",
+        prerequisites: [PR.HOWL_KUBROW, PR.SEGMENT_INCUBATOR],
+        showInPlanner: false
+    },
+    {
+        id: PR.COMPANION_KAVAT,
+        label: "Companion: Kavat",
+        category: "Systems",
+        description: "Kavat companion breeding. Requires Incubator segment and Kavat Genetic Codes (Mars Survival drops).",
+        prerequisites: [PR.SEGMENT_INCUBATOR],
+        showInPlanner: false
+    },
+    {
+        id: PR.COMPANION_HELMINTH_CHARGER,
+        label: "Companion: Helminth Charger",
+        category: "Systems",
+        description: "Infested companion grown from a Nidus Helminth cyst. Requires Incubator segment.",
+        prerequisites: [PR.SEGMENT_INCUBATOR],
+        showInPlanner: false
+    },
+    {
+        id: PR.COMPANION_MOA,
+        label: "Companion: MOA",
+        category: "Systems",
+        description: "Robotic MOA companion built in Fortuna. Requires Solaris United rank 1.",
+        prerequisites: [PR.HUB_FORTUNA],
+        showInPlanner: false
+    },
+    {
+        id: PR.COMPANION_HOUND,
+        label: "Companion: Hound",
+        category: "Systems",
+        description: "Obtained by keeping the Hound of a defeated Sister of Parvos.",
+        prerequisites: [PR.CALL_TEMPESTARII],
+        showInPlanner: false
+    },
+    {
+        id: PR.COMPANION_PREDASITE,
+        label: "Companion: Predasite",
+        category: "Systems",
+        description: "Deimos companion. Requires Necralisk access and Son's sister (Daughter).",
+        prerequisites: [PR.HUB_NECRALISK],
+        showInPlanner: false
+    },
+    {
+        id: PR.COMPANION_VULPAPHYLA,
+        label: "Companion: Vulpaphyla",
+        category: "Systems",
+        description: "Deimos fox companion. Requires Necralisk access and Son's sister (Daughter).",
+        prerequisites: [PR.HUB_NECRALISK],
+        showInPlanner: false
+    },
+    {
+        id: PR.COMPANION_NAUTILUS,
+        label: "Companion: Nautilus",
+        category: "Systems",
+        description: "Archwing companion. Blueprint obtained from the Rising Tide quest.",
+        prerequisites: [PR.RISING_TIDE],
+        showInPlanner: false
+    },
+
+    // =========================================================================
+    // NECRAMECH — Additional Entries
+    // =========================================================================
+    {
+        id: PR.NECRAMECH_VOIDRIG,
+        label: "Necramech: Voidrig",
+        category: "Necramech",
+        description: "Gun-platform Necramech. Blueprints purchased via Necraloid standing.",
+        prerequisites: [PR.NECRAMECH_UNLOCKED]
+    },
+    {
+        id: PR.NECRAMECH_BONEWIDOW,
+        label: "Necramech: Bonewidow",
+        category: "Necramech",
+        description: "Melee Necramech. Blueprints purchased via Necraloid standing.",
+        prerequisites: [PR.NECRAMECH_UNLOCKED]
+    },
+
+    // =========================================================================
+    // RAILJACK — Additional Entries
+    // =========================================================================
+    {
+        id: PR.RAILJACK_INTRINSICS,
+        label: "Railjack: Intrinsics",
+        category: "Railjack",
+        description: "Intrinsics skill tree (Tactical, Piloting, Gunnery, Engineering, Command). Unlocked on first Railjack mission.",
+        prerequisites: [PR.RAILJACK_CONSTRUCTED]
+    },
+    {
+        id: PR.RAILJACK_CORPUS_NODES,
+        label: "Railjack: Corpus Proxima Nodes",
+        category: "Railjack",
+        description: "Venus, Neptune, and Pluto Proxima nodes. Unlocked by Call of the Tempestarii.",
+        prerequisites: [PR.CALL_TEMPESTARII]
+    },
+    {
+        id: PR.RAILJACK_VOID_STORMS,
+        label: "Railjack: Void Storms",
+        category: "Railjack",
+        description: "Void Storm Fissure missions in Railjack. Unlocked by Call of the Tempestarii.",
+        prerequisites: [PR.CALL_TEMPESTARII]
+    },
+
+    // =========================================================================
+    // SYNDICATE RANK MILESTONES — The Quills
+    // =========================================================================
+    {
+        id: PR.SYNDICATE_QUILLS_RANK1,
+        validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 1 },
+        label: "The Quills: Rank 1 (Observer)",
+        category: "Syndicates",
+        description: "Unlocks T1 Amp parts and triggers Mask of the Revenant. Requires The War Within and Saya's Vigil.",
+        prerequisites: [PR.WAR_WITHIN, PR.SAYA_VIGIL]
+    },
+    {
+        id: PR.SYNDICATE_QUILLS_RANK2,
+        validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 2 },
+        label: "The Quills: Rank 2 (Adherent)",
+        category: "Syndicates",
+        description: "Unlocks T2 Amp parts and Amp gilding.",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK1]
+    },
+    {
+        id: PR.SYNDICATE_QUILLS_RANK3,
+        validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 3 },
+        label: "The Quills: Rank 3 (Instrument)",
+        category: "Syndicates",
+        description: "Unlocks T3 Amp parts.",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK2]
+    },
+    {
+        id: PR.SYNDICATE_QUILLS_RANK4,
+        validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 4 },
+        label: "The Quills: Rank 4 (Architect)",
+        category: "Syndicates",
+        description: "Unlocks T4 Amp parts — the best available from The Quills.",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK3]
+    },
+
+    // =========================================================================
+    // SYNDICATE RANK MILESTONES — Vox Solaris
+    // =========================================================================
+    {
+        id: PR.SYNDICATE_VOX_RANK1,
+        validatedBySyndicate: { syndicateId: SY.VOX_SOLARIS, rank: 1 },
+        label: "Vox Solaris: Rank 1 (Little Duck Contact)",
+        category: "Syndicates",
+        description: "Unlocks T5 Amp parts. Requires Vox Solaris quest and Operator (The War Within).",
+        prerequisites: [PR.VOX_SOLARIS, PR.WAR_WITHIN]
+    },
+    {
+        id: PR.SYNDICATE_VOX_RANK2,
+        validatedBySyndicate: { syndicateId: SY.VOX_SOLARIS, rank: 2 },
+        label: "Vox Solaris: Rank 2 (Neutral)",
+        category: "Syndicates",
+        description: "Unlocks T6 Amp parts.",
+        prerequisites: [PR.SYNDICATE_VOX_RANK1]
+    },
+    {
+        id: PR.SYNDICATE_VOX_RANK3,
+        validatedBySyndicate: { syndicateId: SY.VOX_SOLARIS, rank: 3 },
+        label: "Vox Solaris: Rank 3 (Mistral)",
+        category: "Syndicates",
+        description: "Unlocks T7 Amp parts (best-in-slot) and Amp gilding.",
+        prerequisites: [PR.SYNDICATE_VOX_RANK2]
+    },
+    {
+        id: PR.SYNDICATE_VOX_RANK5,
+        validatedBySyndicate: { syndicateId: SY.VOX_SOLARIS, rank: 5 },
+        label: "Vox Solaris: Rank 5 (Old Mate)",
+        category: "Syndicates",
+        description: "Maximum Vox Solaris rank. Unlocks Profit-Taker Orb heist missions.",
+        prerequisites: [PR.SYNDICATE_VOX_RANK3]
+    },
+
+    // =========================================================================
+    // ENDGAME ACTIVITIES
+    // =========================================================================
+    {
+        id: PR.ACTIVITY_SORTIES,
+        label: "Activity: Sorties",
+        category: "Systems",
+        description: "Daily 3-mission Sortie chain. Requires The War Within, MR5, and a rank-30 Warframe.",
+        prerequisites: [PR.WAR_WITHIN],
+        conditions: [{ type: "mastery_rank", value: 5 }]
+    },
+    {
+        id: PR.ACTIVITY_EIDOLON_TERALYST,
+        label: "Activity: Eidolon Teralyst (1-cap)",
+        category: "Systems",
+        description: "Night-time Eidolon hunt on the Plains of Eidolon. Effective hunting requires T2+ Amp and Operator arcanes.",
+        prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN, PR.AMP_TIER2]
+    },
+    {
+        id: PR.ACTIVITY_EIDOLON_TRIDOLON,
+        label: "Activity: Tridolon (3-cap)",
+        category: "Systems",
+        description: "Full Teralyst + Gantulyst + Hydrolyst hunt in a single night. Requires strong Amp (T4+) and Eidolon experience.",
+        prerequisites: [PR.ACTIVITY_EIDOLON_TERALYST, PR.AMP_TIER4]
+    },
+    {
+        id: PR.ACTIVITY_ARCHON_HUNTS,
+        label: "Activity: Archon Hunts",
+        category: "Systems",
+        description: "Weekly 3-stage Archon fight for Archon Shards. Requires Veilbreaker and a rank-30 Warframe.",
+        prerequisites: [PR.VEILBREAKER]
+    },
+    {
+        id: PR.ACTIVITY_KAHL_BREAK_NARMER,
+        label: "Activity: Kahl's Garrison Missions",
+        category: "Systems",
+        description: "Kahl weekly break-Narmer missions. Requires Veilbreaker.",
+        prerequisites: [PR.VEILBREAKER]
+    },
+    {
+        id: PR.ACTIVITY_NETRACELLS,
+        label: "Activity: Netracells",
+        category: "Systems",
+        description: "5× weekly Netracell runs in Sanctum Anatomica for Archon Shard rewards. Requires Whispers in the Walls.",
+        prerequisites: [PR.WHISPERS_WALL, PR.HUB_SANCTUM]
+    },
+    {
+        id: PR.ACTIVITY_ARBITRATIONS,
+        label: "Activity: Arbitrations",
+        category: "Systems",
+        description: "Rotating endless missions with instant-death mechanic. Requires all main star chart nodes cleared through The New War.",
+        prerequisites: [PR.JUNCTION_ERIS_KUVA_FORTRESS, PR.NEW_WAR]
+    },
+    {
+        id: PR.ACTIVITY_DEEP_ARCHIMEDEA,
+        label: "Activity: Deep Archimedea",
+        category: "Systems",
+        description: "Elite weekly endgame activity. Requires Whispers in the Walls and Cavia rank 5 (Family).",
+        prerequisites: [PR.WHISPERS_WALL, PR.SYNDICATE_CAVIA_RANK5]
+    },
+    {
+        id: PR.ACTIVITY_CETUS_BOUNTIES,
+        label: "Activity: Cetus Bounties",
+        category: "Systems",
+        description: "Plains of Eidolon bounty missions for Ostron standing and rewards.",
+        prerequisites: [PR.HUB_CETUS]
+    },
+    {
+        id: PR.ACTIVITY_FORTUNA_BOUNTIES,
+        label: "Activity: Fortuna Bounties",
+        category: "Systems",
+        description: "Orb Vallis bounty missions for Solaris United standing and rewards.",
+        prerequisites: [PR.HUB_FORTUNA]
+    },
+    {
+        id: PR.ACTIVITY_DEIMOS_BOUNTIES,
+        label: "Activity: Deimos Bounties",
+        category: "Systems",
+        description: "Cambion Drift bounty missions for Entrati standing and rewards.",
+        prerequisites: [PR.HUB_NECRALISK]
+    },
+    {
+        id: PR.ACTIVITY_ZARIMAN_BOUNTIES,
+        label: "Activity: Zariman Bounties",
+        category: "Systems",
+        description: "Chrysalith mission board for Holdfasts standing and Zariman rewards.",
+        prerequisites: [PR.HUB_ZARIMAN]
+    },
+    {
+        id: PR.ACTIVITY_CAVIA_BOUNTIES,
+        label: "Activity: Sanctum Anatomica Bounties",
+        category: "Systems",
+        description: "Sanctum Anatomica bounty board for Cavia standing and rewards.",
+        prerequisites: [PR.HUB_SANCTUM]
+    },
+    {
+        id: PR.ACTIVITY_PROFIT_TAKER,
+        label: "Activity: Profit-Taker Orb Heist",
+        category: "Systems",
+        description: "Orb Vallis heist boss. Requires Vox Solaris rank 5 (Old Mate) and Archwing.",
+        prerequisites: [PR.SYNDICATE_VOX_RANK5, PR.ARCHWING]
+    },
+    {
+        id: PR.ACTIVITY_EXPLOITER_ORB,
+        label: "Activity: Exploiter Orb",
+        category: "Systems",
+        description: "Orb Vallis thermia fight. Requires Fortuna access and active Thermia Fractures.",
+        prerequisites: [PR.HUB_FORTUNA]
+    },
+    {
+        id: PR.ACTIVITY_STEEL_PATH,
+        label: "Activity: Steel Path",
+        category: "Systems",
+        description: "Harder star chart toggle (+100 enemy level). Requires all main star chart nodes cleared through The New War.",
+        prerequisites: [PR.JUNCTION_ERIS_KUVA_FORTRESS, PR.NEW_WAR]
+    },
+    {
+        id: PR.ACTIVITY_STEEL_PATH_HONORS,
+        label: "Activity: Steel Path Honors (Teshin's Shop)",
+        category: "Systems",
+        description: "Teshin's Steel Essence shop at any Relay. Requires Steel Path unlocked.",
+        prerequisites: [PR.ACTIVITY_STEEL_PATH, PR.HUB_RELAY]
+    },
+    {
+        id: PR.ACTIVITY_CIRCUIT_STEEL_PATH,
+        label: "Activity: Steel Path Circuit",
+        category: "Systems",
+        description: "Steel Path variant of The Circuit for Incarnon Genesis adapters. Requires The Duviri Paradox and Steel Path.",
+        prerequisites: [PR.DUVIRI_PARADOX, PR.ACTIVITY_STEEL_PATH]
+    },
+    {
+        id: PR.ACTIVITY_VOID_FISSURES,
+        label: "Activity: Void Fissures",
+        category: "Systems",
+        description: "Crack Void Relics to earn Prime parts. Requires Void Relic segment.",
+        prerequisites: [PR.SEGMENT_VOID_RELIC]
+    },
+    {
+        id: PR.ACTIVITY_VOID_STORMS,
+        label: "Activity: Void Storms (Railjack)",
+        category: "Systems",
+        description: "Void Fissures within Railjack missions. Requires Call of the Tempestarii.",
+        prerequisites: [PR.RAILJACK_VOID_STORMS]
+    },
+    {
+        id: PR.ACTIVITY_KUVA_LICH,
+        label: "Activity: Kuva Lich",
+        category: "Systems",
+        description: "Grineer nemesis system for Kuva weapons. Requires The War Within and Kuva Fortress access.",
+        prerequisites: [PR.WAR_WITHIN, PR.JUNCTION_ERIS_KUVA_FORTRESS],
+        conditions: [{ type: "mastery_rank", value: 5 }]
+    },
+    {
+        id: PR.ACTIVITY_SISTER_PARVOS,
+        label: "Activity: Sister of Parvos",
+        category: "Systems",
+        description: "Corpus nemesis system for Tenet weapons. Requires Call of the Tempestarii and The Deadlock Protocol.",
+        prerequisites: [PR.CALL_TEMPESTARII, PR.DEADLOCK_PROTOCOL]
+    },
+    {
+        id: PR.ACTIVITY_VOID_ANGELS,
+        label: "Activity: Void Angels",
+        category: "Systems",
+        description: "Void Angel boss encounters within Zariman missions. Requires Angels of the Zariman.",
+        prerequisites: [PR.HUB_ZARIMAN],
+        showInPlanner: false
+    },
+    {
+        id: PR.ACTIVITY_CONJUNCTION_SURVIVAL,
+        label: "Activity: Conjunction Survival (Zariman)",
+        category: "Systems",
+        description: "Zariman Conjunction Survival mission type. Requires Angels of the Zariman.",
+        prerequisites: [PR.HUB_ZARIMAN],
+        showInPlanner: false
+    },
+    {
+        id: PR.ACTIVITY_VOID_FLOOD,
+        label: "Activity: Void Flood (Zariman)",
+        category: "Systems",
+        description: "Zariman Void Flood mission type. Requires Angels of the Zariman.",
+        prerequisites: [PR.HUB_ZARIMAN],
+        showInPlanner: false
+    },
+    {
+        id: PR.ACTIVITY_MIRROR_DEFENSE,
+        label: "Activity: Mirror Defense (Zariman)",
+        category: "Systems",
+        description: "Zariman Mirror Defense mission type. Requires Angels of the Zariman.",
+        prerequisites: [PR.HUB_ZARIMAN],
+        showInPlanner: false
+    },
+    {
+        id: PR.ACTIVITY_CIRCUIT,
+        label: "Activity: The Circuit (Duviri)",
+        category: "Systems",
+        description: "Circuit run mode in Duviri for Incarnon Genesis adapters. Requires The Duviri Paradox.",
+        prerequisites: [PR.DUVIRI_PARADOX]
+    },
+    {
+        id: PR.ACTIVITY_CIRCUIT_STEEL_PATH_2,
+        label: "Activity: Steel Path Circuit (Duviri)",
+        category: "Systems",
+        description: "Steel Path variant of The Circuit. Requires The Duviri Paradox and Steel Path.",
+        prerequisites: [PR.DUVIRI_PARADOX, PR.ACTIVITY_STEEL_PATH]
+    },
+
 ];
