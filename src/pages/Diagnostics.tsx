@@ -9,6 +9,7 @@ import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { deriveDropDataAcquisitionByCatalogId } from "../catalog/items/acquisitionFromDropData";
 import UNRESOLVED_RAW from "../data/_generated/wfcd-acquisition.unresolved.json";
+import { getDefectSummary, getReleaseBlockingDefects } from "../domain/logic/defectRegistry";
 
 function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {
     return (
@@ -503,8 +504,44 @@ export default function Diagnostics() {
         };
     }, [completeness, dropAcqMapStats, dropMapSanity]);
 
+    const defectSummary = getDefectSummary();
+    const releaseBlockingDefects = getReleaseBlockingDefects();
+
     return (
         <div className="space-y-6">
+            {/* Defect Registry Summary */}
+            <Section
+                title="Defect Registry"
+                subtitle="Aggregated data defects across all catalog sources. Populated at startup; does not require player goals."
+            >
+                {releaseBlockingDefects.length > 0 && (
+                    <div className="mb-4 rounded-xl border border-red-700 bg-red-950/40 px-4 py-3 text-sm text-red-300">
+                        <span className="font-semibold">Release-blocking defects: {releaseBlockingDefects.length}</span>
+                        {" — these must be resolved before deploying."}
+                    </div>
+                )}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <StatCard label="Total defects" value={String(defectSummary.total)} />
+                    <StatCard label="Missing acquisition" value={String(defectSummary.byCategory["missing-acquisition"] ?? 0)} />
+                    <StatCard label="Unknown source refs" value={String(defectSummary.byCategory["unknown-source"] ?? 0)} />
+                    <StatCard label="Unresolved WFCD items" value={String(defectSummary.byCategory["unresolved-wfcd"] ?? 0)} />
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3">
+                    <div className="rounded-xl border border-red-900/60 bg-red-950/20 p-3 text-center">
+                        <div className="text-[11px] uppercase tracking-wide text-red-400">Release-blocking</div>
+                        <div className="mt-1 font-mono text-xl text-red-300">{defectSummary.bySeverity["release-blocking"] ?? 0}</div>
+                    </div>
+                    <div className="rounded-xl border border-amber-900/60 bg-amber-950/20 p-3 text-center">
+                        <div className="text-[11px] uppercase tracking-wide text-amber-400">Warnings</div>
+                        <div className="mt-1 font-mono text-xl text-amber-300">{defectSummary.bySeverity["warning"] ?? 0}</div>
+                    </div>
+                    <div className="rounded-xl border border-slate-700 bg-slate-950/30 p-3 text-center">
+                        <div className="text-[11px] uppercase tracking-wide text-slate-400">Info</div>
+                        <div className="mt-1 font-mono text-xl text-slate-300">{defectSummary.bySeverity["info"] ?? 0}</div>
+                    </div>
+                </div>
+            </Section>
+
             {/* 11.2 Data Coverage Indicator */}
             <Section
                 title="Data Coverage"
