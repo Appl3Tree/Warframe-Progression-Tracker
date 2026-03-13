@@ -28,7 +28,7 @@ npm install
 npm run dev
 ```
 
-Starts the Vite dev server with hot reload at `http://localhost:5173`.
+Starts the Vite dev server with hot reload at `http://localhost:80`.
 
 ---
 
@@ -81,75 +81,103 @@ Starts the Vite dev server with hot reload at `http://localhost:5173`.
 | Junction prereq chain | ✅ Done | `prereqIds.ts` + `prereqRegistry.ts` model each junction's quest and prior-junction requirements |
 | Node/junction impact preview | ⏳ Planned | "If I complete this junction, what unlocks?" not yet surfaced |
 
-### Item Progression
+### Inventory
 
 | Feature | Status | Notes |
 |---|---|---|
-| Full item catalog (Warframes, weapons, companions, vehicles) | ⏳ Planned | |
-| Item availability based on player progress | ⏳ Planned | |
-| Acquisition and requirement breakdown per item | ⏳ Planned | |
-| Bulk progress updates | ⏳ Planned | |
-
-### Mastery Rank
-
-| Feature | Status | Notes |
-|---|---|---|
-| Track mastered vs unmastered items | ⏳ Planned | |
-| Mastery backlog view (owned but not mastered) | ⏳ Planned | |
-| Mastery forecasting ("if I master these, I reach MR X") | ⏳ Planned | |
-| Mastery-efficient next step surfacing | ⏳ Planned | |
+| Item browsing across Warframes, weapons, companions, vehicles | ✅ Done | Powered by multi-source catalog |
+| Ownership tracking | ✅ Done | Per-item ownership state persisted via Zustand |
+| Acquisition breakdown per item | ✅ Done | `itemAcquisition.ts` normalizes multiple upstream sources |
+| Prerequisite chain display | ✅ Done | Quest/junction gate modeling via `prereqEngine.ts` |
+| Resource requirement breakdown | ✅ Done | `requirementEngine.ts` models crafting ingredients |
 
 ### Goal Planning
 
 | Feature | Status | Notes |
 |---|---|---|
-| Add Warframes/weapons/items as goals | ⏳ Planned | |
-| "Available now" filtering for goal selection | ⏳ Planned | |
-| Multi-goal planning with shared dependency merging | ⏳ Planned | |
-| "Almost there" surfacing for near-term unlocks | ⏳ Planned | |
-| Ordering assistance for parallel paths | ⏳ Planned | |
-
-### "What Should I Do Next?"
-
-| Feature | Status | Notes |
-|---|---|---|
-| Suggested next actions (unlock impact, goal proximity, mastery) | ⏳ Planned | |
-| "If I do this, what changes?" impact previews | ⏳ Planned | |
+| Add items as progression goals | ✅ Done | Goals page with recursive dependency expansion |
+| Multi-goal planning with shared dependency merging | ✅ Done | `overlapEngine.ts` merges shared sub-goals |
+| Goal expansion explanation | ✅ Done | `goalExpansion.ts` shows why each node is included |
+| Planner prioritization | ✅ Done | `plannerEngine.ts` surfaces next steps |
+| "Almost there" surfacing | ⏳ Planned | |
 | Session planning modes (short vs. long sessions) | ⏳ Planned | |
 
-### Profile Import
+### Prerequisites & Unlock Graph
 
 | Feature | Status | Notes |
 |---|---|---|
-| Platform selection + public profile import | ⏳ Planned | |
-| Ownership and mastery awareness from import | ⏳ Planned | |
+| Quest and junction gate modeling | ✅ Done | `prereqRegistry.ts` + `prereqEngine.ts` |
+| Prerequisite chain display | ✅ Done | Prerequisites page with collapsible chain view |
+| Unlock graph (what does completing X unlock?) | ✅ Done | `unlockGraph.ts` |
+| Mastery Rank gating | ✅ Done | `masteryEngine.ts` |
+| Milestone gating | ✅ Done | `milestoneEngine.ts` + `milestoneRegistry.ts` |
+
+### Resources & Requirements
+
+| Feature | Status | Notes |
+|---|---|---|
+| Crafting resource requirements per item | ✅ Done | Requirements page + `requirementEngine.ts` |
+| Resource aggregation across goals | ✅ Done | `reserveEngine.ts` manages tracked reserves |
+| Farming location lookup | ✅ Done | `nodeLootIndex.ts` + `starChartNodeDrops.ts` |
+| Source-to-items index | ✅ Done | `sourceToItemsIndex.ts` |
+
+### Import / Export
+
+| Feature | Status | Notes |
+|---|---|---|
+| JSON export/import of player state | ✅ Done | `ExportImport.tsx` + Imports page |
+| Schema migration on load | ✅ Done | `migrations.ts` handles version upgrades |
 | Import preview + merge options | ⏳ Planned | |
+| Platform profile import | ⏳ Planned | |
 
-### Safety & Recovery
+### Diagnostics
 
 | Feature | Status | Notes |
 |---|---|---|
-| Revision history with restore capability | ⏳ Planned | |
-| Named restore points | ⏳ Planned | |
-| What-if planning (simulate without committing) | ⏳ Planned | |
+| Startup validation of catalog integrity | ✅ Done | `startupValidation.ts` runs on app load |
+| Source catalog validation | ✅ Done | `validate:sources` npm script + `validateSources.ts` |
+| Diagnostics page with integrity tools | ✅ Done | |
+| Defect registry (release-blocking checks) | ⏳ Planned | Phase 3 |
+
+### Mastery Rank
+
+| Feature | Status | Notes |
+|---|---|---|
+| Daily standing cap derived from MR | ✅ Done | Used in syndicate calculations |
+| Mastery engine (MR gating logic) | ✅ Done | `masteryEngine.ts` |
+| Track mastered vs unmastered items | ⏳ Planned | |
+| Mastery forecasting ("if I master these, I reach MR X") | ⏳ Planned | |
 
 ### Usability
 
 | Feature | Status | Notes |
 |---|---|---|
+| Persistent player state | ✅ Done | Zustand + localStorage via `persistence.ts` |
+| Reset tracker (daily/weekly reset awareness) | ✅ Done | `WarframeResetTracker.tsx` |
+| Export (JSON) | ✅ Done | |
 | Global search | ⏳ Planned | |
-| Pins/bookmarks for active goals | ⏳ Planned | |
 | Keyboard navigation | ⏳ Planned | |
-| Density controls (compact / spacious) | ⏳ Planned | |
-| Export (checklist / markdown / JSON / screenshot) | ⏳ Planned | |
+| Export (checklist / markdown / screenshot) | ⏳ Planned | |
 
 ---
 
 ## Architecture Notes
 
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full architecture and data pipeline documentation.
+
 ### Data Layers
 
-The Syndicates feature has three distinct layers:
+The application separates concerns into three broad layers:
+
+| Layer | Location | Purpose |
+|---|---|---|
+| Raw data | `src/data/`, `external/` | Upstream datasets (warframe-items, drop data, wiki exports) |
+| Catalog / normalization | `src/catalog/`, `src/domain/catalog/` | Translate raw data into canonical acquisition/requirement models |
+| Logic engines | `src/domain/logic/` | Deterministic reasoning about progression |
+| Player state | `src/store/` | Persisted Zustand store (inventory, goals, syndicate state, missions) |
+| UI | `src/pages/`, `src/components/`, `src/ui/` | React pages and components |
+
+### Syndicate Data Layers
 
 | Layer | File | Purpose |
 |---|---|---|
@@ -161,25 +189,41 @@ The Syndicates feature has three distinct layers:
 
 ```
 src/
-  components/
-    SyndicatesGrid.tsx          # Syndicate page — canonical list, card grid, pledge panel
-    SyndicateDetailsModal.tsx   # Drilldown modal — rank-up transitions, offerings list
   domain/
-    catalog/syndicates/
-      syndicateVendorCatalog.ts # Types + aggregated catalog (getSyndicateVendorEntry)
-      vendorEntries/            # Per-syndicate rank-up and offering data
-    syndicates/
-      ownedOfferings.ts         # Shared utility: owned-map read/write, countOwned
-    ids/
-      syndicateIds.ts           # SY enum — canonical ID constants
+    ids/                        # Canonical ID constants (itemIds, nodeIds, syndicateIds, …)
+    logic/
+      goalExpansion.ts          # Recursive goal dependency expansion
+      unlockGraph.ts            # What does completing X unlock?
+      prereqEngine.ts           # Quest/junction prerequisite chains
+      requirementEngine.ts      # Crafting resource requirements
+      plannerEngine.ts          # Goal-based progression planning
+      masteryEngine.ts          # Mastery Rank gating
+      syndicateEngine.ts        # Standing and rank progression math
+      startupValidation.ts      # Catalog integrity checks on load
+    catalog/
+      loadFullCatalog.ts        # Assembles the full item catalog at runtime
+      starChart/                # Node, planet, junction definitions
+  catalog/
+    items/                      # Acquisition normalization (14 source adapters)
+    sources/                    # Source catalog + validateSources.ts
+    prereqs/                    # prereqRegistry.ts, milestoneRegistry.ts
+    requirements/               # requirementRegistry.ts
+    syndicates/                 # Syndicate rank-up and offerings data
   store/
-    store.ts                    # Zustand store — player state, pledge logic, reserve system
+    store.ts                    # Global Zustand store
+    persistence.ts              # localStorage persistence layer
+    migrations.ts               # Schema version migrations
+  scripts/
+    validateSources.cli.ts      # CLI entry point for `npm run validate:sources`
 ```
 
-### Architecture Notes (Syndicate details)
+### Icon Bundling
 
-- **Icons**: `syndicateIconUrl()` uses `import.meta.glob` over `src/assets/syndicates/*.png`. The bundler fingerprints each file and rewrites URLs at build time, making them immune to deploy base-path configuration. To add an icon, drop the PNG into `src/assets/syndicates/` — no code changes needed.
-- **Rank titles**: `src/domain/catalog/syndicates/rankTitles.ts`. The `getRankTitle(id, rank)` helper covers all 22 syndicates with named ranks; called in `SyndicatesGrid.tsx` and rendered below the rank selector.
+`syndicateIconUrl()` uses `import.meta.glob` over `src/assets/syndicates/*.png`. The bundler fingerprints each file and rewrites URLs at build time. To add an icon, drop the PNG into `src/assets/syndicates/` — no code changes needed.
+
+### Deployment
+
+The app is deployed as a static site to GitHub Pages via `npm run deploy` (runs build then `gh-pages -d dist`).
 
 ---
 
