@@ -4,9 +4,12 @@
 import { SOURCE_CATALOG } from "../../catalog/sources/sourceCatalog";
 import { STAR_CHART_DATA } from "../catalog/starChart";
 
+type ValidationIssueSeverity = "error" | "warning";
+
 type ValidationIssueCode =
     | "SOURCE_ID_INVALID"
     | "SOURCE_ID_DUPLICATE"
+    | "SOURCE_ID_LEGACY_NAMESPACE"
     | "SOURCE_LABEL_INVALID"
     | "STAR_CHART_EMPTY"
     | "STAR_CHART_PLANET_INVALID"
@@ -16,8 +19,17 @@ type ValidationIssueCode =
 
 type ValidationIssue = {
     code: ValidationIssueCode;
+    severity: ValidationIssueSeverity;
     message: string;
 };
+
+function issue(
+    code: ValidationIssueCode,
+    severity: ValidationIssueSeverity,
+    message: string
+): ValidationIssue {
+    return { code, severity, message };
+}
 
 function isNonEmptyString(v: unknown): v is string {
     return typeof v === "string" && v.trim().length > 0;
@@ -27,27 +39,34 @@ function isSrcSourceId(id: string): boolean {
     return id.startsWith("src:");
 }
 
-function isCuratedLikeSourceId(id: string): boolean {
-    return (
-        id.startsWith("system:") ||
-        id.startsWith("node:") ||
-        id.startsWith("vendor:") ||
-        id.startsWith("quest:") ||
-        id.startsWith("syndicate:") ||
-        id.startsWith("faction:") ||
-        id.startsWith("market:") ||
-        id.startsWith("clan:") ||
-        id.startsWith("event:") ||
-        id.startsWith("relic:") ||
-        id.startsWith("bounty:") ||
-        id.startsWith("transient:") ||
-        id.startsWith("activity:") ||
-        id.startsWith("enemy:")
-    );
-}
-
 function isDataDerivedSourceId(id: string): boolean {
     return id.startsWith("data:");
+}
+
+/**
+ * Legacy namespace prefixes that pre-date the data:/src: convention.
+ * These should not appear in SOURCE_CATALOG going forward; any that do
+ * should be migrated to data: or src: in a subsequent pass.
+ */
+const LEGACY_SOURCE_NAMESPACES = [
+    "system:",
+    "node:",
+    "vendor:",
+    "quest:",
+    "syndicate:",
+    "faction:",
+    "market:",
+    "clan:",
+    "event:",
+    "relic:",
+    "bounty:",
+    "transient:",
+    "activity:",
+    "enemy:",
+];
+
+function isLegacyNamespace(id: string): boolean {
+    return LEGACY_SOURCE_NAMESPACES.some((ns) => id === ns.slice(0, -1) || id.startsWith(ns));
 }
 
 function isValidSourceIdFormat(id: string): boolean {
@@ -61,10 +80,7 @@ function isValidSourceIdFormat(id: string): boolean {
 
 function validateSources(issues: ValidationIssue[]): void {
     if (!Array.isArray(SOURCE_CATALOG) || SOURCE_CATALOG.length === 0) {
-        issues.push({
-            code: "SOURCE_LABEL_INVALID",
-            message: "SOURCE_CATALOG is empty or not an array."
-        });
+        issues.push(issue("SOURCE_LABEL_INVALID", "error", "SOURCE_CATALOG is empty or not an array."));
     }
 
     const seen = new Set<string>();
@@ -74,71 +90,50 @@ function validateSources(issues: ValidationIssue[]): void {
         const label = String((s as any)?.label ?? "").trim();
 
         if (!id) {
-            issues.push({
-                code: "SOURCE_ID_INVALID",
-                message: "Source has missing id."
-            });
+            issues.push(issue("SOURCE_ID_INVALID", "error", "Source has missing id."));
             continue;
         }
 
         if (!label) {
-            issues.push({
-                code: "SOURCE_LABEL_INVALID",
-                message: `Source (${id}) has missing label.`
-            });
+            issues.push(issue("SOURCE_LABEL_INVALID", "error", `Source (${id}) has missing label.`));
         }
 
         if (seen.has(id)) {
-            issues.push({
-                code: "SOURCE_ID_DUPLICATE",
-                message: `Duplicate source id: ${id}`
-            });
+            issues.push(issue("SOURCE_ID_DUPLICATE", "error", `Duplicate source id: ${id}`));
         } else {
             seen.add(id);
         }
 
         if (!isValidSourceIdFormat(id)) {
-            issues.push({
-                code: "SOURCE_ID_INVALID",
-                message: `Source has invalid id format: ${id}`
-            });
+            issues.push(issue("SOURCE_ID_INVALID", "error", `Source has invalid id format: ${id}`));
             continue;
         }
 
-        // Allowed namespaces:
-        // - canonical app SourceIds: src:...
-        // - data-derived legacy ids: data:...
-        // - curated-like legacy ids: node:, vendor:, etc
         if (isSrcSourceId(id)) continue;
         if (isDataDerivedSourceId(id)) continue;
 
-        if (!isCuratedLikeSourceId(id)) {
-            issues.push({
-                code: "SOURCE_ID_INVALID",
-                message: `Source has unknown namespace: ${id}`
-            });
+        if (isLegacyNamespace(id)) {
+            // Legacy IDs predate the data:/src: convention. They are accepted for now
+            // but should be migrated. Each occurrence here is a defect to track.
+            issues.push(
+                issue(
+                    "SOURCE_ID_LEGACY_NAMESPACE",
+                    "warning",
+                    `Source uses a legacy namespace that should be migrated to data: or src:. id="${id}"`
+                )
+            );
+            continue;
         }
+
+        issues.push(issue("SOURCE_ID_INVALID", "error", `Source has unknown namespace: ${id}`));
     }
 }
 
-type StarChartValidationMode = "off" | "on";
-
-/**
- * Keep this OFF until Phase 1.5 registries are fully populated.
- * When ON, startup becomes fail-closed for Star Chart correctness.
- */
-const STAR_CHART_VALIDATION_MODE: StarChartValidationMode = "off";
-
 function validateStarChart(issues: ValidationIssue[]): void {
-    if (STAR_CHART_VALIDATION_MODE !== "on") return;
-
     const data = STAR_CHART_DATA;
 
     if (!data || !Array.isArray(data.planets) || !Array.isArray(data.nodes) || data.planets.length === 0 || data.nodes.length === 0) {
-        issues.push({
-            code: "STAR_CHART_EMPTY",
-            message: "STAR_CHART_DATA is missing or empty (planets/nodes required)."
-        });
+        issues.push(issue("STAR_CHART_EMPTY", "error", "STAR_CHART_DATA is missing or empty (planets/nodes required)."));
         return;
     }
 
@@ -152,39 +147,24 @@ function validateStarChart(issues: ValidationIssue[]): void {
         const sortOrder = (p as any)?.sortOrder;
 
         if (!id || id.includes(" ")) {
-            issues.push({
-                code: "STAR_CHART_PLANET_INVALID",
-                message: `Planet has invalid id: ${id || "(missing)"}`
-            });
+            issues.push(issue("STAR_CHART_PLANET_INVALID", "error", `Planet has invalid id: ${id || "(missing)"}`));
             continue;
         }
 
         if (!name) {
-            issues.push({
-                code: "STAR_CHART_PLANET_INVALID",
-                message: `Planet (${id}) has missing name.`
-            });
+            issues.push(issue("STAR_CHART_PLANET_INVALID", "error", `Planet (${id}) has missing name.`));
         }
 
         if (kind !== "planet" && kind !== "hub" && kind !== "region") {
-            issues.push({
-                code: "STAR_CHART_PLANET_INVALID",
-                message: `Planet (${id}) has invalid kind: ${kind}`
-            });
+            issues.push(issue("STAR_CHART_PLANET_INVALID", "error", `Planet (${id}) has invalid kind: ${kind}`));
         }
 
         if (typeof sortOrder !== "number" || !Number.isFinite(sortOrder)) {
-            issues.push({
-                code: "STAR_CHART_PLANET_INVALID",
-                message: `Planet (${id}) has invalid sortOrder.`
-            });
+            issues.push(issue("STAR_CHART_PLANET_INVALID", "error", `Planet (${id}) has invalid sortOrder.`));
         }
 
         if (planetIds.has(id)) {
-            issues.push({
-                code: "STAR_CHART_PLANET_INVALID",
-                message: `Duplicate planet id: ${id}`
-            });
+            issues.push(issue("STAR_CHART_PLANET_INVALID", "error", `Duplicate planet id: ${id}`));
         } else {
             planetIds.add(id);
         }
@@ -198,52 +178,34 @@ function validateStarChart(issues: ValidationIssue[]): void {
         const edges = (n as any)?.edges;
 
         if (!id || id.includes(" ")) {
-            issues.push({
-                code: "STAR_CHART_NODE_INVALID",
-                message: `Node has invalid id: ${id || "(missing)"}`
-            });
+            issues.push(issue("STAR_CHART_NODE_INVALID", "error", `Node has invalid id: ${id || "(missing)"}`));
             continue;
         }
 
         if (!planetId || !planetIds.has(planetId)) {
-            issues.push({
-                code: "STAR_CHART_NODE_INVALID",
-                message: `Node (${id}) references unknown planetId: ${planetId}`
-            });
+            issues.push(issue("STAR_CHART_NODE_INVALID", "error", `Node (${id}) references unknown planetId: ${planetId}`));
         }
 
         if (!name) {
-            issues.push({
-                code: "STAR_CHART_NODE_INVALID",
-                message: `Node (${id}) has missing name.`
-            });
+            issues.push(issue("STAR_CHART_NODE_INVALID", "error", `Node (${id}) has missing name.`));
         }
 
         if (nodeType !== "mission" && nodeType !== "hub" && nodeType !== "junction" && nodeType !== "special") {
-            issues.push({
-                code: "STAR_CHART_NODE_INVALID",
-                message: `Node (${id}) has invalid nodeType: ${nodeType}`
-            });
+            issues.push(issue("STAR_CHART_NODE_INVALID", "error", `Node (${id}) has invalid nodeType: ${nodeType}`));
         }
 
         if (!Array.isArray(edges)) {
-            issues.push({
-                code: "STAR_CHART_NODE_INVALID",
-                message: `Node (${id}) has non-array edges.`
-            });
+            issues.push(issue("STAR_CHART_NODE_INVALID", "error", `Node (${id}) has non-array edges.`));
         }
 
         if (nodeIds.has(id)) {
-            issues.push({
-                code: "STAR_CHART_NODE_INVALID",
-                message: `Duplicate node id: ${id}`
-            });
+            issues.push(issue("STAR_CHART_NODE_INVALID", "error", `Duplicate node id: ${id}`));
         } else {
             nodeIds.add(id);
         }
     }
 
-    // Edge validation after nodeIds set is complete
+    // Edge validation: broken edge references are warnings (data defects, not structural failures).
     for (const n of data.nodes) {
         const id = String((n as any)?.id ?? "").trim();
         const edges = (n as any)?.edges;
@@ -255,10 +217,13 @@ function validateStarChart(issues: ValidationIssue[]): void {
             if (!edgeId) continue;
 
             if (!nodeIds.has(edgeId)) {
-                issues.push({
-                    code: "STAR_CHART_NODE_EDGE_INVALID",
-                    message: `Node (${id}) has edge to unknown nodeId: ${edgeId}`
-                });
+                issues.push(
+                    issue(
+                        "STAR_CHART_NODE_EDGE_INVALID",
+                        "warning",
+                        `Node (${id}) has edge to unknown nodeId: ${edgeId}`
+                    )
+                );
             }
         }
     }
@@ -274,25 +239,35 @@ function validateStarChart(issues: ValidationIssue[]): void {
         const prereqIds = (n as any)?.prereqIds;
 
         if (!unlocksPlanetId || !planetIds.has(unlocksPlanetId)) {
-            issues.push({
-                code: "STAR_CHART_JUNCTION_NODE_INVALID",
-                message: `Junction node (${id}) has invalid unlocksPlanetId: ${unlocksPlanetId || "(missing)"}`
-            });
+            issues.push(
+                issue(
+                    "STAR_CHART_JUNCTION_NODE_INVALID",
+                    "error",
+                    `Junction node (${id}) has invalid unlocksPlanetId: ${unlocksPlanetId || "(missing)"}`
+                )
+            );
         }
 
-        if (!Array.isArray(prereqIds) || prereqIds.length === 0) {
-            issues.push({
-                code: "STAR_CHART_JUNCTION_NODE_INVALID",
-                message: `Junction node (${id}) prereqIds must be a non-empty array.`
-            });
+        // prereqIds must be an array; empty is allowed (root junction has no prerequisites).
+        if (!Array.isArray(prereqIds)) {
+            issues.push(
+                issue(
+                    "STAR_CHART_JUNCTION_NODE_INVALID",
+                    "error",
+                    `Junction node (${id}) prereqIds must be an array (may be empty for the root junction).`
+                )
+            );
         } else {
             for (const pr of prereqIds) {
                 const prId = String(pr ?? "").trim();
                 if (!prId) {
-                    issues.push({
-                        code: "STAR_CHART_JUNCTION_NODE_INVALID",
-                        message: `Junction node (${id}) has empty prereq id.`
-                    });
+                    issues.push(
+                        issue(
+                            "STAR_CHART_JUNCTION_NODE_INVALID",
+                            "error",
+                            `Junction node (${id}) has empty prereq id.`
+                        )
+                    );
                 }
             }
         }
@@ -305,9 +280,18 @@ export function validateDataOrThrow(): void {
     validateSources(issues);
     validateStarChart(issues);
 
-    if (issues.length > 0) {
-        const lines = issues.map((i) => `- [${i.code}] ${i.message}`);
-        throw new Error(`Data integrity validation failed:\n${lines.join("\n")}`);
+    const errors = issues.filter((i) => i.severity === "error");
+    const warnings = issues.filter((i) => i.severity === "warning");
+
+    if (warnings.length > 0) {
+        console.warn(
+            `[startup-validation] ${warnings.length} warning(s):\n` +
+            warnings.map((w) => `  WARN [${w.code}] ${w.message}`).join("\n")
+        );
+    }
+
+    if (errors.length > 0) {
+        const lines = errors.map((e) => `  ERR  [${e.code}] ${e.message}`);
+        throw new Error(`Data integrity validation failed (${errors.length} error(s)):\n${lines.join("\n")}`);
     }
 }
-

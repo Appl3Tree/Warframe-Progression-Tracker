@@ -271,7 +271,42 @@ the `dist/` directory to the `gh-pages` branch using the `gh-pages` package.
 
 ---
 
+## Data Ownership
+
+Each data domain has exactly one authoritative source. Other files must derive from or
+reference the authority — never define their own copy.
+
+| Domain | Authoritative file | What it owns |
+|---|---|---|
+| Item catalog IDs | `src/domain/ids/itemIds.ts` (`CI` enum) | Canonical string ID for every trackable item |
+| Planet / region / hub definitions | `src/domain/catalog/starChart/planets.ts` | All `planet:`, `region:`, `hub:` IDs; name; kind; sort order |
+| Mission node definitions | `src/domain/catalog/starChart/nodes.ts` | All `node:` IDs; planetId references; edges; nodeType |
+| Junction prerequisites | `src/domain/catalog/starChart/nodes.ts` | `prereqIds` on each junction node |
+| Prerequisite gate definitions | `src/catalog/prereqs/prereqRegistry.ts` | What each `PR.*` gate requires (quest, junction, MR) |
+| Milestone gate definitions | `src/catalog/prereqs/milestoneRegistry.ts` | Milestone unlock conditions |
+| Acquisition source definitions | `src/catalog/sources/curatedSources.ts` + `sourceCatalog.ts` | All `Source` entries in `SOURCE_CATALOG` |
+| Source ID format | `src/domain/ids/sourceIds.ts` | `SourceId` branded type; `normalizeSourceId()` |
+| Crafting requirements | `src/catalog/requirements/requirementRegistry.ts` | Ingredient lists per item |
+| Syndicate rank/offering data | `src/catalog/syndicates/syndicatesIndex.ts` | Rank-up costs, offerings, vendor groupings |
+| Player state schema | `src/store/store.ts` | Shape of persisted Zustand state |
+| Store schema version | `src/store/migrations.ts` | Migration chain; current schema version |
+
+### Source ID Canonical Namespaces
+
+All source IDs must use one of these canonical prefixes:
+
+| Prefix | Meaning | Example |
+|---|---|---|
+| `src:` | App-defined runtime source | `src:crafting` |
+| `data:` | Data-derived source (auto-generated or curated) | `data:vendor/baro`, `data:relic/lith/a1` |
+
+Legacy namespace prefixes (`node:`, `vendor:`, `quest:`, `market:`, etc.) pre-date
+this convention. Any source ID with a legacy prefix is a defect to be migrated.
+The startup validator emits a `SOURCE_ID_LEGACY_NAMESPACE` warning for each one found.
+
+---
+
 ## Development Phases (Reference)
 
 See the task description / project notes for the full 12-phase development plan.
-Current work targets **Phase 1 — Repository Integrity**.
+Current work targets **Phase 2 — Canonical Data Enforcement**.
