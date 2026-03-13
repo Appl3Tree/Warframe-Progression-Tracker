@@ -13,6 +13,7 @@ dist-ssr
 *.local
 .jython_cache
 tmp/
+*.env
 
 # Editor directories and files
 .vscode/*
