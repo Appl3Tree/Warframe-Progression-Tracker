@@ -15,7 +15,7 @@ export const NAV_ROUTES: NavRoute[] = [
     { key: "syndicates", label: "Syndicates", desc: "Syndicate standing and ranks." },
     { key: "goals", label: "Goals", desc: "Personal goal portfolio." },
     { key: "requirements", label: "Farming", desc: "Targeted vs Overlap across goals + syndicates." },
-    { key: "systems", label: "Systems", desc: "Nightwave/Kahl etc. (separate section)." },
+    { key: "handbook", label: "Handbook", desc: "Game mechanics, quest order, and farming guides." },
     { key: "imports", label: "Import / Export", desc: "Progress Pack tools." },
     { key: "settings", label: "Settings", desc: "App preferences." },
     { key: "diagnostics", label: "Diagnostics", desc: "Validation and debug output." }

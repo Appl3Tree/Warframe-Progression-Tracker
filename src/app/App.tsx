@@ -10,7 +10,7 @@ import Prerequisites from "../pages/Prerequisites";
 import Syndicates from "../pages/Syndicates";
 import Goals from "../pages/Goals";
 import Requirements from "../pages/Requirements";
-import Systems from "../pages/Systems";
+import Handbook from "../pages/Handbook";
 import Imports from "../pages/Imports";
 import Settings from "../pages/Settings";
 import Diagnostics from "../pages/Diagnostics";
@@ -23,7 +23,7 @@ const PAGE_COMPONENTS: Record<PageKey, React.ReactNode> = {
     syndicates: <Syndicates />,
     goals: <Goals />,
     requirements: <Requirements />,
-    systems: <Systems />,
+    handbook: <Handbook />,
     imports: <Imports />,
     settings: <Settings />,
     diagnostics: <Diagnostics />

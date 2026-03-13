@@ -289,8 +289,10 @@ function mergeProgressPackIntoState(current: UserStateV2, incoming: any): UserSt
     }
 
     if (incoming.ui) {
+        // "systems" was renamed to "handbook" in Phase 4.
+        const rawPage = incoming.ui.activePage === "systems" ? "handbook" : incoming.ui.activePage;
         next.ui = {
-            activePage: (incoming.ui.activePage as PageKey) ?? next.ui.activePage,
+            activePage: (rawPage as PageKey) ?? next.ui.activePage,
             expandedGoalNodes: {
                 ...next.ui.expandedGoalNodes,
                 ...((incoming.ui as any).expandedGoalNodes as Record<string, boolean> | undefined)

@@ -12,7 +12,7 @@ export type PageKey =
     | "syndicates"
     | "goals"
     | "requirements"
-    | "systems"
+    | "handbook"
     | "imports"
     | "settings"
     | "diagnostics"
