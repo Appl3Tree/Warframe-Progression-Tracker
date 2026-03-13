@@ -190,7 +190,8 @@ function validateStarChart(issues: ValidationIssue[]): void {
             issues.push(issue("STAR_CHART_NODE_INVALID", "error", `Node (${id}) has missing name.`));
         }
 
-        if (nodeType !== "mission" && nodeType !== "hub" && nodeType !== "junction" && nodeType !== "special") {
+        const VALID_NODE_TYPES = new Set(["mission", "boss", "quest", "hub", "junction", "special"]);
+        if (!VALID_NODE_TYPES.has(nodeType)) {
             issues.push(issue("STAR_CHART_NODE_INVALID", "error", `Node (${id}) has invalid nodeType: ${nodeType}`));
         }
 
