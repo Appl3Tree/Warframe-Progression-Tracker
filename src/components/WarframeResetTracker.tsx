@@ -9,7 +9,7 @@
 //    weekly (Fri 00:00 UTC) split — Conclave runs on a separate cadence.
 //  - "Customize" panel lets users permanently hide tasks they don't care about.
 //  - If every eligible task in a bucket is hidden, the timer card is suppressed.
-//  - Baro Ki'Teer reference row is live-computed (anchor 2026-03-20T00:00Z, bi-weekly, 48h window).
+//  - Baro Ki'Teer reference row is live-computed (anchor 2026-03-20T13:00Z, bi-weekly, 48h window).
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTrackerStore } from "../store/store";
@@ -108,8 +108,8 @@ const RESET_KEY: Partial<Record<Bucket, keyof RCState>> = {
     weekly_monday:   "weeklyMondayResetKey",
 };
 
-// Baro anchor — 2026-03-20T00:00:00Z, every 14 days, available 48 h
-const BARO_ANCHOR_MS  = Date.UTC(2026, 2, 20, 0, 0, 0); // month is 0-indexed
+// Baro anchor — 2026-03-20T13:00:00Z, every 14 days, available 48 h
+const BARO_ANCHOR_MS  = Date.UTC(2026, 2, 20, 13, 0, 0); // month is 0-indexed
 const BARO_PERIOD_MS  = 14 * 86_400_000;
 const BARO_WINDOW_MS  = 2  * 86_400_000;
 
@@ -317,7 +317,7 @@ function getBaroStatus(now: Date): { present: boolean; label: string; detail: st
     return {
         present:     false,
         label:       "Baro Ki'Teer",
-        detail:      `Arrives in ${fmtMs(until)} · Every other Friday at 00:00 UTC, 48 h window`,
+        detail:      `Arrives in ${fmtMs(until)} · Every other Friday at 13:00 UTC, 48 h window`,
         timeLeftMs:  0,
         timeUntilMs: until,
     };

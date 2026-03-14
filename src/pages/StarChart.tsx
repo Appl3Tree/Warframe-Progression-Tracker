@@ -729,6 +729,8 @@ function StarChartMap(props: {
     setSteelPathMode: React.Dispatch<React.SetStateAction<boolean>>;
     /** Navigate to a different map view (proxima / duviri) */
     setMainMapMode: (mode: "normal" | "proxima" | "duviri") => void;
+    /** Hide the Proxima / Duviri nav buttons — true when already inside a sub-map */
+    hideAlternateMaps?: boolean;
     /** Optional filter controlling which planets appear — defaults to isInMainMap */
     planetFilter?: (p: StarChartPlanet) => boolean;
 }) {
@@ -753,6 +755,7 @@ function StarChartMap(props: {
         steelPathMode,
         setSteelPathMode,
         setMainMapMode,
+        hideAlternateMaps = false,
         planetFilter = isInMainMap,
     } = props;
 
@@ -1724,7 +1727,7 @@ function StarChartMap(props: {
     return (
         <div className={["relative w-full", isInModal ? "h-full" : "h-[72vh] min-h-[560px]"].join(" ")}>
             {showDropsPanel && (
-                <div className="absolute bottom-4 right-4 top-4 z-40 w-[520px] max-w-[42vw] pointer-events-none">
+                <div className="absolute inset-0 z-40 sm:inset-y-4 sm:left-auto sm:right-4 sm:w-[520px] sm:max-w-[42vw] pointer-events-none">
                     <div className="pointer-events-auto h-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/55 backdrop-blur-sm">
                         <div className="h-full overflow-auto overscroll-contain p-3">
                             <div className="flex items-start justify-between gap-2">
@@ -2461,7 +2464,7 @@ function StarChartMap(props: {
                 </div>
 
                 {/* ── Alternative map buttons (top-right) ─────────────────── */}
-                <div className="absolute right-3 top-3 z-30 flex flex-col gap-2">
+                {!hideAlternateMaps && <div className="absolute right-3 top-3 z-30 flex flex-col gap-2">
                     {/* Railjack / Proxima */}
                     <button
                         className="group flex h-14 w-14 flex-col items-center justify-center gap-1 overflow-hidden rounded-xl border border-slate-600 bg-slate-950/80 backdrop-blur-sm hover:border-cyan-500/60 hover:bg-slate-900/90 transition-colors"
@@ -2493,7 +2496,7 @@ function StarChartMap(props: {
                         </svg>
                         <span className="text-[9px] font-semibold uppercase tracking-widest text-slate-400 group-hover:text-purple-300 transition-colors">Duviri</span>
                     </button>
-                </div>
+                </div>}
             </div>
         </div>
     );
@@ -2790,6 +2793,7 @@ function StarChartProximaView({ onBack }: { onBack: () => void }) {
                     selectedGroupBaseNodeId={selectedGroup?.baseNodeId ?? null}
                     steelPathMode={steelPathMode} setSteelPathMode={setSteelPathMode}
                     setMainMapMode={() => {}}
+                    hideAlternateMaps={true}
                     planetFilter={isProximaPlanet}
                 />
             </div>
