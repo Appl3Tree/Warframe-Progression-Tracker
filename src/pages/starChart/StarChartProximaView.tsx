@@ -32,7 +32,8 @@ function StarChartProximaView({ onBack }: { onBack: () => void }) {
     const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
     const [selectedTab, setSelectedTab] = useState<NodeGroupKind>("base");
     const [vb, setVb] = useState<ViewBox>(PROXIMA_INITIAL_VB);
-    const [steelPathMode, setSteelPathMode] = useState(false);
+    // Railjack/Proxima has no Steel Path variant — always use normal mode.
+    const steelPathMode = false;
 
     const sourceToItemsIndex = useMemo(() => buildSourceToItemsIndex(), []);
 
@@ -127,7 +128,7 @@ function StarChartProximaView({ onBack }: { onBack: () => void }) {
                     showDropsPanel={showDropsPanel}
                     junctionNode={junctionNode}
                     selectedGroupBaseNodeId={selectedGroup?.baseNodeId ?? null}
-                    steelPathMode={steelPathMode} setSteelPathMode={setSteelPathMode}
+                    steelPathMode={steelPathMode}
                     setMainMapMode={() => {}}
                     hideAlternateMaps={true}
                     planetFilter={isProximaPlanet}

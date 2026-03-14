@@ -178,7 +178,7 @@ export default function StarChart() {
         tabsForPanel, activeTab, focusedTitle,
         showDropsPanel, junctionNode,
         selectedGroupBaseNodeId: selectedGroup?.baseNodeId ?? null,
-        steelPathMode, setSteelPathMode,
+        steelPathMode,
         setMainMapMode,
     };
 
@@ -215,6 +215,22 @@ export default function StarChart() {
                                 List
                             </button>
                         </div>
+
+                        {/* Steel Path toggle — visible in normal map and list modes */}
+                        {(viewMode === "list" || mainMapMode === "normal") && (
+                            <button
+                                className={[
+                                    "rounded-lg border px-3 py-2 text-sm font-semibold transition-colors",
+                                    steelPathMode
+                                        ? "border-amber-500/70 bg-amber-950/60 text-amber-300 hover:bg-amber-900/80"
+                                        : "border-slate-700 bg-slate-950/20 text-slate-400 hover:bg-slate-900/40 hover:text-slate-200"
+                                ].join(" ")}
+                                title={steelPathMode ? "Tracking Steel Path completions — click to switch to Normal" : "Tracking Normal completions — click to switch to Steel Path"}
+                                onClick={() => setSteelPathMode((v) => !v)}
+                            >
+                                {steelPathMode ? "Steel Path" : "Normal"}
+                            </button>
+                        )}
 
                         {viewMode === "map" && mainMapMode === "normal" && (
                             <>
