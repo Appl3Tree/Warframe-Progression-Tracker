@@ -21,6 +21,7 @@ import { migrateToUserStateV2 } from "./migrations";
 import { parseProfileViewingData } from "../utils/profileImport";
 import { SY } from "../domain/ids/syndicateIds";
 import { validateDataOrThrow } from "../domain/logic/startupValidation";
+import { PERSIST_KEY, PERSIST_VERSION } from "./persistence";
 import {
     nowIso, uid,
     getCurrentPrimaryDailyResetKey,
@@ -114,8 +115,6 @@ export interface TrackerStore {
     setSteelPathNodeCompleted: (starChartNodeId: string, completed: boolean) => void;
     setBulkSteelPathNodesCompleted: (starChartNodeIds: string[], completed: boolean) => void;
 }
-
-const PERSIST_KEY = "wf_tracker_state_v3";
 
 export const useTrackerStore = create<TrackerStore>()(
     persist(
@@ -747,7 +746,7 @@ export const useTrackerStore = create<TrackerStore>()(
         })),
         {
             name: PERSIST_KEY,
-            version: 6,
+            version: PERSIST_VERSION,
             migrate: (persistedState: any) => {
                 const raw = persistedState?.state ?? persistedState;
                 const migrated = migrateToUserStateV2(raw);

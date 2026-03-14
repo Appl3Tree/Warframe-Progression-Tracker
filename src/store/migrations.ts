@@ -2,6 +2,14 @@
 import { z } from "zod";
 import type { UserStateV2 } from "../domain/models/userState";
 import type { ResetDisplayMode } from "../domain/types";
+import {
+    nowIso,
+    normalizeStringArray,
+    getCurrentPrimaryDailyResetKey,
+    getCurrentSecondaryDailyResetKey,
+    getCurrentWeeklyMondayResetKey,
+    getCurrentWeeklyFridayResetKey,
+} from "./storeUtils";
 
 const LegacyPayloadSchema = z
     .object({
@@ -24,7 +32,7 @@ const UserStateV1Schema = z
             .passthrough(),
         player: z
             .object({
-                platform: z.literal("PC"),
+                platform: z.string(),
                 displayName: z.string(),
                 masteryRank: z.number().nullable()
             })
@@ -58,7 +66,7 @@ const UserStateV2Schema = z
             .passthrough(),
         player: z
             .object({
-                platform: z.literal("PC"),
+                platform: z.string(),
                 displayName: z.string(),
                 masteryRank: z.number().nullable()
             })
@@ -83,44 +91,6 @@ const UserStateV2Schema = z
         goals: z.any().optional()
     })
     .passthrough();
-
-function nowIso(): string {
-    return new Date().toISOString();
-}
-
-function utcDateKey(date: Date): string {
-    return date.toISOString().slice(0, 10);
-}
-
-function getCurrentPrimaryDailyResetKey(now: Date): string {
-    return utcDateKey(now);
-}
-
-function getCurrentSecondaryDailyResetKey(now: Date): string {
-    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 17, 0, 0, 0));
-    if (now.getTime() >= start.getTime()) {
-        return utcDateKey(start);
-    }
-
-    start.setUTCDate(start.getUTCDate() - 1);
-    return utcDateKey(start);
-}
-
-function getCurrentWeeklyMondayResetKey(now: Date): string {
-    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-    const day = start.getUTCDay();
-    const diffToMonday = (day + 6) % 7;
-    start.setUTCDate(start.getUTCDate() - diffToMonday);
-    return utcDateKey(start);
-}
-
-function getCurrentWeeklyFridayResetKey(now: Date): string {
-    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-    const day = start.getUTCDay();
-    const diffToFriday = (day + 2) % 7;
-    start.setUTCDate(start.getUTCDate() - diffToFriday);
-    return utcDateKey(start);
-}
 
 function normalizeInventory(raw: any): any {
     const inv = raw && typeof raw === "object" ? raw : {};
@@ -174,7 +144,11 @@ function normalizeMastery(raw: any): { xpByItem: Record<string, number>; mastere
     return { xpByItem, mastered: masteredMap };
 }
 
-function normalizeMissions(raw: any): { completesByTag: Record<string, number> } {
+function normalizeMissions(raw: any): {
+    completesByTag: Record<string, number>;
+    nodeCompleted?: Record<string, boolean>;
+    steelPathNodeCompleted?: Record<string, boolean>;
+} {
     const m = raw && typeof raw === "object" ? raw : {};
     const c =
         (m as any).completesByTag && typeof (m as any).completesByTag === "object"
@@ -188,7 +162,25 @@ function normalizeMissions(raw: any): { completesByTag: Record<string, number> }
         completesByTag[k] = Math.max(0, Math.floor(n));
     }
 
-    return { completesByTag };
+    const result: ReturnType<typeof normalizeMissions> = { completesByTag };
+
+    if ((m as any).nodeCompleted && typeof (m as any).nodeCompleted === "object") {
+        const nc: Record<string, boolean> = {};
+        for (const [k, v] of Object.entries((m as any).nodeCompleted as Record<string, unknown>)) {
+            if (v === true) nc[k] = true;
+        }
+        result.nodeCompleted = nc;
+    }
+
+    if ((m as any).steelPathNodeCompleted && typeof (m as any).steelPathNodeCompleted === "object") {
+        const sp: Record<string, boolean> = {};
+        for (const [k, v] of Object.entries((m as any).steelPathNodeCompleted as Record<string, unknown>)) {
+            if (v === true) sp[k] = true;
+        }
+        result.steelPathNodeCompleted = sp;
+    }
+
+    return result;
 }
 
 function normalizePrereqsCompleted(raw: any): Record<string, boolean> {
@@ -204,21 +196,6 @@ function normalizePrereqsCompleted(raw: any): Record<string, boolean> {
 function normalizeGoals(raw: any): any[] {
     if (!Array.isArray(raw)) return [];
     return raw.filter((g) => g && typeof g === "object");
-}
-
-function normalizeStringArray(raw: unknown): string[] {
-    if (!Array.isArray(raw)) return [];
-    const out: string[] = [];
-    const seen = new Set<string>();
-
-    for (const v of raw) {
-        const s = String(v ?? "").trim();
-        if (!s || seen.has(s)) continue;
-        seen.add(s);
-        out.push(s);
-    }
-
-    return out;
 }
 
 function normalizeResetChecklist(raw: any) {
