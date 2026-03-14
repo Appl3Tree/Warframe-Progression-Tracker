@@ -4,6 +4,7 @@
 import { SY } from "../../domain/ids/syndicateIds";
 import type { SyndicateVendorEntry } from "../../domain/catalog/syndicates/syndicateVendorCatalog";
 import { CANONICAL_SYNDICATES, type CanonicalSyndicate, type Relationship } from "./syndicateData";
+import { getStandingCapPerDay } from "../../domain/logic/syndicateEngine";
 
 export function pillClass(active: boolean): string {
     return [
@@ -59,7 +60,7 @@ export function standingRangeForSyndicate(
 
 export function computeDailyStandingCap(mr: number | null): { cap: number; isEstimated: boolean } {
     const m = mr === null ? 0 : Math.max(0, Math.floor(mr));
-    return { cap: (m * 500) + 16000, isEstimated: mr === null };
+    return { cap: getStandingCapPerDay(m), isEstimated: mr === null };
 }
 
 export function findCanonNameById(id: string): string {
