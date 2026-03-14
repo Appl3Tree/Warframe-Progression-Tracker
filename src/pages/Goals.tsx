@@ -5,7 +5,8 @@
 //   GoalCard.tsx        — individual goal expansion card
 //   GoalsModal.tsx      — full-screen overlay tree modal
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
 import { buildRequirementsSnapshot } from "../domain/logic/requirementEngine";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
@@ -13,7 +14,7 @@ import { EMPTY_OBJ, EMPTY_ARR, type GoalRow, type GoalsTab, safeInt } from "./go
 import { GoalCard } from "./goals/GoalCard";
 import { TreeStyles } from "./goals/GoalsTreeView";
 
-function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {
+function Section(props: { title: string; subtitle?: string; children: ReactNode }) {
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
             <div className="text-lg font-semibold">{props.title}</div>

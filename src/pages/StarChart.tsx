@@ -8,7 +8,8 @@
 //   StarChartDuviriView.tsx  — Duviri experience panels
 //   StarChartModal.tsx    — full-screen overlay modal wrapper
 
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import type { PlanetId, StarChartNode, StarChartPlanet } from "../domain/models/starChart";
 import { STAR_CHART_DATA } from "../domain/catalog/starChart";
 import {
@@ -26,7 +27,7 @@ import { StarChartProximaView } from "./starChart/StarChartProximaView";
 import { StarChartDuviriView } from "./starChart/StarChartDuviriView";
 import { StarChartModalStyles, StarChartModal } from "./starChart/StarChartModal";
 
-function Section(props: { title: string; subtitle?: string; children: React.ReactNode; actions?: React.ReactNode }) {
+function Section(props: { title: string; subtitle?: string; children: ReactNode; actions?: ReactNode }) {
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">

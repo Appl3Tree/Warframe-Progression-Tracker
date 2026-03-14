@@ -1,12 +1,14 @@
 // ===== FILE: src/pages/Inventory.tsx =====
 // src/pages/Inventory.tsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
 import { useTrackerStore } from "../store/store";
 import { determineItemAvailability, getBlockingReasons } from "../domain/logic/plannerEngine";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { getItemRequirements } from "../catalog/items/itemRequirements";
+import { uid, nowIso } from "../store/storeUtils";
 
 type PrimaryTab =
     | "all"
@@ -47,7 +49,7 @@ function safeInt(v: unknown, fallback = 0): number {
     return Math.max(0, Math.floor(n));
 }
 
-function Section(props: { title: string; children: React.ReactNode }) {
+function Section(props: { title: string; children: ReactNode }) {
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
             <div className="text-lg font-semibold">{props.title}</div>
@@ -877,22 +879,26 @@ export default function Inventory() {
                 st.state.goals = kept;
             } else {
                 // Set goal=qty for filtered ids (create if missing)
+                const iso = nowIso();
                 for (const cid of ids) {
                     const idx = idxByCatalogId.get(cid);
                     if (idx === undefined) {
                         nextGoals.push({
-                            id: `goal:item:${cid}`,
+                            id: uid("goal"),
                             type: "item",
                             catalogId: cid,
                             qty,
-                            isActive: true
+                            isActive: true,
+                            createdAtIso: iso,
+                            updatedAtIso: iso
                         });
                     } else {
                         const g = nextGoals[idx];
                         nextGoals[idx] = {
                             ...g,
                             qty,
-                            isActive: true
+                            isActive: true,
+                            updatedAtIso: iso
                         };
                     }
                 }
@@ -900,7 +906,7 @@ export default function Inventory() {
             }
 
             if (st?.state?.meta) {
-                st.state.meta.updatedAtIso = new Date().toISOString();
+                st.state.meta.updatedAtIso = nowIso();
             }
         });
     }

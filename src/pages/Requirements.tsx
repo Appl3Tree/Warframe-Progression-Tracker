@@ -1,5 +1,6 @@
 // ===== FILE: src/pages/Requirements.tsx =====
 import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
 import {
     buildRequirementsSnapshot,
@@ -12,7 +13,7 @@ function normalize(s: string): string {
     return s.trim().toLowerCase();
 }
 
-function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {
+function Section(props: { title: string; subtitle?: string; children: ReactNode }) {
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
             <div className="text-lg font-semibold">{props.title}</div>

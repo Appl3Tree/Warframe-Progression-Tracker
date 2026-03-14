@@ -1,7 +1,8 @@
 // StarChartModal — full-screen overlay modal wrapper for the star chart.
 // Extracted from StarChart.tsx as part of Phase 5 file decomposition.
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
+import type { ReactNode } from "react";
 
 function StarChartModalStyles() {
     return (
@@ -83,7 +84,7 @@ function StarChartModalStyles() {
     );
 }
 
-function StarChartModal(props: { isOpen: boolean; title: string; subtitle: string; onClose: () => void; children: React.ReactNode }) {
+function StarChartModal(props: { isOpen: boolean; title: string; subtitle: string; onClose: () => void; children: ReactNode }) {
     const { isOpen, title, subtitle, onClose, children } = props;
 
     useEffect(() => {
