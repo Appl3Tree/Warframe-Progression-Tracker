@@ -558,15 +558,25 @@ export function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
     const base = byKind.get("base") ?? null;
     const all = byKind.get("all") ?? null;
 
-    const mrSet = new Set<string>((mr?.items ?? []).map((x) => itemNameKey(x.name)));
+    const mrSetRaw = new Set<string>((mr?.items ?? []).map((x) => itemNameKey(x.name)));
     const cachesSetRaw = new Set<string>((caches?.items ?? []).map((x) => itemNameKey(x.name)));
     const baseSetRaw = new Set<string>((base?.items ?? []).map((x) => itemNameKey(x.name)));
 
+    // Priority: caches → mission_rewards → base.
+    // Caches wins first so that nodes whose *only* drop table is a (Caches) variant
+    // (e.g. Kuva Fortress / Dakata) show their rewards in the Caches pill, not MR.
     const cachesSet = new Set<string>();
     for (const k of cachesSetRaw) {
         if (!k) continue;
-        if (mrSet.has(k)) continue;
         cachesSet.add(k);
+    }
+
+    // MR loses items already claimed by Caches.
+    const mrSet = new Set<string>();
+    for (const k of mrSetRaw) {
+        if (!k) continue;
+        if (cachesSet.has(k)) continue;
+        mrSet.add(k);
     }
 
     const baseSet = new Set<string>();
@@ -586,7 +596,7 @@ export function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
 
     for (const s of specs) {
         if (s.kind === "mission_rewards") {
-            outSpecs.push({ ...s, items: dedupeItemsByName(s.items) });
+            outSpecs.push({ ...s, items: filterItems(s.items, mrSet) });
             continue;
         }
         if (s.kind === "caches") {
