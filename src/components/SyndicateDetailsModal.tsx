@@ -820,8 +820,8 @@ export default function SyndicateDetailsModal(props: {
         }, sumCosts([]));
     }, [filteredOfferings, owned]);
 
-    const rankUpSum = useMemo(() => {
-        if (!rankUps.length) return sumCosts([]);
+    const { rankUpSum, rankUpIsComplete } = useMemo(() => {
+        if (!rankUps.length) return { rankUpSum: sumCosts([]), rankUpIsComplete: false };
 
         const byRank = new Map<number, SyndicateRankUpRequirement>();
         for (const r of rankUps) {
@@ -829,16 +829,26 @@ export default function SyndicateDetailsModal(props: {
         }
 
         const ranks = [...byRank.keys()].sort((a, b) => a - b);
-        if (ranks.length < 2) return sumCosts([]);
+        if (ranks.length < 2) return { rankUpSum: sumCosts([]), rankUpIsComplete: false };
 
         const currentRank = props.playerRank ?? 0;
-        // Only sum transitions the player hasn't completed yet (toRank > currentRank)
-        return ranks.slice(1).filter((toRank) => toRank > currentRank).reduce((acc, toRank) => {
+        const maxRank = ranks[ranks.length - 1];
+        const pendingRanks = ranks.slice(1).filter((toRank) => toRank > currentRank);
+
+        if (pendingRanks.length === 0) {
+            return { rankUpSum: sumCosts([]), rankUpIsComplete: true };
+        }
+
+        // Sum only unchecked costs in pending transitions
+        const sum = pendingRanks.reduce((acc, toRank) => {
             const to = byRank.get(toRank);
             const costs = Array.isArray((to as any)?.costs) ? ((to as any).costs as SyndicateCostLine[]) : [];
-            return mergeCostSums(acc, sumCosts(costs));
+            const unchecked = costs.filter((c) => !rankChecklist[checklistKeyForCost(toRank, c)]);
+            return mergeCostSums(acc, sumCosts(unchecked));
         }, sumCosts([]));
-    }, [rankUps, props.playerRank]);
+
+        return { rankUpSum: sum, rankUpIsComplete: currentRank >= maxRank };
+    }, [rankUps, props.playerRank, rankChecklist]);
 
     if (!props.open) return null;
 
@@ -1077,19 +1087,25 @@ export default function SyndicateDetailsModal(props: {
                                     <>
                                         <div className="mt-3">
                                             <div className="text-xs text-slate-400 mb-2">
-                                                {(props.playerRank ?? 0) > 0
-                                                    ? `Remaining Cost (Rank ${props.playerRank} \u2192 Max)`
-                                                    : "Total Rank-Up Cost"}
+                                                {`Remaining Cost (Rank ${props.playerRank ?? 0} → Max)`}
                                             </div>
-                                            {renderCostSummaryBlocks(rankUpSum)}
+                                            {rankUpIsComplete ? (
+                                                <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-3 py-2 text-xs text-emerald-400">
+                                                    All rank-ups complete ✓
+                                                </div>
+                                            ) : (
+                                                renderCostSummaryBlocks(rankUpSum)
+                                            )}
                                         </div>
 
-                                        <div className="mt-4 text-[11px] text-slate-500">
-                                            Totals reflect only the rank-up costs still ahead of your current rank.
-                                        </div>
+                                        {!rankUpIsComplete && (
+                                            <div className="mt-3 text-[11px] text-slate-500">
+                                                Costs decrease as you check off items in the list.
+                                            </div>
+                                        )}
 
-                                        <div className="mt-4 text-[11px] text-slate-500">
-                                            Clist state is stored locally per syndicate (browser localStorage).
+                                        <div className="mt-3 text-[11px] text-slate-500">
+                                            Checklist state is stored locally per syndicate.
                                         </div>
                                     </>
                                 )}

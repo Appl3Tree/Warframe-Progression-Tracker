@@ -631,18 +631,6 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
 
     // =========================================================================
-    // BOSS NODES
-    // =========================================================================
-    {
-        id: PR.ACTIVITY_ROPALOLYST,
-        showInPlanner: false,
-        label: "Ropalolyst",
-        category: "Systems",
-        description: "Jupiter assassination boss. Drops Wisp parts. Unlocked by completing Chimera Prologue.",
-        prerequisites: [PR.CHIMERA_PROLOGUE]
-    },
-
-    // =========================================================================
     // SYNDICATE RANK MILESTONES (only ranks that gate Orbiter segments)
     // =========================================================================
     {
