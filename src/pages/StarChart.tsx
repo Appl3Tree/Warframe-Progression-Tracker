@@ -1057,15 +1057,23 @@ function StarChartMap(props: {
         return { x, y };
     }
 
-    // Pan (throttled to rAF to reduce drag lag)
+    // Pan + pinch-to-zoom (pointer events handle both mouse and touch/stylus)
     useEffect(() => {
         const svg = svgRef.current;
         if (!svg) return;
 
-        let pointerDown = false;
+        // Track all active pointers so we can detect two-finger pinch
+        const activePointers = new Map<number, { x: number; y: number }>();
+
+        // Single-pointer pan state
         let startClient: { x: number; y: number } | null = null;
         let startVb: ViewBox | null = null;
         let didStartDragging = false;
+
+        // Two-pointer pinch state
+        let pinchStartDist = 0;
+        let pinchStartVb: ViewBox | null = null;
+        let pinchStartMid: { x: number; y: number } | null = null;
 
         let rafId: number | null = null;
         let pendingVb: ViewBox | null = null;
@@ -1077,98 +1085,141 @@ function StarChartMap(props: {
             pendingVb = null;
         }
 
+        function scheduleFlush(next: ViewBox) {
+            pendingVb = next;
+            if (rafId == null) rafId = requestAnimationFrame(flush);
+        }
+
+        function ptDist(a: { x: number; y: number }, b: { x: number; y: number }) {
+            const dx = a.x - b.x; const dy = a.y - b.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function ptMid(a: { x: number; y: number }, b: { x: number; y: number }) {
+            return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        }
+
+        /** Convert a client-space point to SVG world coordinates. */
+        function clientToWorld(cx: number, cy: number): { x: number; y: number } | null {
+            const rect = svg.getBoundingClientRect();
+            const vb   = vbRef.current;
+            const scalePx = Math.min(rect.width / vb.w, rect.height / vb.h);
+            const padX    = (rect.width  - vb.w * scalePx) / 2;
+            const padY    = (rect.height - vb.h * scalePx) / 2;
+            const wx = vb.x + (cx - rect.left - padX) / scalePx;
+            const wy = vb.y + (cy - rect.top  - padY) / scalePx;
+            if (!Number.isFinite(wx) || !Number.isFinite(wy)) return null;
+            return { x: wx, y: wy };
+        }
+
         const DRAG_START_PX = 4;
 
         const onPointerDown = (e: PointerEvent) => {
-            if (e.button !== 0) return;
+            // Mouse: only left button; touch/pen: all pointers
+            if (e.pointerType === "mouse" && e.button !== 0) return;
 
-            pointerDown = true;
-            didStartDragging = false;
-            suppressClickRef.current = false;
+            activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-            startClient = { x: e.clientX, y: e.clientY };
-            startVb = vbRef.current;
+            if (activePointers.size === 1) {
+                // First pointer — start potential pan
+                startClient = { x: e.clientX, y: e.clientY };
+                startVb     = vbRef.current;
+                didStartDragging     = false;
+                suppressClickRef.current = false;
+            } else if (activePointers.size === 2) {
+                // Second pointer arrived — cancel pan, begin pinch
+                if (didStartDragging) { setIsDragging(false); didStartDragging = false; }
+                suppressClickRef.current = true;
+                cancelZoomAnim();
+                const pts       = Array.from(activePointers.values());
+                pinchStartDist  = ptDist(pts[0], pts[1]);
+                pinchStartMid   = ptMid(pts[0], pts[1]);
+                pinchStartVb    = vbRef.current;
+                startClient     = null; // disable pan path while pinching
+            }
         };
 
         const onPointerMove = (e: PointerEvent) => {
-            if (!pointerDown || !startClient || !startVb) return;
+            if (!activePointers.has(e.pointerId)) return;
+            activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
+            if (activePointers.size >= 2) {
+                // ── Two-finger pinch zoom ──
+                if (!pinchStartVb || !pinchStartMid || pinchStartDist < 1) return;
+                const pts     = Array.from(activePointers.values());
+                const curDist = ptDist(pts[0], pts[1]);
+                if (curDist < 1) return;
+                const factor   = pinchStartDist / curDist; // <1 = zoom in, >1 = zoom out
+                const worldMid = clientToWorld(pinchStartMid.x, pinchStartMid.y);
+                if (!worldMid) return;
+                scheduleFlush(clampViewBox(vbZoomAt(pinchStartVb, worldMid, factor)));
+                return;
+            }
+
+            // ── Single-pointer pan ──
+            if (!startClient || !startVb) return;
             const dxPx = e.clientX - startClient.x;
             const dyPx = e.clientY - startClient.y;
 
             if (!didStartDragging) {
-                const dist = Math.sqrt(dxPx * dxPx + dyPx * dyPx);
-                if (dist < DRAG_START_PX) return;
-
+                if (Math.sqrt(dxPx * dxPx + dyPx * dyPx) < DRAG_START_PX) return;
                 didStartDragging = true;
                 suppressClickRef.current = true;
                 cancelZoomAnim();
                 setIsDragging(true);
-
-                try {
-                    svg.setPointerCapture(e.pointerId);
-                } catch {
-                    // ignore
-                }
+                try { svg.setPointerCapture(e.pointerId); } catch { /* ignore */ }
             }
 
             const rect = svg.getBoundingClientRect();
-            const dxWorld = (dxPx / rect.width) * startVb.w;
-            const dyWorld = (dyPx / rect.height) * startVb.h;
-
-            pendingVb = clampViewBox({ ...startVb, x: startVb.x - dxWorld, y: startVb.y - dyWorld });
-
-            if (rafId == null) {
-                rafId = requestAnimationFrame(flush);
-            }
+            scheduleFlush(clampViewBox({
+                ...startVb,
+                x: startVb.x - (dxPx / rect.width)  * startVb.w,
+                y: startVb.y - (dyPx / rect.height) * startVb.h,
+            }));
         };
 
-        const endDrag = (e: PointerEvent) => {
-            if (!pointerDown) return;
+        const endPointer = (e: PointerEvent) => {
+            activePointers.delete(e.pointerId);
 
-            pointerDown = false;
-
-            if (didStartDragging) {
-                setIsDragging(false);
+            if (activePointers.size < 2) {
+                // Pinch ended — clear pinch state
+                pinchStartDist = 0;
+                pinchStartVb   = null;
+                pinchStartMid  = null;
             }
 
-            startClient = null;
-            startVb = null;
-
-            if (rafId != null) {
-                cancelAnimationFrame(rafId);
-                rafId = null;
-            }
-
-            if (pendingVb) {
-                setVb(pendingVb);
-                pendingVb = null;
-            }
-
-            if (didStartDragging) {
-                try {
-                    svg.releasePointerCapture(e.pointerId);
-                } catch {
-                    // ignore
+            if (activePointers.size === 0) {
+                if (didStartDragging) {
+                    setIsDragging(false);
+                    try { svg.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
                 }
+                startClient      = null;
+                startVb          = null;
+                didStartDragging = false;
+                if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; }
+                if (pendingVb)     { setVb(pendingVb); pendingVb = null; }
+            } else if (activePointers.size === 1) {
+                // One finger lifted — resume pan from the remaining pointer's position
+                const [, pt] = Array.from(activePointers.entries())[0];
+                startClient      = { x: pt.x, y: pt.y };
+                startVb          = vbRef.current;
+                didStartDragging = false;
             }
         };
 
-        svg.addEventListener("pointerdown", onPointerDown);
-        svg.addEventListener("pointermove", onPointerMove);
-        svg.addEventListener("pointerup", endDrag);
-        svg.addEventListener("pointercancel", endDrag);
-        svg.addEventListener("pointerleave", endDrag);
-        svg.addEventListener("pointerleave", endDrag);
+        svg.addEventListener("pointerdown",   onPointerDown);
+        svg.addEventListener("pointermove",   onPointerMove);
+        svg.addEventListener("pointerup",     endPointer);
+        svg.addEventListener("pointercancel", endPointer);
+        svg.addEventListener("pointerleave",  endPointer);
 
         return () => {
             if (rafId != null) cancelAnimationFrame(rafId);
-            svg.removeEventListener("pointerdown", onPointerDown);
-            svg.removeEventListener("pointermove", onPointerMove);
-            svg.removeEventListener("pointerup", endDrag);
-            svg.removeEventListener("pointercancel", endDrag);
-            svg.removeEventListener("pointerleave", endDrag);
-            svg.removeEventListener("pointerleave", endDrag);
+            svg.removeEventListener("pointerdown",   onPointerDown);
+            svg.removeEventListener("pointermove",   onPointerMove);
+            svg.removeEventListener("pointerup",     endPointer);
+            svg.removeEventListener("pointercancel", endPointer);
+            svg.removeEventListener("pointerleave",  endPointer);
         };
     }, [setVb]);
 
@@ -2820,9 +2871,9 @@ function DuviriArchway({ exp, isCompleted, onToggle }: {
             className="group relative flex flex-col items-center text-center transition-all duration-200 focus:outline-none"
             style={{ width: "100%" }}
         >
-            {/* Archway frame */}
+            {/* Archway frame — no overflow:hidden so description text is never clipped */}
             <div
-                className="relative w-full overflow-hidden transition-all duration-200 group-hover:scale-[1.02]"
+                className="relative w-full transition-all duration-200 group-hover:scale-[1.02]"
                 style={{
                     borderRadius: "50% 50% 6px 6px / 32px 32px 6px 6px",
                     border: `1px solid ${isCompleted ? "rgba(52,211,153,0.6)" : color.border}`,
@@ -2836,7 +2887,6 @@ function DuviriArchway({ exp, isCompleted, onToggle }: {
                     paddingBottom: "24px",
                     paddingLeft: "16px",
                     paddingRight: "16px",
-                    aspectRatio: "3/4",
                 }}
             >
                 {/* Inner arch glow line at the top */}
@@ -2942,8 +2992,8 @@ function StarChartDuviriView({ onBack }: { onBack: () => void }) {
                     <div className="mt-1 text-xs text-slate-500">Choose your path through the Undercroft</div>
                 </div>
 
-                {/* Four archway panels */}
-                <div className="grid grid-cols-2 gap-4 px-6 pb-6 pt-2 lg:grid-cols-4">
+                {/* Four archway panels — 1 col on very small phones, 2 on sm+, 4 on lg+ */}
+                <div className="grid grid-cols-1 gap-4 px-4 pb-6 pt-2 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
                     {DUVIRI_EXPERIENCES.map((exp) => (
                         <DuviriArchway
                             key={exp.id}
