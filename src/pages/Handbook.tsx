@@ -511,8 +511,11 @@ const SECTIONS: Section[] = [
                 <Steps items={[
                     "Complete The Second Dream to unlock your Operator.",
                     "Build an Amp — the default Mote Amp is very weak. Upgrade via The Quills syndicate in Cetus as soon as possible. The Amp is your primary tool for stripping Eidolon shields.",
-                    "Choose a support Warframe. Trinity (energy restore + shield drain prevention), Harrow (damage buff + critical chance + shield regen lock), and Wisp (healing + speed buff) are the most common picks.",
-                    "Equip the Madurai Focus school for bonus Amp damage, or Zenurik if you need the energy sustain.",
+                ]} />
+                <SectionHeading>Helpful but not required:</SectionHeading>
+                <Bullets items={[
+                    "Bring a support Warframe. Trinity (energy restore + shield drain prevention), Harrow (damage buff + critical chance + shield regen lock), and Wisp (healing + speed buff) are the most common picks — but any Warframe can technically hunt Eidolons.",
+                    "Madurai Focus school gives a bonus Amp damage buff after exiting Void Mode, making shield-stripping faster. Zenurik is a solid alternative if you need the energy sustain. Neither is mandatory.",
                 ]} />
 
                 <SectionHeading>Lure mechanics — the most confusing part for new hunters:</SectionHeading>
@@ -536,9 +539,9 @@ const SECTIONS: Section[] = [
 
                 <SectionHeading>Kill order and chain progression:</SectionHeading>
                 <Steps items={[
-                    "Teralyst (Terry) — easiest. Capturing it causes the Gantulyst to spawn at the Lake.",
-                    "Gantulyst (Gary) — harder. Requires a captured Teralyst to appear. Capturing it spawns the Hydrolyst.",
-                    "Hydrolyst (Harry) — hardest. Requires a captured Gantulyst. Drops the best rewards and Arcanes.",
+                    "Teralyst (Terry) — easiest. Capturing it drops Eidolon Shards. Take those Shards to the Altar at Gara Toht Lake and use them to summon the next Eidolon.",
+                    "Gantulyst (Gary) — harder. Summoned at the Altar using Teralyst Shards. Capturing it drops Greater Shards used to summon the Hydrolyst at the same Altar.",
+                    "Hydrolyst (Harry) — hardest. Summoned at the Altar using Gantulyst Shards. Drops the best rewards and Arcanes.",
                 ]} />
                 <P>
                     For each Eidolon: use <B>Void damage</B> (Operator Amp) to strip its rotating shield,
@@ -843,7 +846,7 @@ const SECTIONS: Section[] = [
                 </P>
                 <SectionHeading>Doubling your mod capacity:</SectionHeading>
                 <Bullets items={[
-                    <>Install an <B>Orokin Reactor</B> in a Warframe or <B>Orokin Catalyst</B> in a weapon to double capacity from 30 to 60. The community calls these \"Potatoes.\" Free ones appear occasionally via alerts, Nightwave rewards, and login bonuses — always install them on your primary gear.</>,
+                    <>Install an <B>Orokin Reactor</B> in a Warframe or <B>Orokin Catalyst</B> in a weapon to double capacity from 30 to 60. The community calls these "Potatoes." Free ones appear occasionally via alerts, Nightwave rewards, and login bonuses — always install them on your primary gear.</>,
                     "The Aura mod slot (Warframe only) adds to your capacity rather than spending it, as long as the Aura's polarity matches the slot.",
                 ]} />
                 <SectionHeading>Polarity slots:</SectionHeading>
@@ -901,26 +904,31 @@ const SECTIONS: Section[] = [
         summary: "What to do each day and week to maximize standing, rewards, and passive progress.",
         content: (
             <>
-                <SectionHeading>Daily activities:</SectionHeading>
+                <Callout color="green">
+                    The <B>Dashboard</B> includes a Daily/Weekly reset tracker that lists everything
+                    you can do right now based on your progression goals. It automatically hides
+                    activities you haven't unlocked yet. If something is missing or shouldn't be there,
+                    use the <B>Customize</B> button on the tracker to adjust what shows up for you.
+                </Callout>
+                <P>
+                    Below is a brief overview of what each activity is, for context when you see it
+                    listed on the Dashboard.
+                </P>
+                <SectionHeading>Daily resets:</SectionHeading>
                 <Bullets items={[
                     <><B>Daily Sortie</B> — three chained missions with escalating difficulty modifiers. Rewards include Riven mods, Endo, Kuva, and Ayatan sculptures. Requires completing The War Within.</>,
-                    <><B>Cephalon Simaris Daily Synthesis Target</B> — scan the target creature with a Synthesis Scanner (not a Codex Scanner) for bonus Simaris Standing. Used to buy mods, Blueprints, and Sanctuary Onslaught entries.</>,
-                    <><B>Maroo's Bazaar Ayatan Run</B> — Maroo offers a short mission once per day rewarding an Ayatan Sculpture. Fill them with Ayatan Stars and trade them to Maroo for Endo, or sell filled sculptures to other players for Platinum.</>,
-                    <><B>Syndicate missions</B> — run missions on nodes aligned with your active syndicates while wearing their Sigil to earn Standing up to your daily cap (Mastery Rank × 1,000 + 4,000).</>,
+                    <><B>Cephalon Simaris Synthesis Target</B> — scan the target creature with a Synthesis Scanner (not a Codex Scanner) for bonus Simaris Standing. Used to buy mods, blueprints, and Sanctuary Onslaught access.</>,
+                    <><B>Maroo's Ayatan Run</B> — a short mission from Maroo rewarding an Ayatan Sculpture. Fill sculptures with Ayatan Stars and sell to Maroo for Endo, or trade to players for Platinum.</>,
+                    <><B>Syndicate Standing cap</B> — Standing resets daily up to Mastery Rank × 1,000 + 4,000. Run missions wearing your Sigil to fill it.</>,
                 ]} />
-                <SectionHeading>Weekly activities:</SectionHeading>
+                <SectionHeading>Weekly resets:</SectionHeading>
                 <Bullets items={[
-                    <><B>Nightwave challenges</B> — complete weekly and daily Nightwave tasks to earn Nightwave Credits for exclusive cosmetics, Orokin Reactors/Catalysts, Nitain Extract, and more from the Nightwave Offerings store.</>,
-                    <><B>Steel Path Honors rotation</B> — Teshin's shop stock changes weekly. Spend Steel Essence on Arcane Adapters, exclusive mods, and cosmetics.</>,
-                    <><B>Archon Hunt</B> — three-mission weekly set culminating in an Archon boss fight. Rewards Archon Shards (powerful passive stat boosts you socket into Warframes) and Lua Thrax Plasm.</>,
-                    <><B>Kahl-175 missions</B> (post-New War, requires Veilbreaker) — weekly missions earning Pathos Clamps and Veilbreaker resources. Used to buy Grendel Prime parts and other items.</>,
-                    <><B>Deep Archimedea</B> (post-Whispers in the Walls) — high-difficulty weekly missions with randomized modifiers. Rewards Cavia Standing and Invigoration charges.</>,
+                    <><B>Nightwave challenges</B> — complete weekly and daily Nightwave tasks for Nightwave Credits, redeemable for Orokin Reactors/Catalysts, Nitain Extract, and exclusive cosmetics.</>,
+                    <><B>Archon Hunt</B> — three-mission set ending in an Archon boss fight. Rewards Archon Shards (socket into Warframes for powerful passive bonuses) and Lua Thrax Plasm.</>,
+                    <><B>Steel Path Honors rotation</B> — Teshin's shop stock cycles weekly. Spend Steel Essence on Arcane Adapters, exclusive mods, and cosmetics.</>,
+                    <><B>Kahl-175 missions</B> (post-New War / Veilbreaker) — weekly missions for Pathos Clamps and Veilbreaker standing. Used to unlock Grendel Prime parts and other items.</>,
+                    <><B>Deep Archimedea</B> (post-Whispers in the Walls) — high-difficulty weekly with randomized modifiers. Rewards Cavia Standing and Invigoration charges.</>,
                 ]} />
-                <Callout color="green">
-                    <B>New player priority:</B> Do your Daily Sortie every day for Riven mods (sell unwanted
-                    ones for Platinum). Complete Nightwave challenges every week for free Reactors and
-                    Catalysts — these alone can save you significant Platinum over time.
-                </Callout>
             </>
         ),
     },
@@ -949,6 +957,12 @@ const SECTIONS: Section[] = [
                     "Trading happens at a Clan Dojo Trading Post or at Maroo's Bazaar (Asteroid, Mars). Both players must be present.",
                     "Both players pay a Credit tax per trade. Tax scales with item value — high-value Riven trades cost millions of Credits, so keep a large Credit buffer.",
                 ]} />
+                <Callout color="amber">
+                    <B>Trade limits scale with Mastery Rank.</B> At lower ranks you can only make a small
+                    number of trades per day — MR 1 allows 2 trades/day, increasing by 1 per rank up to
+                    a maximum of 30/day at MR 30. If you hit your daily limit, you'll need to wait until
+                    the next UTC midnight reset. Ranking up is the only way to increase this cap.
+                </Callout>
                 <Callout color="amber">
                     <B>Never pay Platinum for mods or Prime parts that drop in-game.</B> These are always
                     tradeable from other players at market prices, which are nearly always far lower than
@@ -1009,10 +1023,27 @@ const SECTIONS: Section[] = [
                     Your daily Standing cap is <B>Mastery Rank × 1,000 + 4,000</B>. Wearing the Sigil
                     in your Warframe's Appearance tab is required — Standing is not earned without it.
                 </P>
+                <Callout color="blue">
+                    The <B>Syndicates page</B> in this app includes a simulator that helps you identify
+                    which factions to pledge to, preview rank-up requirements, and browse the full
+                    offerings available at each rank — so you can plan which augments and weapons you're
+                    actually working toward before committing your daily Standing.
+                </Callout>
             </>
         ),
     },
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Navigation groups — defines sidebar structure without touching SECTIONS data
+// ─────────────────────────────────────────────────────────────────────────────
+
+const NAV_GROUPS = [
+    { label: "Story", sectionIds: ["quest-order"] },
+    { label: "Combat Systems", sectionIds: ["lich-sisters", "eidolons", "railjack", "necramech"] },
+    { label: "Build & Progression", sectionIds: ["focus", "modding", "steel-path", "farming"] },
+    { label: "Economy & Routine", sectionIds: ["trading", "daily-weekly", "syndicates"] },
+] as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Page component
@@ -1022,34 +1053,74 @@ export default function Handbook() {
     const [activeId, setActiveId] = useState<string>("quest-order");
     const activeSection = SECTIONS.find((s) => s.id === activeId) ?? SECTIONS[0];
 
+    const navBtn = (s: (typeof SECTIONS)[number]) =>
+        s.id === activeId
+            ? "w-full text-left rounded-lg px-3 py-2 text-xs font-semibold text-slate-100 bg-slate-700 border border-slate-500 transition-colors"
+            : "w-full text-left rounded-lg px-3 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors";
+
     return (
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-4 sm:space-y-5">
+            {/* ── Header ── */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 sm:p-5">
                 <div className="text-xl font-semibold text-slate-100">Handbook</div>
                 <div className="mt-1 text-sm text-slate-400">
                     Explanations of game mechanics that commonly gate progression or cause confusion.
                 </div>
-                {/* Scrollable tab bar — scrolls horizontally on mobile, wraps on larger screens */}
-                <div className="mt-4 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible sm:pb-0">
-                    {SECTIONS.map((s) => (
-                        <button
-                            key={s.id}
-                            onClick={() => setActiveId(s.id)}
-                            className={
-                                s.id === activeId
-                                    ? "shrink-0 rounded-lg border border-slate-500 bg-slate-700 px-3 py-2 text-xs font-medium text-slate-100 transition-colors"
-                                    : "shrink-0 rounded-lg border border-slate-700 bg-slate-900/50 px-3 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors"
-                            }
-                        >
-                            {s.title}
-                        </button>
-                    ))}
+
+                {/* Mobile nav: native select — clean and space-efficient */}
+                <div className="mt-4 md:hidden">
+                    <select
+                        value={activeId}
+                        onChange={(e) => setActiveId(e.target.value)}
+                        className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                    >
+                        {NAV_GROUPS.map((g) => (
+                            <optgroup key={g.label} label={g.label}>
+                                {g.sectionIds.map((id) => {
+                                    const s = SECTIONS.find((x) => x.id === id)!;
+                                    return <option key={id} value={id}>{s.title}</option>;
+                                })}
+                            </optgroup>
+                        ))}
+                    </select>
                 </div>
             </div>
 
-            <Card title={activeSection.title} summary={activeSection.summary}>
-                {activeSection.content}
-            </Card>
+            {/* ── Desktop two-column layout ── */}
+            <div className="hidden md:grid md:grid-cols-[200px_1fr] md:items-start gap-4">
+                {/* Sidebar nav */}
+                <nav className="rounded-2xl border border-slate-800 bg-slate-950/40 p-3 space-y-4 sticky top-4">
+                    {NAV_GROUPS.map((g) => (
+                        <div key={g.label}>
+                            <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+                                {g.label}
+                            </div>
+                            <div className="space-y-0.5">
+                                {g.sectionIds.map((id) => {
+                                    const s = SECTIONS.find((x) => x.id === id)!;
+                                    return (
+                                        <button key={id} onClick={() => setActiveId(id)} className={navBtn(s)}>
+                                            {s.title}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
+                </nav>
+
+                {/* Content panel */}
+                <Card title={activeSection.title} summary={activeSection.summary}>
+                    {activeSection.content}
+                </Card>
+            </div>
+
+            {/* ── Mobile content panel (below the header select) ── */}
+            <div className="md:hidden">
+                <Card title={activeSection.title} summary={activeSection.summary}>
+                    {activeSection.content}
+                </Card>
+            </div>
         </div>
     );
 }
