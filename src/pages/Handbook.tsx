@@ -537,75 +537,86 @@ const SECTIONS: Section[] = [
         content: (
             <>
                 <P>
-                    <B>Kuva</B> is a resource dropped or earned from Kuva-themed missions. It is used to
-                    reroll <B>Riven mods</B> (each reroll costs increasing amounts), and is indirectly
-                    involved in Kuva Lich creation (Larva spawns on Kuva-tainted nodes). The War Within
-                    quest unlocks Kuva Siphons, Kuva Floods, and the Kuva Fortress.
+                    <B>Kuva</B> is a resource used to reroll <B>Riven mods</B> (each reroll costs
+                    increasing amounts). It is obtained by destroying Kuva Siphons and Kuva Floods, or
+                    passively from certain missions. Requires completing <B>The War Within</B> and
+                    reaching <B>Mastery Rank 5</B> to access Siphon missions.
                 </P>
 
-                <SectionHeading>Kuva Siphons and Floods</SectionHeading>
+                <SectionHeading>Kuva Siphons and Floods — where they spawn</SectionHeading>
                 <P>
-                    These are special missions that spawn on Grineer Star Chart nodes. They have a special
-                    mechanic on top of the normal mission objective: a <B>Kuva Siphon</B> — a floating
-                    device that must be destroyed using your <B>Operator</B>.
+                    Kuva Siphon missions appear on <B>up to two planets nearest the Kuva Fortress</B> as
+                    it drifts around the Star Chart. Up to six Siphon missions rotate across those two
+                    planets. <B>Five</B> of them are standard Siphons (enemy level 25–35, ~550–700 Kuva).
+                    The <B>sixth is always a Kuva Flood</B> (enemy level 80–100, ~1,100–1,400 Kuva) —
+                    same mechanic, much harder enemies.
+                </P>
+
+                <SectionHeading>Destroying a Kuva Siphon — step by step</SectionHeading>
+                <P>
+                    The Siphon is a secondary objective layered on top of the normal mission. It has
+                    four <B>Braids</B> that must be destroyed. A meter under your minimap tracks how
+                    many braids you've destroyed.
                 </P>
                 <Steps items={[
                     <>
-                        Locate the Kuva Siphon somewhere in the map (it glows red and emits a distinctive
-                        sound). It periodically sends out a spinning <B>braid</B> that orbits the area.
+                        Locate the Siphon (marked by a special Kuva icon; nearby rooms gain a reddish-pink
+                        hue). Approaching it triggers an activation horn and spawns <B>Kuva Guardians</B>{" "}
+                        and Kuva Jesters to defend it.
                     </>,
                     <>
-                        Around the map are small hovering <B>Kuva clouds</B> (orange-red wisps). When
-                        the braid passes through a cloud it begins absorbing it — this is your window.
+                        Wait for the Siphon to raise one of its Braids and begin attracting a{" "}
+                        <B>Kuva cloud</B> (a dark red-black mass with a distinctive shrieking noise).
+                        The raised Braid points toward the incoming cloud — use that to locate it.
                     </>,
                     <>
-                        Switch to your <B>Operator</B> (Transference) and fire your <B>Void Beam</B> at
-                        the braid while it is inside the cloud. One successful hit destroys that cloud
-                        absorption and scores a hit on the Siphon. You need <B>8 hits</B> total.
+                        Switch to <B>Operator mode</B> (Transference) and either{" "}
+                        <B>Void Dash through the cloud</B> or <B>shoot it with your Amp</B> to
+                        destroy that Braid. You need to do this for all <B>4 Braids</B>.
                     </>,
                     <>
-                        If the braid finishes absorbing a cloud without being hit, it "steals" that cloud
-                        and the Siphon charges slightly — no permanent penalty, but you lose that window.
-                        Move quickly between clouds and keep your Operator beam on the braid.
+                        <B>Caution:</B> The Siphon also has a row of 8 diamonds under your minimap.
+                        Each time the Siphon successfully absorbs a cloud before you intervene, one
+                        diamond turns red. If it absorbs <B>8 clouds</B> it escapes — you only receive
+                        partial Kuva (up to 350, based on braids already destroyed). Destroy braids
+                        quickly to prevent this.
                     </>,
-                    "After 8 hits the Siphon explodes. Kuva drops in a pool — walk over it to collect.",
+                    "After all 4 Braids are destroyed the Siphon explodes — every squad member receives the Kuva reward automatically.",
                 ]} />
                 <Callout color="blue">
-                    <B>Tip:</B> You do NOT need to be close to the braid — Operator Void Beam has good
-                    range. Stay mobile to reach whichever cloud the braid is heading toward next.
-                    Kuva Floods work identically but at higher enemy levels and reward more Kuva.
+                    <B>Tip:</B> Your Amp range is good — you don't need to be adjacent to the cloud.
+                    Void Dash is faster if you can path straight through it. You receive the same Kuva
+                    reward regardless of how many clouds the Siphon managed to absorb while it was active,
+                    as long as you destroy all 4 Braids before it escapes.
                 </Callout>
 
-                <SectionHeading>Kuva Guardians</SectionHeading>
+                <SectionHeading>Kuva Guardians — how to damage them</SectionHeading>
                 <P>
-                    Kuva Siphon and Flood missions also spawn <B>Kuva Guardians</B> — heavy Grineer
-                    units with a glowing Kuva-infused aura. Their aura makes them <B>completely immune
-                    to weapon damage</B> until you strip it.
+                    Kuva Guardians are heavy Grineer units carrying a Kuva-infused <B>Kesheg</B> (polearm).
+                    While they are holding this weapon they are <B>completely immune to all conventional
+                    damage and crowd control</B>. You must disarm them first.
                 </P>
                 <Steps items={[
                     <>
-                        Switch to your <B>Operator</B> (Transference). Move close to the Guardian and
-                        use your <B>Void Blast</B> (melee strike in Operator mode, default: E or tap aim)
-                        — this shatters the Kuva armor. The Guardian will briefly flash white.
+                        Switch to <B>Operator mode</B> (Transference). Use <B>Void Sling</B> — hold
+                        Crouch and press Jump, or press Jump while in mid-air — to knock the Kesheg
+                        out of their hands. The Guardian will briefly stagger.
                     </>,
-                    "Return to your Warframe and kill the Guardian normally with weapons.",
-                    <>
-                        Alternatively, some Focus school abilities (e.g. <B>Unairu's</B> armor-strip
-                        nodes) can also remove the armor, but Operator Void Blast is the universal solution.
-                    </>,
+                    "Return to your Warframe and kill the Guardian normally with weapons while it is disarmed.",
                 ]} />
                 <Callout color="amber">
-                    <B>Common mistake:</B> Trying to shoot Kuva Guardians with weapons before stripping
-                    their armor — all damage is absorbed. Always hit them with Operator Void Blast first.
+                    <B>Common mistake:</B> Shooting Kuva Guardians before disarming them — all damage
+                    is absorbed. The disarm is Void Sling (the midair/crouched jump), not Void Blast.
+                    If a Guardian re-arms itself, you need to Void Sling them again.
                 </Callout>
 
                 <SectionHeading>Kuva Farming Summary</SectionHeading>
                 <Bullets items={[
-                    <><B>Taveuni</B> (Kuva Fortress, Survival) — best dedicated farm; 200 Kuva per rotation tick, scales with time in mission.</>,
-                    <><B>Kuva Floods</B> — ~1,200 Kuva per completion; found on rotating Grineer nodes. Higher enemy levels than Siphons.</>,
-                    <><B>Kuva Siphons</B> — ~550 Kuva per completion; lower level, faster runs.</>,
-                    <><B>Steel Path (any node)</B> — flat 2,000 Kuva bonus added to every mission completion regardless of type.</>,
-                    <><B>Daily Sortie</B> — can reward Kuva as a bonus reward.</>,
+                    <><B>Taveuni</B> (Kuva Fortress, Survival) — best dedicated farm; Kuva scales with time spent.</>,
+                    <><B>Kuva Floods</B> — 1,100–1,400 Kuva per completion; level 80–100 enemies. One always active near the Fortress.</>,
+                    <><B>Kuva Siphons</B> — 550–700 Kuva per completion; level 25–35, faster runs.</>,
+                    <><B>Steel Path (any node)</B> — flat 2,000 Kuva bonus added to every mission completion.</>,
+                    <><B>Daily Sortie</B> — can reward Kuva as a completion bonus.</>,
                 ]} />
             </>
         ),
@@ -962,6 +973,109 @@ const SECTIONS: Section[] = [
         ),
     },
     {
+        id: "rotations",
+        title: "Mission Rotations",
+        summary: "How reward rotations work in endless missions — the AABC cycle, when each rotation fires, and the special rules for Disruption and Arbitrations.",
+        content: (
+            <>
+                <P>
+                    Most <B>endless missions</B> (Defense, Survival, Interception, etc.) award a reward
+                    at a regular interval. These rewards follow an <B>AABC</B> cycle — meaning you receive
+                    two consecutive Rotation A rewards, then one B, then one C, then it repeats. The{" "}
+                    <B>C rotation</B> contains the rarest and most valuable drops (Prime parts, high-tier
+                    mods), so knowing when it lands helps you decide when to extract.
+                </P>
+
+                <SectionHeading>Standard AABC missions</SectionHeading>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[480px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Mission type</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Reward trigger</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Rotation sequence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Defense", "Every 3 waves", "3→A  6→A  9→B  12→C  (repeats)"],
+                                ["Survival", "Every 5 minutes", "5min→A  10min→A  15min→B  20min→C  (repeats)"],
+                                ["Interception", "Every completed round", "Round 1→A  2→A  3→B  4→C  (repeats)"],
+                                ["Excavation", "Every completed excavator (100 Cryotic)", "1st→A  2nd→A  3rd→B  4th→C  (repeats)"],
+                                ["Defection", "Every 2 squads safely escorted", "2 squads→A  4→A  6→B  8→C  (repeats)"],
+                                ["Mobile Defense", "Mission completion", "Single reward — no rotation"],
+                                ["Capture / Exterminate", "Mission completion", "Single reward — no rotation"],
+                                ["Spy", "Per vault successfully hacked", "Up to 3 rewards (one per vault) — no cycle"],
+                            ].map(([type, trigger, seq]) => (
+                                <tr key={type} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-slate-100">{type}</td>
+                                    <td className="px-3 py-2 text-slate-400">{trigger}</td>
+                                    <td className="px-3 py-2 text-slate-300 font-mono text-[11px]">{seq}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+
+                <SectionHeading>Disruption — unique ABCD system</SectionHeading>
+                <P>
+                    Disruption does <B>not</B> use the standard AABC cycle. Each round has 4 conduits;
+                    the rotation you receive depends on <B>both the round number and how many conduits
+                    you successfully defend</B> that round.
+                </P>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[420px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Round</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Conduits defended → Rotation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Round 1", "1–3 conduits → A   |   4 conduits → B"],
+                                ["Round 2", "1–2 conduits → A   |   3–4 conduits → B"],
+                                ["Round 3", "1 conduit → A   |   2–3 conduits → B   |   4 conduits → C"],
+                                ["Round 4+", "1–2 conduits → B   |   3–4 conduits → C"],
+                            ].map(([round, rule]) => (
+                                <tr key={round} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-slate-100">{round}</td>
+                                    <td className="px-3 py-2 text-slate-300 font-mono text-[11px]">{rule}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+                <Callout color="blue">
+                    Defend all 4 conduits every round and you lock into <B>Rotation C</B> from Round 3
+                    onward — skipping A almost entirely. Disruption is one of the best ways to farm
+                    Rotation C drops per unit of time.
+                </Callout>
+
+                <SectionHeading>Arbitrations — AABB then endless C</SectionHeading>
+                <P>
+                    Arbitrations use a different cadence: <B>AABB</B> for the first four rewards, then
+                    every subsequent reward is <B>Rotation C</B> indefinitely. The interval is also
+                    different: <B>Defense</B> rotates every 5 waves (not 3); <B>Survival</B> every
+                    5 minutes; <B>Excavation</B> every 2 completed excavators.
+                </P>
+                <Callout color="amber">
+                    In Arbitrations you <B>cannot revive yourself</B> — you are revived by a Revive Drone
+                    ally unit that other players can pick up. Dying and not being revived means losing all
+                    progress for that run.
+                </Callout>
+
+                <SectionHeading>Practical extraction timing</SectionHeading>
+                <Bullets items={[
+                    <>If you only need <B>Rotation C</B> drops (e.g. rare relics, prime parts), stay until wave 12, minute 20, or round 4 and then extract. Re-running from scratch is often faster than continuing past C.</>,
+                    <>For Disruption, extract after any round where you scored Rotation C — then restart if you only need C-tier drops.</>,
+                    <>For Survival, the <B>20-minute mark</B> gives the first C-rotation. Many players use a "20-minute run" as the standard farming session length.</>,
+                    <>Void Fissures follow the same rotation cycle as their base mission type but also grant a Relic reward on top of the rotation reward at each interval.</>,
+                ]} />
+            </>
+        ),
+    },
+    {
         id: "modding",
         title: "Modding Basics",
         summary: "How the mod system works — the single most important system to understand for building effective Warframes and weapons.",
@@ -1181,7 +1295,7 @@ const SECTIONS: Section[] = [
 const NAV_GROUPS = [
     { id: "story",    label: "Story",              sectionIds: ["quest-order"] },
     { id: "combat",   label: "Combat Systems",      sectionIds: ["lich-sisters", "kuva", "eidolons", "railjack", "necramech"] },
-    { id: "build",    label: "Build & Progression", sectionIds: ["focus", "modding", "steel-path", "farming"] },
+    { id: "build",    label: "Build & Progression", sectionIds: ["focus", "modding", "steel-path", "farming", "rotations"] },
     { id: "economy",  label: "Economy & Routine",   sectionIds: ["trading", "daily-weekly", "syndicates"] },
 ] as const;
 
