@@ -1,7 +1,8 @@
 // StarChartMap — the main interactive SVG star chart canvas.
 // Extracted from StarChart.tsx as part of Phase 5 file decomposition.
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { STAR_CHART_DATA } from "../../domain/catalog/starChart";
 import type { NodeId, PlanetId, StarChartNode, StarChartPlanet } from "../../domain/models/starChart";
 import { getRegionResourcesForPlanet } from "../../domain/catalog/starChart/regionResources";
@@ -50,14 +51,14 @@ import type {
 export default function StarChartMap(props: {
     isInModal: boolean;
     vb: ViewBox;
-    setVb: React.Dispatch<React.SetStateAction<ViewBox>>;
+    setVb: Dispatch<SetStateAction<ViewBox>>;
     selectedPlanetId: PlanetId | null;
-    setSelectedPlanetId: React.Dispatch<React.SetStateAction<PlanetId | null>>;
+    setSelectedPlanetId: Dispatch<SetStateAction<PlanetId | null>>;
     selectedPlanetName: string | null;
     selectedGroupKey: string | null;
-    setSelectedGroupKey: React.Dispatch<React.SetStateAction<string | null>>;
+    setSelectedGroupKey: Dispatch<SetStateAction<string | null>>;
     selectedTab: NodeGroupKind;
-    setSelectedTab: React.Dispatch<React.SetStateAction<NodeGroupKind>>;
+    setSelectedTab: Dispatch<SetStateAction<NodeGroupKind>>;
     selectedGroupDisplayName: string | null;
     tabsForPanel: TabSpec[];
     activeTab: TabSpec | null;
@@ -115,6 +116,9 @@ export default function StarChartMap(props: {
         for (const p of STAR_CHART_DATA.planets) m.set(p.id, p);
         return m;
     }, []);
+
+    // Inventory ownership — used to decorate loot panel items
+    const inventoryCounts = useTrackerStore((s) => s.state.inventory?.counts ?? EMPTY_NODE_COMPLETED);
 
     // 4.4: Per-node completion tracking
     const setNodeCompleted        = useTrackerStore((s) => s.setNodeCompleted);
@@ -1216,12 +1220,15 @@ export default function StarChartMap(props: {
                                             ) : (
                                                 <div className="max-h-[520px] overflow-auto rounded-xl border border-slate-800 bg-slate-950/30 p-2">
                                                     <ul className="list-disc space-y-0.5 pl-5 text-sm text-slate-200">
-                                                        {filteredActiveItems.slice(0, 600).map((it) => (
-                                                            <li key={it.catalogId} className="break-words">
-                                                                <span className="font-semibold">{it.name}</span>
-                                                                {/*<div className="mt-0.5 text-[11px] text-slate-500 font-mono">{it.catalogId}</div>*/}
-                                                            </li>
-                                                        ))}
+                                                        {filteredActiveItems.slice(0, 600).map((it) => {
+                                                            const owned = Number(inventoryCounts[it.catalogId] ?? 0) > 0;
+                                                            return (
+                                                                <li key={it.catalogId} className="break-words flex items-center gap-1.5">
+                                                                    <span className={owned ? "text-slate-500 line-through" : "font-semibold"}>{it.name}</span>
+                                                                    {owned && <span className="shrink-0 text-[10px] text-emerald-500">✓</span>}
+                                                                </li>
+                                                            );
+                                                        })}
                                                     </ul>
                                                     {filteredActiveItems.length > 600 && (
                                                         <div className="mt-2 text-xs text-slate-500">Rendering capped at 600 items.</div>
@@ -1491,7 +1498,7 @@ export default function StarChartMap(props: {
                                                 const r = nodeDotR;
 
                                                 // Shape by nodeType (locked nodes always show padlock)
-                                                let shape: React.ReactNode;
+                                                let shape: ReactNode;
                                                 if (isLocked) {
                                                     const lk = r * 1.05;
                                                     shape = (

@@ -1,7 +1,8 @@
 // GoalsTreeView — zoomable/pannable tree canvas, tree node renderer, and styles.
 // Extracted from Goals.tsx (Phase 5 decomposition).
 
-import React, { useEffect, useRef, useState, memo, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, memo, useCallback, useMemo } from "react";
+import type { ReactNode } from "react";
 import { FULL_CATALOG, type CatalogId } from "../../domain/catalog/loadFullCatalog";
 import {
     type ZoomState,
@@ -10,7 +11,7 @@ import {
     getDirectRequirementsForExpansion,
 } from "./goalsUtils";
 
-export function ZoomableTreeViewport(props: { children: React.ReactNode }) {
+export function ZoomableTreeViewport(props: { children: ReactNode }) {
     const outerRef = useRef<HTMLDivElement | null>(null);
     const contentRef = useRef<HTMLDivElement | null>(null);
 
