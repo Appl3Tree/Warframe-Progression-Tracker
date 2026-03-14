@@ -1,4 +1,4 @@
-// src/pages/Handbook.tsx
+// src/pages/Handbook.tsx  (Tenno's Handbook)
 //
 // Player guidance for game mechanics, quest progression, and farming.
 // Content is static — no store reads needed.
@@ -388,6 +388,54 @@ const QUESTS: Quest[] = [
 
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Quest order section — owns its own filter state
+// ─────────────────────────────────────────────────────────────────────────────
+
+function QuestOrderSection() {
+    const [filter, setFilter] = useState<"all" | QuestType>("all");
+
+    const counts = {
+        all: QUESTS.length,
+        main: QUESTS.filter((q) => q.type === "main").length,
+        side: QUESTS.filter((q) => q.type === "side").length,
+        warframe: QUESTS.filter((q) => q.type === "warframe").length,
+    };
+
+    const filterBtnCls = (f: "all" | QuestType) =>
+        f === filter
+            ? "shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold border border-slate-500 bg-slate-700 text-slate-100 transition-colors"
+            : "shrink-0 rounded-md px-3 py-1.5 text-xs font-medium border border-slate-700/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors";
+
+    return (
+        <>
+            {/* Legend */}
+            <div className="flex flex-wrap gap-2 text-xs">
+                <span className={`rounded px-2 py-1 font-mono ${TYPE_BADGE_CLASS.main}`}>Main — primary storyline</span>
+                <span className={`rounded px-2 py-1 font-mono ${TYPE_BADGE_CLASS.side}`}>Side — unlocks systems & hubs</span>
+                <span className={`rounded px-2 py-1 font-mono ${TYPE_BADGE_CLASS.warframe}`}>Warframe — rewards a specific Warframe</span>
+            </div>
+
+            {/* Filter buttons */}
+            <div className="flex flex-wrap gap-2">
+                <button onClick={() => setFilter("all")}      className={filterBtnCls("all")}>All ({counts.all})</button>
+                <button onClick={() => setFilter("main")}     className={filterBtnCls("main")}>Main ({counts.main})</button>
+                <button onClick={() => setFilter("side")}     className={filterBtnCls("side")}>Side ({counts.side})</button>
+                <button onClick={() => setFilter("warframe")} className={filterBtnCls("warframe")}>Warframe ({counts.warframe})</button>
+            </div>
+
+            {/* Quest list — global index always preserved so position-in-story is visible */}
+            <ol className="list-none m-0 p-0">
+                {QUESTS.map((q, i) =>
+                    filter === "all" || q.type === filter
+                        ? <QuestEntry key={q.name} quest={q} index={i + 1} />
+                        : null
+                )}
+            </ol>
+        </>
+    );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Section definitions
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -403,20 +451,7 @@ const SECTIONS: Section[] = [
         id: "quest-order",
         title: "Quest Order",
         summary: "All quests in chronological order of availability — main, side, and Warframe quests woven together.",
-        content: (
-            <>
-                <div className="flex flex-wrap gap-2 text-xs">
-                    <span className={`rounded px-2 py-1 font-mono ${TYPE_BADGE_CLASS.main}`}>Main — primary storyline</span>
-                    <span className={`rounded px-2 py-1 font-mono ${TYPE_BADGE_CLASS.side}`}>Side — unlocks systems & hubs</span>
-                    <span className={`rounded px-2 py-1 font-mono ${TYPE_BADGE_CLASS.warframe}`}>Warframe — rewards a specific Warframe</span>
-                </div>
-                <ol className="list-none m-0 p-0">
-                    {QUESTS.map((q, i) => (
-                        <QuestEntry key={q.name} quest={q} index={i + 1} />
-                    ))}
-                </ol>
-            </>
-        ),
+        content: <QuestOrderSection />,
     },
     {
         id: "lich-sisters",
@@ -847,7 +882,12 @@ const SECTIONS: Section[] = [
                 <SectionHeading>Doubling your mod capacity:</SectionHeading>
                 <Bullets items={[
                     <>Install an <B>Orokin Reactor</B> in a Warframe or <B>Orokin Catalyst</B> in a weapon to double capacity from 30 to 60. The community calls these "Potatoes." Free ones appear occasionally via alerts, Nightwave rewards, and login bonuses — always install them on your primary gear.</>,
-                    "The Aura mod slot (Warframe only) adds to your capacity rather than spending it, as long as the Aura's polarity matches the slot.",
+                    <>
+                        The <B>Aura mod slot</B> (Warframe only) always <B>adds</B> capacity rather than spending it.
+                        A matching Aura polarity doubles the amount added — e.g. an Aura with a base value of 6
+                        grants +12 capacity in a matching slot, but only +3 in a mismatched one (halved, rounded down).
+                        Blank (unset) Aura slots always use the halved value regardless of the mod's polarity symbol.
+                    </>,
                 ]} />
                 <SectionHeading>Polarity slots:</SectionHeading>
                 <P>
@@ -977,6 +1017,12 @@ const SECTIONS: Section[] = [
         summary: "Faction reputation systems that reward exclusive mods, augments, and weapons. Which ones you choose early matters.",
         content: (
             <>
+                <Callout color="green">
+                    The <B>Syndicates page</B> in this app includes a simulator that helps you identify
+                    which factions to pledge to, preview rank-up requirements, and browse the full
+                    offerings available at each rank — plan which augments and weapons you're working
+                    toward before committing your daily Standing.
+                </Callout>
                 <P>
                     Syndicates are factions you earn <B>Standing</B> with by pledging to them. Once
                     pledged, <B>15% of all Affinity</B> (experience) you earn in missions is automatically
@@ -1030,12 +1076,6 @@ const SECTIONS: Section[] = [
                     UTC midnight. Syndicate Alert missions and Medallion turn-ins do not count against
                     this cap.
                 </P>
-                <Callout color="blue">
-                    The <B>Syndicates page</B> in this app includes a simulator that helps you identify
-                    which factions to pledge to, preview rank-up requirements, and browse the full
-                    offerings available at each rank — so you can plan which augments and weapons you're
-                    actually working toward before committing your daily Standing.
-                </Callout>
             </>
         ),
     },
@@ -1086,7 +1126,7 @@ export default function Handbook() {
         <div className="space-y-3 sm:space-y-4">
             {/* ── Header + nav ── */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 sm:p-5">
-                <div className="text-xl font-semibold text-slate-100">Handbook</div>
+                <div className="text-xl font-semibold text-slate-100">Tenno's Handbook</div>
                 <div className="mt-1 text-sm text-slate-400">
                     Explanations of game mechanics that commonly gate progression or cause confusion.
                 </div>
