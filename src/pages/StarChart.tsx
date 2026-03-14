@@ -1101,6 +1101,7 @@ function StarChartMap(props: {
 
         /** Convert a client-space point to SVG world coordinates. */
         function clientToWorld(cx: number, cy: number): { x: number; y: number } | null {
+            if (!svg) return null;
             const rect = svg.getBoundingClientRect();
             const vb   = vbRef.current;
             const scalePx = Math.min(rect.width / vb.w, rect.height / vb.h);
