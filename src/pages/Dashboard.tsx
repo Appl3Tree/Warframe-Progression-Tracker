@@ -52,7 +52,7 @@ export default function Dashboard() {
             <div className={[
                 "grid gap-3 min-h-0",
                 hasProgressionSteps ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1",
-                "lg:[height:clamp(320px,40vh,520px)]"
+                "lg:h-[40vh] lg:min-h-[320px] lg:max-h-[520px]"
             ].join(" ")}
             >
                 {hasProgressionSteps && (

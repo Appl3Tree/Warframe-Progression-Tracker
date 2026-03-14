@@ -650,11 +650,11 @@ const SECTIONS: Section[] = [
                     in the chain and to earn Brilliant Eidolon Shards. Lures are what make a capture possible.
                 </P>
                 <Steps items={[
-                    "Locate a Lure on the Plains — they appear as glowing yellow objects scattered across the field at night.",
-                    "Shoot the Lure once to activate it, then hack it to take control of it.",
-                    "Find Vomvalysts — the small, floating Eidolon fragments that drift around the Plains. Shoot them near your Lure until they transition into their spectral (ghost) form, at which point the Lure will automatically absorb them.",
-                    "After absorbing roughly 3 Vomvalysts, the Lure shifts from yellow to blue, indicating it is fully charged.",
-                    "Take a charged (blue) Lure next to the Eidolon and position it near a Synovia (weak point / glowing joint) that you have already destroyed. The Lure will tether to it, preventing the Eidolon from regenerating that limb's shield.",
+                    <>Locate a Lure on the Plains — they are <B>small floating machines</B> that drift around the field at night. They appear marked on the minimap.</>,
+                    <>Destroy the Lure (shoot it until its health reaches zero), then <B>hack it</B> to take control of it. It will then follow you.</>,
+                    <>Find Vomvalysts — the small, floating Eidolon fragments that drift around the Plains. Shoot them near your Lure until they transition into their spectral (ghost) form, at which point the Lure will automatically absorb them.</>,
+                    <>After absorbing roughly 3 Vomvalysts, the <B>Lure icon on your HUD shifts from yellow to blue</B>, indicating it is fully charged. The Lure itself does not visually change — watch the icon.</>,
+                    <>Take a charged (blue) Lure next to the Eidolon and position it near a Synovia (weak point / glowing joint) that you have already destroyed. The Lure will tether to it, preventing the Eidolon from regenerating that limb's shield.</>,
                     "Repeat with additional Lures until all Synovias are destroyed and the required number of charged Lures are attached, then deliver the killing blow with your Operator Amp to trigger a capture.",
                 ]} />
                 <Callout color="amber">
@@ -810,8 +810,19 @@ const SECTIONS: Section[] = [
                     <>Affinity earned from <B>Warframe-power kills</B> (100% to the Warframe) is fully converted through the Warframe's lens.</>,
                     <>Affinity from <B>weapon kills</B> is split 50% to the weapon and 50% to the Warframe. If the Warframe has no lens, the 50% going to it is wasted.</>,
                     <>Affinity from <B>ally kills</B> is split 25% to the Warframe and 75% shared among all equipped weapons. Rank-30 weapons without a lens waste their share.</>,
-                    <><B>Convergence Orbs</B> (glowing blue pickups that spawn periodically in missions) grant an <B>8× Focus multiplier</B> for a short window — prioritise kills during this window for maximum Focus.</>,
-                    <><B>Daily cap:</B> 250,000 Focus points, scaling up by 5,000 per Mastery Rank. Resets at 00:00 UTC. Convergence Orbs do not increase the cap — they just help you reach it faster.</>,
+                    <>
+                        <B>Convergence Orbs</B> — glowing <B>yellow</B> pickups that spawn periodically (only while you have a Lens equipped). Picking one up instantly grants <B>5,000 Focus</B> to your active school and applies a <B>10× Focus multiplier</B> for up to <B>45 seconds</B> — or until you die or hit the daily cap, whichever comes first. The orb despawns if not collected within 1 minute; a summary is displayed when the buff expires.
+                    </>,
+                    <><B>Daily cap:</B> 250,000 Focus points, scaling up by 5,000 per Mastery Rank. Resets at 00:00 UTC.</>,
+                    <>
+                        <B>Eidolon Shards</B> can also be converted to Focus directly in the Focus Trees menu — these conversions are <B>not limited by the daily cap</B>:
+                        <span className="block mt-1.5 ml-3 space-y-0.5 text-slate-400">
+                            <span className="block">Eidolon Shard → 2,500 Focus</span>
+                            <span className="block">Synthetic Eidolon Shard → 5,000 Focus</span>
+                            <span className="block">Brilliant Eidolon Shard → 25,000 Focus</span>
+                            <span className="block">Radiant Eidolon Shard → 40,000 Focus</span>
+                        </span>
+                    </>,
                 ]} />
                 <Callout color="blue">
                     <B>Tip:</B> Equip lenses on your most-used Warframe and primary weapon first. A lens on a Rank-30 weapon means all ally-kill affinity going to that weapon slot is converted rather than wasted.
@@ -986,31 +997,57 @@ const SECTIONS: Section[] = [
                     mods), so knowing when it lands helps you decide when to extract.
                 </P>
 
-                <SectionHeading>Standard AABC missions</SectionHeading>
+                {/* AABC cycle visual reference */}
+                <div className="rounded-lg border border-slate-700/60 bg-slate-900/40 overflow-x-auto">
+                    <div className="px-3 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">AABC Cycle — repeating pattern</div>
+                    <table className="w-full text-xs min-w-[360px]">
+                        <thead>
+                            <tr className="border-t border-slate-800/60">
+                                <td className="px-3 py-1.5 text-slate-500 font-medium whitespace-nowrap">Interval</td>
+                                {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"].map((n) => (
+                                    <td key={n} className="px-2 py-1.5 text-center text-slate-400 font-mono">{n}</td>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="border-t border-slate-800/60">
+                                <td className="px-3 py-1.5 text-slate-500 font-medium">Rotation</td>
+                                {["A", "A", "B", "C", "A", "A", "B", "C"].map((r, i) => (
+                                    <td key={i} className={`px-2 py-1.5 text-center font-bold font-mono ${
+                                        r === "C" ? "text-amber-400" : r === "B" ? "text-sky-400" : "text-slate-300"
+                                    }`}>{r}</td>
+                                ))}
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p className="px-3 pb-2.5 text-[11px] text-slate-500">Pattern repeats from the 5th interval onward.</p>
+                </div>
+
+                <SectionHeading>Standard AABC missions — reward trigger per mission type</SectionHeading>
                 <TableWrap>
                     <table className="w-full text-xs min-w-[480px]">
                         <thead className="bg-slate-900/60">
                             <tr>
                                 <th className="text-left px-3 py-2.5 text-slate-300">Mission type</th>
-                                <th className="text-left px-3 py-2.5 text-slate-300">Reward trigger</th>
-                                <th className="text-left px-3 py-2.5 text-slate-300">Rotation sequence</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">One interval =</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">First C rotation at</th>
                             </tr>
                         </thead>
                         <tbody>
                             {[
-                                ["Defense", "Every 3 waves", "3→A  6→A  9→B  12→C  (repeats)"],
-                                ["Survival", "Every 5 minutes", "5min→A  10min→A  15min→B  20min→C  (repeats)"],
-                                ["Interception", "Every completed round", "Round 1→A  2→A  3→B  4→C  (repeats)"],
-                                ["Excavation", "Every completed excavator (100 Cryotic)", "1st→A  2nd→A  3rd→B  4th→C  (repeats)"],
-                                ["Defection", "Every 2 squads safely escorted", "2 squads→A  4→A  6→B  8→C  (repeats)"],
+                                ["Defense", "Every 3 waves", "Wave 12 (4th interval)"],
+                                ["Survival", "Every 5 minutes", "20 minutes (4th interval)"],
+                                ["Interception", "Every completed round", "Round 4 (4th interval)"],
+                                ["Excavation", "Every 100 Cryotic excavated", "4th excavator (4th interval)"],
+                                ["Defection", "Every 2 squads safely escorted", "8 squads total (4th interval)"],
                                 ["Mobile Defense", "Mission completion", "Single reward — no rotation"],
                                 ["Capture / Exterminate", "Mission completion", "Single reward — no rotation"],
                                 ["Spy", "Per vault successfully hacked", "Up to 3 rewards (one per vault) — no cycle"],
-                            ].map(([type, trigger, seq]) => (
+                            ].map(([type, trigger, firstC]) => (
                                 <tr key={type} className="border-t border-slate-800/60">
                                     <td className="px-3 py-2 font-semibold text-slate-100">{type}</td>
                                     <td className="px-3 py-2 text-slate-400">{trigger}</td>
-                                    <td className="px-3 py-2 text-slate-300 font-mono text-[11px]">{seq}</td>
+                                    <td className="px-3 py-2 text-amber-300/90 font-medium">{firstC}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -1021,33 +1058,40 @@ const SECTIONS: Section[] = [
                 <P>
                     Disruption does <B>not</B> use the standard AABC cycle. Each round has 4 conduits;
                     the rotation you receive depends on <B>both the round number and how many conduits
-                    you successfully defend</B> that round.
+                    you successfully defend</B> that round. Defend more conduits to get better rotations.
                 </P>
                 <TableWrap>
                     <table className="w-full text-xs min-w-[420px]">
                         <thead className="bg-slate-900/60">
                             <tr>
                                 <th className="text-left px-3 py-2.5 text-slate-300">Round</th>
-                                <th className="text-left px-3 py-2.5 text-slate-300">Conduits defended → Rotation</th>
+                                <th className="text-center px-3 py-2.5 text-slate-300">1 conduit</th>
+                                <th className="text-center px-3 py-2.5 text-slate-300">2 conduits</th>
+                                <th className="text-center px-3 py-2.5 text-slate-300">3 conduits</th>
+                                <th className="text-center px-3 py-2.5 text-slate-300">4 conduits</th>
                             </tr>
                         </thead>
                         <tbody>
                             {[
-                                ["Round 1", "1–3 conduits → A   |   4 conduits → B"],
-                                ["Round 2", "1–2 conduits → A   |   3–4 conduits → B"],
-                                ["Round 3", "1 conduit → A   |   2–3 conduits → B   |   4 conduits → C"],
-                                ["Round 4+", "1–2 conduits → B   |   3–4 conduits → C"],
-                            ].map(([round, rule]) => (
+                                ["Round 1", "A", "A", "A", "B"],
+                                ["Round 2", "A", "A", "B", "B"],
+                                ["Round 3", "A", "B", "B", "C"],
+                                ["Round 4+", "B", "B", "C", "C"],
+                            ].map(([round, c1, c2, c3, c4]) => (
                                 <tr key={round} className="border-t border-slate-800/60">
                                     <td className="px-3 py-2 font-semibold text-slate-100">{round}</td>
-                                    <td className="px-3 py-2 text-slate-300 font-mono text-[11px]">{rule}</td>
+                                    {[c1, c2, c3, c4].map((rot, i) => (
+                                        <td key={i} className={`px-3 py-2 text-center font-bold font-mono ${
+                                            rot === "C" ? "text-amber-400" : rot === "B" ? "text-sky-400" : "text-slate-400"
+                                        }`}>{rot}</td>
+                                    ))}
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </TableWrap>
                 <Callout color="blue">
-                    Defend all 4 conduits every round and you lock into <B>Rotation C</B> from Round 3
+                    Defend all 4 conduits every round and you reach <B>Rotation C</B> from Round 3
                     onward — skipping A almost entirely. Disruption is one of the best ways to farm
                     Rotation C drops per unit of time.
                 </Callout>
@@ -1166,7 +1210,7 @@ const SECTIONS: Section[] = [
                     <><B>Daily Sortie</B> — three chained missions with escalating difficulty modifiers. Rewards include Riven mods, Endo, Kuva, and Ayatan sculptures. Requires completing The War Within.</>,
                     <><B>Cephalon Simaris Synthesis Target</B> — scan the target creature with a Synthesis Scanner (not a Codex Scanner) for bonus Simaris Standing. Used to buy mods, blueprints, and Sanctuary Onslaught access.</>,
                     <><B>Maroo's Ayatan Run</B> — a short mission from Maroo rewarding an Ayatan Sculpture. Fill sculptures with Ayatan Stars and sell to Maroo for Endo, or trade to players for Platinum.</>,
-                    <><B>Syndicate Standing cap</B> — Standing resets daily up to Mastery Rank × 1,000 + 4,000. 15% of all Affinity earned converts to Standing automatically for your pledged factions. Run Syndicate Alerts and turn in Medallions for bonus Standing outside the cap.</>,
+                    <><B>Syndicate Standing cap</B> — Daily cap is 16,000 + 500 × Mastery Rank. 15% of all Affinity earned converts to Standing automatically for your pledged faction. Run Syndicate Alerts for bonus Standing. Medallions can be turned in at any time and do not count against the cap.</>,
                 ]} />
                 <SectionHeading>Weekly resets:</SectionHeading>
                 <Bullets items={[
@@ -1209,11 +1253,6 @@ const SECTIONS: Section[] = [
                     number of trades per day — MR 1 allows 2 trades/day, increasing by 1 per rank up to
                     a maximum of 30/day at MR 30. If you hit your daily limit, you'll need to wait until
                     the next UTC midnight reset. Ranking up is the only way to increase this cap.
-                </Callout>
-                <Callout color="amber">
-                    <B>Never pay Platinum for mods or Prime parts that drop in-game.</B> These are always
-                    tradeable from other players at market prices, which are nearly always far lower than
-                    the in-game Market. The in-game Market price is a convenience premium, not the fair price.
                 </Callout>
             </>
         ),
@@ -1271,17 +1310,18 @@ const SECTIONS: Section[] = [
                     </table>
                 </TableWrap>
                 <Callout color="amber">
-                    <B>You can pledge to two syndicates at once</B> — a primary and a secondary.
-                    Pledging to a faction also passively accrues a small amount of Standing toward
-                    its two allied syndicates, and reduces Standing with its two enemies. Plan your
-                    pledges carefully using the <B>Syndicates</B> page in this app. <B>New Loka</B>{" "}
-                    and <B>Steel Meridian</B> are popular early choices since they sell the farming
-                    augments Pilfering Strangledome and Pilfering Swarm respectively.
+                    <B>You can only pledge to one syndicate at a time.</B> Pledging to a faction also
+                    passively accrues a small amount of Standing toward its two allied syndicates, and
+                    reduces Standing with its two enemies. Plan your pledges carefully using the{" "}
+                    <B>Syndicates</B> page in this app. <B>New Loka</B> and <B>Steel Meridian</B> are
+                    popular early choices since they sell the farming augments Pilfering Strangledome
+                    and Pilfering Swarm respectively.
                 </Callout>
                 <P>
-                    Your daily Standing cap is <B>Mastery Rank × 1,000 + 4,000</B>. This resets at
-                    UTC midnight. Syndicate Alert missions and Medallion turn-ins do not count against
-                    this cap.
+                    Your daily Standing cap is <B>16,000 + 500 × Mastery Rank</B> (e.g. MR 10 = 21,000).
+                    This resets at UTC midnight. <B>Syndicate Medallions</B> do not count against this
+                    cap — they can be turned in at any time regardless of how much Standing you've earned
+                    that day.
                 </P>
             </>
         ),
@@ -1321,13 +1361,13 @@ export default function Handbook() {
 
     const groupTabCls = (gid: NavGroupId) =>
         gid === activeGroup.id
-            ? "shrink-0 rounded-lg border border-slate-500 bg-slate-700 px-3 py-2 text-xs font-semibold text-slate-100 transition-colors"
-            : "shrink-0 rounded-lg border border-slate-700 bg-slate-900/50 px-3 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors";
+            ? "shrink-0 rounded-lg border border-slate-400 bg-slate-700 px-3.5 py-2 text-sm font-semibold text-slate-100 transition-colors"
+            : "shrink-0 rounded-lg border border-slate-700 bg-slate-900/50 px-3.5 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors";
 
     const sectionTabCls = (id: string) =>
         id === activeId
-            ? "shrink-0 rounded-md border border-blue-700/60 bg-blue-900/30 px-3 py-1.5 text-xs font-semibold text-blue-200 transition-colors"
-            : "shrink-0 rounded-md border border-slate-700/60 bg-transparent px-3 py-1.5 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors";
+            ? "shrink-0 rounded border border-blue-700/60 bg-blue-900/30 px-2.5 py-1 text-xs font-semibold text-blue-200 transition-colors"
+            : "shrink-0 rounded border border-slate-700/40 bg-transparent px-2.5 py-1 text-xs font-medium text-slate-500 hover:bg-slate-800 hover:text-slate-300 transition-colors";
 
     return (
         <div className="space-y-3 sm:space-y-4">
@@ -1338,26 +1378,32 @@ export default function Handbook() {
                     Explanations of game mechanics that commonly gate progression or cause confusion.
                 </div>
 
-                {/* Row 1: group tabs — flex-wrap so long labels don't overflow on mobile */}
-                <div className="mt-4 flex flex-wrap gap-2">
-                    {NAV_GROUPS.map((g) => (
-                        <button key={g.id} onClick={() => selectGroup(g.id)} className={groupTabCls(g.id)}>
-                            {g.label}
-                        </button>
-                    ))}
+                {/* Row 1: group tabs */}
+                <div className="mt-4">
+                    <div className="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-1.5">Category</div>
+                    <div className="flex flex-wrap gap-2">
+                        {NAV_GROUPS.map((g) => (
+                            <button key={g.id} onClick={() => selectGroup(g.id)} className={groupTabCls(g.id)}>
+                                {g.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Row 2: section tabs for active group — only shown when group has >1 section */}
                 {activeGroup.sectionIds.length > 1 && (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                        {activeGroup.sectionIds.map((id) => {
-                            const s = SECTIONS.find((x) => x.id === id)!;
-                            return (
-                                <button key={id} onClick={() => setActiveId(id)} className={sectionTabCls(id)}>
-                                    {s.title}
-                                </button>
-                            );
-                        })}
+                    <div className="mt-3 border-t border-slate-800/60 pt-3">
+                        <div className="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-1.5">Section</div>
+                        <div className="flex flex-wrap gap-1.5">
+                            {activeGroup.sectionIds.map((id) => {
+                                const s = SECTIONS.find((x) => x.id === id)!;
+                                return (
+                                    <button key={id} onClick={() => setActiveId(id)} className={sectionTabCls(id)}>
+                                        {s.title}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
             </div>

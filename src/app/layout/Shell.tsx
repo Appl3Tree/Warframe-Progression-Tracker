@@ -101,8 +101,10 @@ export default function Shell(props: { children: React.ReactNode }) {
 
                 {/* ── Main content — only this area scrolls ── */}
                 <main className="flex-1 min-w-0 overflow-y-auto">
-                    {/* Inner wrapper gives pages a consistent max-width and padding */}
-                    <div className="mx-auto max-w-7xl px-4 py-4">
+                    {/* Inner wrapper: lg:h-full lets Dashboard fill the viewport via h-full
+                        propagation. Pages with more content than the viewport overflow visibly
+                        (overflow: visible default) and <main> scrolls normally. */}
+                    <div className="mx-auto max-w-7xl px-4 py-4 lg:h-full">
                         {props.children}
                     </div>
                 </main>
