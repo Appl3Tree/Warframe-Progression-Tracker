@@ -25,8 +25,9 @@ export default function Dashboard() {
     }, [mergedMap]);
 
     return (
-        // h-full fills the scrollable <main> area; flex-col stacks rows
-        <div className="flex flex-col gap-3 h-full">
+        // lg: h-full fits the viewport with internal panel scrolling.
+        // Mobile: no height constraint — panels stack at natural height and the page scrolls.
+        <div className="flex flex-col gap-3 lg:h-full">
 
             {/* ── Header bar ── */}
             <div className="flex flex-wrap items-center justify-between gap-3 px-1">
@@ -45,22 +46,27 @@ export default function Dashboard() {
             </div>
 
             {/* ── Top row: progression + checklist ──
-                min-h-0 is essential — lets flex children shrink below their natural height.
-                Each panel manages its own internal scroll. Fixed height via min/max. */}
+                Mobile: auto height — each panel expands to show its content.
+                lg+:    fixed clamp height so both panels sit side-by-side without pushing
+                        the reset tracker off-screen. min-h-0 lets flex children shrink. */}
             <div className={[
                 "grid gap-3 min-h-0",
-                hasProgressionSteps ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
+                hasProgressionSteps ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1",
+                "lg:[height:clamp(320px,40vh,520px)]"
             ].join(" ")}
-                style={{ height: "clamp(320px, 40vh, 520px)" }}
             >
                 {hasProgressionSteps && (
-                    <ProgressionNextStepsPanel />
+                    <div className="h-[340px] lg:h-full">
+                        <ProgressionNextStepsPanel />
+                    </div>
                 )}
-                <DailyChecklist expanded={!hasProgressionSteps} />
+                <div className="h-[340px] lg:h-full">
+                    <DailyChecklist expanded={!hasProgressionSteps} />
+                </div>
             </div>
 
             {/* ── Reset tracker — fixed height, internal scroll ── */}
-            <div className="min-h-0 flex-1">
+            <div className="min-h-0 lg:flex-1">
                 <WarframeResetTracker />
             </div>
 

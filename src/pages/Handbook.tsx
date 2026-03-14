@@ -531,6 +531,86 @@ const SECTIONS: Section[] = [
         ),
     },
     {
+        id: "kuva",
+        title: "Kuva",
+        summary: "Kuva Siphons, Floods, and Guardians — how to destroy the braid, strip Guardian armor, and farm this resource efficiently.",
+        content: (
+            <>
+                <P>
+                    <B>Kuva</B> is a resource dropped or earned from Kuva-themed missions. It is used to
+                    reroll <B>Riven mods</B> (each reroll costs increasing amounts), and is indirectly
+                    involved in Kuva Lich creation (Larva spawns on Kuva-tainted nodes). The War Within
+                    quest unlocks Kuva Siphons, Kuva Floods, and the Kuva Fortress.
+                </P>
+
+                <SectionHeading>Kuva Siphons and Floods</SectionHeading>
+                <P>
+                    These are special missions that spawn on Grineer Star Chart nodes. They have a special
+                    mechanic on top of the normal mission objective: a <B>Kuva Siphon</B> — a floating
+                    device that must be destroyed using your <B>Operator</B>.
+                </P>
+                <Steps items={[
+                    <>
+                        Locate the Kuva Siphon somewhere in the map (it glows red and emits a distinctive
+                        sound). It periodically sends out a spinning <B>braid</B> that orbits the area.
+                    </>,
+                    <>
+                        Around the map are small hovering <B>Kuva clouds</B> (orange-red wisps). When
+                        the braid passes through a cloud it begins absorbing it — this is your window.
+                    </>,
+                    <>
+                        Switch to your <B>Operator</B> (Transference) and fire your <B>Void Beam</B> at
+                        the braid while it is inside the cloud. One successful hit destroys that cloud
+                        absorption and scores a hit on the Siphon. You need <B>8 hits</B> total.
+                    </>,
+                    <>
+                        If the braid finishes absorbing a cloud without being hit, it "steals" that cloud
+                        and the Siphon charges slightly — no permanent penalty, but you lose that window.
+                        Move quickly between clouds and keep your Operator beam on the braid.
+                    </>,
+                    "After 8 hits the Siphon explodes. Kuva drops in a pool — walk over it to collect.",
+                ]} />
+                <Callout color="blue">
+                    <B>Tip:</B> You do NOT need to be close to the braid — Operator Void Beam has good
+                    range. Stay mobile to reach whichever cloud the braid is heading toward next.
+                    Kuva Floods work identically but at higher enemy levels and reward more Kuva.
+                </Callout>
+
+                <SectionHeading>Kuva Guardians</SectionHeading>
+                <P>
+                    Kuva Siphon and Flood missions also spawn <B>Kuva Guardians</B> — heavy Grineer
+                    units with a glowing Kuva-infused aura. Their aura makes them <B>completely immune
+                    to weapon damage</B> until you strip it.
+                </P>
+                <Steps items={[
+                    <>
+                        Switch to your <B>Operator</B> (Transference). Move close to the Guardian and
+                        use your <B>Void Blast</B> (melee strike in Operator mode, default: E or tap aim)
+                        — this shatters the Kuva armor. The Guardian will briefly flash white.
+                    </>,
+                    "Return to your Warframe and kill the Guardian normally with weapons.",
+                    <>
+                        Alternatively, some Focus school abilities (e.g. <B>Unairu's</B> armor-strip
+                        nodes) can also remove the armor, but Operator Void Blast is the universal solution.
+                    </>,
+                ]} />
+                <Callout color="amber">
+                    <B>Common mistake:</B> Trying to shoot Kuva Guardians with weapons before stripping
+                    their armor — all damage is absorbed. Always hit them with Operator Void Blast first.
+                </Callout>
+
+                <SectionHeading>Kuva Farming Summary</SectionHeading>
+                <Bullets items={[
+                    <><B>Taveuni</B> (Kuva Fortress, Survival) — best dedicated farm; 200 Kuva per rotation tick, scales with time in mission.</>,
+                    <><B>Kuva Floods</B> — ~1,200 Kuva per completion; found on rotating Grineer nodes. Higher enemy levels than Siphons.</>,
+                    <><B>Kuva Siphons</B> — ~550 Kuva per completion; lower level, faster runs.</>,
+                    <><B>Steel Path (any node)</B> — flat 2,000 Kuva bonus added to every mission completion regardless of type.</>,
+                    <><B>Daily Sortie</B> — can reward Kuva as a bonus reward.</>,
+                ]} />
+            </>
+        ),
+    },
+    {
         id: "eidolons",
         title: "Eidolon Hunting",
         summary: "Hunting the three Eidolons on the Plains of Eidolon is the primary way to earn Arcanes and Quills Standing.",
@@ -709,9 +789,22 @@ const SECTIONS: Section[] = [
             <>
                 <P>
                     There are five Focus schools, each giving different passive bonuses to your Operator
-                    and Warframe. Focus is earned by killing enemies while a <B>Convergence Orb</B> is
-                    active (grants an 8× multiplier for a short window).
+                    and Warframe. Focus points are earned <B>passively in every mission</B> via{" "}
+                    <B>Focus Lenses</B> — items installed on Warframes or weapons that convert a percentage
+                    of earned Affinity into Focus points for the lens's school.
                 </P>
+                <SectionHeading>How Focus is earned</SectionHeading>
+                <Bullets items={[
+                    <>Install a <B>Focus Lens</B> on a Warframe or weapon. The school of the lens determines which Focus school receives points. Each item can only hold one lens.</>,
+                    <>Affinity earned from <B>Warframe-power kills</B> (100% to the Warframe) is fully converted through the Warframe's lens.</>,
+                    <>Affinity from <B>weapon kills</B> is split 50% to the weapon and 50% to the Warframe. If the Warframe has no lens, the 50% going to it is wasted.</>,
+                    <>Affinity from <B>ally kills</B> is split 25% to the Warframe and 75% shared among all equipped weapons. Rank-30 weapons without a lens waste their share.</>,
+                    <><B>Convergence Orbs</B> (glowing blue pickups that spawn periodically in missions) grant an <B>8× Focus multiplier</B> for a short window — prioritise kills during this window for maximum Focus.</>,
+                    <><B>Daily cap:</B> 250,000 Focus points, scaling up by 5,000 per Mastery Rank. Resets at 00:00 UTC. Convergence Orbs do not increase the cap — they just help you reach it faster.</>,
+                ]} />
+                <Callout color="blue">
+                    <B>Tip:</B> Equip lenses on your most-used Warframe and primary weapon first. A lens on a Rank-30 weapon means all ally-kill affinity going to that weapon slot is converted rather than wasted.
+                </Callout>
                 <TableWrap>
                     <table className="w-full text-xs min-w-[420px]">
                         <thead className="bg-slate-900/60">
@@ -1087,7 +1180,7 @@ const SECTIONS: Section[] = [
 
 const NAV_GROUPS = [
     { id: "story",    label: "Story",              sectionIds: ["quest-order"] },
-    { id: "combat",   label: "Combat Systems",      sectionIds: ["lich-sisters", "eidolons", "railjack", "necramech"] },
+    { id: "combat",   label: "Combat Systems",      sectionIds: ["lich-sisters", "kuva", "eidolons", "railjack", "necramech"] },
     { id: "build",    label: "Build & Progression", sectionIds: ["focus", "modding", "steel-path", "farming"] },
     { id: "economy",  label: "Economy & Routine",   sectionIds: ["trading", "daily-weekly", "syndicates"] },
 ] as const;
@@ -1131,8 +1224,8 @@ export default function Handbook() {
                     Explanations of game mechanics that commonly gate progression or cause confusion.
                 </div>
 
-                {/* Row 1: group tabs */}
-                <div className="mt-4 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+                {/* Row 1: group tabs — flex-wrap so long labels don't overflow on mobile */}
+                <div className="mt-4 flex flex-wrap gap-2">
                     {NAV_GROUPS.map((g) => (
                         <button key={g.id} onClick={() => selectGroup(g.id)} className={groupTabCls(g.id)}>
                             {g.label}
@@ -1142,7 +1235,7 @@ export default function Handbook() {
 
                 {/* Row 2: section tabs for active group — only shown when group has >1 section */}
                 {activeGroup.sectionIds.length > 1 && (
-                    <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                         {activeGroup.sectionIds.map((id) => {
                             const s = SECTIONS.find((x) => x.id === id)!;
                             return (

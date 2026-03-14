@@ -29,11 +29,12 @@ function NewPlayerModal({ onDismiss, onGo }: { onDismiss: () => void; onGo: () =
                             </svg>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <div className="text-base font-semibold text-slate-100">New to Warframe?</div>
+                            <div className="text-base font-semibold text-slate-100">New — or returning?</div>
                             <p className="mt-1.5 text-sm text-slate-300 leading-relaxed">
                                 Check out the <span className="font-semibold text-slate-100">Tenno's Handbook</span> — it covers
-                                quest order, key mechanics like Eidolons and Syndicates, farming
-                                strategies, and more. A good first stop before diving in.
+                                quest order and the systems that trip up both beginners and returning
+                                players alike: Eidolons, Kuva &amp; Liches, Focus schools, Syndicates,
+                                farming strategies, and more.
                             </p>
                         </div>
                     </div>
