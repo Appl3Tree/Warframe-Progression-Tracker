@@ -6,7 +6,7 @@ import { STAR_CHART_DATA } from "../../domain/catalog/starChart";
 import type { StarChartNode } from "../../domain/models/starChart";
 import { PR } from "../../domain/ids/prereqIds";
 import { useTrackerStore } from "../../store/store";
-import { EMPTY_NODE_COMPLETED, isInMainMap, displayNameFromBase } from "./starChartMapData";
+import { EMPTY_NODE_COMPLETED, VORS_PRIZE_IMPLIES_COMPLETED, isInMainMap, displayNameFromBase } from "./starChartMapData";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // List view: flat planet/node list with completion checkboxes
@@ -27,18 +27,6 @@ function StarChartListView({ steelPathMode }: SCListProps) {
     const activeMap        = steelPathMode ? spNodeCompletedMap   : nodeCompletedMap;
     const activeSetOne     = steelPathMode ? setSteelPathNodeCompleted : setNodeCompleted;
     const activeSetBulk    = steelPathMode ? setBulkSteelPathNodesCompleted : setBulkNodesCompleted;
-
-    const VORS_PRIZE_IMPLIES_COMPLETED: Record<string, true> = {
-        "node:junction_mercury_venus": true,
-        "node:junction_venus_earth":   true,
-        "node:mr/earth/e-prime":       true,
-        "node:mr/earth/mariana":       true,
-        "node:mr/earth/mantle":        true,
-        "node:mr/earth/gaia":          true,
-        "node:mr/earth/pacific":       true,
-        "node:mr/earth/cambria":       true,
-        "node:hub/earth/strata-relay": true,
-    };
 
     const effectiveMap = useMemo(() => {
         if (steelPathMode) return activeMap;

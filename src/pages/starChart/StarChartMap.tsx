@@ -10,6 +10,7 @@ import { PR } from "../../domain/ids/prereqIds";
 import { useTrackerStore } from "../../store/store";
 import {
     EMPTY_NODE_COMPLETED,
+    VORS_PRIZE_IMPLIES_COMPLETED,
     clamp,
     lerp,
     smoothstep01,
@@ -68,7 +69,6 @@ export default function StarChartMap(props: {
     selectedGroupBaseNodeId: NodeId | null;
     /** Whether we're tracking Steel Path completions instead of normal ones */
     steelPathMode: boolean;
-    setSteelPathMode: React.Dispatch<React.SetStateAction<boolean>>;
     /** Navigate to a different map view (proxima / duviri) */
     setMainMapMode: (mode: "normal" | "proxima" | "duviri") => void;
     /** Hide the Proxima / Duviri nav buttons — true when already inside a sub-map */
@@ -95,7 +95,6 @@ export default function StarChartMap(props: {
         junctionNode,
         selectedGroupBaseNodeId,
         steelPathMode,
-        setSteelPathMode,
         setMainMapMode,
         hideAlternateMaps = false,
         planetFilter = isInMainMap,
@@ -130,22 +129,6 @@ export default function StarChartMap(props: {
     const activeSetNodeCompleted      = steelPathMode ? setSteelPathNodeCompleted      : setNodeCompleted;
     const activeSetBulkNodesCompleted = steelPathMode ? setBulkSteelPathNodesCompleted : setBulkNodesCompleted;
     const activeRawNodeMap            = steelPathMode ? spNodeCompletedMap             : nodeCompletedMap;
-
-    // Nodes that are implicitly completed by finishing specific quests/milestones.
-    // Completing Vor's Prize requires clearing these early Earth nodes, so we
-    // treat them as done whenever the quest prereq is marked complete.
-    // (Only applies to normal mode — Steel Path has no prereq derivations.)
-    const VORS_PRIZE_IMPLIES_COMPLETED: Record<string, true> = {
-        "node:junction_mercury_venus":  true,  // unlocks Venus
-        "node:junction_venus_earth":    true,  // unlocks Earth
-        "node:mr/earth/e-prime":        true,
-        "node:mr/earth/mariana":        true,
-        "node:mr/earth/mantle":         true,
-        "node:mr/earth/gaia":           true,
-        "node:mr/earth/pacific":        true,
-        "node:mr/earth/cambria":        true,
-        "node:hub/earth/strata-relay":  true,
-    };
 
     // Merge prereq-derived completions with manually tracked ones.
     // Manual entries always win (so a user can un-check a derived node if desired).
@@ -1781,28 +1764,6 @@ export default function StarChartMap(props: {
                             })()}
                         </div>
                     )}
-                </div>
-
-                {/* ── Steel Path toggle (middle-right) ─────────────────────── */}
-                <div className="absolute right-3 top-1/2 z-30 -translate-y-1/2">
-                    <button
-                        className={[
-                            "flex flex-col items-center gap-1 rounded-xl border px-3 py-2 text-[10px] font-semibold uppercase tracking-widest backdrop-blur-sm transition-colors",
-                            steelPathMode
-                                ? "border-amber-500/70 bg-amber-950/70 text-amber-300 hover:bg-amber-900/80"
-                                : "border-slate-600 bg-slate-950/70 text-slate-400 hover:bg-slate-900/80 hover:text-slate-200"
-                        ].join(" ")}
-                        title={steelPathMode ? "Switch to Normal mode" : "Switch to Steel Path mode"}
-                        onClick={() => setSteelPathMode((v) => !v)}
-                    >
-                        {/* Steel Path crossed-swords icon (SVG approximation) */}
-                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <line x1="4" y1="18" x2="18" y2="4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-                            <line x1="4" y1="4"  x2="18" y2="18" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-                            <circle cx="11" cy="11" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.4"/>
-                        </svg>
-                        <span>{steelPathMode ? "Steel Path" : "Normal"}</span>
-                    </button>
                 </div>
 
                 {/* ── Alternative map buttons (top-right) ─────────────────── */}

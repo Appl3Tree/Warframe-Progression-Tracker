@@ -16,6 +16,22 @@ export type { NodeId, PlanetId, StarChartNode, StarChartPlanet };
 // ── Shared empty map (avoids creating new objects on every render) ────────────
 export const EMPTY_NODE_COMPLETED: Record<string, boolean> = {};
 
+// ── Vor's Prize implied completions ──────────────────────────────────────────
+// Completing Vor's Prize requires clearing these early nodes on Mercury/Earth,
+// so they are treated as done whenever the quest prereq is marked complete.
+// Shared by StarChartMap and StarChartListView so the logic stays in sync.
+export const VORS_PRIZE_IMPLIES_COMPLETED: Record<string, true> = {
+    "node:junction_mercury_venus": true,
+    "node:junction_venus_earth":   true,
+    "node:mr/earth/e-prime":       true,
+    "node:mr/earth/mariana":       true,
+    "node:mr/earth/mantle":        true,
+    "node:mr/earth/gaia":          true,
+    "node:mr/earth/pacific":       true,
+    "node:mr/earth/cambria":       true,
+    "node:hub/earth/strata-relay": true,
+};
+
 // ── Math utilities ────────────────────────────────────────────────────────────
 
 export function hashToUnitFloat(input: string): number {
