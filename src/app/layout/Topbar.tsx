@@ -187,7 +187,7 @@ function InlineStat({
 
 // ── Topbar ────────────────────────────────────────────────────────────────────
 
-export default function Topbar() {
+export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
     const masteryRank   = useTrackerStore((s) => s.state.player.masteryRank);
     const displayName   = useTrackerStore((s) => s.state.player.displayName);
     const accountId     = useTrackerStore((s) => s.state.player.accountId ?? "");
@@ -287,11 +287,21 @@ export default function Topbar() {
             <div className="h-12 flex items-center justify-between px-4 border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
 
                 <div className="flex items-center gap-2">
+                    {/* Hamburger — mobile only */}
+                    <button
+                        onClick={onMenuToggle}
+                        className="md:hidden rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors"
+                        aria-label="Open navigation"
+                    >
+                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
                     <svg className="h-5 w-5 text-blue-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                         <path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" />
                         <path d="M12 8v8M8.5 10l3.5 2 3.5-2" />
                     </svg>
-                    <span className="text-sm font-semibold text-slate-100 tracking-wide">Warframe Tracker</span>
+                    <span className="text-sm font-semibold text-slate-100 tracking-wide hidden sm:inline">Warframe Tracker</span>
                 </div>
 
                 {/* Profile pill */}

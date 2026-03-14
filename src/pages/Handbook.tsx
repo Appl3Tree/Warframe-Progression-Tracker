@@ -919,7 +919,7 @@ const SECTIONS: Section[] = [
                     <><B>Daily Sortie</B> — three chained missions with escalating difficulty modifiers. Rewards include Riven mods, Endo, Kuva, and Ayatan sculptures. Requires completing The War Within.</>,
                     <><B>Cephalon Simaris Synthesis Target</B> — scan the target creature with a Synthesis Scanner (not a Codex Scanner) for bonus Simaris Standing. Used to buy mods, blueprints, and Sanctuary Onslaught access.</>,
                     <><B>Maroo's Ayatan Run</B> — a short mission from Maroo rewarding an Ayatan Sculpture. Fill sculptures with Ayatan Stars and sell to Maroo for Endo, or trade to players for Platinum.</>,
-                    <><B>Syndicate Standing cap</B> — Standing resets daily up to Mastery Rank × 1,000 + 4,000. Run missions wearing your Sigil to fill it.</>,
+                    <><B>Syndicate Standing cap</B> — Standing resets daily up to Mastery Rank × 1,000 + 4,000. 15% of all Affinity earned converts to Standing automatically for your pledged factions. Run Syndicate Alerts and turn in Medallions for bonus Standing outside the cap.</>,
                 ]} />
                 <SectionHeading>Weekly resets:</SectionHeading>
                 <Bullets items={[
@@ -978,9 +978,13 @@ const SECTIONS: Section[] = [
         content: (
             <>
                 <P>
-                    Syndicates are factions you earn <B>Standing</B> with by wearing their Sigil during
-                    missions and completing their specific tasks. Higher ranks unlock better rewards —
-                    including Warframe augment mods that dramatically change playstyle.
+                    Syndicates are factions you earn <B>Standing</B> with by pledging to them. Once
+                    pledged, <B>15% of all Affinity</B> (experience) you earn in missions is automatically
+                    converted into Standing for your pledged faction — no extra steps needed. Standing
+                    can also be earned by completing daily <B>Syndicate Alert</B> missions, or by
+                    collecting and turning in <B>Syndicate Medallions</B> found hidden throughout
+                    Syndicate Alert missions. Higher ranks unlock better rewards — including Warframe
+                    augment mods that dramatically change playstyle.
                 </P>
                 <P>
                     The six major syndicates exist in opposing pairs. Supporting one faction also penalizes
@@ -1014,14 +1018,17 @@ const SECTIONS: Section[] = [
                     </table>
                 </TableWrap>
                 <Callout color="amber">
-                    <B>Pick two non-opposing syndicates</B> to level simultaneously — equip a primary Sigil
-                    for full Standing and a secondary Sigil for partial. <B>New Loka</B> and{" "}
-                    <B>Steel Meridian</B> are popular early choices since they sell the farming augments
-                    Pilfering Strangledome and Pilfering Swarm respectively.
+                    <B>You can pledge to two syndicates at once</B> — a primary and a secondary.
+                    Pledging to a faction also passively accrues a small amount of Standing toward
+                    its two allied syndicates, and reduces Standing with its two enemies. Plan your
+                    pledges carefully using the <B>Syndicates</B> page in this app. <B>New Loka</B>{" "}
+                    and <B>Steel Meridian</B> are popular early choices since they sell the farming
+                    augments Pilfering Strangledome and Pilfering Swarm respectively.
                 </Callout>
                 <P>
-                    Your daily Standing cap is <B>Mastery Rank × 1,000 + 4,000</B>. Wearing the Sigil
-                    in your Warframe's Appearance tab is required — Standing is not earned without it.
+                    Your daily Standing cap is <B>Mastery Rank × 1,000 + 4,000</B>. This resets at
+                    UTC midnight. Syndicate Alert missions and Medallion turn-ins do not count against
+                    this cap.
                 </P>
                 <Callout color="blue">
                     The <B>Syndicates page</B> in this app includes a simulator that helps you identify
@@ -1035,15 +1042,17 @@ const SECTIONS: Section[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Navigation groups — defines sidebar structure without touching SECTIONS data
+// Navigation groups — two-tier: group row → section row
 // ─────────────────────────────────────────────────────────────────────────────
 
 const NAV_GROUPS = [
-    { label: "Story", sectionIds: ["quest-order"] },
-    { label: "Combat Systems", sectionIds: ["lich-sisters", "eidolons", "railjack", "necramech"] },
-    { label: "Build & Progression", sectionIds: ["focus", "modding", "steel-path", "farming"] },
-    { label: "Economy & Routine", sectionIds: ["trading", "daily-weekly", "syndicates"] },
+    { id: "story",    label: "Story",              sectionIds: ["quest-order"] },
+    { id: "combat",   label: "Combat Systems",      sectionIds: ["lich-sisters", "eidolons", "railjack", "necramech"] },
+    { id: "build",    label: "Build & Progression", sectionIds: ["focus", "modding", "steel-path", "farming"] },
+    { id: "economy",  label: "Economy & Routine",   sectionIds: ["trading", "daily-weekly", "syndicates"] },
 ] as const;
+
+type NavGroupId = typeof NAV_GROUPS[number]["id"];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Page component
@@ -1051,76 +1060,65 @@ const NAV_GROUPS = [
 
 export default function Handbook() {
     const [activeId, setActiveId] = useState<string>("quest-order");
-    const activeSection = SECTIONS.find((s) => s.id === activeId) ?? SECTIONS[0];
 
-    const navBtn = (s: (typeof SECTIONS)[number]) =>
-        s.id === activeId
-            ? "w-full text-left rounded-lg px-3 py-2 text-xs font-semibold text-slate-100 bg-slate-700 border border-slate-500 transition-colors"
-            : "w-full text-left rounded-lg px-3 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors";
+    const activeSection = SECTIONS.find((s) => s.id === activeId) ?? SECTIONS[0];
+    const activeGroup = NAV_GROUPS.find((g) => (g.sectionIds as readonly string[]).includes(activeId)) ?? NAV_GROUPS[0];
+
+    function selectGroup(gid: NavGroupId) {
+        const group = NAV_GROUPS.find((g) => g.id === gid)!;
+        // Jump to first section in group if current section isn't in it
+        if (!(group.sectionIds as readonly string[]).includes(activeId)) {
+            setActiveId(group.sectionIds[0]);
+        }
+    }
+
+    const groupTabCls = (gid: NavGroupId) =>
+        gid === activeGroup.id
+            ? "shrink-0 rounded-lg border border-slate-500 bg-slate-700 px-3 py-2 text-xs font-semibold text-slate-100 transition-colors"
+            : "shrink-0 rounded-lg border border-slate-700 bg-slate-900/50 px-3 py-2 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors";
+
+    const sectionTabCls = (id: string) =>
+        id === activeId
+            ? "shrink-0 rounded-md border border-blue-700/60 bg-blue-900/30 px-3 py-1.5 text-xs font-semibold text-blue-200 transition-colors"
+            : "shrink-0 rounded-md border border-slate-700/60 bg-transparent px-3 py-1.5 text-xs font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors";
 
     return (
-        <div className="space-y-4 sm:space-y-5">
-            {/* ── Header ── */}
+        <div className="space-y-3 sm:space-y-4">
+            {/* ── Header + nav ── */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 sm:p-5">
                 <div className="text-xl font-semibold text-slate-100">Handbook</div>
                 <div className="mt-1 text-sm text-slate-400">
                     Explanations of game mechanics that commonly gate progression or cause confusion.
                 </div>
 
-                {/* Mobile nav: native select — clean and space-efficient */}
-                <div className="mt-4 md:hidden">
-                    <select
-                        value={activeId}
-                        onChange={(e) => setActiveId(e.target.value)}
-                        className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    >
-                        {NAV_GROUPS.map((g) => (
-                            <optgroup key={g.label} label={g.label}>
-                                {g.sectionIds.map((id) => {
-                                    const s = SECTIONS.find((x) => x.id === id)!;
-                                    return <option key={id} value={id}>{s.title}</option>;
-                                })}
-                            </optgroup>
-                        ))}
-                    </select>
-                </div>
-            </div>
-
-            {/* ── Desktop two-column layout ── */}
-            <div className="hidden md:grid md:grid-cols-[200px_1fr] md:items-start gap-4">
-                {/* Sidebar nav */}
-                <nav className="rounded-2xl border border-slate-800 bg-slate-950/40 p-3 space-y-4 sticky top-4">
+                {/* Row 1: group tabs */}
+                <div className="mt-4 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
                     {NAV_GROUPS.map((g) => (
-                        <div key={g.label}>
-                            <div className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-                                {g.label}
-                            </div>
-                            <div className="space-y-0.5">
-                                {g.sectionIds.map((id) => {
-                                    const s = SECTIONS.find((x) => x.id === id)!;
-                                    return (
-                                        <button key={id} onClick={() => setActiveId(id)} className={navBtn(s)}>
-                                            {s.title}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
+                        <button key={g.id} onClick={() => selectGroup(g.id)} className={groupTabCls(g.id)}>
+                            {g.label}
+                        </button>
                     ))}
-                </nav>
+                </div>
 
-                {/* Content panel */}
-                <Card title={activeSection.title} summary={activeSection.summary}>
-                    {activeSection.content}
-                </Card>
+                {/* Row 2: section tabs for active group — only shown when group has >1 section */}
+                {activeGroup.sectionIds.length > 1 && (
+                    <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+                        {activeGroup.sectionIds.map((id) => {
+                            const s = SECTIONS.find((x) => x.id === id)!;
+                            return (
+                                <button key={id} onClick={() => setActiveId(id)} className={sectionTabCls(id)}>
+                                    {s.title}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
-            {/* ── Mobile content panel (below the header select) ── */}
-            <div className="md:hidden">
-                <Card title={activeSection.title} summary={activeSection.summary}>
-                    {activeSection.content}
-                </Card>
-            </div>
+            {/* ── Content ── */}
+            <Card title={activeSection.title} summary={activeSection.summary}>
+                {activeSection.content}
+            </Card>
         </div>
     );
 }

@@ -78,43 +78,71 @@ const PAGE_ICONS: Record<string, React.ReactNode> = {
     ),
 };
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; onClose: () => void }) {
     const activePage = useTrackerStore((s) => s.state.ui.activePage);
     const setActivePage = useTrackerStore((s) => s.setActivePage);
 
-    return (
-        <aside className="flex flex-col w-48 shrink-0 border-r border-slate-800 bg-slate-950/60 overflow-y-auto">
-            <nav className="flex flex-col gap-0.5 p-2 py-3">
-                {NAV_ROUTES.map((n) => {
-                    const active = n.key === activePage;
-                    return (
-                        <button
-                            key={n.key}
-                            onClick={() => setActivePage(n.key)}
-                            className={[
-                                "group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors",
-                                active
-                                    ? "bg-slate-800 text-slate-100"
-                                    : "text-slate-400 hover:bg-slate-900 hover:text-slate-200"
-                            ].join(" ")}
-                            title={n.desc}
-                        >
-                            {/* Active indicator bar */}
-                            <span className={[
-                                "absolute left-2 h-4 w-0.5 rounded-full transition-all",
-                                active ? "bg-blue-400 opacity-100" : "opacity-0"
-                            ].join(" ")} />
+    const nav = (
+        <nav className="flex flex-col gap-0.5 p-2 py-3">
+            {NAV_ROUTES.map((n) => {
+                const active = n.key === activePage;
+                return (
+                    <button
+                        key={n.key}
+                        onClick={() => { setActivePage(n.key); onClose(); }}
+                        className={[
+                            "group flex items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-left transition-colors",
+                            active
+                                ? "bg-slate-800 text-slate-100"
+                                : "text-slate-400 hover:bg-slate-900 hover:text-slate-200"
+                        ].join(" ")}
+                        title={n.desc}
+                    >
+                        {/* Active indicator bar */}
+                        <span className={[
+                            "absolute left-2 h-4 w-0.5 rounded-full transition-all",
+                            active ? "bg-blue-400 opacity-100" : "opacity-0"
+                        ].join(" ")} />
 
-                            <span className={active ? "text-slate-100" : "text-slate-500 group-hover:text-slate-300"}>
-                                {PAGE_ICONS[n.key]}
-                            </span>
-                            <span className="text-sm font-medium leading-none">
-                                {n.label}
-                            </span>
-                        </button>
-                    );
-                })}
-            </nav>
-        </aside>
+                        <span className={active ? "text-slate-100" : "text-slate-500 group-hover:text-slate-300"}>
+                            {PAGE_ICONS[n.key]}
+                        </span>
+                        <span className="text-sm font-medium leading-none">
+                            {n.label}
+                        </span>
+                    </button>
+                );
+            })}
+        </nav>
+    );
+
+    return (
+        <>
+            {/* Desktop sidebar — always visible on md+ */}
+            <aside className="hidden md:flex flex-col w-48 shrink-0 border-r border-slate-800 bg-slate-950/60 overflow-y-auto">
+                {nav}
+            </aside>
+
+            {/* Mobile drawer — slides in from left as a fixed overlay */}
+            <aside className={[
+                "fixed inset-y-0 left-0 z-40 flex flex-col w-56 border-r border-slate-800 bg-slate-950 overflow-y-auto transition-transform duration-200 md:hidden",
+                mobileOpen ? "translate-x-0" : "-translate-x-full",
+            ].join(" ")}>
+                {/* Drawer header with close button */}
+                <div className="flex items-center justify-between px-4 h-12 border-b border-slate-800 shrink-0">
+                    <span className="text-sm font-semibold text-slate-200">Navigation</span>
+                    <button
+                        onClick={onClose}
+                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors"
+                        aria-label="Close navigation"
+                    >
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 6 6 18M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                {nav}
+            </aside>
+        </>
     );
 }
