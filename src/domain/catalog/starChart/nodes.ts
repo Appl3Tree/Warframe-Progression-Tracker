@@ -335,6 +335,39 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         pos: undefined,
         edges: []
     },
+    {
+        id: "node:mr/earth/sover-strait-(extra)",
+        planetId: "region:earth_proxima",
+        name: "Sover Strait (Extra)",
+        nodeType: "mission",
+        pos: undefined,
+        edges: []
+    },
+
+    {
+        id: "node:mr/earth/ogal-cluster",
+        planetId: "region:earth_proxima",
+        name: "Ogal Cluster",
+        nodeType: "mission",
+        pos: undefined,
+        edges: []
+    },
+    {
+        id: "node:mr/earth/ogal-cluster-(caches)",
+        planetId: "region:earth_proxima",
+        name: "Ogal Cluster (Caches)",
+        nodeType: "mission",
+        pos: undefined,
+        edges: []
+    },
+    {
+        id: "node:mr/earth/ogal-cluster-(extra)",
+        planetId: "region:earth_proxima",
+        name: "Ogal Cluster (Extra)",
+        nodeType: "mission",
+        pos: undefined,
+        edges: []
+    },
 
     {
         id: "node:mr/earth/cervantes-(caches)",
@@ -346,6 +379,14 @@ export const STAR_CHART_NODES: StarChartNode[] = [
     },
 
     // A few more from your list (no suffix variants)
+    {
+        id: "node:mr/earth/tikal",
+        planetId: "planet:earth",
+        name: "Tikal",
+        nodeType: "mission",
+        pos: undefined,
+        edges: []
+    },
     {
         id: "node:mr/earth/coba",
         planetId: "planet:earth",
