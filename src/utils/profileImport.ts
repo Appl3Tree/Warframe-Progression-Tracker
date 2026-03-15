@@ -68,13 +68,14 @@ function addXp(
 }
 
 function isWarframeLike(itemType: string): boolean {
-    // Conservative: treat powersuits and similar “frame-like” progress as 1,000,000 threshold.
+    // Warframes (powersuits) use a 1,000,000 XP threshold; sentinels and other
+    // companions use 450,000 even though their paths may contain “powersuit”.
     const t = itemType.toLowerCase();
     return (
-        t.includes("/lotus/powersuits/") ||
-        t.includes("/lotus/characters/tenno/") ||
-        t.includes("/lotus/types/game/") ||
-        (t.includes("/lotus/types/") && t.includes("powersuit"))
+        t.includes(“/lotus/powersuits/”) ||
+        t.includes(“/lotus/characters/tenno/”) ||
+        t.includes(“/lotus/types/game/”) ||
+        (t.includes(“/lotus/types/”) && t.includes(“powersuit”) && !t.includes(“/sentinels/”))
     );
 }
 

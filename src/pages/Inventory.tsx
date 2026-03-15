@@ -648,7 +648,7 @@ type VirtualWindow = {
 };
 
 // 5.2 Filter mode types
-type OwnershipFilter = "all" | "owned" | "unowned" | "mastered" | "unmastered";
+type OwnershipFilter = "all" | "owned" | "unowned" | "mastered";
 
 export default function Inventory() {
     const counts = useTrackerStore((s) => s.state.inventory.counts) ?? {};
@@ -882,8 +882,6 @@ export default function Inventory() {
             result = result.filter((r) => safeInt(counts[String(r.id)] ?? 0, 0) === 0);
         } else if (ownershipFilter === "mastered") {
             result = result.filter((r) => checkMastered(mastered, String(r.id), r.path));
-        } else if (ownershipFilter === "unmastered") {
-            result = result.filter((r) => !checkMastered(mastered, String(r.id), r.path));
         }
 
         // Mastery available: any masterable item not yet mastered (owned or not)
@@ -1094,11 +1092,6 @@ export default function Inventory() {
                             label="Mastered"
                             active={ownershipFilter === "mastered"}
                             onClick={() => setOwnershipFilter(ownershipFilter === "mastered" ? "all" : "mastered")}
-                        />
-                        <PillButton
-                            label="Unmastered"
-                            active={ownershipFilter === "unmastered"}
-                            onClick={() => setOwnershipFilter(ownershipFilter === "unmastered" ? "all" : "unmastered")}
                         />
                         <PillButton
                             label="Mastery available"
