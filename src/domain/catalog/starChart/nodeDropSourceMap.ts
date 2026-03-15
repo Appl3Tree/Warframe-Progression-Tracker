@@ -184,8 +184,8 @@ export function getDropSourcesForStarChartNode(nodeId: string): string[] {
     // 3) Rotations depend on missionRewards reward structure for the exact node key if present,
     //    else fall back to base node key.
     const info =
-        MR_INDEX?.[toTokenFromDisplay(planetToken)]?.[nodeTokenCanonical] ??
-        MR_INDEX?.[toTokenFromDisplay(planetToken)]?.[baseNodeToken] ??
+        MR_INDEX?.[planetToken]?.[nodeTokenCanonical] ??
+        MR_INDEX?.[planetToken]?.[baseNodeToken] ??
         null;
 
     if (info?.hasA) out.push(dataMissionRewardId(planetToken, baseNodeToken, "rotationa"));
