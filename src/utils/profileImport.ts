@@ -67,23 +67,54 @@ function addXp(
     xpByItem[key] = typeof prev === "number" ? Math.max(prev, next) : next;
 }
 
-function isWarframeLike(itemType: string): boolean {
-    // Warframes (powersuits) use a 1,000,000 XP threshold; sentinels and other
-    // companions use 450,000 even though their paths may contain "powersuit".
+/**
+ * Returns the mastery XP threshold for an item based on its internal path.
+ *
+ * Thresholds (rank 30 cumulative XP):
+ *   - Weapons (primary, secondary, melee, archwing weapons, sentinel weapons,
+ *     companion weapons, exalted/ability weapons): 450,000
+ *   - Everything else (warframes, archwings, companions/sentinels, necramechs): 900,000
+ */
+function getMasteryThreshold(itemType: string): number {
     const t = itemType.toLowerCase();
-    return (
-        t.includes("/lotus/powersuits/") ||
-        t.includes("/lotus/characters/tenno/") ||
-        t.includes("/lotus/types/game/") ||
-        (t.includes("/lotus/types/") && t.includes("powersuit") && !t.includes("/sentinels/"))
-    );
+
+    // Standard weapons: /Lotus/Weapons/...
+    if (t.includes("/lotus/weapons/")) return 450_000;
+
+    // Sentinel weapons and companion beast/kavat/kubrow weapons (explicit path fragments)
+    if (t.includes("/sentinelweapons/") || t.includes("/beastweapons/")) return 450_000;
+
+    // Exalted / ability weapons embedded under powersuit or type paths.
+    // These are identified by a weapon-type word in the last path segment
+    // (e.g. DoomSword, ExaltedBow, BerserkerMelee, NinjaStormWeapon, ZanukaPetMeleeWeaponIP).
+    const seg = t.split("/").filter(Boolean).pop() ?? "";
+    if (
+        seg.includes("weapon") ||
+        seg.endsWith("melee") ||
+        seg.endsWith("sword") ||
+        seg.endsWith("blade") ||
+        seg.endsWith("bow") ||
+        seg.endsWith("pistol") ||
+        seg.endsWith("pistols") ||
+        seg.endsWith("rifle") ||
+        seg.endsWith("staff") ||
+        seg.endsWith("fist") ||
+        seg.endsWith("claws") ||
+        seg.endsWith("guitar") ||
+        seg.endsWith("book") ||
+        seg.endsWith("sniper")
+    ) {
+        return 450_000;
+    }
+
+    // Warframes, archwings, companions, sentinels, necramechs → 900,000
+    return 900_000;
 }
 
 function computeMastered(xpByItem: Record<string, number>): Record<string, boolean> {
     const mastered: Record<string, boolean> = {};
     for (const [k, xp] of Object.entries(xpByItem)) {
-        const threshold = isWarframeLike(k) ? 1_000_000 : 450_000;
-        mastered[k] = xp >= threshold;
+        mastered[k] = xp >= getMasteryThreshold(k);
     }
     return mastered;
 }
