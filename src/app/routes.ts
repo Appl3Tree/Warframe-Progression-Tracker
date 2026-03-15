@@ -10,6 +10,7 @@ export type NavRoute = {
 export const NAV_ROUTES: NavRoute[] = [
     { key: "dashboard", label: "Dashboard", desc: "Today’s checklist and quick status." },
     { key: "inventory", label: "Inventory", desc: "Full catalog by category with filters." },
+    { key: "mods", label: "Mods & Arcanes", desc: "Browse mods and arcanes with drop locations." },
     { key: "starchart", label: "Star Chart", desc: "Click planet → node to see rewards and item sources." },
     { key: "prereqs", label: "Prerequisites", desc: "Quest and system unlock tracking." },
     { key: "syndicates", label: "Syndicates", desc: "Syndicate standing and ranks." },

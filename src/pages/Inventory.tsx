@@ -14,12 +14,12 @@ import { uid, nowIso } from "../store/storeUtils";
 type SortKey = "az" | "za" | "count-desc" | "count-asc" | "owned-first" | "unowned-first" | "mastered-last";
 
 type PrimaryTab =
-    | "all"
     | "warframesVehicles"
+    | "weapons"
     | "companions"
     | "components"
     | "resources"
-    | "weapons";
+    | "railjack";
 
 type WarframesVehiclesTab = "all" | "warframes" | "archwings" | "necramechs";
 type CompanionsTab =
@@ -721,7 +721,7 @@ export default function Inventory() {
     const [overLevelOpen, setOverLevelOpen] = useState(false);
     const [overLevelTab, setOverLevelTab] = useState<"kuva" | "tenet" | "coda">("kuva");
 
-    const [primaryTab, setPrimaryTab] = useState<PrimaryTab>("all");
+    const [primaryTab, setPrimaryTab] = useState<PrimaryTab>("warframesVehicles");
 
     const [wfVehTab, setWfVehTab] = useState<WarframesVehiclesTab>("all");
     const [companionsTab, setCompanionsTab] = useState<CompanionsTab>("all");
@@ -913,7 +913,7 @@ export default function Inventory() {
     }, [rows, weaponClassTab]);
 
     const filtered = useMemo(() => {
-        if (primaryTab === "all") return rows;
+        if (primaryTab === "railjack") return [];
 
         if (primaryTab === "warframesVehicles") {
             return rows.filter((r) => {
@@ -1147,37 +1147,6 @@ export default function Inventory() {
 
     return (
         <div className="space-y-6">
-            {/* ── Plexus (Railjack) Mastery ── */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                    <div className="text-sm font-semibold text-slate-100">Railjack</div>
-                    <span className="text-xs text-slate-500">— 1 mastery item</span>
-                </div>
-                <div className="text-xs text-slate-400 mb-3">
-                    The Plexus is the Railjack's unique loadout item. It counts toward mastery rank once leveled to Rank 30.
-                    If your profile import includes Plexus XP data it will be detected automatically; otherwise toggle it manually.
-                </div>
-                <button
-                    className={[
-                        "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors w-full sm:w-auto",
-                        plexusMastered
-                            ? "border-cyan-700 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-950/50"
-                            : "border-slate-700 bg-slate-900/40 text-slate-300 hover:bg-slate-800"
-                    ].join(" ")}
-                    onClick={() => setOverLevelMastered(PLEXUS_CATALOG_ID, !plexusMastered)}
-                    title={plexusMastered ? "Click to mark as not mastered" : "Click to mark as mastered (Rank 30)"}
-                >
-                    <span className={[
-                        "shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs font-bold",
-                        plexusMastered ? "border-cyan-500 bg-cyan-900/60 text-cyan-300" : "border-slate-600 bg-slate-800 text-slate-500"
-                    ].join(" ")}>
-                        {plexusMastered ? "✓" : ""}
-                    </span>
-                    <span className="flex-1">Plexus</span>
-                    <span className="shrink-0 text-xs text-slate-500">Railjack</span>
-                </button>
-            </div>
-
             {/* ── Overlevel Weapons Mastery (collapsible) ── */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950/40">
                 <button
@@ -1271,6 +1240,7 @@ export default function Inventory() {
                     Set Personal Goals by entering a Goal Target (0 disables).
                 </div>
 
+                {primaryTab !== "railjack" && <>
                 <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-3">
                     <div className="lg:col-span-2">
                         <label className="flex flex-col gap-1">
@@ -1365,14 +1335,19 @@ export default function Inventory() {
                         />
                     </div>
                 </div>
+                </>}
 
                 <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30">
                     <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 px-2">
-                        <TabButton label="All" active={primaryTab === "all"} onClick={() => selectPrimaryTab("all")} />
                         <TabButton
                             label="Warframes & Vehicles"
                             active={primaryTab === "warframesVehicles"}
                             onClick={() => selectPrimaryTab("warframesVehicles")}
+                        />
+                        <TabButton
+                            label="Weapons"
+                            active={primaryTab === "weapons"}
+                            onClick={() => selectPrimaryTab("weapons")}
                         />
                         <TabButton
                             label="Companions"
@@ -1390,9 +1365,9 @@ export default function Inventory() {
                             onClick={() => selectPrimaryTab("resources")}
                         />
                         <TabButton
-                            label="Weapons"
-                            active={primaryTab === "weapons"}
-                            onClick={() => selectPrimaryTab("weapons")}
+                            label="Railjack"
+                            active={primaryTab === "railjack"}
+                            onClick={() => selectPrimaryTab("railjack")}
                         />
                     </div>
 
@@ -1542,10 +1517,39 @@ export default function Inventory() {
                         </div>
                     )}
 
-                    {/* Virtualized list */}
+                    {/* Railjack tab — Plexus mastery */}
+                    {primaryTab === "railjack" && (
+                        <div className="p-4">
+                            <div className="text-xs text-slate-400 mb-4">
+                                The Plexus is the Railjack's unique loadout item. It counts toward mastery rank once leveled to Rank 30 (900,000 XP).
+                                If your profile import includes Plexus XP data it will be detected automatically; otherwise toggle it manually.
+                            </div>
+                            <button
+                                className={[
+                                    "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors w-full sm:w-auto",
+                                    plexusMastered
+                                        ? "border-cyan-700 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-950/50"
+                                        : "border-slate-700 bg-slate-900/40 text-slate-300 hover:bg-slate-800"
+                                ].join(" ")}
+                                onClick={() => setOverLevelMastered(PLEXUS_CATALOG_ID, !plexusMastered)}
+                                title={plexusMastered ? "Click to mark as not mastered" : "Click to mark as mastered (Rank 30)"}
+                            >
+                                <span className={[
+                                    "shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs font-bold",
+                                    plexusMastered ? "border-cyan-500 bg-cyan-900/60 text-cyan-300" : "border-slate-600 bg-slate-800 text-slate-500"
+                                ].join(" ")}>
+                                    {plexusMastered ? "✓" : ""}
+                                </span>
+                                <span className="flex-1">Plexus</span>
+                                <span className="shrink-0 text-xs text-slate-500">{plexusMastered ? "Mastered" : "Not mastered"}</span>
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Virtualized list — hidden on Railjack tab */}
                     <div
                         ref={listRef}
-                        className="max-h-[65vh] overflow-auto"
+                        className={["max-h-[65vh] overflow-auto", primaryTab === "railjack" ? "hidden" : ""].join(" ")}
                         onScroll={() => recomputeWindow()}
                     >
                         {/* Header */}
