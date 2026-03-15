@@ -242,9 +242,13 @@ export const useTrackerStore = create<TrackerStore>()(
                         for (const incoming of parsed.syndicates ?? []) {
                             const prev = existingById.get(incoming.id);
                             const pledged = typeof prev?.pledged === "boolean" ? prev.pledged : false;
+                            // Preserve manually-entered standing — the profile import does not
+                            // include reliable current-standing data (only cumulative totals).
+                            const standing = typeof prev?.standing === "number" ? prev.standing : (incoming.standing ?? 0);
                             merged.push({
                                 ...incoming,
-                                pledged
+                                pledged,
+                                standing
                             });
                             existingById.delete(incoming.id);
                         }

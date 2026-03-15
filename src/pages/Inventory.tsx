@@ -717,6 +717,10 @@ export default function Inventory() {
     // 5.3: Item detail panel
     const [selectedDetailId, setSelectedDetailId] = useState<CatalogId | null>(null);
 
+    // Overlevel weapons panel state
+    const [overLevelOpen, setOverLevelOpen] = useState(false);
+    const [overLevelTab, setOverLevelTab] = useState<"kuva" | "tenet" | "coda">("kuva");
+
     const [primaryTab, setPrimaryTab] = useState<PrimaryTab>("all");
 
     const [wfVehTab, setWfVehTab] = useState<WarframesVehiclesTab>("all");
@@ -846,6 +850,18 @@ export default function Inventory() {
 
     // Overlevel weapons: all Kuva/Tenet/Coda/Paracesis weapons from the catalog
     const overLevelRows = useMemo(() => {
+        function getOverLevelFamily(label: string): "kuva" | "tenet" | "coda" {
+            if (label.startsWith("Coda ") || label.startsWith("Dual Coda ")) return "coda";
+            if (label.startsWith("Tenet ")) return "tenet";
+            return "kuva"; // Kuva weapons + Paracesis
+        }
+        function weaponClassOrder(wc: string): number {
+            const w = wc.toLowerCase();
+            if (w === "primary") return 0;
+            if (w === "secondary") return 1;
+            if (w === "melee") return 2;
+            return 3;
+        }
         return (FULL_CATALOG.displayableInventoryItemIds as CatalogId[])
             .map((id) => {
                 const rec: any = FULL_CATALOG.recordsById[id];
@@ -855,10 +871,16 @@ export default function Inventory() {
                 const isMastered = overLevelMastered[String(id)] === true || overLevelMastered[path] === true;
                 const wfcdRaw = (rec as any).raw?.rawWfcd ?? null;
                 const weaponClass = wfcdRaw?.category ?? "Weapon";
-                return { id, label: rec.displayName, path, isMastered, weaponClass };
+                const label = rec.displayName;
+                const family = getOverLevelFamily(label);
+                return { id, label, path, isMastered, weaponClass, family };
             })
             .filter((r): r is NonNullable<typeof r> => !!r)
-            .sort((a, b) => a.label.localeCompare(b.label));
+            .sort((a, b) => {
+                const co = weaponClassOrder(a.weaponClass) - weaponClassOrder(b.weaponClass);
+                if (co !== 0) return co;
+                return a.label.localeCompare(b.label);
+            });
     }, [overLevelMastered]);
 
     // 5.2: Ownership + availability filter applied after category filtering
@@ -1101,8 +1123,148 @@ export default function Inventory() {
     const slice = finalFiltered.slice(vw.start, vw.end);
     const translateY = vw.start * ROW_H;
 
+    // Plexus mastery check (auto-detected from profile XP or manually toggled)
+    const PLEXUS_PATH = "/Lotus/Types/Items/CrewShip/Plexus";
+    const PLEXUS_CATALOG_ID = `items:${PLEXUS_PATH}`;
+    const plexusMastered =
+        mastered[PLEXUS_CATALOG_ID] === true || mastered[PLEXUS_PATH] === true ||
+        overLevelMastered[PLEXUS_CATALOG_ID] === true || overLevelMastered[PLEXUS_PATH] === true;
+
+    const overLevelTabRows = overLevelRows.filter((r) => r.family === overLevelTab);
+    const overLevelMasteredCount = overLevelRows.filter((r) => r.isMastered).length;
+
+    // Group overLevelTabRows by weapon class for display headers
+    const overLevelByClass = overLevelTabRows.reduce<Record<string, typeof overLevelTabRows>>((acc, r) => {
+        const wc = r.weaponClass;
+        if (!acc[wc]) acc[wc] = [];
+        acc[wc].push(r);
+        return acc;
+    }, {});
+    const classOrder = ["Primary", "Secondary", "Melee"];
+    const overLevelClassGroups = classOrder
+        .filter((wc) => overLevelByClass[wc]?.length)
+        .map((wc) => ({ label: wc, rows: overLevelByClass[wc] }));
+
     return (
         <div className="space-y-6">
+            {/* ── Plexus (Railjack) Mastery ── */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                    <div className="text-sm font-semibold text-slate-100">Railjack</div>
+                    <span className="text-xs text-slate-500">— 1 mastery item</span>
+                </div>
+                <div className="text-xs text-slate-400 mb-3">
+                    The Plexus is the Railjack's unique loadout item. It counts toward mastery rank once leveled to Rank 30.
+                    If your profile import includes Plexus XP data it will be detected automatically; otherwise toggle it manually.
+                </div>
+                <button
+                    className={[
+                        "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors w-full sm:w-auto",
+                        plexusMastered
+                            ? "border-cyan-700 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-950/50"
+                            : "border-slate-700 bg-slate-900/40 text-slate-300 hover:bg-slate-800"
+                    ].join(" ")}
+                    onClick={() => setOverLevelMastered(PLEXUS_CATALOG_ID, !plexusMastered)}
+                    title={plexusMastered ? "Click to mark as not mastered" : "Click to mark as mastered (Rank 30)"}
+                >
+                    <span className={[
+                        "shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs font-bold",
+                        plexusMastered ? "border-cyan-500 bg-cyan-900/60 text-cyan-300" : "border-slate-600 bg-slate-800 text-slate-500"
+                    ].join(" ")}>
+                        {plexusMastered ? "✓" : ""}
+                    </span>
+                    <span className="flex-1">Plexus</span>
+                    <span className="shrink-0 text-xs text-slate-500">Railjack</span>
+                </button>
+            </div>
+
+            {/* ── Overlevel Weapons Mastery (collapsible) ── */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/40">
+                <button
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
+                    onClick={() => setOverLevelOpen((v) => !v)}
+                    aria-expanded={overLevelOpen}
+                >
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm font-semibold text-slate-100">Overlevel Weapons Mastery</span>
+                        <span className="text-xs text-slate-500">
+                            {overLevelMasteredCount}/{overLevelRows.length} confirmed
+                        </span>
+                    </div>
+                    <svg
+                        className={["w-4 h-4 text-slate-400 transition-transform", overLevelOpen ? "rotate-180" : ""].join(" ")}
+                        viewBox="0 0 20 20" fill="currentColor"
+                    >
+                        <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                    </svg>
+                </button>
+
+                {overLevelOpen && (
+                    <div className="px-4 pb-4">
+                        <p className="text-xs text-slate-400 mb-3">
+                            Kuva Lich, Tenet, Technocyte Coda, and Paracesis weapons require <strong className="text-slate-200">Rank 40</strong> to count as mastered.
+                            They are not auto-detected via profile import (XP across Forma cycles is variable). Toggle each weapon once you have reached Rank 40.
+                        </p>
+
+                        {/* Family tabs */}
+                        <div className="flex gap-2 mb-4 border-b border-slate-800 pb-2">
+                            {(["kuva", "tenet", "coda"] as const).map((tab) => {
+                                const count = overLevelRows.filter((r) => r.family === tab).length;
+                                const mastered = overLevelRows.filter((r) => r.family === tab && r.isMastered).length;
+                                return (
+                                    <button
+                                        key={tab}
+                                        className={[
+                                            "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors",
+                                            overLevelTab === tab
+                                                ? "bg-slate-100 text-slate-900 border-slate-100"
+                                                : "bg-slate-950/40 text-slate-300 border-slate-700 hover:bg-slate-800"
+                                        ].join(" ")}
+                                        onClick={() => setOverLevelTab(tab)}
+                                    >
+                                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                        <span className="ml-1.5 opacity-60">{mastered}/{count}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Weapon groups by class */}
+                        {overLevelClassGroups.length === 0 && (
+                            <div className="text-xs text-slate-500">No weapons in this category.</div>
+                        )}
+                        {overLevelClassGroups.map(({ label: classLabel, rows: classRows }) => (
+                            <div key={classLabel} className="mb-4 last:mb-0">
+                                <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">{classLabel}</div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                                    {classRows.map((r) => (
+                                        <button
+                                            key={String(r.id)}
+                                            className={[
+                                                "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+                                                r.isMastered
+                                                    ? "border-cyan-700 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-950/50"
+                                                    : "border-slate-700 bg-slate-900/40 text-slate-300 hover:bg-slate-800"
+                                            ].join(" ")}
+                                            onClick={() => setOverLevelMastered(String(r.id), !r.isMastered)}
+                                            title={r.isMastered ? "Click to mark as not mastered" : "Click to mark as mastered (Rank 40)"}
+                                        >
+                                            <span className={[
+                                                "shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs font-bold",
+                                                r.isMastered ? "border-cyan-500 bg-cyan-900/60 text-cyan-300" : "border-slate-600 bg-slate-800 text-slate-500"
+                                            ].join(" ")}>
+                                                {r.isMastered ? "✓" : ""}
+                                            </span>
+                                            <span className="truncate flex-1">{r.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             <Section title="Inventory">
                 <div className="text-sm text-slate-400">
                     Search and edit item counts here. Credits and Platinum are edited in the top-right Profile header.
@@ -1521,42 +1683,6 @@ export default function Inventory() {
                             <div className="px-3 py-3 text-sm text-slate-400">No matches.</div>
                         )}
                     </div>
-                </div>
-            </Section>
-
-            {/* 5.3 Item Detail Panel */}
-            {/* Overlevel Weapons Mastery */}
-            <Section title="Overlevel Weapons Mastery">
-                <div className="text-sm text-slate-400 mb-3">
-                    Kuva Lich, Tenet, Technocyte Coda, and Paracesis weapons require <strong className="text-slate-200">Rank 40</strong> to count as mastered — they are not automatically detected via profile import because the XP accumulated across multiple Forma cycles is variable. Toggle each weapon manually once you have maxed it to Rank 40.
-                </div>
-                <div className="mb-2 flex items-center gap-3 text-xs text-slate-500">
-                    <span>
-                        Confirmed mastered: <span className="text-cyan-300 font-semibold">{overLevelRows.filter((r) => r.isMastered).length}</span> / {overLevelRows.length}
-                    </span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
-                    {overLevelRows.map((r) => (
-                        <button
-                            key={String(r.id)}
-                            className={[
-                                "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
-                                r.isMastered
-                                    ? "border-cyan-700 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-950/50"
-                                    : "border-slate-700 bg-slate-900/40 text-slate-300 hover:bg-slate-800"
-                            ].join(" ")}
-                            onClick={() => setOverLevelMastered(String(r.id), !r.isMastered)}
-                            title={r.isMastered ? "Click to mark as not mastered" : "Click to mark as mastered (Rank 40)"}
-                        >
-                            <span className={["shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs font-bold",
-                                r.isMastered ? "border-cyan-500 bg-cyan-900/60 text-cyan-300" : "border-slate-600 bg-slate-800 text-slate-500"
-                            ].join(" ")}>
-                                {r.isMastered ? "✓" : ""}
-                            </span>
-                            <span className="truncate flex-1">{r.label}</span>
-                            <span className="shrink-0 text-xs text-slate-500">{r.weaponClass}</span>
-                        </button>
-                    ))}
                 </div>
             </Section>
 
