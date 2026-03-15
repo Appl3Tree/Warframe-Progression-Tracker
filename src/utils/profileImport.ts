@@ -111,9 +111,23 @@ function getMasteryThreshold(itemType: string): number {
     return 900_000;
 }
 
+/**
+ * Returns true if the given Lotus path is a real mastery-granting item.
+ * Some paths appear in LoadOutInventory XP data but are not mastery items
+ * (e.g. Railjack engine components under /Lotus/Types/Game/CrewShip/).
+ */
+function isMasteryItem(itemType: string): boolean {
+    const t = itemType.toLowerCase();
+    // Railjack / CrewShip engine components are not mastery items
+    if (t.includes("/lotus/types/game/crewship/")) return false;
+    if (t.includes("/lotus/types/game/")) return false;
+    return true;
+}
+
 function computeMastered(xpByItem: Record<string, number>): Record<string, boolean> {
     const mastered: Record<string, boolean> = {};
     for (const [k, xp] of Object.entries(xpByItem)) {
+        if (!isMasteryItem(k)) continue;
         mastered[k] = xp >= getMasteryThreshold(k);
     }
     return mastered;
