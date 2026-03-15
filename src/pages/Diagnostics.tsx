@@ -132,6 +132,7 @@ export default function Diagnostics() {
     const goals = useTrackerStore((s) => s.state.goals ?? []);
     const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
     const inventory = useTrackerStore((s) => s.state.inventory);
+    const masteryState = useTrackerStore((s) => s.state.mastery);
 
     const requirements = useMemo(() => {
         return buildRequirementsSnapshot({
@@ -506,6 +507,26 @@ export default function Diagnostics() {
             dropMapSanity
         };
     }, [completeness, dropAcqMapStats, dropMapSanity]);
+
+    const masteryDebug = useMemo(() => {
+        const mastered = masteryState?.mastered ?? {};
+        const xpByItem = masteryState?.xpByItem ?? {};
+        const rows: Array<{ catalogId: string; name: string; xp: number; path: string }> = [];
+        for (const [key, val] of Object.entries(mastered)) {
+            if (!val) continue;
+            const rec = FULL_CATALOG.recordsById[key as any];
+            const rawPath = key.startsWith("items:") ? key.slice("items:".length) : key;
+            const xp = xpByItem[key] ?? xpByItem[rawPath] ?? 0;
+            rows.push({
+                catalogId: key,
+                name: rec?.displayName ?? rawPath.split("/").pop() ?? key,
+                xp,
+                path: rawPath
+            });
+        }
+        rows.sort((a, b) => a.name.localeCompare(b.name));
+        return rows;
+    }, [masteryState]);
 
     const defectSummary = getDefectSummary();
     const releaseBlockingDefects = getReleaseBlockingDefects();
@@ -1018,6 +1039,41 @@ export default function Diagnostics() {
                             </div>
                         )}
                     </div>
+                )}
+            </Section>
+
+            <Section
+                title="Mastery Debug"
+                subtitle="All items currently flagged as mastered in the store, with their XP values. Use this to cross-reference against the in-game codex."
+            >
+                <div className="flex flex-wrap gap-2 mb-3">
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-sm text-slate-200 hover:bg-slate-900"
+                        onClick={() => downloadJson(`mastery-debug-${snapshotStamp()}.json`, masteryDebug)}
+                    >
+                        Download mastered list (JSON)
+                    </button>
+                </div>
+                <div className="text-sm text-slate-400 mb-2">
+                    Total mastered: <span className="font-mono text-slate-200">{masteryDebug.length}</span>
+                </div>
+                {masteryDebug.length === 0 ? (
+                    <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
+                        No mastered items in store. Import a profile first.
+                    </div>
+                ) : (
+                    <details>
+                        <summary className="cursor-pointer text-xs text-slate-400">Show all {masteryDebug.length} mastered items</summary>
+                        <div className="mt-2 space-y-1 max-h-96 overflow-auto">
+                            {masteryDebug.map((r) => (
+                                <div key={r.catalogId} className="flex items-baseline gap-2 text-xs">
+                                    <span className="text-slate-200 w-48 shrink-0 truncate" title={r.name}>{r.name}</span>
+                                    <span className="text-slate-500 font-mono">{r.xp.toLocaleString()} XP</span>
+                                    <span className="text-slate-600 font-mono truncate">{r.path}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </details>
                 )}
             </Section>
 
