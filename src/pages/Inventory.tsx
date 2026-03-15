@@ -670,20 +670,26 @@ type VirtualWindow = {
     scrollTop: number;
 };
 
+// Stable fallback references — avoids creating new objects on every render in ?? fallbacks
+// which would cause useSyncExternalStore to detect a new snapshot reference and loop.
+const EMPTY_BOOL_RECORD: Record<string, boolean> = {};
+const EMPTY_NUM_RECORD: Record<string, number> = {};
+const EMPTY_ARRAY: never[] = [];
+
 // 5.2 Filter mode types
 type OwnershipFilter = "all" | "owned" | "unowned" | "mastered";
 
 export default function Inventory() {
-    const counts = useTrackerStore((s) => s.state.inventory.counts) ?? {};
+    const counts = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_NUM_RECORD);
     const setCount = useTrackerStore((s) => s.setCount);
     const setMastered = useTrackerStore((s) => s.setMastered);
     const setOverLevelMastered = useTrackerStore((s) => s.setOverLevelMastered);
-    const mastered = useTrackerStore((s) => s.state.mastery?.mastered ?? {});
-    const overLevelMastered = useTrackerStore((s) => s.state.mastery?.overLevelMastered ?? {});
-    const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
+    const mastered = useTrackerStore((s) => s.state.mastery?.mastered ?? EMPTY_BOOL_RECORD);
+    const overLevelMastered = useTrackerStore((s) => s.state.mastery?.overLevelMastered ?? EMPTY_BOOL_RECORD);
+    const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? EMPTY_BOOL_RECORD);
     const masteryRank = useTrackerStore((s) => s.state.player?.masteryRank ?? null);
 
-    const goals = useTrackerStore((s) => s.state.goals ?? []);
+    const goals = useTrackerStore((s) => s.state.goals ?? EMPTY_ARRAY);
     const addGoalItem = useTrackerStore((s) => s.addGoalItem);
     const removeGoal = useTrackerStore((s) => s.removeGoal);
     const setGoalQty = useTrackerStore((s) => s.setGoalQty);
