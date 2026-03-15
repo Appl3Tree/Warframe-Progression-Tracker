@@ -240,7 +240,22 @@ export const useTrackerStore = create<TrackerStore>()(
                         }
 
                         s.state.syndicates = merged;
-                        s.state.mastery = parsed.mastery;
+
+                        // Normalize mastery keys from raw Lotus paths ("/Lotus/...") to
+                        // catalog IDs ("items:/Lotus/...") so they match the format used
+                        // by setMastered() and inventory lookups.
+                        const rawMastery = parsed.mastery;
+                        const normalizedMastered: Record<string, boolean> = {};
+                        const normalizedXp: Record<string, number> = {};
+                        for (const [path, val] of Object.entries(rawMastery.mastered)) {
+                            const key = path.startsWith("items:") ? path : `items:${path}`;
+                            normalizedMastered[key] = val as boolean;
+                        }
+                        for (const [path, xp] of Object.entries(rawMastery.xpByItem)) {
+                            const key = path.startsWith("items:") ? path : `items:${path}`;
+                            normalizedXp[key] = xp as number;
+                        }
+                        s.state.mastery = { xpByItem: normalizedXp, mastered: normalizedMastered };
                         s.state.missions = parsed.missions;
 
                         ensureGoalsArray(s.state);

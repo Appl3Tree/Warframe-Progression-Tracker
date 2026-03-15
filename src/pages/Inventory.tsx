@@ -620,12 +620,24 @@ function classifyFromRecord(catalogId: string, rec: any): Classification {
     return cls;
 }
 
+/** Items that contribute to mastery rank when leveled */
+function isMasterableItem(cls: Classification): boolean {
+    return cls.groups.has("warframesVehicles") || cls.groups.has("weapons") || cls.groups.has("companions");
+}
+
+/** Resolve mastery status supporting both catalog ID keys and legacy Lotus path keys */
+function checkMastered(mastered: Record<string, boolean>, catalogId: string, path: string): boolean {
+    return mastered[catalogId] === true || mastered[path] === true;
+}
+
 type Row = {
     id: CatalogId;
     label: string;
     value: number;
     categories: string[];
     cls: Classification;
+    path: string;       // raw Lotus path — used for backward-compat mastery lookup
+    isMasterable: boolean;
 };
 
 type VirtualWindow = {
@@ -724,7 +736,9 @@ export default function Inventory() {
                     label: rec.displayName,
                     value: safeInt(counts[String(id)] ?? 0, 0),
                     categories,
-                    cls
+                    cls,
+                    path: String((rec as any).path ?? ""),
+                    isMasterable: isMasterableItem(cls)
                 } as Row;
             })
             .filter((r): r is Row => !!r)
@@ -762,8 +776,8 @@ export default function Inventory() {
         base.sort((a, b) => {
             const aCount = safeInt(counts[String(a.id)] ?? 0, 0);
             const bCount = safeInt(counts[String(b.id)] ?? 0, 0);
-            const aMastered = mastered[String(a.id)] === true;
-            const bMastered = mastered[String(b.id)] === true;
+            const aMastered = checkMastered(mastered, String(a.id), a.path);
+            const bMastered = checkMastered(mastered, String(b.id), b.path);
 
             switch (sortKey) {
                 case "za": return b.label.localeCompare(a.label);
@@ -812,6 +826,7 @@ export default function Inventory() {
         if (primaryTab === "warframesVehicles") {
             return rows.filter((r) => {
                 if (!r.cls.groups.has("warframesVehicles")) return false;
+                if (r.cls.groups.has("components")) return false; // blueprints/parts go to their own tab
                 if (wfVehTab === "all") return true;
                 return r.cls.warframesVehiclesSub.has(wfVehTab);
             });
@@ -820,22 +835,26 @@ export default function Inventory() {
         if (primaryTab === "companions") {
             return rows.filter((r) => {
                 if (!r.cls.groups.has("companions")) return false;
+                if (r.cls.groups.has("components")) return false;
                 if (companionsTab === "all") return true;
                 return r.cls.companionsSub.has(companionsTab);
             });
         }
 
         if (primaryTab === "resources") {
-            return rows.filter((r) => r.cls.groups.has("resources"));
+            return rows.filter((r) => r.cls.groups.has("resources") && !r.cls.groups.has("components"));
         }
 
         if (primaryTab === "components") {
+            // "Blueprints & Parts" — show items classified as components
+            // (warframe parts, weapon parts, blueprints, crafting components)
             return rows.filter((r) => r.cls.groups.has("components"));
         }
 
-        // Weapons
+        // Weapons — exclude blueprints/parts
         return rows.filter((r) => {
             if (!r.cls.groups.has("weapons")) return false;
+            if (r.cls.groups.has("components")) return false;
             if (!r.cls.weaponClasses.has(weaponClassTab)) return false;
 
             if (weaponTypeFilters.length === 0) return true;
@@ -859,12 +878,11 @@ export default function Inventory() {
             result = result.filter((r) => safeInt(counts[String(r.id)] ?? 0, 0) === 0);
         }
 
-        // Mastery available: owned but not yet mastered
+        // Mastery available: any masterable item not yet mastered (owned or not)
         if (showMasteryAvailable) {
             result = result.filter((r) => {
-                const owned = safeInt(counts[String(r.id)] ?? 0, 0) > 0;
-                const isMastered = mastered[String(r.id)] === true;
-                return owned && !isMastered;
+                if (!r.isMasterable) return false;
+                return !checkMastered(mastered, String(r.id), r.path);
             });
         }
 
@@ -1106,7 +1124,7 @@ export default function Inventory() {
                             onClick={() => selectPrimaryTab("companions")}
                         />
                         <TabButton
-                            label="Components"
+                            label="Blueprints & Parts"
                             active={primaryTab === "components"}
                             onClick={() => selectPrimaryTab("components")}
                         />
@@ -1252,7 +1270,7 @@ export default function Inventory() {
                                     const goalTarget = goal ? safeInt(goal.qty ?? 1, 1) : 0;
                                     const isSelected = selectedDetailId === r.id;
                                     const isOwned = r.value > 0;
-                                    const isMastered = mastered[String(r.id)] === true;
+                                    const isMastered = r.isMasterable && checkMastered(mastered, String(r.id), r.path);
 
                                     return (
                                         <div
@@ -1310,20 +1328,22 @@ export default function Inventory() {
                                                 </button>
                                             </div>
 
-                                            {/* Mastered toggle */}
+                                            {/* Mastered toggle — only for masterable items */}
                                             <div className="px-2 py-2 flex items-center justify-center">
-                                                <button
-                                                    title={isMastered ? "Marked as mastered — click to unmark" : "Click to mark as mastered"}
-                                                    className={[
-                                                        "w-8 h-8 rounded-full text-sm font-bold transition-colors flex items-center justify-center",
-                                                        isMastered
-                                                            ? "bg-cyan-900/60 text-cyan-300 border border-cyan-700 hover:bg-cyan-900"
-                                                            : "bg-slate-800 text-slate-500 border border-slate-700 hover:bg-slate-700 hover:text-slate-300"
-                                                    ].join(" ")}
-                                                    onClick={() => setMastered(String(r.id), !isMastered)}
-                                                >
-                                                    {isMastered ? "✓" : "M"}
-                                                </button>
+                                                {r.isMasterable && (
+                                                    <button
+                                                        title={isMastered ? "Marked as mastered — click to unmark" : "Click to mark as mastered"}
+                                                        className={[
+                                                            "w-8 h-8 rounded-full text-sm font-bold transition-colors flex items-center justify-center",
+                                                            isMastered
+                                                                ? "bg-cyan-900/60 text-cyan-300 border border-cyan-700 hover:bg-cyan-900"
+                                                                : "bg-slate-800 text-slate-500 border border-slate-700 hover:bg-slate-700 hover:text-slate-300"
+                                                        ].join(" ")}
+                                                        onClick={() => setMastered(String(r.id), !isMastered)}
+                                                    >
+                                                        {isMastered ? "✓" : "M"}
+                                                    </button>
+                                                )}
                                             </div>
 
                                             {/* Goal target */}
