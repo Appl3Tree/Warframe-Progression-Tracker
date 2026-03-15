@@ -39,6 +39,7 @@ import {
 } from "./starChartMapData";
 import type { ItemRow } from "./starChartUtils";
 import { dedupeItemsByName } from "./starChartUtils";
+import type { DropMeta, DropMetaLookup } from "./dropMetaLookup";
 import type {
     ViewBox,
     NodeGroupKind,
@@ -47,6 +48,40 @@ import type {
     PlanetLayout,
     TabSpec,
 } from "./starChartMapData";
+
+// ── Drop-meta helpers ────────────────────────────────────────────────────────
+
+function normItemKey(s: string): string {
+    return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function resolveDropMeta(it: ItemRow, dropSources: string[], lookup: DropMetaLookup): DropMeta | null {
+    const key = normItemKey(it.name);
+    for (const sid of dropSources) {
+        const entry = lookup[sid]?.[key];
+        if (entry) return entry;
+    }
+    return null;
+}
+
+function formatChance(chance: number): string {
+    if (chance >= 10) return `${chance.toFixed(2)}%`;
+    if (chance >= 1) return `${chance.toFixed(2)}%`;
+    return `${chance.toFixed(2)}%`;
+}
+
+const RARITY_CLASSES: Record<string, string> = {
+    common: "text-slate-300",
+    uncommon: "text-green-400",
+    rare: "text-blue-400",
+    legendary: "text-amber-400",
+};
+
+function rarityClass(rarity: string): string {
+    return RARITY_CLASSES[rarity.toLowerCase()] ?? "text-slate-400";
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function StarChartMap(props: {
     isInModal: boolean;
@@ -72,6 +107,8 @@ export default function StarChartMap(props: {
     steelPathMode: boolean;
     /** Navigate to a different map view (proxima / duviri) */
     setMainMapMode: (mode: "normal" | "proxima" | "duviri") => void;
+    /** Drop metadata lookup for rotation/chance/rarity display */
+    dropMetaLookup?: DropMetaLookup;
     /** Hide the Proxima / Duviri nav buttons — true when already inside a sub-map */
     hideAlternateMaps?: boolean;
     /** Optional filter controlling which planets appear — defaults to isInMainMap */
@@ -97,6 +134,7 @@ export default function StarChartMap(props: {
         selectedGroupBaseNodeId,
         steelPathMode,
         setMainMapMode,
+        dropMetaLookup = {},
         hideAlternateMaps = false,
         planetFilter = isInMainMap,
     } = props;
@@ -1219,13 +1257,23 @@ export default function StarChartMap(props: {
                                                 <div className="text-sm text-slate-400">No items resolve for this tab in the current catalog mapping.</div>
                                             ) : (
                                                 <div className="max-h-[520px] overflow-auto rounded-xl border border-slate-800 bg-slate-950/30 p-2">
-                                                    <ul className="list-disc space-y-0.5 pl-5 text-sm text-slate-200">
+                                                    <ul className="space-y-0.5 text-sm text-slate-200">
                                                         {filteredActiveItems.slice(0, 600).map((it) => {
                                                             const owned = Number(inventoryCounts[it.catalogId] ?? 0) > 0;
+                                                            const dropMeta = resolveDropMeta(it, activeTab?.dropSources ?? [], dropMetaLookup);
                                                             return (
-                                                                <li key={it.catalogId} className="break-words flex items-center gap-1.5">
-                                                                    <span className={owned ? "text-slate-500 line-through" : "font-semibold"}>{it.name}</span>
-                                                                    {owned && <span className="shrink-0 text-[10px] text-emerald-500">✓</span>}
+                                                                <li key={it.catalogId} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 py-0.5 border-b border-slate-800/50 last:border-0">
+                                                                    <span className={owned ? "text-slate-500 line-through" : "font-semibold"}>
+                                                                        {it.name}
+                                                                        {owned && <span className="ml-1.5 text-[10px] text-emerald-500">✓</span>}
+                                                                    </span>
+                                                                    {dropMeta && (
+                                                                        <span className="flex items-center gap-1 text-[11px]">
+                                                                            <span className="rounded px-1 py-px bg-slate-700 text-slate-300 font-mono font-bold">{dropMeta.rotation}</span>
+                                                                            <span className="text-slate-400">{formatChance(dropMeta.chance)}</span>
+                                                                            <span className={rarityClass(dropMeta.rarity)}>{dropMeta.rarity}</span>
+                                                                        </span>
+                                                                    )}
                                                                 </li>
                                                             );
                                                         })}

@@ -465,6 +465,7 @@ function isMissionRewardSourceId(sid: string): boolean {
  */
 export function filterSourcesForTab(kind: NodeGroupKind, sids: string[]): string[] {
     if (kind === "mission_rewards") return sids; // <-- combined (Mission Rewards + Extra)
+    if (kind === "caches") return sids; // Include missionreward rotation sources so all cache items resolve
     if (kind === "all") return sids;
     if (kind === "extra") return []; // <-- effectively removed
     return sids.filter((s) => !isMissionRewardSourceId(s));
