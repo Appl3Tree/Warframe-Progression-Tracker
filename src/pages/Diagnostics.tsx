@@ -509,19 +509,21 @@ export default function Diagnostics() {
     }, [completeness, dropAcqMapStats, dropMapSanity]);
 
     const masteryDebug = useMemo(() => {
-        const mastered = masteryState?.mastered ?? {};
+        const mastered = { ...(masteryState?.mastered ?? {}), ...(masteryState?.overLevelMastered ?? {}) };
         const xpByItem = masteryState?.xpByItem ?? {};
-        const rows: Array<{ catalogId: string; name: string; xp: number; path: string }> = [];
+        const rows: Array<{ catalogId: string; name: string; xp: number; path: string; isOverLevel?: boolean }> = [];
         for (const [key, val] of Object.entries(mastered)) {
             if (!val) continue;
             const rec = FULL_CATALOG.recordsById[key as any];
             const rawPath = key.startsWith("items:") ? key.slice("items:".length) : key;
             const xp = xpByItem[key] ?? xpByItem[rawPath] ?? 0;
+            const isOverLevel = (masteryState?.overLevelMastered ?? {})[key] === true;
             rows.push({
                 catalogId: key,
                 name: rec?.displayName ?? rawPath.split("/").pop() ?? key,
                 xp,
-                path: rawPath
+                path: rawPath,
+                isOverLevel
             });
         }
         rows.sort((a, b) => a.name.localeCompare(b.name));

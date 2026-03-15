@@ -108,6 +108,8 @@ export interface UserStateV2 {
     mastery: {
         xpByItem: Record<string, number>;
         mastered: Record<string, boolean>;
+        /** Manually confirmed mastery for overlevel weapons (Kuva/Tenet/Coda/Paracesis). */
+        overLevelMastered: Record<string, boolean>;
     };
 
     missions: {

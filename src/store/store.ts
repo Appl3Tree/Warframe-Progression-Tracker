@@ -62,6 +62,7 @@ export interface TrackerStore {
 
     setCount: (key: string, count: number) => void;
     setMastered: (key: string, val: boolean) => void;
+    setOverLevelMastered: (key: string, val: boolean) => void;
 
     setCredits: (credits: number) => void;
     setPlatinum: (platinum: number) => void;
@@ -155,12 +156,25 @@ export const useTrackerStore = create<TrackerStore>()(
 
             setMastered: (key, val) => {
                 set((s) => {
-                    if (!s.state.mastery) s.state.mastery = { xpByItem: {}, mastered: {} };
+                    if (!s.state.mastery) s.state.mastery = { xpByItem: {}, mastered: {}, overLevelMastered: {} };
                     if (!s.state.mastery.mastered) s.state.mastery.mastered = {};
                     if (val) {
                         s.state.mastery.mastered[key] = true;
                     } else {
                         delete s.state.mastery.mastered[key];
+                    }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setOverLevelMastered: (key, val) => {
+                set((s) => {
+                    if (!s.state.mastery) s.state.mastery = { xpByItem: {}, mastered: {}, overLevelMastered: {} };
+                    if (!s.state.mastery.overLevelMastered) s.state.mastery.overLevelMastered = {};
+                    if (val) {
+                        s.state.mastery.overLevelMastered[key] = true;
+                    } else {
+                        delete s.state.mastery.overLevelMastered[key];
                     }
                     s.state.meta.updatedAtIso = nowIso();
                 });
@@ -255,7 +269,9 @@ export const useTrackerStore = create<TrackerStore>()(
                             const key = path.startsWith("items:") ? path : `items:${path}`;
                             normalizedXp[key] = xp as number;
                         }
-                        s.state.mastery = { xpByItem: normalizedXp, mastered: normalizedMastered };
+                        // Preserve manually set overLevelMastered across imports.
+                        const prevOverLevel = s.state.mastery?.overLevelMastered ?? {};
+                        s.state.mastery = { xpByItem: normalizedXp, mastered: normalizedMastered, overLevelMastered: prevOverLevel };
                         s.state.missions = parsed.missions;
 
                         ensureGoalsArray(s.state);
