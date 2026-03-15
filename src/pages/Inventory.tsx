@@ -10,6 +10,8 @@ import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { getItemRequirements } from "../catalog/items/itemRequirements";
 import { uid, nowIso } from "../store/storeUtils";
 
+type SortKey = "az" | "za" | "count-desc" | "count-asc" | "owned-first" | "unowned-first" | "mastered-last";
+
 type PrimaryTab =
     | "all"
     | "warframesVehicles"
@@ -639,6 +641,7 @@ type OwnershipFilter = "all" | "owned" | "unowned";
 export default function Inventory() {
     const counts = useTrackerStore((s) => s.state.inventory.counts) ?? {};
     const setCount = useTrackerStore((s) => s.setCount);
+    const setMastered = useTrackerStore((s) => s.setMastered);
     const mastered = useTrackerStore((s) => s.state.mastery?.mastered ?? {});
     const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
     const masteryRank = useTrackerStore((s) => s.state.player?.masteryRank ?? null);
@@ -661,6 +664,7 @@ export default function Inventory() {
 
     const [query, setQuery] = useState("");
     const [hideZero, setHideZero] = useState(false);
+    const [sortKey, setSortKey] = useState<SortKey>("az");
 
     // 5.2: Additional filter state
     const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>("all");
@@ -755,9 +759,37 @@ export default function Inventory() {
                 return r.value > 0;
             });
 
-        base.sort((a, b) => a.label.localeCompare(b.label));
+        base.sort((a, b) => {
+            const aCount = safeInt(counts[String(a.id)] ?? 0, 0);
+            const bCount = safeInt(counts[String(b.id)] ?? 0, 0);
+            const aMastered = mastered[String(a.id)] === true;
+            const bMastered = mastered[String(b.id)] === true;
+
+            switch (sortKey) {
+                case "za": return b.label.localeCompare(a.label);
+                case "count-desc": if (aCount !== bCount) return bCount - aCount; break;
+                case "count-asc": if (aCount !== bCount) return aCount - bCount; break;
+                case "owned-first": {
+                    const ao = aCount > 0 ? 0 : 1, bo = bCount > 0 ? 0 : 1;
+                    if (ao !== bo) return ao - bo;
+                    break;
+                }
+                case "unowned-first": {
+                    const ao = aCount === 0 ? 0 : 1, bo = bCount === 0 ? 0 : 1;
+                    if (ao !== bo) return ao - bo;
+                    break;
+                }
+                case "mastered-last": {
+                    const am = aMastered ? 1 : 0, bm = bMastered ? 1 : 0;
+                    if (am !== bm) return am - bm;
+                    break;
+                }
+                default: break;
+            }
+            return a.label.localeCompare(b.label);
+        });
         return base;
-    }, [counts, query, hideZero]);
+    }, [counts, mastered, query, hideZero, sortKey]);
 
     // 5.2: Ownership + availability filter applied after category filtering
     // (computationally expensive filters run only on already-filtered set)
@@ -932,7 +964,7 @@ export default function Inventory() {
         const viewportH = el.clientHeight;
         const scrollTop = el.scrollTop;
 
-        const total = filtered.length;
+        const total = finalFiltered.length;
 
         const start = Math.max(0, Math.floor(scrollTop / ROW_H) - OVERSCAN);
         const visibleCount = Math.ceil(viewportH / ROW_H) + OVERSCAN * 2;
@@ -989,7 +1021,23 @@ export default function Inventory() {
                         </label>
                     </div>
 
-                    <div className="flex items-end gap-2">
+                    <div className="flex flex-col gap-2 justify-end">
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs text-slate-400">Sort by</span>
+                            <select
+                                className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm"
+                                value={sortKey}
+                                onChange={(e) => setSortKey(e.target.value as SortKey)}
+                            >
+                                <option value="az">Name A→Z</option>
+                                <option value="za">Name Z→A</option>
+                                <option value="count-desc">Count: High→Low</option>
+                                <option value="count-asc">Count: Low→High</option>
+                                <option value="owned-first">Owned first</option>
+                                <option value="unowned-first">Unowned first</option>
+                                <option value="mastered-last">Unmastered first</option>
+                            </select>
+                        </label>
                         <label className="flex items-center gap-2 text-sm text-slate-200">
                             <input
                                 type="checkbox"
@@ -1185,9 +1233,10 @@ export default function Inventory() {
                     >
                         {/* Header */}
                         <div className="sticky top-0 z-10 bg-slate-950/90 border-b border-slate-800">
-                            <div className="grid grid-cols-[1fr_140px_170px] gap-0 text-sm">
+                            <div className="grid grid-cols-[1fr_150px_90px_160px] gap-0 text-sm">
                                 <div className="px-3 py-2 text-slate-300 font-semibold">Item</div>
                                 <div className="px-3 py-2 text-slate-300 font-semibold">Count</div>
+                                <div className="px-3 py-2 text-slate-300 font-semibold text-center">Mastered</div>
                                 <div className="px-3 py-2 text-slate-300 font-semibold">Goal Target</div>
                             </div>
                         </div>
@@ -1202,16 +1251,30 @@ export default function Inventory() {
                                     const goal = goalByCatalogId.get(String(r.id));
                                     const goalTarget = goal ? safeInt(goal.qty ?? 1, 1) : 0;
                                     const isSelected = selectedDetailId === r.id;
+                                    const isOwned = r.value > 0;
+                                    const isMastered = mastered[String(r.id)] === true;
 
                                     return (
                                         <div
                                             key={String(r.id)}
-                                            className={["grid grid-cols-[1fr_140px_170px] border-b border-slate-800/70 items-start", isSelected ? "bg-slate-900/60" : ""].join(" ")}
+                                            className={["grid grid-cols-[1fr_150px_90px_160px] border-b border-slate-800/70 items-center", isSelected ? "bg-slate-900/60" : ""].join(" ")}
                                             style={{ height: ROW_H }}
                                         >
-                                            <div className="px-3 py-2 text-slate-100 flex items-center">
+                                            {/* Name + status indicators */}
+                                            <div className="px-3 py-2 flex items-center gap-2 min-w-0">
+                                                {/* Ownership/mastery dot */}
+                                                <span
+                                                    className={[
+                                                        "shrink-0 w-2 h-2 rounded-full",
+                                                        isMastered ? "bg-cyan-400" : isOwned ? "bg-emerald-500" : "bg-slate-700"
+                                                    ].join(" ")}
+                                                    title={isMastered ? "Mastered" : isOwned ? "Owned" : "Not owned"}
+                                                />
                                                 <button
-                                                    className="text-left hover:text-cyan-300 transition-colors truncate max-w-full"
+                                                    className={[
+                                                        "text-left truncate text-sm transition-colors hover:text-cyan-300",
+                                                        isMastered ? "text-cyan-400/80" : isOwned ? "text-slate-100" : "text-slate-400"
+                                                    ].join(" ")}
                                                     onClick={() => setSelectedDetailId(isSelected ? null : r.id)}
                                                     title="Click for details"
                                                 >
@@ -1219,9 +1282,17 @@ export default function Inventory() {
                                                 </button>
                                             </div>
 
-                                            <div className="px-3 py-2">
+                                            {/* Count with +/- buttons */}
+                                            <div className="px-2 py-2 flex items-center gap-1">
+                                                <button
+                                                    className="shrink-0 w-7 h-8 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-base font-bold leading-none flex items-center justify-center"
+                                                    onClick={() => setCount(String(r.id), Math.max(0, r.value - 1))}
+                                                    tabIndex={-1}
+                                                >
+                                                    −
+                                                </button>
                                                 <input
-                                                    className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100"
+                                                    className="w-14 text-center rounded-lg bg-slate-900 border border-slate-700 py-1.5 text-slate-100 text-sm"
                                                     type="number"
                                                     min={0}
                                                     value={r.value}
@@ -1230,41 +1301,56 @@ export default function Inventory() {
                                                         setCount(String(r.id), Number.isFinite(n) ? n : 0);
                                                     }}
                                                 />
+                                                <button
+                                                    className="shrink-0 w-7 h-8 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-base font-bold leading-none flex items-center justify-center"
+                                                    onClick={() => setCount(String(r.id), r.value + 1)}
+                                                    tabIndex={-1}
+                                                >
+                                                    +
+                                                </button>
                                             </div>
 
-                                            <div className="px-3 py-2">
-                                                <div className="flex items-center gap-2">
+                                            {/* Mastered toggle */}
+                                            <div className="px-2 py-2 flex items-center justify-center">
+                                                <button
+                                                    title={isMastered ? "Marked as mastered — click to unmark" : "Click to mark as mastered"}
+                                                    className={[
+                                                        "w-8 h-8 rounded-full text-sm font-bold transition-colors flex items-center justify-center",
+                                                        isMastered
+                                                            ? "bg-cyan-900/60 text-cyan-300 border border-cyan-700 hover:bg-cyan-900"
+                                                            : "bg-slate-800 text-slate-500 border border-slate-700 hover:bg-slate-700 hover:text-slate-300"
+                                                    ].join(" ")}
+                                                    onClick={() => setMastered(String(r.id), !isMastered)}
+                                                >
+                                                    {isMastered ? "✓" : "M"}
+                                                </button>
+                                            </div>
+
+                                            {/* Goal target */}
+                                            <div className="px-2 py-2">
+                                                <div className="flex items-center gap-1.5">
                                                     <input
                                                         className={[
-                                                            "w-full rounded-lg border px-3 py-2 text-slate-100",
+                                                            "w-full rounded-lg border px-2 py-1.5 text-slate-100 text-sm",
                                                             goal
                                                                 ? "bg-slate-900 border-slate-700"
-                                                                : "bg-slate-950/40 border-slate-800 text-slate-300"
+                                                                : "bg-slate-950/40 border-slate-800 text-slate-400"
                                                         ].join(" ")}
                                                         type="number"
                                                         min={0}
                                                         value={goalTarget}
                                                         onChange={(e) => {
                                                             const next = safeInt(e.target.value, 0);
-
                                                             if (next <= 0) {
-                                                                if (goal) {
-                                                                    removeGoal(goal.id);
-                                                                }
+                                                                if (goal) removeGoal(goal.id);
                                                                 return;
                                                             }
-
-                                                            if (!goal) {
-                                                                addGoalItem(String(r.id), next);
-                                                                return;
-                                                            }
-
+                                                            if (!goal) { addGoalItem(String(r.id), next); return; }
                                                             setGoalQty(goal.id, next);
                                                         }}
                                                     />
-
-                                                    <div className="text-xs text-slate-500 whitespace-nowrap">
-                                                        {goal ? "Active" : "Off"}
+                                                    <div className={["text-xs whitespace-nowrap", goal ? "text-emerald-400" : "text-slate-600"].join(" ")}>
+                                                        {goal ? "On" : "Off"}
                                                     </div>
                                                 </div>
                                             </div>
