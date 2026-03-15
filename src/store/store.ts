@@ -61,6 +61,7 @@ export interface TrackerStore {
     bulkOverwritePrereqs: (patch: Record<string, boolean>) => void;
 
     setCount: (key: string, count: number) => void;
+    setMastered: (key: string, val: boolean) => void;
 
     setCredits: (credits: number) => void;
     setPlatinum: (platinum: number) => void;
@@ -148,6 +149,19 @@ export const useTrackerStore = create<TrackerStore>()(
                         s.state.inventory.counts = {};
                     }
                     s.state.inventory.counts[key] = Math.max(0, Number.isFinite(count) ? count : 0);
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setMastered: (key, val) => {
+                set((s) => {
+                    if (!s.state.mastery) s.state.mastery = { xpByItem: {}, mastered: {} };
+                    if (!s.state.mastery.mastered) s.state.mastery.mastered = {};
+                    if (val) {
+                        s.state.mastery.mastered[key] = true;
+                    } else {
+                        delete s.state.mastery.mastered[key];
+                    }
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
