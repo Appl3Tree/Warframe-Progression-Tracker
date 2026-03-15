@@ -14,6 +14,7 @@ import Handbook from "../pages/Handbook";
 import Imports from "../pages/Imports";
 import Settings from "../pages/Settings";
 import Diagnostics from "../pages/Diagnostics";
+import Mods from "../pages/Mods";
 
 const PAGE_COMPONENTS: Record<PageKey, React.ReactNode> = {
     dashboard: <Dashboard />,
@@ -26,7 +27,8 @@ const PAGE_COMPONENTS: Record<PageKey, React.ReactNode> = {
     handbook: <Handbook />,
     imports: <Imports />,
     settings: <Settings />,
-    diagnostics: <Diagnostics />
+    diagnostics: <Diagnostics />,
+    mods: <Mods />
 };
 
 export default function App() {
