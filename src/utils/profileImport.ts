@@ -179,9 +179,14 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
         }
     }
 
-    // Mastery XP: payload.LoadOutInventory.* arrays contain { ItemType, XP }
+    // Mastery XP: LoadOutInventory.* arrays contain { ItemType, XP }.
+    // In the Warframe API the inventory is nested inside Results[0] (= root),
+    // but some older/alternate response shapes put it at the top-level payload.
+    // Try root first, then fall back to the payload root.
     const xpByItem: Record<string, number> = {};
-    const inv = isObject(payload?.LoadOutInventory) ? payload.LoadOutInventory : null;
+    const inv = isObject(root?.LoadOutInventory) ? root.LoadOutInventory
+        : isObject(payload?.LoadOutInventory) ? payload.LoadOutInventory
+        : null;
 
     if (inv) {
         for (const v of Object.values(inv)) {
