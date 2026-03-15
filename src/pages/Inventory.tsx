@@ -1124,7 +1124,7 @@ export default function Inventory() {
     const translateY = vw.start * ROW_H;
 
     // Plexus mastery check (auto-detected from profile XP or manually toggled)
-    const PLEXUS_PATH = "/Lotus/Types/Items/CrewShip/Plexus";
+    const PLEXUS_PATH = "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness";
     const PLEXUS_CATALOG_ID = `items:${PLEXUS_PATH}`;
     const plexusMastered =
         mastered[PLEXUS_CATALOG_ID] === true || mastered[PLEXUS_PATH] === true ||

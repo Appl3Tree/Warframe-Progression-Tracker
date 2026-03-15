@@ -151,8 +151,8 @@ function addXp(
 function getMasteryThreshold(itemType: string): number {
     const t = itemType.toLowerCase();
 
-    // Plexus: the Railjack loadout item counts toward mastery like a weapon.
-    if (t === "/lotus/types/items/crewship/plexus") return 450_000;
+    // Plexus: the Railjack loadout item counts toward mastery like a Warframe (900k XP).
+    if (t === "/lotus/types/game/crewship/railjack/defaultharness") return 900_000;
 
     // Standard weapons: /Lotus/Weapons/...
     if (t.includes("/lotus/weapons/")) return 450_000;
