@@ -648,7 +648,7 @@ type VirtualWindow = {
 };
 
 // 5.2 Filter mode types
-type OwnershipFilter = "all" | "owned" | "unowned";
+type OwnershipFilter = "all" | "owned" | "unowned" | "mastered" | "unmastered";
 
 export default function Inventory() {
     const counts = useTrackerStore((s) => s.state.inventory.counts) ?? {};
@@ -842,13 +842,17 @@ export default function Inventory() {
         }
 
         if (primaryTab === "resources") {
-            return rows.filter((r) => r.cls.groups.has("resources") && !r.cls.groups.has("components"));
+            // Resources: raw farming materials (Circuits, Plastids, Ferrite, etc.)
+            // Some resources also carry the "components" classification in WFCD data;
+            // show them here anyway — the Resources tab is their primary home.
+            return rows.filter((r) => r.cls.groups.has("resources"));
         }
 
         if (primaryTab === "components") {
-            // "Blueprints & Parts" — show items classified as components
-            // (warframe parts, weapon parts, blueprints, crafting components)
-            return rows.filter((r) => r.cls.groups.has("components"));
+            // "Blueprints & Parts" — actual crafting recipes, parts and components
+            // (Ash Neuroptics, Braton Blueprint, etc.), but NOT raw farming resources
+            // which happen to have the "components" classification in WFCD.
+            return rows.filter((r) => r.cls.groups.has("components") && !r.cls.isResource && !r.cls.groups.has("resources"));
         }
 
         // Weapons — exclude blueprints/parts
@@ -871,11 +875,15 @@ export default function Inventory() {
     const finalFiltered = useMemo(() => {
         let result = filtered;
 
-        // Ownership filter
+        // Ownership / mastery filter
         if (ownershipFilter === "owned") {
             result = result.filter((r) => safeInt(counts[String(r.id)] ?? 0, 0) > 0);
         } else if (ownershipFilter === "unowned") {
             result = result.filter((r) => safeInt(counts[String(r.id)] ?? 0, 0) === 0);
+        } else if (ownershipFilter === "mastered") {
+            result = result.filter((r) => checkMastered(mastered, String(r.id), r.path));
+        } else if (ownershipFilter === "unmastered") {
+            result = result.filter((r) => !checkMastered(mastered, String(r.id), r.path));
         }
 
         // Mastery available: any masterable item not yet mastered (owned or not)
@@ -1067,28 +1075,44 @@ export default function Inventory() {
                     </div>
                 </div>
 
-                {/* 5.2 Additional filters */}
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-slate-500">Ownership:</span>
-                    {(["all", "owned", "unowned"] as OwnershipFilter[]).map((f) => (
+                {/* Additional filters */}
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs text-slate-500 shrink-0">Ownership:</span>
+                        {(["all", "owned", "unowned"] as const).map((f) => (
+                            <PillButton
+                                key={f}
+                                label={f === "all" ? "All" : f === "owned" ? "Owned" : "Unowned"}
+                                active={ownershipFilter === f}
+                                onClick={() => setOwnershipFilter(f)}
+                            />
+                        ))}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs text-slate-500 shrink-0">Mastery:</span>
                         <PillButton
-                            key={f}
-                            label={f === "all" ? "All" : f === "owned" ? "Owned only" : "Unowned only"}
-                            active={ownershipFilter === f}
-                            onClick={() => setOwnershipFilter(f)}
+                            label="Mastered"
+                            active={ownershipFilter === "mastered"}
+                            onClick={() => setOwnershipFilter(ownershipFilter === "mastered" ? "all" : "mastered")}
                         />
-                    ))}
-                    <span className="ml-2 text-xs text-slate-500">Mastery:</span>
-                    <PillButton
-                        label="Mastery available"
-                        active={showMasteryAvailable}
-                        onClick={() => setShowMasteryAvailable(!showMasteryAvailable)}
-                    />
-                    <PillButton
-                        label="Accessible sources"
-                        active={showAvailableOnly}
-                        onClick={() => setShowAvailableOnly(!showAvailableOnly)}
-                    />
+                        <PillButton
+                            label="Unmastered"
+                            active={ownershipFilter === "unmastered"}
+                            onClick={() => setOwnershipFilter(ownershipFilter === "unmastered" ? "all" : "unmastered")}
+                        />
+                        <PillButton
+                            label="Mastery available"
+                            active={showMasteryAvailable}
+                            onClick={() => setShowMasteryAvailable(!showMasteryAvailable)}
+                        />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <PillButton
+                            label="Accessible sources"
+                            active={showAvailableOnly}
+                            onClick={() => setShowAvailableOnly(!showAvailableOnly)}
+                        />
+                    </div>
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
