@@ -72,10 +72,10 @@ function isWarframeLike(itemType: string): boolean {
     // companions use 450,000 even though their paths may contain "powersuit".
     const t = itemType.toLowerCase();
     return (
-        t.includes(“/lotus/powersuits/”) ||
-        t.includes(“/lotus/characters/tenno/”) ||
-        t.includes(“/lotus/types/game/”) ||
-        (t.includes(“/lotus/types/”) && t.includes("powersuit") && !t.includes(“/sentinels/”))
+        t.includes("/lotus/powersuits/") ||
+        t.includes("/lotus/characters/tenno/") ||
+        t.includes("/lotus/types/game/") ||
+        (t.includes("/lotus/types/") && t.includes("powersuit") && !t.includes("/sentinels/"))
     );
 }
 
