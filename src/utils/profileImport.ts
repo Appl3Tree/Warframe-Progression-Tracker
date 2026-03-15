@@ -3,6 +3,78 @@
 import type { SyndicateState } from "../domain/types";
 import { isOverLevelWeapon } from "../domain/catalog/overLevelWeapons";
 
+// ---------------------------------------------------------------------------
+// Affiliation tag → canonical syndicate ID mapping.
+// Warframe API uses raw tag strings (e.g. "ArbitersSyndicate") while this app
+// uses internal canonical IDs (e.g. "syndicate_arbiters_of_hexis"). Unknown
+// tags are skipped during import.
+// ---------------------------------------------------------------------------
+const AFFILIATION_TAG_TO_SYNDICATE_ID: Record<string, string> = {
+    // Relay faction syndicates
+    "SteelMeridianSyndicate":   "syndicate_steel_meridian",
+    "ArbitersSyndicate":        "syndicate_arbiters_of_hexis",
+    "CephalonSudaSyndicate":    "syndicate_cephalon_suda",
+    "PerrinSyndicate":          "syndicate_perrin_sequence",
+    "RedVeilSyndicate":         "syndicate_red_veil",
+    "NewLokaSyndicate":         "syndicate_new_loka",
+    // Cetus
+    "CetusSyndicate":           "syndicate_ostron",
+    "QuillsSyndicate":          "syndicate_quills",
+    // Fortuna
+    "SolarisSyndicate":         "syndicate_solaris_united",
+    "VoxSyndicate":             "syndicate_vox_solaris",
+    "VentKidsSyndicate":        "syndicate_ventkids",
+    // Necralisk / Deimos
+    "EntratiSyndicate":         "syndicate_entrati",
+    "NecraloidSyndicate":       "syndicate_necraloid",
+    "EntratiLabSyndicate":      "syndicate_cavia",
+    // Chrysalith / Zariman
+    "ZarimanSyndicate":         "syndicate_holdfasts",
+    // 1999
+    "HexSyndicate":             "syndicate_hex_1999",
+    // Miscellaneous
+    "LibrarySyndicate":         "syndicate_cephalon_simaris",
+    "ConclaveSyndicate":        "syndicate_conclave",
+    "KahlSyndicate":            "syndicate_kahls_garrison",
+    "NightcapJournalSyndicate": "syndicate_nightcap",
+    // Nightwave — all seasons map to the same canonical ID; the import takes
+    // the highest Title value found across multiple entries.
+    "RadioLegion2Syndicate":             "syndicate_nightwave",
+    "RadioLegionIntermission1Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission2Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission3Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission4Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission5Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission6Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission7Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission8Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission9Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission10Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission11Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission12Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission13Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission14Syndicate": "syndicate_nightwave",
+    "RadioLegionIntermission15Syndicate": "syndicate_nightwave",
+};
+
+/** Maximum achievable rank per canonical syndicate ID. */
+const SYNDICATE_MAX_RANK: Record<string, number> = {
+    "syndicate_nightwave":          180,
+    "syndicate_necraloid":          3,
+    "syndicate_kahls_garrison":     5,
+    // All others default to 5 (handled below)
+};
+
+/** Minimum rank per canonical syndicate ID (relay factions can go negative). */
+const SYNDICATE_MIN_RANK: Record<string, number> = {
+    "syndicate_steel_meridian":     -2,
+    "syndicate_arbiters_of_hexis":  -2,
+    "syndicate_cephalon_suda":      -2,
+    "syndicate_perrin_sequence":    -2,
+    "syndicate_red_veil":           -2,
+    "syndicate_new_loka":           -2,
+};
+
 export type ProfileImportResult = {
     displayName: string;
     masteryRank: number | null;
@@ -78,6 +150,9 @@ function addXp(
  */
 function getMasteryThreshold(itemType: string): number {
     const t = itemType.toLowerCase();
+
+    // Plexus: the Railjack loadout item counts toward mastery like a Warframe (900k XP).
+    if (t === "/lotus/types/game/crewship/railjack/defaultharness") return 900_000;
 
     // Standard weapons: /Lotus/Weapons/...
     if (t.includes("/lotus/weapons/")) return 450_000;
@@ -202,21 +277,50 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
     };
 
     // Syndicates: root.Affiliations: [{ Tag, Standing, Title, ... }]
-    // Relay faction syndicates can be negative rank/standing, so allow signed ranges here.
+    // We use Title for rank and map the raw API tag to a canonical syndicate ID.
+    // Standing is intentionally not imported — the API reports cumulative/total standing
+    // rather than current standing within the rank, so it cannot be used reliably.
     const syndicates: SyndicateState[] = [];
+    let nightwaveMaxRank = -1; // track max Nightwave rank across all season entries
+    const NIGHTWAVE_ID = "syndicate_nightwave";
+
     if (Array.isArray(root?.Affiliations)) {
         for (const a of root.Affiliations) {
             if (!isObject(a)) continue;
-            const id = typeof a.Tag === "string" ? a.Tag : "";
-            if (!id) continue;
+            const tag = typeof a.Tag === "string" ? a.Tag : "";
+            if (!tag) continue;
+
+            const canonId = AFFILIATION_TAG_TO_SYNDICATE_ID[tag];
+            if (!canonId) continue; // skip unrecognised syndicates
+
+            const maxRank = SYNDICATE_MAX_RANK[canonId] ?? 5;
+            const minRank = SYNDICATE_MIN_RANK[canonId] ?? 0;
+            const rank = clampIntSigned(a.Title, 0, minRank, maxRank);
+
+            // Nightwave may appear multiple times (one entry per season).
+            // We record the highest rank encountered and emit a single entry below.
+            if (canonId === NIGHTWAVE_ID) {
+                if (rank > nightwaveMaxRank) nightwaveMaxRank = rank;
+                continue;
+            }
 
             syndicates.push({
-                id,
-                name: id,
-                rank: clampIntSigned(a.Title, 0, -2, 5),
-                standing: clampIntSigned(a.Standing, 0, -44_000, 132_000)
+                id: canonId,
+                name: canonId,
+                rank,
+                standing: 0  // standing not imported (see comment above)
             });
         }
+    }
+
+    // Emit a single Nightwave entry using the highest rank found
+    if (nightwaveMaxRank >= 0) {
+        syndicates.push({
+            id: NIGHTWAVE_ID,
+            name: NIGHTWAVE_ID,
+            rank: nightwaveMaxRank,
+            standing: 0
+        });
     }
 
     // Missions: root.Missions: [{ Tag, Completes }]
