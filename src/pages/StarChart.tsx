@@ -21,6 +21,8 @@ import {
 } from "./starChart/starChartMapData";
 import type { ViewBox, NodeGroupKind, NodeGroup, TabSpec } from "./starChart/starChartMapData";
 import { buildSourceToItemsIndex } from "./starChart/starChartUtils";
+import { buildDropMetaLookup } from "./starChart/dropMetaLookup";
+import type { DropMetaLookup } from "./starChart/dropMetaLookup";
 import StarChartMap from "./starChart/StarChartMap";
 import { StarChartListView } from "./starChart/StarChartListView";
 import { StarChartProximaView } from "./starChart/StarChartProximaView";
@@ -53,6 +55,7 @@ export default function StarChart() {
     const [vb, setVb] = useState<ViewBox>(INITIAL_VB);
 
     const sourceToItemsIndex = useMemo(() => buildSourceToItemsIndex(), []);
+    const dropMetaLookup = useMemo<DropMetaLookup>(() => buildDropMetaLookup(), []);
 
     const planetsById = useMemo(() => {
         const m = new Map<string, StarChartPlanet>();
@@ -181,6 +184,7 @@ export default function StarChart() {
         selectedGroupBaseNodeId: selectedGroup?.baseNodeId ?? null,
         steelPathMode,
         setMainMapMode,
+        dropMetaLookup,
     };
 
     const sectionSubtitle =
