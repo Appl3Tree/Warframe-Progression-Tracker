@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
+import { OVERLEVEL_WEAPON_PATHS } from "../domain/catalog/overLevelWeapons";
 import { useTrackerStore } from "../store/store";
 import { determineItemAvailability, getBlockingReasons } from "../domain/logic/plannerEngine";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
@@ -30,7 +31,7 @@ type CompanionsTab =
     | "sentinel"
     | "predasite"
     | "vulpaphyla";
-type WeaponClassTab = "primary" | "secondary" | "melee";
+type WeaponClassTab = "primary" | "secondary" | "melee" | "companion";
 
 function normalize(s: string): string {
     return s.trim().toLowerCase();
@@ -151,7 +152,7 @@ type Classification = {
     companionsSub: Set<Exclude<CompanionsTab, "all">>;
 
     weaponClasses: Set<WeaponClassTab>;
-    weaponTypesByClass: Record<WeaponClassTab, Set<string>>;
+    weaponTypesByClass: Partial<Record<WeaponClassTab, Set<string>>>;
 
     isResource: boolean;
     isComponent: boolean;
@@ -166,7 +167,8 @@ function emptyClassification(): Classification {
         weaponTypesByClass: {
             primary: new Set(),
             secondary: new Set(),
-            melee: new Set()
+            melee: new Set(),
+            companion: new Set()
         },
         isResource: false,
         isComponent: false
@@ -293,7 +295,8 @@ function classifyFromCategories(categories: string[]): Classification {
         if (m.main === "primary" || m.main === "secondary" || m.main === "melee") {
             const wc = m.main as WeaponClassTab;
             if (m.sub) {
-                cls.weaponTypesByClass[wc].add(normalize(m.sub));
+                if (!cls.weaponTypesByClass[wc]) cls.weaponTypesByClass[wc] = new Set();
+                cls.weaponTypesByClass[wc]!.add(normalize(m.sub));
             }
         }
     }
@@ -341,8 +344,9 @@ function classifyFromCategories(categories: string[]): Classification {
     }
 
     for (const wc of cls.weaponClasses) {
+        if (!cls.weaponTypesByClass[wc]) cls.weaponTypesByClass[wc] = new Set();
         for (const t of otherTypeCandidates) {
-            cls.weaponTypesByClass[wc].add(t);
+            cls.weaponTypesByClass[wc]!.add(t);
         }
     }
 
@@ -350,25 +354,29 @@ function classifyFromCategories(categories: string[]): Classification {
     if (mains.has("archgun") || mains.has("archguns")) {
         cls.groups.add("weapons");
         cls.weaponClasses.add("primary");
-        cls.weaponTypesByClass.primary.add("archgun");
+        if (!cls.weaponTypesByClass.primary) cls.weaponTypesByClass.primary = new Set();
+        cls.weaponTypesByClass.primary!.add("archgun");
     }
 
     if (mains.has("speargun") || mains.has("spearguns")) {
         cls.groups.add("weapons");
         cls.weaponClasses.add("primary");
-        cls.weaponTypesByClass.primary.add("speargun");
+        if (!cls.weaponTypesByClass.primary) cls.weaponTypesByClass.primary = new Set();
+        cls.weaponTypesByClass.primary!.add("speargun");
     }
 
     if (mains.has("tome") || mains.has("tomes")) {
         cls.groups.add("weapons");
         cls.weaponClasses.add("secondary");
-        cls.weaponTypesByClass.secondary.add("tome");
+        if (!cls.weaponTypesByClass.secondary) cls.weaponTypesByClass.secondary = new Set();
+        cls.weaponTypesByClass.secondary!.add("tome");
     }
 
     if (mains.has("kitgun") || mains.has("kitguns")) {
         cls.groups.add("weapons");
         cls.weaponClasses.add("secondary");
-        cls.weaponTypesByClass.secondary.add("kitgun");
+        if (!cls.weaponTypesByClass.secondary) cls.weaponTypesByClass.secondary = new Set();
+        cls.weaponTypesByClass.secondary!.add("kitgun");
     }
 
     return cls;
@@ -470,10 +478,14 @@ function coerceCompanionSubtypeFromHeuristic(catalogId: string, rec: any): Exclu
 function isCompanionWeaponByCatalogId(catalogId: string): boolean {
     const h = normalize(String(catalogId));
 
-    // Common internal buckets for companion weapons
+    // Beast/robot/sentinel weapons stored under the Pets namespace
     if (h.includes("/types/friendly/pets/") && h.includes("/beastweapons/")) return true;
     if (h.includes("/types/friendly/pets/") && h.includes("/robotweapons/")) return true;
     if (h.includes("/types/friendly/pets/") && h.includes("/sentinelweapons/")) return true;
+
+    // Sentinel weapons stored directly under /Types/Sentinels/SentinelWeapons/
+    // (e.g. Artax, Deth Machine Rifle, Deconstructor)
+    if (h.includes("/types/sentinels/sentinelweapons/")) return true;
 
     // Common naming fragments
     if (h.includes("petweapon")) return true;
@@ -559,16 +571,14 @@ function classifyFromRecord(catalogId: string, rec: any): Classification {
     const categories = Array.isArray(rec?.categories) ? (rec.categories as string[]) : [];
     const cls = classifyFromCategories(categories);
 
-    // Companion weapons should be treated as weapons only (not companions).
+    // Companion weapons (sentinel, beast, robot) get their own "companion" weapon class tab.
     if (isCompanionWeaponByCatalogId(catalogId)) {
         cls.groups.delete("companions");
         cls.companionsSub.clear();
 
         cls.groups.add("weapons");
-
-        // Companion weapons behave like melee for UI bucketing.
-        cls.weaponClasses.add("melee");
-        cls.weaponTypesByClass.melee.add("companion");
+        cls.weaponClasses.add("companion");
+        if (!cls.weaponTypesByClass.companion) cls.weaponTypesByClass.companion = new Set();
 
         return cls;
     }
@@ -626,8 +636,19 @@ function isMasterableItem(cls: Classification): boolean {
 }
 
 /** Resolve mastery status supporting both catalog ID keys and legacy Lotus path keys */
-function checkMastered(mastered: Record<string, boolean>, catalogId: string, path: string): boolean {
-    return mastered[catalogId] === true || mastered[path] === true;
+function checkMastered(
+    mastered: Record<string, boolean>,
+    overLevelMastered: Record<string, boolean>,
+    catalogId: string,
+    path: string
+): boolean {
+    return mastered[catalogId] === true || mastered[path] === true ||
+        overLevelMastered[catalogId] === true || overLevelMastered[path] === true;
+}
+
+/** Returns true if the given Lotus path is an overlevel weapon. */
+function isOverLevelWeaponPath(path: string): boolean {
+    return OVERLEVEL_WEAPON_PATHS.has(path);
 }
 
 type Row = {
@@ -638,6 +659,8 @@ type Row = {
     cls: Classification;
     path: string;       // raw Lotus path — used for backward-compat mastery lookup
     isMasterable: boolean;
+    tags: string[];     // WFCD tags (Kuva Lich, Tenet, Vandal, Prime, etc.)
+    isOverLevel: boolean; // true for Kuva/Tenet/Coda/Paracesis weapons
 };
 
 type VirtualWindow = {
@@ -654,7 +677,9 @@ export default function Inventory() {
     const counts = useTrackerStore((s) => s.state.inventory.counts) ?? {};
     const setCount = useTrackerStore((s) => s.setCount);
     const setMastered = useTrackerStore((s) => s.setMastered);
+    const setOverLevelMastered = useTrackerStore((s) => s.setOverLevelMastered);
     const mastered = useTrackerStore((s) => s.state.mastery?.mastered ?? {});
+    const overLevelMastered = useTrackerStore((s) => s.state.mastery?.overLevelMastered ?? {});
     const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
     const masteryRank = useTrackerStore((s) => s.state.player?.masteryRank ?? null);
 
@@ -693,6 +718,7 @@ export default function Inventory() {
 
     const [weaponClassTab, setWeaponClassTab] = useState<WeaponClassTab>("primary");
     const [weaponTypeFilters, setWeaponTypeFilters] = useState<string[]>([]);
+    const [weaponTagFilters, setWeaponTagFilters] = useState<string[]>([]);
 
     function selectPrimaryTab(next: PrimaryTab) {
         setPrimaryTab(next);
@@ -706,6 +732,7 @@ export default function Inventory() {
     function selectWeaponClass(next: WeaponClassTab) {
         setWeaponClassTab(next);
         setWeaponTypeFilters([]);
+        setWeaponTagFilters([]);
     }
 
     const rows = useMemo<Row[]>(() => {
@@ -731,14 +758,20 @@ export default function Inventory() {
                     return null;
                 }
 
+                const rawPath = String((rec as any).path ?? "");
+                const wfcdRaw = (rec as any).raw?.rawWfcd ?? null;
+                const tags: string[] = Array.isArray(wfcdRaw?.tags) ? wfcdRaw.tags.filter((t: any) => typeof t === "string") : [];
+
                 return {
                     id,
                     label: rec.displayName,
                     value: safeInt(counts[String(id)] ?? 0, 0),
                     categories,
                     cls,
-                    path: String((rec as any).path ?? ""),
-                    isMasterable: isMasterableItem(cls)
+                    path: rawPath,
+                    isMasterable: isMasterableItem(cls),
+                    tags,
+                    isOverLevel: isOverLevelWeaponPath(rawPath)
                 } as Row;
             })
             .filter((r): r is Row => !!r)
@@ -776,8 +809,8 @@ export default function Inventory() {
         base.sort((a, b) => {
             const aCount = safeInt(counts[String(a.id)] ?? 0, 0);
             const bCount = safeInt(counts[String(b.id)] ?? 0, 0);
-            const aMastered = checkMastered(mastered, String(a.id), a.path);
-            const bMastered = checkMastered(mastered, String(b.id), b.path);
+            const aMastered = checkMastered(mastered, overLevelMastered, String(a.id), a.path);
+            const bMastered = checkMastered(mastered, overLevelMastered, String(b.id), b.path);
 
             switch (sortKey) {
                 case "za": return b.label.localeCompare(a.label);
@@ -805,14 +838,45 @@ export default function Inventory() {
         return base;
     }, [counts, mastered, query, hideZero, sortKey]);
 
+    // Overlevel weapons: all Kuva/Tenet/Coda/Paracesis weapons from the catalog
+    const overLevelRows = useMemo(() => {
+        return (FULL_CATALOG.displayableInventoryItemIds as CatalogId[])
+            .map((id) => {
+                const rec: any = FULL_CATALOG.recordsById[id];
+                if (!rec?.displayName) return null;
+                const path = String((rec as any).path ?? "");
+                if (!isOverLevelWeaponPath(path)) return null;
+                const isMastered = overLevelMastered[String(id)] === true || overLevelMastered[path] === true;
+                const wfcdRaw = (rec as any).raw?.rawWfcd ?? null;
+                const weaponClass = wfcdRaw?.category ?? "Weapon";
+                return { id, label: rec.displayName, path, isMastered, weaponClass };
+            })
+            .filter((r): r is NonNullable<typeof r> => !!r)
+            .sort((a, b) => a.label.localeCompare(b.label));
+    }, [overLevelMastered]);
+
     // 5.2: Ownership + availability filter applied after category filtering
     // (computationally expensive filters run only on already-filtered set)
 
     const weaponTypeOptions = useMemo(() => {
         const set = new Set<string>();
         for (const r of rows) {
+            if (!r.cls.weaponClasses.has(weaponClassTab)) continue;
             for (const t of r.cls.weaponTypesByClass[weaponClassTab] ?? []) {
                 if (t && t.trim()) set.add(normalize(t));
+            }
+        }
+        const out = Array.from(set);
+        out.sort((a, b) => a.localeCompare(b));
+        return out;
+    }, [rows, weaponClassTab]);
+
+    const weaponTagOptions = useMemo(() => {
+        const set = new Set<string>();
+        for (const r of rows) {
+            if (!r.cls.weaponClasses.has(weaponClassTab)) continue;
+            for (const tag of r.tags) {
+                if (tag.trim()) set.add(tag.trim());
             }
         }
         const out = Array.from(set);
@@ -861,13 +925,20 @@ export default function Inventory() {
             if (r.cls.groups.has("components")) return false;
             if (!r.cls.weaponClasses.has(weaponClassTab)) return false;
 
-            if (weaponTypeFilters.length === 0) return true;
+            // Type sub-filter (not applicable to companion tab)
+            if (weaponTypeFilters.length > 0 && weaponClassTab !== "companion") {
+                const allowed = new Set(weaponTypeFilters.map(normalize));
+                const types = r.cls.weaponTypesByClass[weaponClassTab];
+                if (!types || types.size === 0) return false;
+                if (!Array.from(types).some((t) => allowed.has(normalize(t)))) return false;
+            }
 
-            const allowed = new Set(weaponTypeFilters.map(normalize));
-            const types = r.cls.weaponTypesByClass[weaponClassTab];
-            if (!types || types.size === 0) return false;
+            // Tag filter
+            if (weaponTagFilters.length > 0) {
+                if (!weaponTagFilters.some((tag) => r.tags.includes(tag))) return false;
+            }
 
-            return Array.from(types).some((t) => allowed.has(normalize(t)));
+            return true;
         });
     }, [rows, primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters]);
 
@@ -881,14 +952,14 @@ export default function Inventory() {
         } else if (ownershipFilter === "unowned") {
             result = result.filter((r) => safeInt(counts[String(r.id)] ?? 0, 0) === 0);
         } else if (ownershipFilter === "mastered") {
-            result = result.filter((r) => checkMastered(mastered, String(r.id), r.path));
+            result = result.filter((r) => checkMastered(mastered, overLevelMastered, String(r.id), r.path));
         }
 
         // Mastery available: any masterable item not yet mastered (owned or not)
         if (showMasteryAvailable) {
             result = result.filter((r) => {
                 if (!r.isMasterable) return false;
-                return !checkMastered(mastered, String(r.id), r.path);
+                return !checkMastered(mastered, overLevelMastered, String(r.id), r.path);
             });
         }
 
@@ -901,7 +972,7 @@ export default function Inventory() {
         }
 
         return result;
-    }, [filtered, ownershipFilter, showMasteryAvailable, showAvailableOnly, counts, mastered, completedPrereqs, masteryRank]);
+    }, [filtered, ownershipFilter, showMasteryAvailable, showAvailableOnly, counts, mastered, overLevelMastered, completedPrereqs, masteryRank]);
 
     /**
      * Batch update goals for the *currently filtered* item list.
@@ -1004,7 +1075,7 @@ export default function Inventory() {
         // Next tick so layout is stable.
         requestAnimationFrame(() => recomputeWindow());
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters, query, hideZero, ownershipFilter, showMasteryAvailable, showAvailableOnly]);
+    }, [primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters, weaponTagFilters, query, hideZero, ownershipFilter, showMasteryAvailable, showAvailableOnly]);
 
     useEffect(() => {
         // Recompute on data length changes.
@@ -1216,42 +1287,85 @@ export default function Inventory() {
                                     active={weaponClassTab === "melee"}
                                     onClick={() => selectWeaponClass("melee")}
                                 />
+                                <SubTabButton
+                                    label="Companion"
+                                    active={weaponClassTab === "companion"}
+                                    onClick={() => selectWeaponClass("companion")}
+                                />
                             </div>
 
-                            <div className="mt-3 text-xs text-slate-400">Type</div>
-                            {weaponTypeOptions.length === 0 ? (
-                                <div className="mt-2 text-sm text-slate-500">No weapon types found for this class.</div>
-                            ) : (
+                            {weaponClassTab !== "companion" && (
                                 <>
+                                    <div className="mt-3 text-xs text-slate-400">Type</div>
+                                    {weaponTypeOptions.length === 0 ? (
+                                        <div className="mt-2 text-sm text-slate-500">No weapon types found for this class.</div>
+                                    ) : (
+                                        <>
+                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                {weaponTypeOptions.map((t) => {
+                                                    const active = weaponTypeFilters.map(normalize).includes(t);
+                                                    return (
+                                                        <PillButton
+                                                            key={t}
+                                                            label={titleCase(t)}
+                                                            active={active}
+                                                            onClick={() => {
+                                                                setWeaponTypeFilters((prev) => {
+                                                                    const normPrev = prev.map(normalize);
+                                                                    if (normPrev.includes(t)) {
+                                                                        return prev.filter((x) => normalize(x) !== t);
+                                                                    }
+                                                                    return [...prev, t];
+                                                                });
+                                                            }}
+                                                        />
+                                                    );
+                                                })}
+                                            </div>
+                                            {weaponTypeFilters.length > 0 && (
+                                                <div className="mt-2">
+                                                    <button
+                                                        className="text-xs text-slate-300 hover:text-slate-100 underline"
+                                                        onClick={() => setWeaponTypeFilters([])}
+                                                    >
+                                                        Clear type filters
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </>
+                            )}
+
+                            {weaponTagOptions.length > 0 && (
+                                <>
+                                    <div className="mt-3 text-xs text-slate-400">Tags</div>
                                     <div className="mt-2 flex flex-wrap gap-2">
-                                        {weaponTypeOptions.map((t) => {
-                                            const active = weaponTypeFilters.map(normalize).includes(t);
+                                        {weaponTagOptions.map((tag) => {
+                                            const active = weaponTagFilters.includes(tag);
                                             return (
                                                 <PillButton
-                                                    key={t}
-                                                    label={titleCase(t)}
+                                                    key={tag}
+                                                    label={tag}
                                                     active={active}
                                                     onClick={() => {
-                                                        setWeaponTypeFilters((prev) => {
-                                                            const normPrev = prev.map(normalize);
-                                                            if (normPrev.includes(t)) {
-                                                                return prev.filter((x) => normalize(x) !== t);
-                                                            }
-                                                            return [...prev, t];
-                                                        });
+                                                        setWeaponTagFilters((prev) =>
+                                                            prev.includes(tag)
+                                                                ? prev.filter((t) => t !== tag)
+                                                                : [...prev, tag]
+                                                        );
                                                     }}
                                                 />
                                             );
                                         })}
                                     </div>
-
-                                    {weaponTypeFilters.length > 0 && (
+                                    {weaponTagFilters.length > 0 && (
                                         <div className="mt-2">
                                             <button
                                                 className="text-xs text-slate-300 hover:text-slate-100 underline"
-                                                onClick={() => setWeaponTypeFilters([])}
+                                                onClick={() => setWeaponTagFilters([])}
                                             >
-                                                Clear type filters
+                                                Clear tag filters
                                             </button>
                                         </div>
                                     )}
@@ -1287,7 +1401,7 @@ export default function Inventory() {
                                     const goalTarget = goal ? safeInt(goal.qty ?? 1, 1) : 0;
                                     const isSelected = selectedDetailId === r.id;
                                     const isOwned = r.value > 0;
-                                    const isMastered = r.isMasterable && checkMastered(mastered, String(r.id), r.path);
+                                    const isMastered = r.isMasterable && checkMastered(mastered, overLevelMastered, String(r.id), r.path);
 
                                     return (
                                         <div
@@ -1405,6 +1519,41 @@ export default function Inventory() {
             </Section>
 
             {/* 5.3 Item Detail Panel */}
+            {/* Overlevel Weapons Mastery */}
+            <Section title="Overlevel Weapons Mastery">
+                <div className="text-sm text-slate-400 mb-3">
+                    Kuva Lich, Tenet, Technocyte Coda, and Paracesis weapons require <strong className="text-slate-200">Rank 40</strong> to count as mastered — they are not automatically detected via profile import because the XP accumulated across multiple Forma cycles is variable. Toggle each weapon manually once you have maxed it to Rank 40.
+                </div>
+                <div className="mb-2 flex items-center gap-3 text-xs text-slate-500">
+                    <span>
+                        Confirmed mastered: <span className="text-cyan-300 font-semibold">{overLevelRows.filter((r) => r.isMastered).length}</span> / {overLevelRows.length}
+                    </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                    {overLevelRows.map((r) => (
+                        <button
+                            key={String(r.id)}
+                            className={[
+                                "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+                                r.isMastered
+                                    ? "border-cyan-700 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-950/50"
+                                    : "border-slate-700 bg-slate-900/40 text-slate-300 hover:bg-slate-800"
+                            ].join(" ")}
+                            onClick={() => setOverLevelMastered(String(r.id), !r.isMastered)}
+                            title={r.isMastered ? "Click to mark as not mastered" : "Click to mark as mastered (Rank 40)"}
+                        >
+                            <span className={["shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs font-bold",
+                                r.isMastered ? "border-cyan-500 bg-cyan-900/60 text-cyan-300" : "border-slate-600 bg-slate-800 text-slate-500"
+                            ].join(" ")}>
+                                {r.isMastered ? "✓" : ""}
+                            </span>
+                            <span className="truncate flex-1">{r.label}</span>
+                            <span className="shrink-0 text-xs text-slate-500">{r.weaponClass}</span>
+                        </button>
+                    ))}
+                </div>
+            </Section>
+
             {selectedDetailId && (() => {
                 const rec: any = FULL_CATALOG.recordsById[selectedDetailId];
                 const name = rec?.displayName ?? String(selectedDetailId);

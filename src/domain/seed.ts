@@ -11,7 +11,8 @@ export const SEED_SYNDICATES: SyndicateState[] = [];
 
 export const SEED_MASTERY = {
     xpByItem: {} as Record<string, number>,
-    mastered: {} as Record<string, boolean>
+    mastered: {} as Record<string, boolean>,
+    overLevelMastered: {} as Record<string, boolean>
 };
 
 export const SEED_MISSIONS = {

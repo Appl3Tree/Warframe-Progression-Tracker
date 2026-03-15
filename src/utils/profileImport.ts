@@ -1,6 +1,7 @@
 // ===== FILE: src/utils/profileImport.ts =====
 // src/utils/profileImport.ts
 import type { SyndicateState } from "../domain/types";
+import { isOverLevelWeapon } from "../domain/catalog/overLevelWeapons";
 
 export type ProfileImportResult = {
     displayName: string;
@@ -112,22 +113,27 @@ function getMasteryThreshold(itemType: string): number {
 }
 
 /**
- * Returns true if the given Lotus path is a real mastery-granting item.
- * Some paths appear in LoadOutInventory XP data but are not mastery items
- * (e.g. Railjack engine components under /Lotus/Types/Game/CrewShip/).
+ * Paths that appear in LoadOutInventory XP data but do NOT grant mastery rank.
+ *
+ * - Venari / Venari Prime: Khora's exalted ability companion. The game XP-tracks her
+ *   separately but she is not listed in the Codex and does not grant mastery.
  */
-function isMasteryItem(itemType: string): boolean {
-    const t = itemType.toLowerCase();
-    // Railjack / CrewShip engine components are not mastery items
-    if (t.includes("/lotus/types/game/crewship/")) return false;
-    if (t.includes("/lotus/types/game/")) return false;
-    return true;
-}
+const NON_MASTERY_PATHS = new Set<string>([
+    "/Lotus/Powersuits/Khora/Kavat/KhoraKavatPowerSuit",     // Venari
+    "/Lotus/Powersuits/Khora/Kavat/KhoraPrimeKavatPowerSuit" // Venari Prime
+]);
 
 function computeMastered(xpByItem: Record<string, number>): Record<string, boolean> {
     const mastered: Record<string, boolean> = {};
     for (const [k, xp] of Object.entries(xpByItem)) {
-        if (!isMasteryItem(k)) continue;
+        // Skip items that carry XP in the profile but don't grant mastery.
+        if (NON_MASTERY_PATHS.has(k)) continue;
+
+        // Overlevel weapons (Kuva/Tenet/Coda/Paracesis) require rank 40, which
+        // involves multiple Forma cycles — their XP is not a reliable mastery signal.
+        // Leave them false here; the player confirms them manually in the UI.
+        if (isOverLevelWeapon(k)) continue;
+
         mastered[k] = xp >= getMasteryThreshold(k);
     }
     return mastered;
