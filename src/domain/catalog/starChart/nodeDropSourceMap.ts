@@ -179,6 +179,13 @@ export function getDropSourcesForStarChartNode(nodeId: string): string[] {
 
     // 2) Missionreward sources are canonicalized to BASE node (strip -caches/-extra)
     const baseNodeToken = baseNodeTokenFromVariant(nodeTokenCanonical);
+
+    // 1b) For caches nodes, also emit the data:caches/<planet>/<baseNode> source.
+    // Items from warframe-items index cache drops under data:caches/... (not data:node/...-caches),
+    // so the Caches tab needs this source to actually find its items.
+    if (nodeTokenCanonical.endsWith("-caches")) {
+        out.push(`data:caches/${planetToken}/${baseNodeToken}`);
+    }
     out.push(dataMissionRewardId(planetToken, baseNodeToken));
 
     // 3) Rotations depend on missionRewards reward structure for the exact node key if present,

@@ -437,7 +437,16 @@ export function pickNodeIdForTab(group: NodeGroup | null, tab: NodeGroupKind): N
     if (ids && ids.length) return ids[0] ?? null;
 
     if (tab === "base") return group.baseNodeId;
-    return group.baseNodeId;
+
+    // For mission_rewards: only fall back to baseNodeId when the group has a real base-kind node.
+    // Caches-only nodes (e.g. Dakata) have no base variant — their missionreward data IS their
+    // cache data, so we must not show an empty/incorrect Mission Rewards tab for them.
+    if (tab === "mission_rewards") {
+        const baseIds = group.kinds["base"] ?? [];
+        return baseIds.length > 0 ? group.baseNodeId : null;
+    }
+
+    return null;
 }
 
 function isMissionRewardSourceId(sid: string): boolean {
