@@ -51,6 +51,19 @@ import type {
 
 // ── Drop-meta helpers ────────────────────────────────────────────────────────
 
+/** Strip leading quantity from a drop table item name: "400X Circuits" → "Circuits", "2X Orokin Cell" → "Orokin Cell" */
+function stripQtyPrefix(name: string): string {
+    return name.replace(/^\s*[\d,]+\s*[xX]\s+/i, "").replace(/^\s*\d[\d,]*\s+/, "").trim();
+}
+
+type RotationItem = {
+    key: string;
+    displayName: string;
+    baseName: string;
+    catalogId: string | null;
+    meta: DropMeta;
+};
+
 function normItemKey(s: string): string {
     return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
 }
@@ -266,11 +279,13 @@ export default function StarChartMap(props: {
     const [showLegend, setShowLegend] = useState(false);
     const [showDebugSources, setShowDebugSources] = useState(false);
     const [itemFilter, setItemFilter] = useState("");
+    const [rotationFilter, setRotationFilter] = useState<"A" | "B" | "C" | null>(null);
 
     useEffect(() => {
         // When node selection changes, reset UX state
         setShowDebugSources(false);
         setItemFilter("");
+        setRotationFilter(null);
     }, [selectedGroupKey, selectedTab]);
 
     useEffect(() => {
@@ -1091,6 +1106,65 @@ export default function StarChartMap(props: {
         return mergedActiveItems.filter((it) => it.name.toLowerCase().includes(q) || it.catalogId.toLowerCase().includes(q));
     }, [activeTab, itemFilter, mergedActiveItems]);
 
+    /** Catalog name → catalogId for ownership lookup when rendering from drop table */
+    const catalogNameMap = useMemo(() => {
+        const m = new Map<string, string>();
+        for (const it of mergedActiveItems) {
+            m.set(it.name.toLowerCase().trim(), it.catalogId);
+        }
+        return m;
+    }, [mergedActiveItems]);
+
+    /**
+     * Items built directly from the missionRewards drop table for tabs that have
+     * rotation sources.  Bypasses the catalog index so we show the authoritative
+     * names with quantities (e.g. "400 Endo", "2X Orokin Cell") and include items
+     * like Endo / Cyclone Kraken that have no catalog entry.
+     */
+    const rotationItems = useMemo((): RotationItem[] => {
+        if (!activeTab) return [];
+        const rotSources = activeTab.dropSources.filter((s) => /\/rotation[abc]$/.test(s));
+        if (rotSources.length === 0) return [];
+
+        const items: RotationItem[] = [];
+        for (const sid of rotSources) {
+            const entries = dropMetaLookup[sid];
+            if (!entries) continue;
+            for (const [normKey, meta] of Object.entries(entries)) {
+                // Skip no-Blueprint alias entries (they share displayName with the full name entry)
+                const normDisplay = normItemKey(meta.displayName);
+                if (normDisplay !== normKey) continue;
+
+                const baseName = stripQtyPrefix(meta.displayName);
+                const catalogId = catalogNameMap.get(baseName.toLowerCase()) ?? null;
+                items.push({
+                    key: `${sid}:${normKey}`,
+                    displayName: meta.displayName,
+                    baseName,
+                    catalogId,
+                    meta,
+                });
+            }
+        }
+        // Sort: rotation A → B → C, then by chance desc within each rotation
+        items.sort((a, b) => {
+            const ro: Record<string, number> = { A: 0, B: 1, C: 2 };
+            const rd = (ro[a.meta.rotation] ?? 3) - (ro[b.meta.rotation] ?? 3);
+            if (rd !== 0) return rd;
+            return b.meta.chance - a.meta.chance;
+        });
+        return items;
+    }, [activeTab, dropMetaLookup, catalogNameMap]);
+
+    const filteredRotationItems = useMemo(() => {
+        const q = itemFilter.trim().toLowerCase();
+        let items = rotationFilter ? rotationItems.filter((it) => it.meta.rotation === rotationFilter) : rotationItems;
+        if (q) items = items.filter((it) => it.displayName.toLowerCase().includes(q));
+        return items;
+    }, [rotationItems, rotationFilter, itemFilter]);
+
+    const useRotationView = rotationItems.length > 0;
+
     return (
         <div className={["relative w-full", isInModal ? "h-full" : "h-[72vh] min-h-[560px]"].join(" ")}>
             {showDropsPanel && (
@@ -1217,13 +1291,42 @@ export default function StarChartMap(props: {
                                             value={itemFilter}
                                             onChange={(e) => setItemFilter(e.target.value)}
                                         />
+
+                                        {/* Rotation sub-filter — shown when drop table rotation data is available */}
+                                        {useRotationView && (
+                                            <div className="flex rounded-lg border border-slate-700 overflow-hidden text-xs font-semibold w-full">
+                                                {([null, "A", "B", "C"] as const).map((r) => {
+                                                    const label = r === null ? "All" : `Rotation ${r}`;
+                                                    const count = r === null ? rotationItems.length : rotationItems.filter((it) => it.meta.rotation === r).length;
+                                                    const active = rotationFilter === r;
+                                                    return (
+                                                        <button
+                                                            key={label}
+                                                            className={[
+                                                                "flex-1 px-2 py-1.5 transition-colors border-r border-slate-700 last:border-r-0",
+                                                                active ? "bg-slate-700 text-slate-100" : "bg-slate-950/20 text-slate-400 hover:bg-slate-900/40",
+                                                                count === 0 ? "opacity-40 cursor-default" : ""
+                                                            ].join(" ")}
+                                                            onClick={() => setRotationFilter(r)}
+                                                            disabled={count === 0}
+                                                        >
+                                                            {label} <span className="opacity-60">({count})</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+
                                         <div className="flex w-full items-center justify-between">
                                             <button className="text-slate-400 hover:text-slate-200" onClick={() => setShowDebugSources((v) => !v)}>
                                                 {showDebugSources ? "Hide debug source ids" : "Show debug source ids"}
                                             </button>
                                             {activeTab && (
                                                 <div className="text-xs text-slate-500">
-                                                    Showing {filteredActiveItems.length} of {mergedActiveItems.length}
+                                                    {useRotationView
+                                                        ? `Showing ${filteredRotationItems.length} of ${rotationItems.length}`
+                                                        : `Showing ${filteredActiveItems.length} of ${mergedActiveItems.length}`
+                                                    }
                                                 </div>
                                             )}
                                         </div>
@@ -1253,9 +1356,36 @@ export default function StarChartMap(props: {
 
                                             {!activeTab ? (
                                                 <div className="text-sm text-slate-400">No tab selected.</div>
+                                            ) : useRotationView ? (
+                                                /* Rotation-table view: renders directly from missionRewards.json data */
+                                                filteredRotationItems.length === 0 ? (
+                                                    <div className="text-sm text-slate-400">No items for this rotation.</div>
+                                                ) : (
+                                                    <div className="max-h-[520px] overflow-auto rounded-xl border border-slate-800 bg-slate-950/30 p-2">
+                                                        <ul className="space-y-0.5 text-sm text-slate-200">
+                                                            {filteredRotationItems.map((it) => {
+                                                                const owned = it.catalogId ? Number(inventoryCounts[it.catalogId] ?? 0) > 0 : false;
+                                                                return (
+                                                                    <li key={it.key} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 py-0.5 border-b border-slate-800/50 last:border-0">
+                                                                        <span className={owned ? "text-slate-500 line-through" : "font-semibold"}>
+                                                                            {it.displayName}
+                                                                            {owned && <span className="ml-1.5 text-[10px] text-emerald-500">✓</span>}
+                                                                        </span>
+                                                                        <span className="flex items-center gap-1 text-[11px]">
+                                                                            <span className="rounded px-1 py-px bg-slate-700 text-slate-300 font-mono font-bold">{it.meta.rotation}</span>
+                                                                            <span className="text-slate-400">{formatChance(it.meta.chance)}</span>
+                                                                            <span className={rarityClass(it.meta.rarity)}>{it.meta.rarity}</span>
+                                                                        </span>
+                                                                    </li>
+                                                                );
+                                                            })}
+                                                        </ul>
+                                                    </div>
+                                                )
                                             ) : filteredActiveItems.length === 0 ? (
                                                 <div className="text-sm text-slate-400">No items resolve for this tab in the current catalog mapping.</div>
                                             ) : (
+                                                /* Catalog view: for Drops / base tab */
                                                 <div className="max-h-[520px] overflow-auto rounded-xl border border-slate-800 bg-slate-950/30 p-2">
                                                     <ul className="space-y-0.5 text-sm text-slate-200">
                                                         {filteredActiveItems.slice(0, 600).map((it) => {
