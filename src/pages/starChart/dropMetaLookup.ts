@@ -16,6 +16,7 @@ export type DropMeta = {
     chance: number;              // percentage, e.g. 10.79
     rarity: string;              // "Common" | "Uncommon" | "Rare" | "Legendary"
     rotation: "A" | "B" | "C";
+    displayName: string;         // original item name from missionRewards.json, e.g. "400 Endo"
 };
 
 /** sourceId → normalized item name → best DropMeta for that (source, item) pair */
@@ -81,7 +82,7 @@ export function buildDropMetaLookup(): DropMetaLookup {
             if (!out[sourceId]) out[sourceId] = Object.create(null);
             const prevNoBp = out[sourceId][noBpKey];
             if (!prevNoBp || meta.chance > prevNoBp.chance) {
-                out[sourceId][noBpKey] = meta;
+                out[sourceId][noBpKey] = { ...meta, displayName: meta.displayName };
             }
         }
     }
@@ -143,7 +144,7 @@ export function buildDropMetaLookup(): DropMetaLookup {
                 }
 
                 for (const [itemName, { chance, rarity }] of itemChanceAccum.entries()) {
-                    register(sourceId, itemName, { chance, rarity, rotation: rot });
+                    register(sourceId, itemName, { chance, rarity, rotation: rot, displayName: itemName });
                 }
             }
         }
