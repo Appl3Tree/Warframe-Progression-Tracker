@@ -131,20 +131,20 @@ const ARCANE_CATEGORIES: { key: ArcaneCategory; label: string }[] = [
     { key: "zaws",      label: "Zaws"                },
 ];
 
-// Polarity SVG assets
+// Polarity SVG assets — use ?url so Vite returns URL strings, not React components
 const _polImgs = import.meta.glob<string>(
-    "../../assets/polarities/*.svg",
-    { eager: true, import: "default" }
+    "../assets/polarities/*.svg",
+    { eager: true, query: "?url", import: "default" }
 );
 const POL_IMG: Record<string, string> = {};
 for (const [p, url] of Object.entries(_polImgs)) {
     const name = p.split("/").pop()!.replace(".svg", "").toLowerCase();
-    POL_IMG[name] = url;
+    POL_IMG[name] = url as string;
 }
 
 // Status effect PNG assets
 const _statusImgs = import.meta.glob<string>(
-    "../../assets/statuses/*.png",
+    "../assets/statuses/*.png",
     { eager: true, import: "default" }
 );
 const STATUS_IMG: Record<string, string> = {};
@@ -734,7 +734,7 @@ function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: bool
                     const img = polImg(polarity);
                     return img ? (
                         <span className="rounded-full p-1 border border-slate-600 bg-slate-800 flex items-center justify-center w-6 h-6" title={polarityLabel(polarity)}>
-                            <img src={img} alt={polarityLabel(polarity)} className="w-4 h-4 object-contain" />
+                            <img src={img} alt={polarityLabel(polarity)} className="w-4 h-4 object-contain pol-icon" />
                         </span>
                     ) : (
                         <span className="text-xs rounded-full px-2 py-0.5 border border-slate-600 bg-slate-800 text-slate-300">
@@ -1109,7 +1109,7 @@ export default function Mods() {
                                                 ].join(" ")}
                                             >
                                                 {img
-                                                    ? <img src={img} alt={p.label} className="w-4 h-4 object-contain" />
+                                                    ? <img src={img} alt={p.label} className="w-4 h-4 object-contain pol-icon" />
                                                     : <span>{p.label}</span>
                                                 }
                                             </button>
@@ -1188,7 +1188,7 @@ export default function Mods() {
                                             {polarity && (() => {
                                                 const img = polImg(polarity);
                                                 return img ? (
-                                                    <img src={img} alt={polarityLabel(polarity)} title={polarityLabel(polarity)} className="shrink-0 w-4 h-4 object-contain opacity-60" />
+                                                    <img src={img} alt={polarityLabel(polarity)} title={polarityLabel(polarity)} className="shrink-0 w-4 h-4 object-contain pol-icon opacity-70" />
                                                 ) : (
                                                     <span className="shrink-0 text-[11px] text-slate-500">{polarityLabel(polarity)}</span>
                                                 );
