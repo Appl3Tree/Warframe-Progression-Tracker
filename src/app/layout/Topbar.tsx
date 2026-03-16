@@ -212,6 +212,11 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
     const [accountDraft, setAccountDraft] = useState("");
     const [profileStatus, setProfileStatus] = useState("");
     const [platformOpen,  setPlatformOpen]  = useState(false);
+    const [showPastePanel, setShowPastePanel] = useState(false);
+    const [pasteText, setPasteText] = useState("");
+    const [lastImportedAt, setLastImportedAt] = useState<string | null>(
+        () => localStorage.getItem("wft_last_profile_import") ?? null
+    );
 
     const fileRef         = useRef<HTMLInputElement | null>(null);
     const panelRef        = useRef<HTMLDivElement | null>(null);
@@ -272,7 +277,21 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
         const id = String(accountId ?? "").trim();
         if (!id) { setProfileStatus("Set Account ID first."); return; }
         window.open(buildProfileUrl(id, platform), "_blank", "noopener,noreferrer");
-        setProfileStatus("Opened profile link. Save the response, then import it.");
+        setProfileStatus("Opened profile link. Copy the page content and paste it below, or save it and use Import File.");
+        setShowPastePanel(true);
+    }
+
+    function handleImportResult(res: { ok: boolean; error?: string }) {
+        if (!res.ok) {
+            setProfileStatus(res.error ?? "Import failed.");
+        } else {
+            const ts = new Date().toLocaleString();
+            localStorage.setItem("wft_last_profile_import", ts);
+            setLastImportedAt(ts);
+            setProfileStatus(`Profile imported at ${ts}`);
+            setShowPastePanel(false);
+            setPasteText("");
+        }
     }
 
     function choosePlatform(next: PlatformKey) {
@@ -420,16 +439,23 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                                 className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-900 disabled:opacity-50"
                                 onClick={openProfileLink}
                                 disabled={!String(accountId ?? "").trim()}
-                                title={!String(accountId ?? "").trim() ? "Set Account ID first" : "Open in new tab"}
+                                title={!String(accountId ?? "").trim() ? "Set Account ID first" : "Open profile in new tab"}
                             >
                                 Open Profile Link
                             </button>
 
                             <button
                                 className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-900"
+                                onClick={() => setShowPastePanel(v => !v)}
+                            >
+                                {showPastePanel ? "Hide Paste" : "Paste JSON"}
+                            </button>
+
+                            <button
+                                className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-900"
                                 onClick={() => fileRef.current?.click()}
                             >
-                                Import JSON/HTML
+                                Import File
                             </button>
 
                             {/* Platform selector */}
@@ -477,21 +503,56 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                                     const file = e.target.files?.[0];
                                     if (!file) return;
                                     const raw = await file.text();
-                                    const res = importProfileViewingDataJson(raw);
-                                    setProfileStatus(!res.ok ? (res.error ?? "Import failed.") : "Profile imported.");
+                                    handleImportResult(importProfileViewingDataJson(raw));
                                     e.target.value = "";
                                 }}
                             />
+                        </div>
 
+                        {/* Paste JSON panel */}
+                        {showPastePanel && (
+                            <div className="mt-2 space-y-2">
+                                <div className="text-[11px] text-slate-400">
+                                    Paste the full JSON content from the profile page below:
+                                </div>
+                                <textarea
+                                    className="w-full h-28 rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 font-mono text-[11px] resize-none focus:outline-none focus:border-slate-500 placeholder:text-slate-600"
+                                    value={pasteText}
+                                    onChange={e => setPasteText(e.target.value)}
+                                    placeholder='Paste profile JSON here (starts with {"Results":[...]})'
+                                />
+                                <div className="flex gap-2">
+                                    <button
+                                        className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs text-slate-900 font-semibold hover:bg-white disabled:opacity-50"
+                                        disabled={!pasteText.trim()}
+                                        onClick={() => handleImportResult(importProfileViewingDataJson(pasteText))}
+                                    >
+                                        Import Pasted JSON
+                                    </button>
+                                    <button
+                                        className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-900"
+                                        onClick={() => { setPasteText(""); setShowPastePanel(false); }}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Status + last imported */}
+                        <div className="space-y-0.5 pt-1">
                             {profileStatus && (
-                                <div className="w-full text-xs text-slate-300 mt-0.5">{profileStatus}</div>
+                                <div className="text-xs text-slate-300">{profileStatus}</div>
+                            )}
+                            {lastImportedAt && !profileStatus && (
+                                <div className="text-[11px] text-slate-500">
+                                    Last imported: <span className="text-slate-400">{lastImportedAt}</span>
+                                </div>
                             )}
                         </div>
 
                         <div className="text-[11px] text-slate-500 leading-relaxed pt-1">
-                            Account ID + Platform are stored locally. Use "Open Profile Link", save the response
-                            (browser may save as .htm), then import it to update Name, MR, syndicates, mastery XP,
-                            missions, and inventory mapping.
+                            Account ID + Platform are stored locally. Open the profile link, copy all the JSON content, then paste it above (or save the page and use Import File) to update Name, MR, syndicates, mastery XP, missions, and inventory.
                         </div>
                     </div>
                 </div>

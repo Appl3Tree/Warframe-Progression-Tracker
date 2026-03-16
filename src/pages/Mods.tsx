@@ -3,9 +3,45 @@ import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import MODS_RAW from "../data/mods.json";
 import RIVENS_RAW from "../data/rivens.json";
+import MODDESC_RAW from "../data/moddescriptions.json";
+import ALL_RAW from "../data/All.json";
 import MOD_LOCATIONS_RAW from "../../external/warframe-drop-data/raw/modLocations.json";
 
+// Build a lookup from All.json keyed by uniqueName — gives us levelStats, isExilus, rarity, fusionLimit
+interface AllModEntry {
+    uniqueName: string;
+    name: string;
+    category?: string;
+    compatName?: string;
+    type?: string;
+    rarity?: string;
+    baseDrain?: number;
+    fusionLimit?: number;
+    isExilus?: boolean;
+    isAugment?: boolean;
+    levelStats?: { stats: string[] }[];
+}
+const ALL_MODS_BY_PATH: Record<string, AllModEntry> = {};
+for (const item of ALL_RAW as AllModEntry[]) {
+    if (item.uniqueName && item.category === "Mods") {
+        // Prefer entries with levelStats when there are duplicates
+        const existing = ALL_MODS_BY_PATH[item.uniqueName];
+        if (!existing || (item.levelStats && !existing.levelStats)) {
+            ALL_MODS_BY_PATH[item.uniqueName] = item as AllModEntry;
+        }
+    }
+}
+
+const MODDESC: Record<string, { LocTag?: string; Ranks?: Record<string, string>[] }> =
+    MODDESC_RAW as Record<string, { LocTag?: string; Ranks?: Record<string, string>[] }>;
+
+
+
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+interface LocKeyWordScript {
+    [key: string]: number[] | string | unknown;
+}
 
 interface ModUpgrade {
     UpgradeType?: string;
@@ -13,6 +49,7 @@ interface ModUpgrade {
     DisplayAsPercent?: number;
     OperationType?: string;
     LocTag?: string;
+    LocKeyWordScript?: LocKeyWordScript;
 }
 
 interface ModData {
@@ -112,13 +149,43 @@ const ANTIQUE_SCHOOLS: { key: AntiqueSchool; label: string; ap: string }[] = [
     { key: "unairu",  label: "Unairu",  ap: "AP_WARD"   },
 ];
 
-// Endo + credit base cost by rarity tier
+// Endo + credit base costs (EBC/CrBC) by rarity — verified from Warframe wiki
+// Endo:   Common=10, Uncommon/Peculiar=20, Rare/Amalgam/Riven=30, Legendary=40
+// Credit: Common=483, Uncommon/Peculiar=966, Rare/Amalgam/Riven=1449, Legendary=1932
 const ENDO_BASE: Record<string, number> = {
-    COMMON: 15, UNCOMMON: 45, RARE: 120, LEGENDARY: 150
+    COMMON: 10, UNCOMMON: 20, PECULIAR: 20, RARE: 30, AMALGAM: 30, LEGENDARY: 40
 };
 const CREDIT_BASE: Record<string, number> = {
-    COMMON: 1000, UNCOMMON: 3000, RARE: 8000, LEGENDARY: 10000
+    COMMON: 483, UNCOMMON: 966, PECULIAR: 966, RARE: 1449, AMALGAM: 1449, LEGENDARY: 1932
 };
+
+/** Calculate total endo cost from fromRank (exclusive) to toRank (inclusive).
+ *  Formula: sum of EBC × 2^r for r from fromRank to toRank-1
+ *  Which equals: EBC × 2^fromRank × (2^(toRank-fromRank) - 1)
+ */
+function calcEndoCost(rarity: string | undefined, fromRank: number, toRank: number): number {
+    const ebc = ENDO_BASE[rarity?.toUpperCase() ?? "COMMON"] ?? 10;
+    if (toRank <= fromRank) return 0;
+    // Sum EBC × 2^r for r = fromRank..toRank-1
+    let total = 0;
+    for (let r = fromRank; r < toRank; r++) {
+        total += ebc * Math.pow(2, r);
+    }
+    return total;
+}
+
+/** Calculate total credit cost from fromRank (exclusive) to toRank (inclusive).
+ *  Same formula structure as endo but using CrBC.
+ */
+function calcCreditCost(rarity: string | undefined, fromRank: number, toRank: number): number {
+    const crbc = CREDIT_BASE[rarity?.toUpperCase() ?? "COMMON"] ?? 483;
+    if (toRank <= fromRank) return 0;
+    let total = 0;
+    for (let r = fromRank; r < toRank; r++) {
+        total += crbc * Math.pow(2, r);
+    }
+    return total;
+}
 
 const UPGRADE_TYPE_LABELS: Record<string, string> = {
     WEAPON_DAMAGE_AMOUNT:            "Damage",
@@ -235,26 +302,6 @@ function normalize(s: string): string {
     return s.toLowerCase();
 }
 
-/** Calculate total endo cost from startRank (exclusive) to endRank (inclusive). */
-function calcEndoCost(rarity: string | undefined, fromRank: number, toRank: number): number {
-    const base = ENDO_BASE[rarity ?? "COMMON"] ?? 15;
-    let total = 0;
-    for (let r = fromRank; r < toRank; r++) {
-        total += base * (r + 1);
-    }
-    return total;
-}
-
-/** Calculate total credit cost from startRank (exclusive) to endRank (inclusive). */
-function calcCreditCost(rarity: string | undefined, fromRank: number, toRank: number): number {
-    const base = CREDIT_BASE[rarity ?? "COMMON"] ?? 1000;
-    let total = 0;
-    for (let r = fromRank; r < toRank; r++) {
-        total += base * (r + 1);
-    }
-    return total;
-}
-
 // ─── Classification ────────────────────────────────────────────────────────────
 
 /**
@@ -266,73 +313,80 @@ function classifyModCategories(entry: ModEntry): ModCategory[] {
     const compat   = entry.data?.ItemCompatibility ?? "";
     const polarity = entry.data?.ArtifactPolarity ?? "";
 
+    // Check All.json for authoritative classification first
+    const allEntry = ALL_MODS_BY_PATH[path];
+    const compatName = allEntry?.compatName ?? "";
+    const modType = allEntry?.type ?? "";
+
     // Tome (Grimoire invocation mods)
     if (compat.includes("Grimoire") || path.includes("Invocation")) return ["tome"];
 
-    // Parazon
-    if (compat.includes("TnHackingDevice") || compat.includes("HackingDevice")) return ["parazon"];
+    // Parazon — All.json compatName or path
+    if (compatName === "Parazon" || compat.includes("TnHackingDevice") || compat.includes("HackingDevice")) return ["parazon"];
 
     // Antique
     if (compat.includes("Antique") || (entry.parents ?? []).some(p => p.includes("Antique"))) return ["antique"];
 
-    // Aura mods also belong to the warframe category (they go in warframe aura slots)
+    // Stance mods
+    if (modType.includes("Stance")) {
+        // Map stance compat name to weapon category
+        const sc = compatName.toLowerCase();
+        if (sc.includes("arch")) return ["archmelee"];
+        return ["melee"];
+    }
+
+    // Aura — All.json compatName AURA, or /Aura/ path, or AP_WARD polarity
+    if (compatName === "AURA" || path.includes("/Mods/Aura/")) return ["aura", "warframe"];
     if (polarity === "AP_WARD") return ["aura", "warframe"];
 
-    // Augment — specific warframe-suit compat (not generic PlayerPowerSuit)
-    if (
+    // Exilus — All.json isExilus flag or path
+    if (allEntry?.isExilus || path.toLowerCase().includes("exilus") || path.includes("OrokinChallenge")) return ["exilus"];
+
+    // Augment — All.json isAugment flag or specific compat
+    if (allEntry?.isAugment ||
         (compat.includes("/Lotus/Powersuits/") && !compat.includes("PlayerPowerSuit") && !compat.includes("OperatorSuit")) ||
-        (compat.includes("ExaltedSword") || compat.includes("ExaltedBow") || compat.includes("DoomSword") || compat.includes("StormBlade") ||
-         compat.includes("GaruGaruda") || compat.includes("GaraShank") || compat.includes("KhoraWhip") || compat.includes("ExaltedBook") ||
-         compat.includes("MonkeyKingStaff") || compat.includes("PacifistFist") || compat.includes("NinjaStorm") ||
-         compat.includes("BerserkerMelee") || compat.includes("AtlasPunch"))
+        (compat.includes("ExaltedSword") || compat.includes("ExaltedBow") || compat.includes("DoomSword"))
     ) return ["augment"];
 
     // Archgun
-    if (compat.includes("ArchGun")) return ["archgun"];
+    if (compatName === "Archgun" || compat.includes("ArchGun")) return ["archgun"];
 
     // Archmelee
-    if (compat.includes("ArchMeleeWeapon") || compat.includes("ArchMelee")) return ["archmelee"];
+    if (compatName === "Archmelee" || compat.includes("ArchMeleeWeapon") || compat.includes("ArchMelee")) return ["archmelee"];
 
     // Vehicles (Necramech, Hoverboard/Yareli, Archwing suit)
-    if (compat.includes("BaseMechSuit") || compat.includes("HoverboardSuit") || compat.includes("FlightJetPack")) return ["vehicles"];
+    if (compatName === "Necramech" || compatName === "Archwing" || compatName === "K-Drive" ||
+        compat.includes("BaseMechSuit") || compat.includes("HoverboardSuit") || compat.includes("FlightJetPack")) return ["vehicles"];
 
-    // Robotic companions (Sentinel, MOA, Zanuka)
-    if (
-        compat.includes("SentinelPowerSuit") || compat.includes("SentinelPower") ||
-        compat.includes("ZanukaPet") || compat.includes("MoaPet") || compat.includes("RoboticPet")
-    ) return ["robotic"];
+    // Robotic companions
+    if (compatName === "ROBOTIC" || compatName === "Sentinel" || compatName === "Moa" || compatName === "Hound" ||
+        compat.includes("SentinelPowerSuit") || compat.includes("ZanukaPet") || compat.includes("MoaPet")) return ["robotic"];
 
-    // Beast companions (Kavat, Kubrow, Predasite, Vulpaphyla)
-    if (
-        compat.includes("CatbrowPet") || compat.includes("BeastPet") ||
-        compat.includes("KubrowPet") || (compat.includes("PetPowerSuit") && !compat.includes("Robotic"))
-    ) return ["beast"];
+    // Beast companions
+    if (compatName === "BEAST" || compatName === "Kavat" || compatName === "Kubrow" ||
+        compat.includes("CatbrowPet") || compat.includes("BeastPet") || compat.includes("KubrowPet")) return ["beast"];
 
-    // Railjack
-    if (
-        compat.includes("Railjack") || compat.includes("CrewShip") ||
-        path.toLowerCase().includes("railjack") || path.toLowerCase().includes("crewship")
-    ) return ["railjack"];
+    // Railjack — All.json type or compat
+    if (modType.toLowerCase().includes("railjack") || compatName.toLowerCase().includes("railjack") ||
+        compat.includes("Railjack") || compat.includes("CrewShip")) return ["railjack"];
 
     // Melee
-    if (compat.includes("PlayerMeleeWeapon") || compat.includes("LotusGlaiveWeapon")) return ["melee"];
+    if (compatName === "Melee" || compatName === "Claws" || compatName === "Daggers" ||
+        compatName === "Dual Daggers" || compatName === "Thrown Melee" ||
+        compat.includes("PlayerMeleeWeapon") || compat.includes("LotusGlaiveWeapon")) return ["melee"];
 
     // Secondary
-    if (compat.includes("LotusPistol") || compat.includes("LotusAkimbo")) return ["secondary"];
+    if (compatName === "Pistol" || compat.includes("LotusPistol") || compat.includes("LotusAkimbo")) return ["secondary"];
 
-    // Primary (rifle, shotgun, bow, longgun, bullet weapon)
-    if (
-        compat.includes("LotusRifle") || compat.includes("LotusAssaultRifle") ||
-        compat.includes("LotusSniperRifle") || compat.includes("LotusShotgun") ||
-        compat.includes("LotusBow") || compat.includes("LotusLongGun") ||
-        compat.includes("LotusBulletWeapon")
-    ) return ["primary"];
+    // Primary
+    if (compatName === "Rifle" || compatName === "Shotgun" || compatName === "Bow" ||
+        compatName === "Assault Rifle" || compatName === "Sniper" || compatName === "PRIMARY" ||
+        compat.includes("LotusRifle") || compat.includes("LotusShotgun") || compat.includes("LotusBow") ||
+        compat.includes("LotusLongGun") || compat.includes("LotusBulletWeapon")) return ["primary"];
 
-    // Exilus — mods with "Exilus" in path
-    if (path.toLowerCase().includes("exilus")) return ["exilus"];
-
-    // Warframe (generic PlayerPowerSuit or empty compat)
-    if (compat.includes("PlayerPowerSuit") || compat === "") return ["warframe"];
+    // Warframe generic
+    if (compatName === "WARFRAME" || compatName === "ANY" || compatName === "COMPANION" ||
+        compat.includes("PlayerPowerSuit") || compat === "") return ["warframe"];
 
     return ["warframe"]; // fallback
 }
@@ -535,14 +589,23 @@ function DropLocations({ drops }: { drops: EnemyDrop[] }) {
 
 function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: boolean }) {
     const data = entry.data;
+    const allEntry = ALL_MODS_BY_PATH[entry.path];
+
+    // Use All.json fusionLimit (integer) when available — it's accurate
     const maxRank = isRiven
         ? (data?.FusionLimitRange?.[1] ?? 8)
-        : decodeMaxRank(data?.FusionLimit);
-    const baseDrain = decodeBaseDrain(data?.BaseDrain);
+        : (allEntry?.fusionLimit ?? decodeMaxRank(data?.FusionLimit));
+
+    const baseDrain = allEntry?.baseDrain ?? decodeBaseDrain(data?.BaseDrain);
     const upgrades = data?.Upgrades ?? [];
     const polarity = data?.ArtifactPolarity;
-    const rarity = data?.Rarity ?? "COMMON";
+    // All.json rarity is "Common"/"Uncommon"/"Rare"/"Legendary"; mods.json uses "COMMON" etc.
+    const rarityRaw = allEntry?.rarity ?? data?.Rarity ?? "COMMON";
+    const rarity = rarityRaw.toUpperCase();
     const drops = modLocationLookup.get(normalize(entry.name)) ?? [];
+
+    // levelStats from All.json gives per-rank human-readable descriptions
+    const levelStats = allEntry?.levelStats ?? [];
 
     return (
         <div className={["mt-2 rounded-xl border p-4 space-y-4", rarityBg(rarity)].join(" ")}>
@@ -550,7 +613,7 @@ function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: bool
             <div className="flex items-center gap-3 flex-wrap">
                 <span className="text-base font-bold text-slate-100">{entry.name}</span>
                 <span className={["text-xs font-semibold px-2 py-0.5 rounded-full border", rarityColor(rarity), rarityBg(rarity)].join(" ")}>
-                    {rarity}
+                    {rarityRaw.charAt(0).toUpperCase() + rarityRaw.slice(1).toLowerCase()}
                 </span>
                 {polarity && (
                     <span className="text-xs rounded-full px-2 py-0.5 border border-slate-600 bg-slate-800 text-slate-300">
@@ -561,6 +624,24 @@ function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: bool
                     <span className="text-xs text-slate-400 ml-auto">Max Rank {maxRank}</span>
                 )}
             </div>
+
+            {/* Per-rank descriptions from All.json levelStats */}
+            {levelStats.length > 0 && (
+                <div>
+                    <div className="text-xs text-slate-400 font-medium mb-2">Effects per Rank</div>
+                    <div className="space-y-1">
+                        {levelStats.map((ls, r) => (
+                            <div key={r} className={[
+                                "flex items-start gap-2 rounded px-2 py-1.5 text-xs",
+                                r === levelStats.length - 1 ? "bg-cyan-950/30 border border-cyan-800/40" : "bg-slate-800/50"
+                            ].join(" ")}>
+                                <span className="shrink-0 text-slate-500 font-mono w-5">R{r}</span>
+                                <span className="text-slate-200">{ls.stats.join("  ·  ")}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Slot cost per rank */}
             {baseDrain > 0 && maxRank > 0 && (
@@ -582,8 +663,8 @@ function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: bool
             {/* Upgrade Cost Calculator */}
             {!isRiven && <RankCostCalculator maxRank={maxRank} rarity={rarity} />}
 
-            {/* Stats */}
-            {upgrades.length > 0 && (
+            {/* Raw upgrade effects (fallback when no levelStats) */}
+            {levelStats.length === 0 && upgrades.length > 0 && (
                 <div>
                     <div className="text-xs text-slate-400 font-medium mb-2">Effects</div>
                     <div className="space-y-1.5">
@@ -619,11 +700,80 @@ function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: bool
 
 // ─── Arcane Detail Panel ──────────────────────────────────────────────────────
 
+/** Humanize ALL_CAPS variable names from moddescriptions into readable labels.
+ *  e.g. AMMO_EFFICIENCY → "Ammo Efficiency", CRIT_CHANCE → "Crit Chance" */
+function humanizeVarName(key: string): string {
+    return key
+        .split("_")
+        .map(w => w.charAt(0) + w.slice(1).toLowerCase())
+        .join(" ");
+}
+
+/** Extract per-rank values for script-driven arcanes (UpgradeType === "NONE").
+ *  Falls back to LocKeyWordScript level arrays. */
+function extractScriptLevels(u: ModUpgrade): number[] | null {
+    const script = u.LocKeyWordScript;
+    if (!script) return null;
+    for (const [k, v] of Object.entries(script)) {
+        if (k.startsWith("_") && k.endsWith("Levels") && Array.isArray(v) && v.length > 0) {
+            return v as number[];
+        }
+    }
+    return null;
+}
+
 function ArcaneDetail({ entry }: { entry: ModEntry }) {
     const data = entry.data;
     const maxRank = decodeMaxRank(data?.FusionLimit);
     const upgrades = (data?.Upgrades ?? []).concat((data as any)?.ExtraUpgrades ?? []);
     const drops = modLocationLookup.get(normalize(entry.name)) ?? [];
+
+    // Try moddescriptions.json first — it has clean per-rank values for most arcanes
+    const modDesc = MODDESC[entry.path];
+    const descRanks = modDesc?.Ranks;
+
+    type EffectRow = { label: string; values: string[]; suffix?: string };
+    const effectRows: EffectRow[] = [];
+
+    if (descRanks && descRanks.length > 0) {
+        // Group by variable name across ranks
+        const varNames = Object.keys(descRanks[0]);
+        for (const varName of varNames) {
+            const vals = descRanks.map(r => r[varName] ?? "");
+            if (vals.every(v => v === "")) continue;
+            effectRows.push({
+                label: humanizeVarName(varName),
+                values: vals,
+            });
+        }
+    } else {
+        // Fall back to Upgrades array
+        for (const u of upgrades.slice(0, 4)) {
+            const type = u.UpgradeType;
+            const isNoneType = !type || type === "NONE";
+
+            if (isNoneType) {
+                const levels = extractScriptLevels(u);
+                if (levels && levels.length > 0) {
+                    const isPercent = u.DisplayAsPercent;
+                    const fmt = (v: number) => isPercent ? `${Math.round(v * 100 * 10) / 10}%` : String(Math.round(v * 100) / 100);
+                    effectRows.push({ label: "Effect", values: levels.map(fmt) });
+                }
+            } else {
+                const val = u.Value;
+                if (val === undefined || val === null) continue;
+                const label = labelForUpgradeType(type);
+                const isPercent = u.DisplayAsPercent;
+                const fmt = (v: number) => isPercent
+                    ? `${v >= 0 ? "+" : ""}${Math.round(v * 100 * 10) / 10}%`
+                    : `${v >= 0 ? "+" : ""}${Math.round(v * 100) / 100}`;
+                effectRows.push({
+                    label,
+                    values: Array.from({ length: maxRank + 1 }, (_, r) => fmt(val * (r + 1))),
+                });
+            }
+        }
+    }
 
     return (
         <div className="mt-2 rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-4">
@@ -632,52 +782,35 @@ function ArcaneDetail({ entry }: { entry: ModEntry }) {
                 <span className="text-xs text-slate-400">Max Rank: {maxRank}</span>
             </div>
 
-            {/* Rank requirements */}
-            <div>
-                <div className="text-xs text-slate-400 font-medium mb-2">Copies Required to Reach Rank</div>
-                <div className="flex flex-wrap gap-1.5">
-                    {Array.from({ length: maxRank + 1 }, (_, r) => {
-                        const total = ARCANE_TOTAL_PER_RANK[r] ?? ((r + 1) * (r + 2) / 2);
-                        return (
-                            <div key={r} className="text-center">
-                                <div className="text-[10px] text-slate-500 mb-0.5">R{r}</div>
-                                <div className="w-8 text-center rounded bg-slate-800 border border-slate-600 py-1 text-xs text-slate-200 font-mono">
-                                    {total}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Stats */}
-            {upgrades.length > 0 && (
+            {/* Effects with per-rank breakdown */}
+            {effectRows.length > 0 ? (
                 <div>
                     <div className="text-xs text-slate-400 font-medium mb-2">Effects</div>
-                    <div className="space-y-1.5">
-                        {upgrades.slice(0, 4).map((u: any, i: number) => {
-                            const type = u.UpgradeType;
-                            const val = u.Value;
-                            if (!type || val === undefined) return null;
-                            const label = labelForUpgradeType(type);
-                            const maxVal = val * (maxRank > 0 ? (maxRank + 1) : 1);
-                            return (
-                                <div key={i} className="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2">
-                                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                                        <span className="text-xs text-slate-300">{label}</span>
-                                        <span className="text-xs font-mono text-slate-200">
-                                            {formatValue(val, u.DisplayAsPercent)}&nbsp;/&nbsp;rank
-                                            &nbsp;→&nbsp;
-                                            <span className="text-cyan-300 font-semibold">
-                                                {formatValue(maxVal, u.DisplayAsPercent)}&nbsp;at&nbsp;R{maxRank}
-                                            </span>
-                                        </span>
-                                    </div>
+                    <div className="space-y-2">
+                        {effectRows.map((row, i) => (
+                            <div key={i} className="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2">
+                                <div className="text-xs text-slate-300 font-medium mb-1.5">{row.label}</div>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {row.values.map((v, r) => (
+                                        <div key={r} className="text-center">
+                                            <div className="text-[9px] text-slate-600 mb-0.5">R{r}</div>
+                                            <div className={[
+                                                "rounded px-1.5 py-0.5 text-[11px] font-mono border",
+                                                r === row.values.length - 1
+                                                    ? "bg-cyan-950/40 border-cyan-800/60 text-cyan-300"
+                                                    : "bg-slate-900 border-slate-700 text-slate-300"
+                                            ].join(" ")}>
+                                                {v}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            );
-                        })}
+                            </div>
+                        ))}
                     </div>
                 </div>
+            ) : (
+                <div className="text-xs text-slate-500 italic">No effect data available.</div>
             )}
 
             {/* Drop locations */}

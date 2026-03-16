@@ -1,6 +1,8 @@
 // ===== FILE: src/app/layout/Sidebar.tsx =====
+import { useEffect, useState } from "react";
 import { useTrackerStore } from "../../store/store";
 import { NAV_ROUTES } from "../routes";
+import { getStoredTheme, applyTheme, type AppTheme } from "../../pages/Settings";
 
 // Page icons — simple SVG paths, one per route key
 const PAGE_ICONS: Record<string, React.ReactNode> = {
@@ -93,14 +95,28 @@ const PAGE_ICONS: Record<string, React.ReactNode> = {
             <path d="M15 7a4 4 0 1 0-6 3.46V14h4v-3.54A4 4 0 0 0 15 7z" />
         </svg>
     ),
+    intrinsics: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+    ),
 };
 
 export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; onClose: () => void }) {
     const activePage = useTrackerStore((s) => s.state.ui.activePage);
     const setActivePage = useTrackerStore((s) => s.setActivePage);
+    const [theme, setTheme] = useState<AppTheme>(getStoredTheme);
+
+    useEffect(() => { applyTheme(getStoredTheme()); }, []);
+
+    function toggleTheme() {
+        const next: AppTheme = theme === "dark" ? "light" : "dark";
+        setTheme(next);
+        applyTheme(next);
+    }
 
     const nav = (
-        <nav className="flex flex-col gap-0.5 p-2 py-3">
+        <nav className="flex flex-col gap-0.5 p-2 py-3 flex-1">
             {NAV_ROUTES.map((n) => {
                 const active = n.key === activePage;
                 return (
@@ -133,11 +149,45 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
         </nav>
     );
 
+    const footer = (
+        <div className="p-2 border-t border-slate-800/60 space-y-1 shrink-0">
+            {/* Theme toggle */}
+            <button
+                onClick={toggleTheme}
+                className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-colors"
+                title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            >
+                {theme === "dark" ? (
+                    <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
+                ) : (
+                    <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+                )}
+                <span className="text-sm font-medium leading-none">
+                    {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                </span>
+            </button>
+
+            {/* Ko-fi link */}
+            <a
+                href="https://ko-fi.com/appl3tree"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-amber-500/80 hover:bg-amber-950/20 hover:text-amber-400 transition-colors"
+                title="Support on Ko-fi"
+                onClick={onClose}
+            >
+                <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/></svg>
+                <span className="text-sm font-medium leading-none">Support</span>
+            </a>
+        </div>
+    );
+
     return (
         <>
             {/* Desktop sidebar — always visible on md+ */}
             <aside className="hidden md:flex flex-col w-48 shrink-0 border-r border-slate-800 bg-slate-950/60 overflow-y-auto">
                 {nav}
+                {footer}
             </aside>
 
             {/* Mobile drawer — slides in from left as a fixed overlay */}
@@ -159,6 +209,7 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
                     </button>
                 </div>
                 {nav}
+                {footer}
             </aside>
         </>
     );

@@ -1,4 +1,4 @@
-// ===== FILE: src/pages/Dashboard.tsx =====
+// src/pages/Dashboard.tsx
 import { useMemo } from "react";
 import WarframeResetTracker from "../components/WarframeResetTracker";
 import ProgressionNextStepsPanel from "../components/ProgressionNextStepsPanel";
@@ -25,11 +25,9 @@ export default function Dashboard() {
     }, [mergedMap]);
 
     return (
-        // lg: h-full fits the viewport with internal panel scrolling.
-        // Mobile: no height constraint — panels stack at natural height and the page scrolls.
         <div className="flex flex-col gap-3 lg:h-full">
 
-            {/* ── Header bar ── */}
+            {/* ── Header ── */}
             <div className="flex flex-wrap items-center justify-between gap-3 px-1">
                 <div>
                     <div className="text-lg font-semibold">Dashboard</div>
@@ -38,26 +36,19 @@ export default function Dashboard() {
                     </div>
                 </div>
                 <button
-                    className="rounded-lg bg-slate-100 px-3 py-2 text-slate-900 text-sm font-semibold"
-                    onClick={() => setActivePage("prereqs")}
+                    className="rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-1.5 text-slate-200 text-sm font-medium hover:bg-slate-800 transition-colors"
+                    onClick={() => setActivePage("goals")}
                 >
-                    Prerequisites
+                    Goals →
                 </button>
             </div>
 
-            {/* ── Top row: progression + checklist ──
-                Mobile: auto height — each panel expands to show its content.
-                lg+:    fixed clamp height so both panels sit side-by-side without pushing
-                        the reset tracker off-screen. min-h-0 lets flex children shrink. */}
+            {/* ── Top row: progression + checklist ── */}
             <div className={[
                 "grid gap-3 min-h-0",
                 hasProgressionSteps ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1",
-                // lg: explicit 1fr row so h-full inside grid cells resolves against a
-                // definite height (auto rows don't create a definite height for children).
-                // h/min-h/max-h together emulate clamp(320px, 40vh, 520px).
                 "lg:grid-rows-1 lg:h-[40vh] lg:min-h-[320px] lg:max-h-[520px]"
-            ].join(" ")}
-            >
+            ].join(" ")}>
                 {hasProgressionSteps && (
                     <div className="h-[340px] lg:h-full">
                         <ProgressionNextStepsPanel />
@@ -68,11 +59,10 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* ── Reset tracker — fixed height, internal scroll ── */}
+            {/* ── Reset tracker ── */}
             <div className="min-h-0 lg:flex-1">
                 <WarframeResetTracker />
             </div>
-
         </div>
     );
 }

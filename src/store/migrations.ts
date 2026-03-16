@@ -124,10 +124,11 @@ function normalizeInventory(raw: any): any {
     return { credits, platinum, counts };
 }
 
-function normalizeMastery(raw: any): { xpByItem: Record<string, number>; mastered: Record<string, boolean> } {
+function normalizeMastery(raw: any): { xpByItem: Record<string, number>; mastered: Record<string, boolean>; overLevelMastered: Record<string, boolean> } {
     const m = raw && typeof raw === "object" ? raw : {};
     const xp = (m as any).xpByItem && typeof (m as any).xpByItem === "object" ? (m as any).xpByItem : {};
     const mastered = (m as any).mastered && typeof (m as any).mastered === "object" ? (m as any).mastered : {};
+    const overLevelRaw = (m as any).overLevelMastered && typeof (m as any).overLevelMastered === "object" ? (m as any).overLevelMastered : {};
 
     const xpByItem: Record<string, number> = {};
     for (const [k, v] of Object.entries(xp)) {
@@ -141,7 +142,12 @@ function normalizeMastery(raw: any): { xpByItem: Record<string, number>; mastere
         masteredMap[k] = v === true;
     }
 
-    return { xpByItem, mastered: masteredMap };
+    const overLevelMastered: Record<string, boolean> = {};
+    for (const [k, v] of Object.entries(overLevelRaw)) {
+        overLevelMastered[k] = v === true;
+    }
+
+    return { xpByItem, mastered: masteredMap, overLevelMastered };
 }
 
 function normalizeMissions(raw: any): {

@@ -14,6 +14,7 @@ import { uid, nowIso } from "../store/storeUtils";
 type SortKey = "az" | "za" | "count-desc" | "count-asc" | "owned-first" | "unowned-first" | "mastered-last";
 
 type PrimaryTab =
+    | "all"
     | "warframesVehicles"
     | "weapons"
     | "companions"
@@ -31,7 +32,7 @@ type CompanionsTab =
     | "sentinel"
     | "predasite"
     | "vulpaphyla";
-type WeaponClassTab = "primary" | "secondary" | "melee" | "companion";
+type WeaponClassTab = "all" | "primary" | "secondary" | "melee" | "companion";
 
 function normalize(s: string): string {
     return s.trim().toLowerCase();
@@ -572,13 +573,16 @@ function classifyFromRecord(catalogId: string, rec: any): Classification {
     const cls = classifyFromCategories(categories);
 
     // Companion weapons (sentinel, beast, robot) get their own "companion" weapon class tab.
+    // IMPORTANT: clear all other weapon classes so they don't bleed into Primary/Secondary/Melee.
     if (isCompanionWeaponByCatalogId(catalogId)) {
         cls.groups.delete("companions");
         cls.companionsSub.clear();
+        // Remove from any non-companion weapon classes
+        cls.weaponClasses.clear();
+        cls.weaponTypesByClass = { companion: new Set() };
 
         cls.groups.add("weapons");
         cls.weaponClasses.add("companion");
-        if (!cls.weaponTypesByClass.companion) cls.weaponTypesByClass.companion = new Set();
 
         return cls;
     }
@@ -726,7 +730,7 @@ export default function Inventory() {
     const [wfVehTab, setWfVehTab] = useState<WarframesVehiclesTab>("all");
     const [companionsTab, setCompanionsTab] = useState<CompanionsTab>("all");
 
-    const [weaponClassTab, setWeaponClassTab] = useState<WeaponClassTab>("primary");
+    const [weaponClassTab, setWeaponClassTab] = useState<WeaponClassTab>("all");
     const [weaponTypeFilters, setWeaponTypeFilters] = useState<string[]>([]);
     const [weaponTagFilters, setWeaponTagFilters] = useState<string[]>([]);
 
@@ -888,10 +892,15 @@ export default function Inventory() {
 
     const weaponTypeOptions = useMemo(() => {
         const set = new Set<string>();
+        const tabsToCheck: WeaponClassTab[] = weaponClassTab === "all"
+            ? ["primary", "secondary", "melee"]
+            : [weaponClassTab];
         for (const r of rows) {
-            if (!r.cls.weaponClasses.has(weaponClassTab)) continue;
-            for (const t of r.cls.weaponTypesByClass[weaponClassTab] ?? []) {
-                if (t && t.trim()) set.add(normalize(t));
+            for (const wc of tabsToCheck) {
+                if (!r.cls.weaponClasses.has(wc)) continue;
+                for (const t of r.cls.weaponTypesByClass[wc] ?? []) {
+                    if (t && t.trim()) set.add(normalize(t));
+                }
             }
         }
         const out = Array.from(set);
@@ -901,8 +910,12 @@ export default function Inventory() {
 
     const weaponTagOptions = useMemo(() => {
         const set = new Set<string>();
+        const tabsToCheck: WeaponClassTab[] = weaponClassTab === "all"
+            ? ["primary", "secondary", "melee", "companion"]
+            : [weaponClassTab];
         for (const r of rows) {
-            if (!r.cls.weaponClasses.has(weaponClassTab)) continue;
+            const matches = tabsToCheck.some(wc => r.cls.weaponClasses.has(wc));
+            if (!matches) continue;
             for (const tag of r.tags) {
                 if (tag.trim()) set.add(tag.trim());
             }
@@ -914,6 +927,19 @@ export default function Inventory() {
 
     const filtered = useMemo(() => {
         if (primaryTab === "railjack") return [];
+
+        // "All" tab — show warframes, weapons, companions (no blueprints/resources/railjack)
+        if (primaryTab === "all") {
+            return rows.filter((r) => {
+                if (r.cls.groups.has("components")) return false;
+                if (r.cls.groups.has("resources")) return false;
+                return (
+                    r.cls.groups.has("warframesVehicles") ||
+                    r.cls.groups.has("weapons") ||
+                    r.cls.groups.has("companions")
+                );
+            });
+        }
 
         if (primaryTab === "warframesVehicles") {
             return rows.filter((r) => {
@@ -951,10 +977,12 @@ export default function Inventory() {
         return rows.filter((r) => {
             if (!r.cls.groups.has("weapons")) return false;
             if (r.cls.groups.has("components")) return false;
-            if (!r.cls.weaponClasses.has(weaponClassTab)) return false;
 
-            // Type sub-filter (not applicable to companion tab)
-            if (weaponTypeFilters.length > 0 && weaponClassTab !== "companion") {
+            // For "all" tab, show every weapon class
+            if (weaponClassTab !== "all" && !r.cls.weaponClasses.has(weaponClassTab)) return false;
+
+            // Type sub-filter (not applicable to companion tab or all tab)
+            if (weaponTypeFilters.length > 0 && weaponClassTab !== "companion" && weaponClassTab !== "all") {
                 const allowed = new Set(weaponTypeFilters.map(normalize));
                 const types = r.cls.weaponTypesByClass[weaponClassTab];
                 if (!types || types.size === 0) return false;
@@ -968,7 +996,7 @@ export default function Inventory() {
 
             return true;
         });
-    }, [rows, primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters]);
+    }, [rows, primaryTab, wfVehTab, companionsTab, weaponClassTab, weaponTypeFilters, weaponTagFilters]);
 
     // 5.2: Apply additional filters after category tab filtering
     const finalFiltered = useMemo(() => {
@@ -1340,6 +1368,11 @@ export default function Inventory() {
                 <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30">
                     <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 px-2">
                         <TabButton
+                            label="All"
+                            active={primaryTab === "all"}
+                            onClick={() => selectPrimaryTab("all")}
+                        />
+                        <TabButton
                             label="Warframes & Vehicles"
                             active={primaryTab === "warframesVehicles"}
                             onClick={() => selectPrimaryTab("warframesVehicles")}
@@ -1416,6 +1449,11 @@ export default function Inventory() {
                             <div className="text-xs text-slate-400">Weapon Class</div>
                             <div className="mt-2 flex flex-wrap gap-2">
                                 <SubTabButton
+                                    label="All"
+                                    active={weaponClassTab === "all"}
+                                    onClick={() => selectWeaponClass("all")}
+                                />
+                                <SubTabButton
                                     label="Primary"
                                     active={weaponClassTab === "primary"}
                                     onClick={() => selectWeaponClass("primary")}
@@ -1437,7 +1475,7 @@ export default function Inventory() {
                                 />
                             </div>
 
-                            {weaponClassTab !== "companion" && (
+                            {weaponClassTab !== "companion" && weaponClassTab !== "all" && (
                                 <>
                                     <div className="mt-3 text-xs text-slate-400">Type</div>
                                     {weaponTypeOptions.length === 0 ? (
@@ -1517,32 +1555,37 @@ export default function Inventory() {
                         </div>
                     )}
 
-                    {/* Railjack tab — Plexus mastery */}
-                    {primaryTab === "railjack" && (
-                        <div className="p-4">
-                            <div className="text-xs text-slate-400 mb-4">
-                                The Plexus is the Railjack's unique loadout item. It counts toward mastery rank once leveled to Rank 30 (900,000 XP).
-                                If your profile import includes Plexus XP data it will be detected automatically; otherwise toggle it manually.
+                    {/* Railjack tab — Plexus mastery (also shown in All tab) */}
+                    {(primaryTab === "railjack" || primaryTab === "all") && (
+                        <div className={primaryTab === "all" ? "px-4 pt-3 pb-1 border-b border-slate-800/60" : "p-4"}>
+                            {primaryTab === "railjack" && (
+                                <div className="text-xs text-slate-400 mb-4">
+                                    The Plexus is the Railjack's unique loadout item. It counts toward mastery rank once leveled to Rank 30 (900,000 XP).
+                                    If your profile import includes Plexus XP data it will be detected automatically; otherwise toggle it manually.
+                                </div>
+                            )}
+                            <div className={primaryTab === "all" ? "flex items-center gap-3 mb-2" : ""}>
+                                {primaryTab === "all" && <span className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Railjack</span>}
+                                <button
+                                    className={[
+                                        "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors w-full sm:w-auto",
+                                        plexusMastered
+                                            ? "border-cyan-700 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-950/50"
+                                            : "border-slate-700 bg-slate-900/40 text-slate-300 hover:bg-slate-800"
+                                    ].join(" ")}
+                                    onClick={() => setOverLevelMastered(PLEXUS_CATALOG_ID, !plexusMastered)}
+                                    title={plexusMastered ? "Click to mark as not mastered" : "Click to mark as mastered (Rank 30)"}
+                                >
+                                    <span className={[
+                                        "shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs font-bold",
+                                        plexusMastered ? "border-cyan-500 bg-cyan-900/60 text-cyan-300" : "border-slate-600 bg-slate-800 text-slate-500"
+                                    ].join(" ")}>
+                                        {plexusMastered ? "✓" : ""}
+                                    </span>
+                                    <span className="flex-1">Plexus</span>
+                                    <span className="shrink-0 text-xs text-slate-500">{plexusMastered ? "Mastered" : "Not mastered"}</span>
+                                </button>
                             </div>
-                            <button
-                                className={[
-                                    "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors w-full sm:w-auto",
-                                    plexusMastered
-                                        ? "border-cyan-700 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-950/50"
-                                        : "border-slate-700 bg-slate-900/40 text-slate-300 hover:bg-slate-800"
-                                ].join(" ")}
-                                onClick={() => setOverLevelMastered(PLEXUS_CATALOG_ID, !plexusMastered)}
-                                title={plexusMastered ? "Click to mark as not mastered" : "Click to mark as mastered (Rank 30)"}
-                            >
-                                <span className={[
-                                    "shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs font-bold",
-                                    plexusMastered ? "border-cyan-500 bg-cyan-900/60 text-cyan-300" : "border-slate-600 bg-slate-800 text-slate-500"
-                                ].join(" ")}>
-                                    {plexusMastered ? "✓" : ""}
-                                </span>
-                                <span className="flex-1">Plexus</span>
-                                <span className="shrink-0 text-xs text-slate-500">{plexusMastered ? "Mastered" : "Not mastered"}</span>
-                            </button>
                         </div>
                     )}
 

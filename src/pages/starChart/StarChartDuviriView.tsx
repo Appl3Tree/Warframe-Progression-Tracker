@@ -1,8 +1,10 @@
 // StarChartDuviriView — Duviri Paradox experience panels.
 // Extracted from StarChart.tsx as part of Phase 5 file decomposition.
 
+import { useState } from "react";
 import { useTrackerStore } from "../../store/store";
 import { EMPTY_NODE_COMPLETED } from "./starChartMapData";
+import { IntrinsicsPanel } from "./StarChartProximaView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Duviri — four archway experience panels
@@ -166,11 +168,13 @@ function DuviriArchway({ exp, isCompleted, onToggle }: {
 function StarChartDuviriView({ onBack }: { onBack: () => void }) {
     const setNodeCompleted = useTrackerStore((s) => s.setNodeCompleted);
     const nodeCompletedMap = useTrackerStore((s) => s.state.missions?.nodeCompleted ?? EMPTY_NODE_COMPLETED);
+    const [showIntrinsics, setShowIntrinsics] = useState(false);
 
     const completedCount = DUVIRI_EXPERIENCES.filter((e) => nodeCompletedMap[e.nodeId]).length;
 
     return (
         <div className="flex h-[72vh] min-h-[560px] flex-col">
+            {showIntrinsics && <IntrinsicsPanel mode="duviri" onClose={() => setShowIntrinsics(false)} />}
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-800 flex-shrink-0">
                 <button
@@ -183,6 +187,12 @@ function StarChartDuviriView({ onBack }: { onBack: () => void }) {
                         {completedCount}/{DUVIRI_EXPERIENCES.length} experiences complete · Click a panel to mark as done
                     </div>
                 </div>
+                <button
+                    className="rounded-lg border border-purple-700/60 bg-purple-950/30 px-3 py-1.5 text-xs text-purple-300 hover:bg-purple-950/50 transition-colors"
+                    onClick={() => setShowIntrinsics(true)}
+                >
+                    Duviri Intrinsics
+                </button>
             </div>
 
             {/* Archway panels — dark atmospheric background */}

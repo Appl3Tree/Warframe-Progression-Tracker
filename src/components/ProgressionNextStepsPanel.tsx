@@ -8,6 +8,18 @@ import { computeUnlockGraphSnapshot } from "../domain/logic/unlockGraph";
 import { deriveCompletedMap, isValidatedBySyndicate } from "../domain/logic/syndicatePrereqs";
 import type { PrereqId } from "../domain/ids/prereqIds";
 
+function PrereqsLink() {
+    const setActivePage = useTrackerStore((s) => s.setActivePage);
+    return (
+        <button
+            onClick={() => setActivePage("prereqs")}
+            className="text-[11px] text-slate-500 hover:text-slate-300 underline underline-offset-2 transition-colors"
+        >
+            Prerequisites
+        </button>
+    );
+}
+
 export default function ProgressionNextStepsPanel() {
     const completedMap       = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
     const setPrereqCompleted = useTrackerStore((s) => s.setPrereqCompleted);
@@ -62,7 +74,10 @@ export default function ProgressionNextStepsPanel() {
                         Mark complete to advance recommended next steps.
                     </div>
                 </div>
-                <span className="text-xs text-slate-600 font-mono shrink-0">{steps.length} remaining</span>
+                <div className="flex items-center gap-2 shrink-0">
+                    <PrereqsLink />
+                    <span className="text-xs text-slate-600 font-mono">{steps.length} remaining</span>
+                </div>
             </div>
 
             {/* ── Scrollable list ── */}

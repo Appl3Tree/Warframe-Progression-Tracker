@@ -13,9 +13,18 @@ import { EMPTY_NODE_COMPLETED, VORS_PRIZE_IMPLIES_COMPLETED, isInMainMap, displa
 // ─────────────────────────────────────────────────────────────────────────────
 type SCListProps = {
     steelPathMode: boolean;
+    mapMode?: "normal" | "proxima" | "duviri";
 };
 
-function StarChartListView({ steelPathMode }: SCListProps) {
+function isProximaRegion(planetId: string): boolean {
+    return planetId.endsWith("_proxima");
+}
+
+function isDuviriRegion(planetId: string): boolean {
+    return planetId === "region:duviri";
+}
+
+function StarChartListView({ steelPathMode, mapMode = "normal" }: SCListProps) {
     const setNodeCompleted          = useTrackerStore((s) => s.setNodeCompleted);
     const setSteelPathNodeCompleted = useTrackerStore((s) => s.setSteelPathNodeCompleted);
     const setBulkNodesCompleted          = useTrackerStore((s) => s.setBulkNodesCompleted);
@@ -55,12 +64,19 @@ function StarChartListView({ steelPathMode }: SCListProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [completedPrereqs, nodeCompletedMap]);
 
-    // Planets in the main map, ordered by name
-    const planets = useMemo(() =>
-        STAR_CHART_DATA.planets.filter(isInMainMap).sort((a, b) => a.name.localeCompare(b.name)),
-    []);
+    // Planets filtered by current map mode
+    const planets = useMemo(() => {
+        const all = STAR_CHART_DATA.planets;
+        if (mapMode === "proxima") {
+            return all.filter(p => isProximaRegion(p.id)).sort((a, b) => a.name.localeCompare(b.name));
+        }
+        if (mapMode === "duviri") {
+            return all.filter(p => isDuviriRegion(p.id)).sort((a, b) => a.name.localeCompare(b.name));
+        }
+        return all.filter(isInMainMap).sort((a, b) => a.name.localeCompare(b.name));
+    }, [mapMode]);
 
-    // Nodes grouped by planet
+    // Nodes grouped by planet — deduplicate variant nodes (Caches/Extra suffixes)
     const groupedByPlanet = useMemo(() => {
         const m = new Map<string, StarChartNode[]>();
         for (const n of STAR_CHART_DATA.nodes) {
@@ -70,6 +86,24 @@ function StarChartListView({ steelPathMode }: SCListProps) {
         }
         return m;
     }, []);
+
+    // For proxima/duviri, deduplicate variant nodes keeping only the base entry
+    // (strips nodes whose name ends with "(Caches)", "(Extra)", etc.)
+    function filterNodes(nodes: StarChartNode[]): StarChartNode[] {
+        if (mapMode !== "proxima" && mapMode !== "duviri") return nodes;
+        const variantSuffixRe = /\s*\([^)]+\)$/;
+        const baseNames = new Set<string>();
+        // First pass: collect base names
+        for (const n of nodes) {
+            if (!variantSuffixRe.test(n.name)) baseNames.add(n.name);
+        }
+        // Keep base nodes; keep variant only if no base exists with same root
+        return nodes.filter(n => {
+            if (!variantSuffixRe.test(n.name)) return true; // base node
+            const baseName = n.name.replace(variantSuffixRe, "").trim();
+            return !baseNames.has(baseName); // only keep variant if no base
+        });
+    }
 
     const [search, setSearch] = useState("");
     const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -92,9 +126,10 @@ function StarChartListView({ steelPathMode }: SCListProps) {
             </div>
 
             {planets.map((planet) => {
-                const nodes = (groupedByPlanet.get(planet.id) ?? [])
+                const rawNodes = (groupedByPlanet.get(planet.id) ?? [])
                     .filter((n) => !q || n.name.toLowerCase().includes(q) || planet.name.toLowerCase().includes(q))
                     .sort((a, b) => a.name.localeCompare(b.name));
+                const nodes = filterNodes(rawNodes);
 
                 if (nodes.length === 0) return null;
 
@@ -144,7 +179,7 @@ function StarChartListView({ steelPathMode }: SCListProps) {
                                         <label
                                             key={node.id}
                                             className={[
-                                                "flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-slate-800/40",
+                                                "flex cursor-pointer items-center gap-2 rounded px-1 py-1.5 text-xs hover:bg-slate-800/40",
                                                 isLocked ? "opacity-40" : ""
                                             ].join(" ")}
                                         >
@@ -158,9 +193,17 @@ function StarChartListView({ steelPathMode }: SCListProps) {
                                             <span className={isCompleted ? "text-slate-500 line-through" : "text-slate-200"}>
                                                 {displayNameFromBase(node)}
                                             </span>
-                                            {typeLabel && (
-                                                <span className="ml-auto text-[10px] text-slate-600 uppercase tracking-widest">{typeLabel}</span>
-                                            )}
+                                            <span className="ml-auto flex items-center gap-1.5 shrink-0">
+                                                {(node as any).faction && (
+                                                    <span className="text-[10px] text-slate-500">{(node as any).faction}</span>
+                                                )}
+                                                {(node as any).missionType && (
+                                                    <span className="text-[10px] rounded px-1 py-0.5 border border-slate-700 bg-slate-900/60 text-slate-400">{(node as any).missionType}</span>
+                                                )}
+                                                {typeLabel && !((node as any).missionType) && (
+                                                    <span className="text-[10px] text-slate-600 uppercase tracking-widest">{typeLabel}</span>
+                                                )}
+                                            </span>
                                         </label>
                                     );
                                 })}

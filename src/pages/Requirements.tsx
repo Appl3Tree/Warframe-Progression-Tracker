@@ -48,31 +48,6 @@ function MiniStat(props: { label: string; value: string }) {
     );
 }
 
-function downloadJson(filename: string, obj: unknown) {
-    const json = JSON.stringify(obj, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    URL.revokeObjectURL(url);
-}
-
-function snapshotStamp(): string {
-    const d = new Date();
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return (
-        [d.getFullYear(), pad(d.getMonth() + 1), pad(d.getDate())].join("") +
-        "-" +
-        [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join("")
-    );
-}
-
 const HIDDEN_REASON_LABEL: Record<string, string> = {
     "out-of-scope": "Out of scope",
     "unknown-acquisition": "Unknown acquisition",
@@ -80,6 +55,62 @@ const HIDDEN_REASON_LABEL: Record<string, string> = {
     "missing-prereqs": "Missing prerequisites",
     "no-accessible-sources": "No accessible sources",
 };
+
+// Inline count editor for farming items
+function InlineCountEditor(props: {
+    catalogId: string;
+    have: number;
+    totalNeed: number;
+}) {
+    const setCount = useTrackerStore(s => s.setCount);
+    const [editing, setEditing] = useState(false);
+    const [draft, setDraft] = useState("");
+
+    function commit() {
+        const n = parseInt(draft, 10);
+        if (!isNaN(n) && n >= 0) {
+            setCount(props.catalogId, n);
+        }
+        setEditing(false);
+    }
+
+    if (editing) {
+        return (
+            <div className="flex items-center gap-1">
+                <input
+                    autoFocus
+                    type="number"
+                    min={0}
+                    className="w-20 rounded border border-slate-600 bg-slate-900 px-2 py-0.5 text-xs font-mono text-slate-100 focus:outline-none focus:border-slate-400"
+                    value={draft}
+                    onChange={e => setDraft(e.target.value)}
+                    onKeyDown={e => {
+                        if (e.key === "Enter") commit();
+                        if (e.key === "Escape") setEditing(false);
+                    }}
+                    onBlur={commit}
+                />
+                <span className="text-[11px] text-slate-500">/ {props.totalNeed.toLocaleString()}</span>
+            </div>
+        );
+    }
+
+    return (
+        <button
+            className="flex items-center gap-1 group"
+            onClick={() => { setDraft(String(props.have)); setEditing(true); }}
+            title="Click to update your count"
+        >
+            <span className="text-[11px] text-slate-400 font-mono group-hover:text-slate-200 transition-colors">
+                {props.have.toLocaleString()} / {props.totalNeed.toLocaleString()}
+            </span>
+            <svg className="w-3 h-3 text-slate-600 group-hover:text-slate-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+        </button>
+    );
+}
 
 export default function Requirements() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
@@ -93,6 +124,7 @@ export default function Requirements() {
     const [expandMode, setExpandMode] = useState<RequirementExpandMode>("direct");
     const [query, setQuery] = useState("");
     const [showHidden, setShowHidden] = useState(false);
+    const [allowPlatinum, setAllowPlatinum] = useState(false);
 
     const requirements = useMemo(() => {
         return buildRequirementsSnapshot({
@@ -113,9 +145,9 @@ export default function Requirements() {
 
     // Build a lookup map from requirements so targeted cards can show have/totalNeed.
     const reqLineByKey = useMemo(() => {
-        const m = new Map<string, { have: number; totalNeed: number }>();
+        const m = new Map<string, { have: number; totalNeed: number; catalogId?: string }>();
         for (const l of requirements.itemLines) {
-            m.set(String(l.key), { have: l.have, totalNeed: l.totalNeed });
+            m.set(String(l.key), { have: l.have, totalNeed: l.totalNeed, catalogId: String(l.key) });
         }
         return m;
     }, [requirements.itemLines]);
@@ -199,104 +231,102 @@ export default function Requirements() {
                         >
                             Open Goals
                         </button>
-
                         <button
                             className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-sm font-semibold hover:bg-slate-900/40"
                             onClick={() => setActivePage("inventory")}
                         >
                             Open Inventory
                         </button>
-
-                        <button
-                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-sm font-semibold hover:bg-slate-900/40"
-                            onClick={() => {
-                                const stamp = snapshotStamp();
-                                downloadJson(`requirements-snapshot-${stamp}.json`, requirements);
-                            }}
-                        >
-                            Export Requirements JSON
-                        </button>
-
-                        <button
-                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-sm font-semibold hover:bg-slate-900/40"
-                            onClick={() => {
-                                const stamp = snapshotStamp();
-                                downloadJson(`farming-snapshot-${stamp}.json`, farming);
-                            }}
-                        >
-                            Export Farming JSON
-                        </button>
-
-                        <button
-                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-sm font-semibold hover:bg-slate-900/40"
-                            onClick={() => {
-                                const stamp = snapshotStamp();
-                                downloadJson(`planner-snapshots-${stamp}.json`, { requirements, farming });
-                            }}
-                        >
-                            Export Combined JSON
-                        </button>
                     </div>
                 </div>
 
                 {/* Stats row */}
-                <div className="mt-4 grid grid-cols-1 lg:grid-cols-7 gap-3">
-                    <MiniStat label="Items (req snapshot)" value={requirements.stats.actionableItemCount.toLocaleString()} />
+                <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <MiniStat label="Items needed" value={requirements.stats.actionableItemCount.toLocaleString()} />
                     <MiniStat
-                        label="Actionable (known + accessible)"
-                        value={farming.stats.actionableItemsWithKnownAcquisition.toLocaleString()}
+                        label="Targeted sources"
+                        value={farming.targeted.length.toLocaleString()}
                     />
                     <MiniStat
-                        label="Hidden (unknown acquisition)"
-                        value={farming.stats.hiddenForUnknownAcquisition.toLocaleString()}
+                        label="Overlap sources"
+                        value={farming.overlap.length.toLocaleString()}
                     />
                     <MiniStat
-                        label="Hidden (missing prereqs)"
-                        value={farming.stats.hiddenForMissingPrereqs.toLocaleString()}
-                    />
-                    <MiniStat
-                        label="Hidden (no accessible sources)"
-                        value={farming.stats.hiddenForNoAccessibleSources.toLocaleString()}
-                    />
-                    <MiniStat label="Overlap sources" value={farming.stats.overlapSourceCount.toLocaleString()} />
-                    <MiniStat
-                        label="Remaining currency"
-                        value={[
-                            `Credits ${requirements.stats.totalRemainingCredits.toLocaleString()}`,
-                            `Plat ${requirements.stats.totalRemainingPlatinum.toLocaleString()}`
-                        ].join(" · ")}
+                        label="Hidden items"
+                        value={farming.hidden.length.toLocaleString()}
                     />
                 </div>
 
-                {/* Search + hidden toggle */}
-                <div className="mt-4 flex flex-wrap items-center gap-2">
+                {/* Currency costs */}
+                {requirements.currencyLines.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                        <div className="text-xs uppercase tracking-wide text-slate-500 font-semibold">Currency costs</div>
+                        <div className="flex flex-wrap gap-3">
+                            {requirements.currencyLines
+                                .filter(cl => allowPlatinum || cl.key !== "platinum")
+                                .map(cl => {
+                                    const remaining = cl.remaining ?? cl.totalNeed;
+                                    const isMet = remaining <= 0;
+                                    const isPlatinum = cl.key === "platinum";
+                                    return (
+                                        <div key={cl.key} className={[
+                                            "rounded-xl border px-4 py-3 flex items-center gap-3",
+                                            isMet
+                                                ? "border-green-800/40 bg-green-950/20"
+                                                : isPlatinum
+                                                    ? "border-indigo-800/40 bg-indigo-950/20"
+                                                    : "border-yellow-800/40 bg-yellow-950/10"
+                                        ].join(" ")}>
+                                            <div className="text-2xl">{isPlatinum ? "🟦" : "🪙"}</div>
+                                            <div>
+                                                <div className="text-sm font-semibold text-slate-100">{cl.name}</div>
+                                                <div className={["text-xs font-mono", isMet ? "text-green-400" : "text-slate-300"].join(" ")}>
+                                                    {isMet
+                                                        ? `✓ ${cl.totalNeed.toLocaleString()} (covered)`
+                                                        : `Need ${cl.totalNeed.toLocaleString()}${cl.have > 0 ? ` · Have ${cl.have.toLocaleString()} · Still need ${remaining.toLocaleString()}` : ""}`
+                                                    }
+                                                </div>
+                                                {cl.sources.length > 0 && (
+                                                    <div className="text-[10px] text-slate-500 mt-0.5">
+                                                        {cl.sources.slice(0, 3).map(s => s.name).join(", ")}
+                                                        {cl.sources.length > 3 && ` +${cl.sources.length - 3} more`}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Search */}
+                <div className="mt-4">
                     <input
-                        type="search"
-                        placeholder="Search by item or source…"
+                        className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
                         value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        className="flex-1 min-w-[200px] rounded-lg bg-slate-900 border border-slate-700 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-500"
+                        onChange={e => setQuery(e.target.value)}
+                        placeholder="Search items or sources…"
                     />
-                    <button
-                        onClick={() => setShowHidden((v) => !v)}
-                        className={[
-                            "rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors",
-                            showHidden
-                                ? "border-slate-500 bg-slate-700 text-slate-100"
-                                : "border-slate-700 bg-slate-950/20 text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
-                        ].join(" ")}
-                    >
-                        {showHidden ? "Hide hidden items" : `Show hidden (${farming.hidden.length})`}
-                    </button>
+                </div>
+
+                <div className="mt-3 flex items-center gap-2 flex-wrap">
+                    <PillButton
+                        label={showHidden ? "Hide hidden items" : `Show hidden items (${farming.hidden.length})`}
+                        active={showHidden}
+                        onClick={() => setShowHidden(v => !v)}
+                    />
+                    <PillButton
+                        label={allowPlatinum ? "Platinum: allowed" : "Platinum: excluded"}
+                        active={allowPlatinum}
+                        onClick={() => setAllowPlatinum(v => !v)}
+                    />
                 </div>
             </Section>
 
             {/* Hidden items */}
-            {showHidden && farming.hidden.length > 0 && (
-                <Section
-                    title="Hidden Items"
-                    subtitle={`${farming.hidden.length} items not shown in farming lists${query ? ` · filtered to ${filteredHidden.length}` : ""}`}
-                >
+            {showHidden && (
+                <Section title="Hidden Items" subtitle="Items excluded from farming view">
                     {filteredHidden.length === 0 ? (
                         <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
                             No hidden items match the search.
@@ -343,6 +373,7 @@ export default function Requirements() {
                                 const have = detail?.have ?? 0;
                                 const totalNeed = detail?.totalNeed ?? l.remaining;
                                 const pct = totalNeed > 0 ? Math.min(100, Math.round((have / totalNeed) * 100)) : 0;
+                                const catalogId = String(l.key);
 
                                 return (
                                     <div key={String(l.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
@@ -358,9 +389,11 @@ export default function Requirements() {
                                                             style={{ width: `${pct}%` }}
                                                         />
                                                     </div>
-                                                    <span className="text-[11px] text-slate-400 font-mono whitespace-nowrap shrink-0">
-                                                        {have.toLocaleString()} / {totalNeed.toLocaleString()}
-                                                    </span>
+                                                    <InlineCountEditor
+                                                        catalogId={catalogId}
+                                                        have={have}
+                                                        totalNeed={totalNeed}
+                                                    />
                                                 </div>
 
                                                 {/* Sources */}
@@ -427,9 +460,11 @@ export default function Requirements() {
                                                     className="rounded-lg border border-slate-800 bg-slate-950/40 px-2.5 py-1.5 flex items-center justify-between gap-2"
                                                 >
                                                     <div className="text-xs text-slate-200 truncate">{it.name}</div>
-                                                    <div className="text-[11px] font-mono text-slate-400 shrink-0">
-                                                        {have.toLocaleString()}/{totalNeed.toLocaleString()}
-                                                    </div>
+                                                    <InlineCountEditor
+                                                        catalogId={String(it.key)}
+                                                        have={have}
+                                                        totalNeed={totalNeed}
+                                                    />
                                                 </div>
                                             );
                                         })}

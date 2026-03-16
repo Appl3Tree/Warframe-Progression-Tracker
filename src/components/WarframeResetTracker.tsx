@@ -84,12 +84,14 @@ const BUCKET_LABEL: Record<Bucket, string> = {
     conclave:        "Conclave",
 };
 
-const BUCKET_SUB: Record<Bucket, string> = {
-    primary_daily:   "00:00 UTC",
-    secondary_daily: "16:00 UTC",
-    weekly_monday:   "Mon 00:00 UTC",
-    conclave:        "Daily 16:00 · Weekly Fri",
-};
+function getBucketSub(mode: TimeMode): Record<Bucket, string> {
+    return {
+        primary_daily:   fmtFixedUTC(0, 0, mode),
+        secondary_daily: fmtFixedUTC(16, 0, mode),
+        weekly_monday:   `Mon ${fmtFixedUTC(0, 0, mode)}`,
+        conclave:        `Daily ${fmtFixedUTC(16, 0, mode)} · Weekly Fri`,
+    };
+}
 
 const BUCKET_ORDER: Bucket[] = [
     "primary_daily", "secondary_daily", "weekly_monday", "conclave",
@@ -199,14 +201,18 @@ const ALL_TASKS: TaskDef[] = [
     { id: "conclave_weekly_challenges", label: "Conclave Weekly Challenges", bucket: "conclave",      conclaveSub: "conclave_weekly",  description: "Finish this week's Conclave weekly challenges.", prereqIds: [PR.HUB_RELAY] },
 ];
 
-const TIMED_REF = [
-    { id: "tenet",   label: "Tenet Weapon Bonus",  detail: "Rotates every 4 days at 00:00 UTC." },
-    { id: "bounty",  label: "Bounty Rotation",     detail: "Every 2h 30m — Cetus, Fortuna, Cambion, Zariman, Sanctum." },
-    { id: "plains",  label: "Plains of Eidolon",   detail: "150-min cycle: ~100m day, ~50m night." },
-    { id: "vallis",  label: "Orb Vallis",          detail: "26m 40s warm / 20m cold." },
-    { id: "cambion", label: "Cambion Drift",       detail: "150-min Fass/Vome cycle." },
-];
-const MONTHLY_REF = [{ id: "prime", label: "Prime Resurgence", detail: "Approximate monthly rotation ~18:00 UTC. Reference only." }];
+function getTimedRef(mode: TimeMode) {
+    return [
+        { id: "tenet",   label: "Tenet Weapon Bonus",  detail: `Rotates every 4 days at ${fmtFixedUTC(0, 0, mode)}.` },
+        { id: "bounty",  label: "Bounty Rotation",     detail: "Every 2h 30m — Cetus, Fortuna, Cambion, Zariman, Sanctum." },
+        { id: "plains",  label: "Plains of Eidolon",   detail: "150-min cycle: ~100m day, ~50m night." },
+        { id: "vallis",  label: "Orb Vallis",          detail: "26m 40s warm / 20m cold." },
+        { id: "cambion", label: "Cambion Drift",       detail: "150-min Fass/Vome cycle." },
+    ];
+}
+function getMonthlyRef(mode: TimeMode) {
+    return [{ id: "prime", label: "Prime Resurgence", detail: `Approximate monthly rotation ~${fmtFixedUTC(18, 0, mode)}. Reference only.` }];
+}
 const EVENT_REF = [
     { id: "world",    label: "World Events",   detail: "Ghoul Purge, Thermia, Razorback, Fomorian, Plague Star." },
     { id: "seasonal", label: "Seasonal Events",detail: "Star Days, Dog Days, Naberus, Lunar New Year, Christmas." },
@@ -275,13 +281,34 @@ function fmtMs(ms: number): string {
     return `${s}s`;
 }
 
+const TZ_KEY = "wft_timezone_v1";
+function getDisplayTimezone(): string {
+    return localStorage.getItem(TZ_KEY) || Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
 function fmtAbs(date: Date, mode: TimeMode): string {
     if (mode === "utc") {
         const wd = date.toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" });
         const t  = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "UTC" });
         return `${wd} ${t} UTC`;
     }
-    return date.toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit", hour12: true });
+    const tz = getDisplayTimezone();
+    const wd = date.toLocaleDateString("en-US", { weekday: "short", timeZone: tz });
+    const t  = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: tz });
+    return `${wd} ${t}`;
+}
+
+/** Format a fixed UTC hour:minute as either "HH:MM UTC" or its equivalent in the user's timezone */
+function fmtFixedUTC(utcHour: number, utcMinute: number, mode: TimeMode): string {
+    const now = new Date();
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), utcHour, utcMinute));
+    if (mode === "utc") {
+        const hh = String(utcHour).padStart(2, "0");
+        const mm = String(utcMinute).padStart(2, "0");
+        return `${hh}:${mm} UTC`;
+    }
+    const tz = getDisplayTimezone();
+    return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: tz });
 }
 
 function urgTier(ms: number, bucket: Bucket): "safe" | "warn" | "crit" {
@@ -296,12 +323,13 @@ const URG_TITLE:     Record<string, string> = { safe: "text-emerald-400", warn: 
 
 // ─── Baro Ki'Teer live computation ─────────────────────────────────────────────
 
-function getBaroStatus(now: Date): { present: boolean; label: string; detail: string; timeLeftMs: number; timeUntilMs: number } {
+function getBaroStatus(now: Date, mode: TimeMode = "utc"): { present: boolean; label: string; detail: string; timeLeftMs: number; timeUntilMs: number } {
     const ms = now.getTime();
     const offset = ((ms - BARO_ANCHOR_MS) % BARO_PERIOD_MS + BARO_PERIOD_MS) % BARO_PERIOD_MS;
     const cycleStart    = ms - offset;
     const leaveMs       = cycleStart + BARO_WINDOW_MS;
     const nextArrivalMs = cycleStart + BARO_PERIOD_MS;
+    const baroTime = fmtFixedUTC(13, 0, mode);
 
     if (ms < leaveMs) {
         const remaining = leaveMs - ms;
@@ -317,7 +345,7 @@ function getBaroStatus(now: Date): { present: boolean; label: string; detail: st
     return {
         present:     false,
         label:       "Baro Ki'Teer",
-        detail:      `Arrives in ${fmtMs(until)} · Every other Friday at 13:00 UTC, 48 h window`,
+        detail:      `Arrives in ${fmtMs(until)} · Every other Friday at ${baroTime}, 48 h window`,
         timeLeftMs:  0,
         timeUntilMs: until,
     };
@@ -553,9 +581,10 @@ function TaskList({ tasks, completedIds, onToggle, netracellRuns, onNetracellCha
 }
 
 // Standard single-bucket task panel (primary, secondary, weekly)
-function TaskPanel({ bucket, tasks, completedIds, tier, onToggle, onClear, netracellRuns, onNetracellChange }: {
+function TaskPanel({ bucket, tasks, completedIds, tier, onToggle, onClear, timeMode, netracellRuns, onNetracellChange }: {
     bucket: Bucket; tasks: TaskDef[]; completedIds: string[];
     tier: string; onToggle: (id: string) => void; onClear: () => void;
+    timeMode: TimeMode;
     netracellRuns?: number; onNetracellChange?: (n: number) => void;
 }) {
     const done    = tasks.filter((t) => completedIds.includes(t.id)).length
@@ -569,7 +598,7 @@ function TaskPanel({ bucket, tasks, completedIds, tier, onToggle, onClear, netra
                     <div className={`text-xs font-semibold uppercase tracking-wider ${URG_TITLE[tier]}`}>
                         {BUCKET_LABEL[bucket]}
                     </div>
-                    <div className="text-xs text-slate-500 mt-0.5">{BUCKET_SUB[bucket]}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">{getBucketSub(timeMode)[bucket]}</div>
                 </div>
                 <div className="flex items-center gap-2">
                     <span className={`text-xs px-2 py-0.5 rounded-full border ${allDone ? "border-emerald-800 text-emerald-400" : "border-slate-700 text-slate-400"}`}>
@@ -698,12 +727,14 @@ function RefSection({ title, rows }: { title: string; rows: { id: string; label:
 function CustomizePanel({
     eligibleTasks,
     hiddenTaskIds,
+    timeMode,
     onToggle,
     onShowAll,
     onHideAll,
 }: {
     eligibleTasks: TaskDef[];
     hiddenTaskIds: string[];
+    timeMode: TimeMode;
     onToggle: (id: string) => void;
     onShowAll: () => void;
     onHideAll: () => void;
@@ -713,11 +744,12 @@ function CustomizePanel({
 
     // Build groups — Conclave renders as one group (daily + weekly together)
     type Group = { key: string; label: string; sub?: string; tasks: TaskDef[] };
+    const bucketSub = getBucketSub(timeMode);
     const groups: Group[] = [
-        { key: "primary_daily",   label: BUCKET_LABEL.primary_daily,   sub: BUCKET_SUB.primary_daily,   tasks: eligibleTasks.filter((t) => t.bucket === "primary_daily") },
-        { key: "secondary_daily", label: BUCKET_LABEL.secondary_daily, sub: BUCKET_SUB.secondary_daily, tasks: eligibleTasks.filter((t) => t.bucket === "secondary_daily") },
-        { key: "weekly_monday",   label: BUCKET_LABEL.weekly_monday,   sub: BUCKET_SUB.weekly_monday,   tasks: eligibleTasks.filter((t) => t.bucket === "weekly_monday") },
-        { key: "conclave",        label: "Conclave",                   sub: "Daily 16:00 · Weekly Fri", tasks: eligibleTasks.filter((t) => t.bucket === "conclave") },
+        { key: "primary_daily",   label: BUCKET_LABEL.primary_daily,   sub: bucketSub.primary_daily,   tasks: eligibleTasks.filter((t) => t.bucket === "primary_daily") },
+        { key: "secondary_daily", label: BUCKET_LABEL.secondary_daily, sub: bucketSub.secondary_daily, tasks: eligibleTasks.filter((t) => t.bucket === "secondary_daily") },
+        { key: "weekly_monday",   label: BUCKET_LABEL.weekly_monday,   sub: bucketSub.weekly_monday,   tasks: eligibleTasks.filter((t) => t.bucket === "weekly_monday") },
+        { key: "conclave",        label: "Conclave",                   sub: `Daily ${fmtFixedUTC(16,0,timeMode)} · Weekly Fri`, tasks: eligibleTasks.filter((t) => t.bucket === "conclave") },
     ].filter((g) => g.tasks.length > 0);
 
     return (
@@ -820,7 +852,7 @@ export default function WarframeResetTracker() {
     }, []);
 
     const nextResets = useMemo(() => getNextResets(now), [now]);
-    const baro       = useMemo(() => getBaroStatus(now), [now]);
+    const baro       = useMemo(() => getBaroStatus(now, rc.timeMode), [now, rc.timeMode]);
 
     // Current completed IDs for standard buckets
     const completedIds = useMemo((): Record<Exclude<Bucket, "conclave">, string[]> & { conclave_daily: string[]; conclave_weekly: string[] } => {
@@ -1024,6 +1056,7 @@ export default function WarframeResetTracker() {
                 <CustomizePanel
                     eligibleTasks={eligibleTasks}
                     hiddenTaskIds={rc.hiddenTaskIds}
+                    timeMode={rc.timeMode}
                     onToggle={toggleHidden}
                     onShowAll={showAll}
                     onHideAll={hideAll}
@@ -1099,6 +1132,7 @@ export default function WarframeResetTracker() {
                     tier={tierFor(selected)}
                     onToggle={(id) => toggle(id, selected)}
                     onClear={() => clearBucket(COMPLETED_KEY[selected as Exclude<Bucket, "conclave">]!)}
+                    timeMode={rc.timeMode}
                     netracellRuns={rc.netracellRuns}
                     onNetracellChange={(n) => setRc((p) => ({ ...p, netracellRuns: n }))}
                 />
@@ -1110,8 +1144,8 @@ export default function WarframeResetTracker() {
                     title="Bi-Weekly"
                     rows={[{ id: "baro", label: baro.label, detail: baro.detail, highlight: baro.present }]}
                 />
-                <RefSection title="Timed Rotations"   rows={TIMED_REF} />
-                <RefSection title="Monthly Reference"  rows={MONTHLY_REF} />
+                <RefSection title="Timed Rotations"   rows={getTimedRef(rc.timeMode)} />
+                <RefSection title="Monthly Reference"  rows={getMonthlyRef(rc.timeMode)} />
                 <RefSection title="Event-Driven"       rows={EVENT_REF} />
             </div>
         </div>

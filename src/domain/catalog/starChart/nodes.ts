@@ -197,6 +197,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Cambria",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -205,6 +207,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Everest",
         nodeType: "mission",
+        missionType: "Excavation",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -213,6 +217,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Gaia",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Grineer",
         pos: { x: -0.2, y: 0.45 },
         edges: []
     },
@@ -221,6 +227,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Lith",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -229,6 +237,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Mantle",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -237,6 +247,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Pacific",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Grineer",
         pos: { x: 0.80, y: 0.7},
         edges: ["node:mr/earth/gaia",]
     },
@@ -250,6 +262,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Bendar Cluster",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -258,6 +272,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Bendar Cluster (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -266,6 +282,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Bendar Cluster (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -275,6 +293,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Iota Temple",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -283,6 +303,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Iota Temple (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -291,6 +313,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Iota Temple (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -299,6 +323,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Korm's Belt",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -307,6 +333,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Korm's Belt (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -315,6 +343,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Korm's Belt (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -324,6 +354,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Sover Strait",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -332,6 +364,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Sover Strait (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -340,6 +374,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Sover Strait (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -349,6 +385,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Ogal Cluster",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -357,6 +395,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Ogal Cluster (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -365,6 +405,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:earth_proxima",
         name: "Ogal Cluster (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -374,6 +416,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Cervantes (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -384,6 +428,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Tikal",
         nodeType: "mission",
+        missionType: "Dark Sector Excavation",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -392,6 +438,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Coba",
         nodeType: "mission",
+        missionType: "Dark Sector Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -400,6 +448,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Erpo",
         nodeType: "mission",
+        missionType: "Mobile Defense (Archwing)",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -408,6 +458,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Oro",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -416,6 +468,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Saya's Visions",
         nodeType: "quest",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -424,6 +478,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Eurasia",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -436,6 +492,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Beacon Shield Ring",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -444,6 +502,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Beacon Shield Ring (Caches)",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -452,6 +512,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Beacon Shield Ring (Extra)",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -461,6 +523,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Bifrost Echo",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -469,6 +533,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Bifrost Echo (Caches)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -477,6 +543,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Bifrost Echo (Extra)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -486,6 +554,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Cytherean",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -495,6 +565,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Falling Glory",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -503,6 +575,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Falling Glory (Caches)",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -511,6 +585,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Falling Glory (Extra)",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -520,6 +596,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Fossa",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -529,6 +607,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Ishtar (Caches)",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -538,6 +618,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Kiliken",
         nodeType: "mission",
+        missionType: "Excavation",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -546,6 +628,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Linea",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -555,6 +639,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Luckless Expanse",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -563,6 +649,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Luckless Expanse (Caches)",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -571,6 +659,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Luckless Expanse (Extra)",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -580,6 +670,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Malva",
         nodeType: "mission",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -588,6 +680,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Montes",
         nodeType: "mission",
+        missionType: "Extermination (Archwing)",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -597,6 +691,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Orvin-Haarc",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -605,6 +701,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Orvin-Haarc (Caches)",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -613,6 +711,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Orvin-Haarc (Extra)",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -622,6 +722,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Romula",
         nodeType: "mission",
+        missionType: "Dark Sector Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -630,6 +732,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Tessera",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -638,6 +742,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Unda",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -647,6 +753,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "V Prime",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -656,6 +764,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Venera",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -664,6 +774,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "Aphrodite",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -672,6 +784,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:venus",
         name: "E Gate",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -680,6 +794,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Vesper Strait",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -688,6 +804,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Vesper Strait (Caches)",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -696,6 +814,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:venus_proxima",
         name: "Vesper Strait (Extra)",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -707,6 +827,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Apollodorus",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -723,6 +845,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Caloris",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -731,6 +855,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Elion",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -739,6 +865,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Lares",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -747,6 +875,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Neruda (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -755,6 +885,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Odin",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -763,6 +895,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Suisei",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -771,6 +905,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Terminus (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -779,6 +915,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Tolstoj",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -787,6 +925,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Boethius",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -795,6 +935,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "M Prime",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -803,6 +945,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mercury",
         name: "Pantheon",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -814,6 +958,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Arcadia",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -822,6 +968,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Olympus",
         nodeType: "mission",
+        missionType: "Disruption",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -830,6 +978,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Spear",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -838,6 +988,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Alator",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -846,6 +998,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Arval",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -854,6 +1008,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Augustus",
         nodeType: "mission",
+        missionType: "Excavation",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -862,6 +1018,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Ara",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -870,6 +1028,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Martialis",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -878,6 +1038,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Kadesh",
         nodeType: "mission",
+        missionType: "Dark Sector Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -886,6 +1048,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "War",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -894,6 +1058,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Gradivus (Caches)",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -902,6 +1068,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Wahiba",
         nodeType: "mission",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -910,6 +1078,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Quirinus",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -918,6 +1088,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Syrtis",
         nodeType: "mission",
+        missionType: "Extermination (Archwing)",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -926,6 +1098,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Tyana Pass",
         nodeType: "mission",
+        missionType: "Mirror Defense",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -934,6 +1108,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Ares",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -942,6 +1118,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Hellas",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -950,6 +1128,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Tharsis",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -958,6 +1138,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Ultor",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -966,6 +1148,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:mars",
         name: "Vallis",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -977,6 +1161,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Ganymede",
         nodeType: "mission",
+        missionType: "Disruption",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -985,6 +1171,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Adrastea (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -993,6 +1181,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Amalthea",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1001,6 +1191,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Metis",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1009,6 +1201,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Io",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1017,6 +1211,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Elara",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1025,6 +1221,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Callisto",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1033,6 +1231,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Carpo (Caches)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1041,6 +1241,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Themisto",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1049,6 +1251,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "The Ropalolyst",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Sentient",
         pos: undefined,
         edges: []
     },
@@ -1057,6 +1261,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "The Ropalolyst (Extra)",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Sentient",
         pos: undefined,
         edges: []
     },
@@ -1065,6 +1271,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Sinai",
         nodeType: "mission",
+        missionType: "Dark Sector Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1073,6 +1281,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Ananke",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1081,6 +1291,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Galilea",
         nodeType: "mission",
+        missionType: "Sabotage (Archwing)",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1089,6 +1301,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Cameria",
         nodeType: "mission",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1097,6 +1311,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Carme",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1105,6 +1321,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:jupiter",
         name: "Thebe",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1116,6 +1334,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Armatus",
         nodeType: "mission",
+        missionType: "Disruption",
+        faction: "The Murmur",
         pos: undefined,
         edges: []
     },
@@ -1124,6 +1344,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Cambire",
         nodeType: "mission",
+        missionType: "Alchemy",
+        faction: "The Murmur",
         pos: undefined,
         edges: []
     },
@@ -1132,6 +1354,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Effervo",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "The Murmur",
         pos: undefined,
         edges: []
     },
@@ -1140,6 +1364,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Formido (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1148,6 +1374,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Hyf",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1156,6 +1384,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Magnacidium",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1164,6 +1394,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Munio",
         nodeType: "mission",
+        missionType: "Mirror Defense",
+        faction: "The Murmur",
         pos: undefined,
         edges: []
     },
@@ -1172,6 +1404,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Nex",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "The Murmur",
         pos: undefined,
         edges: []
     },
@@ -1180,6 +1414,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Persto",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "The Murmur",
         pos: undefined,
         edges: []
     },
@@ -1188,6 +1424,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Terrorem",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1196,6 +1434,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Horend",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1204,6 +1444,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Phlegyas",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1212,6 +1454,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Dirus",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1220,6 +1464,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Exequias",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1228,6 +1474,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:deimos",
         name: "Testudo",
         nodeType: "mission",
+        missionType: "Netracells",
+        faction: "The Murmur",
         pos: undefined,
         edges: []
     },
@@ -1240,6 +1488,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Drunlo",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1248,6 +1498,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Flimnap",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1256,6 +1508,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Grildrig",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1264,6 +1518,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Gulliver",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1272,6 +1528,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Iliad",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1280,6 +1538,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Kepler",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1288,6 +1548,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Limtoc",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1296,6 +1558,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Memphis",
         nodeType: "mission",
+        missionType: "Dark Sector Defection",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1304,6 +1568,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Monolith",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1312,6 +1578,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Opik",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1320,6 +1588,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Shklovsky",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1328,6 +1598,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Skyresh",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1336,6 +1608,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Stickney",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1344,6 +1618,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Todd",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1352,6 +1628,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Wendell",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1360,6 +1638,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Zeugma",
         nodeType: "mission",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1368,6 +1648,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Roche",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1376,6 +1658,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:phobos",
         name: "Sharpless",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1388,6 +1672,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Bode",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1396,6 +1682,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Casta",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1404,6 +1692,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Cinxia",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1412,6 +1702,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Draco",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1420,6 +1712,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Egeria",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1428,6 +1722,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Exta",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1436,6 +1732,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Exta (Extra)",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1444,6 +1742,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Gabii",
         nodeType: "mission",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1452,6 +1752,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Hapke",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1460,6 +1762,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Ker (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1468,6 +1772,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Lex",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1476,6 +1782,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Nuovo",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1484,6 +1792,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Olla",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1492,6 +1802,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Seimeni",
         nodeType: "mission",
+        missionType: "Dark Sector Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1500,6 +1812,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Thon (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1508,6 +1822,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Varro",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1516,6 +1832,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Kiste",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1524,6 +1842,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Ludi",
         nodeType: "mission",
+        missionType: "Hijack",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1532,6 +1852,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:ceres",
         name: "Pallas",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1544,6 +1866,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Abaddon",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1552,6 +1876,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Beleth",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1560,6 +1886,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Cholistan",
         nodeType: "mission",
+        missionType: "Dark Sector Excavation",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1584,6 +1912,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Gamygyn",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1592,6 +1922,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Larzac",
         nodeType: "mission",
+        missionType: "Dark Sector Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1600,6 +1932,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Lillith",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1608,6 +1942,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Naamah",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1616,6 +1952,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Orias",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1624,6 +1962,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Ose",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1632,6 +1972,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Paimon",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1648,6 +1990,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Valac",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1656,6 +2000,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Valefor",
         nodeType: "mission",
+        missionType: "Excavation",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1664,6 +2010,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Zagan",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1672,6 +2020,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Armaros",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1680,6 +2030,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Baal",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1688,6 +2040,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Kokabiel",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1696,6 +2050,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Morax",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1704,6 +2060,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:europa",
         name: "Sorath",
         nodeType: "mission",
+        missionType: "Hijack",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -1716,6 +2074,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Aegaeon",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1740,6 +2100,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Anthe",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1748,6 +2110,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Calypso (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1756,6 +2120,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Caracol",
         nodeType: "mission",
+        missionType: "Dark Sector Defection",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1764,6 +2130,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Cassini",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1788,6 +2156,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Dione",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1796,6 +2166,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Helene",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1804,6 +2176,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Kasio's Rest",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1812,6 +2186,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Kasio's Rest (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1820,6 +2196,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Kasio's Rest (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1844,6 +2222,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Lupal Pass",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1852,6 +2232,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Lupal Pass (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1860,6 +2242,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Lupal Pass (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1868,6 +2252,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Mimas",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1876,6 +2262,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Mordo Cluster",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1884,6 +2272,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Mordo Cluster (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1892,6 +2282,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Mordo Cluster (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1900,6 +2292,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Nodo Gap",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1908,6 +2302,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Nodo Gap (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1916,6 +2312,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Nodo Gap (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1924,6 +2322,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Numa",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1932,6 +2332,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Pallene (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1940,6 +2342,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Pandora",
         nodeType: "mission",
+        missionType: "Pursuit (Archwing)",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1948,6 +2352,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Phoebe",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1956,6 +2362,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Piscinas",
         nodeType: "mission",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -1964,6 +2372,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Rhea",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1988,6 +2398,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Tethys",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -1996,6 +2408,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Titan",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2004,6 +2418,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Vand Cluster",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2012,6 +2428,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Vand Cluster (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2020,6 +2438,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:saturn_proxima",
         name: "Vand Cluster (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2076,6 +2496,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Enceladus",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2084,6 +2506,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Keeler",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2092,6 +2516,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:saturn",
         name: "Telesto",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2104,6 +2530,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Ariel",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2112,6 +2540,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Assur",
         nodeType: "mission",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -2120,6 +2550,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Bianca",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2128,6 +2560,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Brutus",
         nodeType: "mission",
+        missionType: "Ascension",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2136,6 +2570,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Caelus",
         nodeType: "mission",
+        missionType: "Interception (Archwing)",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2144,6 +2580,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Caliban",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2152,6 +2590,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Cupid",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2160,6 +2600,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Desdemona (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage (Archwing)",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2168,6 +2610,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Mab",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2184,6 +2628,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Ophelia",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2192,6 +2638,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Portia (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2200,6 +2648,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Prospero (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2208,6 +2658,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Rosalind",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2216,6 +2668,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Setebos (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2224,6 +2678,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Stephano",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2232,6 +2688,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Titania",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2240,6 +2698,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Trinculo",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2248,6 +2708,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Umbriel",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2256,6 +2718,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Ur",
         nodeType: "mission",
+        missionType: "Dark Sector Disruption",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -2264,6 +2728,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Cressida",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2272,6 +2738,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Puck",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2280,6 +2748,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:uranus",
         name: "Sycorax",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2292,6 +2762,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Arva Vector",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2300,6 +2772,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Arva Vector (Caches)",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2308,6 +2782,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Arva Vector (Extra)",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2316,6 +2792,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Brom Cluster",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2324,6 +2802,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Brom Cluster (Caches)",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2332,6 +2812,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Brom Cluster (Extra)",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2348,6 +2830,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Despina",
         nodeType: "mission",
+        missionType: "Excavation",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2356,6 +2840,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Enkidu Ice Drifts",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2364,6 +2850,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Enkidu Ice Drifts (Caches)",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2372,6 +2860,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Enkidu Ice Drifts (Extra)",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2380,6 +2870,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Galatea",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2388,6 +2880,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Halimede (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2396,6 +2890,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Kelashin",
         nodeType: "mission",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -2404,6 +2900,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Laomedeia",
         nodeType: "mission",
+        missionType: "Disruption",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2412,6 +2910,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Mammon's Prospect",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2420,6 +2920,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Mammon's Prospect (Caches)",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2428,6 +2930,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Mammon's Prospect (Extra)",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2436,6 +2940,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Nereid",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2444,6 +2950,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Nu-Gua Mines",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2452,6 +2960,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Nu-Gua Mines (Caches)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2460,6 +2970,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Nu-Gua Mines (Extra)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2468,6 +2980,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Proteus",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2476,6 +2990,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Psamathe",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2484,6 +3000,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Salacia",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2492,6 +3010,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Sovereign Grasp",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2500,6 +3020,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Sovereign Grasp (Caches)",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2508,6 +3030,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:neptune_proxima",
         name: "Sovereign Grasp (Extra)",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2516,6 +3040,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Thalassa (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2556,6 +3082,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Triton",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2564,6 +3092,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Yursa",
         nodeType: "mission",
+        missionType: "Dark Sector Defection",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -2572,6 +3102,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Larissa",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2580,6 +3112,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Neso",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2588,6 +3122,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:neptune",
         name: "Sao",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2600,6 +3136,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Cerberus",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2608,6 +3146,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Charon (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2624,6 +3164,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Cypress (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2632,6 +3174,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Fenton's Field",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2640,6 +3184,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Fenton's Field (Caches)",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2648,6 +3194,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Fenton's Field (Extra)",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2656,6 +3204,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Hades",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2664,6 +3214,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Hieracon",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2672,6 +3224,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Hydra",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2680,6 +3234,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Khufu Envoy",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2688,6 +3244,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Khufu Envoy (Caches)",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2696,6 +3254,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Khufu Envoy (Extra)",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2704,6 +3264,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Obol Crossing",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2712,6 +3274,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Obol Crossing (Caches)",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2720,6 +3284,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Obol Crossing (Extra)",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2728,6 +3294,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Oceanum",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2736,6 +3304,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Outer Terminus",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2744,6 +3314,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Palus",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2752,6 +3324,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Peregrine Axis",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2760,6 +3334,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Peregrine Axis (Caches)",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2768,6 +3344,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Peregrine Axis (Extra)",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2776,6 +3354,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Profit Margin",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2784,6 +3364,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Profit Margin (Caches)",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2792,6 +3374,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Profit Margin (Extra)",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2800,6 +3384,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Regna",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2808,6 +3394,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Sechura",
         nodeType: "mission",
+        missionType: "Dark Sector Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -2816,6 +3404,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Seven Sirens",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2824,6 +3414,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Seven Sirens (Caches)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2832,6 +3424,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:pluto_proxima",
         name: "Seven Sirens (Extra)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2840,6 +3434,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Acheron",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2848,6 +3444,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Minthe",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2856,6 +3454,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:pluto",
         name: "Narcissus",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -2868,6 +3468,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Amarna",
         nodeType: "mission",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -2876,6 +3478,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Berehynia",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2884,6 +3488,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Camenae",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2892,6 +3498,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Hydron",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2900,6 +3508,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Jengu",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2908,6 +3518,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Kappa",
         nodeType: "mission",
+        missionType: "Disruption",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2916,6 +3528,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Kelpie",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2924,6 +3538,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Merrow",
         nodeType: "boss",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2932,6 +3548,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Naga",
         nodeType: "mission",
+        missionType: "Assassination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2940,6 +3558,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Nakki",
         nodeType: "mission",
+        missionType: "Arena",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2948,6 +3568,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Phithale (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2956,6 +3578,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Rusalka (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2964,6 +3588,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Sangeru",
         nodeType: "mission",
+        missionType: "Dark Sector Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -2972,6 +3598,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Scylla",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2980,6 +3608,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Selkie",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2988,6 +3618,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Tikoloshe",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -2996,6 +3628,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Undine",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3004,6 +3638,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Veles",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3012,6 +3648,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Vodyanoi",
         nodeType: "mission",
+        missionType: "Arena",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3020,6 +3658,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Yam",
         nodeType: "mission",
+        missionType: "Arena",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3028,6 +3668,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Yemaja",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3036,6 +3678,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Adaro",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3044,6 +3688,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Charybdis",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3052,6 +3698,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:sedna",
         name: "Marid",
         nodeType: "mission",
+        missionType: "Hijack",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3064,6 +3712,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Akkad",
         nodeType: "mission",
+        missionType: "Dark Sector Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3072,6 +3722,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Brugia",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3080,6 +3732,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Candiru (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3088,6 +3742,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Cosis",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3096,6 +3752,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Cyath",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3104,6 +3762,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Gnathos",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3112,6 +3772,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Hymeno",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3120,6 +3782,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Isos",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3136,6 +3800,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Kala-Azar",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3144,6 +3810,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Lepis (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3152,6 +3820,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Naeglar (Caches)",
         nodeType: "mission",
+        missionType: "Hive",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3160,6 +3830,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Nimus",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3168,6 +3840,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Oestrus",
         nodeType: "mission",
+        missionType: "Infested Salvage",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3176,6 +3850,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Phalan",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3184,6 +3860,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Psoro (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3192,6 +3870,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Ranova",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3200,6 +3880,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Sparga",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3208,6 +3890,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Sporid",
         nodeType: "mission",
+        missionType: "Hive Sabotage",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3216,6 +3900,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Viver (Caches)",
         nodeType: "mission",
+        missionType: "Ancient Retribution",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3224,6 +3910,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Xini",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3232,6 +3920,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Zabala",
         nodeType: "boss",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3240,6 +3930,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Saxis",
         nodeType: "mission",
+        missionType: "Dark Sector Survival",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3248,6 +3940,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:eris",
         name: "Solium",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Infested",
         pos: undefined,
         edges: []
     },
@@ -3260,6 +3954,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Apollo",
         nodeType: "mission",
+        missionType: "Disruption",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3268,6 +3964,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Circulus",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3276,6 +3974,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Circulus (Extra)",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3284,6 +3984,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Copernicus",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3292,6 +3994,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Pavlov",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -3300,6 +4004,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Plato (Caches)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -3316,6 +4022,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Tycho",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3324,6 +4032,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Yuvarium",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3332,6 +4042,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Yuvarium (Extra)",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3340,6 +4052,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Zeipel",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3348,6 +4062,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:lua",
         name: "Grimaldi",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3360,6 +4076,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:kuva_fortress",
         name: "Dakata (Caches)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3368,6 +4086,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:kuva_fortress",
         name: "Garus",
         nodeType: "mission",
+        missionType: "Rescue",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3376,6 +4096,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:kuva_fortress",
         name: "Nabuk",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3384,6 +4106,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:kuva_fortress",
         name: "Pago",
         nodeType: "mission",
+        missionType: "Spy",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3392,6 +4116,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:kuva_fortress",
         name: "Tamu",
         nodeType: "mission",
+        missionType: "Disruption",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3400,6 +4126,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:kuva_fortress",
         name: "Taveuni",
         nodeType: "boss",
+        missionType: "Survival",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3408,6 +4136,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:kuva_fortress",
         name: "Koro",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3416,6 +4146,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:kuva_fortress",
         name: "Rotuma",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3428,6 +4160,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Ani",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3436,6 +4170,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Aten",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3444,6 +4180,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Belenus",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3452,6 +4190,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Hepit",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3460,6 +4200,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Marduk",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3468,6 +4210,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Marduk (Caches)",
         nodeType: "mission",
+        missionType: "Sabotage",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3476,6 +4220,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Mithra",
         nodeType: "mission",
+        missionType: "Interception",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3484,6 +4230,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Mot",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3492,6 +4240,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Oxomoco",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3500,6 +4250,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Stribog",
         nodeType: "mission",
+        missionType: "Orokin Sabotage",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3508,6 +4260,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Stribog (Caches)",
         nodeType: "mission",
+        missionType: "Orokin Sabotage",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3516,6 +4270,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Taranis",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3524,6 +4280,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Teshub",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3532,6 +4290,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Tiwaz",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3540,6 +4300,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:void",
         name: "Ukko",
         nodeType: "mission",
+        missionType: "Capture",
+        faction: "Orokin",
         pos: undefined,
         edges: []
     },
@@ -3552,6 +4314,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:zariman",
         name: "Everview Arc",
         nodeType: "mission",
+        missionType: "Void Flood",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -3560,6 +4324,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:zariman",
         name: "Halako Perimeter",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -3568,6 +4334,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:zariman",
         name: "Oro Works",
         nodeType: "mission",
+        missionType: "Void Armageddon",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -3576,6 +4344,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:zariman",
         name: "The Greenway",
         nodeType: "mission",
+        missionType: "Mobile Defense",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -3584,6 +4354,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:zariman",
         name: "Tuvul Commons",
         nodeType: "mission",
+        missionType: "Void Cascade",
+        faction: "Crossfire",
         pos: undefined,
         edges: []
     },
@@ -3716,6 +4488,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:duviri",
         name: "The Circuit",
         nodeType: "mission",
+        missionType: "Free Roam",
+        faction: "Duviri",
         pos: undefined,
         edges: []
     },
@@ -3868,6 +4642,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Arc Silver",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3876,6 +4652,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Arc Silver (Caches)",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3884,6 +4662,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Arc Silver (Extra)",
         nodeType: "mission",
+        missionType: "Defense",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3892,6 +4672,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Calabash",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3900,6 +4682,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Calabash (Caches)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3908,6 +4692,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Calabash (Extra)",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3916,6 +4702,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Erato",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3924,6 +4712,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Erato (Caches)",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3932,6 +4722,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Erato (Extra)",
         nodeType: "mission",
+        missionType: "Orphix",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3940,6 +4732,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Flexa",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3948,6 +4742,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Flexa (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3956,6 +4752,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Flexa (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3964,6 +4762,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "H-2 Cloud",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3972,6 +4772,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "H-2 Cloud (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3980,6 +4782,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "H-2 Cloud (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -3988,6 +4792,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Lu-Yan",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -3996,6 +4802,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Lu-Yan (Caches)",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -4004,6 +4812,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Lu-Yan (Extra)",
         nodeType: "mission",
+        missionType: "Survival",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -4012,6 +4822,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Nsu Grid",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -4020,6 +4832,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Nsu Grid (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -4028,6 +4842,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Nsu Grid (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -4036,6 +4852,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Numina",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -4044,6 +4862,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Numina (Caches)",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -4052,6 +4872,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Numina (Extra)",
         nodeType: "mission",
+        missionType: "Volatile",
+        faction: "Corpus",
         pos: undefined,
         edges: []
     },
@@ -4060,6 +4882,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "R-9 Cloud",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -4068,6 +4892,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "R-9 Cloud (Caches)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -4076,6 +4902,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "R-9 Cloud (Extra)",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -4116,6 +4944,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Gian Point",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -4124,6 +4954,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Ruse War Field",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -4132,6 +4964,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "region:veil_proxima",
         name: "Rya",
         nodeType: "mission",
+        missionType: "Skirmish",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -4148,6 +4982,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "E Prime",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },
@@ -4156,6 +4992,8 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         planetId: "planet:earth",
         name: "Mariana",
         nodeType: "mission",
+        missionType: "Extermination",
+        faction: "Grineer",
         pos: undefined,
         edges: []
     },

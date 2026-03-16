@@ -38,6 +38,12 @@ export interface StarChartNode {
 
     nodeType: "mission" | "hub" | "junction" | "boss" | "quest" | "special";
 
+    /** Mission type (e.g. "Exterminate", "Defense", "Survival"). */
+    missionType?: string;
+
+    /** Enemy faction (e.g. "Grineer", "Corpus", "Infested", "Orokin"). */
+    faction?: string;
+
     pos?: { x: number; y: number };
     /**
      * Adjacency list for navigation and reachability checks.

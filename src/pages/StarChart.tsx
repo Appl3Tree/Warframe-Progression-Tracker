@@ -172,6 +172,14 @@ export default function StarChart() {
         return node?.nodeType === "junction" ? node : null;
     }, [selectedGroup]);
 
+    // Also expose the selected mission node (for missionType/faction display)
+    const selectedMissionNode = useMemo<StarChartNode | null>(() => {
+        if (!selectedGroup) return null;
+        const baseId = selectedGroup.baseNodeId;
+        const node = STAR_CHART_DATA.nodes.find((n) => n.id === baseId) ?? null;
+        return node?.nodeType === "mission" ? node : null;
+    }, [selectedGroup]);
+
     const sharedMapProps = {
         vb, setVb,
         selectedPlanetId, setSelectedPlanetId,
@@ -181,6 +189,7 @@ export default function StarChart() {
         selectedGroupDisplayName: selectedGroup?.displayName ?? null,
         tabsForPanel, activeTab, focusedTitle,
         showDropsPanel, junctionNode,
+        selectedMissionNode,
         selectedGroupBaseNodeId: selectedGroup?.baseNodeId ?? null,
         steelPathMode,
         setMainMapMode,
@@ -257,7 +266,7 @@ export default function StarChart() {
                 }
             >
                 {viewMode === "list" ? (
-                    <StarChartListView steelPathMode={steelPathMode} />
+                    <StarChartListView steelPathMode={steelPathMode} mapMode={mainMapMode} />
                 ) : mainMapMode === "proxima" ? (
                     <StarChartProximaView onBack={() => setMainMapMode("normal")} />
                 ) : mainMapMode === "duviri" ? (

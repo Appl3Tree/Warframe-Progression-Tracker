@@ -114,6 +114,8 @@ export default function StarChartMap(props: {
     showDropsPanel: boolean;
     /** 6.5: Junction inspector — populated when the selected node is a junction */
     junctionNode: StarChartNode | null;
+    /** Mission node metadata — populated when the selected node is a mission node */
+    selectedMissionNode?: StarChartNode | null;
     /** 4.4: Base node ID for the selected group (for node completion tracking) */
     selectedGroupBaseNodeId: NodeId | null;
     /** Whether we're tracking Steel Path completions instead of normal ones */
@@ -144,6 +146,7 @@ export default function StarChartMap(props: {
         focusedTitle,
         showDropsPanel,
         junctionNode,
+        selectedMissionNode,
         selectedGroupBaseNodeId,
         steelPathMode,
         setMainMapMode,
@@ -1198,6 +1201,22 @@ export default function StarChartMap(props: {
                                     </button>
                                 </div>
                             </div>
+
+                            {/* Mission metadata — faction and mission type */}
+                            {selectedMissionNode && (selectedMissionNode.missionType || selectedMissionNode.faction) && (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {selectedMissionNode.faction && (
+                                        <span className="text-[11px] px-2 py-0.5 rounded-full border border-slate-700 bg-slate-900/60 text-slate-400">
+                                            {selectedMissionNode.faction}
+                                        </span>
+                                    )}
+                                    {selectedMissionNode.missionType && (
+                                        <span className="text-[11px] px-2 py-0.5 rounded-full border border-blue-800/60 bg-blue-950/30 text-blue-300">
+                                            {selectedMissionNode.missionType}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
 
                             {/* 6.5 Junction Inspector */}
                             {junctionNode && junctionNode.nodeType === "junction" && (

@@ -1,8 +1,9 @@
 // ===== FILE: src/app/layout/Shell.tsx =====
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTrackerStore } from "../../store/store";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
+import { applyTheme, getStoredTheme } from "../../pages/Settings";
 
 const NEW_PLAYER_DISMISSED_KEY = "wft_newplayer_v1_dismissed";
 
@@ -67,6 +68,9 @@ export default function Shell(props: { children: React.ReactNode }) {
         () => localStorage.getItem(NEW_PLAYER_DISMISSED_KEY) !== "1"
     );
     const setActivePage = useTrackerStore((s) => s.setActivePage);
+
+    // Apply saved theme on first mount
+    useEffect(() => { applyTheme(getStoredTheme()); }, []);
 
     function dismissNewPlayer() {
         localStorage.setItem(NEW_PLAYER_DISMISSED_KEY, "1");
