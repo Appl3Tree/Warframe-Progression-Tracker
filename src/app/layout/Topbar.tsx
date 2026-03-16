@@ -415,7 +415,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                                 <div className="mt-0.5 font-mono text-sm text-slate-100">{displayName || "—"}</div>
                                 {clanName && (
                                     <div className="mt-1 text-[11px] text-slate-400 truncate" title={clanName}>
-                                        <span className="text-slate-500">Guild: </span>{clanName}
+                                        <span className="text-slate-500">Clan: </span>{clanName}
                                     </div>
                                 )}
                             </div>
