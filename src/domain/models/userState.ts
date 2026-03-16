@@ -18,7 +18,8 @@ export type PageKey =
     | "diagnostics"
     | "inventory"
     | "starchart"
-    | "mods";
+    | "mods"
+    | "challenges";
 
 export interface UserMetaV2 {
     schemaVersion: 2;
@@ -119,5 +120,19 @@ export interface UserStateV2 {
         nodeCompleted?: Record<string, boolean>;
         /** Steel Path per-node completion — tracked separately from normal mode. */
         steelPathNodeCompleted?: Record<string, boolean>;
+    };
+
+    challenges?: {
+        /** Progress count by challenge uniqueName (e.g. "/Lotus/Types/Challenges/Find1Mod" → 1). */
+        progress: Record<string, number>;
+        /** Whether the challenge is marked completed. */
+        completed: Record<string, boolean>;
+    };
+
+    intrinsics?: {
+        /** Railjack intrinsic skill ranks. Keys are STYPE_* strings (e.g. "STYPE_PILOTING" → 5). */
+        railjack: Record<string, number>;
+        /** Duviri intrinsic skill ranks. Keys are STYPE_DUVIRI_* strings. */
+        duviri: Record<string, number>;
     };
 }

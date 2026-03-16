@@ -190,6 +190,7 @@ function InlineStat({
 export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
     const masteryRank   = useTrackerStore((s) => s.state.player.masteryRank);
     const displayName   = useTrackerStore((s) => s.state.player.displayName);
+    const clanName      = useTrackerStore((s) => s.state.player.clanName);
     const accountId     = useTrackerStore((s) => s.state.player.accountId ?? "");
     const platformRaw   = useTrackerStore((s) => s.state.player.platform);
     const platform      = normalizePlatformKey(platformRaw);
@@ -393,6 +394,11 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                             <div className="rounded-lg border border-slate-800 bg-slate-950/50 px-2 py-2">
                                 <div className="text-[11px] text-slate-400">Name</div>
                                 <div className="mt-0.5 font-mono text-sm text-slate-100">{displayName || "—"}</div>
+                                {clanName && (
+                                    <div className="mt-1 text-[11px] text-slate-400 truncate" title={clanName}>
+                                        <span className="text-slate-500">Guild: </span>{clanName}
+                                    </div>
+                                )}
                             </div>
                             <InlineStat
                                 label="Account ID"

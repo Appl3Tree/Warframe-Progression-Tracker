@@ -76,6 +76,23 @@ const PAGE_ICONS: Record<string, React.ReactNode> = {
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
         </svg>
     ),
+    mods: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="11" rx="1.5" />
+            <path d="M6.5 3v11" />
+            <path d="M10 7H3" />
+            <path d="M14 5h7M14 12h7M14 19h5" />
+            <circle cx="13" cy="5" r="1" fill="currentColor" stroke="none" />
+            <circle cx="13" cy="12" r="1" fill="currentColor" stroke="none" />
+            <circle cx="13" cy="19" r="1" fill="currentColor" stroke="none" />
+        </svg>
+    ),
+    challenges: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" />
+            <path d="M15 7a4 4 0 1 0-6 3.46V14h4v-3.54A4 4 0 0 0 15 7z" />
+        </svg>
+    ),
 };
 
 export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; onClose: () => void }) {

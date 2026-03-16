@@ -36,6 +36,7 @@ interface ModEntry {
 type ModSection = "mods" | "arcanes";
 
 type ModCategory =
+    | "all"
     | "warframe" | "aura" | "augment"
     | "primary" | "secondary" | "melee"
     | "exilus" | "vehicles" | "archgun" | "archmelee"
@@ -43,6 +44,7 @@ type ModCategory =
     | "antique" | "parazon" | "tome" | "rivens";
 
 type ArcaneCategory =
+    | "all"
     | "warframe" | "operator" | "amps"
     | "tektolyst" | "primary" | "secondary"
     | "melee" | "kitguns" | "zaws";
@@ -59,6 +61,7 @@ type ParazonFilter = "all" | "requiem" | "antivirus";
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MOD_CATEGORIES: { key: ModCategory; label: string }[] = [
+    { key: "all",       label: "All"        },
     { key: "warframe",  label: "Warframe"   },
     { key: "aura",      label: "Aura"       },
     { key: "augment",   label: "Augment"    },
@@ -79,6 +82,7 @@ const MOD_CATEGORIES: { key: ModCategory; label: string }[] = [
 ];
 
 const ARCANE_CATEGORIES: { key: ArcaneCategory; label: string }[] = [
+    { key: "all",       label: "All"                 },
     { key: "warframe",  label: "Warframe"            },
     { key: "operator",  label: "Operator"            },
     { key: "amps",      label: "Amps"                },
@@ -107,6 +111,14 @@ const ANTIQUE_SCHOOLS: { key: AntiqueSchool; label: string; ap: string }[] = [
     { key: "vazarin", label: "Vazarin", ap: "AP_DEFENSE"},
     { key: "unairu",  label: "Unairu",  ap: "AP_WARD"   },
 ];
+
+// Endo + credit base cost by rarity tier
+const ENDO_BASE: Record<string, number> = {
+    COMMON: 15, UNCOMMON: 45, RARE: 120, LEGENDARY: 150
+};
+const CREDIT_BASE: Record<string, number> = {
+    COMMON: 1000, UNCOMMON: 3000, RARE: 8000, LEGENDARY: 10000
+};
 
 const UPGRADE_TYPE_LABELS: Record<string, string> = {
     WEAPON_DAMAGE_AMOUNT:            "Damage",
@@ -183,14 +195,10 @@ function decodeBaseDrain(qa: string | undefined): number {
     }
 }
 
-function formatValue(v: number, displayAsPercent: number | undefined, roundTo?: number): string {
+function formatValue(v: number, displayAsPercent: number | undefined): string {
     if (displayAsPercent) {
         const pct = Math.round(v * 100 * 10) / 10;
         return (v >= 0 ? "+" : "") + pct + "%";
-    }
-    if (roundTo && roundTo > 0) {
-        const rounded = Math.round(v / roundTo) * roundTo;
-        return (v >= 0 ? "+" : "") + String(Math.round(rounded * 100) / 100);
     }
     return (v >= 0 ? "+" : "") + String(Math.round(v * 100) / 100);
 }
@@ -213,28 +221,62 @@ function rarityColor(rarity: string | undefined): string {
     }
 }
 
+function rarityBg(rarity: string | undefined): string {
+    switch (rarity) {
+        case "COMMON":    return "bg-slate-800/60 border-slate-700";
+        case "UNCOMMON":  return "bg-amber-950/30 border-amber-800/50";
+        case "RARE":      return "bg-orange-950/30 border-orange-800/50";
+        case "LEGENDARY": return "bg-cyan-950/30 border-cyan-800/50";
+        default:          return "bg-slate-800/60 border-slate-700";
+    }
+}
+
 function normalize(s: string): string {
     return s.toLowerCase();
 }
 
+/** Calculate total endo cost from startRank (exclusive) to endRank (inclusive). */
+function calcEndoCost(rarity: string | undefined, fromRank: number, toRank: number): number {
+    const base = ENDO_BASE[rarity ?? "COMMON"] ?? 15;
+    let total = 0;
+    for (let r = fromRank; r < toRank; r++) {
+        total += base * (r + 1);
+    }
+    return total;
+}
+
+/** Calculate total credit cost from startRank (exclusive) to endRank (inclusive). */
+function calcCreditCost(rarity: string | undefined, fromRank: number, toRank: number): number {
+    const base = CREDIT_BASE[rarity ?? "COMMON"] ?? 1000;
+    let total = 0;
+    for (let r = fromRank; r < toRank; r++) {
+        total += base * (r + 1);
+    }
+    return total;
+}
+
 // ─── Classification ────────────────────────────────────────────────────────────
 
-function classifyModCategory(entry: ModEntry): ModCategory | null {
-    const path   = entry.path ?? "";
-    const compat = entry.data?.ItemCompatibility ?? "";
+/**
+ * Returns all categories a mod belongs to. A mod can belong to multiple categories
+ * (e.g. Energy Siphon is both "warframe" and "aura").
+ */
+function classifyModCategories(entry: ModEntry): ModCategory[] {
+    const path     = entry.path ?? "";
+    const compat   = entry.data?.ItemCompatibility ?? "";
     const polarity = entry.data?.ArtifactPolarity ?? "";
 
     // Tome (Grimoire invocation mods)
-    if (compat.includes("Grimoire") || path.includes("Invocation")) return "tome";
+    if (compat.includes("Grimoire") || path.includes("Invocation")) return ["tome"];
 
     // Parazon
-    if (compat.includes("TnHackingDevice") || compat.includes("HackingDevice")) return "parazon";
+    if (compat.includes("TnHackingDevice") || compat.includes("HackingDevice")) return ["parazon"];
 
     // Antique
-    if (compat.includes("Antique") || (entry.parents ?? []).some(p => p.includes("Antique"))) return "antique";
+    if (compat.includes("Antique") || (entry.parents ?? []).some(p => p.includes("Antique"))) return ["antique"];
 
-    // Aura
-    if (polarity === "AP_WARD") return "aura";
+    // Aura mods also belong to the warframe category (they go in warframe aura slots)
+    if (polarity === "AP_WARD") return ["aura", "warframe"];
 
     // Augment — specific warframe-suit compat (not generic PlayerPowerSuit)
     if (
@@ -243,34 +285,40 @@ function classifyModCategory(entry: ModEntry): ModCategory | null {
          compat.includes("GaruGaruda") || compat.includes("GaraShank") || compat.includes("KhoraWhip") || compat.includes("ExaltedBook") ||
          compat.includes("MonkeyKingStaff") || compat.includes("PacifistFist") || compat.includes("NinjaStorm") ||
          compat.includes("BerserkerMelee") || compat.includes("AtlasPunch"))
-    ) return "augment";
+    ) return ["augment"];
 
     // Archgun
-    if (compat.includes("ArchGun")) return "archgun";
+    if (compat.includes("ArchGun")) return ["archgun"];
 
     // Archmelee
-    if (compat.includes("ArchMeleeWeapon") || compat.includes("ArchMelee")) return "archmelee";
+    if (compat.includes("ArchMeleeWeapon") || compat.includes("ArchMelee")) return ["archmelee"];
 
     // Vehicles (Necramech, Hoverboard/Yareli, Archwing suit)
-    if (compat.includes("BaseMechSuit") || compat.includes("HoverboardSuit") || compat.includes("FlightJetPack")) return "vehicles";
+    if (compat.includes("BaseMechSuit") || compat.includes("HoverboardSuit") || compat.includes("FlightJetPack")) return ["vehicles"];
 
     // Robotic companions (Sentinel, MOA, Zanuka)
     if (
         compat.includes("SentinelPowerSuit") || compat.includes("SentinelPower") ||
         compat.includes("ZanukaPet") || compat.includes("MoaPet") || compat.includes("RoboticPet")
-    ) return "robotic";
+    ) return ["robotic"];
 
     // Beast companions (Kavat, Kubrow, Predasite, Vulpaphyla)
     if (
         compat.includes("CatbrowPet") || compat.includes("BeastPet") ||
         compat.includes("KubrowPet") || (compat.includes("PetPowerSuit") && !compat.includes("Robotic"))
-    ) return "beast";
+    ) return ["beast"];
+
+    // Railjack
+    if (
+        compat.includes("Railjack") || compat.includes("CrewShip") ||
+        path.toLowerCase().includes("railjack") || path.toLowerCase().includes("crewship")
+    ) return ["railjack"];
 
     // Melee
-    if (compat.includes("PlayerMeleeWeapon") || compat.includes("LotusGlaiveWeapon")) return "melee";
+    if (compat.includes("PlayerMeleeWeapon") || compat.includes("LotusGlaiveWeapon")) return ["melee"];
 
     // Secondary
-    if (compat.includes("LotusPistol") || compat.includes("LotusAkimbo")) return "secondary";
+    if (compat.includes("LotusPistol") || compat.includes("LotusAkimbo")) return ["secondary"];
 
     // Primary (rifle, shotgun, bow, longgun, bullet weapon)
     if (
@@ -278,15 +326,15 @@ function classifyModCategory(entry: ModEntry): ModCategory | null {
         compat.includes("LotusSniperRifle") || compat.includes("LotusShotgun") ||
         compat.includes("LotusBow") || compat.includes("LotusLongGun") ||
         compat.includes("LotusBulletWeapon")
-    ) return "primary";
+    ) return ["primary"];
 
     // Exilus — mods with "Exilus" in path
-    if (path.toLowerCase().includes("exilus")) return "exilus";
+    if (path.toLowerCase().includes("exilus")) return ["exilus"];
 
-    // Warframe (generic)
-    if (compat.includes("PlayerPowerSuit") || compat === "") return "warframe";
+    // Warframe (generic PlayerPowerSuit or empty compat)
+    if (compat.includes("PlayerPowerSuit") || compat === "") return ["warframe"];
 
-    return "warframe"; // fallback
+    return ["warframe"]; // fallback
 }
 
 function classifyArcaneCategory(entry: ModEntry): ArcaneCategory | null {
@@ -297,13 +345,9 @@ function classifyArcaneCategory(entry: ModEntry): ArcaneCategory | null {
     if (compat.includes("OperatorAmplifier") || compat.includes("OperatorAmpWeapon")) return "amps";
     if (compat.includes("LotusAntiqueWeapon") || compat.includes("Antiques/Lotus"))   return "tektolyst";
     if (compat.includes("LotusModularWeapon") || compat.includes("Ostron/Melee"))     return "zaws";
-    // Kitguns (modular pistol — LotusBulletWeapon)
     if (compat.includes("LotusBulletWeapon"))   return "kitguns";
-    // Primary arcanes
     if (compat.includes("LotusLongGun") || compat.includes("LotusShotgun") || compat.includes("LotusLongBow") || compat.includes("LotusBow")) return "primary";
-    // Secondary arcanes
     if (compat.includes("LotusPistol") || compat.includes("LotusAkimbo")) return "secondary";
-    // Melee arcanes
     if (compat.includes("PlayerMeleeWeapon"))   return "melee";
 
     return null;
@@ -367,8 +411,8 @@ function CategoryPill({ label, active, onClick }: { label: string; active: boole
             className={[
                 "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors whitespace-nowrap",
                 active
-                    ? "bg-slate-100 text-slate-900 border-slate-100"
-                    : "bg-slate-950/40 text-slate-300 border-slate-700 hover:bg-slate-800"
+                    ? "bg-blue-600 text-white border-blue-500"
+                    : "bg-slate-900/60 text-slate-300 border-slate-700 hover:bg-slate-800 hover:text-slate-100"
             ].join(" ")}
             onClick={onClick}
         >
@@ -393,6 +437,100 @@ function SubPill({ label, active, onClick }: { label: string; active: boolean; o
     );
 }
 
+// ─── Rank Cost Calculator ─────────────────────────────────────────────────────
+
+function RankCostCalculator({ maxRank, rarity }: { maxRank: number; rarity: string | undefined }) {
+    const [fromRank, setFromRank] = useState(0);
+    const [toRank, setToRank] = useState(maxRank);
+
+    if (maxRank === 0) return null;
+
+    const endoCost   = calcEndoCost(rarity, fromRank, toRank);
+    const creditCost = calcCreditCost(rarity, fromRank, toRank);
+
+    const rankOptions = Array.from({ length: maxRank + 1 }, (_, i) => i);
+
+    return (
+        <div className="rounded-xl bg-slate-900/70 border border-slate-700 p-3 space-y-3">
+            <div className="text-xs font-semibold text-slate-300">Upgrade Cost Calculator</div>
+            <div className="flex flex-wrap items-center gap-3 text-xs">
+                <label className="flex items-center gap-1.5 text-slate-400">
+                    From rank
+                    <select
+                        value={fromRank}
+                        onChange={e => {
+                            const v = Number(e.target.value);
+                            setFromRank(v);
+                            if (toRank <= v) setToRank(Math.min(v + 1, maxRank));
+                        }}
+                        className="rounded bg-slate-800 border border-slate-600 px-1.5 py-0.5 text-slate-100"
+                    >
+                        {rankOptions.slice(0, maxRank).map(r => (
+                            <option key={r} value={r}>R{r}</option>
+                        ))}
+                    </select>
+                </label>
+                <label className="flex items-center gap-1.5 text-slate-400">
+                    to rank
+                    <select
+                        value={toRank}
+                        onChange={e => {
+                            const v = Number(e.target.value);
+                            setToRank(v);
+                            if (fromRank >= v) setFromRank(Math.max(0, v - 1));
+                        }}
+                        className="rounded bg-slate-800 border border-slate-600 px-1.5 py-0.5 text-slate-100"
+                    >
+                        {rankOptions.slice(1).map(r => (
+                            <option key={r} value={r}>R{r}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+            {fromRank < toRank ? (
+                <div className="flex flex-wrap gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                        <span className="text-slate-400 text-xs">Endo</span>
+                        <span className="font-mono font-semibold text-amber-300">{endoCost.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-slate-400 text-xs">Credits</span>
+                        <span className="font-mono font-semibold text-yellow-400">{creditCost.toLocaleString()}</span>
+                    </div>
+                </div>
+            ) : (
+                <div className="text-xs text-slate-500">Select a target rank higher than starting rank.</div>
+            )}
+        </div>
+    );
+}
+
+// ─── Drop Locations ───────────────────────────────────────────────────────────
+
+function DropLocations({ drops }: { drops: EnemyDrop[] }) {
+    if (drops.length === 0) {
+        return <div className="text-xs text-slate-500">No drop location data available.</div>;
+    }
+
+    // Sort by chance descending
+    const sorted = [...drops].sort((a, b) => b.chance - a.chance);
+
+    return (
+        <div>
+            <div className="text-xs text-slate-400 font-medium mb-2">Drop Locations <span className="text-slate-500 font-normal">({drops.length} sources)</span></div>
+            <div className="max-h-44 overflow-y-auto space-y-0.5 pr-1">
+                {sorted.map((d, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs rounded-lg px-2.5 py-1.5 bg-slate-800/50 border border-slate-700/60">
+                        <span className="text-slate-200 flex-1 min-w-0 truncate">{d.enemyName}</span>
+                        <span className={["shrink-0 text-xs font-medium", rarityColor(d.rarity)].join(" ")}>{d.rarity}</span>
+                        <span className="shrink-0 font-mono text-slate-400 text-[11px]">{d.chance.toFixed(2)}%</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 // ─── Mod Detail Panel ─────────────────────────────────────────────────────────
 
 function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: boolean }) {
@@ -407,29 +545,32 @@ function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: bool
     const drops = modLocationLookup.get(normalize(entry.name)) ?? [];
 
     return (
-        <div className="mt-4 rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-4">
+        <div className={["mt-2 rounded-xl border p-4 space-y-4", rarityBg(rarity)].join(" ")}>
+            {/* Header */}
             <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-base font-semibold text-slate-100">{entry.name}</span>
-                <span className={["text-xs font-medium", rarityColor(rarity)].join(" ")}>{rarity}</span>
+                <span className="text-base font-bold text-slate-100">{entry.name}</span>
+                <span className={["text-xs font-semibold px-2 py-0.5 rounded-full border", rarityColor(rarity), rarityBg(rarity)].join(" ")}>
+                    {rarity}
+                </span>
                 {polarity && (
                     <span className="text-xs rounded-full px-2 py-0.5 border border-slate-600 bg-slate-800 text-slate-300">
                         {polarityLabel(polarity)}
                     </span>
                 )}
                 {maxRank > 0 && (
-                    <span className="text-xs text-slate-400">Max Rank: {maxRank}</span>
+                    <span className="text-xs text-slate-400 ml-auto">Max Rank {maxRank}</span>
                 )}
             </div>
 
             {/* Slot cost per rank */}
             {baseDrain > 0 && maxRank > 0 && (
                 <div>
-                    <div className="text-xs text-slate-400 font-medium mb-2">Slot Cost per Rank <span className="text-slate-500 font-normal">(approximate)</span></div>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="text-xs text-slate-400 font-medium mb-2">Mod Capacity Cost per Rank</div>
+                    <div className="flex flex-wrap gap-1.5">
                         {Array.from({ length: maxRank + 1 }, (_, r) => (
                             <div key={r} className="text-center">
-                                <div className="text-xs text-slate-500 mb-0.5">R{r}</div>
-                                <div className="w-8 text-center rounded bg-slate-800 border border-slate-700 py-1 text-xs text-slate-200 font-mono">
+                                <div className="text-[10px] text-slate-500 mb-0.5">R{r}</div>
+                                <div className="w-8 text-center rounded bg-slate-800 border border-slate-600 py-1 text-xs text-slate-200 font-mono">
                                     {baseDrain + r}
                                 </div>
                             </div>
@@ -438,25 +579,28 @@ function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: bool
                 </div>
             )}
 
+            {/* Upgrade Cost Calculator */}
+            {!isRiven && <RankCostCalculator maxRank={maxRank} rarity={rarity} />}
+
             {/* Stats */}
             {upgrades.length > 0 && (
                 <div>
                     <div className="text-xs text-slate-400 font-medium mb-2">Effects</div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                         {upgrades.slice(0, 4).map((u, i) => {
                             if (!u.UpgradeType || u.Value === undefined) return null;
                             const label = labelForUpgradeType(u.UpgradeType);
                             const perRank = u.Value;
                             const maxVal = perRank * (maxRank > 0 ? (maxRank + 1) : 1);
                             return (
-                                <div key={i} className="rounded-lg bg-slate-800/60 border border-slate-700 px-3 py-2">
+                                <div key={i} className="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2">
                                     <div className="flex items-center justify-between gap-2 flex-wrap">
                                         <span className="text-xs text-slate-300">{label}</span>
                                         <span className="text-xs font-mono text-slate-200">
-                                            {formatValue(perRank, u.DisplayAsPercent)} / rank
+                                            {formatValue(perRank, u.DisplayAsPercent)}&nbsp;/&nbsp;rank
                                             &nbsp;→&nbsp;
-                                            <span className="text-cyan-300">
-                                                {formatValue(maxVal, u.DisplayAsPercent)} at R{maxRank}
+                                            <span className="text-cyan-300 font-semibold">
+                                                {formatValue(maxVal, u.DisplayAsPercent)}&nbsp;at&nbsp;R{maxRank}
                                             </span>
                                         </span>
                                     </div>
@@ -468,22 +612,7 @@ function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: bool
             )}
 
             {/* Drop locations */}
-            {drops.length > 0 ? (
-                <div>
-                    <div className="text-xs text-slate-400 font-medium mb-2">Drop Locations ({drops.length})</div>
-                    <div className="max-h-40 overflow-y-auto space-y-1">
-                        {drops.map((d, i) => (
-                            <div key={i} className="flex items-center justify-between gap-2 text-xs rounded px-2 py-1 bg-slate-800/40 border border-slate-800">
-                                <span className="text-slate-300 truncate flex-1">{d.enemyName}</span>
-                                <span className={["shrink-0", rarityColor(d.rarity)].join(" ")}>{d.rarity}</span>
-                                <span className="shrink-0 text-slate-400 font-mono">{(d.chance).toFixed(2)}%</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ) : (
-                <div className="text-xs text-slate-500">No enemy drop data available for this mod.</div>
-            )}
+            <DropLocations drops={drops} />
         </div>
     );
 }
@@ -497,22 +626,22 @@ function ArcaneDetail({ entry }: { entry: ModEntry }) {
     const drops = modLocationLookup.get(normalize(entry.name)) ?? [];
 
     return (
-        <div className="mt-4 rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-4">
+        <div className="mt-2 rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-4">
             <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-base font-semibold text-slate-100">{entry.name}</span>
+                <span className="text-base font-bold text-slate-100">{entry.name}</span>
                 <span className="text-xs text-slate-400">Max Rank: {maxRank}</span>
             </div>
 
             {/* Rank requirements */}
             <div>
-                <div className="text-xs text-slate-400 font-medium mb-2">Copies Required to Rank</div>
-                <div className="flex flex-wrap gap-1">
+                <div className="text-xs text-slate-400 font-medium mb-2">Copies Required to Reach Rank</div>
+                <div className="flex flex-wrap gap-1.5">
                     {Array.from({ length: maxRank + 1 }, (_, r) => {
                         const total = ARCANE_TOTAL_PER_RANK[r] ?? ((r + 1) * (r + 2) / 2);
                         return (
                             <div key={r} className="text-center">
-                                <div className="text-xs text-slate-500 mb-0.5">R{r}</div>
-                                <div className="w-8 text-center rounded bg-slate-800 border border-slate-700 py-1 text-xs text-slate-200 font-mono">
+                                <div className="text-[10px] text-slate-500 mb-0.5">R{r}</div>
+                                <div className="w-8 text-center rounded bg-slate-800 border border-slate-600 py-1 text-xs text-slate-200 font-mono">
                                     {total}
                                 </div>
                             </div>
@@ -525,7 +654,7 @@ function ArcaneDetail({ entry }: { entry: ModEntry }) {
             {upgrades.length > 0 && (
                 <div>
                     <div className="text-xs text-slate-400 font-medium mb-2">Effects</div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                         {upgrades.slice(0, 4).map((u: any, i: number) => {
                             const type = u.UpgradeType;
                             const val = u.Value;
@@ -533,14 +662,14 @@ function ArcaneDetail({ entry }: { entry: ModEntry }) {
                             const label = labelForUpgradeType(type);
                             const maxVal = val * (maxRank > 0 ? (maxRank + 1) : 1);
                             return (
-                                <div key={i} className="rounded-lg bg-slate-800/60 border border-slate-700 px-3 py-2">
+                                <div key={i} className="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2">
                                     <div className="flex items-center justify-between gap-2 flex-wrap">
                                         <span className="text-xs text-slate-300">{label}</span>
                                         <span className="text-xs font-mono text-slate-200">
-                                            {formatValue(val, u.DisplayAsPercent)} / rank
+                                            {formatValue(val, u.DisplayAsPercent)}&nbsp;/&nbsp;rank
                                             &nbsp;→&nbsp;
-                                            <span className="text-cyan-300">
-                                                {formatValue(maxVal, u.DisplayAsPercent)} at R{maxRank}
+                                            <span className="text-cyan-300 font-semibold">
+                                                {formatValue(maxVal, u.DisplayAsPercent)}&nbsp;at&nbsp;R{maxRank}
                                             </span>
                                         </span>
                                     </div>
@@ -552,22 +681,7 @@ function ArcaneDetail({ entry }: { entry: ModEntry }) {
             )}
 
             {/* Drop locations */}
-            {drops.length > 0 ? (
-                <div>
-                    <div className="text-xs text-slate-400 font-medium mb-2">Drop Locations ({drops.length})</div>
-                    <div className="max-h-40 overflow-y-auto space-y-1">
-                        {drops.map((d, i) => (
-                            <div key={i} className="flex items-center justify-between gap-2 text-xs rounded px-2 py-1 bg-slate-800/40 border border-slate-800">
-                                <span className="text-slate-300 truncate flex-1">{d.enemyName}</span>
-                                <span className={["shrink-0", rarityColor(d.rarity)].join(" ")}>{d.rarity}</span>
-                                <span className="shrink-0 text-slate-400 font-mono">{(d.chance).toFixed(2)}%</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ) : (
-                <div className="text-xs text-slate-500">No enemy drop data available for this arcane.</div>
-            )}
+            <DropLocations drops={drops} />
         </div>
     );
 }
@@ -578,7 +692,7 @@ export default function Mods() {
     const [section, setSection] = useState<ModSection>("mods");
 
     // Mods state
-    const [modCategory, setModCategory] = useState<ModCategory>("warframe");
+    const [modCategory, setModCategory] = useState<ModCategory>("all");
     const [modPolarity, setModPolarity] = useState<Polarity | null>(null);
     const [antiqueSchool, setAntiqueSchool] = useState<AntiqueSchool>("all");
     const [parazonFilter, setParazonFilter] = useState<ParazonFilter>("all");
@@ -586,7 +700,7 @@ export default function Mods() {
     const [selectedMod, setSelectedMod] = useState<ModEntry | null>(null);
 
     // Arcanes state
-    const [arcaneCategory, setArcaneCategory] = useState<ArcaneCategory>("warframe");
+    const [arcaneCategory, setArcaneCategory] = useState<ArcaneCategory>("all");
     const [arcaneSearch, setArcaneSearch] = useState("");
     const [selectedArcane, setSelectedArcane] = useState<ModEntry | null>(null);
 
@@ -600,13 +714,18 @@ export default function Mods() {
             return RIVEN_ENTRIES.filter(e => !q || normalize(e.name).includes(q));
         }
 
-        let list = MOD_ENTRIES.filter(e => {
-            const cat = classifyModCategory(e);
-            return cat === modCategory;
-        });
+        let list: ModEntry[];
+        if (modCategory === "all") {
+            list = [...MOD_ENTRIES, ...RIVEN_ENTRIES];
+        } else {
+            list = MOD_ENTRIES.filter(e => {
+                const cats = classifyModCategories(e);
+                return cats.includes(modCategory);
+            });
+        }
 
-        // Polarity sub-filter
-        if (modPolarity !== null) {
+        // Polarity sub-filter (skip for "all", "antique", "parazon", "rivens")
+        if (modPolarity !== null && modCategory !== "all" && modCategory !== "antique" && modCategory !== "parazon") {
             const ap = POLARITIES.find(p => p.key === modPolarity)?.ap;
             if (ap) list = list.filter(e => e.data?.ArtifactPolarity === ap);
         }
@@ -637,10 +756,15 @@ export default function Mods() {
     const filteredArcanes = useMemo<ModEntry[]>(() => {
         const q = normalize(arcaneSearch.trim());
 
-        let list = ARCANE_ENTRIES.filter(e => {
-            const cat = classifyArcaneCategory(e);
-            return cat === arcaneCategory;
-        });
+        let list: ModEntry[];
+        if (arcaneCategory === "all") {
+            list = [...ARCANE_ENTRIES];
+        } else {
+            list = ARCANE_ENTRIES.filter(e => {
+                const cat = classifyArcaneCategory(e);
+                return cat === arcaneCategory;
+            });
+        }
 
         if (q) list = list.filter(e => normalize(e.name).includes(q));
 
@@ -650,23 +774,25 @@ export default function Mods() {
 
     // ── Render ─────────────────────────────────────────────────────────────────
 
+    const showPolarityFilter = modCategory !== "all" && modCategory !== "rivens" && modCategory !== "antique" && modCategory !== "parazon";
+
     return (
         <div className="space-y-6">
             <Section title="Mods & Arcanes">
                 <div className="text-sm text-slate-400 mb-4">
-                    Browse mods and arcanes by category. Click any entry for details including slot costs, effects, and drop locations.
+                    Browse mods and arcanes by category. Click any entry for details including upgrade costs, effects, and drop locations.
                 </div>
 
                 {/* Primary tabs */}
-                <div className="flex items-center gap-4 border-b border-slate-800 mb-4">
+                <div className="flex items-center gap-1 border-b border-slate-800 mb-5">
                     {(["mods", "arcanes"] as const).map(s => (
                         <button
                             key={s}
                             className={[
-                                "px-3 py-2 text-sm border-b-2 -mb-px",
+                                "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
                                 section === s
-                                    ? "border-slate-100 text-slate-100"
-                                    : "border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700"
+                                    ? "border-blue-500 text-blue-400"
+                                    : "border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600"
                             ].join(" ")}
                             onClick={() => setSection(s)}
                         >
@@ -679,9 +805,9 @@ export default function Mods() {
                 {section === "mods" && (
                     <div>
                         {/* Category pills */}
-                        <div className="mb-3">
-                            <div className="text-xs text-slate-500 mb-2">Category</div>
-                            <div className="flex flex-wrap gap-2">
+                        <div className="mb-4">
+                            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Category</div>
+                            <div className="flex flex-wrap gap-1.5">
                                 {MOD_CATEGORIES.map(c => (
                                     <CategoryPill
                                         key={c.key}
@@ -699,13 +825,13 @@ export default function Mods() {
                             </div>
                         </div>
 
-                        {/* Polarity sub-filter (most categories) */}
-                        {modCategory !== "rivens" && modCategory !== "antique" && modCategory !== "parazon" && (
+                        {/* Polarity sub-filter */}
+                        {showPolarityFilter && (
                             <div className="mb-3">
-                                <div className="text-xs text-slate-500 mb-2">Polarity</div>
+                                <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Polarity</div>
                                 <div className="flex flex-wrap gap-1.5">
                                     <SubPill
-                                        label="All polarities"
+                                        label="All"
                                         active={modPolarity === null}
                                         onClick={() => setModPolarity(null)}
                                     />
@@ -724,7 +850,7 @@ export default function Mods() {
                         {/* Antique school sub-filter */}
                         {modCategory === "antique" && (
                             <div className="mb-3">
-                                <div className="text-xs text-slate-500 mb-2">School</div>
+                                <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">School</div>
                                 <div className="flex flex-wrap gap-1.5">
                                     {ANTIQUE_SCHOOLS.map(s => (
                                         <SubPill
@@ -741,7 +867,7 @@ export default function Mods() {
                         {/* Parazon sub-filter */}
                         {modCategory === "parazon" && (
                             <div className="mb-3">
-                                <div className="text-xs text-slate-500 mb-2">Type</div>
+                                <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Type</div>
                                 <div className="flex flex-wrap gap-1.5">
                                     {(["all", "requiem", "antivirus"] as const).map(f => (
                                         <SubPill
@@ -758,18 +884,18 @@ export default function Mods() {
                         {/* Search */}
                         <div className="mb-3">
                             <input
-                                className="w-full max-w-sm rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm"
+                                className="w-full max-w-sm rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
                                 value={modSearch}
-                                onChange={e => setModSearch(e.target.value)}
-                                placeholder={`Search ${modCategory} mods...`}
+                                onChange={e => { setModSearch(e.target.value); setSelectedMod(null); }}
+                                placeholder="Search mods…"
                             />
                         </div>
 
                         {/* Mod list */}
                         <div className="text-xs text-slate-500 mb-2">{filteredMods.length} mods</div>
-                        <div className="max-h-[55vh] overflow-y-auto space-y-0.5">
+                        <div className="max-h-[55vh] overflow-y-auto space-y-0.5 pr-1">
                             {filteredMods.length === 0 && (
-                                <div className="text-sm text-slate-400 py-4">No mods found for this category.</div>
+                                <div className="text-sm text-slate-400 py-4">No mods found.</div>
                             )}
                             {filteredMods.map(e => {
                                 const isSelected = selectedMod?.path === e.path;
@@ -781,17 +907,17 @@ export default function Mods() {
                                             className={[
                                                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors border",
                                                 isSelected
-                                                    ? "bg-slate-800 border-slate-600 text-slate-100"
-                                                    : "bg-slate-900/30 border-slate-800/60 text-slate-300 hover:bg-slate-800/60 hover:text-slate-100"
+                                                    ? "bg-slate-700 border-slate-500 text-slate-100"
+                                                    : "bg-slate-900/40 border-slate-800/50 text-slate-300 hover:bg-slate-800/60 hover:text-slate-100 hover:border-slate-700"
                                             ].join(" ")}
                                             onClick={() => setSelectedMod(isSelected ? null : e)}
                                         >
                                             <span className="flex-1 font-medium truncate">{e.name}</span>
                                             {polarity && (
-                                                <span className="shrink-0 text-xs text-slate-500">{polarityLabel(polarity)}</span>
+                                                <span className="shrink-0 text-[11px] text-slate-500">{polarityLabel(polarity)}</span>
                                             )}
                                             {rarity && (
-                                                <span className={["shrink-0 text-xs", rarityColor(rarity)].join(" ")}>{rarity}</span>
+                                                <span className={["shrink-0 text-[11px] font-medium", rarityColor(rarity)].join(" ")}>{rarity}</span>
                                             )}
                                         </button>
                                         {isSelected && (
@@ -808,9 +934,9 @@ export default function Mods() {
                 {section === "arcanes" && (
                     <div>
                         {/* Category pills */}
-                        <div className="mb-3">
-                            <div className="text-xs text-slate-500 mb-2">Category</div>
-                            <div className="flex flex-wrap gap-2">
+                        <div className="mb-4">
+                            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Category</div>
+                            <div className="flex flex-wrap gap-1.5">
                                 {ARCANE_CATEGORIES.map(c => (
                                     <CategoryPill
                                         key={c.key}
@@ -828,29 +954,30 @@ export default function Mods() {
                         {/* Search */}
                         <div className="mb-3">
                             <input
-                                className="w-full max-w-sm rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm"
+                                className="w-full max-w-sm rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
                                 value={arcaneSearch}
-                                onChange={e => setArcaneSearch(e.target.value)}
-                                placeholder={`Search ${arcaneCategory} arcanes...`}
+                                onChange={e => { setArcaneSearch(e.target.value); setSelectedArcane(null); }}
+                                placeholder="Search arcanes…"
                             />
                         </div>
 
-                        {/* Arcane list */}
-                        <div className="text-xs text-slate-500 mb-2">{filteredArcanes.length} arcanes</div>
-
                         {/* Rank guide */}
-                        <div className="mb-4 rounded-lg bg-slate-900/50 border border-slate-800 px-3 py-2">
-                            <div className="text-xs text-slate-400 font-medium mb-1">Copies needed to reach rank:</div>
-                            <div className="flex flex-wrap gap-3 text-xs text-slate-400">
+                        <div className="mb-4 rounded-xl bg-slate-900/50 border border-slate-800 px-4 py-3">
+                            <div className="text-xs font-semibold text-slate-400 mb-2">Copies needed to reach rank:</div>
+                            <div className="flex flex-wrap gap-4 text-xs">
                                 {Object.entries(ARCANE_TOTAL_PER_RANK).map(([r, n]) => (
-                                    <span key={r}><span className="text-slate-200">R{r}</span>: {n} {n === 1 ? "copy" : "copies"}</span>
+                                    <span key={r} className="text-slate-400">
+                                        <span className="font-semibold text-slate-200">R{r}</span>: {n} {n === 1 ? "copy" : "copies"}
+                                    </span>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="max-h-[55vh] overflow-y-auto space-y-0.5">
+                        {/* Arcane list */}
+                        <div className="text-xs text-slate-500 mb-2">{filteredArcanes.length} arcanes</div>
+                        <div className="max-h-[55vh] overflow-y-auto space-y-0.5 pr-1">
                             {filteredArcanes.length === 0 && (
-                                <div className="text-sm text-slate-400 py-4">No arcanes found for this category.</div>
+                                <div className="text-sm text-slate-400 py-4">No arcanes found.</div>
                             )}
                             {filteredArcanes.map(e => {
                                 const isSelected = selectedArcane?.path === e.path;
@@ -860,8 +987,8 @@ export default function Mods() {
                                             className={[
                                                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors border",
                                                 isSelected
-                                                    ? "bg-slate-800 border-slate-600 text-slate-100"
-                                                    : "bg-slate-900/30 border-slate-800/60 text-slate-300 hover:bg-slate-800/60 hover:text-slate-100"
+                                                    ? "bg-slate-700 border-slate-500 text-slate-100"
+                                                    : "bg-slate-900/40 border-slate-800/50 text-slate-300 hover:bg-slate-800/60 hover:text-slate-100 hover:border-slate-700"
                                             ].join(" ")}
                                             onClick={() => setSelectedArcane(isSelected ? null : e)}
                                         >

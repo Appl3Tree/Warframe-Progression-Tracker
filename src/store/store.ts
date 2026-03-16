@@ -278,6 +278,26 @@ export const useTrackerStore = create<TrackerStore>()(
                         s.state.mastery = { xpByItem: normalizedXp, mastered: normalizedMastered, overLevelMastered: prevOverLevel };
                         s.state.missions = parsed.missions;
 
+                        // Auto-mark normal-mode star chart nodes as completed.
+                        if (parsed.completedNodeIds.length > 0) {
+                            if (!s.state.missions.nodeCompleted) {
+                                s.state.missions.nodeCompleted = {};
+                            }
+                            for (const id of parsed.completedNodeIds) {
+                                s.state.missions.nodeCompleted[id] = true;
+                            }
+                        }
+
+                        // Challenges progress.
+                        if (parsed.challenges) {
+                            s.state.challenges = parsed.challenges;
+                        }
+
+                        // Intrinsics.
+                        if (parsed.intrinsics) {
+                            s.state.intrinsics = parsed.intrinsics;
+                        }
+
                         ensureGoalsArray(s.state);
                         ensureUiExpansion(s.state);
                         ensureResetChecklistState(s.state);

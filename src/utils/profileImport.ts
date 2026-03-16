@@ -96,6 +96,19 @@ export type ProfileImportResult = {
     missions: {
         completesByTag: Record<string, number>;
     };
+
+    /** Star chart node IDs derived from completed mission tags (normal mode only). */
+    completedNodeIds: string[];
+
+    challenges?: {
+        progress: Record<string, number>;
+        completed: Record<string, boolean>;
+    };
+
+    intrinsics?: {
+        railjack: Record<string, number>;
+        duviri: Record<string, number>;
+    };
 };
 
 function isObject(v: unknown): v is Record<string, any> {
@@ -235,6 +248,59 @@ function tryExtractJsonFromHtml(raw: string): string | null {
     return candidate;
 }
 
+/**
+ * Converts a Warframe profile mission tag to a star chart node ID.
+ *
+ * Examples:
+ *   /Lotus/Missions/SolarMap/Venus/Aphrodite   → node:mr/venus/aphrodite
+ *   /Lotus/Missions/SolarMap/KuvaFortress/Garus → node:mr/kuva-fortress/garus
+ *   /Lotus/Missions/Railjack/VenusProxima/Ose   → node:mr/venus/ose
+ */
+function missionTagToNodeId(tag: string): string | null {
+    // Normal missions: /Lotus/Missions/SolarMap/<Planet>/<Node>
+    const solarMatch = tag.match(/\/Lotus\/Missions\/SolarMap\/([^/]+)\/([^/]+)/);
+    if (solarMatch) {
+        const planet = normalizePlanetSegment(solarMatch[1]);
+        const node   = normalizeNodeSegment(solarMatch[2]);
+        return `node:mr/${planet}/${node}`;
+    }
+
+    // Railjack Proxima: /Lotus/Missions/Railjack/<Region>Proxima/<Node>
+    const proxMatch = tag.match(/\/Lotus\/Missions\/Railjack\/([^/]+)\/([^/]+)/);
+    if (proxMatch) {
+        // e.g. "EarthProxima" → region is the planet part
+        const regionRaw = proxMatch[1].replace(/Proxima$/, "");
+        const planet = normalizePlanetSegment(regionRaw);
+        const node   = normalizeNodeSegment(proxMatch[2]);
+        return `node:mr/${planet}/${node}`;
+    }
+
+    return null;
+}
+
+/** Map special planet name segments to their canonical node-path form. */
+const PLANET_SEGMENT_MAP: Record<string, string> = {
+    kuvafortress: "kuva-fortress",
+    deimossector: "deimos",
+    cambionrift: "deimos",
+    holdfastnavy: "zariman",
+    // Zariman: /Lotus/Missions/SolarMap/HoldfastNavy/<node>
+};
+
+function normalizePlanetSegment(raw: string): string {
+    const lower = raw.toLowerCase();
+    return PLANET_SEGMENT_MAP[lower] ?? lower.replace(/\s+/g, "-");
+}
+
+function normalizeNodeSegment(raw: string): string {
+    // CamelCase → kebab-case, lowercase, strip apostrophes
+    return raw
+        .replace(/([a-z])([A-Z])/g, "$1-$2")
+        .toLowerCase()
+        .replace(/['\u2019]/g, "")
+        .replace(/\s+/g, "-");
+}
+
 export function parseProfileViewingData(inputText: string): ProfileImportResult {
     const trimmed = String(inputText ?? "").trim();
 
@@ -325,6 +391,7 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
 
     // Missions: root.Missions: [{ Tag, Completes }]
     const completesByTag: Record<string, number> = {};
+    const completedNodeIds: string[] = [];
     if (Array.isArray(root?.Missions)) {
         for (const m of root.Missions) {
             if (!isObject(m)) continue;
@@ -332,6 +399,16 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
             if (!tag) continue;
             const completes = clampInt(m.Completes, 0);
             completesByTag[tag] = completes;
+
+            // Convert mission tag to star chart node ID.
+            // Profile tags are of the form:
+            //   /Lotus/Missions/SolarMap/<Planet>/<Node>    → normal mission
+            //   /Lotus/Missions/Railjack/<Region>/<Node>   → Railjack Proxima
+            // Target node ID format: node:mr/<planet-or-region>/<node>
+            if (completes > 0) {
+                const nodeId = missionTagToNodeId(tag);
+                if (nodeId) completedNodeIds.push(nodeId);
+            }
         }
     }
 
@@ -359,6 +436,45 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
         mastered: computeMastered(xpByItem)
     };
 
+    // Challenges: root.Challenges: [{ Name, Progress, Completed }]
+    let challengesResult: ProfileImportResult["challenges"];
+    if (Array.isArray(root?.Challenges)) {
+        const progress: Record<string, number> = {};
+        const completed: Record<string, boolean> = {};
+        for (const c of root.Challenges) {
+            if (!isObject(c)) continue;
+            const name = typeof c.Name === "string" ? c.Name : "";
+            if (!name) continue;
+            const prog = typeof c.Progress === "number" ? Math.max(0, Math.floor(c.Progress)) : 0;
+            const done = Boolean(c.Completed);
+            progress[name] = prog;
+            if (done) completed[name] = true;
+        }
+        challengesResult = { progress, completed };
+    }
+
+    // Intrinsics: root.PlayerSkills: { STYPE_PILOTING: 5, ... }
+    let intrinsicsResult: ProfileImportResult["intrinsics"];
+    if (isObject(root?.PlayerSkills)) {
+        const railjackKeys = new Set([
+            "STYPE_PILOTING", "STYPE_GUNNERY", "STYPE_ENGINEERING", "STYPE_TACTICAL", "STYPE_COMMAND"
+        ]);
+        const duviriKeys = new Set([
+            "STYPE_DUVIRI_AGILITY", "STYPE_DUVIRI_ENDURANCE", "STYPE_DUVIRI_OPPORTUNITY",
+            "STYPE_DUVIRI_MIGHT", "STYPE_DUVIRI_WITS"
+        ]);
+        const railjack: Record<string, number> = {};
+        const duviri: Record<string, number> = {};
+        for (const [key, val] of Object.entries(root.PlayerSkills)) {
+            const rank = clampInt(val, 0);
+            if (railjackKeys.has(key)) railjack[key] = rank;
+            else if (duviriKeys.has(key)) duviri[key] = rank;
+        }
+        if (Object.keys(railjack).length > 0 || Object.keys(duviri).length > 0) {
+            intrinsicsResult = { railjack, duviri };
+        }
+    }
+
     return {
         displayName,
         masteryRank,
@@ -367,6 +483,9 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
         mastery,
         missions: {
             completesByTag
-        }
+        },
+        completedNodeIds,
+        challenges: challengesResult,
+        intrinsics: intrinsicsResult
     };
 }
