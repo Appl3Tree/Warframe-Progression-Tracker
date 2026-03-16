@@ -638,9 +638,21 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
     const displayNameRaw = root?.DisplayName;
     const playerLevelRaw = root?.PlayerLevel;
 
-    // Strip null characters and other control characters that sometimes trail the name in the API
+    // Strip all non-printable / invisible characters from the display name.
+    // The Warframe API sometimes appends trailing garbage bytes that survive JSON
+    // parsing as Unicode escapes. We strip C0/C1 controls, zero-width chars,
+    // BOM, replacement chars, and private-use area characters, then keep only
+    // characters with a visible rendering (letters, numbers, marks, punctuation,
+    // symbols, and separators per Unicode categories).
     const displayName = typeof displayNameRaw === "string"
-        ? displayNameRaw.replace(/[\x00-\x1F\x7F]+/g, "").trim()
+        ? displayNameRaw
+            // First pass: explicit known problem chars
+            .replace(/[\x00-\x1F\x7F\x80-\x9F\u200B-\u200F\u2028-\u202F\uFEFF\uFFFD\uFFFE]/g, "")
+            // Second pass: private-use area (E000-F8FF, F0000-FFFFF, 100000-10FFFF)
+            .replace(/[\uE000-\uF8FF]/g, "")
+            // Third pass: keep only printable Unicode (letters, numbers, marks, punctuation, symbols, spaces)
+            .replace(/[^\p{L}\p{N}\p{M}\p{P}\p{S}\p{Zs}]/gu, "")
+            .trim()
         : "";
     const masteryRank = Number.isFinite(Number(playerLevelRaw)) ? clampInt(playerLevelRaw, 0) : null;
 
