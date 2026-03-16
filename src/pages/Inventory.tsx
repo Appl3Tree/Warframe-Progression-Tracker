@@ -32,8 +32,7 @@ type PrimaryTab =
   | "weapons"
   | "companions"
   | "components"
-  | "resources"
-  | "railjack";
+  | "resources";
 
 type WarframesVehiclesTab = "all" | "warframes" | "archwings" | "necramechs";
 type CompanionsTab =
@@ -79,11 +78,17 @@ function WikiLink({ name }: { name: string }) {
       target="_blank"
       rel="noopener noreferrer"
       title={`${name} on Warframe Wiki`}
-      onClick={e => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
       className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors"
       aria-label={`${name} wiki`}
     >
-      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg
+        className="w-3 h-3"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
         <polyline points="15 3 21 3 21 9" />
         <line x1="10" y1="14" x2="21" y2="3" />
@@ -91,7 +96,6 @@ function WikiLink({ name }: { name: string }) {
     </a>
   );
 }
-
 
 function Section(props: { title: string; children: ReactNode }) {
   return (
@@ -850,7 +854,7 @@ export default function Inventory() {
     "kuva",
   );
 
-  const [primaryTab, setPrimaryTab] = useState<PrimaryTab>("warframesVehicles");
+  const [primaryTab, setPrimaryTab] = useState<PrimaryTab>("all");
 
   const [wfVehTab, setWfVehTab] = useState<WarframesVehiclesTab>("all");
   const [companionsTab, setCompanionsTab] = useState<CompanionsTab>("all");
@@ -1018,8 +1022,7 @@ export default function Inventory() {
     const plexusQ = normalize(query);
     if (
       !plexusQ ||
-      "plexus".includes(plexusQ) ||
-      "railjack".includes(plexusQ)
+      "plexus".includes(plexusQ)
     ) {
       base.push({
         id: PLEXUS_ID,
@@ -1117,13 +1120,6 @@ export default function Inventory() {
   }, [rows, weaponClassTab]);
 
   const filtered = useMemo(() => {
-    // Railjack tab — shows Plexus (which is in the warframesVehicles group)
-    if (primaryTab === "railjack") {
-      return rows.filter(
-        (r) => r.path === "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness",
-      );
-    }
-
     // "All" tab — show warframes, weapons, companions including Plexus synthetic row
     if (primaryTab === "all") {
       return rows.filter((r) => {
@@ -1696,11 +1692,6 @@ export default function Inventory() {
               label="Resources"
               active={primaryTab === "resources"}
               onClick={() => selectPrimaryTab("resources")}
-            />
-            <TabButton
-              label="Railjack"
-              active={primaryTab === "railjack"}
-              onClick={() => selectPrimaryTab("railjack")}
             />
           </div>
 
