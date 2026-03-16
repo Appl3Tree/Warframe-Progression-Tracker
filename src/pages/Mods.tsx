@@ -676,6 +676,12 @@ function RankCostCalculator({ maxRank, rarity }: { maxRank: number; rarity: stri
 
 // ─── Drop Locations ───────────────────────────────────────────────────────────
 
+/** Build a Warframe wiki URL for an enemy, boss, or location name */
+function enemyWikiUrl(name: string): string {
+    const slug = name.trim().replace(/\s+/g, "_");
+    return `https://wiki.warframe.com/w/${encodeURIComponent(slug)}#Farming_Locations`;
+}
+
 function DropLocations({ drops }: { drops: EnemyDrop[] }) {
     if (drops.length === 0) {
         return <div className="text-xs text-slate-500">No drop location data available.</div>;
@@ -686,13 +692,37 @@ function DropLocations({ drops }: { drops: EnemyDrop[] }) {
 
     return (
         <div>
-            <div className="text-xs text-slate-400 font-medium mb-2">Drop Locations <span className="text-slate-500 font-normal">({drops.length} sources)</span></div>
+            <div className="text-xs text-slate-400 font-medium mb-2">
+                Drop Locations <span className="text-slate-500 font-normal">({drops.length} sources)</span>
+            </div>
             <div className="max-h-44 overflow-y-auto space-y-0.5 pr-1">
                 {sorted.map((d, i) => (
                     <div key={i} className="flex items-center gap-2 text-xs rounded-lg px-2.5 py-1.5 bg-slate-800/50 border border-slate-700/60">
-                        <span className="text-slate-200 flex-1 min-w-0 truncate">{d.enemyName}</span>
+                        <a
+                            href={enemyWikiUrl(d.enemyName)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-slate-200 flex-1 min-w-0 truncate hover:text-cyan-300 hover:underline transition-colors"
+                            title={`View ${d.enemyName} on the Warframe Wiki`}
+                        >
+                            {d.enemyName}
+                        </a>
                         <span className={["shrink-0 text-xs font-medium", rarityColor(d.rarity)].join(" ")}>{d.rarity}</span>
                         <span className="shrink-0 font-mono text-slate-400 text-[11px]">{d.chance.toFixed(2)}%</span>
+                        <a
+                            href={enemyWikiUrl(d.enemyName)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors"
+                            title="Open wiki"
+                            aria-label={`${d.enemyName} wiki`}
+                        >
+                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                <polyline points="15 3 21 3 21 9" />
+                                <line x1="10" y1="14" x2="21" y2="3" />
+                            </svg>
+                        </a>
                     </div>
                 ))}
             </div>
