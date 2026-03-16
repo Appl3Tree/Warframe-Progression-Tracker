@@ -860,6 +860,7 @@ export default function Inventory() {
             weaponTypesByClass: {},
             companionsSub: new Set(),
             isResource: false,
+            isComponent: false,
         };
         const plexusQ = normalize(query);
         if (!plexusQ || "plexus".includes(plexusQ) || "railjack".includes(plexusQ)) {
@@ -1180,13 +1181,6 @@ export default function Inventory() {
     const totalHeight = finalFiltered.length * ROW_H;
     const slice = finalFiltered.slice(vw.start, vw.end);
     const translateY = vw.start * ROW_H;
-
-    // Plexus mastery check (auto-detected from profile XP or manually toggled)
-    const PLEXUS_PATH = "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness";
-    const PLEXUS_CATALOG_ID = `items:${PLEXUS_PATH}`;
-    const plexusMastered =
-        mastered[PLEXUS_CATALOG_ID] === true || mastered[PLEXUS_PATH] === true ||
-        overLevelMastered[PLEXUS_CATALOG_ID] === true || overLevelMastered[PLEXUS_PATH] === true;
 
     const overLevelTabRows = overLevelRows.filter((r) => r.family === overLevelTab);
     const overLevelMasteredCount = overLevelRows.filter((r) => r.isMastered).length;

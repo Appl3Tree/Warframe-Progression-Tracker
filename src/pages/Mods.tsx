@@ -1,5 +1,5 @@
 // src/pages/Mods.tsx
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import MODS_RAW from "../data/mods.json";
 import RIVENS_RAW from "../data/rivens.json";
@@ -133,13 +133,78 @@ const ARCANE_CATEGORIES: { key: ArcaneCategory; label: string }[] = [
 
 // Polarity SVG assets
 const _polImgs = import.meta.glob<string>(
-    "../../assets/polarity/*.svg",
+    "../../assets/polarities/*.svg",
     { eager: true, import: "default" }
 );
 const POL_IMG: Record<string, string> = {};
 for (const [p, url] of Object.entries(_polImgs)) {
     const name = p.split("/").pop()!.replace(".svg", "").toLowerCase();
     POL_IMG[name] = url;
+}
+
+// Status effect PNG assets
+const _statusImgs = import.meta.glob<string>(
+    "../../assets/statuses/*.png",
+    { eager: true, import: "default" }
+);
+const STATUS_IMG: Record<string, string> = {};
+for (const [p, url] of Object.entries(_statusImgs)) {
+    const name = p.split("/").pop()!.replace(".png", "").toLowerCase();
+    STATUS_IMG[name] = url;
+}
+
+// Map DT_ color tags → status image filenames
+const DT_TO_IMG: Record<string, string> = {
+    dt_corrosive_color:  "essentialcorrosiveglyph",
+    dt_electricity_color:"electricmodbundleicon",
+    dt_explosion_color:  "essentialblastglyph",
+    dt_fire_color:       "heatmodbundleicon",
+    dt_freeze_color:     "coldmodbundleicon",
+    dt_gas_color:        "essentialgasglyph",
+    dt_impact_color:     "essentialimpactglyph",
+    dt_magnetic_color:   "essentialmagneticglyph",
+    dt_poison_color:     "toxinmodbundleicon",
+    dt_puncture_color:   "essentialpunctureglyph",
+    dt_radiant_color:    "essentialradiationglyph",
+    dt_radiation_color:  "essentialradiationglyph",
+    dt_sentient:         "essentialtauglyph",
+    dt_slash_color:      "essentialslashglyph",
+    dt_viral_color:      "essentialviralglyph",
+};
+
+/** Render a stat string, replacing <DT_*_COLOR> tags with inline status images */
+function renderStatString(stat: string): React.ReactNode {
+    // Also clean up other formatting tags
+    const cleaned = stat
+        .replace(/\\n/g, "\n")
+        .replace(/<LINE_SEPARATOR>/g, " | ")
+        .replace(/<LOWER_IS_BETTER>/g, "")
+        .replace(/<[A-Z_]+_SECONDARY_COLOR>/g, "")
+        .replace(/<\/[A-Z_]+_SECONDARY_COLOR>/g, "");
+
+    // Split on DT_ tags
+    const parts = cleaned.split(/(<DT_[A-Z_]+>)/);
+    if (parts.length === 1) return cleaned;
+
+    const nodes: React.ReactNode[] = [];
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        if (part.startsWith("<DT_") && part.endsWith(">")) {
+            const key = part.slice(1, -1).toLowerCase();
+            const imgName = DT_TO_IMG[key];
+            const imgUrl = imgName ? STATUS_IMG[imgName] : null;
+            if (imgUrl) {
+                nodes.push(
+                    <img key={i} src={imgUrl} alt={key} title={key.replace("dt_", "").replace("_color", "").replace("_", " ")}
+                        className="inline w-3.5 h-3.5 object-contain mx-0.5 -mt-0.5" />
+                );
+            }
+            // The next part follows the tag (the damage type label text)
+        } else if (part) {
+            nodes.push(<span key={i}>{part}</span>);
+        }
+    }
+    return <>{nodes}</>;
 }
 // Helper: get polarity image URL by AP_ key
 function polImg(ap: string | undefined): string | null {
@@ -693,7 +758,11 @@ function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: bool
                                 r === levelStats.length - 1 ? "bg-cyan-950/30 border border-cyan-800/40" : "bg-slate-800/50"
                             ].join(" ")}>
                                 <span className="shrink-0 text-slate-500 font-mono w-5">R{r}</span>
-                                <span className="text-slate-200">{ls.stats.join("  ·  ")}</span>
+                                <span className="text-slate-200">
+                                    {ls.stats.map((s, si) => (
+                                        <span key={si}>{si > 0 && "  ·  "}{renderStatString(s)}</span>
+                                    ))}
+                                </span>
                             </div>
                         ))}
                     </div>
