@@ -7,6 +7,7 @@ import { SY } from "../../domain/ids/syndicateIds";
 import type { SyndicateId } from "../../domain/ids/syndicateIds";
 import type { SyndicateState } from "../../domain/types";
 import SyndicateDetailsModal from "./SyndicateDetailsModal";
+import SimarisSynthesisModal from "./SimarisSynthesisModal";
 import { getSyndicateVendorEntry } from "../../domain/catalog/syndicates/syndicateVendorCatalog";
 import { readOwnedMap, countOwned } from "../../domain/syndicates/ownedOfferings";
 import { getRankTitle } from "../../domain/catalog/syndicates/rankTitles";
@@ -58,6 +59,7 @@ export default function SyndicatesGrid() {
     const [detailsInitialTab, setDetailsInitialTab] = useState<"ranks" | "offerings">("ranks");
     const [detailsInitialOwnedFilter, setDetailsInitialOwnedFilter] = useState<"all" | "owned" | "unowned">("all");
     const [detailsPlayerRank, setDetailsPlayerRank] = useState<number>(0);
+    const [synthesisOpen, setSynthesisOpen] = useState(false);
 
     // Bump this when the modal closes to force re-read of localStorage for missing counts
     const [ownedRefreshKey, setOwnedRefreshKey] = useState(0);
@@ -649,6 +651,16 @@ export default function SyndicatesGrid() {
                                         Offerings
                                     </button>
 
+                                    {canon.id === SY.CEPHALON_SIMARIS && (
+                                        <button
+                                            className={cardActionButtonClass()}
+                                            onClick={() => setSynthesisOpen(true)}
+                                            title="View all synthesis target locations"
+                                        >
+                                            Synthesis Targets
+                                        </button>
+                                    )}
+
                                     {totalOfferings > 0 ? (
                                         <button
                                             className={[
@@ -889,6 +901,11 @@ export default function SyndicatesGrid() {
                 initialOwnedFilter={detailsInitialOwnedFilter}
                 initialSortKey={detailsInitialOwnedFilter === "unowned" ? "rankAsc" : undefined}
                 playerRank={detailsPlayerRank}
+            />
+
+            <SimarisSynthesisModal
+                open={synthesisOpen}
+                onClose={() => setSynthesisOpen(false)}
             />
         </div>
     );
