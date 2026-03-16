@@ -65,6 +65,33 @@ function safeInt(v: unknown, fallback = 0): number {
   if (!Number.isFinite(n)) return fallback;
   return Math.max(0, Math.floor(n));
 }
+/** Build a Warframe wiki URL for any item name */
+function wikiUrl(name: string): string {
+  const slug = name.trim().replace(/\s+/g, "_");
+  return `https://wiki.warframe.com/w/${encodeURIComponent(slug)}`;
+}
+
+/** Small unobtrusive wiki link icon */
+function WikiLink({ name }: { name: string }) {
+  return (
+    <a
+      href={wikiUrl(name)}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={`${name} on Warframe Wiki`}
+      onClick={e => e.stopPropagation()}
+      className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors"
+      aria-label={`${name} wiki`}
+    >
+      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+        <polyline points="15 3 21 3 21 9" />
+        <line x1="10" y1="14" x2="21" y2="3" />
+      </svg>
+    </a>
+  );
+}
+
 
 function Section(props: { title: string; children: ReactNode }) {
   return (
@@ -1961,6 +1988,7 @@ export default function Inventory() {
                         >
                           {r.label}
                         </button>
+                        <WikiLink name={r.label} />
                       </div>
 
                       {/* Count with +/- buttons */}
@@ -2129,7 +2157,7 @@ export default function Inventory() {
                     <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
                       Status
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 items-center">
                       <span
                         className={["text-sm font-semibold", availColor].join(
                           " ",
@@ -2147,6 +2175,7 @@ export default function Inventory() {
                           Mastered
                         </span>
                       )}
+                      <WikiLink name={name} />
                     </div>
                   </div>
 
