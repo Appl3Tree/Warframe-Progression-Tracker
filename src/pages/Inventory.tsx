@@ -849,8 +849,35 @@ export default function Inventory() {
             }
             return a.label.localeCompare(b.label);
         });
+
+        // Add Plexus as a synthetic row — it's not in the catalog but counts toward mastery
+        const PLEXUS_PATH = "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness";
+        const PLEXUS_ID = `items:${PLEXUS_PATH}` as CatalogId;
+        const plexusCls: Classification = {
+            groups: new Set(["warframesVehicles"]),
+            warframesVehiclesSub: new Set(["warframes"]),
+            weaponClasses: new Set(),
+            weaponTypesByClass: {},
+            companionsSub: new Set(),
+            isResource: false,
+        };
+        const plexusQ = normalize(query);
+        if (!plexusQ || "plexus".includes(plexusQ) || "railjack".includes(plexusQ)) {
+            base.push({
+                id: PLEXUS_ID,
+                label: "Plexus",
+                value: 0,
+                categories: ["warframes"],
+                cls: plexusCls,
+                path: PLEXUS_PATH,
+                isMasterable: true,
+                tags: ["Railjack"],
+                isOverLevel: false,
+            });
+        }
+
         return base;
-    }, [counts, mastered, query, hideZero, sortKey]);
+    }, [counts, mastered, overLevelMastered, query, hideZero, sortKey]);
 
     // Overlevel weapons: all Kuva/Tenet/Coda/Paracesis weapons from the catalog
     const overLevelRows = useMemo(() => {
@@ -926,9 +953,12 @@ export default function Inventory() {
     }, [rows, weaponClassTab]);
 
     const filtered = useMemo(() => {
-        if (primaryTab === "railjack") return [];
+        // Railjack tab — shows Plexus (which is in the warframesVehicles group)
+        if (primaryTab === "railjack") {
+            return rows.filter((r) => r.path === "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness");
+        }
 
-        // "All" tab — show warframes, weapons, companions (no blueprints/resources/railjack)
+        // "All" tab — show warframes, weapons, companions including Plexus synthetic row
         if (primaryTab === "all") {
             return rows.filter((r) => {
                 if (r.cls.groups.has("components")) return false;
@@ -1268,7 +1298,7 @@ export default function Inventory() {
                     Set Personal Goals by entering a Goal Target (0 disables).
                 </div>
 
-                {primaryTab !== "railjack" && <>
+                {<>
                 <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-3">
                     <div className="lg:col-span-2">
                         <label className="flex flex-col gap-1">
@@ -1555,44 +1585,10 @@ export default function Inventory() {
                         </div>
                     )}
 
-                    {/* Railjack tab — Plexus mastery (also shown in All tab) */}
-                    {(primaryTab === "railjack" || primaryTab === "all") && (
-                        <div className={primaryTab === "all" ? "px-4 pt-3 pb-1 border-b border-slate-800/60" : "p-4"}>
-                            {primaryTab === "railjack" && (
-                                <div className="text-xs text-slate-400 mb-4">
-                                    The Plexus is the Railjack's unique loadout item. It counts toward mastery rank once leveled to Rank 30 (900,000 XP).
-                                    If your profile import includes Plexus XP data it will be detected automatically; otherwise toggle it manually.
-                                </div>
-                            )}
-                            <div className={primaryTab === "all" ? "flex items-center gap-3 mb-2" : ""}>
-                                {primaryTab === "all" && <span className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Railjack</span>}
-                                <button
-                                    className={[
-                                        "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors w-full sm:w-auto",
-                                        plexusMastered
-                                            ? "border-cyan-700 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-950/50"
-                                            : "border-slate-700 bg-slate-900/40 text-slate-300 hover:bg-slate-800"
-                                    ].join(" ")}
-                                    onClick={() => setOverLevelMastered(PLEXUS_CATALOG_ID, !plexusMastered)}
-                                    title={plexusMastered ? "Click to mark as not mastered" : "Click to mark as mastered (Rank 30)"}
-                                >
-                                    <span className={[
-                                        "shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs font-bold",
-                                        plexusMastered ? "border-cyan-500 bg-cyan-900/60 text-cyan-300" : "border-slate-600 bg-slate-800 text-slate-500"
-                                    ].join(" ")}>
-                                        {plexusMastered ? "✓" : ""}
-                                    </span>
-                                    <span className="flex-1">Plexus</span>
-                                    <span className="shrink-0 text-xs text-slate-500">{plexusMastered ? "Mastered" : "Not mastered"}</span>
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Virtualized list — hidden on Railjack tab */}
+                    {/* Virtualized list */}
                     <div
                         ref={listRef}
-                        className={["max-h-[65vh] overflow-auto", primaryTab === "railjack" ? "hidden" : ""].join(" ")}
+                        className="max-h-[65vh] overflow-auto"
                         onScroll={() => recomputeWindow()}
                     >
                         {/* Header */}
@@ -1685,7 +1681,14 @@ export default function Inventory() {
                                                                 ? "bg-cyan-900/60 text-cyan-300 border border-cyan-700 hover:bg-cyan-900"
                                                                 : "bg-slate-800 text-slate-500 border border-slate-700 hover:bg-slate-700 hover:text-slate-300"
                                                         ].join(" ")}
-                                                        onClick={() => setMastered(String(r.id), !isMastered)}
+                                                        onClick={() => {
+                                                            // Plexus uses overLevelMastered; all others use setMastered
+                                                            if (r.path === "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness") {
+                                                                setOverLevelMastered(String(r.id), !isMastered);
+                                                            } else {
+                                                                setMastered(String(r.id), !isMastered);
+                                                            }
+                                                        }}
                                                     >
                                                         {isMastered ? "✓" : "M"}
                                                     </button>
@@ -1850,4 +1853,3 @@ export default function Inventory() {
         </div>
     );
 }
-

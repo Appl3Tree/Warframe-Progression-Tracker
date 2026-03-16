@@ -1,142 +1,145 @@
 @import "tailwindcss";
 
-/* ─── Dark / Light theme via CSS custom properties ─────────────────────────── */
-/* The app uses .theme-dark (default) / .theme-light on <html>.
-   All Tailwind slate-* colours are overridden to semantic tokens here.
-   Components continue to use normal Tailwind classes — they just pick up
-   different values depending on which theme class is active. */
+/* ═══════════════════════════════════════════════════════════════════════
+   THEME SYSTEM
+   The app adds .theme-dark or .theme-light to <html>.
+   Dark is the default (no extra overrides needed — components use slate-*).
+   Light mode overrides the entire slate color scale + accent colors.
+   ═══════════════════════════════════════════════════════════════════════ */
 
-:root,
-.theme-dark {
-    --bg-base:        #020617; /* slate-950 */
-    --bg-surface:     #0f172a; /* slate-900 */
-    --bg-raised:      #1e293b; /* slate-800 */
-    --bg-hover:       #334155; /* slate-700 */
-    --border:         #1e293b; /* slate-800 */
-    --border-muted:   #334155; /* slate-700 */
-    --text-primary:   #f1f5f9; /* slate-100 */
-    --text-secondary: #cbd5e1; /* slate-300 */
-    --text-muted:     #94a3b8; /* slate-400 */
-    --text-faint:     #64748b; /* slate-500 */
-}
+/* ── Dark mode (default) — no overrides needed, Tailwind slate-* is dark ── */
 
+/* ── Light mode ── */
 .theme-light {
-    --bg-base:        #f8fafc; /* slate-50 */
-    --bg-surface:     #f1f5f9; /* slate-100 */
-    --bg-raised:      #e2e8f0; /* slate-200 */
-    --bg-hover:       #cbd5e1; /* slate-300 */
-    --border:         #e2e8f0; /* slate-200 */
-    --border-muted:   #cbd5e1; /* slate-300 */
-    --text-primary:   #0f172a; /* slate-900 */
-    --text-secondary: #1e293b; /* slate-800 */
-    --text-muted:     #475569; /* slate-600 */
-    --text-faint:     #64748b; /* slate-500 */
+    /* Root background + text */
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
 }
 
-/* Apply theme tokens to the document body */
 .theme-light body,
-.theme-light #root > div {
-    background-color: var(--bg-base);
-    color: var(--text-primary);
+.theme-light #root {
+    background-color: #f1f5f9;
+    color: #0f172a;
 }
 
-/* ── Light mode overrides for hardcoded slate classes ── */
-/* The bulk of the app uses hardcoded bg-slate-950/bg-slate-900 etc.
-   Rather than replacing every component, we override the Tailwind slate
-   scale in light mode so existing classes get brighter values. */
+/* Full slate color scale remapping for light mode */
+/* slate-950 → near-white */
+.theme-light .bg-slate-950,
+.theme-light [class*="bg-slate-950\/"] { background-color: rgb(241 245 249 / var(--tw-bg-opacity, 1)) !important; }
+.theme-light .bg-slate-900,
+.theme-light [class*="bg-slate-900\/"] { background-color: rgb(248 250 252 / var(--tw-bg-opacity, 1)) !important; }
+.theme-light .bg-slate-800,
+.theme-light [class*="bg-slate-800\/"] { background-color: rgb(226 232 240 / var(--tw-bg-opacity, 1)) !important; }
+.theme-light .bg-slate-700,
+.theme-light [class*="bg-slate-700\/"] { background-color: rgb(203 213 225 / var(--tw-bg-opacity, 1)) !important; }
+.theme-light .bg-slate-600 { background-color: #94a3b8 !important; }
 
-.theme-light {
-    /* Make slate-950/900/800 backgrounds light instead of dark */
-    --tw-bg-opacity: 1;
-}
-
-/* Shell background */
-.theme-light .bg-slate-950 { background-color: #f8fafc !important; }
-.theme-light [class*="bg-slate-950\/"] { background-color: rgba(248,250,252,var(--tw-bg-opacity, 0.4)) !important; }
-.theme-light .bg-slate-900 { background-color: #f1f5f9 !important; }
-.theme-light [class*="bg-slate-900\/"] { background-color: rgba(241,245,249,var(--tw-bg-opacity, 0.6)) !important; }
-.theme-light .bg-slate-800 { background-color: #e2e8f0 !important; }
-.theme-light [class*="bg-slate-800\/"] { background-color: rgba(226,232,240,var(--tw-bg-opacity, 0.8)) !important; }
-.theme-light .bg-slate-700 { background-color: #cbd5e1 !important; }
-
-/* Text colours */
+/* Text */
 .theme-light .text-slate-100 { color: #0f172a !important; }
 .theme-light .text-slate-200 { color: #1e293b !important; }
 .theme-light .text-slate-300 { color: #334155 !important; }
 .theme-light .text-slate-400 { color: #475569 !important; }
 .theme-light .text-slate-500 { color: #64748b !important; }
+.theme-light .text-slate-600 { color: #94a3b8 !important; }
 
 /* Borders */
 .theme-light .border-slate-800 { border-color: #e2e8f0 !important; }
+.theme-light [class*="border-slate-800\/"] { border-color: rgb(226 232 240 / 0.6) !important; }
 .theme-light .border-slate-700 { border-color: #cbd5e1 !important; }
+.theme-light [class*="border-slate-700\/"] { border-color: rgb(203 213 225 / 0.6) !important; }
 .theme-light .border-slate-600 { border-color: #94a3b8 !important; }
 
 /* Divide */
 .theme-light [class*="divide-slate-800"] > * + * { border-color: #e2e8f0 !important; }
 
-/* Input backgrounds */
+/* Inputs */
 .theme-light input,
 .theme-light textarea,
 .theme-light select {
-    background-color: #f1f5f9 !important;
+    background-color: #f8fafc !important;
     color: #0f172a !important;
     border-color: #cbd5e1 !important;
 }
-
-/* Sidebar in light mode */
-.theme-light .bg-slate-900 { background-color: #f1f5f9 !important; }
-
-/* ── Light mode accent color overrides ── */
-/* These ensure colored UI elements (green checkmarks, blue pills, amber warnings,
-   cyan mastery indicators, emerald progress) remain readable on light backgrounds */
-
-.theme-light .text-green-400 { color: #15803d !important; }
-.theme-light .text-green-300 { color: #16a34a !important; }
-.theme-light .bg-green-950\/30 { background-color: rgba(220,252,231,0.5) !important; }
-.theme-light .border-green-600\/50 { border-color: rgba(22,163,74,0.5) !important; }
-
-.theme-light .text-cyan-400 { color: #0e7490 !important; }
-.theme-light .text-cyan-300 { color: #0891b2 !important; }
-.theme-light .bg-cyan-950\/30 { background-color: rgba(207,250,254,0.5) !important; }
-.theme-light .bg-cyan-950\/40 { background-color: rgba(207,250,254,0.6) !important; }
-.theme-light .border-cyan-700 { border-color: #0e7490 !important; }
-
-.theme-light .text-emerald-400 { color: #059669 !important; }
-.theme-light .text-emerald-500 { color: #047857 !important; }
-.theme-light .bg-emerald-950\/10 { background-color: rgba(209,250,229,0.4) !important; }
-.theme-light .bg-emerald-500 { background-color: #10b981 !important; }
-
-.theme-light .text-amber-300 { color: #b45309 !important; }
-.theme-light .text-amber-400 { color: #92400e !important; }
-.theme-light .bg-amber-950\/20 { background-color: rgba(255,251,235,0.6) !important; }
-
-.theme-light .text-blue-400 { color: #1d4ed8 !important; }
-.theme-light .text-blue-200 { color: #1e40af !important; }
-.theme-light .bg-blue-950\/40 { background-color: rgba(219,234,254,0.6) !important; }
-.theme-light .border-blue-600 { border-color: #2563eb !important; }
-
-.theme-light .text-red-400 { color: #b91c1c !important; }
-.theme-light .text-rose-200 { color: #be123c !important; }
-.theme-light .bg-rose-950\/10 { background-color: rgba(255,241,242,0.6) !important; }
-.theme-light .border-rose-700 { border-color: #be123c !important; }
-.theme-light .border-rose-900\/70 { border-color: rgba(159,18,57,0.4) !important; }
-
-.theme-light .text-orange-400 { color: #c2410c !important; }
-.theme-light .bg-orange-950\/30 { background-color: rgba(255,237,213,0.5) !important; }
-
-/* Progress bars and highlights stay vibrant */
-.theme-light .from-green-600 { --tw-gradient-from: #16a34a !important; }
-.theme-light .to-green-400 { --tw-gradient-to: #4ade80 !important; }
-.theme-light .from-blue-600 { --tw-gradient-from: #2563eb !important; }
-.theme-light .to-blue-400 { --tw-gradient-to: #60a5fa !important; }
-.theme-light .bg-blue-500 { background-color: #3b82f6 !important; }
-.theme-light .bg-blue-600 { background-color: #2563eb !important; }
-
-/* Sidebar active item */
-.theme-light .bg-slate-700 { background-color: #cbd5e1 !important; }
-
-/* Inputs in light mode */
 .theme-light select option {
     background-color: #f1f5f9;
     color: #0f172a;
 }
+
+/* ── Light mode accent colors — keep them vivid but legible on light bg ── */
+
+/* Green */
+.theme-light .text-green-400 { color: #16a34a !important; }
+.theme-light .text-green-300 { color: #15803d !important; }
+.theme-light .bg-green-950\/20,
+.theme-light .bg-green-950\/30 { background-color: rgba(220,252,231,0.6) !important; }
+.theme-light .border-green-600\/50 { border-color: rgba(22,163,74,0.4) !important; }
+.theme-light .bg-green-500 { background-color: #22c55e !important; }
+.theme-light .from-green-600 { --tw-gradient-from: #16a34a !important; }
+.theme-light .to-green-400  { --tw-gradient-to:   #4ade80 !important; }
+
+/* Cyan */
+.theme-light .text-cyan-400 { color: #0e7490 !important; }
+.theme-light .text-cyan-300 { color: #0891b2 !important; }
+.theme-light .bg-cyan-950\/20,
+.theme-light .bg-cyan-950\/30,
+.theme-light .bg-cyan-950\/40 { background-color: rgba(207,250,254,0.6) !important; }
+.theme-light .border-cyan-700 { border-color: #0e7490 !important; }
+.theme-light .border-cyan-800\/40 { border-color: rgba(14,116,144,0.3) !important; }
+
+/* Emerald */
+.theme-light .text-emerald-400 { color: #059669 !important; }
+.theme-light .text-emerald-500 { color: #047857 !important; }
+.theme-light .bg-emerald-950\/10 { background-color: rgba(209,250,229,0.4) !important; }
+.theme-light .bg-emerald-500 { background-color: #10b981 !important; }
+.theme-light .border-emerald-900\/30 { border-color: rgba(6,78,59,0.2) !important; }
+
+/* Blue */
+.theme-light .text-blue-400 { color: #2563eb !important; }
+.theme-light .text-blue-300 { color: #1d4ed8 !important; }
+.theme-light .text-blue-200 { color: #1e40af !important; }
+.theme-light .bg-blue-950\/20,
+.theme-light .bg-blue-950\/30,
+.theme-light .bg-blue-950\/40 { background-color: rgba(219,234,254,0.6) !important; }
+.theme-light .border-blue-700\/60 { border-color: rgba(29,78,216,0.4) !important; }
+.theme-light .border-blue-600 { border-color: #2563eb !important; }
+.theme-light .bg-blue-600 { background-color: #2563eb !important; }
+.theme-light .bg-blue-500 { background-color: #3b82f6 !important; }
+.theme-light .from-blue-600 { --tw-gradient-from: #2563eb !important; }
+.theme-light .to-blue-400  { --tw-gradient-to:   #60a5fa !important; }
+
+/* Amber */
+.theme-light .text-amber-300 { color: #b45309 !important; }
+.theme-light .text-amber-400 { color: #92400e !important; }
+.theme-light .bg-amber-950\/20 { background-color: rgba(255,251,235,0.6) !important; }
+.theme-light .border-amber-700\/60 { border-color: rgba(180,83,9,0.4) !important; }
+.theme-light .bg-amber-500 { background-color: #f59e0b !important; }
+
+/* Orange */
+.theme-light .text-orange-400 { color: #c2410c !important; }
+.theme-light .bg-orange-950\/30 { background-color: rgba(255,237,213,0.5) !important; }
+.theme-light .border-orange-700\/50 { border-color: rgba(194,65,12,0.3) !important; }
+
+/* Rose / Red */
+.theme-light .text-red-400 { color: #b91c1c !important; }
+.theme-light .text-rose-200 { color: #be123c !important; }
+.theme-light .text-rose-300 { color: #e11d48 !important; }
+.theme-light .bg-rose-950\/10 { background-color: rgba(255,241,242,0.6) !important; }
+.theme-light .border-rose-700 { border-color: #be123c !important; }
+.theme-light .border-rose-900\/70 { border-color: rgba(159,18,57,0.4) !important; }
+.theme-light .bg-rose-500 { background-color: #f43f5e !important; }
+
+/* Purple / Indigo */
+.theme-light .text-purple-300 { color: #7e22ce !important; }
+.theme-light .bg-purple-950\/30 { background-color: rgba(245,243,255,0.6) !important; }
+.theme-light .border-purple-700\/60 { border-color: rgba(126,34,206,0.4) !important; }
+.theme-light .text-indigo-300 { color: #4338ca !important; }
+.theme-light .bg-indigo-950\/20 { background-color: rgba(238,242,255,0.6) !important; }
+.theme-light .bg-purple-500 { background-color: #a855f7 !important; }
+.theme-light .bg-indigo-500 { background-color: #6366f1 !important; }
+
+/* Gradients on shell/map backgrounds stay dark */
+.theme-light [style*="radial-gradient"] { /* keep map backgrounds as-is */ }
+
+/* Scrollbars in light mode */
+.theme-light ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+.theme-light ::-webkit-scrollbar-track { background: #f1f5f9; }

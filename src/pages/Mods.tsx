@@ -131,6 +131,36 @@ const ARCANE_CATEGORIES: { key: ArcaneCategory; label: string }[] = [
     { key: "zaws",      label: "Zaws"                },
 ];
 
+// Polarity SVG assets
+const _polImgs = import.meta.glob<string>(
+    "../../assets/polarity/*.svg",
+    { eager: true, import: "default" }
+);
+const POL_IMG: Record<string, string> = {};
+for (const [p, url] of Object.entries(_polImgs)) {
+    const name = p.split("/").pop()!.replace(".svg", "").toLowerCase();
+    POL_IMG[name] = url;
+}
+// Helper: get polarity image URL by AP_ key
+function polImg(ap: string | undefined): string | null {
+    if (!ap) return null;
+    const key = ap.replace("AP_", "").toLowerCase();
+    // Map AP names to file names
+    const fileMap: Record<string, string> = {
+        attack:  "madurai_pol",
+        defense: "vazarin_pol",
+        tactic:  "naramon_pol",
+        power:   "zenurik_pol",
+        umbra:   "umbra_pol",
+        ward:    "unairu_pol",
+        penjaga: "penjaga_pol",
+        any:     "any_pol",
+    };
+    const fname = fileMap[key];
+    if (!fname) return null;
+    return POL_IMG[fname] ?? null;
+}
+
 const POLARITIES: { key: Polarity; label: string; ap: string }[] = [
     { key: "madurai",  label: "Madurai",  ap: "AP_ATTACK"  },
     { key: "vazarin",  label: "Vazarin",  ap: "AP_DEFENSE" },
@@ -304,91 +334,111 @@ function normalize(s: string): string {
 
 // ─── Classification ────────────────────────────────────────────────────────────
 
+// Set of compatName values that indicate a specific warframe augment
+// (frame name as compatName, e.g. "Volt", "Excalibur", "Khora")
+const KNOWN_GENERIC_COMPAT = new Set([
+    "WARFRAME","ANY","COMPANION","ROBOTIC","BEAST","AURA","PRIMARY","Melee","Pistol",
+    "Shotgun","Rifle","Assault Rifle","Sniper","Bow","K-Drive","Archwing","Necramech",
+    "Archgun","Archmelee","Moa","Hound","Kavat","Kubrow","Sentinel","Parazon",
+    "Tome","Claws","Daggers","Dual Daggers","Thrown Melee","",
+]);
+
 /**
- * Returns all categories a mod belongs to. A mod can belong to multiple categories
- * (e.g. Energy Siphon is both "warframe" and "aura").
+ * Returns all categories a mod belongs to.
+ * PRIMARY CLASSIFIER: All.json `type` field — it's authoritative.
+ * FALLBACK: mods.json ItemCompatibility for mods not in All.json.
+ *
+ * IMPORTANT: Do NOT use isAugment from All.json — it marks items that *accept* mods,
+ * not mods that are augments. Use type/compatName instead.
  */
 function classifyModCategories(entry: ModEntry): ModCategory[] {
     const path     = entry.path ?? "";
     const compat   = entry.data?.ItemCompatibility ?? "";
     const polarity = entry.data?.ArtifactPolarity ?? "";
 
-    // Check All.json for authoritative classification first
-    const allEntry = ALL_MODS_BY_PATH[path];
-    const compatName = allEntry?.compatName ?? "";
-    const modType = allEntry?.type ?? "";
+    const allEntry    = ALL_MODS_BY_PATH[path];
+    const modType     = allEntry?.type ?? "";
+    const compatName  = allEntry?.compatName ?? "";
 
-    // Tome (Grimoire invocation mods)
-    if (compat.includes("Grimoire") || path.includes("Invocation")) return ["tome"];
+    // ── All.json type field (authoritative) ──────────────────────────────────
+    switch (modType) {
+        case "Warframe Mod":
+            // Within warframe mods, check for sub-types:
+            if (compatName === "AURA") return ["aura", "warframe"];
+            if (allEntry?.isExilus) return ["exilus"];
+            // Specific warframe name = augment
+            if (compatName && !KNOWN_GENERIC_COMPAT.has(compatName)) return ["augment"];
+            return ["warframe"];
 
-    // Parazon — All.json compatName or path
-    if (compatName === "Parazon" || compat.includes("TnHackingDevice") || compat.includes("HackingDevice")) return ["parazon"];
+        case "Primary Mod":
+        case "Shotgun Mod":
+            return ["primary"];
 
-    // Antique
-    if (compat.includes("Antique") || (entry.parents ?? []).some(p => p.includes("Antique"))) return ["antique"];
+        case "Secondary Mod":
+            return ["secondary"];
 
-    // Stance mods
-    if (modType.includes("Stance")) {
-        // Map stance compat name to weapon category
-        const sc = compatName.toLowerCase();
-        if (sc.includes("arch")) return ["archmelee"];
-        return ["melee"];
+        case "Melee Mod":
+            return ["melee"];
+
+        case "Stance Mod":
+            // Arch-melee stances
+            if (compatName.toLowerCase().includes("arch")) return ["archmelee"];
+            return ["melee"];
+
+        case "Companion Mod": {
+            const cn = compatName.toUpperCase();
+            if (cn === "ROBOTIC" || cn === "SENTINEL") return ["robotic"];
+            if (cn === "BEAST") return ["beast"];
+            // MOA / Hound
+            if (compatName === "Moa" || compatName === "Hound") return ["robotic"];
+            if (compatName === "Kavat" || compatName === "Kubrow") return ["beast"];
+            return ["robotic"]; // fallback companion
+        }
+
+        case "Plexus Mod":
+        case "Railjack Mod":
+            return ["railjack"];
+
+        case "Arch-Gun Mod":
+            return ["archgun"];
+
+        case "Arch-Melee Mod":
+            return ["archmelee"];
+
+        case "Necramech Mod":
+        case "K-Drive Mod":
+        case "Archwing Mod":
+            return ["vehicles"];
+
+        case "Parazon Mod":
+            return ["parazon"];
+
+        case "Tektolyst Artifact Mod":
+            return ["antique"];
+
+        case "Tome Mod":
+            return ["tome"];
     }
 
-    // Aura — All.json compatName AURA, or /Aura/ path, or AP_WARD polarity
-    if (compatName === "AURA" || path.includes("/Mods/Aura/")) return ["aura", "warframe"];
-    if (polarity === "AP_WARD") return ["aura", "warframe"];
+    // ── Fallback: mods.json ItemCompatibility (for mods missing from All.json) ──
 
-    // Exilus — All.json isExilus flag or path
-    if (allEntry?.isExilus || path.toLowerCase().includes("exilus") || path.includes("OrokinChallenge")) return ["exilus"];
+    if (compat.includes("Grimoire") || path.includes("Invocation")) return ["tome"];
+    if (compat.includes("TnHackingDevice") || compat.includes("HackingDevice")) return ["parazon"];
+    if (compat.includes("Antique")) return ["antique"];
+    if (path.includes("/Mods/Aura/") || polarity === "AP_WARD") return ["aura", "warframe"];
+    if (path.includes("OrokinChallenge")) return ["exilus"];
+    if (compat.includes("ArchGun")) return ["archgun"];
+    if (compat.includes("ArchMeleeWeapon") || compat.includes("ArchMelee")) return ["archmelee"];
+    if (compat.includes("BaseMechSuit") || compat.includes("HoverboardSuit") || compat.includes("FlightJetPack")) return ["vehicles"];
+    if (compat.includes("SentinelPowerSuit") || compat.includes("ZanukaPet") || compat.includes("MoaPet")) return ["robotic"];
+    if (compat.includes("CatbrowPet") || compat.includes("BeastPet") || compat.includes("KubrowPet")) return ["beast"];
+    if (compat.includes("Railjack") || compat.includes("CrewShip")) return ["railjack"];
+    if (compat.includes("PlayerMeleeWeapon")) return ["melee"];
+    if (compat.includes("LotusPistol") || compat.includes("LotusAkimbo")) return ["secondary"];
+    if (compat.includes("LotusRifle") || compat.includes("LotusShotgun") || compat.includes("LotusBow") || compat.includes("LotusLongGun")) return ["primary"];
+    if (compat.includes("/Lotus/Powersuits/") && !compat.includes("PlayerPowerSuit")) return ["augment"];
 
-    // Augment — All.json isAugment flag or specific compat
-    if (allEntry?.isAugment ||
-        (compat.includes("/Lotus/Powersuits/") && !compat.includes("PlayerPowerSuit") && !compat.includes("OperatorSuit")) ||
-        (compat.includes("ExaltedSword") || compat.includes("ExaltedBow") || compat.includes("DoomSword"))
-    ) return ["augment"];
-
-    // Archgun
-    if (compatName === "Archgun" || compat.includes("ArchGun")) return ["archgun"];
-
-    // Archmelee
-    if (compatName === "Archmelee" || compat.includes("ArchMeleeWeapon") || compat.includes("ArchMelee")) return ["archmelee"];
-
-    // Vehicles (Necramech, Hoverboard/Yareli, Archwing suit)
-    if (compatName === "Necramech" || compatName === "Archwing" || compatName === "K-Drive" ||
-        compat.includes("BaseMechSuit") || compat.includes("HoverboardSuit") || compat.includes("FlightJetPack")) return ["vehicles"];
-
-    // Robotic companions
-    if (compatName === "ROBOTIC" || compatName === "Sentinel" || compatName === "Moa" || compatName === "Hound" ||
-        compat.includes("SentinelPowerSuit") || compat.includes("ZanukaPet") || compat.includes("MoaPet")) return ["robotic"];
-
-    // Beast companions
-    if (compatName === "BEAST" || compatName === "Kavat" || compatName === "Kubrow" ||
-        compat.includes("CatbrowPet") || compat.includes("BeastPet") || compat.includes("KubrowPet")) return ["beast"];
-
-    // Railjack — All.json type or compat
-    if (modType.toLowerCase().includes("railjack") || compatName.toLowerCase().includes("railjack") ||
-        compat.includes("Railjack") || compat.includes("CrewShip")) return ["railjack"];
-
-    // Melee
-    if (compatName === "Melee" || compatName === "Claws" || compatName === "Daggers" ||
-        compatName === "Dual Daggers" || compatName === "Thrown Melee" ||
-        compat.includes("PlayerMeleeWeapon") || compat.includes("LotusGlaiveWeapon")) return ["melee"];
-
-    // Secondary
-    if (compatName === "Pistol" || compat.includes("LotusPistol") || compat.includes("LotusAkimbo")) return ["secondary"];
-
-    // Primary
-    if (compatName === "Rifle" || compatName === "Shotgun" || compatName === "Bow" ||
-        compatName === "Assault Rifle" || compatName === "Sniper" || compatName === "PRIMARY" ||
-        compat.includes("LotusRifle") || compat.includes("LotusShotgun") || compat.includes("LotusBow") ||
-        compat.includes("LotusLongGun") || compat.includes("LotusBulletWeapon")) return ["primary"];
-
-    // Warframe generic
-    if (compatName === "WARFRAME" || compatName === "ANY" || compatName === "COMPANION" ||
-        compat.includes("PlayerPowerSuit") || compat === "") return ["warframe"];
-
-    return ["warframe"]; // fallback
+    return ["warframe"];
 }
 
 function classifyArcaneCategory(entry: ModEntry): ArcaneCategory | null {
@@ -615,11 +665,18 @@ function ModDetail({ entry, isRiven = false }: { entry: ModEntry; isRiven?: bool
                 <span className={["text-xs font-semibold px-2 py-0.5 rounded-full border", rarityColor(rarity), rarityBg(rarity)].join(" ")}>
                     {rarityRaw.charAt(0).toUpperCase() + rarityRaw.slice(1).toLowerCase()}
                 </span>
-                {polarity && (
-                    <span className="text-xs rounded-full px-2 py-0.5 border border-slate-600 bg-slate-800 text-slate-300">
-                        {polarityLabel(polarity)}
-                    </span>
-                )}
+                {polarity && (() => {
+                    const img = polImg(polarity);
+                    return img ? (
+                        <span className="rounded-full p-1 border border-slate-600 bg-slate-800 flex items-center justify-center w-6 h-6" title={polarityLabel(polarity)}>
+                            <img src={img} alt={polarityLabel(polarity)} className="w-4 h-4 object-contain" />
+                        </span>
+                    ) : (
+                        <span className="text-xs rounded-full px-2 py-0.5 border border-slate-600 bg-slate-800 text-slate-300">
+                            {polarityLabel(polarity)}
+                        </span>
+                    );
+                })()}
                 {maxRank > 0 && (
                     <span className="text-xs text-slate-400 ml-auto">Max Rank {maxRank}</span>
                 )}
@@ -968,14 +1025,27 @@ export default function Mods() {
                                         active={modPolarity === null}
                                         onClick={() => setModPolarity(null)}
                                     />
-                                    {POLARITIES.map(p => (
-                                        <SubPill
-                                            key={p.key}
-                                            label={p.label}
-                                            active={modPolarity === p.key}
-                                            onClick={() => setModPolarity(modPolarity === p.key ? null : p.key)}
-                                        />
-                                    ))}
+                                    {POLARITIES.map(p => {
+                                        const img = polImg(p.ap);
+                                        return (
+                                            <button
+                                                key={p.key}
+                                                title={p.label}
+                                                onClick={() => setModPolarity(modPolarity === p.key ? null : p.key)}
+                                                className={[
+                                                    "flex items-center gap-1.5 px-2 py-1 rounded-md text-xs border transition-colors",
+                                                    modPolarity === p.key
+                                                        ? "bg-slate-700 text-slate-100 border-slate-500"
+                                                        : "bg-transparent text-slate-400 border-slate-700 hover:bg-slate-800 hover:text-slate-200"
+                                                ].join(" ")}
+                                            >
+                                                {img
+                                                    ? <img src={img} alt={p.label} className="w-4 h-4 object-contain" />
+                                                    : <span>{p.label}</span>
+                                                }
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
@@ -1046,9 +1116,14 @@ export default function Mods() {
                                             onClick={() => setSelectedMod(isSelected ? null : e)}
                                         >
                                             <span className="flex-1 font-medium truncate">{e.name}</span>
-                                            {polarity && (
-                                                <span className="shrink-0 text-[11px] text-slate-500">{polarityLabel(polarity)}</span>
-                                            )}
+                                            {polarity && (() => {
+                                                const img = polImg(polarity);
+                                                return img ? (
+                                                    <img src={img} alt={polarityLabel(polarity)} title={polarityLabel(polarity)} className="shrink-0 w-4 h-4 object-contain opacity-60" />
+                                                ) : (
+                                                    <span className="shrink-0 text-[11px] text-slate-500">{polarityLabel(polarity)}</span>
+                                                );
+                                            })()}
                                             {rarity && (
                                                 <span className={["shrink-0 text-[11px] font-medium", rarityColor(rarity)].join(" ")}>{rarity}</span>
                                             )}
