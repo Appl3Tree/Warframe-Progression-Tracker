@@ -1,15 +1,54 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/Warframe-Progression-Tracker/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Warframe Progression Tracker</title>
-    <script type="module" crossorigin src="/Warframe-Progression-Tracker/assets/index-CJK6myJb.js"></script>
-    <link rel="stylesheet" crossorigin href="/Warframe-Progression-Tracker/assets/index-n-8NKBfl.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
-</html>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/Warframe-Progression-Tracker/vite.svg" />
 
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        />
+
+        <meta
+            http-equiv="Cache-Control"
+            content="no-cache, no-store, must-revalidate"
+        />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+
+        <title>Warframe Progression Tracker</title>
+
+        <script>
+            (() => {
+                const KEY = "wfpt:html-cache-bust-once";
+                const url = new URL(window.location.href);
+
+                if (!url.searchParams.has("__b")) {
+                    try {
+                        const alreadyBusted = sessionStorage.getItem(KEY) === "1";
+
+                        if (!alreadyBusted) {
+                            sessionStorage.setItem(KEY, "1");
+                            url.searchParams.set("__b", String(Date.now()));
+                            window.location.replace(url.toString());
+                        }
+                    } catch (_error) {
+                        url.searchParams.set("__b", String(Date.now()));
+                        window.location.replace(url.toString());
+                    }
+                } else {
+                    try {
+                        sessionStorage.removeItem(KEY);
+                    } catch (_error) {
+                        // ignore
+                    }
+                }
+            })();
+        </script>
+      <script type="module" crossorigin src="/Warframe-Progression-Tracker/assets/index-C6E4sM0m.js"></script>
+      <link rel="stylesheet" crossorigin href="/Warframe-Progression-Tracker/assets/index-n-8NKBfl.css">
+    </head>
+    <body>
+        <div id="root"></div>
+    </body>
+</html>
