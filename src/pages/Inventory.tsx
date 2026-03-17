@@ -1,6 +1,6 @@
 // ===== FILE: src/pages/Inventory.tsx =====
 // src/pages/Inventory.tsx
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import {
   FULL_CATALOG,
@@ -16,6 +16,14 @@ import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { getItemRequirements } from "../catalog/items/itemRequirements";
 import { uid, nowIso } from "../store/storeUtils";
+import ALL_RAW from "../data/All.json";
+
+const _statusImgs = import.meta.glob<string>("../assets/statuses/*.png", { eager: true, import: "default" });
+const STATUS_IMG_INV: Record<string, string> = {};
+for (const [p, url] of Object.entries(_statusImgs)) {
+  const name = p.split("/").pop()!.replace(".png", "").toLowerCase();
+  STATUS_IMG_INV[name] = url;
+}
 
 type SortKey =
   | "az"
@@ -32,7 +40,8 @@ type PrimaryTab =
   | "weapons"
   | "companions"
   | "components"
-  | "resources";
+  | "resources"
+  | "railjack";
 
 type WarframesVehiclesTab = "all" | "warframes" | "archwings" | "necramechs";
 type CompanionsTab =
@@ -59,18 +68,336 @@ function titleCase(s: string): string {
     .join(" ");
 }
 
-function safeInt(v: unknown, fallback = 0): number {
-  const n = typeof v === "number" ? v : Number(v);
-  if (!Number.isFinite(n)) return fallback;
-  return Math.max(0, Math.floor(n));
+// ─── All.json item index ───────────────────────────────────────────────────
+
+interface AllDrop {
+  chance: number;
+  location: string;
+  rarity: string;
+  type: string;
 }
-/** Build a Warframe wiki URL for any item name */
-function wikiUrl(name: string): string {
-  const slug = name.trim().replace(/\s+/g, "_");
-  return `https://wiki.warframe.com/w/${encodeURIComponent(slug)}`;
+interface AllComponent {
+  name: string;
+  uniqueName?: string;
+  description?: string;
+  itemCount?: number;
+  drops?: AllDrop[];
+}
+interface AllAbility {
+  name: string;
+  description: string;
+}
+interface AllItemEntry {
+  uniqueName: string;
+  name: string;
+  category: string;
+  description?: string;
+  passiveDescription?: string;
+  type?: string;
+  imageName?: string;
+  // Build
+  buildPrice?: number;
+  buildQuantity?: number;
+  buildTime?: number;
+  bpCost?: number;
+  consumeOnBuild?: boolean;
+  components?: AllComponent[];
+  // Mastery / release
+  masteryReq?: number;
+  releaseDate?: string;
+  introduced?: { name: string };
+  vaulted?: boolean;
+  vaultDate?: string;
+  tradable?: boolean;
+  isPrime?: boolean;
+  // Warframe stats
+  health?: number;
+  shield?: number;
+  armor?: number;
+  power?: number;
+  sprintSpeed?: number;
+  polarities?: string[];
+  aura?: string;
+  abilities?: AllAbility[];
+  exalted?: string[];
+  // Weapon stats
+  damage?: Record<string, number>;
+  totalDamage?: number;
+  criticalChance?: number;
+  criticalMultiplier?: number;
+  procChance?: number;
+  fireRate?: number;
+  magazineSize?: number;
+  reloadTime?: number;
+  accuracy?: number;
+  multishot?: number;
+  noise?: string;
+  trigger?: string;
+  slot?: number;
+  disposition?: number;
+  omegaAttenuation?: number;
+  // Melee specific
+  range?: number;
+  followThrough?: number;
+  comboDuration?: number;
+  heavyAttackDamage?: number;
+  slamAttack?: number;
+  slideAttack?: number;
+  stancePolarity?: string;
+  // Companion stats
+  stamina?: number;
+  // Drops
+  drops?: AllDrop[];
+  // Wiki
+  wikiaUrl?: string;
+  wikiaThumbnail?: string;
+  // Nightwave challenges
+  required?: number;
+  standing?: number;
 }
 
-/** Small unobtrusive wiki link icon */
+const ALL_BY_UNIQUE: Record<string, AllItemEntry> = {};
+const ALL_BY_NAME: Record<string, AllItemEntry> = {};
+for (const raw of ALL_RAW as AllItemEntry[]) {
+  if (raw.uniqueName) {
+    if (!ALL_BY_UNIQUE[raw.uniqueName]) ALL_BY_UNIQUE[raw.uniqueName] = raw;
+  }
+  if (raw.name && !ALL_BY_NAME[raw.name]) ALL_BY_NAME[raw.name] = raw;
+}
+
+function getAllEntry(
+  uniqueName?: string,
+  displayName?: string,
+): AllItemEntry | null {
+  if (uniqueName) {
+    const e = ALL_BY_UNIQUE[uniqueName];
+    if (e) return e;
+  }
+  if (displayName) {
+    const e = ALL_BY_NAME[displayName];
+    if (e) return e;
+  }
+  return null;
+}
+
+function fmtBuildTime(seconds: number): string {
+  if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
+  if (seconds < 86400) return `${(seconds / 3600).toFixed(0)}h`;
+  return `${(seconds / 86400).toFixed(0)}d`;
+}
+
+function fmtPct(v: number): string {
+  return `${Math.round(v * 100)}%`;
+}
+function fmtMult(v: number): string {
+  return `${v.toFixed(1)}x`;
+}
+
+const DISPOSITION_DOTS: Record<number, string> = {
+  1: "●○○○○",
+  2: "●●○○○",
+  3: "●●●○○",
+  4: "●●●●○",
+  5: "●●●●●",
+};
+const POLARITY_LABELS: Record<string, string> = {
+  madurai: "Madurai (V)",
+  naramon: "Naramon (−)",
+  vazarin: "Vazarin (D)",
+  zenurik: "Zenurik (=)",
+  unairu: "Unairu (⬡)",
+  umbra: "Umbra (⬟)",
+};
+
+function StatBox({
+  label,
+  value,
+  color = "text-slate-200",
+}: {
+  label: string;
+  value: string | number;
+  color?: string;
+}) {
+  return (
+    <div className="rounded-lg border border-slate-800 bg-slate-900/40 px-2.5 py-2">
+      <div className="text-[10px] uppercase tracking-wide text-slate-500 mb-0.5">
+        {label}
+      </div>
+      <div className={["text-sm font-semibold", color].join(" ")}>{value}</div>
+    </div>
+  );
+}
+function Label({
+  children,
+  color = "text-slate-400",
+}: {
+  children: React.ReactNode;
+  color?: string;
+}) {
+  return (
+    <div
+      className={[
+        "text-xs uppercase tracking-wide font-semibold mb-2",
+        color,
+      ].join(" ")}
+    >
+      {children}
+    </div>
+  );
+}
+
+const KNOWN_SYNDICATE_PREFIXES_INV = [
+  "New Loka", "Steel Meridian", "Arbiters of Hexis", "Cephalon Suda",
+  "The Perrin Sequence", "Red Veil", "Conclave", "Cephalon Simaris",
+  "Operational Supply", "The Quills", "Vox Solaris", "Ventkids",
+  "Ostron", "Solaris United", "Entrati", "The Holdfasts", "NecraLoid",
+  "Kahl's Garrison", "Arbitrations",
+];
+
+function classifyDropInv(location: string): "syndicate" | "enemy" | "mission" | "relic" | "other" {
+  if (location.includes("Relic")) return "relic";
+  if (/^[A-Z][a-zA-Z ]+\/[A-Z]/.test(location) || location.startsWith("Duviri/")) return "mission";
+  const commaIdx = location.indexOf(", ");
+  if (commaIdx > 0) {
+    const org = location.slice(0, commaIdx);
+    if (KNOWN_SYNDICATE_PREFIXES_INV.some(p => org.startsWith(p))) return "syndicate";
+  }
+  if (!location.includes("/") && !location.includes(", ")) return "enemy";
+  return "other";
+}
+
+function InvDropRow({ d, small = false }: {
+  d: { chance: number; location: string; rarity: string; type?: string };
+  small?: boolean;
+}) {
+  const kind = classifyDropInv(d.location);
+  const sz = small ? "text-[10px]" : "text-xs";
+  const rarityClass =
+    d.rarity === "Common" ? "text-slate-400" :
+    d.rarity === "Uncommon" ? "text-blue-300" :
+    d.rarity === "Rare" ? "text-amber-300" : "text-rose-300";
+
+  const wikiIconSvg = (
+    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
+    </svg>
+  );
+
+  if (kind === "syndicate") {
+    const commaIdx = d.location.indexOf(", ");
+    const syndName = commaIdx > 0 ? d.location.slice(0, commaIdx) : d.location;
+    const rankLabel = commaIdx > 0 ? d.location.slice(commaIdx + 2) : "";
+    return (
+      <div className={["flex items-center gap-1.5 rounded px-2 py-1 bg-indigo-950/20 border border-indigo-800/30", sz].join(" ")}>
+        <span className="text-[9px] font-semibold uppercase tracking-wide text-indigo-400 shrink-0">Purchase</span>
+        <a href={wikiUrl(syndName)} target="_blank" rel="noopener noreferrer"
+          className="flex-1 truncate text-slate-300 hover:text-indigo-300 hover:underline transition-colors">{syndName}</a>
+        {rankLabel && <span className="shrink-0 text-slate-500">{rankLabel}</span>}
+        <a href={wikiUrl(syndName)} target="_blank" rel="noopener noreferrer"
+          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIconSvg}</a>
+      </div>
+    );
+  }
+
+  if (kind === "enemy") {
+    const farmUrl = `https://wiki.warframe.com/w/${encodeURIComponent(d.location.trim().replace(/\s+/g, "_"))}#Farming_Locations`;
+    return (
+      <div className={["flex items-center gap-1.5 rounded px-2 py-1 bg-slate-900/40 border border-slate-800/50", sz].join(" ")}>
+        <a href={farmUrl} target="_blank" rel="noopener noreferrer"
+          className="flex-1 truncate text-slate-300 hover:text-cyan-300 hover:underline transition-colors">{d.location}</a>
+        <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
+        <span className="font-mono text-slate-500 shrink-0">{(d.chance * 100).toFixed(2)}%</span>
+        <a href={farmUrl} target="_blank" rel="noopener noreferrer"
+          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIconSvg}</a>
+      </div>
+    );
+  }
+
+  return (
+    <div className={["flex items-center gap-1.5 rounded px-2 py-1 bg-slate-900/40 border border-slate-800/50", sz].join(" ")}>
+      <span className="flex-1 truncate text-slate-300">{d.location}</span>
+      <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
+      <span className="font-mono text-slate-500 shrink-0">{(d.chance * 100).toFixed(2)}%</span>
+    </div>
+  );
+}
+
+
+/** Render a description string, replacing DT_ status tags and |VAR| placeholders */
+
+const DT_TO_IMG_INV: Record<string, string> = {
+  dt_corrosive_color: "essentialcorrosiveglyph", dt_corrosive: "essentialcorrosiveglyph",
+  dt_electricity_color: "electricmodbundleicon", dt_electricity: "electricmodbundleicon",
+  dt_explosion_color: "essentialblastglyph",    dt_explosion: "essentialblastglyph",
+  dt_fire_color: "heatmodbundleicon",            dt_fire: "heatmodbundleicon",
+  dt_freeze_color: "coldmodbundleicon",          dt_freeze: "coldmodbundleicon",
+  dt_gas_color: "essentialgasglyph",             dt_gas: "essentialgasglyph",
+  dt_impact_color: "essentialimpactglyph",
+  dt_magnetic_color: "essentialmagneticglyph",  dt_magnetic: "essentialmagneticglyph",
+  dt_poison_color: "toxinmodbundleicon",         dt_poison: "toxinmodbundleicon",
+  dt_puncture_color: "essentialpunctureglyph",
+  dt_radiant_color: "essentialradiationglyph",
+  dt_radiation_color: "essentialradiationglyph", dt_radiation: "essentialradiationglyph",
+  dt_sentient_color: "essentialtauglyph",        dt_sentient: "essentialtauglyph",
+  dt_slash_color: "essentialslashglyph",         dt_slash: "essentialslashglyph",
+  dt_viral_color: "essentialviralglyph",         dt_viral: "essentialviralglyph",
+};
+
+function renderDesc(text: string, values?: Record<string, string | number>): React.ReactNode {
+  const cleaned = text
+    .replace(/\n/g, "\n")
+    .replace(/<LINE_SEPARATOR>/g, " · ")
+    .replace(/<LOWER_IS_BETTER>/g, "")
+    .replace(/<[A-Z_]+_SECONDARY_COLOR>/g, "")
+    .replace(/<\/[A-Z_]+_SECONDARY_COLOR>/g, "")
+    .replace(/<(?!DT_)[A-Z_]+>/g, "");
+
+  const parts = cleaned.split(/(<DT_[A-Z_]+>|\|[A-Z_0-9]+\|)/);
+  if (parts.length === 1) return <>{cleaned}</>;
+
+  const nodes: React.ReactNode[] = [];
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    if (part.startsWith("|") && part.endsWith("|")) {
+      const varName = part.slice(1, -1);
+      const resolved = values?.[varName] ?? values?.[varName.toLowerCase()];
+      if (resolved !== undefined) {
+        nodes.push(<span key={i} className="text-slate-100 font-semibold">{resolved}</span>);
+      } else {
+        const label = varName.toLowerCase().replace(/_/g, " ");
+        nodes.push(
+          <span
+            key={i}
+            className="inline-flex items-center rounded px-1 text-[10px] font-mono bg-slate-700/60 text-slate-400 border border-slate-600/50 mx-0.5"
+            title="Exact value scales with Warframe stats and mods"
+          >
+            {label}
+          </span>
+        );
+      }
+    } else if (part.startsWith("<DT_") && part.endsWith(">")) {
+      const key = part.slice(1, -1).toLowerCase();
+      const imgUrl = DT_TO_IMG_INV[key] ? STATUS_IMG_INV[DT_TO_IMG_INV[key]] : null;
+      if (imgUrl) {
+        nodes.push(
+          <img key={i} src={imgUrl}
+            alt={key.replace("dt_", "").replace("_color", "")}
+            title={key.replace("dt_", "").replace(/_color$/, "").replace(/_/g, " ")}
+            className="inline w-3.5 h-3.5 object-contain mx-0.5 -mt-0.5"
+          />
+        );
+      }
+    } else if (part) {
+      nodes.push(<span key={i}>{part}</span>);
+    }
+  }
+  return <>{nodes}</>;
+}
+
+function wikiUrl(name: string): string {
+  return `https://wiki.warframe.com/w/${encodeURIComponent(name.trim().replace(/\s+/g, "_"))}`;
+}
 function WikiLink({ name }: { name: string }) {
   return (
     <a
@@ -95,6 +422,12 @@ function WikiLink({ name }: { name: string }) {
       </svg>
     </a>
   );
+}
+
+function safeInt(v: unknown, fallback = 0): number {
+  const n = typeof v === "number" ? v : Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(0, Math.floor(n));
 }
 
 function Section(props: { title: string; children: ReactNode }) {
@@ -1022,7 +1355,8 @@ export default function Inventory() {
     const plexusQ = normalize(query);
     if (
       !plexusQ ||
-      "plexus".includes(plexusQ)
+      "plexus".includes(plexusQ) ||
+      "railjack".includes(plexusQ)
     ) {
       base.push({
         id: PLEXUS_ID,
@@ -1120,6 +1454,13 @@ export default function Inventory() {
   }, [rows, weaponClassTab]);
 
   const filtered = useMemo(() => {
+    // Railjack tab — shows Plexus (which is in the warframesVehicles group)
+    if (primaryTab === "railjack") {
+      return rows.filter(
+        (r) => r.path === "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness",
+      );
+    }
+
     // "All" tab — show warframes, weapons, companions including Plexus synthetic row
     if (primaryTab === "all") {
       return rows.filter((r) => {
@@ -1693,6 +2034,11 @@ export default function Inventory() {
               active={primaryTab === "resources"}
               onClick={() => selectPrimaryTab("resources")}
             />
+            <TabButton
+              label="Railjack"
+              active={primaryTab === "railjack"}
+              onClick={() => selectPrimaryTab("railjack")}
+            />
           </div>
 
           {primaryTab === "warframesVehicles" && (
@@ -1979,7 +2325,6 @@ export default function Inventory() {
                         >
                           {r.label}
                         </button>
-                        <WikiLink name={r.label} />
                       </div>
 
                       {/* Count with +/- buttons */}
@@ -2099,9 +2444,9 @@ export default function Inventory() {
         (() => {
           const rec: any = FULL_CATALOG.recordsById[selectedDetailId];
           const name = rec?.displayName ?? String(selectedDetailId);
-          const categories: string[] = Array.isArray(rec?.categories)
-            ? rec.categories
-            : [];
+          const uniqueName = String(selectedDetailId).replace(/^[^:]+:/, "");
+          const allE = getAllEntry(uniqueName, name);
+
           const acq = getAcquisitionByCatalogId(selectedDetailId);
           const sources: string[] = Array.isArray(acq?.sources)
             ? (acq.sources as string[])
@@ -2120,13 +2465,8 @@ export default function Inventory() {
                   masteryRank,
                 )
               : [];
-          const masteryReq =
-            typeof (rec?.raw as any)?.masteryReq === "number"
-              ? (rec.raw as any).masteryReq
-              : null;
           const isOwned = safeInt(counts[String(selectedDetailId)] ?? 0, 0) > 0;
           const isMastered = mastered[String(selectedDetailId)] === true;
-
           const availColor =
             avail === "available"
               ? "text-emerald-400"
@@ -2140,70 +2480,395 @@ export default function Inventory() {
                 ? "Partial Access"
                 : "Blocked";
 
+          const cat = allE?.category ?? "";
+          const isWeapon = [
+            "Primary",
+            "Secondary",
+            "Melee",
+            "Arch-Gun",
+            "Arch-Melee",
+          ].includes(cat);
+          const isFrame = cat === "Warframes" || cat === "Archwing";
+          const isCompanion = cat === "Sentinels" || cat === "Pets";
+
+          // Collect all drops — item-level + component-level
+          const allDrops: Array<{
+            source: string;
+            drops: AllItemEntry["drops"];
+          }> = [];
+          if (allE?.drops && allE.drops.length > 0)
+            allDrops.push({ source: name, drops: allE.drops });
+          if (allE?.components) {
+            for (const comp of allE.components) {
+              if (comp.drops && comp.drops.length > 0) {
+                allDrops.push({ source: comp.name, drops: comp.drops });
+              }
+            }
+          }
+
+          // Damage breakdown — non-zero damage types only
+          const dmgTypes = allE?.damage
+            ? Object.entries(allE.damage)
+                .filter(
+                  ([k, v]) =>
+                    v > 0 &&
+                    ![
+                      "total",
+                      "shieldDrain",
+                      "healthDrain",
+                      "energyDrain",
+                      "cinematic",
+                      "true",
+                      "void",
+                      "tau",
+                    ].includes(k),
+                )
+                .sort(([, a], [, b]) => b - a)
+            : [];
+
           return (
-            <Section title={`Item Detail: ${name}`}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
-                      Status
-                    </div>
-                    <div className="flex flex-wrap gap-2 items-center">
-                      <span
-                        className={["text-sm font-semibold", availColor].join(
-                          " ",
-                        )}
-                      >
-                        {availLabel}
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedDetailId(null)} />
+              <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl overflow-hidden">
+                {/* Modal header */}
+                <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 shrink-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-base font-semibold text-slate-100 truncate">{name}</span>
+                    <WikiLink name={name} />
+                  </div>
+                  <button
+                    className="shrink-0 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
+                    onClick={() => setSelectedDetailId(null)}
+                  >Close</button>
+                </div>
+                {/* Modal body */}
+                <div className="overflow-y-auto flex-1 p-5">
+              {/* ── Header row ── */}
+              <div className="flex items-start gap-3 mb-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    {allE?.isPrime && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded border border-amber-600/50 bg-amber-950/30 text-amber-300 font-semibold">
+                        PRIME
                       </span>
-                      {isOwned && (
-                        <span className="text-xs rounded-full border border-emerald-700 bg-emerald-950/30 px-2 py-0.5 text-emerald-300">
-                          Owned
-                        </span>
+                    )}
+                    {allE?.vaulted && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded border border-rose-700/50 bg-rose-950/30 text-rose-300 font-semibold">
+                        VAULTED
+                      </span>
+                    )}
+                    {allE?.tradable && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-600 bg-slate-800 text-slate-400">
+                        Tradable
+                      </span>
+                    )}
+                    {isOwned && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded border border-emerald-700 bg-emerald-950/30 text-emerald-300">
+                        Owned
+                      </span>
+                    )}
+                    {isMastered && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded border border-cyan-700 bg-cyan-950/30 text-cyan-300">
+                        Mastered
+                      </span>
+                    )}
+                    <span
+                      className={["text-xs font-semibold", availColor].join(
+                        " ",
                       )}
-                      {isMastered && (
-                        <span className="text-xs rounded-full border border-cyan-700 bg-cyan-950/30 px-2 py-0.5 text-cyan-300">
-                          Mastered
-                        </span>
-                      )}
-                      <WikiLink name={name} />
-                    </div>
+                    >
+                      {availLabel}
+                    </span>
+                  </div>
+                  {allE?.description && (
+                    <p className="text-sm text-slate-400 leading-relaxed">
+                      {renderDesc(allE.description, allE.required !== undefined ? { COUNT: allE.required } : undefined)}
+                    </p>
+                  )}
+                  {allE?.passiveDescription && (
+                    <p className="text-xs text-slate-500 mt-1 italic">
+                      Passive: {renderDesc(allE.passiveDescription)}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* ── LEFT COLUMN ── */}
+                <div className="space-y-4">
+                  {/* Mastery / release / type */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {(allE?.masteryReq ?? 0) > 0 && (
+                      <StatBox
+                        label="Mastery Required"
+                        value={`MR ${allE!.masteryReq}`}
+                      />
+                    )}
+                    {allE?.type && <StatBox label="Type" value={allE.type} />}
+                    {allE?.releaseDate && (
+                      <StatBox label="Released" value={allE.releaseDate} />
+                    )}
+                    {allE?.introduced?.name && (
+                      <StatBox
+                        label="Introduced"
+                        value={allE.introduced.name}
+                      />
+                    )}
+                    {allE?.vaultDate && (
+                      <StatBox
+                        label="Vaulted"
+                        value={allE.vaultDate}
+                        color="text-rose-300"
+                      />
+                    )}
+                    {isWeapon && allE?.slot !== undefined && (
+                      <StatBox
+                        label="Slot"
+                        value={
+                          allE.slot === 0
+                            ? "Primary"
+                            : allE.slot === 1
+                              ? "Secondary"
+                              : allE.slot === 2
+                                ? "Melee"
+                                : String(allE.slot)
+                        }
+                      />
+                    )}
                   </div>
 
-                  {masteryReq !== null && (
+                  {/* Warframe stats */}
+                  {(isFrame || isCompanion) && (
                     <div>
-                      <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
-                        Mastery Required
-                      </div>
-                      <div className="text-sm text-slate-200">
-                        MR {masteryReq}
+                      <Label>Base Stats</Label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {allE?.health && (
+                          <StatBox label="Health" value={allE.health} />
+                        )}
+                        {allE?.shield && (
+                          <StatBox label="Shield" value={allE.shield} />
+                        )}
+                        {allE?.armor && (
+                          <StatBox label="Armor" value={allE.armor} />
+                        )}
+                        {allE?.power && (
+                          <StatBox label="Energy" value={allE.power} />
+                        )}
+                        {allE?.sprintSpeed && (
+                          <StatBox
+                            label="Sprint"
+                            value={allE.sprintSpeed.toFixed(2)}
+                          />
+                        )}
+                        {allE?.stamina && (
+                          <StatBox label="Stamina" value={allE.stamina} />
+                        )}
                       </div>
                     </div>
                   )}
 
-                  {categories.length > 0 && (
+                  {/* Abilities */}
+                  {isFrame && allE?.abilities && allE.abilities.length > 0 && (
                     <div>
-                      <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
-                        Categories
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {categories.slice(0, 8).map((c) => (
-                          <span
-                            key={c}
-                            className="text-xs rounded border border-slate-700 bg-slate-900 px-2 py-0.5 text-slate-300"
+                      <Label>Abilities</Label>
+                      <div className="space-y-1.5">
+                        {allE.abilities.map((ab, i) => (
+                          <div
+                            key={i}
+                            className="rounded-lg border border-slate-800 bg-slate-900/40 px-3 py-2"
                           >
-                            {c}
-                          </span>
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <span className="text-[10px] text-slate-600 font-mono">
+                                {i + 1}
+                              </span>
+                              <span className="text-xs font-semibold text-slate-200">
+                                {ab.name}
+                              </span>
+                              <WikiLink name={ab.name} />
+                            </div>
+                            <p className="text-[11px] text-slate-400 leading-relaxed">
+                              {renderDesc(ab.description)}
+                            </p>
+                          </div>
                         ))}
                       </div>
                     </div>
                   )}
 
+                  {/* Polarities */}
+                  {(isFrame || isCompanion) &&
+                    allE?.polarities &&
+                    allE.polarities.length > 0 && (
+                      <div>
+                        <Label>Polarities</Label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {allE.polarities.map((p, i) => (
+                            <span
+                              key={i}
+                              className="text-xs rounded border border-slate-700 bg-slate-800 px-2 py-0.5 text-slate-300"
+                            >
+                              {POLARITY_LABELS[p] ?? p}
+                            </span>
+                          ))}
+                          {allE.aura && (
+                            <span className="text-xs rounded border border-slate-700 bg-slate-800 px-2 py-0.5 text-slate-300">
+                              Aura: {POLARITY_LABELS[allE.aura] ?? allE.aura}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Weapon stats */}
+                  {isWeapon && (
+                    <div>
+                      <Label>Stats</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {allE?.totalDamage && (
+                          <StatBox
+                            label="Total Damage"
+                            value={allE.totalDamage}
+                            color="text-orange-300"
+                          />
+                        )}
+                        {allE?.criticalChance !== undefined && (
+                          <StatBox
+                            label="Crit Chance"
+                            value={fmtPct(allE.criticalChance)}
+                            color="text-yellow-300"
+                          />
+                        )}
+                        {allE?.criticalMultiplier !== undefined && (
+                          <StatBox
+                            label="Crit Multiplier"
+                            value={fmtMult(allE.criticalMultiplier)}
+                            color="text-yellow-300"
+                          />
+                        )}
+                        {allE?.procChance !== undefined && (
+                          <StatBox
+                            label="Status Chance"
+                            value={fmtPct(allE.procChance)}
+                          />
+                        )}
+                        {allE?.fireRate !== undefined && (
+                          <StatBox
+                            label={
+                              cat === "Melee" ? "Attack Speed" : "Fire Rate"
+                            }
+                            value={allE.fireRate.toFixed(2)}
+                          />
+                        )}
+                        {allE?.magazineSize && (
+                          <StatBox label="Magazine" value={allE.magazineSize} />
+                        )}
+                        {allE?.reloadTime !== undefined && (
+                          <StatBox
+                            label="Reload"
+                            value={`${allE.reloadTime.toFixed(1)}s`}
+                          />
+                        )}
+                        {allE?.accuracy && (
+                          <StatBox
+                            label="Accuracy"
+                            value={allE.accuracy.toFixed(1)}
+                          />
+                        )}
+                        {allE?.multishot && allE.multishot > 1 && (
+                          <StatBox label="Multishot" value={allE.multishot} />
+                        )}
+                        {allE?.noise && (
+                          <StatBox label="Noise" value={allE.noise} />
+                        )}
+                        {allE?.trigger && (
+                          <StatBox label="Trigger" value={allE.trigger} />
+                        )}
+                        {/* Melee specific */}
+                        {allE?.range && (
+                          <StatBox
+                            label="Range"
+                            value={`${allE.range.toFixed(1)}m`}
+                          />
+                        )}
+                        {allE?.followThrough !== undefined && (
+                          <StatBox
+                            label="Follow Through"
+                            value={fmtPct(allE.followThrough)}
+                          />
+                        )}
+                        {allE?.comboDuration && (
+                          <StatBox
+                            label="Combo Duration"
+                            value={`${allE.comboDuration}s`}
+                          />
+                        )}
+                        {allE?.heavyAttackDamage && (
+                          <StatBox
+                            label="Heavy Attack"
+                            value={allE.heavyAttackDamage}
+                          />
+                        )}
+                        {allE?.slamAttack && (
+                          <StatBox
+                            label="Slam Attack"
+                            value={allE.slamAttack}
+                          />
+                        )}
+                        {allE?.slideAttack && (
+                          <StatBox
+                            label="Slide Attack"
+                            value={allE.slideAttack}
+                          />
+                        )}
+                        {allE?.stancePolarity && (
+                          <StatBox
+                            label="Stance Polarity"
+                            value={
+                              POLARITY_LABELS[allE.stancePolarity] ??
+                              allE.stancePolarity
+                            }
+                          />
+                        )}
+                        {/* Riven disposition */}
+                        {allE?.disposition !== undefined && (
+                          <StatBox
+                            label="Riven Disposition"
+                            value={
+                              DISPOSITION_DOTS[allE.disposition] ??
+                              String(allE.disposition)
+                            }
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Damage breakdown */}
+                  {dmgTypes.length > 0 && (
+                    <div>
+                      <Label>Damage Breakdown</Label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {dmgTypes.map(([type, val]) => (
+                          <div
+                            key={type}
+                            className="flex items-center justify-between rounded border border-slate-800 bg-slate-900/40 px-2 py-1"
+                          >
+                            <span className="text-[11px] text-slate-400 capitalize">
+                              {type}
+                            </span>
+                            <span className="text-[11px] font-mono text-slate-200">
+                              {val.toFixed(1)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Blocking reasons */}
                   {blockingReasons.length > 0 && (
                     <div>
-                      <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
-                        Blocking Reasons
-                      </div>
+                      <Label color="text-rose-400">Prerequisites Needed</Label>
                       <ul className="space-y-1">
                         {blockingReasons.map((r, i) => (
                           <li
@@ -2219,36 +2884,202 @@ export default function Inventory() {
                   )}
                 </div>
 
+                {/* ── RIGHT COLUMN ── */}
                 <div className="space-y-4">
-                  {sources.length > 0 && (
+                  {/* Build info */}
+                  {(allE?.buildPrice || allE?.buildTime || allE?.bpCost) && (
                     <div>
-                      <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
-                        Acquisition Sources ({sources.length})
+                      <Label>Build Requirements</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {allE.buildPrice && (
+                          <StatBox
+                            label="Credits"
+                            value={allE.buildPrice.toLocaleString()}
+                          />
+                        )}
+                        {allE.bpCost && allE.bpCost !== allE.buildPrice && (
+                          <StatBox
+                            label="Blueprint"
+                            value={`${allE.bpCost.toLocaleString()} cr`}
+                          />
+                        )}
+                        {allE.buildTime && (
+                          <StatBox
+                            label="Build Time"
+                            value={fmtBuildTime(allE.buildTime)}
+                          />
+                        )}
+                        {allE.buildQuantity && allE.buildQuantity > 1 && (
+                          <StatBox
+                            label="Quantity"
+                            value={`×${allE.buildQuantity}`}
+                          />
+                        )}
+                        {allE.consumeOnBuild !== undefined && (
+                          <StatBox
+                            label="Consumes BP"
+                            value={allE.consumeOnBuild ? "Yes" : "No"}
+                          />
+                        )}
                       </div>
-                      <ul className="space-y-1 max-h-40 overflow-auto">
-                        {sources.slice(0, 20).map((s) => {
-                          const label = SOURCE_INDEX[s as any]?.label ?? s;
+                    </div>
+                  )}
+
+                  {/* Components with their drops */}
+                  {allE?.components && allE.components.length > 0 && (
+                    <div>
+                      <Label>Components</Label>
+                      <div className="space-y-1.5">
+                        {allE.components.map((comp, i) => {
+                          const hasDrops = comp.drops && comp.drops.length > 0;
                           return (
-                            <li key={s} className="text-xs text-slate-300">
-                              {label}
-                            </li>
+                            <div
+                              key={i}
+                              className="rounded-lg border border-slate-800 bg-slate-900/30 px-3 py-2"
+                            >
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs font-medium text-slate-200">
+                                  {comp.name}
+                                </span>
+                                {comp.itemCount && comp.itemCount > 1 && (
+                                  <span className="text-[10px] text-slate-500">
+                                    ×{comp.itemCount}
+                                  </span>
+                                )}
+                                {/* Item-specific parts (/Recipes/) → parent item #Acquisition
+                                    Generic resources (/MiscItems/ etc.) → their own wiki page */}
+                                {comp.uniqueName && /\/Recipes\//.test(comp.uniqueName) ? (
+                                  <a href={wikiUrl(name) + "#Acquisition"} target="_blank" rel="noopener noreferrer"
+                                    title={`Find ${comp.name} on the ${name} wiki page`}
+                                    className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">
+                                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                      <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
+                                    </svg>
+                                  </a>
+                                ) : (
+                                  <WikiLink name={comp.name} />
+                                )}
+                                {!hasDrops && (
+                                  <a
+                                    href={comp.uniqueName && /\/Recipes\//.test(comp.uniqueName)
+                                      ? wikiUrl(name) + "#Acquisition"
+                                      : wikiUrl(comp.name) + "#Acquisition"}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="ml-auto text-[10px] text-slate-600 hover:text-slate-300 transition-colors"
+                                  >
+                                    Where to farm ↗
+                                  </a>
+                                )}
+                              </div>
+                              {hasDrops && (
+                                <div className="space-y-0.5 max-h-32 overflow-y-auto">
+                                  {[...comp.drops!]
+                                    .sort((a,b) => {
+                                      const aS = classifyDropInv(a.location) === "syndicate";
+                                      const bS = classifyDropInv(b.location) === "syndicate";
+                                      if (aS !== bS) return aS ? -1 : 1;
+                                      return b.chance - a.chance;
+                                    })
+                                    .slice(0, 8)
+                                    .map((d, j) => <InvDropRow key={j} d={d} small />)}
+                                  {comp.drops!.length > 8 && (
+                                    <div className="text-[10px] text-slate-600">
+                                      +{comp.drops!.length - 8} more locations
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           );
                         })}
-                        {sources.length > 20 && (
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Direct item drops (non-prime, resources, relics, gear) */}
+                  {allE?.drops &&
+                    allE.drops.length > 0 &&
+                    (!allE.components || allE.components.length === 0) && (
+                      <div>
+                        <Label>Acquisition</Label>
+                        <div className="space-y-0.5 max-h-48 overflow-y-auto">
+                          {[...allE.drops]
+                            .sort((a,b) => {
+                              const aS = classifyDropInv(a.location) === "syndicate";
+                              const bS = classifyDropInv(b.location) === "syndicate";
+                              if (aS !== bS) return aS ? -1 : 1;
+                              return b.chance - a.chance;
+                            })
+                            .slice(0, 20)
+                            .map((d, i) => <InvDropRow key={i} d={d} />)}
+                          {allE.drops.length > 20 && (
+                            <div className="text-xs text-slate-600 px-2">
+                              +{allE.drops.length - 20} more
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* No drop data */}
+                  {(!allE?.drops || allE.drops.length === 0) &&
+                    (!allE?.components ||
+                      allE.components.every(
+                        (c) => !c.drops || c.drops.length === 0,
+                      )) && (
+                      <div>
+                        <Label>Drop Locations</Label>
+                        <div className="text-xs text-slate-500 flex items-center gap-2">
+                          No drop data available.
+                          <a
+                            href={wikiUrl(name) + "#Acquisition"}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-slate-600 hover:text-slate-300 transition-colors flex items-center gap-1"
+                          >
+                            <svg
+                              className="w-3 h-3"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                              <polyline points="15 3 21 3 21 9" />
+                              <line x1="10" y1="14" x2="21" y2="3" />
+                            </svg>
+                            Wiki
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Acquisition sources from catalog */}
+                  {sources.length > 0 && (
+                    <div>
+                      <Label>Acquisition ({sources.length})</Label>
+                      <ul className="space-y-0.5 max-h-32 overflow-auto">
+                        {sources.slice(0, 15).map((s) => (
+                          <li key={s} className="text-xs text-slate-300">
+                            {SOURCE_INDEX[s as any]?.label ?? s}
+                          </li>
+                        ))}
+                        {sources.length > 15 && (
                           <li className="text-xs text-slate-500">
-                            +{sources.length - 20} more
+                            +{sources.length - 15} more
                           </li>
                         )}
                       </ul>
                     </div>
                   )}
 
+                  {/* Recipe / crafting components from catalog */}
                   {recipe.length > 0 && (
                     <div>
-                      <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
-                        Recipe Components ({recipe.length})
-                      </div>
-                      <ul className="space-y-1 max-h-40 overflow-auto">
+                      <Label>Crafting Recipe</Label>
+                      <ul className="space-y-0.5">
                         {recipe.map((comp) => {
                           const compRec: any =
                             FULL_CATALOG.recordsById[comp.catalogId];
@@ -2257,33 +3088,25 @@ export default function Inventory() {
                           return (
                             <li
                               key={String(comp.catalogId)}
-                              className="text-xs text-slate-300"
+                              className="flex items-center gap-1.5 text-xs text-slate-300"
                             >
-                              {comp.count}x {compName}
+                              <span className="text-slate-500 font-mono">
+                                ×{comp.count}
+                              </span>
+                              <span>{compName}</span>
+                              <WikiLink name={compName} />
                             </li>
                           );
                         })}
                       </ul>
                     </div>
                   )}
-
-                  {sources.length === 0 && recipe.length === 0 && (
-                    <div className="text-sm text-slate-500">
-                      No acquisition data found for this item.
-                    </div>
-                  )}
                 </div>
               </div>
 
-              <div className="mt-4 flex justify-end">
-                <button
-                  className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-900"
-                  onClick={() => setSelectedDetailId(null)}
-                >
-                  Close
-                </button>
               </div>
-            </Section>
+              </div>
+            </div>
           );
         })()}
     </div>

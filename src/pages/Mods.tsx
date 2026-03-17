@@ -7,7 +7,13 @@ import MODDESC_RAW from "../data/moddescriptions.json";
 import ALL_RAW from "../data/All.json";
 import MOD_LOCATIONS_RAW from "../../external/warframe-drop-data/raw/modLocations.json";
 
-// Build a lookup from All.json keyed by uniqueName — gives us levelStats, isExilus, rarity, fusionLimit
+// Build a lookup from All.json keyed by uniqueName — includes Mods + Arcanes
+interface AllModDrop {
+  chance: number;
+  location: string;
+  rarity: string;
+  type: string;
+}
 interface AllModEntry {
   uniqueName: string;
   name: string;
@@ -19,16 +25,44 @@ interface AllModEntry {
   fusionLimit?: number;
   isExilus?: boolean;
   isAugment?: boolean;
+  isUtility?: boolean;
+  isPrime?: boolean;
+  imageName?: string;
   levelStats?: { stats: string[] }[];
+  drops?: AllModDrop[];
+  introduced?: { name: string; date?: string };
+  releaseDate?: string;
+  tradable?: boolean;
+  transmutable?: boolean;
+  description?: string;
+  modSet?: string;
+  modSetValues?: number[];
+  polarity?: string;
+  wikiaThumbnail?: string;
+  wikiaUrl?: string;
 }
 const ALL_MODS_BY_PATH: Record<string, AllModEntry> = {};
+// Name-based fallback — used when mods.json path doesn't match All.json uniqueName
+const ALL_MODS_BY_NAME: Record<string, AllModEntry> = {};
+// Arcane lookup by name (arcanes use name not uniqueName as key in some contexts)
+const ALL_ARCANES_BY_NAME: Record<string, AllModEntry> = {};
 for (const item of ALL_RAW as AllModEntry[]) {
-  if (item.uniqueName && item.category === "Mods") {
-    // Prefer entries with levelStats when there are duplicates
+  if (!item.uniqueName) continue;
+  if (item.category === "Mods") {
     const existing = ALL_MODS_BY_PATH[item.uniqueName];
     if (!existing || (item.levelStats && !existing.levelStats)) {
       ALL_MODS_BY_PATH[item.uniqueName] = item as AllModEntry;
     }
+    // Name index — prefer entries with levelStats
+    if (item.name) {
+      const existingByName = ALL_MODS_BY_NAME[item.name];
+      if (!existingByName || (item.levelStats && !existingByName.levelStats)) {
+        ALL_MODS_BY_NAME[item.name] = item as AllModEntry;
+      }
+    }
+  } else if (item.category === "Arcanes") {
+    if (item.name) ALL_ARCANES_BY_NAME[item.name] = item as AllModEntry;
+    ALL_MODS_BY_PATH[item.uniqueName] = item as AllModEntry;
   }
 }
 
@@ -109,14 +143,6 @@ type ArcaneCategory =
 
 type Polarity = "madurai" | "vazarin" | "naramon" | "zenurik" | "umbra" | "any";
 
-type AntiqueSchool =
-  | "all"
-  | "madurai"
-  | "naramon"
-  | "zenurik"
-  | "vazarin"
-  | "unairu";
-
 type ParazonFilter = "all" | "requiem" | "antivirus";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -178,38 +204,53 @@ for (const [p, url] of Object.entries(_statusImgs)) {
   STATUS_IMG[name] = url;
 }
 
-// Map DT_ color tags → status image filenames
+// Map DT_ color tags → status image filenames (both bare and _COLOR variants)
 const DT_TO_IMG: Record<string, string> = {
   dt_corrosive_color: "essentialcorrosiveglyph",
+  dt_corrosive: "essentialcorrosiveglyph",
   dt_electricity_color: "electricmodbundleicon",
+  dt_electricity: "electricmodbundleicon",
   dt_explosion_color: "essentialblastglyph",
+  dt_explosion: "essentialblastglyph",
   dt_fire_color: "heatmodbundleicon",
+  dt_fire: "heatmodbundleicon",
   dt_freeze_color: "coldmodbundleicon",
+  dt_freeze: "coldmodbundleicon",
   dt_gas_color: "essentialgasglyph",
+  dt_gas: "essentialgasglyph",
   dt_impact_color: "essentialimpactglyph",
   dt_magnetic_color: "essentialmagneticglyph",
+  dt_magnetic: "essentialmagneticglyph",
   dt_poison_color: "toxinmodbundleicon",
+  dt_poison: "toxinmodbundleicon",
   dt_puncture_color: "essentialpunctureglyph",
   dt_radiant_color: "essentialradiationglyph",
   dt_radiation_color: "essentialradiationglyph",
+  dt_radiation: "essentialradiationglyph",
+  dt_sentient_color: "essentialtauglyph",
   dt_sentient: "essentialtauglyph",
   dt_slash_color: "essentialslashglyph",
+  dt_slash: "essentialslashglyph",
   dt_viral_color: "essentialviralglyph",
+  dt_viral: "essentialviralglyph",
 };
 
-/** Render a stat string, replacing <DT_*_COLOR> tags with inline status images */
+/** Render a description/stat string:
+ *  - Replaces <DT_*> / <DT_*_COLOR> tags with inline status icons
+ *  - Strips other formatting tags (<AFFINITY_SHARE>, <HEALTH>, etc.)
+ *  - Renders |VAR| placeholders as a subtle "mod-scaled" badge
+ */
 function renderStatString(stat: string): React.ReactNode {
-  // Also clean up other formatting tags
   const cleaned = stat
-    .replace(/\\n/g, "\n")
-    .replace(/<LINE_SEPARATOR>/g, " | ")
+    .replace(/\n/g, "\n")
+    .replace(/<LINE_SEPARATOR>/g, " · ")
     .replace(/<LOWER_IS_BETTER>/g, "")
     .replace(/<[A-Z_]+_SECONDARY_COLOR>/g, "")
-    .replace(/<\/[A-Z_]+_SECONDARY_COLOR>/g, "");
+    .replace(/<\/[A-Z_]+_SECONDARY_COLOR>/g, "")
+    .replace(/<(?!DT_)[A-Z_]+>/g, "");
 
-  // Split on DT_ tags
-  const parts = cleaned.split(/(<DT_[A-Z_]+>)/);
-  if (parts.length === 1) return cleaned;
+  const parts = cleaned.split(/(<DT_[A-Z_]+>|\|[A-Z_0-9]+\|)/);
+  if (parts.length === 1) return <>{cleaned}</>;
 
   const nodes: React.ReactNode[] = [];
   for (let i = 0; i < parts.length; i++) {
@@ -223,16 +264,26 @@ function renderStatString(stat: string): React.ReactNode {
           <img
             key={i}
             src={imgUrl}
-            alt={key}
+            alt={key.replace("dt_", "").replace("_color", "")}
             title={key
               .replace("dt_", "")
-              .replace("_color", "")
-              .replace("_", " ")}
+              .replace(/_color$/, "")
+              .replace(/_/g, " ")}
             className="inline w-3.5 h-3.5 object-contain mx-0.5 -mt-0.5"
           />,
         );
       }
-      // The next part follows the tag (the damage type label text)
+    } else if (part.startsWith("|") && part.endsWith("|")) {
+      const label = part.slice(1, -1).toLowerCase().replace(/_/g, " ");
+      nodes.push(
+        <span
+          key={i}
+          className="inline-flex items-center rounded px-1 py-0 text-[10px] font-mono bg-slate-700/60 text-slate-400 border border-slate-600/50 mx-0.5"
+          title="Exact value scales with Warframe stats and mods"
+        >
+          {label}
+        </span>,
+      );
     } else if (part) {
       nodes.push(<span key={i}>{part}</span>);
     }
@@ -259,6 +310,25 @@ function polImg(ap: string | undefined): string | null {
   return POL_IMG[fname] ?? null;
 }
 
+
+/** Convert All.json polarity name (e.g. "naramon") to AP_ format (e.g. "AP_TACTIC")
+ *  so it works with polImg() and polarityLabel() */
+const POLARITY_NAME_TO_AP: Record<string, string> = {
+  madurai: "AP_ATTACK",
+  vazarin: "AP_DEFENSE",
+  naramon: "AP_TACTIC",
+  zenurik: "AP_POWER",
+  umbra: "AP_UMBRA",
+  unairu: "AP_WARD",
+  penjaga: "AP_PENJAGA",
+  any: "AP_ANY",
+};
+function toAP(polarity: string | undefined): string | undefined {
+  if (!polarity) return undefined;
+  if (polarity.startsWith("AP_")) return polarity; // already in AP_ format
+  return POLARITY_NAME_TO_AP[polarity.toLowerCase()];
+}
+
 const POLARITIES: { key: Polarity; label: string; ap: string }[] = [
   { key: "madurai", label: "Madurai", ap: "AP_ATTACK" },
   { key: "vazarin", label: "Vazarin", ap: "AP_DEFENSE" },
@@ -266,15 +336,6 @@ const POLARITIES: { key: Polarity; label: string; ap: string }[] = [
   { key: "zenurik", label: "Zenurik", ap: "AP_POWER" },
   { key: "umbra", label: "Umbra", ap: "AP_UMBRA" },
   { key: "any", label: "Any", ap: "AP_ANY" },
-];
-
-const ANTIQUE_SCHOOLS: { key: AntiqueSchool; label: string; ap: string }[] = [
-  { key: "all", label: "All", ap: "" },
-  { key: "madurai", label: "Madurai", ap: "AP_ATTACK" },
-  { key: "naramon", label: "Naramon", ap: "AP_TACTIC" },
-  { key: "zenurik", label: "Zenurik", ap: "AP_POWER" },
-  { key: "vazarin", label: "Vazarin", ap: "AP_DEFENSE" },
-  { key: "unairu", label: "Unairu", ap: "AP_WARD" },
 ];
 
 // Endo + credit base costs (EBC/CrBC) by rarity — verified from Warframe wiki
@@ -527,7 +588,7 @@ function classifyModCategories(entry: ModEntry): ModCategory[] {
   const compat = entry.data?.ItemCompatibility ?? "";
   const polarity = entry.data?.ArtifactPolarity ?? "";
 
-  const allEntry = ALL_MODS_BY_PATH[path];
+  const allEntry = ALL_MODS_BY_PATH[path] ?? ALL_MODS_BY_NAME[entry.name ?? ""];
   const modType = allEntry?.type ?? "";
   const compatName = allEntry?.compatName ?? "";
 
@@ -547,6 +608,8 @@ function classifyModCategories(entry: ModEntry): ModCategory[] {
       return ["primary"];
 
     case "Secondary Mod":
+      // Tome mods have type="Secondary Mod" but compatName="Tome" — check first
+      if (compatName === "Tome") return ["tome"];
       return ["secondary"];
 
     case "Melee Mod":
@@ -705,11 +768,31 @@ const ALL_ENTRIES: ModEntry[] = Object.entries(MODS_RAW as Record<string, any>)
   .filter((e) => e.name && typeof e.name === "string");
 
 // Mods (category "mod"), excluding OperatorSuit ones (those are arcanes)
-const MOD_ENTRIES: ModEntry[] = ALL_ENTRIES.filter(
+const MOD_ENTRIES_BASE: ModEntry[] = ALL_ENTRIES.filter(
   (e) =>
     e.categories?.[0] === "mod" &&
     e.data?.ItemCompatibility !== "/Lotus/Powersuits/Operator/OperatorSuit",
 );
+
+// Supplement with Railjack/Plexus mods from All.json — these are not in mods.json
+const MODS_BASE_PATHS = new Set(MOD_ENTRIES_BASE.map((e) => e.path));
+const RAILJACK_SUPPLEMENT: ModEntry[] = (ALL_RAW as any[])
+  .filter(
+    (item) =>
+      item.category === "Mods" &&
+      (item.type === "Plexus Mod" || item.type === "Railjack Mod") &&
+      item.name &&
+      item.name !== "Unfused Artifact" &&
+      !MODS_BASE_PATHS.has(item.uniqueName),
+  )
+  .map((item) => ({
+    path: item.uniqueName as string,
+    name: item.name as string,
+    categories: ["mod"] as string[],
+    data: undefined,
+  }));
+
+const MOD_ENTRIES: ModEntry[] = [...MOD_ENTRIES_BASE, ...RAILJACK_SUPPLEMENT];
 
 // Arcanes: category "arcane" + category "mod" with OperatorSuit compat (Magus series)
 const ARCANE_ENTRIES: ModEntry[] = ALL_ENTRIES.filter(
@@ -881,7 +964,124 @@ function RankCostCalculator({
   );
 }
 
-// ─── Drop Locations ───────────────────────────────────────────────────────────
+
+// ─── Drop classification & smart rendering ────────────────────────────────────
+
+const SYNDICATE_ORGS = new Set([
+  "New Loka", "Steel Meridian", "Arbiters of Hexis", "Cephalon Suda",
+  "The Perrin Sequence", "Red Veil", "Conclave", "Cephalon Simaris",
+  "Operational Supply", "The Quills", "Vox Solaris", "Ventkids",
+  "Ostron", "Solaris United", "Entrati", "The Holdfasts", "NecraLoid",
+  "Kahl's Garrison", "Arbitrations",
+  "Nokko", "Höllvania",
+]);
+
+type DropKind = "syndicate" | "enemy" | "mission" | "relic" | "other";
+
+function classifyDrop(location: string): DropKind {
+  if (location.includes("Relic")) return "relic";
+  if (/^[A-Z][a-zA-Z ]+\/[A-Z]/.test(location) || location.startsWith("Duviri/")) return "mission";
+  const commaIdx = location.indexOf(", ");
+  if (commaIdx > 0) {
+    const org = location.slice(0, commaIdx);
+    for (const s of SYNDICATE_ORGS) { if (org.startsWith(s)) return "syndicate"; }
+  }
+  if (!location.includes("/") && !location.includes(", ")) return "enemy";
+  return "other";
+}
+
+function DropRow({ d }: { d: AllModDrop }) {
+  const kind = classifyDrop(d.location);
+  const rarityClass =
+    d.rarity === "Common"   ? "text-slate-400" :
+    d.rarity === "Uncommon" ? "text-blue-300"  :
+    d.rarity === "Rare"     ? "text-amber-300" : "text-rose-300";
+
+  const wikiIcon = (
+    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
+    </svg>
+  );
+
+  if (kind === "syndicate") {
+    const commaIdx = d.location.indexOf(", ");
+    const syndName = commaIdx > 0 ? d.location.slice(0, commaIdx) : d.location;
+    const rankLabel = commaIdx > 0 ? d.location.slice(commaIdx + 2) : "";
+    return (
+      <div className="flex items-center gap-2 text-xs rounded px-2 py-1.5 bg-indigo-950/20 border border-indigo-800/30">
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-indigo-400 shrink-0">Purchase</span>
+        <a href={wikiUrl(syndName)} target="_blank" rel="noopener noreferrer"
+          className="flex-1 min-w-0 text-slate-300 truncate hover:text-indigo-300 hover:underline transition-colors">
+          {syndName}
+        </a>
+        {rankLabel && <span className="shrink-0 text-slate-500 text-[11px]">{rankLabel}</span>}
+        <a href={wikiUrl(syndName)} target="_blank" rel="noopener noreferrer"
+          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIcon}</a>
+      </div>
+    );
+  }
+
+  if (kind === "enemy") {
+    return (
+      <div className="flex items-center gap-2 text-xs rounded px-2 py-1.5 bg-slate-900/50 border border-slate-800/50">
+        <a href={enemyWikiUrl(d.location)} target="_blank" rel="noopener noreferrer"
+          className="flex-1 min-w-0 text-slate-300 truncate hover:text-cyan-300 hover:underline transition-colors">
+          {d.location}
+        </a>
+        <span className={["shrink-0 font-semibold text-[11px]", rarityClass].join(" ")}>{d.rarity}</span>
+        <span className="shrink-0 font-mono text-slate-500 text-[11px]">{(d.chance * 100).toFixed(2)}%</span>
+        <a href={enemyWikiUrl(d.location)} target="_blank" rel="noopener noreferrer"
+          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIcon}</a>
+      </div>
+    );
+  }
+
+  // mission / relic / other
+  return (
+    <div className="flex items-center gap-2 text-xs rounded px-2 py-1.5 bg-slate-900/50 border border-slate-800/50">
+      <span className="flex-1 min-w-0 text-slate-300 truncate">{d.location}</span>
+      <span className={["shrink-0 font-semibold text-[11px]", rarityClass].join(" ")}>{d.rarity}</span>
+      <span className="shrink-0 font-mono text-slate-500 text-[11px]">{(d.chance * 100).toFixed(2)}%</span>
+    </div>
+  );
+}
+
+function DropsSection({ drops, name }: { drops: AllModDrop[]; name: string }) {
+  if (drops.length === 0) {
+    return (
+      <div className="text-xs text-slate-500 flex items-center gap-2">
+        No drop data available.
+        <a href={wikiUrl(name) + "#Acquisition"} target="_blank" rel="noopener noreferrer"
+          className="text-slate-600 hover:text-slate-300 transition-colors flex items-center gap-1">
+          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+          Wiki
+        </a>
+      </div>
+    );
+  }
+  const sorted = [...drops].sort((a, b) => {
+    const aS = classifyDrop(a.location) === "syndicate";
+    const bS = classifyDrop(b.location) === "syndicate";
+    if (aS !== bS) return aS ? -1 : 1;
+    return b.chance - a.chance;
+  });
+  return (
+    <div>
+      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
+        Acquisition <span className="normal-case font-normal text-slate-600">({drops.length})</span>
+      </div>
+      <div className="space-y-0.5 max-h-64 overflow-y-auto pr-1">
+        {sorted.map((d, i) => <DropRow key={i} d={d} />)}
+      </div>
+    </div>
+  );
+}
+
+// ─── Drop Locations (legacy — uses modLocations.json enemy data) ───────────────
 
 /** Build a Warframe wiki URL for any item/mod/arcane name */
 function wikiUrl(name: string): string {
@@ -922,266 +1122,176 @@ function enemyWikiUrl(name: string): string {
   return `https://wiki.warframe.com/w/${encodeURIComponent(slug)}#Farming_Locations`;
 }
 
-function DropLocations({ drops, name }: { drops: EnemyDrop[]; name: string }) {
-  if (drops.length === 0) {
-    const acquisitionUrl = wikiUrl(name) + "#Acquisition";
-    return (
-      <div className="text-xs text-slate-500 flex items-center gap-2">
-        No drop location data available. Find {name} acquisition data on the
-        <a
-          href={acquisitionUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-slate-600 hover:text-slate-300 transition-colors flex items-center gap-1"
-          title={`Find ${name} acquisition data on the Warframe Wiki`}
-        >
-          <svg
-            className="w-3 h-3"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-            <polyline points="15 3 21 3 21 9" />
-            <line x1="10" y1="14" x2="21" y2="3" />
-          </svg>
-          Wiki
-        </a>
-      </div>
-    );
-  }
-
-  // Sort by chance descending
-  const sorted = [...drops].sort((a, b) => b.chance - a.chance);
-
-  return (
-    <div>
-      <div className="text-xs text-slate-400 font-medium mb-2">
-        Drop Locations{" "}
-        <span className="text-slate-500 font-normal">
-          ({drops.length} sources)
-        </span>
-      </div>
-      <div className="max-h-44 overflow-y-auto space-y-0.5 pr-1">
-        {sorted.map((d, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-2 text-xs rounded-lg px-2.5 py-1.5 bg-slate-800/50 border border-slate-700/60"
-          >
-            <a
-              href={enemyWikiUrl(d.enemyName)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-200 flex-1 min-w-0 truncate hover:text-cyan-300 hover:underline transition-colors"
-              title={`View ${d.enemyName} on the Warframe Wiki`}
-            >
-              {d.enemyName}
-            </a>
-            <span
-              className={[
-                "shrink-0 text-xs font-medium",
-                rarityColor(d.rarity),
-              ].join(" ")}
-            >
-              {d.rarity}
-            </span>
-            <span className="shrink-0 font-mono text-slate-400 text-[11px]">
-              {d.chance.toFixed(2)}%
-            </span>
-            <a
-              href={enemyWikiUrl(d.enemyName)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors"
-              title="Open wiki"
-              aria-label={`${d.enemyName} wiki`}
-            >
-              <svg
-                className="w-3 h-3"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-                <line x1="10" y1="14" x2="21" y2="3" />
-              </svg>
-            </a>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ─── Mod Detail Panel ─────────────────────────────────────────────────────────
 
-function ModDetail({
+function ModModal({
   entry,
   isRiven = false,
+  onClose,
 }: {
   entry: ModEntry;
   isRiven?: boolean;
+  onClose: () => void;
 }) {
   const data = entry.data;
-  const allEntry = ALL_MODS_BY_PATH[entry.path];
+  const allEntry = ALL_MODS_BY_PATH[entry.path] ?? ALL_MODS_BY_NAME[entry.name ?? ""];
 
-  // Use All.json fusionLimit (integer) when available — it's accurate
   const maxRank = isRiven
     ? (data?.FusionLimitRange?.[1] ?? 8)
     : (allEntry?.fusionLimit ?? decodeMaxRank(data?.FusionLimit));
-
   const baseDrain = allEntry?.baseDrain ?? decodeBaseDrain(data?.BaseDrain);
   const upgrades = data?.Upgrades ?? [];
-  const polarity = data?.ArtifactPolarity;
-  // All.json rarity is "Common"/"Uncommon"/"Rare"/"Legendary"; mods.json uses "COMMON" etc.
+  const polarity = data?.ArtifactPolarity ?? allEntry?.polarity;
   const rarityRaw = allEntry?.rarity ?? data?.Rarity ?? "COMMON";
   const rarity = rarityRaw.toUpperCase();
-  const drops = modLocationLookup.get(normalize(entry.name)) ?? [];
+  // Clamp levelStats to maxRank+1 — All.json occasionally has more entries than fusionLimit
+  const levelStats = (allEntry?.levelStats ?? []).slice(0, maxRank + 1);
+  const allDrops: AllModDrop[] = allEntry?.drops ?? [];
+  // Legacy enemy drops from modLocations.json as fallback
+  const legacyDrops = modLocationLookup.get(normalize(entry.name)) ?? [];
+  const drops: AllModDrop[] = allDrops.length > 0
+    ? allDrops
+    : legacyDrops.map(d => ({ chance: d.chance, location: d.enemyName, rarity: d.rarity, type: entry.name }));
 
-  // levelStats from All.json gives per-rank human-readable descriptions
-  const levelStats = allEntry?.levelStats ?? [];
+  const rarityLabel = rarityRaw.charAt(0).toUpperCase() + rarityRaw.slice(1).toLowerCase();
+
+  // Determine if this is a warframe augment (compatName is a specific warframe name, not a weapon type)
+  const GENERIC_COMPAT = new Set(["WARFRAME","ANY","COMPANION","ROBOTIC","BEAST","PRIMARY","Melee",
+    "Pistol","Shotgun","Rifle","Assault Rifle","Sniper","Bow","K-Drive","Archwing","Necramech",
+    "Archgun","Archmelee","Moa","Hound","Kavat","Kubrow","Sentinel","Parazon","Tome","AURA",
+    "Claws","Daggers","Dual Daggers","Thrown Melee","Plexus Mod","Railjack Mod",""]);
+  const isWarframeAugment = allEntry?.isAugment && allEntry?.compatName && !GENERIC_COMPAT.has(allEntry.compatName);
 
   return (
-    <div
-      className={[
-        "mt-2 rounded-xl border p-4 space-y-4",
-        rarityBg(rarity),
-      ].join(" ")}
-    >
-      {/* Header */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-base font-bold text-slate-100">{entry.name}</span>
-        <WikiLink name={entry.name} />
-        <span
-          className={[
-            "text-xs font-semibold px-2 py-0.5 rounded-full border",
-            rarityColor(rarity),
-            rarityBg(rarity),
-          ].join(" ")}
-        >
-          {rarityRaw.charAt(0).toUpperCase() + rarityRaw.slice(1).toLowerCase()}
-        </span>
-        {polarity &&
-          (() => {
-            const img = polImg(polarity);
-            return img ? (
-              <span
-                className="rounded-full p-1 border border-slate-600 bg-slate-800 flex items-center justify-center w-6 h-6"
-                title={polarityLabel(polarity)}
-              >
-                <img
-                  src={img}
-                  alt={polarityLabel(polarity)}
-                  className="w-4 h-4 object-contain pol-icon"
-                />
-              </span>
-            ) : (
-              <span className="text-xs rounded-full px-2 py-0.5 border border-slate-600 bg-slate-800 text-slate-300">
-                {polarityLabel(polarity)}
-              </span>
-            );
-          })()}
-        {maxRank > 0 && (
-          <span className="text-xs text-slate-400 ml-auto">
-            Max Rank {maxRank}
-          </span>
-        )}
-      </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl overflow-hidden">
 
-      {/* Per-rank descriptions from All.json levelStats */}
-      {levelStats.length > 0 && (
-        <div>
-          <div className="text-xs text-slate-400 font-medium mb-2">
-            Effects per Rank
-          </div>
-          <div className="space-y-1">
-            {levelStats.map((ls, r) => (
-              <div
-                key={r}
-                className={[
-                  "flex items-start gap-2 rounded px-2 py-1.5 text-xs",
-                  r === levelStats.length - 1
-                    ? "bg-cyan-950/30 border border-cyan-800/40"
-                    : "bg-slate-800/50",
-                ].join(" ")}
-              >
-                <span className="shrink-0 text-slate-500 font-mono w-5">
-                  R{r}
+        {/* ── Modal header ── */}
+        <div className={["flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 shrink-0", rarityBg(rarity)].join(" ")}>
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
+            <span className="text-base font-bold text-slate-100">{entry.name}</span>
+            <WikiLink name={entry.name} />
+            <span className={["text-xs font-semibold px-2 py-0.5 rounded-full border", rarityColor(rarity), rarityBg(rarity)].join(" ")}>
+              {rarityLabel}
+            </span>
+            {polarity && (() => {
+              const img = polImg(polarity);
+              return img ? (
+                <span className="rounded-full p-1 border border-slate-600 bg-slate-800 flex items-center justify-center w-6 h-6" title={polarityLabel(polarity)}>
+                  <img src={img} alt={polarityLabel(polarity)} className="w-4 h-4 object-contain pol-icon" />
                 </span>
-                <span className="text-slate-200">
-                  {ls.stats.map((s, si) => (
-                    <span key={si}>
-                      {si > 0 && "  ·  "}
-                      {renderStatString(s)}
-                    </span>
-                  ))}
-                </span>
-              </div>
-            ))}
+              ) : (
+                <span className="text-xs rounded-full px-2 py-0.5 border border-slate-600 bg-slate-800 text-slate-300">{polarityLabel(polarity)}</span>
+              );
+            })()}
+            {maxRank > 0 && <span className="text-xs text-slate-400">Max Rank {maxRank}</span>}
+            {allEntry?.isExilus    && <span className="text-[10px] px-1.5 py-0.5 rounded border border-sky-700/50    bg-sky-950/30    text-sky-300    font-semibold">EXILUS</span>}
+            {allEntry?.isUtility   && <span className="text-[10px] px-1.5 py-0.5 rounded border border-green-700/50  bg-green-950/30  text-green-300  font-semibold">UTILITY</span>}
+            {allEntry?.isPrime     && <span className="text-[10px] px-1.5 py-0.5 rounded border border-amber-600/50  bg-amber-950/30  text-amber-300  font-semibold">PRIME</span>}
+            {isWarframeAugment     && <span className="text-[10px] px-1.5 py-0.5 rounded border border-purple-700/50 bg-purple-950/30 text-purple-300 font-semibold">AUGMENT</span>}
+            {allEntry?.tradable    && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-600    bg-slate-800    text-slate-400">Tradable</span>}
+            {allEntry?.transmutable && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-600   bg-slate-800    text-slate-400">Transmutable</span>}
           </div>
+          <button className="shrink-0 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800" onClick={onClose}>Close</button>
         </div>
-      )}
 
-      {/* Slot cost per rank */}
-      {baseDrain > 0 && maxRank > 0 && (
-        <div>
-          <div className="text-xs text-slate-400 font-medium mb-2">
-            Mod Capacity Cost per Rank
+        {/* ── Modal body ── */}
+        <div className="overflow-y-auto flex-1 p-5 space-y-4">
+
+          {/* Description */}
+          {allEntry?.description && (
+            <p className="text-sm text-slate-400 leading-relaxed">{renderStatString(allEntry.description)}</p>
+          )}
+
+          {/* Meta tags row */}
+          <div className="flex flex-wrap gap-2 text-[11px] text-slate-500">
+            {allEntry?.type        && <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5">{allEntry.type}</span>}
+            {allEntry?.compatName  && <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5">Fits: {allEntry.compatName}</span>}
+            {isWarframeAugment     && allEntry?.compatName && <span className="rounded border border-purple-900/50 bg-purple-950/20 px-2 py-0.5 text-purple-400">Augment for: {allEntry.compatName}</span>}
+            {allEntry?.introduced  && <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5">Added: {allEntry.introduced.name}</span>}
+            {allEntry?.releaseDate && <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5">{allEntry.releaseDate}</span>}
           </div>
-          <div className="flex flex-wrap gap-1.5">
-            {Array.from({ length: maxRank + 1 }, (_, r) => (
-              <div key={r} className="text-center">
-                <div className="text-[10px] text-slate-500 mb-0.5">R{r}</div>
-                <div className="w-8 text-center rounded bg-slate-800 border border-slate-600 py-1 text-xs text-slate-200 font-mono">
-                  {baseDrain + r}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* Upgrade Cost Calculator */}
-      {!isRiven && <RankCostCalculator maxRank={maxRank} rarity={rarity} />}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-      {/* Raw upgrade effects (fallback when no levelStats) */}
-      {levelStats.length === 0 && upgrades.length > 0 && (
-        <div>
-          <div className="text-xs text-slate-400 font-medium mb-2">Effects</div>
-          <div className="space-y-1.5">
-            {upgrades.slice(0, 4).map((u, i) => {
-              if (!u.UpgradeType || u.Value === undefined) return null;
-              const label = labelForUpgradeType(u.UpgradeType);
-              const perRank = u.Value;
-              const maxVal = perRank * (maxRank > 0 ? maxRank + 1 : 1);
-              return (
-                <div
-                  key={i}
-                  className="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2"
-                >
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <span className="text-xs text-slate-300">{label}</span>
-                    <span className="text-xs font-mono text-slate-200">
-                      {formatValue(perRank, u.DisplayAsPercent)}
-                      &nbsp;/&nbsp;rank &nbsp;→&nbsp;
-                      <span className="text-cyan-300 font-semibold">
-                        {formatValue(maxVal, u.DisplayAsPercent)}&nbsp;at&nbsp;R
-                        {maxRank}
-                      </span>
-                    </span>
+            {/* ── LEFT: Effects ── */}
+            <div className="space-y-4">
+
+              {/* Per-rank effects from levelStats */}
+              {levelStats.length > 0 && (
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Effects per Rank</div>
+                  <div className="space-y-1">
+                    {levelStats.map((ls, r) => (
+                      <div key={r} className={["flex items-start gap-2 rounded px-2 py-1.5 text-xs",
+                        r === levelStats.length - 1 ? "bg-cyan-950/30 border border-cyan-800/40" : "bg-slate-800/50"
+                      ].join(" ")}>
+                        <span className="shrink-0 text-slate-500 font-mono w-5">R{r}</span>
+                        <span className="text-slate-200">
+                          {ls.stats.map((s, si) => (
+                            <span key={si}>{si > 0 && "  ·  "}{renderStatString(s)}</span>
+                          ))}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              );
-            })}
+              )}
+
+              {/* Fallback: raw upgrade values */}
+              {levelStats.length === 0 && upgrades.length > 0 && (
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Effects</div>
+                  <div className="space-y-1.5">
+                    {upgrades.slice(0, 4).map((u, i) => {
+                      if (!u.UpgradeType || u.Value === undefined) return null;
+                      const label = labelForUpgradeType(u.UpgradeType);
+                      const perRank = u.Value;
+                      const maxVal = perRank * (maxRank > 0 ? maxRank + 1 : 1);
+                      return (
+                        <div key={i} className="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2">
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <span className="text-xs text-slate-300">{label}</span>
+                            <span className="text-xs font-mono text-slate-200">
+                              {formatValue(perRank, u.DisplayAsPercent)}&nbsp;/&nbsp;rank&nbsp;→&nbsp;
+                              <span className="text-cyan-300 font-semibold">{formatValue(maxVal, u.DisplayAsPercent)}&nbsp;at&nbsp;R{maxRank}</span>
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Capacity cost per rank */}
+              {baseDrain > 0 && maxRank > 0 && (
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Mod Capacity Cost</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {Array.from({ length: maxRank + 1 }, (_, r) => (
+                      <div key={r} className="text-center">
+                        <div className="text-[10px] text-slate-500 mb-0.5">R{r}</div>
+                        <div className="w-8 text-center rounded bg-slate-800 border border-slate-600 py-1 text-xs text-slate-200 font-mono">{baseDrain + r}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Upgrade cost calculator */}
+              {!isRiven && <RankCostCalculator maxRank={maxRank} rarity={rarity} />}
+            </div>
+
+            {/* ── RIGHT: Acquisition ── */}
+            <div>
+              <DropsSection drops={drops} name={entry.name} />
+            </div>
           </div>
         </div>
-      )}
-
-      {/* Drop locations */}
-      <DropLocations drops={drops} name={entry.name} />
+      </div>
     </div>
   );
 }
@@ -1215,46 +1325,41 @@ function extractScriptLevels(u: ModUpgrade): number[] | null {
   return null;
 }
 
-function ArcaneDetail({ entry }: { entry: ModEntry }) {
+function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void }) {
   const data = entry.data;
   const maxRank = decodeMaxRank(data?.FusionLimit);
-  const upgrades = (data?.Upgrades ?? []).concat(
-    (data as any)?.ExtraUpgrades ?? [],
-  );
-  const drops = modLocationLookup.get(normalize(entry.name)) ?? [];
+  const upgrades = (data?.Upgrades ?? []).concat((data as any)?.ExtraUpgrades ?? []);
 
-  // Try moddescriptions.json first — it has clean per-rank values for most arcanes
+  // Look up in All.json by uniqueName (path) first, then by name
+  const allEntry = ALL_MODS_BY_PATH[entry.path] ?? ALL_ARCANES_BY_NAME[entry.name];
+  const allDrops: AllModDrop[] = allEntry?.drops ?? [];
+  const legacyDrops = modLocationLookup.get(normalize(entry.name)) ?? [];
+  const drops: AllModDrop[] = allDrops.length > 0
+    ? allDrops
+    : legacyDrops.map(d => ({ chance: d.chance, location: d.enemyName, rarity: d.rarity, type: entry.name }));
+
+  // Effects: moddescriptions.json → Upgrades fallback → All.json levelStats
   const modDesc = MODDESC[entry.path];
   const descRanks = modDesc?.Ranks;
-
-  type EffectRow = { label: string; values: string[]; suffix?: string };
+  type EffectRow = { label: string; values: string[] };
   const effectRows: EffectRow[] = [];
 
   if (descRanks && descRanks.length > 0) {
-    // Group by variable name across ranks
     const varNames = Object.keys(descRanks[0]);
     for (const varName of varNames) {
       const vals = descRanks.map((r) => r[varName] ?? "");
       if (vals.every((v) => v === "")) continue;
-      effectRows.push({
-        label: humanizeVarName(varName),
-        values: vals,
-      });
+      effectRows.push({ label: humanizeVarName(varName), values: vals });
     }
-  } else {
-    // Fall back to Upgrades array
+  } else if (upgrades.length > 0) {
     for (const u of upgrades.slice(0, 4)) {
       const type = u.UpgradeType;
       const isNoneType = !type || type === "NONE";
-
       if (isNoneType) {
         const levels = extractScriptLevels(u);
         if (levels && levels.length > 0) {
           const isPercent = u.DisplayAsPercent;
-          const fmt = (v: number) =>
-            isPercent
-              ? `${Math.round(v * 100 * 10) / 10}%`
-              : String(Math.round(v * 100) / 100);
+          const fmt = (v: number) => isPercent ? `${Math.round(v * 100 * 10) / 10}%` : String(Math.round(v * 100) / 100);
           effectRows.push({ label: "Effect", values: levels.map(fmt) });
         }
       } else {
@@ -1262,72 +1367,98 @@ function ArcaneDetail({ entry }: { entry: ModEntry }) {
         if (val === undefined || val === null) continue;
         const label = labelForUpgradeType(type);
         const isPercent = u.DisplayAsPercent;
-        const fmt = (v: number) =>
-          isPercent
-            ? `${v >= 0 ? "+" : ""}${Math.round(v * 100 * 10) / 10}%`
-            : `${v >= 0 ? "+" : ""}${Math.round(v * 100) / 100}`;
-        effectRows.push({
-          label,
-          values: Array.from({ length: maxRank + 1 }, (_, r) =>
-            fmt(val * (r + 1)),
-          ),
-        });
+        const fmt = (v: number) => isPercent
+          ? `${v >= 0 ? "+" : ""}${Math.round(v * 100 * 10) / 10}%`
+          : `${v >= 0 ? "+" : ""}${Math.round(v * 100) / 100}`;
+        effectRows.push({ label, values: Array.from({ length: maxRank + 1 }, (_, r) => fmt(val * (r + 1))) });
       }
     }
   }
 
-  return (
-    <div className="mt-2 rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-4">
-      <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-base font-bold text-slate-100">{entry.name}</span>
-        <WikiLink name={entry.name} />
-        <span className="text-xs text-slate-400">Max Rank: {maxRank}</span>
-      </div>
+  // Use All.json levelStats if effectRows still empty
+  // Clamp to maxRank+1 in case All.json has excess entries
+  const levelStats = effectRows.length === 0 ? (allEntry?.levelStats ?? []).slice(0, maxRank + 1) : [];
+  const rarityRaw = allEntry?.rarity ?? "";
+  const rarity = rarityRaw.toUpperCase();
 
-      {/* Effects with per-rank breakdown */}
-      {effectRows.length > 0 ? (
-        <div>
-          <div className="text-xs text-slate-400 font-medium mb-2">Effects</div>
-          <div className="space-y-2">
-            {effectRows.map((row, i) => (
-              <div
-                key={i}
-                className="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2"
-              >
-                <div className="text-xs text-slate-300 font-medium mb-1.5">
-                  {row.label}
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {row.values.map((v, r) => (
-                    <div key={r} className="text-center">
-                      <div className="text-[9px] text-slate-600 mb-0.5">
-                        R{r}
-                      </div>
-                      <div
-                        className={[
-                          "rounded px-1.5 py-0.5 text-[11px] font-mono border",
-                          r === row.values.length - 1
-                            ? "bg-cyan-950/40 border-cyan-800/60 text-cyan-300"
-                            : "bg-slate-900 border-slate-700 text-slate-300",
-                        ].join(" ")}
-                      >
-                        {v}
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl overflow-hidden">
+
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 shrink-0">
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
+            <span className="text-base font-bold text-slate-100">{entry.name}</span>
+            <WikiLink name={entry.name} />
+            <span className="text-xs text-slate-400">Max Rank: {maxRank}</span>
+            {rarityRaw && (
+              <span className={["text-xs font-semibold px-2 py-0.5 rounded-full border", rarityColor(rarity), rarityBg(rarity)].join(" ")}>
+                {rarityRaw.charAt(0).toUpperCase() + rarityRaw.slice(1).toLowerCase()}
+              </span>
+            )}
+            {allEntry?.tradable && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-600 bg-slate-800 text-slate-400">Tradable</span>}
+            {allEntry?.type && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-700 bg-slate-900 text-slate-400">{allEntry.type}</span>}
+            {allEntry?.introduced && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-800 bg-slate-900 text-slate-500">{allEntry.introduced.name}</span>}
+          </div>
+          <button className="shrink-0 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800" onClick={onClose}>Close</button>
+        </div>
+
+        {/* Body */}
+        <div className="overflow-y-auto flex-1 p-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            {/* Effects */}
+            <div className="space-y-3">
+              {effectRows.length > 0 ? (
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Effects per Rank</div>
+                  {effectRows.map((row, i) => (
+                    <div key={i} className="rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2 mb-2">
+                      <div className="text-xs text-slate-300 font-medium mb-1.5">{row.label}</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {row.values.map((v, r) => (
+                          <div key={r} className="text-center">
+                            <div className="text-[9px] text-slate-600 mb-0.5">R{r}</div>
+                            <div className={["rounded px-1.5 py-0.5 text-[11px] font-mono border",
+                              r === row.values.length - 1 ? "bg-cyan-950/40 border-cyan-800/60 text-cyan-300" : "bg-slate-900 border-slate-700 text-slate-300"
+                            ].join(" ")}>{v}</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            ))}
+              ) : levelStats.length > 0 ? (
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Effects per Rank</div>
+                  <div className="space-y-1">
+                    {levelStats.map((ls, r) => (
+                      <div key={r} className={["flex items-start gap-2 rounded px-2 py-1.5 text-xs",
+                        r === levelStats.length - 1 ? "bg-cyan-950/30 border border-cyan-800/40" : "bg-slate-800/50"
+                      ].join(" ")}>
+                        <span className="shrink-0 text-slate-500 font-mono w-5">R{r}</span>
+                        <span className="text-slate-200">
+                          {ls.stats.map((s, si) => (
+                            <span key={si}>{si > 0 && "  ·  "}{renderStatString(s)}</span>
+                          ))}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-xs text-slate-500 italic">No effect data available.</div>
+              )}
+            </div>
+
+            {/* Acquisition */}
+            <div>
+              <DropsSection drops={drops} name={entry.name} />
+            </div>
           </div>
         </div>
-      ) : (
-        <div className="text-xs text-slate-500 italic">
-          No effect data available.
-        </div>
-      )}
-
-      {/* Drop locations */}
-      <DropLocations drops={drops} name={entry.name} />
+      </div>
     </div>
   );
 }
@@ -1340,7 +1471,6 @@ export default function Mods() {
   // Mods state
   const [modCategory, setModCategory] = useState<ModCategory>("all");
   const [modPolarity, setModPolarity] = useState<Polarity | null>(null);
-  const [antiqueSchool, setAntiqueSchool] = useState<AntiqueSchool>("all");
   const [parazonFilter, setParazonFilter] = useState<ParazonFilter>("all");
   const [modSearch, setModSearch] = useState("");
   const [selectedMod, setSelectedMod] = useState<ModEntry | null>(null);
@@ -1378,14 +1508,13 @@ export default function Mods() {
       modCategory !== "parazon"
     ) {
       const ap = POLARITIES.find((p) => p.key === modPolarity)?.ap;
-      if (ap) list = list.filter((e) => e.data?.ArtifactPolarity === ap);
+      if (ap) list = list.filter((e) => {
+        const entryAP = e.data?.ArtifactPolarity ?? toAP(ALL_MODS_BY_PATH[e.path]?.polarity ?? ALL_MODS_BY_NAME[e.name]?.polarity);
+        return entryAP === ap;
+      });
     }
 
-    // Antique school sub-filter
-    if (modCategory === "antique" && antiqueSchool !== "all") {
-      const ap = ANTIQUE_SCHOOLS.find((s) => s.key === antiqueSchool)?.ap;
-      if (ap) list = list.filter((e) => e.data?.ArtifactPolarity === ap);
-    }
+
 
     // Parazon sub-filter
     if (modCategory === "parazon") {
@@ -1407,7 +1536,7 @@ export default function Mods() {
 
     list.sort((a, b) => a.name.localeCompare(b.name));
     return list;
-  }, [modCategory, modPolarity, antiqueSchool, parazonFilter, modSearch]);
+  }, [modCategory, modPolarity, parazonFilter, modSearch]);
 
   // ── Arcanes list ───────────────────────────────────────────────────────────
 
@@ -1440,6 +1569,21 @@ export default function Mods() {
 
   return (
     <div className="space-y-6">
+      {/* ── Mod modal ── */}
+      {selectedMod && (
+        <ModModal
+          entry={selectedMod}
+          isRiven={modCategory === "rivens"}
+          onClose={() => setSelectedMod(null)}
+        />
+      )}
+      {/* ── Arcane modal ── */}
+      {selectedArcane && (
+        <ArcaneDetail
+          entry={selectedArcane}
+          onClose={() => setSelectedArcane(null)}
+        />
+      )}
       <Section title="Mods & Arcanes">
         <div className="text-sm text-slate-400 mb-4">
           Browse mods and arcanes by category. Click any entry for details
@@ -1481,7 +1625,6 @@ export default function Mods() {
                     onClick={() => {
                       setModCategory(c.key);
                       setModPolarity(null);
-                      setAntiqueSchool("all");
                       setParazonFilter("all");
                       setSelectedMod(null);
                     }}
@@ -1534,24 +1677,7 @@ export default function Mods() {
               </div>
             )}
 
-            {/* Antique school sub-filter */}
-            {modCategory === "antique" && (
-              <div className="mb-3">
-                <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                  School
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {ANTIQUE_SCHOOLS.map((s) => (
-                    <SubPill
-                      key={s.key}
-                      label={s.label}
-                      active={antiqueSchool === s.key}
-                      onClick={() => setAntiqueSchool(s.key)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+
 
             {/* Parazon sub-filter */}
             {modCategory === "parazon" && (
@@ -1603,7 +1729,8 @@ export default function Mods() {
               )}
               {filteredMods.map((e) => {
                 const isSelected = selectedMod?.path === e.path;
-                const polarity = e.data?.ArtifactPolarity;
+                const _allE = ALL_MODS_BY_PATH[e.path] ?? ALL_MODS_BY_NAME[e.name];
+                const polarity = e.data?.ArtifactPolarity ?? toAP(_allE?.polarity);
                 const rarityRaw =
                   e.data?.Rarity ?? ALL_MODS_BY_PATH[e.path]?.rarity ?? "";
                 const rarity = rarityRaw.toUpperCase();
@@ -1651,9 +1778,7 @@ export default function Mods() {
                       </button>
                       <WikiLink name={e.name} />
                     </div>
-                    {isSelected && (
-                      <ModDetail entry={e} isRiven={modCategory === "rivens"} />
-                    )}
+
                   </div>
                 );
               })}
@@ -1742,7 +1867,7 @@ export default function Mods() {
                       </button>
                       <WikiLink name={e.name} />
                     </div>
-                    {isSelected && <ArcaneDetail entry={e} />}
+
                   </div>
                 );
               })}

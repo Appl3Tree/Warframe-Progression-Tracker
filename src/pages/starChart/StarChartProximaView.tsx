@@ -18,22 +18,24 @@ import { useTrackerStore } from "../../store/store";
 
 // ─── Intrinsics Panel ─────────────────────────────────────────────────────────
 
+// ⚠ Intrinsic investments CANNOT be reset. Invest carefully.
+
 const RAILJACK_SKILLS = [
     {
         key: "LPS_PILOTING",
         label: "Piloting",
         color: "blue",
         ranks: [
-            "Increased Archwing speed in Railjack missions.",
-            "Unlock Railjack Maneuver: Void Cloak (brief invisibility).",
-            "Further piloting speed increase.",
-            "Unlock Tactical Maneuver: Drift (reduces Archwing energy use).",
-            "Maximum Railjack boost speed.",
-            "Unlock Cosmic Crush: auto-pull loot while piloting.",
-            "Increased Archwing strafe speed.",
-            "Improved Railjack handling.",
-            "Unlock Slipstream: double boost speed briefly.",
-            "Maximum piloting mastery.",
+            "Boost — Hold Shift to boost Engine Speed. Firing pilot guns interrupts boosting.",
+            "Vector Maneuver — Tap Shift to burst Directional Thrusters.",
+            "Vectored Evasion — Nearby enemy projectiles lose lock-on during Vector Maneuver.",
+            "Drift Maneuver — During Vector, press & hold Shift to drift in any direction.",
+            "Boosted Scavenger — 3× loot pickup radius while boosting/drifting/dodging. Hidden derelicts marked.",
+            "Ram Jammer — 25% chance to jam an incoming Ramsled's targeting, causing it to overshoot and explode.",
+            "Necramech Haste — Necramech movement speed +10% (also applies outside Empyrean).",
+            "Aeronaut — Archwing speed +20% (also applies outside Empyrean).",
+            "Ramming Speed — Incoming damage reduced by 25%. Ramming enemies while Boosting deals 2,000 Impact damage.",
+            "Railjack Blink — Double-tap Space to instantly translate the Railjack 1,000m forward, leaving turbulence that slows nearby enemies.",
         ]
     },
     {
@@ -41,16 +43,16 @@ const RAILJACK_SKILLS = [
         label: "Gunnery",
         color: "orange",
         ranks: [
-            "Improved turret targeting speed.",
-            "Unlock Granum Burst: shoot through surfaces.",
-            "Increased turret damage.",
-            "Unlock Artax Barrage: multi-hit turret shots.",
-            "Faster reload on Railjack turrets.",
-            "Unlock Tether: tether enemies in space.",
-            "Further turret damage increase.",
-            "Improved turret range.",
-            "Increased critical chance on turrets.",
-            "Maximum gunnery mastery.",
+            "Target Sync — Target lead indicators and ordnance lock-on. Crewship projectiles also lock onto targets.",
+            "Phantom Eye — Swivel Turrets gain full 360° combat engagement with no movement restrictions.",
+            "Archwing Slingshot — High-velocity Archwing deployment (range 1,850m). Penetrates crewship hulls, depositing Tenno inside.",
+            "Archwing Fury — Archwing attraction range +25m, melee range +0.75m, damage +20% (applies outside Empyrean).",
+            "Necramech Fury — Necramech gun damage +20% (also applies outside Empyrean).",
+            "Cold Trigger — Turret heat accretion reduced by 20%.",
+            "Advanced Gunnery — Overheat recovery time reduced by 50%. Slingshot range extended by 50%.",
+            "Vengeful Archwing — Archwing damage +25%, ability strength/range/efficiency all +20% (applies outside Empyrean, including Landscapes).",
+            "Flush Heat Sinks — Reloading overheated weapons cools them to 0 in 0.5 seconds.",
+            "Reflex Aim — Aim snaps turrets to nearest lead indicator for 3s, but turret overheats 20% faster. ⚠ Many players stop at R9 — the auto-aim behaviour of Reflex Aim is widely considered annoying and counterproductive.",
         ]
     },
     {
@@ -58,16 +60,16 @@ const RAILJACK_SKILLS = [
         label: "Engineering",
         color: "green",
         ranks: [
-            "Forge resources more quickly.",
-            "Unlock Forge Capacity: larger forge batches.",
-            "Improved battle avionic recharge.",
-            "Unlock Form Up: crew teleport to Railjack.",
-            "Faster dome charge reload.",
-            "Unlock Slingshot: use Railjack to launch into enemy ships.",
-            "Improved repair speed.",
-            "Larger resource batch sizes.",
-            "Faster dome charge generation.",
-            "Maximum engineering mastery.",
+            "Applied Omni — Accelerated hazard suppression and hull repair. Timed repair circle for instant repair.",
+            "Rapid Support — Air Support Charges cooldown reduced by 50% (to 5 minutes, also outside Empyrean).",
+            "Ordnance Forge — Unlocks ability to craft Ordnance at the Resource Forge mid-mission.",
+            "Dome Charge Forge — Unlocks ability to craft Dome Charges at the Resource Forge mid-mission.",
+            "Optimized Forge — Forge yields +25%. Unlocks crafting Hull Restores at the Forge.",
+            "Forge Accelerator — Forge processing speed +25% (cooldown reduced to 2 min 15 sec).",
+            "Full Optimization — Further Forge yields +25% (total +50% with Optimized Forge).",
+            "Vigilant Archwing — Archwing health/shields/armor all +30% (also applies outside Empyrean).",
+            "Vigilant Necramech — Necramech health/shields both +25% (also applies outside Empyrean).",
+            "Anastasis — Remotely repair onboard hazards via the Tactical Menu. Spawns a repair drone (5 sec). Cannot be used during an active Electrical Hazard.",
         ]
     },
     {
@@ -75,16 +77,16 @@ const RAILJACK_SKILLS = [
         label: "Tactical",
         color: "purple",
         ranks: [
-            "Increased tactical map update rate.",
-            "Unlock Tactical Intrinsic: teleport to crewmates.",
-            "Access Tactical Avionics from outside the Railjack.",
-            "Unlock Hold Position: command crew to hold.",
-            "Improved ability cast speed while in Railjack.",
-            "Unlock Overseer: view crew from tactical map.",
-            "Further tactical map improvements.",
-            "Improved tactical range.",
-            "Unlock Transfer Conduit: boost crew abilities.",
-            "Maximum tactical mastery.",
+            "Tactical System — Deploy Tactical Mods and access crew tracking via Tactical Menu (L). Shows Railjack map, teammate positions, health and shields.",
+            "Ability Kinesis & Overseer — Remotely activate crewmates' Warframe abilities from Tactical Menu. View from other players' perspectives.",
+            "Command Link — Fast-travel within the Railjack (Bridge, Archwing exits, Turrets, Slingshot, Forge). Issue scripted mission commands to crew.",
+            "Recall Warp — Omni gear teleports you back aboard from anywhere after 5 seconds.",
+            "Deploy Necramechs — Use Necramech Summon in grounded combat within Railjack missions.",
+            "Tactical Efficiency — Battle Mod energy consumption reduced by 25%.",
+            "Tactical Response — Tactical Mod cooldown reduced by 20%.",
+            "Archwing Tactical Blink & Necramech Cooldown — Archwing Blink cooldown −25%, Necramech summon cooldown −25% (also applies outside Empyrean).",
+            "Swift Tactics — Further reduces Tactical Mod cooldown by 20% (combined 36% with Rank 7, stacks multiplicatively).",
+            "Join Warp — Warp from ship to a crew member's last location after 5 seconds.",
         ]
     },
     {
@@ -92,36 +94,57 @@ const RAILJACK_SKILLS = [
         label: "Command",
         color: "amber",
         ranks: [
-            "Unlock crew slot 1.",
-            "Improved crew stat generation.",
-            "Unlock crew slot 2.",
-            "Crew gain improved morale.",
-            "Unlock crew slot 3.",
-            "Crew gain max stats.",
-            "All crew combat improved.",
-            "Crew use specials more frequently.",
-            "Unlock elite crew assignments.",
-            "Maximum command mastery (full crew capacity).",
+            "1st Crew Member — Unlocks first crew slot. Hire crew from Ticker in Fortuna.",
+            "Competency Gain — Assign 1 competency point to crew members.",
+            "2nd Crew Member — Unlocks second crew slot.",
+            "Competency Gain — Assign 1 additional competency point to crew members.",
+            "3rd Crew Member — Unlocks third crew slot.",
+            "Competency Gain — Assign 1 additional competency point to crew members.",
+            "Competency Retraining — Redistribute previously assigned competency points.",
+            "Unusual Crewmates — Converted Liches become available as crew (Defender role only, no weapons/systems/competency).",
+            "On Call — Designate one crew member to be summoned in non-Railjack missions for up to 3 minutes (10 min cooldown, infinite uses).",
+            "Elite Crewmates — Stronger crew available from Ticker with 2 extra competency points and a unique random trait.",
         ]
     },
 ];
 
+// Railjack intrinsic point costs per rank: 1, 2, 4, 8, 16, 32, 64, 128, 256, 512
+// Cumulative to max: 1023 points per skill
+const RAILJACK_COST_PER_RANK = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512];
+
 const DUVIRI_SKILLS = [
+    {
+        key: "LPS_DRIFT_COMBAT",
+        label: "Combat",
+        color: "rose",
+        ranks: [
+            "Deadly Decrees — Each active Decree grants +10% damage (additive with Serration/Hornet Strike, affects some Warframe abilities).",
+            "Adrenaline Surge — In Duviri, Restorative boosts movement speed for 5 seconds.",
+            "Transference Sync — Unlock Transference Surge: briefly summon a Warframe in Duviri (press 5 when bar is full, lasts 10 seconds).",
+            "Swifter Strike — In Duviri, Drifter Power Strike cooldown reduced by 30%.",
+            "Swifter Abilities — In Duviri, Drifter ability cooldown reduced by 20% (Restorative: 12s, Smoke Screen: 48s).",
+            "Neural Pulse — Guiding Hand exposes a weakpoint on enemies for 10s. Hitting a weakpoint deals 3× damage.",
+            "Weaponmaster — In Duviri, weapon critical hit chance +20% additively (also affects Warframes).",
+            "Transference Synergy — Transference Surge duration +50% (increased to 15 seconds).",
+            "Muscle Mass — Drifter deals +25% damage. In the Origin System, both Drifter and Operator receive this boost.",
+            "Overpowering Abilities — In Duviri, using an Ability increases damage by 150% for 3 seconds.",
+        ]
+    },
     {
         key: "LPS_DRIFT_RIDING",
         label: "Riding",
         color: "cyan",
         ranks: [
-            "Increased Kaithe sprint speed.",
-            "Unlock Kaithe aerial dash.",
-            "Improved Kaithe aerial combat speed.",
-            "Kaithe gains additional jump height.",
-            "Improved Kaithe double-jump.",
-            "Unlock extended Kaithe flight duration.",
-            "Further Kaithe maneuverability.",
-            "Unlock Kaithe charge attack.",
-            "Improved aerial strike damage.",
-            "Maximum riding mastery.",
+            "Summon Kaithe — Tap 1 to summon your Kaithe. (Required during The Duviri Paradox quest.)",
+            "Cavalier Strength — Increased resistance to being dismounted by enemies.",
+            "Hoof Stomp — Press 3 while riding to command your Kaithe to stomp, knocking back enemies and reducing their armor.",
+            "Fast Travel — Use the map to fast travel to central Duviri locations and Materliths.",
+            "Smooth Path — Plants and rocks are marked on the map when riding your Kaithe.",
+            "Steadfast Dismount — Press 4 while riding to dismount and gain 150 Overguard (150 second cooldown).",
+            "Endurance Racer — Reduce cooldown between dashes.",
+            "Unique Identity — Name your Kaithe.",
+            "Equestrian Bond — Receive Kaithe Summon for Origin System Open World missions.",
+            "Herd Travel — Use the map to fast travel to other Drifters.",
         ]
     },
     {
@@ -129,33 +152,16 @@ const DUVIRI_SKILLS = [
         label: "Opportunity",
         color: "amber",
         ranks: [
-            "Gain one additional Decree choice.",
-            "Improved quality of Decree offerings.",
-            "Unlock double Decree roll (reroll once per circuit).",
-            "Further Decree quality improvements.",
-            "Unlock Decree Duplication chance.",
-            "Improved rare Decree drop rate.",
-            "Additional Decree choice on each pick.",
-            "Further Decree frequency improvements.",
-            "Unlock guaranteed rare Decree tier.",
-            "Maximum opportunity mastery.",
-        ]
-    },
-    {
-        key: "LPS_DRIFT_COMBAT",
-        label: "Combat",
-        color: "rose",
-        ranks: [
-            "Increased Drifter melee damage.",
-            "Unlock Drifter parry timing window.",
-            "Improved pistol damage.",
-            "Faster Drifter reload speed.",
-            "Increased Drifter critical chance.",
-            "Unlock combat finisher moves.",
-            "Further melee damage increase.",
-            "Improved combat status effects.",
-            "Unlock Drifter special attack.",
-            "Maximum combat mastery.",
+            "Expanded Decrees — Decree selections offer one additional option (3 → 4 choices).",
+            "Expanded Arsenal — Gain two additional weapon choices in Teshin's Cave (4 → 6 options).",
+            "Lucky Opener — Gain a free Decree when you enter Duviri.",
+            "Warframe Abundance — One additional Warframe option in Teshin's Cave (3 → 4). Also enables preview of offerings in the Star Chart.",
+            "Treasure Finder — +50% chance to receive Rare Decrees.",
+            "Fresh Hand — Discard offered Decrees and get a new selection, up to 3 times per Duviri visit.",
+            "Maximized Arsenal — Two more weapon choices in Teshin's Cave (further increases to 8 options).",
+            "Warframe Diversity — One more Warframe option in Teshin's Cave (further increases to 5 options).",
+            "High Value Vendor — Acrithis's stock now includes one Arcane per day. Steel Path Circuit also allows a Riven Mod or Kuva.",
+            "Stranger in Black — An unlikely ally occasionally appears in Teshin's Cave. Unlocks Stalker as a playable Warframe option.",
         ]
     },
     {
@@ -163,36 +169,23 @@ const DUVIRI_SKILLS = [
         label: "Endurance",
         color: "green",
         ranks: [
-            "Increased Drifter max health.",
-            "Improved Drifter armor.",
-            "Unlock Drifter health regeneration.",
-            "Further health increase.",
-            "Improved resistance to knockdown.",
-            "Unlock Drifter shield.",
-            "Further armor improvements.",
-            "Improved health regen rate.",
-            "Unlock Drifter energy resistance.",
-            "Maximum endurance mastery.",
-        ]
-    },
-    {
-        key: "LPS_DRIFT_AGILITY",
-        label: "Agility",
-        color: "indigo",
-        ranks: [
-            "Improved Drifter sprint speed.",
-            "Unlock Drifter bullet jump.",
-            "Further movement speed.",
-            "Improved Drifter dodge.",
-            "Unlock Drifter double jump.",
-            "Improved parkour efficiency.",
-            "Further dodge improvements.",
-            "Unlock Drifter air glide.",
-            "Improved aerial agility.",
-            "Maximum agility mastery.",
+            "Fortifying Decrees — Each active Decree grants +25 Health to Drifter (also affects Warframes).",
+            "Restorative Decree — Gaining a Decree fully restores Health and Energy (also affects Warframes).",
+            "Determination — One additional Revive available in Duviri (also affects Warframes).",
+            "Deft Defender — Parry grants +25 Health. Precise Parry grants +50 Health.",
+            "Born Survivor — +50% additional Health.",
+            "Precision Power — On Precise Parry, gain extra charge for Transference Surge.",
+            "Sharpshooter's Bounty — Landing a headshot restores +10 Health/s for 5s (also affects Warframes).",
+            "Tenacity — One additional Revive available in Duviri (also affects Warframes).",
+            "Tough As Old Boots — Gain +5 Health/s as Drifter. In the Origin System, both Drifter and Operator receive this boost.",
+            "Cheat Death — Fatal damage leaves you at 20% Health and invulnerable for 3 seconds (200s cooldown, also affects Warframes).",
         ]
     },
 ];
+
+// Duviri intrinsic point costs per rank: 20, 25, 30, 45, 65, 90, 125, 160, 205, 255
+// Cumulative to max: 1,020 points per skill (4,080 total for all 4 skills)
+const DUVIRI_COST_PER_RANK = [20, 25, 30, 45, 65, 90, 125, 160, 205, 255];
 
 const COLOR_MAP: Record<string, { bar: string; text: string; border: string; bg: string }> = {
     blue:   { bar: "bg-blue-500",   text: "text-blue-300",   border: "border-blue-700/50",   bg: "bg-blue-950/20" },
@@ -205,7 +198,7 @@ const COLOR_MAP: Record<string, { bar: string; text: string; border: string; bg:
     indigo: { bar: "bg-indigo-500", text: "text-indigo-300", border: "border-indigo-700/50", bg: "bg-indigo-950/20" },
 };
 
-const COST_PER_RANK = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5]; // intrinsic points needed per rank
+
 
 function IntrinsicsPanel({ mode, onClose }: { mode: "proxima" | "duviri"; onClose: () => void }) {
     const intrinsics = useTrackerStore(s => s.state.intrinsics);
@@ -214,6 +207,7 @@ function IntrinsicsPanel({ mode, onClose }: { mode: "proxima" | "duviri"; onClos
 
     const skills = mode === "proxima" ? RAILJACK_SKILLS : DUVIRI_SKILLS;
     const values = mode === "proxima" ? railjack : duviri;
+    const costPerRank = mode === "proxima" ? RAILJACK_COST_PER_RANK : DUVIRI_COST_PER_RANK;
     const MAX = 10;
 
     const [expanded, setExpanded] = useState<string | null>(null);
@@ -235,6 +229,13 @@ function IntrinsicsPanel({ mode, onClose }: { mode: "proxima" | "duviri"; onClos
                             {totalPoints} / {totalMax} points invested
                             {!Object.keys(values).length && " — import your profile to track progress"}
                         </div>
+                        <div className="text-[11px] text-amber-400/80 mt-1 flex items-center gap-1">
+                            <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            Intrinsic investments cannot be reset — choose carefully.
+                        </div>
                     </div>
                     <button
                         onClick={onClose}
@@ -250,7 +251,7 @@ function IntrinsicsPanel({ mode, onClose }: { mode: "proxima" | "duviri"; onClos
                         const rank = Math.min(values[sk.key] ?? 0, MAX);
                         const isExpanded = expanded === sk.key;
                         const clr = COLOR_MAP[sk.color] ?? COLOR_MAP.blue;
-                        const nextCost = rank < MAX ? COST_PER_RANK[rank] : null;
+                        const nextCost = rank < MAX ? costPerRank[rank] : null;
 
                         return (
                             <div key={sk.key} className={["rounded-xl border overflow-hidden", clr.border, clr.bg].join(" ")}>
@@ -264,7 +265,7 @@ function IntrinsicsPanel({ mode, onClose }: { mode: "proxima" | "duviri"; onClos
                                             <span className={["text-sm font-semibold", clr.text].join(" ")}>{sk.label}</span>
                                             <span className="text-xs text-slate-400 font-mono">R{rank} / {MAX}</span>
                                             {nextCost && rank < MAX && (
-                                                <span className="text-[10px] text-slate-500 ml-auto">Next rank: {nextCost} pt{nextCost !== 1 ? "s" : ""}</span>
+                                                <span className="text-[10px] text-slate-500 ml-auto">Next rank: {nextCost.toLocaleString()} pts</span>
                                             )}
                                         </div>
                                         {/* Pip bar */}
@@ -301,12 +302,12 @@ function IntrinsicsPanel({ mode, onClose }: { mode: "proxima" | "duviri"; onClos
                                                 </div>
                                                 <div className={r < rank ? "text-slate-200" : "text-slate-500"}>{desc}</div>
                                                 <div className="ml-auto shrink-0 text-[10px] text-slate-600 font-mono">
-                                                    {COST_PER_RANK[r]} pt
+                                                    {costPerRank[r].toLocaleString()} pts
                                                 </div>
                                             </div>
                                         ))}
                                         <div className="text-[10px] text-slate-600 pt-1 text-right">
-                                            Total to max: {COST_PER_RANK.reduce((a, b) => a + b, 0)} pts
+                                            Total to max: {costPerRank.reduce((a, b) => a + b, 0).toLocaleString()} pts
                                         </div>
                                     </div>
                                 )}
