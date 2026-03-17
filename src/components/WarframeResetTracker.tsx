@@ -10,6 +10,10 @@
 //  - "Customize" panel lets users permanently hide tasks they don't care about.
 //  - If every eligible task in a bucket is hidden, the timer card is suppressed.
 //  - Baro Ki'Teer reference row is live-computed (anchor 2026-03-20T13:00Z, bi-weekly, 48h window).
+//  - Temporal Archimedea and Netracells now share logic:
+//      * Marking Temporal Archimedea complete adds 2 Netracell/Search Pulse runs.
+//      * If 4+ Netracell runs are already spent, Temporal Archimedea is auto-crossed out
+//        because 2 surges are required to run it from the shared pool.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTrackerStore } from "../store/store";
@@ -20,24 +24,24 @@ import type { SyndicateState } from "../domain/types";
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
 // "conclave" replaces "weekly_friday" — it has an internal daily+weekly split.
-type Bucket   = "primary_daily" | "secondary_daily" | "weekly_monday" | "conclave";
+type Bucket = "primary_daily" | "secondary_daily" | "weekly_monday" | "conclave";
 type TimeMode = "utc" | "local";
 
 interface RCState {
     timeMode: TimeMode;
-    primaryDailyResetKey:           string;
-    completedPrimaryDailyTaskIds:   string[];
-    secondaryDailyResetKey:         string;
+    primaryDailyResetKey: string;
+    completedPrimaryDailyTaskIds: string[];
+    secondaryDailyResetKey: string;
     completedSecondaryDailyTaskIds: string[];
-    weeklyMondayResetKey:           string;
-    completedWeeklyMondayTaskIds:   string[];
+    weeklyMondayResetKey: string;
+    completedWeeklyMondayTaskIds: string[];
     // Conclave has two internal windows — keyed separately so each auto-clears correctly
-    conclaveWeeklyResetKey:         string;
+    conclaveWeeklyResetKey: string;
     completedConclaveWeeklyTaskIds: string[];
-    conclaveDailyResetKey:          string;
-    completedConclaveDailyTaskIds:  string[];
-    hiddenTaskIds:                  string[];
-    netracellRuns:                  number;    // 0–5, clears with weekly monday reset
+    conclaveDailyResetKey: string;
+    completedConclaveDailyTaskIds: string[];
+    hiddenTaskIds: string[];
+    netracellRuns: number;    // 0–5, clears with weekly monday reset
 }
 
 // ConclaveSubBucket drives the internal split inside the Conclave tab panel
@@ -56,6 +60,8 @@ type TaskDef = {
     isVisible?: (ctx: { completedPrereqs: Record<string, boolean>; syndicates: SyndicateState[] }) => boolean;
 };
 
+type TaskRenderState = "pending" | "completed" | "auto_blocked";
+
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
 const LS_KEY = "wfpt:resetChecklist";
@@ -67,29 +73,32 @@ const RELAY_FACTION_IDS = new Set<SyndicateId>([
     SY.THE_PERRIN_SEQUENCE, SY.RED_VEIL, SY.NEW_LOKA,
 ]);
 
+const NETRACELLS_TASK_ID = "netracells";
+const TEMPORAL_ARCHIMEDEA_TASK_ID = "temporal_archimedea";
+
 // Window lengths for urgency colouring on the timer card.
 // For "conclave" we use the shorter daily window so the card colour is driven
 // by whichever deadline is most imminent.
 const WINDOW_MS: Record<Bucket, number> = {
-    primary_daily:   86_400_000,
+    primary_daily: 86_400_000,
     secondary_daily: 86_400_000,
-    weekly_monday:   604_800_000,
-    conclave:        86_400_000,   // driven by the daily sub-reset
+    weekly_monday: 604_800_000,
+    conclave: 86_400_000,
 };
 
 const BUCKET_LABEL: Record<Bucket, string> = {
-    primary_daily:   "Primary Daily",
+    primary_daily: "Primary Daily",
     secondary_daily: "Secondary Daily",
-    weekly_monday:   "Weekly Reset",
-    conclave:        "Conclave",
+    weekly_monday: "Weekly Reset",
+    conclave: "Conclave",
 };
 
 function getBucketSub(mode: TimeMode): Record<Bucket, string> {
     return {
-        primary_daily:   fmtFixedUTC(0, 0, mode),
+        primary_daily: fmtFixedUTC(0, 0, mode),
         secondary_daily: fmtFixedUTC(16, 0, mode),
-        weekly_monday:   `Mon ${fmtFixedUTC(0, 0, mode)}`,
-        conclave:        `Daily ${fmtFixedUTC(16, 0, mode)} · Weekly Fri`,
+        weekly_monday: `Mon ${fmtFixedUTC(0, 0, mode)}`,
+        conclave: `Daily ${fmtFixedUTC(16, 0, mode)} · Weekly Fri`,
     };
 }
 
@@ -99,134 +108,145 @@ const BUCKET_ORDER: Bucket[] = [
 
 // For non-conclave buckets only — conclave uses two separate key pairs below.
 const COMPLETED_KEY: Partial<Record<Bucket, keyof RCState>> = {
-    primary_daily:   "completedPrimaryDailyTaskIds",
+    primary_daily: "completedPrimaryDailyTaskIds",
     secondary_daily: "completedSecondaryDailyTaskIds",
-    weekly_monday:   "completedWeeklyMondayTaskIds",
+    weekly_monday: "completedWeeklyMondayTaskIds",
 };
 
 const RESET_KEY: Partial<Record<Bucket, keyof RCState>> = {
-    primary_daily:   "primaryDailyResetKey",
+    primary_daily: "primaryDailyResetKey",
     secondary_daily: "secondaryDailyResetKey",
-    weekly_monday:   "weeklyMondayResetKey",
+    weekly_monday: "weeklyMondayResetKey",
 };
 
 // Baro anchor — 2026-03-20T13:00:00Z, every 14 days, available 48 h
-const BARO_ANCHOR_MS  = Date.UTC(2026, 2, 20, 13, 0, 0); // month is 0-indexed
-const BARO_PERIOD_MS  = 14 * 86_400_000;
-const BARO_WINDOW_MS  = 2  * 86_400_000;
+const BARO_ANCHOR_MS = Date.UTC(2026, 2, 20, 13, 0, 0); // month is 0-indexed
+const BARO_PERIOD_MS = 14 * 86_400_000;
+const BARO_WINDOW_MS = 2 * 86_400_000;
 
 // ─── Task definitions ──────────────────────────────────────────────────────────
 
 const ALL_TASKS: TaskDef[] = [
     // ── Primary Daily — 00:00 UTC ──────────────────────────────────────────────
-    { id: "daily_tribute",              label: "Daily Tribute",            bucket: "primary_daily",   description: "Claim the daily login reward." },
-    { id: "daily_trade_limit",          label: "Daily Trade Limit",        bucket: "primary_daily",   description: "Use remaining trades before midnight UTC." },
-    { id: "daily_gift_limit",           label: "Daily Gift Limit",         bucket: "primary_daily",   description: "Use remaining daily gifts." },
-    { id: "focus_daily_cap",            label: "Focus Daily Cap",          bucket: "primary_daily",   description: "Spend today's Focus cap.", prereqIds: [PR.SECOND_DREAM] },
+    { id: "daily_tribute", label: "Daily Tribute", bucket: "primary_daily", description: "Claim the daily login reward." },
+    { id: "daily_trade_limit", label: "Daily Trade Limit", bucket: "primary_daily", description: "Use remaining trades before midnight UTC." },
+    { id: "daily_gift_limit", label: "Daily Gift Limit", bucket: "primary_daily", description: "Use remaining daily gifts." },
+    { id: "focus_daily_cap", label: "Focus Daily Cap", bucket: "primary_daily", description: "Spend today's Focus cap.", prereqIds: [PR.SECOND_DREAM] },
 
     // Relay faction standing — filtered to pledged faction(s) automatically
-    { id: "standing_steel_meridian",    label: "Steel Meridian",           bucket: "primary_daily",   description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.STEEL_MERIDIAN },
-    { id: "standing_arbiters",          label: "Arbiters of Hexis",        bucket: "primary_daily",   description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.ARBITERS_OF_HEXIS },
-    { id: "standing_suda",              label: "Cephalon Suda",            bucket: "primary_daily",   description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.CEPHALON_SUDA },
-    { id: "standing_perrin",            label: "Perrin Sequence",          bucket: "primary_daily",   description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.THE_PERRIN_SEQUENCE },
-    { id: "standing_red_veil",          label: "Red Veil",                 bucket: "primary_daily",   description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.RED_VEIL },
-    { id: "standing_new_loka",          label: "New Loka",                 bucket: "primary_daily",   description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.NEW_LOKA },
+    { id: "standing_steel_meridian", label: "Steel Meridian", bucket: "primary_daily", description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.STEEL_MERIDIAN },
+    { id: "standing_arbiters", label: "Arbiters of Hexis", bucket: "primary_daily", description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.ARBITERS_OF_HEXIS },
+    { id: "standing_suda", label: "Cephalon Suda", bucket: "primary_daily", description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.CEPHALON_SUDA },
+    { id: "standing_perrin", label: "Perrin Sequence", bucket: "primary_daily", description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.THE_PERRIN_SEQUENCE },
+    { id: "standing_red_veil", label: "Red Veil", bucket: "primary_daily", description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.RED_VEIL },
+    { id: "standing_new_loka", label: "New Loka", bucket: "primary_daily", description: "Use today's standing cap.", isFactionStanding: true, factionSyndicateId: SY.NEW_LOKA },
 
     // Open-world standing
-    { id: "standing_ostron",            label: "Ostrons",                  bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_CETUS] },
-    { id: "standing_the_quills",        label: "The Quills",               bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_CETUS] },
-    { id: "standing_solaris",           label: "Solaris United",           bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_FORTUNA] },
-    { id: "standing_vox_solaris",       label: "Vox Solaris",              bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_FORTUNA, PR.SECOND_DREAM] },
-    { id: "standing_ventkids",          label: "Ventkids",                 bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_FORTUNA] },
-    { id: "standing_entrati",           label: "Entrati",                  bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_NECRALISK] },
-    { id: "standing_cavia",             label: "Cavia",                    bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_SANCTUM] },
-    { id: "standing_necraloid",         label: "Necraloid",                bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_NECRALISK] },
-    { id: "standing_the_holdfasts",     label: "The Holdfasts",            bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_ZARIMAN] },
-    { id: "standing_the_hex",           label: "The Hex",                  bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_HOLLVANIA] },
-    { id: "standing_cephalon_simaris",  label: "Cephalon Simaris",         bucket: "primary_daily",   description: "Use today's standing cap.", prereqIds: [PR.HUB_RELAY, PR.NEW_STRANGE] },
+    { id: "standing_ostron", label: "Ostrons", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_CETUS] },
+    { id: "standing_the_quills", label: "The Quills", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_CETUS] },
+    { id: "standing_solaris", label: "Solaris United", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_FORTUNA] },
+    { id: "standing_vox_solaris", label: "Vox Solaris", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_FORTUNA, PR.SECOND_DREAM] },
+    { id: "standing_ventkids", label: "Ventkids", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_FORTUNA] },
+    { id: "standing_entrati", label: "Entrati", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_NECRALISK] },
+    { id: "standing_cavia", label: "Cavia", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_SANCTUM] },
+    { id: "standing_necraloid", label: "Necraloid", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_NECRALISK] },
+    { id: "standing_the_holdfasts", label: "The Holdfasts", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_ZARIMAN] },
+    { id: "standing_the_hex", label: "The Hex", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_HOLLVANIA] },
+    { id: "standing_cephalon_simaris", label: "Cephalon Simaris", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_RELAY, PR.NEW_STRANGE] },
 
-    { id: "steel_path_incursions",      label: "Steel Path Incursions",    bucket: "primary_daily",   description: "Finish the day's Steel Path Incursions." },
-    { id: "nightwave_daily",            label: "Nightwave Daily Acts",     bucket: "primary_daily",   description: "Complete today's Nightwave daily acts." },
-    { id: "argon_decay",                label: "Argon Crystal Check",      bucket: "primary_daily",   description: "Spend Argon before daily decay if needed." },
-    { id: "circuit_stage_bonus",        label: "Circuit Stage Bonus",      bucket: "primary_daily",   description: "Use today's Circuit stage bonus.", prereqIds: [PR.DUVIRI_PARADOX] },
-    { id: "acrithis_daily",             label: "Acrithis Daily",           bucket: "primary_daily",   description: "Check current daily Duviri shop offerings.", prereqIds: [PR.DUVIRI_PARADOX] },
-    { id: "kim_daily",                  label: "KIM Daily Conversations",  bucket: "primary_daily",   description: "Check new daily KIM messages from Hex members and Roundtable contacts.", prereqIds: [PR.THE_HEX] },
+    { id: "steel_path_incursions", label: "Steel Path Incursions", bucket: "primary_daily", description: "Finish the day's Steel Path Incursions." },
+    { id: "nightwave_daily", label: "Nightwave Daily Acts", bucket: "primary_daily", description: "Complete today's Nightwave daily acts." },
+    { id: "argon_decay", label: "Argon Crystal Check", bucket: "primary_daily", description: "Spend Argon before daily decay if needed." },
+    { id: "circuit_stage_bonus", label: "Circuit Stage Bonus", bucket: "primary_daily", description: "Use today's Circuit stage bonus.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "acrithis_daily", label: "Acrithis Daily", bucket: "primary_daily", description: "Check current daily Duviri shop offerings.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "kim_daily", label: "KIM Daily Conversations", bucket: "primary_daily", description: "Check new daily KIM messages from Hex members and Roundtable contacts.", prereqIds: [PR.THE_HEX] },
 
     // ── Secondary Daily — 16:00 UTC ────────────────────────────────────────────
-    { id: "sortie_set",                 label: "Sortie Mission Set",       bucket: "secondary_daily", description: "Complete today's Sortie before missions rotate." },
-    { id: "syndicate_missions",         label: "Syndicate Daily Missions", bucket: "secondary_daily", description: "Finish the current Syndicate mission set." },
+    { id: "sortie_set", label: "Sortie Mission Set", bucket: "secondary_daily", description: "Complete today's Sortie before missions rotate." },
+    { id: "syndicate_missions", label: "Syndicate Daily Missions", bucket: "secondary_daily", description: "Finish the current Syndicate mission set." },
 
     // ── Weekly — Monday 00:00 UTC ──────────────────────────────────────────────
-    { id: "archon_hunt",                label: "Archon Hunt",              bucket: "weekly_monday",   description: "Complete this week's Archon Hunt.", prereqIds: [PR.NEW_WAR] },
-    { id: "netracells",                 label: "Netracells (5 runs)",      bucket: "weekly_monday",   description: "Use this week's Netracell reward runs. Shares the 5-run Search Pulse pool with Deep Archimedea and Temporal Archimedea.", prereqIds: [PR.WHISPERS_WALL] },
+    { id: "archon_hunt", label: "Archon Hunt", bucket: "weekly_monday", description: "Complete this week's Archon Hunt.", prereqIds: [PR.NEW_WAR] },
+    { id: NETRACELLS_TASK_ID, label: "Netracells (5 runs)", bucket: "weekly_monday", description: "Use this week's Netracell reward runs. Shares the 5-run Search Pulse pool with Deep Archimedea and Temporal Archimedea.", prereqIds: [PR.WHISPERS_WALL] },
     {
-        id: "deep_archimedea",          label: "Deep Archimedea",          bucket: "weekly_monday",   description: "Complete this week's Deep Archimedea.",
+        id: "deep_archimedea",
+        label: "Deep Archimedea",
+        bucket: "weekly_monday",
+        description: "Complete this week's Deep Archimedea.",
         prereqIds: [PR.WHISPERS_WALL],
         isVisible: ({ completedPrereqs, syndicates }) => {
             if (!completedPrereqs[PR.WHISPERS_WALL]) return false;
             return (syndicates.find((s) => s.id === SY.CAVIA)?.rank ?? 0) >= 5;
         },
     },
-    { id: "circuit_reward_track",       label: "Circuit Reward Track",     bucket: "weekly_monday",   description: "Push weekly Circuit reward track.", prereqIds: [PR.DUVIRI_PARADOX] },
-    { id: "circuit_incarnon",           label: "Circuit Incarnon Genesis", bucket: "weekly_monday",   description: "Use current weekly Incarnon rotation.", prereqIds: [PR.DUVIRI_PARADOX] },
-    { id: "nightwave_weekly",           label: "Nightwave Weekly Acts",    bucket: "weekly_monday",   description: "Complete this week's Nightwave weekly acts." },
-    { id: "nightwave_elite",            label: "Nightwave Elite Weekly",   bucket: "weekly_monday",   description: "Complete this week's Nightwave elite acts." },
-    { id: "helminth_invigoration",      label: "Helminth Invigoration",    bucket: "weekly_monday",   description: "Use the current weekly Helminth Invigoration.", prereqIds: [PR.SEGMENT_HELMINTH_INVIGORATION] },
-    { id: "steel_path_honors",          label: "Steel Path Honors",        bucket: "weekly_monday",   description: "Check or buy this week's Steel Path Honors." },
-    { id: "palladino_weekly",           label: "Palladino — Iron Wake",    bucket: "weekly_monday",   description: "Check this week's Palladino offerings." },
-    { id: "yonta_weekly",               label: "Yonta — Weekly Kuva",      bucket: "weekly_monday",   description: "Claim Yonta's weekly Kuva purchase.", prereqIds: [PR.HUB_ZARIMAN] },
-    { id: "bird3_weekly",               label: "Bird-3 — Archon Shard",    bucket: "weekly_monday",   description: "Check Bird-3's weekly shard purchase.", prereqIds: [PR.HUB_SANCTUM] },
-    { id: "acrithis_weekly",            label: "Acrithis Weekly Shop",     bucket: "weekly_monday",   description: "Review the weekly Acrithis inventory.", prereqIds: [PR.DUVIRI_PARADOX] },
-    { id: "break_narmer",               label: "Break Narmer (Kahl)",      bucket: "weekly_monday",   description: "Complete the weekly Kahl mission.", prereqIds: [PR.VEILBREAKER] },
-    { id: "maroo",                      label: "Maroo — Ayatan Hunt",      bucket: "weekly_monday",   description: "Run the weekly Ayatan Treasure Hunt." },
-    { id: "help_clem",                  label: "Help Clem",                bucket: "weekly_monday",   description: "Run the weekly Help Clem mission." },
-    { id: "the_descendia_normal",       label: "The Descendia (Normal)",   bucket: "weekly_monday",   description: "Complete this week's Normal Descendia run. Separate reward table from Steel Path.", prereqIds: [PR.THE_OLD_PEACE] },
-    { id: "the_descendia_sp",           label: "The Descendia (Steel Path)",bucket: "weekly_monday",   description: "Complete this week's Steel Path Descendia run. Separate reward table from Normal.", prereqIds: [PR.THE_OLD_PEACE] },
-    { id: "kaya_weekly",               label: "Kaya — Weekly Arcane",     bucket: "weekly_monday",   description: "Check Kaya's weekly Arcane Enhancement offering.", prereqIds: [PR.THE_HEX] },
+    { id: "circuit_reward_track", label: "Circuit Reward Track", bucket: "weekly_monday", description: "Push weekly Circuit reward track.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "circuit_incarnon", label: "Circuit Incarnon Genesis", bucket: "weekly_monday", description: "Use current weekly Incarnon rotation.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "nightwave_weekly", label: "Nightwave Weekly Acts", bucket: "weekly_monday", description: "Complete this week's Nightwave weekly acts." },
+    { id: "nightwave_elite", label: "Nightwave Elite Weekly", bucket: "weekly_monday", description: "Complete this week's Nightwave elite acts." },
+    { id: "helminth_invigoration", label: "Helminth Invigoration", bucket: "weekly_monday", description: "Use the current weekly Helminth Invigoration.", prereqIds: [PR.SEGMENT_HELMINTH_INVIGORATION] },
+    { id: "steel_path_honors", label: "Steel Path Honors", bucket: "weekly_monday", description: "Check or buy this week's Steel Path Honors." },
+    { id: "palladino_weekly", label: "Palladino — Iron Wake", bucket: "weekly_monday", description: "Check this week's Palladino offerings." },
+    { id: "yonta_weekly", label: "Yonta — Weekly Kuva", bucket: "weekly_monday", description: "Claim Yonta's weekly Kuva purchase.", prereqIds: [PR.HUB_ZARIMAN] },
+    { id: "bird3_weekly", label: "Bird-3 — Archon Shard", bucket: "weekly_monday", description: "Check Bird-3's weekly shard purchase.", prereqIds: [PR.HUB_SANCTUM] },
+    { id: "acrithis_weekly", label: "Acrithis Weekly Shop", bucket: "weekly_monday", description: "Review the weekly Acrithis inventory.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "break_narmer", label: "Break Narmer (Kahl)", bucket: "weekly_monday", description: "Complete the weekly Kahl mission.", prereqIds: [PR.VEILBREAKER] },
+    { id: "maroo", label: "Maroo — Ayatan Hunt", bucket: "weekly_monday", description: "Run the weekly Ayatan Treasure Hunt." },
+    { id: "help_clem", label: "Help Clem", bucket: "weekly_monday", description: "Run the weekly Help Clem mission." },
+    { id: "the_descendia_normal", label: "The Descendia (Normal)", bucket: "weekly_monday", description: "Complete this week's Normal Descendia run. Separate reward table from Steel Path.", prereqIds: [PR.THE_OLD_PEACE] },
+    { id: "the_descendia_sp", label: "The Descendia (Steel Path)", bucket: "weekly_monday", description: "Complete this week's Steel Path Descendia run. Separate reward table from Normal.", prereqIds: [PR.THE_OLD_PEACE] },
+    { id: "kaya_weekly", label: "Kaya — Weekly Arcane", bucket: "weekly_monday", description: "Check Kaya's weekly Arcane Enhancement offering.", prereqIds: [PR.THE_HEX] },
     {
-        id: "temporal_archimedea",      label: "Temporal Archimedea",      bucket: "weekly_monday",   description: "Complete this week's Temporal Archimedea. Uses the shared 5-run Search Pulse pool with Netracells and Deep Archimedea.",
+        id: TEMPORAL_ARCHIMEDEA_TASK_ID,
+        label: "Temporal Archimedea",
+        bucket: "weekly_monday",
+        description: "Complete this week's Temporal Archimedea. Uses the shared 5-run Search Pulse pool with Netracells and Deep Archimedea.",
         prereqIds: [PR.THE_HEX],
         isVisible: ({ completedPrereqs, syndicates }) => {
             if (!completedPrereqs[PR.THE_HEX]) return false;
             return (syndicates.find((s) => s.id === SY.THE_HEX)?.rank ?? 0) >= 5;
         },
     },
-    { id: "calendar_1999",              label: "1999 Calendar Season",     bucket: "weekly_monday",   description: "Check weekly calendar To Do tasks, prize selection, and Hex Override choices.", prereqIds: [PR.THE_HEX] },
+    { id: "calendar_1999", label: "1999 Calendar Season", bucket: "weekly_monday", description: "Check weekly calendar To Do tasks, prize selection, and Hex Override choices.", prereqIds: [PR.THE_HEX] },
 
     // ── Conclave — Daily 16:00 UTC ─────────────────────────────────────────────
-    { id: "conclave_daily_standing",    label: "Conclave Standing",        bucket: "conclave",        conclaveSub: "conclave_daily",   description: "Use today's Conclave standing cap.", prereqIds: [PR.HUB_RELAY] },
-    { id: "conclave_daily_challenges",  label: "Conclave Daily Challenges",bucket: "conclave",        conclaveSub: "conclave_daily",   description: "Complete today's Conclave daily challenges.", prereqIds: [PR.HUB_RELAY] },
+    { id: "conclave_daily_standing", label: "Conclave Standing", bucket: "conclave", conclaveSub: "conclave_daily", description: "Use today's Conclave standing cap.", prereqIds: [PR.HUB_RELAY] },
+    { id: "conclave_daily_challenges", label: "Conclave Daily Challenges", bucket: "conclave", conclaveSub: "conclave_daily", description: "Complete today's Conclave daily challenges.", prereqIds: [PR.HUB_RELAY] },
 
     // ── Conclave — Weekly Friday 00:00 UTC ────────────────────────────────────
-    { id: "conclave_weekly_challenges", label: "Conclave Weekly Challenges", bucket: "conclave",      conclaveSub: "conclave_weekly",  description: "Finish this week's Conclave weekly challenges.", prereqIds: [PR.HUB_RELAY] },
+    { id: "conclave_weekly_challenges", label: "Conclave Weekly Challenges", bucket: "conclave", conclaveSub: "conclave_weekly", description: "Finish this week's Conclave weekly challenges.", prereqIds: [PR.HUB_RELAY] },
 ];
 
 function getTimedRef(mode: TimeMode) {
     return [
-        { id: "tenet",   label: "Tenet Weapon Bonus",  detail: `Rotates every 4 days at ${fmtFixedUTC(0, 0, mode)}.` },
-        { id: "bounty",  label: "Bounty Rotation",     detail: "Every 2h 30m — Cetus, Fortuna, Cambion, Zariman, Sanctum." },
-        { id: "plains",  label: "Plains of Eidolon",   detail: "150-min cycle: ~100m day, ~50m night." },
-        { id: "vallis",  label: "Orb Vallis",          detail: "26m 40s warm / 20m cold." },
-        { id: "cambion", label: "Cambion Drift",       detail: "150-min Fass/Vome cycle." },
+        { id: "tenet", label: "Tenet Weapon Bonus", detail: `Rotates every 4 days at ${fmtFixedUTC(0, 0, mode)}.` },
+        { id: "bounty", label: "Bounty Rotation", detail: "Every 2h 30m — Cetus, Fortuna, Cambion, Zariman, Sanctum." },
+        { id: "plains", label: "Plains of Eidolon", detail: "150-min cycle: ~100m day, ~50m night." },
+        { id: "vallis", label: "Orb Vallis", detail: "26m 40s warm / 20m cold." },
+        { id: "cambion", label: "Cambion Drift", detail: "150-min Fass/Vome cycle." },
     ];
 }
+
 function getMonthlyRef(mode: TimeMode) {
     return [{ id: "prime", label: "Prime Resurgence", detail: `Approximate monthly rotation ~${fmtFixedUTC(18, 0, mode)}. Reference only.` }];
 }
+
 const EVENT_REF = [
-    { id: "world",    label: "World Events",   detail: "Ghoul Purge, Thermia, Razorback, Fomorian, Plague Star." },
-    { id: "seasonal", label: "Seasonal Events",detail: "Star Days, Dog Days, Naberus, Lunar New Year, Christmas." },
+    { id: "world", label: "World Events", detail: "Ghoul Purge, Thermia, Razorback, Fomorian, Plague Star." },
+    { id: "seasonal", label: "Seasonal Events", detail: "Star Days, Dog Days, Naberus, Lunar New Year, Christmas." },
 ];
 
 // ─── Time helpers ───────────────────────────────────────────────────────────────
 
-function utcKey(d: Date) { return d.toISOString().slice(0, 10); }
+function utcKey(d: Date) {
+    return d.toISOString().slice(0, 10);
+}
 
 // Key for conclave daily — date string for the 16:00 UTC window currently active
 function conclaveDailyKey(now: Date): string {
     const threshold = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 16));
     if (now >= threshold) return utcKey(threshold);
-    const prev = new Date(threshold); prev.setUTCDate(prev.getUTCDate() - 1);
+    const prev = new Date(threshold);
+    prev.setUTCDate(prev.getUTCDate() - 1);
     return utcKey(prev);
 }
 
@@ -241,12 +261,17 @@ function getCurrentKeys(now: Date): Record<Exclude<Bucket, "conclave">, string> 
     const st = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 16));
     const mb = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     mb.setUTCDate(mb.getUTCDate() - (mb.getUTCDay() + 6) % 7);
-    const secKey = now >= st ? utcKey(st) : (() => { const p = new Date(st); p.setUTCDate(p.getUTCDate() - 1); return utcKey(p); })();
+    const secKey = now >= st ? utcKey(st) : (() => {
+        const p = new Date(st);
+        p.setUTCDate(p.getUTCDate() - 1);
+        return utcKey(p);
+    })();
+
     return {
-        primary_daily:   utcKey(now),
+        primary_daily: utcKey(now),
         secondary_daily: secKey,
-        weekly_monday:   utcKey(mb),
-        conclave_daily:  conclaveDailyKey(now),
+        weekly_monday: utcKey(mb),
+        conclave_daily: conclaveDailyKey(now),
         conclave_weekly: conclaveWeeklyKey(now),
     };
 }
@@ -262,19 +287,21 @@ function getNextResets(now: Date): Record<Bucket, Date> & { conclave_daily: Date
     const nextConcDaily = now < st ? st : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 16));
 
     return {
-        primary_daily:   new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)),
+        primary_daily: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)),
         secondary_daily: now < st ? st : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 16)),
-        weekly_monday:   nm,
-        // The "conclave" card shows countdown to the nearest of its two sub-resets
-        conclave:        nextConcDaily,
-        conclave_daily:  nextConcDaily,
+        weekly_monday: nm,
+        conclave: nextConcDaily,
+        conclave_daily: nextConcDaily,
         conclave_weekly: nf,
     };
 }
 
 function fmtMs(ms: number): string {
     const t = Math.max(0, Math.floor(ms / 1000));
-    const d = Math.floor(t / 86400), h = Math.floor((t % 86400) / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+    const d = Math.floor(t / 86400);
+    const h = Math.floor((t % 86400) / 3600);
+    const m = Math.floor((t % 3600) / 60);
+    const s = t % 60;
     if (d > 0) return `${d}d ${h}h ${m}m`;
     if (h > 0) return `${h}h ${m}m ${s}s`;
     if (m > 0) return `${m}m ${s}s`;
@@ -289,12 +316,12 @@ function getDisplayTimezone(): string {
 function fmtAbs(date: Date, mode: TimeMode): string {
     if (mode === "utc") {
         const wd = date.toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" });
-        const t  = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "UTC" });
+        const t = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "UTC" });
         return `${wd} ${t} UTC`;
     }
     const tz = getDisplayTimezone();
     const wd = date.toLocaleDateString("en-US", { weekday: "short", timeZone: tz });
-    const t  = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: tz });
+    const t = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: tz });
     return `${wd} ${t}`;
 }
 
@@ -316,37 +343,83 @@ function urgTier(ms: number, bucket: Bucket): "safe" | "warn" | "crit" {
     return r <= 0.10 ? "crit" : r <= 0.35 ? "warn" : "safe";
 }
 
-const URG_COUNTDOWN: Record<string, string> = { safe: "text-emerald-400", warn: "text-amber-400",        crit: "text-red-400" };
-const URG_BAR:       Record<string, string> = { safe: "bg-emerald-500",   warn: "bg-amber-500",          crit: "bg-red-500" };
-const URG_BORDER_L:  Record<string, string> = { safe: "border-l-emerald-600", warn: "border-l-amber-600",crit: "border-l-red-600" };
-const URG_TITLE:     Record<string, string> = { safe: "text-emerald-400", warn: "text-amber-400",        crit: "text-red-400" };
+const URG_COUNTDOWN: Record<string, string> = { safe: "text-emerald-400", warn: "text-amber-400", crit: "text-red-400" };
+const URG_BAR: Record<string, string> = { safe: "bg-emerald-500", warn: "bg-amber-500", crit: "bg-red-500" };
+const URG_BORDER_L: Record<string, string> = { safe: "border-l-emerald-600", warn: "border-l-amber-600", crit: "border-l-red-600" };
+const URG_TITLE: Record<string, string> = { safe: "text-emerald-400", warn: "text-amber-400", crit: "text-red-400" };
+
+// ─── Shared weekly Search Pulse helpers ────────────────────────────────────────
+
+function isTemporalArchimedeaAutoBlocked(netracellRuns: number, completedIds: string[]): boolean {
+    return netracellRuns >= 4 && !completedIds.includes(TEMPORAL_ARCHIMEDEA_TASK_ID);
+}
+
+function getTaskRenderState(task: TaskDef, completedIds: string[], netracellRuns: number): TaskRenderState {
+    if (task.id === NETRACELLS_TASK_ID) {
+        return netracellRuns >= 5 ? "completed" : "pending";
+    }
+
+    if (task.id === TEMPORAL_ARCHIMEDEA_TASK_ID) {
+        if (completedIds.includes(TEMPORAL_ARCHIMEDEA_TASK_ID)) return "completed";
+        if (isTemporalArchimedeaAutoBlocked(netracellRuns, completedIds)) return "auto_blocked";
+        return "pending";
+    }
+
+    return completedIds.includes(task.id) ? "completed" : "pending";
+}
+
+function getTaskDescription(task: TaskDef, completedIds: string[], netracellRuns: number): string {
+    if (task.id === NETRACELLS_TASK_ID) {
+        if (completedIds.includes(TEMPORAL_ARCHIMEDEA_TASK_ID)) {
+            return "Use this week's Netracell reward runs. Temporal Archimedea already consumed 2 Search Pulses from the shared 5-run pool with Netracells and Deep Archimedea.";
+        }
+        return "Use this week's Netracell reward runs. Shares the 5-run Search Pulse pool with Deep Archimedea and Temporal Archimedea.";
+    }
+
+    if (task.id === TEMPORAL_ARCHIMEDEA_TASK_ID) {
+        if (completedIds.includes(TEMPORAL_ARCHIMEDEA_TASK_ID)) {
+            return "Completed. This consumed 2 Search Pulses from the shared 5-run pool with Netracells and Deep Archimedea.";
+        }
+        if (isTemporalArchimedeaAutoBlocked(netracellRuns, completedIds)) {
+            return "Crossed out because 4 or more of the 5 shared Search Pulses are already spent on Netracells. Temporal Archimedea needs 2 remaining surges from that pool, so it can no longer be completed this week.";
+        }
+        return "Complete this week's Temporal Archimedea. Marking this complete consumes 2 Search Pulses from the shared 5-run pool with Netracells and Deep Archimedea.";
+    }
+
+    return task.description;
+}
+
+function getCompletedTaskCount(tasks: TaskDef[], completedIds: string[], netracellRuns: number): number {
+    return tasks.filter((task) => getTaskRenderState(task, completedIds, netracellRuns) !== "pending").length;
+}
 
 // ─── Baro Ki'Teer live computation ─────────────────────────────────────────────
 
 function getBaroStatus(now: Date, mode: TimeMode = "utc"): { present: boolean; label: string; detail: string; timeLeftMs: number; timeUntilMs: number } {
     const ms = now.getTime();
     const offset = ((ms - BARO_ANCHOR_MS) % BARO_PERIOD_MS + BARO_PERIOD_MS) % BARO_PERIOD_MS;
-    const cycleStart    = ms - offset;
-    const leaveMs       = cycleStart + BARO_WINDOW_MS;
+    const cycleStart = ms - offset;
+    const leaveMs = cycleStart + BARO_WINDOW_MS;
     const nextArrivalMs = cycleStart + BARO_PERIOD_MS;
     const baroTime = fmtFixedUTC(13, 0, mode);
 
     if (ms < leaveMs) {
         const remaining = leaveMs - ms;
         return {
-            present:     true,
-            label:       "Baro Ki'Teer — HERE NOW",
-            detail:      `Leaves in ${fmtMs(remaining)} · Every other Friday, 48 h window`,
-            timeLeftMs:  remaining,
+            present: true,
+            label: "Baro Ki'Teer — HERE NOW",
+            detail: `Leaves in ${fmtMs(remaining)} · Every other Friday, 48 h window`,
+            timeLeftMs: remaining,
             timeUntilMs: 0,
         };
     }
+
     const until = nextArrivalMs - ms;
     return {
-        present:     false,
-        label:       "Baro Ki'Teer",
-        detail:      `Arrives in ${fmtMs(until)} · Every other Friday at ${baroTime}, 48 h window`,
-        timeLeftMs:  0,
+        present: false,
+        label: "Baro Ki'Teer",
+        detail: `Arrives in ${fmtMs(until)} · Every other Friday at ${baroTime}, 48 h window`,
+        timeLeftMs: 0,
         timeUntilMs: until,
     };
 }
@@ -357,11 +430,16 @@ function makeDefault(now: Date): RCState {
     const keys = getCurrentKeys(now);
     return {
         timeMode: "utc",
-        primaryDailyResetKey:           keys.primary_daily,   completedPrimaryDailyTaskIds:   [],
-        secondaryDailyResetKey:         keys.secondary_daily, completedSecondaryDailyTaskIds: [],
-        weeklyMondayResetKey:           keys.weekly_monday,   completedWeeklyMondayTaskIds:   [],
-        conclaveWeeklyResetKey:         keys.conclave_weekly, completedConclaveWeeklyTaskIds: [],
-        conclaveDailyResetKey:          keys.conclave_daily,  completedConclaveDailyTaskIds:  [],
+        primaryDailyResetKey: keys.primary_daily,
+        completedPrimaryDailyTaskIds: [],
+        secondaryDailyResetKey: keys.secondary_daily,
+        completedSecondaryDailyTaskIds: [],
+        weeklyMondayResetKey: keys.weekly_monday,
+        completedWeeklyMondayTaskIds: [],
+        conclaveWeeklyResetKey: keys.conclave_weekly,
+        completedConclaveWeeklyTaskIds: [],
+        conclaveDailyResetKey: keys.conclave_daily,
+        completedConclaveDailyTaskIds: [],
         hiddenTaskIds: [],
         netracellRuns: 0,
     };
@@ -372,20 +450,26 @@ function loadState(): RCState {
         const raw = localStorage.getItem(LS_KEY);
         if (raw) {
             const parsed = JSON.parse(raw) as RCState;
-            if (!Array.isArray(parsed.hiddenTaskIds))               parsed.hiddenTaskIds = [];
+            if (!Array.isArray(parsed.hiddenTaskIds)) parsed.hiddenTaskIds = [];
             if (!Array.isArray(parsed.completedConclaveWeeklyTaskIds)) parsed.completedConclaveWeeklyTaskIds = [];
-            if (!Array.isArray(parsed.completedConclaveDailyTaskIds))  parsed.completedConclaveDailyTaskIds  = [];
+            if (!Array.isArray(parsed.completedConclaveDailyTaskIds)) parsed.completedConclaveDailyTaskIds = [];
             if (!parsed.conclaveWeeklyResetKey) parsed.conclaveWeeklyResetKey = conclaveWeeklyKey(new Date());
-            if (!parsed.conclaveDailyResetKey)  parsed.conclaveDailyResetKey  = conclaveDailyKey(new Date());
+            if (!parsed.conclaveDailyResetKey) parsed.conclaveDailyResetKey = conclaveDailyKey(new Date());
             if (typeof parsed.netracellRuns !== "number") parsed.netracellRuns = 0;
             return parsed;
         }
-    } catch { /* */ }
+    } catch {
+        // ignore malformed local state
+    }
     return makeDefault(new Date());
 }
 
 function saveState(s: RCState): void {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch { /* */ }
+    try {
+        localStorage.setItem(LS_KEY, JSON.stringify(s));
+    } catch {
+        // ignore storage write errors
+    }
 }
 
 function syncResets(s: RCState, now: Date): RCState {
@@ -403,7 +487,7 @@ function syncResets(s: RCState, now: Date): RCState {
     });
 
     // Conclave sub-windows
-    if (next.conclaveDailyResetKey  !== keys.conclave_daily)  next = { ...next, conclaveDailyResetKey:  keys.conclave_daily,  completedConclaveDailyTaskIds:  [] };
+    if (next.conclaveDailyResetKey !== keys.conclave_daily) next = { ...next, conclaveDailyResetKey: keys.conclave_daily, completedConclaveDailyTaskIds: [] };
     if (next.conclaveWeeklyResetKey !== keys.conclave_weekly) next = { ...next, conclaveWeeklyResetKey: keys.conclave_weekly, completedConclaveWeeklyTaskIds: [] };
 
     return next;
@@ -441,7 +525,15 @@ function CheckIcon() {
 }
 
 // Netracell run counter — 5 pip dots the player clicks to fill/unfill
-function NetracellCounter({ runs, onChange }: { runs: number; onChange: (n: number) => void }) {
+function NetracellCounter({
+    runs,
+    onChange,
+    description,
+}: {
+    runs: number;
+    onChange: (n: number) => void;
+    description: string;
+}) {
     const done = runs >= 5;
     return (
         <div
@@ -452,18 +544,19 @@ function NetracellCounter({ runs, onChange }: { runs: number; onChange: (n: numb
                     : "border-transparent hover:border-slate-700 hover:bg-slate-900/50",
             ].join(" ")}
         >
-            {/* Checkbox-style indicator */}
-            <div className={[
-                "flex-shrink-0 w-4 h-4 mt-0.5 rounded border flex items-center justify-center",
-                done ? "border-emerald-800 bg-emerald-950/30" : "border-slate-600 bg-slate-900",
-            ].join(" ")}>
+            <div
+                className={[
+                    "flex-shrink-0 w-4 h-4 mt-0.5 rounded border flex items-center justify-center",
+                    done ? "border-emerald-800 bg-emerald-950/30" : "border-slate-600 bg-slate-900",
+                ].join(" ")}
+            >
                 {done && <CheckIcon />}
             </div>
             <div className="min-w-0 flex-1">
                 <div className={`text-sm font-medium leading-tight ${done ? "text-emerald-500" : "text-slate-200"}`}>
                     Netracells
                 </div>
-                {/* Pip row */}
+                <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
                 <div className="flex items-center gap-1.5 mt-1.5">
                     {Array.from({ length: 5 }, (_, i) => {
                         const filled = i < runs;
@@ -473,7 +566,6 @@ function NetracellCounter({ runs, onChange }: { runs: number; onChange: (n: numb
                                 title={`${i + 1} / 5`}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    // Clicking the last filled pip clears it; clicking an unfilled one sets count
                                     onChange(filled && i === runs - 1 ? runs - 1 : i + 1);
                                 }}
                                 className={[
@@ -497,38 +589,48 @@ function NetracellCounter({ runs, onChange }: { runs: number; onChange: (n: numb
 }
 
 // Renders a flat list of tasks for a single sub-section
-function TaskList({ tasks, completedIds, onToggle, netracellRuns, onNetracellChange }: {
+function TaskList({
+    tasks,
+    completedIds,
+    onToggle,
+    netracellRuns,
+    onNetracellChange,
+}: {
     tasks: TaskDef[];
     completedIds: string[];
     onToggle: (id: string) => void;
     netracellRuns?: number;
     onNetracellChange?: (n: number) => void;
 }) {
-    const netracellDone = (netracellRuns ?? 0) >= 5;
+    const runs = netracellRuns ?? 0;
 
-    // Netracells is complete when runs === 5 — sort it into the completed section then.
-    const pending   = tasks.filter((t) => t.id === "netracells" ? !netracellDone : !completedIds.includes(t.id));
-    const completed = tasks.filter((t) => t.id === "netracells" ? netracellDone  :  completedIds.includes(t.id));
+    const pending = tasks.filter((t) => getTaskRenderState(t, completedIds, runs) === "pending");
+    const completed = tasks.filter((t) => getTaskRenderState(t, completedIds, runs) !== "pending");
 
-    if (tasks.length === 0) return (
-        <div className="px-3 py-4 text-sm text-slate-500 text-center">
-            No tasks unlocked for this window
-        </div>
-    );
+    if (tasks.length === 0) {
+        return (
+            <div className="px-3 py-4 text-sm text-slate-500 text-center">
+                No tasks unlocked for this window
+            </div>
+        );
+    }
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
             {pending.map((t) => {
-                // Special card for netracells
-                if (t.id === "netracells" && netracellRuns !== undefined && onNetracellChange) {
+                const description = getTaskDescription(t, completedIds, runs);
+
+                if (t.id === NETRACELLS_TASK_ID && netracellRuns !== undefined && onNetracellChange) {
                     return (
                         <NetracellCounter
                             key={t.id}
                             runs={netracellRuns}
                             onChange={onNetracellChange}
+                            description={description}
                         />
                     );
                 }
+
                 return (
                     <button
                         key={t.id}
@@ -538,11 +640,12 @@ function TaskList({ tasks, completedIds, onToggle, netracellRuns, onNetracellCha
                         <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-slate-600 bg-slate-900" />
                         <div className="min-w-0">
                             <div className="text-sm font-medium text-slate-200 leading-tight">{t.label}</div>
-                            <div className="text-xs text-slate-500 mt-0.5 leading-snug">{t.description}</div>
+                            <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
                         </div>
                     </button>
                 );
             })}
+
             {completed.length > 0 && (
                 <div className="col-span-full flex items-center gap-3 py-1 px-1">
                     <div className="flex-1 h-px bg-slate-800" />
@@ -550,16 +653,41 @@ function TaskList({ tasks, completedIds, onToggle, netracellRuns, onNetracellCha
                     <div className="flex-1 h-px bg-slate-800" />
                 </div>
             )}
+
             {completed.map((t) => {
-                if (t.id === "netracells" && netracellRuns !== undefined && onNetracellChange) {
+                const state = getTaskRenderState(t, completedIds, runs);
+                const description = getTaskDescription(t, completedIds, runs);
+
+                if (t.id === NETRACELLS_TASK_ID && netracellRuns !== undefined && onNetracellChange) {
                     return (
                         <NetracellCounter
                             key={t.id}
                             runs={netracellRuns}
                             onChange={onNetracellChange}
+                            description={description}
                         />
                     );
                 }
+
+                if (state === "auto_blocked") {
+                    return (
+                        <div
+                            key={t.id}
+                            className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl border border-amber-900/30 bg-amber-950/10 text-left w-full opacity-80"
+                        >
+                            <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-amber-800/50 bg-amber-950/20 flex items-center justify-center">
+                                <svg className="w-3 h-3 text-amber-400" viewBox="0 0 24 24" fill="none">
+                                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" />
+                                </svg>
+                            </div>
+                            <div className="min-w-0">
+                                <div className="text-sm font-medium text-amber-300 leading-tight line-through">{t.label}</div>
+                                <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
+                            </div>
+                        </div>
+                    );
+                }
+
                 return (
                     <button
                         key={t.id}
@@ -571,7 +699,7 @@ function TaskList({ tasks, completedIds, onToggle, netracellRuns, onNetracellCha
                         </div>
                         <div className="min-w-0">
                             <div className="text-sm font-medium text-emerald-500 leading-tight">{t.label}</div>
-                            <div className="text-xs text-slate-500 mt-0.5 leading-snug">{t.description}</div>
+                            <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
                         </div>
                     </button>
                 );
@@ -581,14 +709,29 @@ function TaskList({ tasks, completedIds, onToggle, netracellRuns, onNetracellCha
 }
 
 // Standard single-bucket task panel (primary, secondary, weekly)
-function TaskPanel({ bucket, tasks, completedIds, tier, onToggle, onClear, timeMode, netracellRuns, onNetracellChange }: {
-    bucket: Bucket; tasks: TaskDef[]; completedIds: string[];
-    tier: string; onToggle: (id: string) => void; onClear: () => void;
+function TaskPanel({
+    bucket,
+    tasks,
+    completedIds,
+    tier,
+    onToggle,
+    onClear,
+    timeMode,
+    netracellRuns,
+    onNetracellChange,
+}: {
+    bucket: Bucket;
+    tasks: TaskDef[];
+    completedIds: string[];
+    tier: string;
+    onToggle: (id: string) => void;
+    onClear: () => void;
     timeMode: TimeMode;
-    netracellRuns?: number; onNetracellChange?: (n: number) => void;
+    netracellRuns?: number;
+    onNetracellChange?: (n: number) => void;
 }) {
-    const done    = tasks.filter((t) => completedIds.includes(t.id)).length
-                  + (netracellRuns !== undefined && netracellRuns >= 5 && tasks.some((t) => t.id === "netracells") ? 1 : 0);
+    const runs = netracellRuns ?? 0;
+    const done = getCompletedTaskCount(tasks, completedIds, runs);
     const allDone = tasks.length > 0 && done === tasks.length;
 
     return (
@@ -616,7 +759,13 @@ function TaskPanel({ bucket, tasks, completedIds, tier, onToggle, onClear, timeM
                 <div className="px-4 py-6 text-sm text-slate-500 text-center">No tasks unlocked for this reset window</div>
             ) : (
                 <div className="p-2">
-                    <TaskList tasks={tasks} completedIds={completedIds} onToggle={onToggle} netracellRuns={netracellRuns} onNetracellChange={onNetracellChange} />
+                    <TaskList
+                        tasks={tasks}
+                        completedIds={completedIds}
+                        onToggle={onToggle}
+                        netracellRuns={netracellRuns}
+                        onNetracellChange={onNetracellChange}
+                    />
                 </div>
             )}
         </div>
@@ -625,31 +774,40 @@ function TaskPanel({ bucket, tasks, completedIds, tier, onToggle, onClear, timeM
 
 // Conclave panel — renders two internal sections: Daily and Weekly
 function ConclavePanel({
-    dailyTasks, weeklyTasks,
-    completedDailyIds, completedWeeklyIds,
+    dailyTasks,
+    weeklyTasks,
+    completedDailyIds,
+    completedWeeklyIds,
     tier,
-    nextDailyReset, nextWeeklyReset,
+    nextDailyReset,
+    nextWeeklyReset,
     timeMode,
-    onToggleDaily, onToggleWeekly,
-    onClearDaily,  onClearWeekly,
+    onToggleDaily,
+    onToggleWeekly,
+    onClearDaily,
+    onClearWeekly,
 }: {
-    dailyTasks: TaskDef[];  weeklyTasks: TaskDef[];
-    completedDailyIds: string[]; completedWeeklyIds: string[];
+    dailyTasks: TaskDef[];
+    weeklyTasks: TaskDef[];
+    completedDailyIds: string[];
+    completedWeeklyIds: string[];
     tier: string;
-    nextDailyReset: Date; nextWeeklyReset: Date;
+    nextDailyReset: Date;
+    nextWeeklyReset: Date;
     timeMode: TimeMode;
-    onToggleDaily: (id: string) => void; onToggleWeekly: (id: string) => void;
-    onClearDaily: () => void; onClearWeekly: () => void;
+    onToggleDaily: (id: string) => void;
+    onToggleWeekly: (id: string) => void;
+    onClearDaily: () => void;
+    onClearWeekly: () => void;
 }) {
-    const dailyDone   = dailyTasks.filter((t)  => completedDailyIds.includes(t.id)).length;
-    const weeklyDone  = weeklyTasks.filter((t) => completedWeeklyIds.includes(t.id)).length;
-    const totalDone   = dailyDone + weeklyDone;
-    const totalTasks  = dailyTasks.length + weeklyTasks.length;
-    const allDone     = totalTasks > 0 && totalDone === totalTasks;
+    const dailyDone = getCompletedTaskCount(dailyTasks, completedDailyIds, 0);
+    const weeklyDone = getCompletedTaskCount(weeklyTasks, completedWeeklyIds, 0);
+    const totalDone = dailyDone + weeklyDone;
+    const totalTasks = dailyTasks.length + weeklyTasks.length;
+    const allDone = totalTasks > 0 && totalDone === totalTasks;
 
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 overflow-hidden">
-            {/* Header */}
             <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-800 bg-slate-950/60">
                 <div>
                     <div className={`text-xs font-semibold uppercase tracking-wider ${URG_TITLE[tier]}`}>
@@ -663,7 +821,6 @@ function ConclavePanel({
             </div>
 
             <div className="p-3 flex flex-col gap-4">
-                {/* Daily sub-section */}
                 <div>
                     <div className="flex items-center justify-between gap-2 mb-2">
                         <div>
@@ -675,7 +832,9 @@ function ConclavePanel({
                             <button
                                 className="text-xs text-slate-500 hover:text-slate-300 border border-slate-700 hover:border-slate-600 rounded px-2 py-0.5 transition-colors"
                                 onClick={onClearDaily}
-                            >Clear</button>
+                            >
+                                Clear
+                            </button>
                         </div>
                     </div>
                     <TaskList tasks={dailyTasks} completedIds={completedDailyIds} onToggle={onToggleDaily} />
@@ -683,7 +842,6 @@ function ConclavePanel({
 
                 <div className="h-px bg-slate-800" />
 
-                {/* Weekly sub-section */}
                 <div>
                     <div className="flex items-center justify-between gap-2 mb-2">
                         <div>
@@ -695,7 +853,9 @@ function ConclavePanel({
                             <button
                                 className="text-xs text-slate-500 hover:text-slate-300 border border-slate-700 hover:border-slate-600 rounded px-2 py-0.5 transition-colors"
                                 onClick={onClearWeekly}
-                            >Clear</button>
+                            >
+                                Clear
+                            </button>
                         </div>
                     </div>
                     <TaskList tasks={weeklyTasks} completedIds={completedWeeklyIds} onToggle={onToggleWeekly} />
@@ -739,17 +899,16 @@ function CustomizePanel({
     onShowAll: () => void;
     onHideAll: () => void;
 }) {
-    const hiddenCount  = eligibleTasks.filter((t) =>  hiddenTaskIds.includes(t.id)).length;
+    const hiddenCount = eligibleTasks.filter((t) => hiddenTaskIds.includes(t.id)).length;
     const visibleCount = eligibleTasks.filter((t) => !hiddenTaskIds.includes(t.id)).length;
 
-    // Build groups — Conclave renders as one group (daily + weekly together)
     type Group = { key: string; label: string; sub?: string; tasks: TaskDef[] };
     const bucketSub = getBucketSub(timeMode);
     const groups: Group[] = [
-        { key: "primary_daily",   label: BUCKET_LABEL.primary_daily,   sub: bucketSub.primary_daily,   tasks: eligibleTasks.filter((t) => t.bucket === "primary_daily") },
+        { key: "primary_daily", label: BUCKET_LABEL.primary_daily, sub: bucketSub.primary_daily, tasks: eligibleTasks.filter((t) => t.bucket === "primary_daily") },
         { key: "secondary_daily", label: BUCKET_LABEL.secondary_daily, sub: bucketSub.secondary_daily, tasks: eligibleTasks.filter((t) => t.bucket === "secondary_daily") },
-        { key: "weekly_monday",   label: BUCKET_LABEL.weekly_monday,   sub: bucketSub.weekly_monday,   tasks: eligibleTasks.filter((t) => t.bucket === "weekly_monday") },
-        { key: "conclave",        label: "Conclave",                   sub: `Daily ${fmtFixedUTC(17,0,timeMode)} · Weekly Fri`, tasks: eligibleTasks.filter((t) => t.bucket === "conclave") },
+        { key: "weekly_monday", label: BUCKET_LABEL.weekly_monday, sub: bucketSub.weekly_monday, tasks: eligibleTasks.filter((t) => t.bucket === "weekly_monday") },
+        { key: "conclave", label: "Conclave", sub: `Daily ${fmtFixedUTC(17, 0, timeMode)} · Weekly Fri`, tasks: eligibleTasks.filter((t) => t.bucket === "conclave") },
     ].filter((g) => g.tasks.length > 0);
 
     return (
@@ -799,10 +958,12 @@ function CustomizePanel({
                                             : "border-slate-700 bg-slate-800/30 hover:bg-slate-800/50",
                                     ].join(" ")}
                                 >
-                                    <div className={[
-                                        "flex-shrink-0 w-4 h-4 mt-0.5 rounded border flex items-center justify-center transition-colors",
-                                        hidden ? "border-slate-700 bg-slate-900" : "border-slate-400 bg-slate-600",
-                                    ].join(" ")}>
+                                    <div
+                                        className={[
+                                            "flex-shrink-0 w-4 h-4 mt-0.5 rounded border flex items-center justify-center transition-colors",
+                                            hidden ? "border-slate-700 bg-slate-900" : "border-slate-400 bg-slate-600",
+                                        ].join(" ")}
+                                    >
                                         {!hidden && (
                                             <svg className="w-2.5 h-2.5 text-slate-100" viewBox="0 0 24 24" fill="none">
                                                 <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -834,67 +995,66 @@ function CustomizePanel({
 
 export default function WarframeResetTracker() {
     const completedPrereqs = useTrackerStore((s) => s.state.prereqs.completed) ?? {};
-    const syndicates       = useTrackerStore((s) => s.state.syndicates) ?? [];
+    const syndicates = useTrackerStore((s) => s.state.syndicates) ?? [];
 
-    const [rc,  setRc]          = useState<RCState>(() => loadState());
-    const [now, setNow]         = useState(() => new Date());
-    const [showHelp, setHelp]   = useState(false);
+    const [rc, setRc] = useState<RCState>(() => loadState());
+    const [now, setNow] = useState(() => new Date());
+    const [showHelp, setHelp] = useState(false);
     const [showCustomize, setCustomize] = useState(false);
-    const [selected, setSel]    = useState<Bucket>("primary_daily");
-
-    useEffect(() => { saveState(rc); }, [rc]);
+    const [selected, setSel] = useState<Bucket>("primary_daily");
 
     useEffect(() => {
-        const tick = () => { const n = new Date(); setNow(n); setRc((p) => syncResets(p, n)); };
+        saveState(rc);
+    }, [rc]);
+
+    useEffect(() => {
+        const tick = () => {
+            const n = new Date();
+            setNow(n);
+            setRc((p) => syncResets(p, n));
+        };
         tick();
         const id = setInterval(tick, 1000);
         return () => clearInterval(id);
     }, []);
 
     const nextResets = useMemo(() => getNextResets(now), [now]);
-    const baro       = useMemo(() => getBaroStatus(now, rc.timeMode), [now, rc.timeMode]);
+    const baro = useMemo(() => getBaroStatus(now, rc.timeMode), [now, rc.timeMode]);
 
-    // Current completed IDs for standard buckets
     const completedIds = useMemo((): Record<Exclude<Bucket, "conclave">, string[]> & { conclave_daily: string[]; conclave_weekly: string[] } => {
         const keys = getCurrentKeys(now);
-        const get = (rk: keyof RCState, ck: keyof RCState, key: string) =>
-            rc[rk] === key ? (rc[ck] as string[]) : [];
+        const get = (rk: keyof RCState, ck: keyof RCState, key: string) => rc[rk] === key ? (rc[ck] as string[]) : [];
         return {
-            primary_daily:   get("primaryDailyResetKey",   "completedPrimaryDailyTaskIds",   keys.primary_daily),
+            primary_daily: get("primaryDailyResetKey", "completedPrimaryDailyTaskIds", keys.primary_daily),
             secondary_daily: get("secondaryDailyResetKey", "completedSecondaryDailyTaskIds", keys.secondary_daily),
-            weekly_monday:   get("weeklyMondayResetKey",   "completedWeeklyMondayTaskIds",   keys.weekly_monday),
-            conclave_daily:  get("conclaveDailyResetKey",  "completedConclaveDailyTaskIds",  keys.conclave_daily),
+            weekly_monday: get("weeklyMondayResetKey", "completedWeeklyMondayTaskIds", keys.weekly_monday),
+            conclave_daily: get("conclaveDailyResetKey", "completedConclaveDailyTaskIds", keys.conclave_daily),
             conclave_weekly: get("conclaveWeeklyResetKey", "completedConclaveWeeklyTaskIds", keys.conclave_weekly),
         };
     }, [rc, now]);
 
-    // All tasks passing prereq + pledge gates (no hidden filter — for Customize panel)
     const eligibleTasks = useMemo(
         () => getEligibleTasks(completedPrereqs, syndicates),
         [completedPrereqs, syndicates]
     );
 
-    // Visible = eligible minus user-hidden
     const visibleTasks = useMemo(
         () => eligibleTasks.filter((t) => !rc.hiddenTaskIds.includes(t.id)),
         [eligibleTasks, rc.hiddenTaskIds]
     );
 
-    // Pledge nudge
     const anyPledged = useMemo(
         () => syndicates.some((s) => s.pledged && RELAY_FACTION_IDS.has(s.id as SyndicateId)),
         [syndicates]
     );
 
-    // Per-bucket visible task slices
     const byBucket = useCallback((b: Exclude<Bucket, "conclave">) => visibleTasks.filter((t) => t.bucket === b), [visibleTasks]);
-    const conclaveDaily  = useMemo(() => visibleTasks.filter((t) => t.bucket === "conclave" && t.conclaveSub === "conclave_daily"),  [visibleTasks]);
+    const conclaveDaily = useMemo(() => visibleTasks.filter((t) => t.bucket === "conclave" && t.conclaveSub === "conclave_daily"), [visibleTasks]);
     const conclaveWeekly = useMemo(() => visibleTasks.filter((t) => t.bucket === "conclave" && t.conclaveSub === "conclave_weekly"), [visibleTasks]);
 
-    // Urgency — for conclave use the nearer of the two sub-resets
     const msFor = useCallback((b: Bucket): number => {
         if (b === "conclave") {
-            const dms = Math.max(0, nextResets.conclave_daily.getTime()  - now.getTime());
+            const dms = Math.max(0, nextResets.conclave_daily.getTime() - now.getTime());
             const wms = Math.max(0, nextResets.conclave_weekly.getTime() - now.getTime());
             return Math.min(dms, wms);
         }
@@ -903,22 +1063,20 @@ export default function WarframeResetTracker() {
 
     const tierFor = useCallback((b: Bucket) => urgTier(msFor(b), b), [msFor]);
 
-    // For the timer card progress bar on Conclave — combined completion
     const conclaveTotalTasks = conclaveDaily.length + conclaveWeekly.length;
-    const conclaveTotalDone  = completedIds.conclave_daily.length + completedIds.conclave_weekly.length;
+    const conclaveTotalDone = getCompletedTaskCount(conclaveDaily, completedIds.conclave_daily, 0)
+        + getCompletedTaskCount(conclaveWeekly, completedIds.conclave_weekly, 0);
 
-    // ── Auto-hide buckets where every eligible task is user-hidden ──────────────
-    // A bucket is "fully hidden" if eligible tasks exist but all are in hiddenTaskIds.
     const eligibleByBucket = useMemo(() => ({
-        primary_daily:   eligibleTasks.filter((t) => t.bucket === "primary_daily"),
+        primary_daily: eligibleTasks.filter((t) => t.bucket === "primary_daily"),
         secondary_daily: eligibleTasks.filter((t) => t.bucket === "secondary_daily"),
-        weekly_monday:   eligibleTasks.filter((t) => t.bucket === "weekly_monday"),
-        conclave:        eligibleTasks.filter((t) => t.bucket === "conclave"),
+        weekly_monday: eligibleTasks.filter((t) => t.bucket === "weekly_monday"),
+        conclave: eligibleTasks.filter((t) => t.bucket === "conclave"),
     }), [eligibleTasks]);
 
     const isBucketFullyHidden = useCallback((b: Bucket): boolean => {
         const eligible = eligibleByBucket[b];
-        if (eligible.length === 0) return false; // no tasks at all → still show (edge case)
+        if (eligible.length === 0) return false;
         return eligible.every((t) => rc.hiddenTaskIds.includes(t.id));
     }, [eligibleByBucket, rc.hiddenTaskIds]);
 
@@ -927,50 +1085,86 @@ export default function WarframeResetTracker() {
         [isBucketFullyHidden]
     );
 
-    // If selected bucket gets hidden, fall back to primary
     useEffect(() => {
         if (!visibleBuckets.includes(selected)) {
             setSel(visibleBuckets[0] ?? "primary_daily");
         }
     }, [visibleBuckets, selected]);
 
-    // ── Mutations ──────────────────────────────────────────────────────────────
-
     const toggleStandard = useCallback((id: string, ck: keyof RCState) => {
         setRc((prev) => {
             const list = [...(prev[ck] as string[])];
-            const idx  = list.indexOf(id);
-            if (idx >= 0) list.splice(idx, 1); else list.push(id);
+            const idx = list.indexOf(id);
+            if (idx >= 0) list.splice(idx, 1);
+            else list.push(id);
             return { ...prev, [ck]: list };
         });
     }, []);
 
     const toggle = useCallback((id: string, bucket: Bucket) => {
-        if (bucket === "primary_daily")   return toggleStandard(id, "completedPrimaryDailyTaskIds");
-        if (bucket === "secondary_daily") return toggleStandard(id, "completedSecondaryDailyTaskIds");
-        if (bucket === "weekly_monday")   return toggleStandard(id, "completedWeeklyMondayTaskIds");
+        if (bucket === "primary_daily") {
+            toggleStandard(id, "completedPrimaryDailyTaskIds");
+            return;
+        }
+
+        if (bucket === "secondary_daily") {
+            toggleStandard(id, "completedSecondaryDailyTaskIds");
+            return;
+        }
+
+        if (bucket === "weekly_monday") {
+            if (id === TEMPORAL_ARCHIMEDEA_TASK_ID) {
+                setRc((prev) => {
+                    const alreadyCompleted = prev.completedWeeklyMondayTaskIds.includes(TEMPORAL_ARCHIMEDEA_TASK_ID);
+                    const autoBlocked = isTemporalArchimedeaAutoBlocked(prev.netracellRuns, prev.completedWeeklyMondayTaskIds);
+
+                    if (autoBlocked) return prev;
+
+                    if (alreadyCompleted) {
+                        return {
+                            ...prev,
+                            completedWeeklyMondayTaskIds: prev.completedWeeklyMondayTaskIds.filter((taskId) => taskId !== TEMPORAL_ARCHIMEDEA_TASK_ID),
+                            netracellRuns: Math.max(0, prev.netracellRuns - 2),
+                        };
+                    }
+
+                    return {
+                        ...prev,
+                        completedWeeklyMondayTaskIds: [...prev.completedWeeklyMondayTaskIds, TEMPORAL_ARCHIMEDEA_TASK_ID],
+                        netracellRuns: Math.min(5, prev.netracellRuns + 2),
+                    };
+                });
+                return;
+            }
+
+            toggleStandard(id, "completedWeeklyMondayTaskIds");
+        }
     }, [toggleStandard]);
 
     const clearBucket = useCallback((ck: keyof RCState) => setRc((p) => ({ ...p, [ck]: [] })), []);
+    const clearWeeklyMonday = useCallback(() => {
+        setRc((p) => ({
+            ...p,
+            completedWeeklyMondayTaskIds: [],
+            netracellRuns: 0,
+        }));
+    }, []);
 
-    const setMode      = useCallback((m: TimeMode) => setRc((p) => ({ ...p, timeMode: m })), []);
+    const setMode = useCallback((m: TimeMode) => setRc((p) => ({ ...p, timeMode: m })), []);
     const toggleHidden = useCallback((id: string) => {
         setRc((prev) => {
             const list = [...prev.hiddenTaskIds];
-            const idx  = list.indexOf(id);
-            if (idx >= 0) list.splice(idx, 1); else list.push(id);
+            const idx = list.indexOf(id);
+            if (idx >= 0) list.splice(idx, 1);
+            else list.push(id);
             return { ...prev, hiddenTaskIds: list };
         });
     }, []);
     const showAll = useCallback(() => setRc((p) => ({ ...p, hiddenTaskIds: [] })), []);
     const hideAll = useCallback(() => setRc((p) => ({ ...p, hiddenTaskIds: eligibleTasks.map((t) => t.id) })), [eligibleTasks]);
 
-    // ── Render ─────────────────────────────────────────────────────────────────
-
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 flex flex-col gap-4">
-
-            {/* Header */}
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <div className="text-lg font-semibold">Reset Tracker</div>
@@ -981,7 +1175,10 @@ export default function WarframeResetTracker() {
                 <div className="flex items-center gap-2">
                     <button
                         className={["text-xs font-medium border rounded px-3 py-1.5 transition-colors", showCustomize ? "bg-slate-700 border-slate-600 text-slate-100" : "border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-500"].join(" ")}
-                        onClick={() => { setCustomize((v) => !v); setHelp(false); }}
+                        onClick={() => {
+                            setCustomize((v) => !v);
+                            setHelp(false);
+                        }}
                     >
                         Customize
                         {rc.hiddenTaskIds.length > 0 && (
@@ -992,20 +1189,23 @@ export default function WarframeResetTracker() {
                     </button>
                     <button
                         className={["w-7 h-7 rounded-full border text-xs flex items-center justify-center transition-colors", showHelp ? "bg-slate-700 border-slate-600 text-slate-100" : "border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-500"].join(" ")}
-                        onClick={() => { setHelp((v) => !v); setCustomize(false); }}
-                    >?</button>
+                        onClick={() => {
+                            setHelp((v) => !v);
+                            setCustomize(false);
+                        }}
+                    >
+                        ?
+                    </button>
                     <div className="flex rounded-lg border border-slate-700 overflow-hidden text-xs">
-                        <button className={`px-3 py-1.5 font-medium transition-colors ${rc.timeMode === "utc"   ? "bg-slate-700 text-slate-100" : "text-slate-400 hover:text-slate-200"}`} onClick={() => setMode("utc")}>UTC</button>
+                        <button className={`px-3 py-1.5 font-medium transition-colors ${rc.timeMode === "utc" ? "bg-slate-700 text-slate-100" : "text-slate-400 hover:text-slate-200"}`} onClick={() => setMode("utc")}>UTC</button>
                         <button className={`px-3 py-1.5 font-medium transition-colors ${rc.timeMode === "local" ? "bg-slate-700 text-slate-100" : "text-slate-400 hover:text-slate-200"}`} onClick={() => setMode("local")}>Local</button>
                     </div>
                 </div>
             </div>
 
-            {/* Baro Ki'Teer presence banner */}
             {baro.present && (
                 <div className="rounded-xl border border-amber-600/60 bg-amber-950/30 px-4 py-3 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
-                        {/* Pulsing dot */}
                         <span className="relative flex-shrink-0 flex h-3 w-3">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500" />
@@ -1028,7 +1228,6 @@ export default function WarframeResetTracker() {
                 </div>
             )}
 
-            {/* Pledge nudge */}
             {!anyPledged && (
                 <div className="rounded-xl border border-slate-700 bg-slate-900/30 px-4 py-2.5 text-xs text-slate-400">
                     <span className="text-slate-300 font-medium">Tip:</span>{" "}
@@ -1037,7 +1236,6 @@ export default function WarframeResetTracker() {
                 </div>
             )}
 
-            {/* Help */}
             {showHelp && (
                 <div className="rounded-xl border border-slate-700 bg-slate-900/40 px-4 py-3 text-sm text-slate-400 leading-relaxed">
                     Each bucket auto-clears when its window rolls over. Countdown colors shift from{" "}
@@ -1051,7 +1249,6 @@ export default function WarframeResetTracker() {
                 </div>
             )}
 
-            {/* Customize panel */}
             {showCustomize && (
                 <CustomizePanel
                     eligibleTasks={eligibleTasks}
@@ -1063,21 +1260,17 @@ export default function WarframeResetTracker() {
                 />
             )}
 
-            {/* Timer strip — only visible buckets */}
             <div className={`grid gap-3 ${visibleBuckets.length === 4 ? "grid-cols-2 lg:grid-cols-4" : visibleBuckets.length === 3 ? "grid-cols-2 lg:grid-cols-3" : visibleBuckets.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
                 {visibleBuckets.map((b) => {
                     const isConclave = b === "conclave";
-                    const tasks      = isConclave ? conclaveTotalTasks : byBucket(b as Exclude<Bucket, "conclave">).length;
-                    const rawDone    = isConclave
+                    const bucketTasks = isConclave ? [] : byBucket(b as Exclude<Bucket, "conclave">);
+                    const tasks = isConclave ? conclaveTotalTasks : bucketTasks.length;
+                    const done = isConclave
                         ? conclaveTotalDone
-                        : (completedIds[b as Exclude<Bucket, "conclave">] as string[]).length;
-                    // For weekly_monday, netracells counts as 1 completed task when all 5 runs are done,
-                    // but the completedIds list doesn't include it — add 1 if runs === 5
-                    const netracellBonus = (b === "weekly_monday" && rc.netracellRuns >= 5) ? 1 : 0;
-                    const done    = rawDone + netracellBonus;
-                    const pct     = tasks > 0 ? Math.round((done / tasks) * 100) : 0;
-                    const ms      = msFor(b);
-                    const tier    = tierFor(b);
+                        : getCompletedTaskCount(bucketTasks, completedIds[b as Exclude<Bucket, "conclave">] as string[], rc.netracellRuns);
+                    const pct = tasks > 0 ? Math.round((done / tasks) * 100) : 0;
+                    const ms = msFor(b);
+                    const tier = tierFor(b);
                     const allDone = tasks > 0 && done === tasks;
 
                     return (
@@ -1108,7 +1301,6 @@ export default function WarframeResetTracker() {
                 })}
             </div>
 
-            {/* Active task panel */}
             {selected === "conclave" ? (
                 <ConclavePanel
                     dailyTasks={conclaveDaily}
@@ -1131,22 +1323,21 @@ export default function WarframeResetTracker() {
                     completedIds={completedIds[selected as Exclude<Bucket, "conclave">] as string[]}
                     tier={tierFor(selected)}
                     onToggle={(id) => toggle(id, selected)}
-                    onClear={() => clearBucket(COMPLETED_KEY[selected as Exclude<Bucket, "conclave">]!)}
+                    onClear={() => selected === "weekly_monday" ? clearWeeklyMonday() : clearBucket(COMPLETED_KEY[selected as Exclude<Bucket, "conclave">]!)}
                     timeMode={rc.timeMode}
                     netracellRuns={rc.netracellRuns}
                     onNetracellChange={(n) => setRc((p) => ({ ...p, netracellRuns: n }))}
                 />
             )}
 
-            {/* Reference grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 <RefSection
                     title="Bi-Weekly"
                     rows={[{ id: "baro", label: baro.label, detail: baro.detail, highlight: baro.present }]}
                 />
-                <RefSection title="Timed Rotations"   rows={getTimedRef(rc.timeMode)} />
-                <RefSection title="Monthly Reference"  rows={getMonthlyRef(rc.timeMode)} />
-                <RefSection title="Event-Driven"       rows={EVENT_REF} />
+                <RefSection title="Timed Rotations" rows={getTimedRef(rc.timeMode)} />
+                <RefSection title="Monthly Reference" rows={getMonthlyRef(rc.timeMode)} />
+                <RefSection title="Event-Driven" rows={EVENT_REF} />
             </div>
         </div>
     );
