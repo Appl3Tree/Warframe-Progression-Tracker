@@ -749,7 +749,7 @@ function CustomizePanel({
         { key: "primary_daily",   label: BUCKET_LABEL.primary_daily,   sub: bucketSub.primary_daily,   tasks: eligibleTasks.filter((t) => t.bucket === "primary_daily") },
         { key: "secondary_daily", label: BUCKET_LABEL.secondary_daily, sub: bucketSub.secondary_daily, tasks: eligibleTasks.filter((t) => t.bucket === "secondary_daily") },
         { key: "weekly_monday",   label: BUCKET_LABEL.weekly_monday,   sub: bucketSub.weekly_monday,   tasks: eligibleTasks.filter((t) => t.bucket === "weekly_monday") },
-        { key: "conclave",        label: "Conclave",                   sub: `Daily ${fmtFixedUTC(16,0,timeMode)} · Weekly Fri`, tasks: eligibleTasks.filter((t) => t.bucket === "conclave") },
+        { key: "conclave",        label: "Conclave",                   sub: `Daily ${fmtFixedUTC(17,0,timeMode)} · Weekly Fri`, tasks: eligibleTasks.filter((t) => t.bucket === "conclave") },
     ].filter((g) => g.tasks.length > 0);
 
     return (
