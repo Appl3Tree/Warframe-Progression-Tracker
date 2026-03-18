@@ -1321,14 +1321,6 @@ export default function WarframeResetTracker() {
                 />
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <RefSection
-                    title="Bi-Weekly"
-                    rows={[{ id: "baro", label: baro.label, detail: baro.detail, highlight: baro.present }]}
-                />
-                <RefSection title="Monthly Reference" rows={getMonthlyRef(rc.timeMode)} />
-                <RefSection title="Event-Driven" rows={EVENT_REF} />
-            </div>
         </div>
     );
 }
