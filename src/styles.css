@@ -11,9 +11,12 @@
 
 /* ── Light mode ── */
 .theme-light {
-    /* Root background + text */
+    /* Root background + text.
+       NOTE: color is intentionally NOT !important here so that components with
+       inline style={{ color }} (e.g. syndicate cards with canon.fg) can override it.
+       All explicit Tailwind text-slate-* overrides below still use !important. */
     background-color: #eef2f7 !important;
-    color: #0f172a !important;
+    color: #0f172a;
 }
 
 .theme-light body,
@@ -160,13 +163,56 @@
 /* Gradients on shell/map backgrounds stay dark */
 .theme-light [style*="radial-gradient"] { /* keep map backgrounds as-is */ }
 
-/* bg-black low-opacity (≤29%) is used for icon containers and sub-panels inside
-   dark-themed syndicate cards. In light mode these are near-invisible (0.15 opacity
-   black on a light panel = barely a tint). Remap to a visible dark navy so icon
-   images (designed for dark backgrounds) remain legible.
-   High-opacity black (≥60%) are modal dim overlays — do NOT touch those. */
+/* ── Syndicate card dark sub-panels ──────────────────────────────────────────
+   bg-black/10–29 are icon containers and info sub-panels inside syndicate cards
+   (which have a colored gradient background via inline style).
+   bg-black/60 is used for the dropdown select inside those same cards.
+   In light mode, all these would render as near-invisible tints on the light
+   background (or leave white select backgrounds from the global input rule).
+   Remap to a solid dark-navy surface so icons and text remain legible.
+   Also force light text so everything inside stays readable on the dark bg.
+   bg-black/70+ are full-screen modal dim overlays — NOT touched here. */
 .theme-light [class*="bg-black\/1"],
-.theme-light [class*="bg-black\/2"] { background-color: rgba(15,23,42,0.65) !important; }
+.theme-light [class*="bg-black\/2"],
+.theme-light [class*="bg-black\/6"] {
+    background-color: rgba(15,23,42,0.80) !important;
+    color: #f1f5f9 !important;
+}
+
+/* Inputs/selects that sit inside those dark sub-panels must also stay dark
+   (the global ".theme-light input/select" rule would otherwise force white bg). */
+.theme-light [class*="bg-black\/"] input,
+.theme-light [class*="bg-black\/"] textarea,
+.theme-light [class*="bg-black\/"] select,
+.theme-light input[class*="bg-black\/"],
+.theme-light select[class*="bg-black\/"] {
+    background-color: rgba(15,23,42,0.85) !important;
+    color: #f1f5f9 !important;
+    border-color: rgba(255,255,255,0.20) !important;
+}
+
+/* Restore Tailwind text-* overrides to their dark-mode equivalents when they
+   appear inside a dark sub-panel — the light-mode values would be unreadable
+   against the dark navy background. */
+.theme-light [class*="bg-black\/"] .text-slate-100 { color: #f1f5f9 !important; }
+.theme-light [class*="bg-black\/"] .text-slate-200 { color: #e2e8f0 !important; }
+.theme-light [class*="bg-black\/"] .text-slate-300 { color: #cbd5e1 !important; }
+.theme-light [class*="bg-black\/"] .text-slate-400 { color: #94a3b8 !important; }
+.theme-light [class*="bg-black\/"] .text-slate-500 { color: #64748b !important; }
+/* Accent colors inside dark sub-panels — restore to their dark-mode values */
+.theme-light [class*="bg-black\/"] .text-emerald-400 { color: #34d399 !important; }
+.theme-light [class*="bg-black\/"] .text-emerald-300 { color: #6ee7b7 !important; }
+.theme-light [class*="bg-black\/"] .text-emerald-200 { color: #a7f3d0 !important; }
+.theme-light [class*="bg-black\/"] .text-emerald-100 { color: #d1fae5 !important; }
+.theme-light [class*="bg-black\/"] .text-amber-400  { color: #fbbf24 !important; }
+.theme-light [class*="bg-black\/"] .text-amber-300  { color: #fcd34d !important; }
+.theme-light [class*="bg-black\/"] .text-amber-200  { color: #fde68a !important; }
+.theme-light [class*="bg-black\/"] .text-rose-300   { color: #fda4af !important; }
+.theme-light [class*="bg-black\/"] .text-rose-200   { color: #fecdd3 !important; }
+.theme-light [class*="bg-black\/"] .text-red-400    { color: #f87171 !important; }
+.theme-light [class*="bg-black\/"] .text-cyan-400   { color: #22d3ee !important; }
+.theme-light [class*="bg-black\/"] .text-blue-400   { color: #60a5fa !important; }
+.theme-light [class*="bg-black\/"] .text-green-400  { color: #4ade80 !important; }
 
 /* Scrollbars in light mode */
 .theme-light ::-webkit-scrollbar-thumb { background: #94a3b8; }
