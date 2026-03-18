@@ -551,8 +551,29 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                             )}
                         </div>
 
-                        <div className="text-[11px] text-slate-500 leading-relaxed pt-1">
-                            Account ID + Platform are stored locally. Open the profile link, copy all the JSON content, then paste it above (or save the page and use Import File) to update Name, MR, syndicates, mastery XP, missions, and inventory.
+                        {/* How to find Account ID */}
+                        <div className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2.5 space-y-2 mt-1">
+                            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
+                                How to find your Account ID
+                            </div>
+                            <div className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
+                                <div>
+                                    <span className="text-slate-300 font-medium">PC: </span>
+                                    Open{" "}
+                                    <code className="rounded bg-slate-800 px-1 py-0.5 font-mono text-slate-300">
+                                        %localappdata%\Warframe\EE.log
+                                    </code>{" "}
+                                    and search for <span className="font-mono text-slate-300">"Logged in"</span> — your account ID will be in the parentheses next to it.
+                                </div>
+                                <div>
+                                    <span className="text-slate-300 font-medium">Console (PS / Xbox / Switch): </span>
+                                    No confirmed self-serve method is currently known following update 38.0.8. Check the{" "}
+                                    <span className="text-slate-300">Warframe Wiki or official forums</span> for any newly documented approach.
+                                </div>
+                            </div>
+                            <div className="text-[10px] text-slate-600 pt-0.5">
+                                As of update 38.0.8, account IDs can no longer be looked up by username. Account ID + Platform are stored locally only.
+                            </div>
                         </div>
                     </div>
                 </div>
