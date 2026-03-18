@@ -1924,7 +1924,7 @@ export default function StarChartMap(props: {
                 </div>
 
                 <div className="absolute left-3 top-3 z-30 flex items-center gap-2">
-                    <div className="rounded-lg border border-slate-800 bg-slate-950/55 px-3 py-1.5 text-xxt-slate-300 backdrop-blur-sm">
+                    <div className="rounded-lg border border-slate-800 bg-slate-950/55 px-3 py-1.5 text-xs text-slate-300 backdrop-blur-sm">
                         {Math.round(scale * 100)}%
                     </div>
 
