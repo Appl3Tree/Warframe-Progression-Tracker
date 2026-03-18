@@ -615,26 +615,37 @@ function EventsTab({ data }: { data: WorldStateData }) {
                         {data.invasions.map((inv) => (
                             <div key={inv.id} className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
                                 <div className="flex items-center justify-between gap-2 mb-1.5">
-                                    <div className="text-xs font-medium text-slate-200 truncate min-w-0">{inv.node}</div>
+                                    <div className="text-xs font-medium text-slate-200 min-w-0">{inv.node}</div>
                                     <span className="shrink-0 font-mono text-[10px] text-slate-400">{inv.completion.toFixed(1)}%</span>
                                 </div>
-                                <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mb-1.5">
+                                <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mb-2">
                                     <div
                                         className={["h-full rounded-full", inv.vsInfestation ? "bg-green-600/70" : "bg-red-600/70"].join(" ")}
                                         style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
                                     />
                                 </div>
-                                <div className="flex items-center justify-between text-[10px]">
-                                    <span className={FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"}>
-                                        {inv.attackingFaction}
-                                    </span>
-                                    <span className="text-slate-600">vs</span>
-                                    <span className={FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"}>
-                                        {inv.defendingFaction}
-                                    </span>
+                                {/* Attacker vs Defender with rewards */}
+                                <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-1 text-[10px]">
+                                    <div>
+                                        <div className={["font-semibold", FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"].join(" ")}>
+                                            {inv.attackingFaction}
+                                        </div>
+                                        {inv.attackerReward?.asString && (
+                                            <div className="text-amber-300/80 mt-0.5 leading-tight">{inv.attackerReward.asString}</div>
+                                        )}
+                                    </div>
+                                    <div className="text-slate-600 pt-0.5 text-center">vs</div>
+                                    <div className="text-right">
+                                        <div className={["font-semibold", FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"].join(" ")}>
+                                            {inv.defendingFaction}
+                                        </div>
+                                        {inv.defenderReward?.asString && (
+                                            <div className="text-amber-300/80 mt-0.5 leading-tight">{inv.defenderReward.asString}</div>
+                                        )}
+                                    </div>
                                 </div>
                                 {inv.desc && (
-                                    <div className="text-[10px] text-slate-500 mt-1 truncate">{inv.desc}</div>
+                                    <div className="text-[10px] text-slate-500 mt-1.5 border-t border-slate-800/60 pt-1">{inv.desc}</div>
                                 )}
                             </div>
                         ))}

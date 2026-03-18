@@ -116,6 +116,13 @@ export type WsEvent = {
     rewards?: Array<{ asString: string }>;
 };
 
+export type InvasionReward = {
+    asString: string;
+    items?: string[];
+    credits?: number;
+    countedItems?: Array<{ type: string; count: number }>;
+};
+
 export type Invasion = {
     id: string;
     node: string;
@@ -126,6 +133,8 @@ export type Invasion = {
     completed: boolean;
     eta: string;
     vsInfestation: boolean;
+    attackerReward: InvasionReward | null;
+    defenderReward: InvasionReward | null;
 };
 
 export type SteelPath = {
@@ -213,7 +222,23 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                     ? (j.events as WsEvent[]).filter((e) => e.active !== false)
                     : [],
                 invasions: Array.isArray(j.invasions)
-                    ? (j.invasions as Invasion[]).filter((inv) => !inv.completed)
+                    ? (j.invasions as any[]).filter((inv) => !inv.completed).map((inv): Invasion => ({
+                        id: inv.id ?? "",
+                        node: inv.node ?? "",
+                        desc: inv.desc ?? "",
+                        attackingFaction: inv.attackingFaction ?? "",
+                        defendingFaction: inv.defendingFaction ?? "",
+                        completion: typeof inv.completion === "number" ? inv.completion : 0,
+                        completed: !!inv.completed,
+                        eta: inv.eta ?? "",
+                        vsInfestation: !!inv.vsInfestation,
+                        attackerReward: inv.attackerReward
+                            ? { asString: inv.attackerReward.asString ?? "", items: inv.attackerReward.items, credits: inv.attackerReward.credits, countedItems: inv.attackerReward.countedItems }
+                            : null,
+                        defenderReward: inv.defenderReward
+                            ? { asString: inv.defenderReward.asString ?? "", items: inv.defenderReward.items, credits: inv.defenderReward.credits, countedItems: inv.defenderReward.countedItems }
+                            : null,
+                    }))
                     : [],
                 steelPath: j.steelPath
                     ? { currentReward: j.steelPath.currentReward ?? null, expiry: j.steelPath.expiry }
