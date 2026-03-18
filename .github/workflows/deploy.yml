@@ -2,16 +2,6 @@
 # Deploy to GitHub Pages
 #
 # Triggers on every push to the main branch.
-#
-# Google Drive integration:
-#   The VITE_GOOGLE_CLIENT_ID variable is baked into the build at compile time.
-#   To enable it, create a repository variable (NOT a secret) in:
-#     GitHub repo → Settings → Secrets and variables → Actions → Variables tab
-#   Name:  VITE_GOOGLE_CLIENT_ID
-#   Value: your OAuth 2.0 Client ID from Google Cloud Console
-#
-#   If the variable is not set, the Google Drive section in Import/Export
-#   will be hidden automatically — the rest of the app is unaffected.
 # ──────────────────────────────────────────────────────────────────────────────
 
 name: Deploy to GitHub Pages
