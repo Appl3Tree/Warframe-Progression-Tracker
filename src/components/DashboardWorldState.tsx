@@ -1,6 +1,8 @@
 // src/components/DashboardWorldState.tsx
-// Live World State embedded in the Dashboard — cycles, sortie, archon hunt, fissures.
+// Live World State embedded in the Dashboard — cycles, sortie, archon hunt,
+// Baro Ki'Teer, active events, fissures, nightwave.
 // Data from https://api.warframestat.us (community API, no auth required).
+// Fetches the full /pc endpoint in a single request to avoid sub-endpoint issues.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -68,6 +70,29 @@ type Nightwave = {
     expiry: string;
 };
 
+type TraderItem = {
+    item: string;
+    ducats: number;
+    credits: number;
+};
+
+type VoidTrader = {
+    active: boolean;
+    character: string;
+    location: string;
+    inventory: TraderItem[];
+    activation: string;
+    expiry: string;
+};
+
+type WsEvent = {
+    id: string;
+    description: string;
+    tooltip: string;
+    expiry: string;
+    active: boolean;
+};
+
 type WorldStateData = {
     cetusCycle:   WsCycle;
     valesCycle:   WsCycle;
@@ -77,6 +102,8 @@ type WorldStateData = {
     archonHunt:   ArchonHunt;
     fissures:     Fissure[];
     nightwave:    Nightwave | null;
+    voidTrader:   VoidTrader | null;
+    events:       WsEvent[];
 };
 
 // ── Fetch ─────────────────────────────────────────────────────────────────────
@@ -84,25 +111,23 @@ type WorldStateData = {
 const API = "https://api.warframestat.us/pc";
 
 async function fetchWorldState(): Promise<WorldStateData> {
-    const get = <T,>(path: string) =>
-        fetch(`${API}/${path}?language=en`).then((r) => {
-            if (!r.ok) throw new Error(`${path} ${r.status}`);
-            return r.json() as Promise<T>;
-        });
-
-    const [cetusCycle, valesCycle, cambionCycle, zarimanCycle, sortie, archonHunt, fissures, nightwave] =
-        await Promise.all([
-            get<WsCycle>("cetusCycle"),
-            get<WsCycle>("valesCycle"),
-            get<WsCycle>("cambionCycle"),
-            get<WsCycle>("zarimanCycle"),
-            get<Sortie>("sortie"),
-            get<ArchonHunt>("archonHunt"),
-            get<Fissure[]>("fissures"),
-            get<Nightwave>("nightwave").catch(() => null),
-        ]);
-
-    return { cetusCycle, valesCycle, cambionCycle, zarimanCycle, sortie, archonHunt, fissures, nightwave };
+    const res = await fetch(`${API}?language=en`);
+    if (!res.ok) throw new Error(`World state API returned ${res.status}`);
+    const j = await res.json();
+    return {
+        cetusCycle:   j.cetusCycle,
+        valesCycle:   j.valesCycle,
+        cambionCycle: j.cambionCycle,
+        zarimanCycle: j.zarimanCycle,
+        sortie:       j.sortie,
+        archonHunt:   j.archonHunt,
+        fissures:     Array.isArray(j.fissures)  ? j.fissures  : [],
+        nightwave:    j.nightwave  ?? null,
+        voidTrader:   j.voidTrader ?? null,
+        events:       Array.isArray(j.events)
+            ? (j.events as WsEvent[]).filter((e) => e.active !== false)
+            : [],
+    };
 }
 
 // ── Time ──────────────────────────────────────────────────────────────────────
@@ -184,9 +209,9 @@ function Panel({ title, aside, children }: { title: string; aside?: React.ReactN
 
 function CyclesPanel({ data }: { data: WorldStateData }) {
     const cycles = [
-        { loc: "Plains of Eidolon", cycle: data.cetusCycle,   next: data.cetusCycle.state   === "day"     ? "Night" : "Day"  },
-        { loc: "Orb Vallis",        cycle: data.valesCycle,   next: data.valesCycle.state   === "warm"    ? "Cold"  : "Warm" },
-        { loc: "Cambion Drift",     cycle: data.cambionCycle, next: data.cambionCycle.state === "fass"    ? "Vome"  : "Fass" },
+        { loc: "Plains of Eidolon", cycle: data.cetusCycle,   next: data.cetusCycle.state   === "day"  ? "Night" : "Day"  },
+        { loc: "Orb Vallis",        cycle: data.valesCycle,   next: data.valesCycle.state   === "warm" ? "Cold"  : "Warm" },
+        { loc: "Cambion Drift",     cycle: data.cambionCycle, next: data.cambionCycle.state === "fass" ? "Vome"  : "Fass" },
         { loc: "Zariman",           cycle: data.zarimanCycle, next: "Next" },
     ];
     return (
@@ -270,6 +295,90 @@ function ArchonPanel({ hunt }: { hunt: ArchonHunt }) {
                         <div>
                             <div className="text-xs font-medium text-slate-200">{m.type}</div>
                             <div className="text-[10px] text-slate-500">{m.node}</div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </Panel>
+    );
+}
+
+function VoidTraderPanel({ trader }: { trader: VoidTrader }) {
+    const now = useNow();
+    const msUntilArrival  = new Date(trader.activation).getTime() - now;
+    const msUntilDeparture = new Date(trader.expiry).getTime() - now;
+
+    return (
+        <Panel
+            title="Baro Ki'Teer"
+            aside={
+                <div className="text-[10px] text-slate-500">
+                    {trader.active
+                        ? <>Leaves <Countdown expiry={trader.expiry} className="font-mono text-slate-400" /></>
+                        : msUntilArrival > 0
+                            ? <>Arrives <Countdown expiry={trader.activation} className="font-mono text-slate-400" /></>
+                            : msUntilDeparture > 0
+                                ? <>Leaves <Countdown expiry={trader.expiry} className="font-mono text-slate-400" /></>
+                                : null
+                    }
+                </div>
+            }
+        >
+            <div className="mb-2 flex flex-wrap items-center gap-1.5 text-xs">
+                <span className={trader.active ? "font-semibold text-amber-300" : "text-slate-500"}>
+                    {trader.active ? "● Available" : "○ Away"}
+                </span>
+                {trader.location && (
+                    <>
+                        <span className="text-slate-600">·</span>
+                        <span className="text-slate-400">{trader.location}</span>
+                    </>
+                )}
+            </div>
+
+            {trader.active && trader.inventory.length > 0 ? (
+                <div className="space-y-1 max-h-52 overflow-y-auto pr-1">
+                    {trader.inventory.map((item, i) => (
+                        <div key={i} className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/40 px-2.5 py-1.5">
+                            <div className="text-xs font-medium text-slate-200 truncate min-w-0">{item.item}</div>
+                            <div className="flex items-center gap-2 shrink-0 text-[10px] whitespace-nowrap">
+                                <span className="text-amber-300">{item.ducats.toLocaleString()} duc</span>
+                                <span className="text-slate-600">+</span>
+                                <span className="text-yellow-200">{item.credits.toLocaleString()} cr</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : !trader.active ? (
+                <div className="text-xs text-slate-500">
+                    Next visit in <Countdown expiry={trader.activation} className="font-mono text-slate-400" />
+                </div>
+            ) : (
+                <div className="text-xs text-slate-500">Inventory not yet available.</div>
+            )}
+        </Panel>
+    );
+}
+
+function EventsPanel({ events }: { events: WsEvent[] }) {
+    if (events.length === 0) return null;
+    return (
+        <Panel title={`Active Events (${events.length})`}>
+            <div className="space-y-1.5">
+                {events.map((ev) => (
+                    <div key={ev.id} className="rounded-lg border border-slate-800 bg-slate-900/40 px-2.5 py-2">
+                        <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                                <div className="text-xs font-medium text-slate-200">
+                                    {ev.description || ev.tooltip || "Unnamed Event"}
+                                </div>
+                                {ev.tooltip && ev.description && ev.tooltip !== ev.description && (
+                                    <div className="text-[10px] text-slate-500 mt-0.5 truncate">{ev.tooltip}</div>
+                                )}
+                            </div>
+                            {ev.expiry && (
+                                <Countdown expiry={ev.expiry} className="shrink-0 font-mono text-[10px] text-slate-400" />
+                            )}
                         </div>
                     </div>
                 ))}
@@ -479,10 +588,23 @@ export default function DashboardWorldState() {
                             <ArchonPanel hunt={data.archonHunt} />
                         </div>
 
-                        {/* Row 2: Fissures (full width) */}
+                        {/* Row 2: Baro Ki'Teer + Events */}
+                        {(data.voidTrader || data.events.length > 0) && (
+                            <div className={[
+                                "grid gap-3",
+                                data.voidTrader && data.events.length > 0
+                                    ? "grid-cols-1 lg:grid-cols-2"
+                                    : "grid-cols-1",
+                            ].join(" ")}>
+                                {data.voidTrader && <VoidTraderPanel trader={data.voidTrader} />}
+                                {data.events.length > 0 && <EventsPanel events={data.events} />}
+                            </div>
+                        )}
+
+                        {/* Row 3: Fissures (full width) */}
                         <FissuresPanel fissures={data.fissures} />
 
-                        {/* Row 3: Nightwave (if active) */}
+                        {/* Row 4: Nightwave (if active) */}
                         {data.nightwave && data.nightwave.activeChallenges.length > 0 && (
                             <NightwavePanel nightwave={data.nightwave} />
                         )}

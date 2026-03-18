@@ -60,13 +60,13 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* ── World State ── */}
-            <DashboardWorldState />
-
             {/* ── Reset tracker ── */}
             <div className="min-h-0 lg:flex-1">
                 <WarframeResetTracker />
             </div>
+
+            {/* ── World State ── */}
+            <DashboardWorldState />
         </div>
     );
 }
