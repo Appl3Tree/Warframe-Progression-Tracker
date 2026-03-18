@@ -216,16 +216,6 @@ const ALL_TASKS: TaskDef[] = [
     { id: "conclave_weekly_challenges", label: "Conclave Weekly Challenges", bucket: "conclave", conclaveSub: "conclave_weekly", description: "Finish this week's Conclave weekly challenges.", prereqIds: [PR.HUB_RELAY] },
 ];
 
-
-function getMonthlyRef(mode: TimeMode) {
-    return [{ id: "prime", label: "Prime Resurgence", detail: `Approximate monthly rotation ~${fmtFixedUTC(18, 0, mode)}. Reference only.` }];
-}
-
-const EVENT_REF = [
-    { id: "world", label: "World Events", detail: "Ghoul Purge, Thermia, Razorback, Fomorian, Plague Star." },
-    { id: "seasonal", label: "Seasonal Events", detail: "Star Days, Dog Days, Naberus, Lunar New Year, Christmas." },
-];
-
 // ─── Time helpers ───────────────────────────────────────────────────────────────
 
 function utcKey(d: Date) {
@@ -851,24 +841,6 @@ function ConclavePanel({
                     </div>
                     <TaskList tasks={weeklyTasks} completedIds={completedWeeklyIds} onToggle={onToggleWeekly} />
                 </div>
-            </div>
-        </div>
-    );
-}
-
-function RefSection({ title, rows }: { title: string; rows: { id: string; label: string; detail: string; highlight?: boolean }[] }) {
-    return (
-        <div className="rounded-xl border border-slate-800 bg-slate-950/30 overflow-hidden">
-            <div className="px-3 py-2 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                {title}
-            </div>
-            <div className="p-1.5 flex flex-col gap-1">
-                {rows.map((r) => (
-                    <div key={r.id} className={`px-2.5 py-2 rounded-lg border bg-slate-950/40 ${r.highlight ? "border-amber-700/50 bg-amber-950/20" : "border-slate-800"}`}>
-                        <div className={`text-sm font-medium ${r.highlight ? "text-amber-300" : "text-slate-300"}`}>{r.label}</div>
-                        <div className="text-xs text-slate-500 mt-0.5 leading-snug">{r.detail}</div>
-                    </div>
-                ))}
             </div>
         </div>
     );
