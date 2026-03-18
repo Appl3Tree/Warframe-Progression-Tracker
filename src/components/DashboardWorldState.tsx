@@ -94,12 +94,12 @@ type WsEvent = {
 };
 
 type WorldStateData = {
-    cetusCycle:   WsCycle;
-    valesCycle:   WsCycle;
-    cambionCycle: WsCycle;
-    zarimanCycle: WsCycle;
-    sortie:       Sortie;
-    archonHunt:   ArchonHunt;
+    cetusCycle:   WsCycle | null;
+    valesCycle:   WsCycle | null;
+    cambionCycle: WsCycle | null;
+    zarimanCycle: WsCycle | null;
+    sortie:       Sortie | null;
+    archonHunt:   ArchonHunt | null;
     fissures:     Fissure[];
     nightwave:    Nightwave | null;
     voidTrader:   VoidTrader | null;
@@ -115,12 +115,13 @@ async function fetchWorldState(): Promise<WorldStateData> {
     if (!res.ok) throw new Error(`World state API returned ${res.status}`);
     const j = await res.json();
     return {
-        cetusCycle:   j.cetusCycle,
-        valesCycle:   j.valesCycle,
-        cambionCycle: j.cambionCycle,
-        zarimanCycle: j.zarimanCycle,
-        sortie:       j.sortie,
-        archonHunt:   j.archonHunt,
+        cetusCycle:   j.cetusCycle   ?? null,
+        // warframestat.us full response uses "vallisCycle"; sub-endpoint alias is "valesCycle"
+        valesCycle:   j.valesCycle   ?? j.vallisCycle ?? null,
+        cambionCycle: j.cambionCycle ?? null,
+        zarimanCycle: j.zarimanCycle ?? null,
+        sortie:       j.sortie       ?? null,
+        archonHunt:   j.archonHunt   ?? null,
         fissures:     Array.isArray(j.fissures)  ? j.fissures  : [],
         nightwave:    j.nightwave  ?? null,
         voidTrader:   j.voidTrader ?? null,
@@ -208,12 +209,13 @@ function Panel({ title, aside, children }: { title: string; aside?: React.ReactN
 }
 
 function CyclesPanel({ data }: { data: WorldStateData }) {
-    const cycles = [
-        { loc: "Plains of Eidolon", cycle: data.cetusCycle,   next: data.cetusCycle.state   === "day"  ? "Night" : "Day"  },
-        { loc: "Orb Vallis",        cycle: data.valesCycle,   next: data.valesCycle.state   === "warm" ? "Cold"  : "Warm" },
-        { loc: "Cambion Drift",     cycle: data.cambionCycle, next: data.cambionCycle.state === "fass" ? "Vome"  : "Fass" },
+    const allCycles = [
+        { loc: "Plains of Eidolon", cycle: data.cetusCycle,   next: data.cetusCycle?.state   === "day"  ? "Night" : "Day"  },
+        { loc: "Orb Vallis",        cycle: data.valesCycle,   next: data.valesCycle?.state   === "warm" ? "Cold"  : "Warm" },
+        { loc: "Cambion Drift",     cycle: data.cambionCycle, next: data.cambionCycle?.state === "fass" ? "Vome"  : "Fass" },
         { loc: "Zariman",           cycle: data.zarimanCycle, next: "Next" },
     ];
+    const cycles = allCycles.filter((c): c is typeof c & { cycle: WsCycle } => c.cycle != null);
     return (
         <Panel title="Open World Cycles">
             <div className="space-y-2">
@@ -584,8 +586,8 @@ export default function DashboardWorldState() {
                         {/* Row 1: Cycles + Sortie + Archon */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                             <CyclesPanel data={data} />
-                            <SortiePanel sortie={data.sortie} />
-                            <ArchonPanel hunt={data.archonHunt} />
+                            {data.sortie    && <SortiePanel sortie={data.sortie} />}
+                            {data.archonHunt && <ArchonPanel hunt={data.archonHunt} />}
                         </div>
 
                         {/* Row 2: Baro Ki'Teer + Events */}
