@@ -8,7 +8,8 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
-import { buildRequirementsSnapshot } from "../domain/logic/requirementEngine";
+import { buildRequirementsSnapshot, type SyndicateScopeMode } from "../domain/logic/requirementEngine";
+import { getItemRequirements } from "../catalog/items/itemRequirements";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
 import { EMPTY_OBJ, EMPTY_ARR, type GoalRow, type GoalsTab, safeInt } from "./goals/goalsUtils";
 import { GoalCard } from "./goals/GoalCard";
@@ -40,6 +41,124 @@ function PillButton(props: { label: string; active: boolean; onClick: () => void
     );
 }
 
+// Inline count editor for requirements items — updates the shared inventory counts.
+function InlineCountEditor(props: { catalogId: string; have: number; totalNeed: number }) {
+    const setCount = useTrackerStore((s) => s.setCount);
+    const [editing, setEditing] = useState(false);
+    const [draft, setDraft] = useState("");
+
+    function commit() {
+        const n = parseInt(draft, 10);
+        if (!isNaN(n) && n >= 0) setCount(props.catalogId, n);
+        setEditing(false);
+    }
+
+    if (editing) {
+        return (
+            <div className="flex items-center gap-1">
+                <input
+                    autoFocus
+                    type="number"
+                    min={0}
+                    className="w-20 rounded border border-slate-600 bg-slate-900 px-2 py-0.5 text-xs font-mono text-slate-100 focus:outline-none focus:border-slate-400"
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") setEditing(false); }}
+                    onBlur={commit}
+                />
+                <span className="text-[11px] text-slate-500">/ {props.totalNeed.toLocaleString()}</span>
+            </div>
+        );
+    }
+
+    return (
+        <button
+            className="flex items-center gap-1 group"
+            onClick={() => { setDraft(String(props.have)); setEditing(true); }}
+            title="Click to update your count"
+        >
+            <span className="text-[11px] text-slate-400 font-mono group-hover:text-slate-200 transition-colors">
+                {props.have.toLocaleString()} / {props.totalNeed.toLocaleString()}
+            </span>
+            <svg className="w-3 h-3 text-slate-600 group-hover:text-slate-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+        </button>
+    );
+}
+
+// A single requirements-goals row with optional crafting ingredient expansion.
+function ReqItemRow(props: { catalogId: CatalogId; name: string; totalNeed: number; have: number; remaining: number; syndicateLabel?: string }) {
+    const { catalogId, name, totalNeed, have, remaining, syndicateLabel } = props;
+    const [expanded, setExpanded] = useState(false);
+
+    const ingredients = useMemo(() => {
+        const comps = getItemRequirements(catalogId);
+        if (!Array.isArray(comps) || comps.length === 0) return [];
+        return comps
+            .filter((c) => c?.catalogId && safeInt((c as any).count ?? 0, 0) > 0)
+            .map((c) => {
+                const cid = c.catalogId as CatalogId;
+                const dispName = FULL_CATALOG.recordsById[cid]?.displayName ?? String(cid);
+                return { catalogId: cid, name: dispName, count: safeInt((c as any).count ?? 0, 0) };
+            });
+    }, [catalogId]);
+
+    const pct = totalNeed > 0 ? Math.min(100, Math.round((have / totalNeed) * 100)) : 0;
+    const done = remaining === 0;
+
+    return (
+        <div className={["rounded-xl border bg-slate-950/30 p-3", done ? "border-slate-800/40 opacity-60" : "border-slate-800"].join(" ")}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                        <div className="text-sm font-semibold break-words">{name}</div>
+                        {done && <span className="text-[10px] text-green-500 font-mono">✓ done</span>}
+                    </div>
+                    {syndicateLabel && (
+                        <div className="text-[11px] text-slate-500 mt-0.5">{syndicateLabel}</div>
+                    )}
+                    {/* Progress bar */}
+                    <div className="mt-1.5 flex items-center gap-2">
+                        <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                            <div className="h-full rounded-full bg-sky-500 transition-all" style={{ width: `${pct}%` }} />
+                        </div>
+                        <InlineCountEditor catalogId={String(catalogId)} have={have} totalNeed={totalNeed} />
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                    <div className="text-xs font-mono text-slate-100 font-semibold text-right">
+                        {remaining.toLocaleString()} left
+                    </div>
+                    {ingredients.length > 0 && (
+                        <button
+                            onClick={() => setExpanded((v) => !v)}
+                            className="text-[10px] rounded-full border border-slate-700 bg-slate-900 px-2 py-0.5 text-slate-400 hover:text-slate-200 hover:border-slate-600 transition-colors"
+                            title={expanded ? "Hide crafting ingredients" : "Show crafting ingredients"}
+                        >
+                            {expanded ? "▲ hide" : "▼ crafting"}
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* Flat ingredient list */}
+            {expanded && ingredients.length > 0 && (
+                <div className="mt-2 ml-4 space-y-1 border-l-2 border-slate-800 pl-3">
+                    {ingredients.map((ing) => (
+                        <div key={String(ing.catalogId)} className="flex items-center justify-between gap-2 text-xs text-slate-300">
+                            <span className="truncate">{ing.name}</span>
+                            <span className="font-mono text-slate-400 shrink-0">×{ing.count.toLocaleString()}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function Goals() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
 
@@ -49,6 +168,9 @@ export default function Goals() {
     const inventory = useTrackerStore((s) => s.state.inventory);
 
     const [tab, setTab] = useState<GoalsTab>("personal");
+
+    // Requirements Goals scope toggle
+    const [reqScope, setReqScope] = useState<SyndicateScopeMode>("nextOnly");
 
     // Personal goals filter / sort state
     const [search, setSearch] = useState("");
@@ -64,10 +186,11 @@ export default function Goals() {
             syndicates,
             goals: [],
             completedPrereqs,
-            inventory
+            inventory,
+            syndicateScope: reqScope
         });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [needsRequirements, syndicates, completedPrereqs, inventory]);
+    }, [needsRequirements, syndicates, completedPrereqs, inventory, reqScope]);
 
     // Sorted + filtered goal IDs — GoalCard fetches its own data from the store
     const { sortedGoalIds, totalGoalCount } = useMemo(() => {
@@ -313,27 +436,49 @@ export default function Goals() {
             {tab === "requirements" && (
                 <Section
                     title="Requirements Goals"
-                    subtitle={`Actionable items: ${requirementsLines.length.toLocaleString()} (derived from Syndicate next-rank steps)`}
+                    subtitle={`${requirementsLines.length.toLocaleString()} item${requirementsLines.length !== 1 ? "s" : ""} needed · ${reqScope === "allRemaining" ? "All remaining ranks" : "Next rank only"}`}
                 >
+                    {/* Scope toggle */}
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                        <span className="text-xs text-slate-500 font-medium">Rank scope:</span>
+                        <PillButton
+                            label="Next rank only"
+                            active={reqScope === "nextOnly"}
+                            onClick={() => setReqScope("nextOnly")}
+                        />
+                        <PillButton
+                            label="All remaining ranks"
+                            active={reqScope === "allRemaining"}
+                            onClick={() => setReqScope("allRemaining")}
+                        />
+                    </div>
+
                     {requirementsLines.length === 0 ? (
                         <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
-                            No actionable requirements right now.
+                            No requirements right now. Make sure syndicates are configured on the Syndicates page.
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            {requirementsLines.map((l) => (
-                                <div key={String(l.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-                                    <div className="flex flex-wrap items-start justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <div className="text-sm font-semibold break-words">{l.name}</div>
-                                            <div className="text-xs text-slate-400 mt-1">
-                                                Need {l.totalNeed.toLocaleString()} · Have {l.have.toLocaleString()} · Remaining{" "}
-                                                {l.remaining.toLocaleString()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                            {requirementsLines.map((l) => {
+                                // Build a short label showing which syndicate(s) need this item.
+                                const synLabels = l.sources
+                                    .filter((s: any) => s.type === "syndicate")
+                                    .map((s: any) => `${s.name} ${s.label}`)
+                                    .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i)
+                                    .slice(0, 3)
+                                    .join(" · ");
+                                return (
+                                    <ReqItemRow
+                                        key={String(l.key)}
+                                        catalogId={l.key}
+                                        name={l.name}
+                                        totalNeed={l.totalNeed}
+                                        have={l.have}
+                                        remaining={l.remaining}
+                                        syndicateLabel={synLabels || undefined}
+                                    />
+                                );
+                            })}
                         </div>
                     )}
                 </Section>

@@ -8,6 +8,7 @@ import {
     type RequirementViewMode,
     type RequirementExpandMode
 } from "../domain/logic/requirementEngine";
+import type { CurrencyRequirementLine } from "../domain/logic/requirementEngine";
 
 function normalize(s: string): string {
     return s.trim().toLowerCase();
@@ -112,6 +113,40 @@ function InlineCountEditor(props: {
     );
 }
 
+function CurrencyCostChip(props: { line: CurrencyRequirementLine }) {
+    const { line: cl } = props;
+    const remaining = cl.remaining ?? cl.totalNeed;
+    const isMet = remaining <= 0;
+    const isPlatinum = cl.key === "platinum";
+
+    return (
+        <div className={[
+            "rounded-xl border px-4 py-3 flex items-center gap-3",
+            isMet
+                ? "border-green-800/40 bg-green-950/20"
+                : isPlatinum
+                    ? "border-indigo-800/40 bg-indigo-950/20"
+                    : "border-yellow-800/40 bg-yellow-950/10"
+        ].join(" ")}>
+            <div className="text-2xl">{isPlatinum ? "◈" : "🪙"}</div>
+            <div>
+                <div className="text-sm font-semibold text-slate-100">{cl.name}</div>
+                <div className={["text-xs font-mono", isMet ? "text-green-400" : "text-slate-300"].join(" ")}>
+                    {isMet
+                        ? `✓ ${cl.totalNeed.toLocaleString()} (covered)`
+                        : `Need ${cl.totalNeed.toLocaleString()}${cl.have > 0 ? ` · Have ${cl.have.toLocaleString()} · Still need ${remaining.toLocaleString()}` : ""}`}
+                </div>
+                {cl.sources.length > 0 && (
+                    <div className="text-[10px] text-slate-500 mt-0.5">
+                        {cl.sources.slice(0, 3).map(s => s.name).join(", ")}
+                        {cl.sources.length > 3 && ` +${cl.sources.length - 3} more`}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 export default function Requirements() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
 
@@ -124,7 +159,9 @@ export default function Requirements() {
     const [expandMode, setExpandMode] = useState<RequirementExpandMode>("direct");
     const [query, setQuery] = useState("");
     const [showHidden, setShowHidden] = useState(false);
-    const [allowPlatinum, setAllowPlatinum] = useState(false);
+    // "farming" = default farming view (platinum excluded from overlap/targeted display)
+    // "platinum" = platinum cost summary view
+    const [platView, setPlatView] = useState<"farming" | "platinum">("farming");
 
     const requirements = useMemo(() => {
         return buildRequirementsSnapshot({
@@ -132,7 +169,10 @@ export default function Requirements() {
             goals,
             completedPrereqs,
             inventory,
-            expandMode
+            expandMode,
+            // Farming page always shows all remaining rank requirements so players can
+            // plan their full farming runs, not just the immediate next rank.
+            syndicateScope: "allRemaining"
         });
     }, [syndicates, goals, completedPrereqs, inventory, expandMode]);
 
@@ -257,45 +297,14 @@ export default function Requirements() {
                     />
                 </div>
 
-                {/* Currency costs */}
-                {requirements.currencyLines.length > 0 && (
+                {/* Credit costs — always shown when non-zero (not platinum) */}
+                {requirements.currencyLines.some(cl => cl.key === "credits" && cl.totalNeed > 0) && (
                     <div className="mt-4 space-y-2">
-                        <div className="text-xs uppercase tracking-wide text-slate-500 font-semibold">Currency costs</div>
+                        <div className="text-xs uppercase tracking-wide text-slate-500 font-semibold">Credit costs (rank-ups)</div>
                         <div className="flex flex-wrap gap-3">
                             {requirements.currencyLines
-                                .filter(cl => allowPlatinum || cl.key !== "platinum")
-                                .map(cl => {
-                                    const remaining = cl.remaining ?? cl.totalNeed;
-                                    const isMet = remaining <= 0;
-                                    const isPlatinum = cl.key === "platinum";
-                                    return (
-                                        <div key={cl.key} className={[
-                                            "rounded-xl border px-4 py-3 flex items-center gap-3",
-                                            isMet
-                                                ? "border-green-800/40 bg-green-950/20"
-                                                : isPlatinum
-                                                    ? "border-indigo-800/40 bg-indigo-950/20"
-                                                    : "border-yellow-800/40 bg-yellow-950/10"
-                                        ].join(" ")}>
-                                            <div className="text-2xl">{isPlatinum ? "🟦" : "🪙"}</div>
-                                            <div>
-                                                <div className="text-sm font-semibold text-slate-100">{cl.name}</div>
-                                                <div className={["text-xs font-mono", isMet ? "text-green-400" : "text-slate-300"].join(" ")}>
-                                                    {isMet
-                                                        ? `✓ ${cl.totalNeed.toLocaleString()} (covered)`
-                                                        : `Need ${cl.totalNeed.toLocaleString()}${cl.have > 0 ? ` · Have ${cl.have.toLocaleString()} · Still need ${remaining.toLocaleString()}` : ""}`
-                                                    }
-                                                </div>
-                                                {cl.sources.length > 0 && (
-                                                    <div className="text-[10px] text-slate-500 mt-0.5">
-                                                        {cl.sources.slice(0, 3).map(s => s.name).join(", ")}
-                                                        {cl.sources.length > 3 && ` +${cl.sources.length - 3} more`}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                .filter(cl => cl.key === "credits")
+                                .map(cl => <CurrencyCostChip key={cl.key} line={cl} />)}
                         </div>
                     </div>
                 )}
@@ -317,12 +326,79 @@ export default function Requirements() {
                         onClick={() => setShowHidden(v => !v)}
                     />
                     <PillButton
-                        label={allowPlatinum ? "Platinum: allowed" : "Platinum: excluded"}
-                        active={allowPlatinum}
-                        onClick={() => setAllowPlatinum(v => !v)}
+                        label="Farming View"
+                        active={platView === "farming"}
+                        onClick={() => setPlatView("farming")}
+                    />
+                    <PillButton
+                        label={`Platinum View${requirements.currencyLines.some(cl => cl.key === "platinum" && cl.totalNeed > 0) ? ` (${(requirements.currencyLines.find(cl => cl.key === "platinum")?.remaining ?? 0).toLocaleString()} ◈ needed)` : ""}`}
+                        active={platView === "platinum"}
+                        onClick={() => setPlatView("platinum")}
                     />
                 </div>
             </Section>
+
+            {/* Platinum view */}
+            {platView === "platinum" && (
+                <Section
+                    title="Platinum Cost Summary"
+                    subtitle="Platinum required across all rank-up steps in scope. Use this to budget if you plan to purchase rank-up items with platinum."
+                >
+                    {requirements.currencyLines.filter(cl => cl.key === "platinum" && cl.totalNeed > 0).length === 0 ? (
+                        <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
+                            No platinum costs found in current requirements. Platinum rank-up costs appear here when syndicates require them.
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {requirements.currencyLines
+                                .filter(cl => cl.key === "platinum")
+                                .map(cl => {
+                                    const remaining = cl.remaining ?? cl.totalNeed;
+                                    const isMet = remaining <= 0;
+                                    return (
+                                        <div key={cl.key}>
+                                            <div className={[
+                                                "rounded-xl border px-4 py-3 flex items-center gap-4 mb-3",
+                                                isMet ? "border-green-800/40 bg-green-950/20" : "border-indigo-800/40 bg-indigo-950/20"
+                                            ].join(" ")}>
+                                                <div className="text-3xl">◈</div>
+                                                <div className="flex-1">
+                                                    <div className="text-sm font-semibold text-slate-100">Total Platinum</div>
+                                                    <div className={["text-sm font-mono font-semibold", isMet ? "text-green-400" : "text-indigo-300"].join(" ")}>
+                                                        {isMet
+                                                            ? `✓ Covered (have ${cl.have.toLocaleString()} ◈)`
+                                                            : `${remaining.toLocaleString()} ◈ still needed`}
+                                                    </div>
+                                                    {!isMet && cl.have > 0 && (
+                                                        <div className="text-xs text-slate-400 mt-0.5">
+                                                            Have {cl.have.toLocaleString()} ◈ · Total required {cl.totalNeed.toLocaleString()} ◈
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Per-source breakdown */}
+                                            {cl.sources.length > 0 && (
+                                                <div className="space-y-1.5">
+                                                    <div className="text-xs uppercase tracking-wide text-slate-500 font-semibold px-1">Breakdown by rank-up</div>
+                                                    {cl.sources.map((s, i) => (
+                                                        <div key={i} className="rounded-lg border border-slate-800 bg-slate-950/30 px-3 py-2 flex items-center justify-between gap-2">
+                                                            <div className="text-xs text-slate-300 min-w-0">
+                                                                <span className="font-semibold">{s.name}</span>
+                                                                {s.label && <span className="text-slate-500"> · {s.label}</span>}
+                                                            </div>
+                                                            <div className="text-xs font-mono text-indigo-300 shrink-0">{s.need.toLocaleString()} ◈</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                        </div>
+                    )}
+                </Section>
+            )}
 
             {/* Hidden items */}
             {showHidden && (
@@ -357,7 +433,7 @@ export default function Requirements() {
             )}
 
             {/* Targeted farming */}
-            {mode === "targeted" && (
+            {platView === "farming" && mode === "targeted" && (
                 <Section
                     title="Targeted Farming"
                     subtitle={`${filteredTargeted.length.toLocaleString()} item${filteredTargeted.length !== 1 ? "s" : ""} with known acquisition sources`}
@@ -424,7 +500,7 @@ export default function Requirements() {
             )}
 
             {/* Overlap farming */}
-            {mode === "overlap" && (
+            {platView === "farming" && mode === "overlap" && (
                 <Section
                     title="Overlap Farming"
                     subtitle={`${filteredOverlap.length.toLocaleString()} source${filteredOverlap.length !== 1 ? "s" : ""} covering 2+ needed items`}

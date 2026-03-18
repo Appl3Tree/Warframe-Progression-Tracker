@@ -18,6 +18,7 @@ import { getAcquisitionByCatalogId } from "../../catalog/items/itemAcquisition";
 import type { PrereqId } from "../ids/prereqIds";
 
 import { PROGRESSION_ITEM_IDS } from "../../catalog/items/itemsIndex";
+import { SYNDICATE_VENDOR_CATALOG } from "../catalog/syndicates/syndicateVendorCatalog";
 
 const PROGRESSION_ITEM_ID_SET = new Set<CatalogId>(PROGRESSION_ITEM_IDS);
 
@@ -27,6 +28,11 @@ export type RequirementViewMode = "targeted" | "overlap";
 // - "direct": only the immediate components for each goal are added.
 // - "recursive": recursively expands crafted dependencies.
 export type RequirementExpandMode = "direct" | "recursive";
+
+// Controls which syndicate rank-up tiers are included in requirements.
+// - "nextOnly": only the immediately next rank-up for each syndicate.
+// - "allRemaining": all remaining rank-up tiers up to max rank.
+export type SyndicateScopeMode = "nextOnly" | "allRemaining";
 
 export type RequirementSource =
     | {
@@ -96,6 +102,19 @@ function safeInt(v: unknown, fallback: number): number {
     return Math.max(0, Math.floor(n));
 }
 
+/**
+ * Looks up a CatalogId by display name using the FULL_CATALOG nameIndex.
+ * Prefers "items:" source entries over other sources.
+ * Returns null if no match is found.
+ */
+function lookupCatalogIdByDisplayName(displayName: string): CatalogId | null {
+    const key = displayName.trim().toLowerCase();
+    const ids = FULL_CATALOG.nameIndex[key];
+    if (!ids || ids.length === 0) return null;
+    const itemId = ids.find((id) => id.startsWith("items:"));
+    return (itemId ?? ids[0]) as CatalogId;
+}
+
 function isExplicitBlueprintItem(catalogId: CatalogId, name: string): boolean {
     const cidStr = String(catalogId).toLowerCase();
     const nm = String(name ?? "").toLowerCase();
@@ -159,9 +178,11 @@ export function buildRequirementsSnapshot(args: {
     completedPrereqs: Record<string, boolean>;
     inventory: InventoryLike;
     expandMode?: RequirementExpandMode;
+    syndicateScope?: SyndicateScopeMode;
 }): RequirementsResult {
     const { syndicates, goals, inventory } = args;
     const expandMode: RequirementExpandMode = args.expandMode ?? "recursive";
+    const syndicateScope: SyndicateScopeMode = args.syndicateScope ?? "nextOnly";
 
     const itemAgg: Record<
         string,
@@ -269,49 +290,55 @@ export function buildRequirementsSnapshot(args: {
         const syndicateId = typeof syn?.id === "string" ? syn.id : "";
         const syndicateName = typeof syn?.name === "string" ? syn.name : syndicateId || "Unknown Syndicate";
 
-        const nr = syn?.nextRankUp;
-        if (!nr || typeof nr !== "object") continue;
+        // Look up rank-up ladder from vendor catalog instead of relying on syn.nextRankUp
+        // (nextRankUp is never populated by the current store/profile import flow).
+        const vendorEntry = SYNDICATE_VENDOR_CATALOG.find((v) => v.id === syndicateId);
+        if (!vendorEntry || !Array.isArray(vendorEntry.rankUps) || vendorEntry.rankUps.length === 0) continue;
 
-        const rankTitle =
-            (typeof nr?.title === "string" && nr.title.trim()) ||
-            (typeof syn?.rankLabel === "string" && syn.rankLabel.trim()) ||
-            "Next Rank";
+        const currentRank = typeof syn?.rank === "number" ? Math.floor(syn.rank) : 0;
 
-        const creditsNeed = safeInt(nr?.credits ?? 0, 0);
-        if (creditsNeed > 0) {
-            addCurrencyNeed("credits", creditsNeed, {
-                type: "syndicate",
-                id: syndicateId,
-                name: syndicateName,
-                label: String(rankTitle),
-                need: creditsNeed
-            });
-        }
+        // Select which rank-up tiers to include based on scope.
+        const ranksToProcess = syndicateScope === "allRemaining"
+            ? vendorEntry.rankUps.filter((r) => r.rank > currentRank)
+            : vendorEntry.rankUps.filter((r) => r.rank === currentRank + 1);
 
-        const platNeed = safeInt(nr?.platinum ?? 0, 0);
-        if (platNeed > 0) {
-            addCurrencyNeed("platinum", platNeed, {
-                type: "syndicate",
-                id: syndicateId,
-                name: syndicateName,
-                label: String(rankTitle),
-                need: platNeed
-            });
-        }
+        if (ranksToProcess.length === 0) continue;
 
-        const items = Array.isArray(nr?.items) ? nr.items : [];
-        for (const it of items) {
-            const key = typeof it?.key === "string" ? it.key : "";
-            const need = safeInt(it?.count ?? 0, 0);
-            if (!key || need <= 0) continue;
+        for (const rankUpDef of ranksToProcess) {
+            const rankTitle = `→ Rank ${rankUpDef.rank}`;
 
-            addItemNeed(key as CatalogId, need, {
-                type: "syndicate",
-                id: syndicateId,
-                name: syndicateName,
-                label: String(rankTitle),
-                need
-            });
+            for (const cost of rankUpDef.costs) {
+                if (cost.kind === "credits") {
+                    addCurrencyNeed("credits", cost.amount, {
+                        type: "syndicate",
+                        id: syndicateId,
+                        name: syndicateName,
+                        label: rankTitle,
+                        need: cost.amount
+                    });
+                } else if (cost.kind === "platinum") {
+                    addCurrencyNeed("platinum", cost.amount, {
+                        type: "syndicate",
+                        id: syndicateId,
+                        name: syndicateName,
+                        label: rankTitle,
+                        need: cost.amount
+                    });
+                } else if (cost.kind === "item") {
+                    const catalogId = lookupCatalogIdByDisplayName(cost.name);
+                    if (!catalogId) continue;
+                    const need = Math.max(1, safeInt(cost.qty, 0));
+                    addItemNeed(catalogId, need, {
+                        type: "syndicate",
+                        id: syndicateId,
+                        name: syndicateName,
+                        label: rankTitle,
+                        need
+                    });
+                }
+                // Note: "standing", "currency", "other" cost kinds are not item/credit requirements
+                // and are intentionally skipped here (standing is tracked separately in the syndicate engine).
+            }
         }
     }
 
@@ -894,6 +921,24 @@ function analyzeCatalogIdForFarming(args: {
     };
 }
 
+/**
+ * Returns true if a source represents an actual farmable location (mission node,
+ * drop table, open-world, etc.) that is meaningful for overlap grouping.
+ *
+ * Excludes:
+ * - Crafting (Foundry) — everyone knows they need to build things; it's not an overlap "spot"
+ * - Market / store / vendor / platinum-purchase sources — not farmable in-mission
+ */
+export function isFarmableOverlapSource(sourceId: string): boolean {
+    const sid = String(sourceId).toLowerCase();
+    if (sid === "data:crafting") return false;
+    if (sid.startsWith("src:market") || sid.startsWith("data:market")) return false;
+    if (sid.startsWith("src:store") || sid.startsWith("data:store")) return false;
+    if (sid.startsWith("src:vendor") || sid.startsWith("data:vendor")) return false;
+    if (sid === "data:blueprint/unclassified") return false;
+    return true;
+}
+
 export function buildFarmingSnapshot(args: {
     requirements: RequirementsResult;
     completedPrereqs: Record<string, boolean>;
@@ -941,6 +986,9 @@ export function buildFarmingSnapshot(args: {
     for (const l of targeted) {
         for (const s of l.sources) {
             if (!s?.sourceId) continue;
+            // Only include actual farmable locations in overlap groupings.
+            // Crafting, market, vendor sources are excluded — they aren't mission "spots" worth grouping.
+            if (!isFarmableOverlapSource(String(s.sourceId))) continue;
             overlapInputs.push({
                 sourceId: String(s.sourceId),
                 sourceLabel: s.sourceLabel,
