@@ -4,8 +4,9 @@
 // Clicking the profile area drops down the full edit panel (replaces old always-visible card).
 // The bar itself is always exactly h-12 (48px). The dropdown is absolutely positioned.
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTrackerStore } from "../../store/store";
+import { fetchWorldState, getCachedWorldState, type WorldStateData } from "../../lib/worldStateCache";
 
 type PlatformKey = "pc" | "ps" | "xb" | "swi" | "mob";
 
@@ -185,6 +186,213 @@ function InlineStat({
     );
 }
 
+// ── Notification Bell ─────────────────────────────────────────────────────────
+
+function msToHms(ms: number): string {
+    if (ms <= 0) return "Expired";
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const h = Math.floor(m / 60);
+    const d = Math.floor(h / 24);
+    if (d > 0) return `${d}d ${h % 24}h`;
+    if (h > 0) return `${h}h ${m % 60}m`;
+    return `${m}m ${s % 60}s`;
+}
+
+function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () => void }) {
+    const [open, setOpen]       = useState(false);
+    const [data, setData]       = useState<WorldStateData | null>(() => getCachedWorldState());
+    const [loading, setLoading] = useState(false);
+    const bellRef = useRef<HTMLDivElement>(null);
+
+    const load = useCallback(async () => {
+        setLoading(true);
+        try {
+            const d = await fetchWorldState();
+            setData(d);
+        } catch {
+            /* silently fail — bell just shows nothing */
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // Fetch on mount (uses cache if fresh)
+    useEffect(() => { load(); }, [load]);
+
+    // Refresh every 5 minutes
+    useEffect(() => {
+        const id = setInterval(load, 5 * 60 * 1000);
+        return () => clearInterval(id);
+    }, [load]);
+
+    // Close on outside click
+    useEffect(() => {
+        if (!open) return;
+        function onDown(e: MouseEvent) {
+            if (bellRef.current && !bellRef.current.contains(e.target as Node)) setOpen(false);
+        }
+        document.addEventListener("mousedown", onDown);
+        return () => document.removeEventListener("mousedown", onDown);
+    }, [open]);
+
+    const now = Date.now();
+
+    // Compute badge: true if Baro is active OR a sentient outpost is active
+    const baroActive     = data?.voidTrader?.active;
+    const sentientActive = data?.sentientOutposts?.active;
+    const showBadge      = !!(baroActive || sentientActive);
+
+    // Items to show in dropdown
+    const baroMs     = data?.voidTrader ? new Date(data.voidTrader.activation).getTime() - now : 0;
+    const baroDue    = data?.voidTrader && !baroActive && baroMs > 0;
+    const varziaActive = data?.vaultTrader?.active;
+    const varziaMs   = data?.vaultTrader?.expiry ? new Date(data.vaultTrader.expiry).getTime() - now : 0;
+
+    return (
+        <div className="relative" ref={bellRef}>
+            <button
+                onClick={() => setOpen((v) => !v)}
+                className={[
+                    "relative flex items-center justify-center w-8 h-8 rounded-lg border transition-colors",
+                    open
+                        ? "border-slate-600 bg-slate-800 text-slate-200"
+                        : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:bg-slate-900 hover:text-slate-200",
+                ].join(" ")}
+                title="Notifications"
+            >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+                {showBadge && (
+                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-slate-950" />
+                )}
+            </button>
+
+            {open && (
+                <div className="absolute right-0 top-full mt-1 w-72 rounded-xl border border-slate-700 bg-slate-950 shadow-2xl shadow-black/60 z-50">
+                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800">
+                        <span className="text-xs font-semibold text-slate-200">World Events</span>
+                        {loading && (
+                            <svg className="w-3 h-3 animate-spin text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 .49-4" />
+                            </svg>
+                        )}
+                    </div>
+
+                    <div className="p-2 space-y-1">
+                        {!data && !loading && (
+                            <div className="px-2 py-3 text-xs text-slate-500 text-center">No data available.</div>
+                        )}
+
+                        {/* Baro Ki'Teer */}
+                        {data?.voidTrader && (
+                            <div className={[
+                                "rounded-lg px-3 py-2",
+                                baroActive ? "bg-amber-950/30 border border-amber-800/40" : "bg-slate-900/60",
+                            ].join(" ")}>
+                                <div className="flex items-center justify-between gap-2">
+                                    <div>
+                                        <div className={["text-xs font-semibold", baroActive ? "text-amber-300" : "text-slate-300"].join(" ")}>
+                                            {baroActive ? "● Baro Ki'Teer is HERE" : "Baro Ki'Teer"}
+                                        </div>
+                                        <div className="text-[10px] text-slate-500 mt-0.5">
+                                            {data.voidTrader.location}
+                                        </div>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                        {baroActive ? (
+                                            <div className="text-[10px] text-slate-400">
+                                                Leaves<br />
+                                                <span className="font-mono text-amber-300/80">{msToHms(new Date(data.voidTrader.expiry).getTime() - now)}</span>
+                                            </div>
+                                        ) : baroDue ? (
+                                            <div className="text-[10px] text-slate-400">
+                                                Arrives<br />
+                                                <span className="font-mono text-slate-300">{msToHms(baroMs)}</span>
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Varzia */}
+                        {varziaActive && data?.vaultTrader && (
+                            <div className="rounded-lg px-3 py-2 bg-violet-950/30 border border-violet-800/40">
+                                <div className="flex items-center justify-between gap-2">
+                                    <div>
+                                        <div className="text-xs font-semibold text-violet-300">● Varzia Active</div>
+                                        <div className="text-[10px] text-slate-500 mt-0.5">Primed Resurgence</div>
+                                    </div>
+                                    {varziaMs > 0 && (
+                                        <div className="text-right shrink-0">
+                                            <div className="text-[10px] text-slate-400">
+                                                Ends<br />
+                                                <span className="font-mono text-violet-300/80">{msToHms(varziaMs)}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Sentient Outpost */}
+                        {sentientActive && (
+                            <div className="rounded-lg px-3 py-2 bg-red-950/30 border border-red-800/40">
+                                <div className="text-xs font-semibold text-red-300">● Sentient Outpost Active</div>
+                                {data?.sentientOutposts?.missionType && (
+                                    <div className="text-[10px] text-slate-500 mt-0.5">{data.sentientOutposts.missionType}</div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Active events (up to 3) */}
+                        {data && data.events.length > 0 && (
+                            <div className="rounded-lg px-3 py-2 bg-slate-900/60">
+                                <div className="text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wide">
+                                    Events ({data.events.length})
+                                </div>
+                                {data.events.slice(0, 3).map((ev) => (
+                                    <div key={ev.id} className="flex items-center justify-between gap-1 py-0.5">
+                                        <span className="text-[11px] text-slate-300 truncate min-w-0">
+                                            {ev.description || ev.tooltip || "Active Event"}
+                                        </span>
+                                        {ev.expiry && (
+                                            <span className="font-mono text-[10px] text-slate-500 shrink-0">
+                                                {msToHms(new Date(ev.expiry).getTime() - now)}
+                                            </span>
+                                        )}
+                                    </div>
+                                ))}
+                                {data.events.length > 3 && (
+                                    <div className="text-[10px] text-slate-600 mt-0.5">+{data.events.length - 3} more</div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* No alerts */}
+                        {data && !baroActive && !varziaActive && !sentientActive && data.events.length === 0 && (
+                            <div className="px-2 py-3 text-xs text-slate-500 text-center">No active alerts.</div>
+                        )}
+                    </div>
+
+                    {/* Footer: go to World State page */}
+                    <div className="px-3 py-2 border-t border-slate-800">
+                        <button
+                            onClick={() => { setOpen(false); onNavigateWorldState(); }}
+                            className="w-full text-center text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                            Open World State page →
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 // ── Topbar ────────────────────────────────────────────────────────────────────
 
 export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
@@ -197,6 +405,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
     const credits       = useTrackerStore((s) => s.state.inventory.credits);
     const platinum      = useTrackerStore((s) => s.state.inventory.platinum);
 
+    const setActivePage                = useTrackerStore((s) => s.setActivePage);
     const setMasteryRank               = useTrackerStore((s) => s.setMasteryRank);
     const setCredits                   = useTrackerStore((s) => s.setCredits);
     const setPlatinum                  = useTrackerStore((s) => s.setPlatinum);
@@ -324,6 +533,10 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                     <span className="text-sm font-semibold text-slate-100 tracking-wide hidden sm:inline">Warframe Tracker</span>
                 </div>
 
+                {/* Right side: notification bell + profile pill */}
+                <div className="flex items-center gap-2">
+                <NotificationBell onNavigateWorldState={() => setActivePage("world_state")} />
+
                 {/* Profile pill */}
                 <button
                     onClick={() => { setOpen((v) => !v); if (open) setActiveField(null); }}
@@ -361,6 +574,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                         <path d="M6 9l6 6 6-6" />
                     </svg>
                 </button>
+                </div>{/* end right-side flex */}
             </div>
 
             {/* ── Dropdown panel ── */}

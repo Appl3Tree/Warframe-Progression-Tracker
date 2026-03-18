@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import WarframeResetTracker from "../components/WarframeResetTracker";
 import ProgressionNextStepsPanel from "../components/ProgressionNextStepsPanel";
 import DailyChecklist from "../components/DailyChecklist";
-import DashboardWorldState from "../components/DashboardWorldState";
 import { useTrackerStore } from "../store/store";
 import { buildProgressionPlan } from "../domain/logic/plannerEngine";
 import { deriveCompletedMap } from "../domain/logic/syndicatePrereqs";
@@ -36,12 +35,20 @@ export default function Dashboard() {
                         Track resets, work through progression goals, and manage your personal tasks.
                     </div>
                 </div>
-                <button
-                    className="rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-1.5 text-slate-200 text-sm font-medium hover:bg-slate-800 transition-colors"
-                    onClick={() => setActivePage("goals")}
-                >
-                    Goals →
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-1.5 text-slate-200 text-sm font-medium hover:bg-slate-800 transition-colors"
+                        onClick={() => setActivePage("world_state")}
+                    >
+                        World State →
+                    </button>
+                    <button
+                        className="rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-1.5 text-slate-200 text-sm font-medium hover:bg-slate-800 transition-colors"
+                        onClick={() => setActivePage("goals")}
+                    >
+                        Goals →
+                    </button>
+                </div>
             </div>
 
             {/* ── Top row: progression + checklist ── */}
@@ -61,9 +68,6 @@ export default function Dashboard() {
 
             {/* ── Reset tracker ── */}
             <WarframeResetTracker />
-
-            {/* ── World State ── */}
-            <DashboardWorldState />
         </div>
     );
 }
