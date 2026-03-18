@@ -4,6 +4,7 @@ import { useTrackerStore } from "../store/store";
 import type { PageKey } from "../domain/models/userState";
 
 import Dashboard from "../pages/Dashboard";
+import WorldState from "../pages/WorldState";
 import Inventory from "../pages/Inventory";
 import StarChart from "../pages/StarChart";
 import Prerequisites from "../pages/Prerequisites";
@@ -19,8 +20,9 @@ import Challenges from "../pages/Challenges";
 import Intrinsics from "../pages/Intrinsics";
 
 const PAGE_COMPONENTS: Record<PageKey, React.ReactNode> = {
-    dashboard: <Dashboard />,
-    inventory: <Inventory />,
+    dashboard:   <Dashboard />,
+    world_state: <WorldState />,
+    inventory:   <Inventory />,
     starchart: <StarChart />,
     prereqs: <Prerequisites />,
     syndicates: <Syndicates />,
