@@ -22,15 +22,18 @@
     color: #0f172a;
 }
 
-/* Full slate color scale remapping for light mode — medium cool-gray palette */
+/* Full slate color scale remapping for light mode — medium cool-gray palette.
+   Opacity variants (e.g. bg-slate-950/40) preserve the dark-mode fraction via
+   --tw-bg-opacity, which makes them near-invisible on a similar background.
+   Override ALL variants to solid colors so panels have clear separation. */
 .theme-light .bg-slate-950,
-.theme-light [class*="bg-slate-950\/"] { background-color: rgb(200 212 222 / var(--tw-bg-opacity, 1)) !important; }
+.theme-light [class*="bg-slate-950\/"] { background-color: #d4dfe9 !important; }
 .theme-light .bg-slate-900,
-.theme-light [class*="bg-slate-900\/"] { background-color: rgb(212 223 233 / var(--tw-bg-opacity, 1)) !important; }
+.theme-light [class*="bg-slate-900\/"] { background-color: #dde7f0 !important; }
 .theme-light .bg-slate-800,
-.theme-light [class*="bg-slate-800\/"] { background-color: rgb(221 231 240 / var(--tw-bg-opacity, 1)) !important; }
+.theme-light [class*="bg-slate-800\/"] { background-color: #e4ecf4 !important; }
 .theme-light .bg-slate-700,
-.theme-light [class*="bg-slate-700\/"] { background-color: rgb(188 202 212 / var(--tw-bg-opacity, 1)) !important; }
+.theme-light [class*="bg-slate-700\/"] { background-color: #bccad4 !important; }
 .theme-light .bg-slate-600 { background-color: #7a8fa3 !important; }
 
 /* Text */
