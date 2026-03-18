@@ -342,11 +342,11 @@ export default function Requirements() {
             {platView === "platinum" && (
                 <Section
                     title="Platinum Cost Summary"
-                    subtitle="Platinum required across all rank-up steps in scope. Use this to budget if you plan to purchase rank-up items with platinum."
+                    subtitle="Platinum purchase price for each goal item (from the in-game Market), plus any syndicate rank-up platinum costs."
                 >
                     {requirements.currencyLines.filter(cl => cl.key === "platinum" && cl.totalNeed > 0).length === 0 ? (
                         <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 text-sm text-slate-400">
-                            No platinum costs found in current requirements. Platinum rank-up costs appear here when syndicates require them.
+                            No platinum costs found. Add warframes, weapons, or other purchasable items as goals to see their market prices here.
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -380,7 +380,7 @@ export default function Requirements() {
                                             {/* Per-source breakdown */}
                                             {cl.sources.length > 0 && (
                                                 <div className="space-y-1.5">
-                                                    <div className="text-xs uppercase tracking-wide text-slate-500 font-semibold px-1">Breakdown by rank-up</div>
+                                                    <div className="text-xs uppercase tracking-wide text-slate-500 font-semibold px-1">Breakdown by item / rank-up</div>
                                                     {cl.sources.map((s, i) => (
                                                         <div key={i} className="rounded-lg border border-slate-800 bg-slate-950/30 px-3 py-2 flex items-center justify-between gap-2">
                                                             <div className="text-xs text-slate-300 min-w-0">

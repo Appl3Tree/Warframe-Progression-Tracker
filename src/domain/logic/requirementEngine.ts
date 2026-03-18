@@ -19,8 +19,18 @@ import type { PrereqId } from "../ids/prereqIds";
 
 import { PROGRESSION_ITEM_IDS } from "../../catalog/items/itemsIndex";
 import { SYNDICATE_VENDOR_CATALOG } from "../catalog/syndicates/syndicateVendorCatalog";
+import platinumByPathRaw from "../../data/_generated/wfcd-platinum.byPath.auto.json";
 
 const PROGRESSION_ITEM_ID_SET = new Set<CatalogId>(PROGRESSION_ITEM_IDS);
+
+const PLATINUM_BY_PATH = platinumByPathRaw as Record<string, number>;
+
+function getPlatinumCost(catalogId: CatalogId): number | null {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    if (!rec) return null;
+    const cost = PLATINUM_BY_PATH[rec.path];
+    return typeof cost === "number" && cost > 0 ? cost : null;
+}
 
 export type RequirementViewMode = "targeted" | "overlap";
 
@@ -358,6 +368,18 @@ export function buildRequirementsSnapshot(args: {
             rootQty: qty,
             rootName: goalName
         });
+
+        // Add platinum purchase cost if the item can be bought directly on the market.
+        const platCost = getPlatinumCost(cid);
+        if (platCost !== null) {
+            addCurrencyNeed("platinum", platCost * qty, {
+                type: "goal",
+                id: g.id,
+                name: goalName,
+                label: "Purchase (Platinum)",
+                need: platCost * qty
+            });
+        }
     }
 
     const itemLines: ItemRequirementLine[] = Object.values(itemAgg)
