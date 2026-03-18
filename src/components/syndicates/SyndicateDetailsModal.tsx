@@ -37,6 +37,27 @@ type OfferSortKey = "rankAsc" | "rankDesc" | "nameAsc" | "nameDesc" | "standingA
 
 type OwnedFilter = "all" | "owned" | "unowned";
 
+type CategoryFilter = "all" | "mod" | "sigil" | "misc";
+
+/**
+ * Infer the display category of a syndicate offering from its name.
+ *
+ * Mods:   Name ends with a parenthesised Warframe/weapon entity —
+ *         e.g. "Chromatic Blade (Excalibur)", "Avenging Truth (Silva & Aegis)".
+ *         Detection: closing paren is the last char AND the content contains
+ *         no digits or commas (rules out "Relic Pack (3 x …)", decorations
+ *         with sizes like "Zariman Bench (Straight, Long)", etc.)
+ *
+ * Sigils: Name contains the word "Sigil" (case-insensitive).
+ *
+ * Misc:   Everything else — specters, blueprints, weapons, decorations, etc.
+ */
+function getOfferingCategory(name: string): "mod" | "sigil" | "misc" {
+    if (/sigil/i.test(name)) return "sigil";
+    if (/\([^(),\d]+\)$/.test(name)) return "mod";
+    return "misc";
+}
+
 type VendorOfferingGroup = {
     id: string;
     name: string;
@@ -448,6 +469,7 @@ export default function SyndicateDetailsModal(props: {
     const [query, setQuery] = useState<string>("");
     const [maxRank, setMaxRank] = useState<number | null>(null);
     const [ownedFilter, setOwnedFilter] = useState<OwnedFilter>("all");
+    const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
     const [sortKey, setSortKey] = useState<OfferSortKey>("rankAsc");
     const [selectedVendorId, setSelectedVendorId] = useState<string>("all");
 
@@ -614,6 +636,8 @@ export default function SyndicateDetailsModal(props: {
 
             if (maxRank !== null && offeringRankRequired(o) > maxRank) return false;
 
+            if (categoryFilter !== "all" && getOfferingCategory(o.name) !== categoryFilter) return false;
+
             if (!q) return true;
             const hay = `${o.name} ${o.notes ?? ""}`.toLowerCase();
             return hay.includes(q);
@@ -632,7 +656,7 @@ export default function SyndicateDetailsModal(props: {
         });
 
         return sorted;
-    }, [offerings, query, ownedFilter, maxRank, sortKey, owned]);
+    }, [offerings, query, ownedFilter, categoryFilter, maxRank, sortKey, owned]);
 
     const offerStats = useMemo(() => {
         const total = offerings.length;
@@ -770,6 +794,16 @@ export default function SyndicateDetailsModal(props: {
                                                 Rank ≤ {r}
                                             </option>
                                         ))}
+                                    </select>
+                                </div>
+
+                                <div className="lg:col-span-2">
+                                    <div className={smallLabelClass()}>Category</div>
+                                    <select className={selectClass()} value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)}>
+                                        <option value="all">All</option>
+                                        <option value="mod">Mods</option>
+                                        <option value="sigil">Sigils</option>
+                                        <option value="misc">Miscellaneous</option>
                                     </select>
                                 </div>
 
