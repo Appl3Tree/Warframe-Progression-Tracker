@@ -17,6 +17,7 @@ how data flows from raw upstream sources to the UI, and the responsibilities of 
 | Date utilities | date-fns |
 | Deployment | GitHub Pages (`gh-pages`) |
 | CLI scripts | `tsx` |
+| HTML parsing | Cheerio |
 
 ---
 
@@ -26,14 +27,33 @@ how data flows from raw upstream sources to the UI, and the responsibilities of 
 Warframe-Progression-Tracker/
 ├── src/
 │   ├── app/              # Shell, routing, layout (Sidebar, Topbar)
-│   ├── pages/            # One file per page/route
+│   │   └── layout/       # Topbar.tsx (profile pop-out), Sidebar.tsx, Shell.tsx
+│   ├── pages/            # One file per page/route (14 pages)
+│   │   ├── goals/        # GoalCard, GoalsTreeView, GoalsModal, goalsUtils
+│   │   └── starChart/    # Star chart subcomponents (8 files)
 │   ├── components/       # Page-specific composite components
+│   │   ├── ExportImport.tsx        # Progress Pack UI
+│   │   ├── WarframeResetTracker.tsx # Daily reset dashboard widget
+│   │   └── syndicates/             # Syndicate modals, offerings grid
 │   ├── ui/               # Reusable UI primitives (Badge, Card, DataTable, …)
+│   │   ├── components/   # Badge, Card, Collapsible, DataTable, ProgressBar, Tabs
+│   │   └── forms/        # FilePicker, SearchBox
 │   ├── store/            # Zustand global store + persistence + migrations
 │   ├── domain/           # Core game modeling (IDs, types, logic engines, catalog loaders)
+│   │   ├── ids/          # Canonical ID enums (itemIds, nodeIds, syndicateIds, …)
+│   │   ├── models/       # TypeScript interfaces (userState.ts)
+│   │   ├── types/        # Shared type definitions
+│   │   ├── logic/        # 16 pure logic engines
+│   │   └── catalog/      # Assembled runtime catalogs
 │   ├── catalog/          # Data normalization pipeline
-│   ├── data/             # Raw and generated data files
-│   └── assets/           # Static assets (syndicate icons, etc.)
+│   │   ├── items/        # 14 acquisition adapters
+│   │   ├── sources/      # Source catalog + validation
+│   │   ├── prereqs/      # prereqRegistry.ts, milestoneRegistry.ts
+│   │   ├── requirements/ # requirementRegistry.ts
+│   │   └── syndicates/   # Syndicate rank-up and offerings data
+│   ├── data/             # Raw and generated data files (~79MB)
+│   │   └── _generated/   # Pre-processed outputs for faster startup
+│   └── assets/           # Static assets (syndicate icons, polarity SVGs, status images, challenge badges)
 ├── external/             # Upstream datasets (warframe-items, drop data)
 ├── scripts/              # CLI entry points for npm run scripts
 └── public/               # Public static assets (planet images)
@@ -165,38 +185,67 @@ Global Zustand store persisted to `localStorage`.
 
 | File | Responsibility |
 |---|---|
-| `store.ts` | Root store — all player state slices (inventory, goals, syndicates, missions, reserves) |
+| `store.ts` | Root store — all player state slices + 100+ action methods |
 | `persistence.ts` | Serialize/deserialize store state to localStorage |
 | `migrations.ts` | Upgrade stored state from older schema versions |
+| `progressPack.ts` | Default state + Progress Pack import/export schemas |
+| `syndicateSlice.ts` | Syndicate-specific state logic |
 
 **State slices:**
 
-- `inventory` — owned items
-- `goals` — active progression goals
+- `player` — MR, display name, platform, account ID, clan info
+- `inventory` — credits, platinum, owned item counts
+- `goals` — active personal progression goals with metadata
 - `syndicates` — rank, standing, pledged state per syndicate
-- `missions.nodeCompleted` — completed star chart nodes
-- `reserves` — tracked resource reserves
-- `profile` — player profile data (MR, etc.)
+- `missions` — node completion, Steel Path node completion
+- `mastery` — XP by item, mastered items, overlevel mastered
+- `challenges` — progress counts and completion flags
+- `intrinsics` — Railjack and Duviri skill ranks
+- `ui` — active page, expanded goal nodes
+
+**Persistence:**
+- Key: `wft_persist_v1` in `localStorage`
+- Schema version: 2 (see `migrations.ts` for upgrade chain)
+- Theme: `wft_theme_v1` in `localStorage` (separate from Progress Pack)
+- Timezone: `wft_timezone_v1` in `localStorage`
 
 ### 7. Pages (`src/pages/`)
 
-Each file is a full page rendered at a named route.
+Each file is a full page rendered at a named route via `NAV_ROUTES` in `src/app/routes.ts`.
 
-| Page | Purpose |
+| Page | Route Key | Purpose |
+|---|---|---|
+| `Dashboard.tsx` | `dashboard` | Today's checklist, reset timers, daily task tracking |
+| `Inventory.tsx` | `inventory` | Item browsing and ownership tracking across all categories |
+| `Mods.tsx` | `mods` | Mods & Arcanes with drop locations, polarity icons, wiki links |
+| `Challenges.tsx` | `challenges` | Achievement challenge tracking with badge images |
+| `StarChart.tsx` | `starchart` | Interactive SVG star chart, node completion, drop panels |
+| `Prerequisites.tsx` | `prereqs` | Quest/junction prerequisite chains and unlock gating |
+| `Syndicates.tsx` | `syndicates` | Syndicate progression, rank-up modals, offerings, pledge sim |
+| `Goals.tsx` | `goals` | Personal goal portfolio with dependency trees |
+| `Requirements.tsx` | `requirements` | Targeted + Overlap farming view across all goals |
+| `Handbook.tsx` | `handbook` | Tenno's Handbook — static educational guide for players |
+| `Imports.tsx` | `imports` | Progress Pack backup/restore (Import / Export page) |
+| `Settings.tsx` | `settings` | Theme, timezone, compact rows, data reset |
+| `Diagnostics.tsx` | `diagnostics` | Catalog integrity tools, validation results, debug exports |
+| `Intrinsics.tsx` | `intrinsics` | Railjack & Duviri intrinsic skill tracking *(not yet in nav)* |
+
+### 8. Layout (`src/app/layout/`)
+
+| File | Responsibility |
 |---|---|
-| `Dashboard.tsx` | Progress overview, quick status panels, next steps |
-| `Inventory.tsx` | Item browsing and ownership tracking |
-| `Goals.tsx` | Goal planning, recursive dependency expansion |
-| `Prerequisites.tsx` | Prerequisite chains and unlock gating analysis |
-| `Requirements.tsx` | Resource and crafting requirement breakdown |
-| `StarChart.tsx` | Interactive SVG star chart, node completion tracking |
-| `Syndicates.tsx` | Syndicate progression, rank-up, offerings |
-| `Diagnostics.tsx` | Integrity tools, validation results |
-| `Imports.tsx` | Profile import and state export/import |
-| `Settings.tsx` | Application configuration |
-| `Systems.tsx` | *(Planned for replacement by Handbook page)* |
+| `Shell.tsx` | Root layout wrapper; applies theme and compact-row settings on mount |
+| `Sidebar.tsx` | Navigation sidebar with page links, theme toggle, support link |
+| `Topbar.tsx` | Top bar with profile pop-out (MR, credits, platinum, profile import) |
 
-### 8. UI Library (`src/ui/`)
+**Profile Pop-out** (`Topbar.tsx`):
+- Displays player MR, credits, platinum, and display name
+- Inline-editable fields for MR, credits, platinum, and account ID
+- Platform selector (PC, PlayStation, Xbox, Switch, Mobile)
+- Warframe API profile import: paste JSON or upload HTML file
+- Extracts: name, MR, credits, platinum, syndicates, inventory, missions, mastery XP
+
+### 9. UI Library (`src/ui/`)
 
 Generic, reusable React primitives with no game-domain knowledge.
 
@@ -219,7 +268,7 @@ ui/
 ## Data Flow Summary
 
 ```
-External upstream data
+External upstream data (warframe-items, drop data, wiki HTML)
         │
         ▼
 src/catalog/items/         (acquisition adapters — one per source format)
@@ -228,7 +277,7 @@ src/catalog/items/         (acquisition adapters — one per source format)
 src/domain/catalog/        (assembled runtime catalog — FULL_CATALOG)
         │
         ▼
-src/domain/logic/          (deterministic engines — goal expansion, planner, prereqs, …)
+src/domain/logic/          (deterministic engines — goal expansion, planner, prereqs, overlap, …)
         │
         ▼
 src/store/                 (Zustand player state — persisted to localStorage)
@@ -243,7 +292,7 @@ src/pages/ + src/components/  (React UI — reads store, calls engines)
 
 | Script | Command | Entry point |
 |---|---|---|
-| Dev server | `npm run dev` | Vite (port 80) |
+| Dev server | `npm run dev` | Vite (port 80, all interfaces) |
 | Production build | `npm run build` | `tsc -b && vite build` |
 | Deploy to GitHub Pages | `npm run deploy` | `gh-pages -d dist` |
 | Source validation | `npm run validate:sources` | `scripts/validateSources.cli.ts` |
@@ -263,11 +312,39 @@ references a taxonomy-only parent bucket) and exits non-zero if errors are found
 
 ---
 
+## Theme System
+
+Theme is managed outside of the Zustand store to allow application before React renders.
+
+| Key | Location | Values |
+|---|---|---|
+| `wft_theme_v1` | `localStorage` | `"dark"` (default) \| `"light"` |
+| `wft_timezone_v1` | `localStorage` | IANA timezone string (default: `"UTC"`) |
+
+**Application flow:**
+1. `Shell.tsx` calls `applyTheme(getStoredTheme())` in a `useEffect` on mount
+2. `applyTheme()` adds `theme-light` or `theme-dark` class to `<html>`
+3. TailwindCSS class variants apply color overrides based on the root class
+4. Sidebar footer also exposes a quick toggle button
+
+> **Current status:** Light mode is partially implemented. Most UI surfaces are themed correctly but some components still use hard-coded dark colors.
+
+---
+
+## Icon Bundling
+
+`syndicateIconUrl()` uses `import.meta.glob` over `src/assets/syndicates/*.png`. The bundler fingerprints each file and rewrites URLs at build time. To add an icon, drop the PNG into `src/assets/syndicates/` — no code changes needed.
+
+---
+
 ## Deployment
 
 The app is a fully static frontend deployed to GitHub Pages.
 `npm run deploy` runs `npm run build` (via the `predeploy` hook) then publishes
 the `dist/` directory to the `gh-pages` branch using the `gh-pages` package.
+
+Cache-busting is configured in `vite.config.ts` to prevent mobile browsers from
+serving stale assets after deployments.
 
 ---
 
@@ -308,5 +385,9 @@ The startup validator emits a `SOURCE_ID_LEGACY_NAMESPACE` warning for each one 
 
 ## Development Phases (Reference)
 
-See the task description / project notes for the full 12-phase development plan.
-Current work targets **Phase 2 — Canonical Data Enforcement**.
+The project follows a phased development plan. Key phases:
+
+- **Phase 1** — Core scaffolding (store, routing, catalog pipeline) ✅ Done
+- **Phase 2** — Canonical Data Enforcement (source IDs, legacy cleanup) ⏳ In progress
+- **Phase 3** — Formal defect registry (release-blocking checks) ⏳ Planned
+- **Phase 4+** — Feature expansion (Farming page refresh, Goals page refresh, full light mode, Handbook database, Diagnostics resolution, Intrinsics nav integration)
