@@ -88,7 +88,8 @@
 /* Emerald */
 .theme-light .text-emerald-400 { color: #059669 !important; }
 .theme-light .text-emerald-500 { color: #047857 !important; }
-/* text-emerald-200 / text-emerald-100 are pale pastels — remap to dark green for legibility */
+/* Pale pastel shades — remap to dark greens for legibility on light backgrounds */
+.theme-light .text-emerald-300 { color: #047857 !important; }
 .theme-light .text-emerald-200 { color: #065f46 !important; }
 .theme-light .text-emerald-100 { color: #064e3b !important; }
 .theme-light [class*="bg-emerald-950\/"] { background-color: rgba(209,250,229,0.7) !important; }
@@ -159,6 +160,14 @@
 /* Gradients on shell/map backgrounds stay dark */
 .theme-light [style*="radial-gradient"] { /* keep map backgrounds as-is */ }
 
+/* bg-black low-opacity (≤29%) is used for icon containers and sub-panels inside
+   dark-themed syndicate cards. In light mode these are near-invisible (0.15 opacity
+   black on a light panel = barely a tint). Remap to a visible dark navy so icon
+   images (designed for dark backgrounds) remain legible.
+   High-opacity black (≥60%) are modal dim overlays — do NOT touch those. */
+.theme-light [class*="bg-black\/1"],
+.theme-light [class*="bg-black\/2"] { background-color: rgba(15,23,42,0.65) !important; }
+
 /* Scrollbars in light mode */
 .theme-light ::-webkit-scrollbar-thumb { background: #7a8fa3; }
 .theme-light ::-webkit-scrollbar-track { background: #c8d4de; }
@@ -178,9 +187,12 @@
 .theme-light [class*="h-\[72vh\]"] .text-slate-300 { color: #cbd5e1 !important; }
 .theme-light [class*="h-\[72vh\]"] .text-slate-400 { color: #94a3b8 !important; }
 .theme-light [class*="h-\[72vh\]"] .text-slate-500 { color: #64748b !important; }
-.theme-light [class*="h-\[72vh\]"] .bg-slate-950\/90,
-.theme-light [class*="h-\[72vh\]"] .bg-slate-950\/55,
-.theme-light [class*="h-\[72vh\]"] .bg-slate-950\/40 { background-color: rgba(2,6,23,0.9) !important; }
+/* Restore ALL slate-950/slate-900 opacity variants inside the map to dark bg.
+   The general override (bg-slate-950/* → #d4dfe9) is overridden here so overlay
+   buttons keep their dark background while text is restored to light above. */
+.theme-light [class*="h-\[72vh\]"] .bg-slate-950,
+.theme-light [class*="h-\[72vh\]"] [class*="bg-slate-950\/"],
+.theme-light [class*="h-\[72vh\]"] [class*="bg-slate-900\/"] { background-color: rgba(2,6,23,0.9) !important; }
 .theme-light [class*="h-\[72vh\]"] .border-slate-800 { border-color: #1e293b !important; }
 .theme-light [class*="h-\[72vh\]"] .border-slate-700 { border-color: #334155 !important; }
 
