@@ -86,7 +86,7 @@
 .theme-light .text-cyan-300 { color: #0891b2 !important; }
 .theme-light [class*="bg-cyan-950\/"] { background-color: rgba(207,250,254,0.7) !important; }
 .theme-light .border-cyan-700 { border-color: #0e7490 !important; }
-.theme-light .border-cyan-800\/40 { border-color: rgba(14,116,144,0.3) !important; }
+.theme-light [class*="border-cyan-8"] { border-color: rgba(14,116,144,0.35) !important; }
 
 /* Emerald */
 .theme-light .text-emerald-400 { color: #059669 !important; }
@@ -107,6 +107,9 @@
 .theme-light .text-blue-300 { color: #1d4ed8 !important; }
 .theme-light .text-blue-200 { color: #1e40af !important; }
 .theme-light [class*="bg-blue-950\/"] { background-color: rgba(219,234,254,0.7) !important; }
+/* blue-900 backgrounds (Handbook callouts, NewPlayerModal button) */
+.theme-light [class*="bg-blue-9"] { background-color: rgba(219,234,254,0.6) !important; }
+.theme-light [class*="border-blue-9"] { border-color: rgba(37,99,235,0.3) !important; }
 .theme-light .border-blue-700\/60 { border-color: rgba(29,78,216,0.4) !important; }
 .theme-light .border-blue-600 { border-color: #2563eb !important; }
 .theme-light .bg-blue-600 { background-color: #2563eb !important; }
@@ -114,20 +117,36 @@
 .theme-light .from-blue-600 { --tw-gradient-from: #2563eb !important; }
 .theme-light .to-blue-400  { --tw-gradient-to:   #60a5fa !important; }
 
+/* Sky — not used in dark mode's default slate palette, so entirely missing */
+.theme-light .text-sky-300  { color: #0369a1 !important; }
+.theme-light .text-sky-400  { color: #0284c7 !important; }
+.theme-light .text-sky-500  { color: #0ea5e9 !important; }
+.theme-light .bg-sky-950,
+.theme-light [class*="bg-sky-950\/"] { background-color: rgba(224,242,254,0.8) !important; }
+.theme-light [class*="bg-sky-9"] { background-color: rgba(224,242,254,0.6) !important; }
+.theme-light .border-sky-700 { border-color: #0369a1 !important; }
+.theme-light [class*="border-sky-7"] { border-color: rgba(3,105,161,0.45) !important; }
+.theme-light [class*="border-sky-8"] { border-color: rgba(7,89,133,0.35) !important; }
+
 /* Amber */
 .theme-light .text-amber-300 { color: #b45309 !important; }
 .theme-light .text-amber-400 { color: #92400e !important; }
 /* text-amber-200 is a pale pastel — remap to dark amber for legibility */
 .theme-light .text-amber-200 { color: #78350f !important; }
 .theme-light [class*="bg-amber-950\/"] { background-color: rgba(254,243,199,0.7) !important; }
-.theme-light [class*="border-amber-700\/"],
-.theme-light [class*="border-amber-800\/"] { border-color: rgba(180,83,9,0.4) !important; }
+/* amber-900 backgrounds appear in warning callouts and notifications */
+.theme-light [class*="bg-amber-900\/"] { background-color: rgba(254,243,199,0.6) !important; }
+.theme-light [class*="border-amber-7"],
+.theme-light [class*="border-amber-8"],
+.theme-light [class*="border-amber-9"] { border-color: rgba(180,83,9,0.4) !important; }
 .theme-light .bg-amber-500 { background-color: #f59e0b !important; }
 
 /* Orange */
 .theme-light .text-orange-400 { color: #c2410c !important; }
 .theme-light [class*="bg-orange-950\/"] { background-color: rgba(255,237,213,0.6) !important; }
 .theme-light .border-orange-700\/50 { border-color: rgba(194,65,12,0.3) !important; }
+/* orange-800 borders appear on rarity badges */
+.theme-light [class*="border-orange-8"] { border-color: rgba(194,65,12,0.35) !important; }
 
 /* Rose / Red */
 .theme-light .text-red-400 { color: #b91c1c !important; }
@@ -142,12 +161,21 @@
 
 /* Purple / Indigo */
 .theme-light .text-purple-300 { color: #7e22ce !important; }
+.theme-light .text-purple-400 { color: #6b21a8 !important; }
 .theme-light [class*="bg-purple-950\/"] { background-color: rgba(245,243,255,0.7) !important; }
+.theme-light [class*="bg-purple-9"] { background-color: rgba(245,243,255,0.6) !important; }
 .theme-light .border-purple-700\/60 { border-color: rgba(126,34,206,0.4) !important; }
+.theme-light [class*="border-purple-8"],
+.theme-light [class*="border-purple-9"] { border-color: rgba(126,34,206,0.35) !important; }
 .theme-light .text-indigo-300 { color: #4338ca !important; }
 .theme-light [class*="bg-indigo-950\/"] { background-color: rgba(238,242,255,0.7) !important; }
 .theme-light .bg-purple-500 { background-color: #a855f7 !important; }
 .theme-light .bg-indigo-500 { background-color: #6366f1 !important; }
+
+/* Violet — used in Handbook callouts */
+.theme-light .text-violet-300 { color: #6d28d9 !important; }
+.theme-light [class*="bg-violet-9"] { background-color: rgba(237,233,254,0.6) !important; }
+.theme-light [class*="border-violet-8"] { border-color: rgba(109,40,217,0.35) !important; }
 
 /* ── Star chart / low-opacity slate overlays → elevated button bg ──
    bg-slate-950/20 and similar light overlays are used for button backgrounds
@@ -291,6 +319,33 @@
 /* bg-slate-100 is used as a selected-state indicator (white on dark in dark mode).
    In light mode, remap to a visible mid-gray for contrast against white panels. */
 .theme-light .bg-slate-100 { background-color: #cbd5e1 !important; }
+
+/* ── Goals tree modal (GoalsTreeView.tsx injects <style> with hardcoded dark colors) ──
+   Override with .theme-light prefix for higher specificity. */
+.theme-light .wf-tree-modal {
+    background: rgba(248,250,252,0.98) !important;
+    border-color: rgba(203,213,225,0.9) !important;
+}
+.theme-light .wf-tree-modal-header {
+    border-bottom-color: rgba(203,213,225,0.9) !important;
+}
+.theme-light .wf-tree-modal-title .t1 { color: #0f172a !important; }
+.theme-light .wf-tree-modal-title .t2 { color: #475569 !important; }
+.theme-light .wf-tree-node {
+    background: rgba(255,255,255,0.97) !important;
+    border-color: rgba(203,213,225,0.9) !important;
+}
+.theme-light .wf-tree-node-title { color: #0f172a !important; }
+.theme-light .wf-tree-node-metrics { color: #334155 !important; }
+.theme-light .wf-tree-node-btn {
+    background: rgba(241,245,249,0.95) !important;
+    border-color: rgba(148,163,184,0.8) !important;
+    color: #1e293b !important;
+}
+.theme-light .wf-tree-node-btn:hover {
+    background: rgba(226,232,240,0.95) !important;
+}
+.theme-light .wf-tree-root { --wf-line: rgba(148,163,184,0.7); }
 
 /* ── Polarity icons — black SVG paths need inversion on dark backgrounds ── */
 /* Dark mode (default): invert black → white */
