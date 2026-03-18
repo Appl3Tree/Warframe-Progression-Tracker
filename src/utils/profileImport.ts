@@ -827,3 +827,248 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
         intrinsics: intrinsicsResult
     };
 }
+
+// ---------------------------------------------------------------------------
+// warframestat.us profile API parser
+// Handles the flat JSON returned by https://api.warframestat.us/profile/{id}
+// which is a completely different shape from the Warframe content server format.
+// ---------------------------------------------------------------------------
+
+/**
+ * Maps warframestat.us syndicate name strings (both friendly names and internal
+ * tag names) to canonical syndicate IDs used by this app.
+ * All lookups are done lowercase.
+ */
+const WSAPI_SYNDICATE_TO_ID: Record<string, string> = {
+    // Relay factions
+    "steel meridian":               "syndicate_steel_meridian",
+    "arbiters of hexis":            "syndicate_arbiters_of_hexis",
+    "cephalon suda":                "syndicate_cephalon_suda",
+    "perrin sequence":              "syndicate_perrin_sequence",
+    "red veil":                     "syndicate_red_veil",
+    "new loka":                     "syndicate_new_loka",
+    // Cetus
+    "ostrons":                      "syndicate_ostron",
+    "ostron":                       "syndicate_ostron",
+    "the quills":                   "syndicate_quills",
+    "quills":                       "syndicate_quills",
+    // Fortuna
+    "solaris united":               "syndicate_solaris_united",
+    "vox solaris":                  "syndicate_vox_solaris",
+    "vent kids":                    "syndicate_ventkids",
+    "ventkids":                     "syndicate_ventkids",
+    // Necralisk / Deimos
+    "entrati":                      "syndicate_entrati",
+    "necraloid":                    "syndicate_necraloid",
+    "the cavia":                    "syndicate_cavia",
+    "cavia":                        "syndicate_cavia",
+    // Zariman
+    "the holdfasts":                "syndicate_holdfasts",
+    "holdfasts":                    "syndicate_holdfasts",
+    // 1999
+    "hex":                          "syndicate_hex_1999",
+    "the hex":                      "syndicate_hex_1999",
+    // Miscellaneous
+    "cephalon simaris":             "syndicate_cephalon_simaris",
+    "the conclave":                 "syndicate_conclave",
+    "conclave":                     "syndicate_conclave",
+    "kahl's garrison":              "syndicate_kahls_garrison",
+    "kahl garrison":                "syndicate_kahls_garrison",
+    "kahls garrison":               "syndicate_kahls_garrison",
+    "nightcap network":             "syndicate_nightcap",
+    // Tag names that warframestat.us sometimes uses
+    "steelmeridiansyndicate":       "syndicate_steel_meridian",
+    "arbitersyndicate":             "syndicate_arbiters_of_hexis",
+    "cephalonssudasyndicate":       "syndicate_cephalon_suda",
+    "perrinsyndicate":              "syndicate_perrin_sequence",
+    "redveilsyndicate":             "syndicate_red_veil",
+    "newlokasyndicate":             "syndicate_new_loka",
+    "cetussyndicate":               "syndicate_ostron",
+    "quillssyndicate":              "syndicate_quills",
+    "solarissyndicate":             "syndicate_solaris_united",
+    "voxsyndicate":                 "syndicate_vox_solaris",
+    "ventkidssyndicate":            "syndicate_ventkids",
+    "entratisyndicate":             "syndicate_entrati",
+    "necraloidssyndicate":          "syndicate_necraloid",
+    "necraloidsyndicat":            "syndicate_necraloid",
+    "entratilabsyndicate":          "syndicate_cavia",
+    "zarimansyndicate":             "syndicate_holdfasts",
+    "hexsyndicate":                 "syndicate_hex_1999",
+    "librarysyndicate":             "syndicate_cephalon_simaris",
+    "conclavesyndicate":            "syndicate_conclave",
+    "kahlsyndicate":                "syndicate_kahls_garrison",
+    "nightcapjournalsyndicate":     "syndicate_nightcap",
+};
+
+/** Nightwave syndicate name patterns (lowercased) used by warframestat.us. */
+function isWsApiNightwaveName(lower: string): boolean {
+    return lower.startsWith("radiolegion") || lower.includes("nightwave");
+}
+
+/**
+ * Parse the flat JSON object returned by the warframestat.us profile API:
+ * https://api.warframestat.us/profile/{account_id}
+ *
+ * Fields used:
+ *   displayName:       string
+ *   masteryRank:       number
+ *   xpInfo:            { type: string; xp: number }[]
+ *   missions:          { nodeKey: string; ... }[]
+ *   syndicates:        { name: string; title: number; ... }[]
+ *   challengeProgress: { name: string; progress: number }[]
+ *   intrinsics:        { piloting; gunnery; engineering; tactical; command;
+ *                        riding; opportunity; combat; endurance; ... }
+ *   guildName:         string
+ */
+export function parseWarframeStatApiProfile(json: any): ProfileImportResult {
+    if (!isObject(json)) {
+        throw new Error("warframestat.us profile API returned unexpected data (not an object).");
+    }
+
+    // ── Basic player info ───────────────────────────────────────────────────
+    const rawName = typeof json.displayName === "string" ? json.displayName : "";
+    const displayName = rawName
+        .replace(/[\x00-\x1F\x7F\x80-\x9F\u200B-\u200F\u2028-\u202F\uFEFF\uFFFD\uFFFE]/g, "")
+        .replace(/[\uE000-\uF8FF]/g, "")
+        .replace(/[^\p{L}\p{N}\p{M}\p{P}\p{S}\p{Zs}]/gu, "")
+        .trim();
+
+    const masteryRank = Number.isFinite(Number(json.masteryRank))
+        ? clampInt(json.masteryRank, 0)
+        : null;
+
+    // ── Clan ────────────────────────────────────────────────────────────────
+    const clan: ProfileImportResult["clan"] = {};
+    if (typeof json.guildName === "string" && json.guildName) {
+        clan.name = json.guildName;
+    }
+
+    // ── XP / Mastery ────────────────────────────────────────────────────────
+    const xpByItem: Record<string, number> = {};
+    if (Array.isArray(json.xpInfo)) {
+        for (const entry of json.xpInfo) {
+            if (!isObject(entry)) continue;
+            addXp(xpByItem, entry.type, entry.xp);
+        }
+    }
+    const mastery = {
+        xpByItem,
+        mastered: computeMastered(xpByItem)
+    };
+
+    // ── Missions / Star Chart ───────────────────────────────────────────────
+    const completesByTag: Record<string, number> = {};
+    const completedNodeIds: string[] = [];
+    if (Array.isArray(json.missions)) {
+        for (const m of json.missions) {
+            if (!isObject(m)) continue;
+            const nodeKey = typeof m.nodeKey === "string" ? m.nodeKey : "";
+            if (!nodeKey) continue;
+            // Each entry in the array represents a completed mission.
+            completesByTag[nodeKey] = 1;
+            const nodeId = missionTagToNodeId(nodeKey);
+            if (nodeId) completedNodeIds.push(nodeId);
+        }
+    }
+
+    // ── Syndicates ──────────────────────────────────────────────────────────
+    const syndicates: SyndicateState[] = [];
+    let nightwaveMaxRank = -1;
+    const NIGHTWAVE_ID = "syndicate_nightwave";
+
+    if (Array.isArray(json.syndicates)) {
+        for (const s of json.syndicates) {
+            if (!isObject(s)) continue;
+            const rawName = typeof s.name === "string" ? s.name : "";
+            if (!rawName) continue;
+            const lower = rawName.toLowerCase().trim();
+
+            // Check for Nightwave
+            if (isWsApiNightwaveName(lower)) {
+                const rank = clampInt(s.title, 0);
+                if (rank > nightwaveMaxRank) nightwaveMaxRank = rank;
+                continue;
+            }
+
+            const canonId = WSAPI_SYNDICATE_TO_ID[lower];
+            if (!canonId) continue;
+
+            const maxRank = SYNDICATE_MAX_RANK[canonId] ?? 5;
+            const minRank = SYNDICATE_MIN_RANK[canonId] ?? 0;
+            const rank = clampIntSigned(s.title, 0, minRank, maxRank);
+
+            syndicates.push({ id: canonId, name: canonId, rank, standing: 0 });
+        }
+    }
+
+    if (nightwaveMaxRank >= 0) {
+        syndicates.push({ id: NIGHTWAVE_ID, name: NIGHTWAVE_ID, rank: nightwaveMaxRank, standing: 0 });
+    }
+
+    // ── Challenges ──────────────────────────────────────────────────────────
+    let challengesResult: ProfileImportResult["challenges"];
+    if (Array.isArray(json.challengeProgress)) {
+        const progress: Record<string, number> = {};
+        const completed: Record<string, boolean> = {};
+        for (const c of json.challengeProgress) {
+            if (!isObject(c)) continue;
+            const shortName = typeof c.name === "string" ? c.name : "";
+            if (!shortName) continue;
+            const uniqueName = shortName.startsWith("/")
+                ? shortName
+                : `/Lotus/Types/Challenges/${shortName}`;
+            const prog = typeof c.progress === "number" ? Math.max(0, Math.floor(c.progress)) : 0;
+            progress[uniqueName] = prog;
+            if (c.completed) completed[uniqueName] = true;
+        }
+        challengesResult = { progress, completed };
+    }
+
+    // ── Intrinsics ──────────────────────────────────────────────────────────
+    // warframestat.us uses flat lowercase keys (piloting, gunnery, ...) rather
+    // than the LPS_PILOTING keys from the Warframe content server.
+    let intrinsicsResult: ProfileImportResult["intrinsics"];
+    if (isObject(json.intrinsics)) {
+        const intr = json.intrinsics;
+        const railjack: Record<string, number> = {};
+        const duviri: Record<string, number> = {};
+
+        const rjMap: Record<string, string> = {
+            piloting:    "LPS_PILOTING",
+            gunnery:     "LPS_GUNNERY",
+            engineering: "LPS_ENGINEERING",
+            tactical:    "LPS_TACTICAL",
+            command:     "LPS_COMMAND",
+        };
+        const dvMap: Record<string, string> = {
+            riding:      "LPS_DRIFT_RIDING",
+            opportunity: "LPS_DRIFT_OPPORTUNITY",
+            combat:      "LPS_DRIFT_COMBAT",
+            endurance:   "LPS_DRIFT_ENDURANCE",
+            agility:     "LPS_DRIFT_AGILITY",
+        };
+
+        for (const [key, lpsKey] of Object.entries(rjMap)) {
+            if (typeof intr[key] === "number") railjack[lpsKey] = clampInt(intr[key], 0);
+        }
+        for (const [key, lpsKey] of Object.entries(dvMap)) {
+            if (typeof intr[key] === "number") duviri[lpsKey] = clampInt(intr[key], 0);
+        }
+
+        if (Object.keys(railjack).length > 0 || Object.keys(duviri).length > 0) {
+            intrinsicsResult = { railjack, duviri };
+        }
+    }
+
+    return {
+        displayName,
+        masteryRank,
+        clan,
+        syndicates,
+        mastery,
+        missions: { completesByTag },
+        completedNodeIds,
+        challenges: challengesResult,
+        intrinsics: intrinsicsResult,
+    };
+}

@@ -54,10 +54,6 @@ function platformLabel(key: PlatformKey): "PC" | "PlayStation" | "Xbox" | "Switc
     return "PC";
 }
 
-function buildProfileUrl(accountId: string, platform: PlatformKey): string {
-    const base = PLATFORM_OPTIONS.find((p) => p.key === platform)?.baseUrl ?? PLATFORM_OPTIONS[0].baseUrl;
-    return `${base}${encodeURIComponent(accountId)}`;
-}
 
 function PlatformIcon(props: { platform: PlatformKey; className?: string }) {
     const cls = props.className ?? "h-4 w-4";
@@ -582,6 +578,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
     const setAccountId                 = useTrackerStore((s) => s.setAccountId);
     const setPlatform                  = useTrackerStore((s) => s.setPlatform);
     const importProfileViewingDataJson = useTrackerStore((s) => s.importProfileViewingDataJson);
+    const importProfileFromWarframeStatApi = useTrackerStore((s) => s.importProfileFromWarframeStatApi);
 
     const [open,         setOpen]         = useState(false);
     const [activeField,  setActiveField]  = useState<ActiveField>(null);
@@ -663,7 +660,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
             const res = await fetch(url);
             if (!res.ok) throw new Error(`API returned ${res.status} ${res.statusText}`);
             const json = await res.json();
-            handleImportResult(importProfileViewingDataJson(JSON.stringify(json)));
+            handleImportResult(importProfileFromWarframeStatApi(json));
         } catch (e: any) {
             setProfileStatus(`API import failed: ${e?.message ?? "Unknown error"}. Try Paste JSON or Import File instead.`);
         } finally {

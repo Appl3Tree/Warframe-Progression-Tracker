@@ -18,7 +18,7 @@ import type {
 } from "../domain/types";
 import type { PageKey, UserGoalV1, UserStateV2 } from "../domain/models/userState";
 import { migrateToUserStateV2 } from "./migrations";
-import { parseProfileViewingData } from "../utils/profileImport";
+import { parseProfileViewingData, parseWarframeStatApiProfile } from "../utils/profileImport";
 import { SY } from "../domain/ids/syndicateIds";
 import { validateDataOrThrow } from "../domain/logic/startupValidation";
 import { PERSIST_KEY, PERSIST_VERSION } from "./persistence";
@@ -72,6 +72,7 @@ export interface TrackerStore {
     setPlatform: (platform: "PC" | "PlayStation" | "Xbox" | "Switch" | "Mobile") => void;
 
     importProfileViewingDataJson: (text: string) => { ok: boolean; error?: string };
+    importProfileFromWarframeStatApi: (json: unknown) => { ok: boolean; error?: string };
 
     upsertDailyTask: (dateYmd: string, label: string, syndicate?: string, details?: string) => void;
     toggleDailyTask: (taskId: string) => void;
@@ -308,6 +309,70 @@ export const useTrackerStore = create<TrackerStore>()(
                     return { ok: true };
                 } catch (e: any) {
                     const msg = typeof e?.message === "string" ? e.message : "Invalid profileViewingData file.";
+                    return { ok: false, error: msg };
+                }
+            },
+
+            importProfileFromWarframeStatApi: (json) => {
+                try {
+                    const parsed = parseWarframeStatApiProfile(json);
+
+                    set((s) => {
+                        s.state.player.displayName = parsed.displayName || s.state.player.displayName;
+                        s.state.player.masteryRank = parsed.masteryRank;
+
+                        if (parsed.clan?.name) s.state.player.clanName = parsed.clan.name;
+
+                        const existingById = new Map<string, SyndicateState>();
+                        for (const syn of s.state.syndicates ?? []) {
+                            if (syn && typeof syn.id === "string") existingById.set(syn.id, syn);
+                        }
+
+                        const merged: SyndicateState[] = [];
+                        for (const incoming of parsed.syndicates ?? []) {
+                            const prev = existingById.get(incoming.id);
+                            const pledged = typeof prev?.pledged === "boolean" ? prev.pledged : false;
+                            const standing = typeof prev?.standing === "number" ? prev.standing : (incoming.standing ?? 0);
+                            merged.push({ ...incoming, pledged, standing });
+                            existingById.delete(incoming.id);
+                        }
+                        for (const leftover of existingById.values()) merged.push(leftover);
+                        s.state.syndicates = merged;
+
+                        const rawMastery = parsed.mastery;
+                        const normalizedMastered: Record<string, boolean> = {};
+                        const normalizedXp: Record<string, number> = {};
+                        for (const [path, val] of Object.entries(rawMastery.mastered)) {
+                            const key = path.startsWith("items:") ? path : `items:${path}`;
+                            normalizedMastered[key] = val as boolean;
+                        }
+                        for (const [path, xp] of Object.entries(rawMastery.xpByItem)) {
+                            const key = path.startsWith("items:") ? path : `items:${path}`;
+                            normalizedXp[key] = xp as number;
+                        }
+                        const prevOverLevel = s.state.mastery?.overLevelMastered ?? {};
+                        s.state.mastery = { xpByItem: normalizedXp, mastered: normalizedMastered, overLevelMastered: prevOverLevel };
+                        s.state.missions = parsed.missions;
+
+                        if (parsed.completedNodeIds.length > 0) {
+                            if (!s.state.missions.nodeCompleted) s.state.missions.nodeCompleted = {};
+                            for (const id of parsed.completedNodeIds) {
+                                s.state.missions.nodeCompleted[id] = true;
+                            }
+                        }
+
+                        if (parsed.challenges) s.state.challenges = parsed.challenges;
+                        if (parsed.intrinsics) s.state.intrinsics = parsed.intrinsics;
+
+                        ensureGoalsArray(s.state);
+                        ensureUiExpansion(s.state);
+                        ensureResetChecklistState(s.state);
+                        s.state.meta.updatedAtIso = nowIso();
+                    });
+
+                    return { ok: true };
+                } catch (e: any) {
+                    const msg = typeof e?.message === "string" ? e.message : "warframestat.us API profile import failed.";
                     return { ok: false, error: msg };
                 }
             },
