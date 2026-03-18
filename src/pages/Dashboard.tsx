@@ -26,7 +26,7 @@ export default function Dashboard() {
     }, [mergedMap]);
 
     return (
-        <div className="flex flex-col gap-3 lg:h-full">
+        <div className="flex flex-col gap-3 pb-4">
 
             {/* ── Header ── */}
             <div className="flex flex-wrap items-center justify-between gap-3 px-1">
@@ -46,24 +46,21 @@ export default function Dashboard() {
 
             {/* ── Top row: progression + checklist ── */}
             <div className={[
-                "grid gap-3 min-h-0",
+                "grid gap-3",
                 hasProgressionSteps ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1",
-                "lg:grid-rows-1 lg:h-[40vh] lg:min-h-[320px] lg:max-h-[520px]"
             ].join(" ")}>
                 {hasProgressionSteps && (
-                    <div className="h-[340px] lg:h-full">
+                    <div className="h-[340px]">
                         <ProgressionNextStepsPanel />
                     </div>
                 )}
-                <div className="h-[340px] lg:h-full">
+                <div className="h-[340px]">
                     <DailyChecklist expanded={!hasProgressionSteps} />
                 </div>
             </div>
 
             {/* ── Reset tracker ── */}
-            <div className="min-h-0 lg:flex-1">
-                <WarframeResetTracker />
-            </div>
+            <WarframeResetTracker />
 
             {/* ── World State ── */}
             <DashboardWorldState />
