@@ -199,11 +199,29 @@ function msToHms(ms: number): string {
     return `${m}m ${s % 60}s`;
 }
 
+function useNow(): number {
+    const [now, setNow] = useState(() => Date.now());
+    useEffect(() => {
+        const id = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(id);
+    }, []);
+    return now;
+}
+
+const BELL_FACTION_COLORS: Record<string, string> = {
+    Grineer:  "text-red-400",
+    Corpus:   "text-sky-400",
+    Infested: "text-green-400",
+    Orokin:   "text-yellow-300",
+    Tenno:    "text-cyan-300",
+};
+
 function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () => void }) {
     const [open, setOpen]       = useState(false);
     const [data, setData]       = useState<WorldStateData | null>(() => getCachedWorldState());
     const [loading, setLoading] = useState(false);
     const bellRef = useRef<HTMLDivElement>(null);
+    const now = useNow();
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -236,9 +254,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
         return () => document.removeEventListener("mousedown", onDown);
     }, [open]);
 
-    const now = Date.now();
-
-    // Compute badge: true if Baro is active OR a sentient outpost is active
+    // Compute badge: true if Baro is active OR sentient outpost is active OR there are invasions
     const baroActive     = data?.voidTrader?.active;
     const sentientActive = data?.sentientOutposts?.active;
     const showBadge      = !!(baroActive || sentientActive);
@@ -248,6 +264,13 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
     const baroDue    = data?.voidTrader && !baroActive && baroMs > 0;
     const varziaActive = data?.vaultTrader?.active;
     const varziaMs   = data?.vaultTrader?.expiry ? new Date(data.vaultTrader.expiry).getTime() - now : 0;
+
+    const hasAnything = !!(
+        data?.voidTrader || varziaActive || sentientActive ||
+        (data?.events.length ?? 0) > 0 ||
+        (data?.invasions.length ?? 0) > 0 ||
+        (data?.nightwave?.activeChallenges.length ?? 0) > 0
+    );
 
     return (
         <div className="relative" ref={bellRef}>
@@ -271,8 +294,8 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
             </button>
 
             {open && (
-                <div className="absolute right-0 top-full mt-1 w-72 rounded-xl border border-slate-700 bg-slate-950 shadow-2xl shadow-black/60 z-50">
-                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800">
+                <div className="absolute right-0 top-full mt-1 w-80 rounded-xl border border-slate-700 bg-slate-950 shadow-2xl shadow-black/60 z-50 flex flex-col max-h-[85vh]">
+                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800 shrink-0">
                         <span className="text-xs font-semibold text-slate-200">World Events</span>
                         {loading && (
                             <svg className="w-3 h-3 animate-spin text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -281,7 +304,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                         )}
                     </div>
 
-                    <div className="p-2 space-y-1">
+                    <div className="p-2 space-y-1 overflow-y-auto flex-1 min-h-0">
                         {!data && !loading && (
                             <div className="px-2 py-3 text-xs text-slate-500 text-center">No data available.</div>
                         )}
@@ -300,6 +323,11 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                         <div className="text-[10px] text-slate-500 mt-0.5">
                                             {data.voidTrader.location}
                                         </div>
+                                        {baroActive && data.voidTrader.inventory.length > 0 && (
+                                            <div className="text-[10px] text-amber-400/70 mt-0.5">
+                                                {data.voidTrader.inventory.length} items available
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="text-right shrink-0">
                                         {baroActive ? (
@@ -315,16 +343,41 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                         ) : null}
                                     </div>
                                 </div>
+                                {/* Baro inventory preview when active */}
+                                {baroActive && data.voidTrader.inventory.length > 0 && (
+                                    <div className="mt-1.5 space-y-0.5 border-t border-amber-800/20 pt-1.5">
+                                        {data.voidTrader.inventory.map((item, i) => (
+                                            <div key={i} className="flex items-center justify-between gap-1">
+                                                <span className="text-[10px] text-slate-300 min-w-0 truncate">{item.item}</span>
+                                                <span className="text-[10px] text-amber-300/70 shrink-0 whitespace-nowrap">
+                                                    {item.ducats}duc +{item.credits.toLocaleString()}cr
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
 
                         {/* Varzia */}
-                        {varziaActive && data?.vaultTrader && (
-                            <div className="rounded-lg px-3 py-2 bg-violet-950/30 border border-violet-800/40">
+                        {data?.vaultTrader && (
+                            <div className={[
+                                "rounded-lg px-3 py-2",
+                                varziaActive ? "bg-violet-950/30 border border-violet-800/40" : "bg-slate-900/60",
+                            ].join(" ")}>
                                 <div className="flex items-center justify-between gap-2">
                                     <div>
-                                        <div className="text-xs font-semibold text-violet-300">● Varzia Active</div>
-                                        <div className="text-[10px] text-slate-500 mt-0.5">Primed Resurgence</div>
+                                        <div className={["text-xs font-semibold", varziaActive ? "text-violet-300" : "text-slate-400"].join(" ")}>
+                                            {varziaActive ? "● Varzia Active" : "Varzia"} — Primed Resurgence
+                                        </div>
+                                        {data.vaultTrader.location && (
+                                            <div className="text-[10px] text-slate-500 mt-0.5">{data.vaultTrader.location}</div>
+                                        )}
+                                        {varziaActive && data.vaultTrader.inventory.length > 0 && (
+                                            <div className="text-[10px] text-violet-400/70 mt-0.5">
+                                                {data.vaultTrader.inventory.length} items available
+                                            </div>
+                                        )}
                                     </div>
                                     {varziaMs > 0 && (
                                         <div className="text-right shrink-0">
@@ -335,6 +388,19 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                         </div>
                                     )}
                                 </div>
+                                {/* Varzia inventory preview when active */}
+                                {varziaActive && data.vaultTrader.inventory.length > 0 && (
+                                    <div className="mt-1.5 space-y-0.5 border-t border-violet-800/20 pt-1.5">
+                                        {data.vaultTrader.inventory.map((item, i) => (
+                                            <div key={i} className="flex items-center justify-between gap-1">
+                                                <span className="text-[10px] text-slate-300 min-w-0 truncate">{item.item}</span>
+                                                {item.credits != null && (
+                                                    <span className="text-[10px] text-violet-300/70 shrink-0">{item.credits.toLocaleString()}cr</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -345,41 +411,145 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                 {data?.sentientOutposts?.missionType && (
                                     <div className="text-[10px] text-slate-500 mt-0.5">{data.sentientOutposts.missionType}</div>
                                 )}
+                                {data?.sentientOutposts?.expiry && (
+                                    <div className="text-[10px] text-slate-500 mt-0.5">
+                                        Ends <span className="font-mono text-slate-300">{msToHms(new Date(data.sentientOutposts.expiry).getTime() - now)}</span>
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                        {/* Active events (up to 3) */}
+                        {/* Invasions — show all with rewards */}
+                        {data && data.invasions.length > 0 && (
+                            <div className="rounded-lg px-3 py-2 bg-slate-900/60">
+                                <div className="text-[10px] font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
+                                    Invasions ({data.invasions.length})
+                                </div>
+                                <div className="space-y-2">
+                                    {data.invasions.map((inv) => (
+                                        <div key={inv.id} className="border-t border-slate-800/60 pt-1.5 first:border-0 first:pt-0">
+                                            <div className="flex items-center justify-between gap-1 mb-1">
+                                                <span className="text-[11px] text-slate-200 font-medium min-w-0 truncate">{inv.node}</span>
+                                                <span className="text-[10px] font-mono text-slate-500 shrink-0">{inv.completion.toFixed(1)}%</span>
+                                            </div>
+                                            <div className="h-1 bg-slate-800 rounded-full overflow-hidden mb-1">
+                                                <div
+                                                    className={["h-full rounded-full", inv.vsInfestation ? "bg-green-600/60" : "bg-red-600/60"].join(" ")}
+                                                    style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-0.5 text-[10px]">
+                                                <div>
+                                                    <div className={BELL_FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"}>
+                                                        {inv.attackingFaction}
+                                                    </div>
+                                                    {inv.attackerReward?.asString && (
+                                                        <div className="text-amber-300/70 leading-tight mt-0.5">{inv.attackerReward.asString}</div>
+                                                    )}
+                                                </div>
+                                                <div className="text-slate-600 px-0.5">vs</div>
+                                                <div className="text-right">
+                                                    <div className={BELL_FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"}>
+                                                        {inv.defendingFaction}
+                                                    </div>
+                                                    {inv.defenderReward?.asString && (
+                                                        <div className="text-amber-300/70 leading-tight mt-0.5">{inv.defenderReward.asString}</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Nightwave active challenges */}
+                        {data?.nightwave && data.nightwave.activeChallenges.length > 0 && (
+                            <div className="rounded-lg px-3 py-2 bg-slate-900/60">
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+                                        Nightwave S{data.nightwave.season}
+                                    </div>
+                                    <div className="text-[9px] text-slate-500 font-mono">
+                                        {msToHms(new Date(data.nightwave.expiry).getTime() - now)}
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    {data.nightwave.activeChallenges
+                                        .slice()
+                                        .sort((a, b) => {
+                                            if (a.isElite !== b.isElite) return a.isElite ? -1 : 1;
+                                            if (a.isDaily !== b.isDaily) return a.isDaily ? 1 : -1;
+                                            return b.reputation - a.reputation;
+                                        })
+                                        .map((act) => (
+                                            <div key={act.id} className="border-t border-slate-800/60 pt-1 first:border-0 first:pt-0">
+                                                <div className="flex items-center justify-between gap-1">
+                                                    <div className="flex items-center gap-1 min-w-0">
+                                                        {act.isElite && (
+                                                            <span className="shrink-0 rounded border border-amber-700/50 bg-amber-950/30 px-0.5 text-[8px] font-bold text-amber-300">ELITE</span>
+                                                        )}
+                                                        {act.isDaily && !act.isElite && (
+                                                            <span className="shrink-0 rounded border border-sky-700/50 bg-sky-950/30 px-0.5 text-[8px] font-bold text-sky-300">DAILY</span>
+                                                        )}
+                                                        {!act.isDaily && !act.isElite && (
+                                                            <span className="shrink-0 rounded border border-slate-700 bg-slate-800/60 px-0.5 text-[8px] font-bold text-slate-400">WK</span>
+                                                        )}
+                                                        <span className="text-[10px] text-slate-200 truncate">{act.title}</span>
+                                                    </div>
+                                                    <span className="text-[10px] font-bold text-blue-300 shrink-0">{act.reputation.toLocaleString()}</span>
+                                                </div>
+                                                <div className="text-[9px] text-slate-500 mt-0.5 leading-snug">{act.desc}</div>
+                                            </div>
+                                        ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Active events — all, no truncation */}
                         {data && data.events.length > 0 && (
                             <div className="rounded-lg px-3 py-2 bg-slate-900/60">
                                 <div className="text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wide">
                                     Events ({data.events.length})
                                 </div>
-                                {data.events.slice(0, 3).map((ev) => (
-                                    <div key={ev.id} className="flex items-center justify-between gap-1 py-0.5">
-                                        <span className="text-[11px] text-slate-300 truncate min-w-0">
-                                            {ev.description || ev.tooltip || "Active Event"}
-                                        </span>
-                                        {ev.expiry && (
-                                            <span className="font-mono text-[10px] text-slate-500 shrink-0">
-                                                {msToHms(new Date(ev.expiry).getTime() - now)}
-                                            </span>
-                                        )}
-                                    </div>
-                                ))}
-                                {data.events.length > 3 && (
-                                    <div className="text-[10px] text-slate-600 mt-0.5">+{data.events.length - 3} more</div>
-                                )}
+                                <div className="space-y-1">
+                                    {data.events.map((ev) => (
+                                        <div key={ev.id} className="border-t border-slate-800/60 pt-1 first:border-0 first:pt-0">
+                                            <div className="flex items-start justify-between gap-1">
+                                                <span className="text-[11px] text-slate-300 leading-snug min-w-0">
+                                                    {ev.description || ev.tooltip || "Active Event"}
+                                                </span>
+                                                {ev.expiry && (
+                                                    <span className="font-mono text-[10px] text-slate-500 shrink-0 mt-0.5">
+                                                        {msToHms(new Date(ev.expiry).getTime() - now)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {ev.tooltip && ev.description && ev.tooltip !== ev.description && (
+                                                <div className="text-[9px] text-slate-500 mt-0.5 leading-snug">{ev.tooltip}</div>
+                                            )}
+                                            {ev.rewards && ev.rewards.length > 0 && (
+                                                <div className="text-[9px] text-amber-400/70 mt-0.5">{ev.rewards[0].asString}</div>
+                                            )}
+                                            {ev.health != null && (
+                                                <div className="mt-1 h-1 bg-slate-800 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-red-500/50 rounded-full" style={{ width: `${Math.min(100, Math.max(0, ev.health))}%` }} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
 
                         {/* No alerts */}
-                        {data && !baroActive && !varziaActive && !sentientActive && data.events.length === 0 && (
+                        {data && !hasAnything && (
                             <div className="px-2 py-3 text-xs text-slate-500 text-center">No active alerts.</div>
                         )}
                     </div>
 
                     {/* Footer: go to World State page */}
-                    <div className="px-3 py-2 border-t border-slate-800">
+                    <div className="px-3 py-2 border-t border-slate-800 shrink-0">
                         <button
                             onClick={() => { setOpen(false); onNavigateWorldState(); }}
                             className="w-full text-center text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
@@ -423,6 +593,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
     const [platformOpen,  setPlatformOpen]  = useState(false);
     const [showPastePanel, setShowPastePanel] = useState(false);
     const [pasteText, setPasteText] = useState("");
+    const [apiImporting, setApiImporting] = useState(false);
     const [lastImportedAt, setLastImportedAt] = useState<string | null>(
         () => localStorage.getItem("wft_last_profile_import") ?? null
     );
@@ -482,12 +653,22 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
 
     function cancel() { setActiveField(null); }
 
-    function openProfileLink() {
+    async function handleApiImport() {
         const id = String(accountId ?? "").trim();
         if (!id) { setProfileStatus("Set Account ID first."); return; }
-        window.open(buildProfileUrl(id, platform), "_blank", "noopener,noreferrer");
-        setProfileStatus("Opened profile link. Copy the page content and paste it below, or save it and use Import File.");
-        setShowPastePanel(true);
+        setApiImporting(true);
+        setProfileStatus("Fetching profile from warframestat.us…");
+        try {
+            const url = `https://api.warframestat.us/profile/${encodeURIComponent(id)}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`API returned ${res.status} ${res.statusText}`);
+            const json = await res.json();
+            handleImportResult(importProfileViewingDataJson(JSON.stringify(json)));
+        } catch (e: any) {
+            setProfileStatus(`API import failed: ${e?.message ?? "Unknown error"}. Try Paste JSON or Import File instead.`);
+        } finally {
+            setApiImporting(false);
+        }
     }
 
     function handleImportResult(res: { ok: boolean; error?: string }) {
@@ -650,12 +831,12 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                         {/* Actions */}
                         <div className="flex flex-wrap items-center gap-2 pt-1">
                             <button
-                                className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-900 disabled:opacity-50"
-                                onClick={openProfileLink}
-                                disabled={!String(accountId ?? "").trim()}
-                                title={!String(accountId ?? "").trim() ? "Set Account ID first" : "Open profile in new tab"}
+                                className="rounded-lg bg-blue-700 px-3 py-1.5 text-xs text-white font-semibold hover:bg-blue-600 disabled:opacity-50 transition-colors"
+                                onClick={handleApiImport}
+                                disabled={!String(accountId ?? "").trim() || apiImporting}
+                                title={!String(accountId ?? "").trim() ? "Set Account ID first" : "Fetch and import profile automatically from warframestat.us"}
                             >
-                                Open Profile Link
+                                {apiImporting ? "Importing…" : "Import via API"}
                             </button>
 
                             <button
@@ -765,28 +946,37 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                             )}
                         </div>
 
-                        {/* How to find Account ID */}
+                        {/* How to find Account ID + import instructions */}
                         <div className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2.5 space-y-2 mt-1">
                             <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
-                                How to find your Account ID
+                                How to import your profile
                             </div>
                             <div className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
                                 <div>
-                                    <span className="text-slate-300 font-medium">PC: </span>
+                                    <span className="text-slate-300 font-medium">1. </span>
+                                    Enter your Account ID above, then click{" "}
+                                    <span className="text-blue-300 font-medium">Import via API</span>
+                                    {" "}— your progression will be fetched automatically from warframestat.us.
+                                </div>
+                                <div>
+                                    <span className="text-slate-300 font-medium">Finding your PC Account ID: </span>
                                     Open{" "}
                                     <code className="rounded bg-slate-800 px-1 py-0.5 font-mono text-slate-300">
                                         %localappdata%\Warframe\EE.log
                                     </code>{" "}
-                                    and search for <span className="font-mono text-slate-300">"Logged in"</span> — your account ID will be in the parentheses next to it.
+                                    and search for <span className="font-mono text-slate-300">"Logged in"</span> — your account ID is in the parentheses next to it.
                                 </div>
                                 <div>
-                                    <span className="text-slate-300 font-medium">Console (PS / Xbox / Switch): </span>
-                                    No confirmed self-serve method is currently known following update 38.0.8. Check the{" "}
-                                    <span className="text-slate-300">Warframe Wiki or official forums</span> for any newly documented approach.
+                                    <span className="text-slate-300 font-medium">Console / manual: </span>
+                                    Use <span className="text-slate-300">Paste JSON</span> or{" "}
+                                    <span className="text-slate-300">Import File</span> with data from{" "}
+                                    <code className="rounded bg-slate-800 px-1 py-0.5 font-mono text-slate-300">
+                                        content.warframe.com/dynamic/getProfileViewingData.php?playerId=…
+                                    </code>
                                 </div>
                             </div>
                             <div className="text-[10px] text-slate-600 pt-0.5">
-                                As of update 38.0.8, account IDs can no longer be looked up by username. Account ID + Platform are stored locally only.
+                                Account ID + Platform are stored locally only. As of update 38.0.8, IDs can no longer be looked up by username.
                             </div>
                         </div>
                     </div>
