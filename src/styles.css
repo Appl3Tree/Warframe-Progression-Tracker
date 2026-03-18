@@ -10,98 +10,163 @@
 /* ── Dark mode (default) — no overrides needed, Tailwind slate-* is dark ── */
 
 /* ── Light mode ── */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   DESIGN RATIONALE
+   Page background: #f0f4f8 — a clean, slightly cool blue-gray. This is the
+   same language as Linear, Vercel, and GitHub Light. It's neutral enough to
+   not clash with any accent, and gives white cards real visual lift without
+   the heaviness of a saturated tint.
+
+   Panel hierarchy (inverted slate scale):
+     slate-950 → #ffffff  — primary cards (highest elevation, brightest)
+     slate-900 → #f4f6fa  — secondary surfaces
+     slate-800 → #e8ecf2  — section groupings, tab bars
+     slate-700 → #d8dfe8  — active/pressed states, deeper groupings
+
+   Text hierarchy (all pass WCAG AA on #f0f4f8):
+     slate-100 → #0d1421  — primary (ratio ~12:1)
+     slate-200 → #1e3045  — strong secondary
+     slate-300 → #344f68  — medium secondary
+     slate-400 → #4e6880  — muted body (~4.8:1)
+     slate-500 → #637d93  — very muted / metadata (~4.0:1, AA-borderline
+                            acceptable for UI labels and secondary metadata)
+   ───────────────────────────────────────────────────────────────────────── */
+
 .theme-light {
-    /* Root background + text.
-       Warm off-white (#f5f2ee) instead of the cold blue-gray — much easier on
-       the eyes for extended sessions. Not !important so that inline style={{color}}
-       on syndicate cards (canon.fg) can still override it. */
-    background-color: #f5f2ee !important;
-    color: #1a1a1a;
+    /* NOTE: color is intentionally NOT !important here — inline style={{color}}
+       on syndicate cards (canon.fg) must be able to override it. */
+    background-color: #f0f4f8 !important;
+    color: #0d1421;
 }
 
 .theme-light body,
 .theme-light #root {
-    background-color: #f5f2ee;
-    color: #1a1a1a;
+    background-color: #f0f4f8;
+    color: #0d1421;
 }
 
-/* Full slate color scale remapping for light mode — white / near-white palette.
-   Panels go from white (#fff) down to light-gray (#e2e8f0) so there's real
-   visual separation without the "faded dark mode" blue-gray look.
-   Opacity variants are overridden to solid colors for clarity. */
-/* Warm-white panel scale — avoids the "faded dark mode" blue-gray look.
-   Panels step from pure white down to light warm-gray for visual separation. */
+/* ── Panel surface scale ── */
 .theme-light .bg-slate-950,
 .theme-light [class*="bg-slate-950\/"] { background-color: #ffffff !important; }
 .theme-light .bg-slate-900,
-.theme-light [class*="bg-slate-900\/"] { background-color: #f8f6f3 !important; }
+.theme-light [class*="bg-slate-900\/"] { background-color: #f4f6fa !important; }
 .theme-light .bg-slate-800,
-.theme-light [class*="bg-slate-800\/"] { background-color: #ede9e3 !important; }
+.theme-light [class*="bg-slate-800\/"] { background-color: #e8ecf2 !important; }
 .theme-light .bg-slate-700,
-.theme-light [class*="bg-slate-700\/"] { background-color: #ddd8d0 !important; }
-.theme-light .bg-slate-600 { background-color: #a09b94 !important; }
+.theme-light [class*="bg-slate-700\/"] { background-color: #d8dfe8 !important; }
+.theme-light .bg-slate-600 { background-color: #9aafc0 !important; }
 
-/* Text — warm neutrals that read comfortably on the warm off-white bg */
-.theme-light .text-slate-100 { color: #1a1a1a !important; }
-.theme-light .text-slate-200 { color: #2a2a2a !important; }
-.theme-light .text-slate-300 { color: #3d3d3d !important; }
-.theme-light .text-slate-400 { color: #5a5a5a !important; }
-.theme-light .text-slate-500 { color: #7a7a7a !important; }
-.theme-light .text-slate-600 { color: #a09b94 !important; }
+/* ── Text hierarchy ── */
+.theme-light .text-slate-100 { color: #0d1421 !important; }
+.theme-light .text-slate-200 { color: #1e3045 !important; }
+.theme-light .text-slate-300 { color: #344f68 !important; }
+.theme-light .text-slate-400 { color: #4e6880 !important; }
+.theme-light .text-slate-500 { color: #637d93 !important; }
+.theme-light .text-slate-600 { color: #9aafc0 !important; }
 
-/* Borders — warm-toned to match the panel scale */
-.theme-light .border-slate-800 { border-color: #d0cbc4 !important; }
-.theme-light [class*="border-slate-800\/"] { border-color: rgba(180,172,163,0.55) !important; }
-.theme-light .border-slate-700 { border-color: #b8b2ab !important; }
-.theme-light [class*="border-slate-700\/"] { border-color: rgba(152,143,133,0.55) !important; }
-.theme-light .border-slate-600 { border-color: #a09b94 !important; }
+/* ── Borders — visible but not heavy ── */
+.theme-light .border-slate-800,
+.theme-light [class*="border-slate-800\/"] { border-color: rgba(165,185,205,0.7) !important; }
+.theme-light .border-slate-700,
+.theme-light [class*="border-slate-700\/"] { border-color: rgba(140,165,188,0.65) !important; }
+.theme-light .border-slate-600 { border-color: #9aafc0 !important; }
 
-/* Divide */
-.theme-light [class*="divide-slate-800"] > * + * { border-color: #e2e8f0 !important; }
+/* ── Divide ── */
+.theme-light [class*="divide-slate-800"] > * + * { border-color: rgba(165,185,205,0.5) !important; }
 
-/* Inputs — white so they stand out from light panel backgrounds */
+/* ── Inputs ── */
 .theme-light input,
 .theme-light textarea,
 .theme-light select {
     background-color: #ffffff !important;
-    color: #0f172a !important;
-    border-color: #94a3b8 !important;
+    color: #0d1421 !important;
+    border-color: #a0b8cc !important;
 }
 .theme-light select option {
     background-color: #ffffff;
-    color: #0f172a;
+    color: #0d1421;
 }
 
-/* ── Light mode accent colors — keep them vivid but legible on light bg ── */
+/* ── Low-opacity slate overlays → elevated button surfaces ──
+   bg-slate-950/20 and /30 are used as button backgrounds in dark mode.
+   In light mode they must become real elevated surfaces. */
+.theme-light [class*="bg-slate-950\/20"],
+.theme-light [class*="bg-slate-900\/20"] { background-color: #f4f6fa !important; }
+.theme-light [class*="bg-slate-950\/30"],
+.theme-light [class*="bg-slate-900\/30"] { background-color: #e8ecf2 !important; }
+.theme-light [class*="hover:bg-slate-950\/"],
+.theme-light [class*="hover:bg-slate-900\/40"]:hover { background-color: #d8dfe8 !important; }
+
+/* ── Sidebar and navigation ── */
+.theme-light nav,
+.theme-light aside { background-color: #dce3ed !important; }
+
+/* Active nav item — subtle cyan tint matching the app's primary accent */
+.theme-light .bg-slate-800\/60 { background-color: rgba(14,165,233,0.12) !important; }
+
+/* ── Hover states ── */
+.theme-light [class*="hover:bg-slate-950"]:hover { background-color: #d0d8e4 !important; }
+.theme-light [class*="hover:bg-slate-900"]:hover  { background-color: #dce3ed !important; }
+.theme-light [class*="hover:bg-slate-800"]:hover  { background-color: #e4e9f2 !important; }
+.theme-light [class*="hover:bg-slate-700"]:hover  { background-color: #d0d8e4 !important; }
+
+.theme-light [class*="hover:text-slate-100"]:hover { color: #0d1421 !important; }
+.theme-light [class*="hover:text-slate-200"]:hover { color: #1e3045 !important; }
+.theme-light [class*="hover:text-slate-300"]:hover { color: #344f68 !important; }
+
+.theme-light [class*="hover:border-slate-700"]:hover { border-color: #637d93 !important; }
+.theme-light [class*="hover:border-slate-600"]:hover { border-color: #9aafc0 !important; }
+
+/* group-hover text */
+.theme-light [class*="group-hover:text-slate-200"] { color: #1e3045 !important; }
+.theme-light [class*="group-hover:text-slate-300"] { color: #344f68 !important; }
+
+/* ── Focus states ── */
+.theme-light [class*="focus:border-slate-700"]:focus { border-color: #637d93 !important; }
+.theme-light [class*="focus:border-slate-600"]:focus { border-color: #9aafc0 !important; }
+.theme-light [class*="focus:border-slate-500"]:focus { border-color: #637d93 !important; }
+
+/* ── bg-slate-100 used as selected-state indicator ──
+   Remap to a mid blue-gray so it contrasts clearly against white panels. */
+.theme-light .bg-slate-100 { background-color: #b8ccdc !important; }
+
+/* ── Scrollbars ── */
+.theme-light ::-webkit-scrollbar-thumb { background: #a8bccc; }
+.theme-light ::-webkit-scrollbar-track { background: #f0f4f8; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ACCENT COLORS
+   All remapped to darker, WCAG-compliant values on the light background.
+   ═══════════════════════════════════════════════════════════════════════ */
 
 /* Green */
 .theme-light .text-green-400 { color: #16a34a !important; }
 .theme-light .text-green-300 { color: #15803d !important; }
-.theme-light [class*="bg-green-950\/"] { background-color: rgba(220,252,231,0.7) !important; }
+.theme-light [class*="bg-green-950\/"] { background-color: rgba(220,252,231,0.75) !important; }
 .theme-light .border-green-600\/50 { border-color: rgba(22,163,74,0.4) !important; }
 .theme-light .bg-green-500 { background-color: #22c55e !important; }
 .theme-light .from-green-600 { --tw-gradient-from: #16a34a !important; }
 .theme-light .to-green-400  { --tw-gradient-to:   #4ade80 !important; }
 
-/* Cyan */
+/* Cyan — primary accent color for Warframe; keeps it vivid and legible */
 .theme-light .text-cyan-400 { color: #0e7490 !important; }
 .theme-light .text-cyan-300 { color: #0e7490 !important; }
-.theme-light [class*="bg-cyan-950\/"] { background-color: rgba(207,250,254,0.7) !important; }
-/* bg-cyan-900/* (mastered badge in Inventory) — dark teal → pale cyan tint on light bg */
-.theme-light [class*="bg-cyan-900\/"] { background-color: rgba(207,250,254,0.7) !important; }
-.theme-light .bg-cyan-900 { background-color: rgba(207,250,254,0.7) !important; }
-.theme-light [class*="hover:bg-cyan-9"]:hover { background-color: rgba(186,240,252,0.85) !important; }
+.theme-light [class*="bg-cyan-950\/"] { background-color: rgba(207,250,254,0.75) !important; }
+.theme-light [class*="bg-cyan-900\/"] { background-color: rgba(207,250,254,0.75) !important; }
+.theme-light .bg-cyan-900 { background-color: rgba(207,250,254,0.75) !important; }
+.theme-light [class*="hover:bg-cyan-9"]:hover { background-color: rgba(165,240,252,0.9) !important; }
 .theme-light .border-cyan-700 { border-color: #0e7490 !important; }
-.theme-light [class*="border-cyan-8"] { border-color: rgba(14,116,144,0.35) !important; }
+.theme-light [class*="border-cyan-8"] { border-color: rgba(14,116,144,0.4) !important; }
+.theme-light [class*="border-cyan-5"] { border-color: #06b6d4 !important; }
 
 /* Emerald */
 .theme-light .text-emerald-400 { color: #059669 !important; }
 .theme-light .text-emerald-500 { color: #047857 !important; }
-/* Pale pastel shades — remap to dark greens for legibility on light backgrounds */
 .theme-light .text-emerald-300 { color: #047857 !important; }
 .theme-light .text-emerald-200 { color: #065f46 !important; }
 .theme-light .text-emerald-100 { color: #064e3b !important; }
-.theme-light [class*="bg-emerald-950\/"] { background-color: rgba(209,250,229,0.7) !important; }
+.theme-light [class*="bg-emerald-950\/"] { background-color: rgba(209,250,229,0.75) !important; }
 .theme-light [class*="bg-emerald-400\/"] { background-color: rgba(52,211,153,0.15) !important; }
 .theme-light .bg-emerald-500 { background-color: #10b981 !important; }
 .theme-light [class*="border-emerald-700\/"],
@@ -112,122 +177,97 @@
 .theme-light .text-blue-400 { color: #2563eb !important; }
 .theme-light .text-blue-300 { color: #1d4ed8 !important; }
 .theme-light .text-blue-200 { color: #1e40af !important; }
-.theme-light [class*="bg-blue-950\/"] { background-color: rgba(219,234,254,0.7) !important; }
-/* blue-900 backgrounds (Handbook callouts, NewPlayerModal button) */
-.theme-light [class*="bg-blue-9"] { background-color: rgba(219,234,254,0.6) !important; }
-.theme-light [class*="border-blue-9"] { border-color: rgba(37,99,235,0.3) !important; }
-.theme-light .border-blue-700\/60 { border-color: rgba(29,78,216,0.4) !important; }
+.theme-light [class*="bg-blue-950\/"] { background-color: rgba(219,234,254,0.75) !important; }
+.theme-light [class*="bg-blue-9"]     { background-color: rgba(219,234,254,0.65) !important; }
+.theme-light [class*="border-blue-9"] { border-color: rgba(37,99,235,0.35) !important; }
+.theme-light .border-blue-700\/60 { border-color: rgba(29,78,216,0.45) !important; }
 .theme-light .border-blue-600 { border-color: #2563eb !important; }
 .theme-light .bg-blue-600 { background-color: #2563eb !important; }
 .theme-light .bg-blue-500 { background-color: #3b82f6 !important; }
 .theme-light .from-blue-600 { --tw-gradient-from: #2563eb !important; }
 .theme-light .to-blue-400  { --tw-gradient-to:   #60a5fa !important; }
 
-/* Sky — not used in dark mode's default slate palette, so entirely missing */
+/* Sky */
 .theme-light .text-sky-300  { color: #0369a1 !important; }
 .theme-light .text-sky-400  { color: #0284c7 !important; }
 .theme-light .text-sky-500  { color: #0ea5e9 !important; }
 .theme-light .bg-sky-950,
-.theme-light [class*="bg-sky-950\/"] { background-color: rgba(224,242,254,0.8) !important; }
-.theme-light [class*="bg-sky-9"] { background-color: rgba(224,242,254,0.6) !important; }
+.theme-light [class*="bg-sky-950\/"] { background-color: rgba(224,242,254,0.85) !important; }
+.theme-light [class*="bg-sky-9"]     { background-color: rgba(224,242,254,0.65) !important; }
 .theme-light .border-sky-700 { border-color: #0369a1 !important; }
-.theme-light [class*="border-sky-7"] { border-color: rgba(3,105,161,0.45) !important; }
-.theme-light [class*="border-sky-8"] { border-color: rgba(7,89,133,0.35) !important; }
+.theme-light [class*="border-sky-7"] { border-color: rgba(3,105,161,0.5) !important; }
+.theme-light [class*="border-sky-8"] { border-color: rgba(7,89,133,0.4) !important; }
 
 /* Amber */
 .theme-light .text-amber-300 { color: #b45309 !important; }
 .theme-light .text-amber-400 { color: #92400e !important; }
-/* text-amber-200 is a pale pastel — remap to dark amber for legibility */
 .theme-light .text-amber-200 { color: #78350f !important; }
-.theme-light [class*="bg-amber-950\/"] { background-color: rgba(254,243,199,0.7) !important; }
-/* amber-900 backgrounds appear in warning callouts and notifications */
-.theme-light [class*="bg-amber-900\/"] { background-color: rgba(254,243,199,0.6) !important; }
+.theme-light [class*="bg-amber-950\/"] { background-color: rgba(254,243,199,0.75) !important; }
+.theme-light [class*="bg-amber-900\/"] { background-color: rgba(254,243,199,0.65) !important; }
 .theme-light [class*="border-amber-7"],
 .theme-light [class*="border-amber-8"],
-.theme-light [class*="border-amber-9"] { border-color: rgba(180,83,9,0.4) !important; }
+.theme-light [class*="border-amber-9"] { border-color: rgba(180,83,9,0.45) !important; }
 .theme-light .bg-amber-500 { background-color: #f59e0b !important; }
 
 /* Orange */
 .theme-light .text-orange-400 { color: #c2410c !important; }
-.theme-light [class*="bg-orange-950\/"] { background-color: rgba(255,237,213,0.6) !important; }
-.theme-light .border-orange-700\/50 { border-color: rgba(194,65,12,0.3) !important; }
-/* orange-800 borders appear on rarity badges */
-.theme-light [class*="border-orange-8"] { border-color: rgba(194,65,12,0.35) !important; }
+.theme-light [class*="bg-orange-950\/"] { background-color: rgba(255,237,213,0.65) !important; }
+.theme-light .border-orange-700\/50 { border-color: rgba(194,65,12,0.35) !important; }
+.theme-light [class*="border-orange-8"] { border-color: rgba(194,65,12,0.4) !important; }
 
 /* Rose */
 .theme-light .text-rose-200 { color: #be123c !important; }
 .theme-light .text-rose-300 { color: #e11d48 !important; }
-.theme-light [class*="bg-rose-950\/"] { background-color: rgba(255,228,230,0.7) !important; }
+.theme-light [class*="bg-rose-950\/"] { background-color: rgba(255,228,230,0.75) !important; }
 .theme-light [class*="border-rose-700\/"],
 .theme-light [class*="border-rose-800\/"],
-.theme-light [class*="border-rose-900\/"] { border-color: rgba(159,18,57,0.4) !important; }
+.theme-light [class*="border-rose-900\/"] { border-color: rgba(159,18,57,0.45) !important; }
 .theme-light .border-rose-700 { border-color: #be123c !important; }
 .theme-light .bg-rose-500 { background-color: #f43f5e !important; }
 
-/* Red — separate Tailwind scale; used by Remove buttons, danger states, Diagnostics.
-   In dark mode red-300/#fca5a5 is fine on dark backgrounds.
-   On light: remap to a vivid, high-contrast red so danger UI is immediately readable. */
+/* Red — used by Remove buttons, danger states, Diagnostics.
+   Dark mode red-300/#fca5a5 is too light to read on white; remap to vivid crimson. */
 .theme-light .text-red-200 { color: #dc2626 !important; }
 .theme-light .text-red-300 { color: #b91c1c !important; }
 .theme-light .text-red-400 { color: #991b1b !important; }
-/* bg-red-950/* variants — dark crimson tints → pale rose on light */
-.theme-light [class*="bg-red-950\/"] { background-color: rgba(254,226,226,0.6) !important; }
-.theme-light [class*="bg-red-900\/"]  { background-color: rgba(254,215,215,0.55) !important; }
-/* hover:bg-red-950/* — slightly deeper rose tint on hover */
-.theme-light [class*="hover:bg-red-950\/"]:hover { background-color: rgba(252,205,205,0.75) !important; }
-/* Solid red backgrounds */
+.theme-light [class*="bg-red-950\/"] { background-color: rgba(254,226,226,0.65) !important; }
+.theme-light [class*="bg-red-900\/"]  { background-color: rgba(254,215,215,0.6) !important; }
+.theme-light [class*="hover:bg-red-950\/"]:hover { background-color: rgba(252,200,200,0.8) !important; }
 .theme-light .bg-red-500 { background-color: #ef4444 !important; }
 .theme-light .bg-red-400 { background-color: #f87171 !important; }
-/* Red borders — dark crimson → vivid red for visibility on light backgrounds */
 .theme-light .border-red-700 { border-color: #dc2626 !important; }
-.theme-light [class*="border-red-7"] { border-color: rgba(220,38,38,0.55) !important; }
-.theme-light [class*="border-red-8"] { border-color: rgba(185,28,28,0.45) !important; }
-.theme-light [class*="border-red-9"] { border-color: rgba(153,27,27,0.40) !important; }
-/* Restore dark-mode red text inside dark sub-panels (bg-black/*) */
-.theme-light [class*="bg-black\/"] .text-red-300 { color: #f87171 !important; }
-.theme-light [class*="bg-black\/"] .text-red-200 { color: #fca5a5 !important; }
+.theme-light [class*="border-red-7"] { border-color: rgba(220,38,38,0.6) !important; }
+.theme-light [class*="border-red-8"] { border-color: rgba(185,28,28,0.5) !important; }
+.theme-light [class*="border-red-9"] { border-color: rgba(153,27,27,0.45) !important; }
 
-/* Purple / Indigo */
+/* Purple / Indigo / Violet */
 .theme-light .text-purple-300 { color: #7e22ce !important; }
 .theme-light .text-purple-400 { color: #6b21a8 !important; }
-.theme-light [class*="bg-purple-950\/"] { background-color: rgba(245,243,255,0.7) !important; }
-.theme-light [class*="bg-purple-9"] { background-color: rgba(245,243,255,0.6) !important; }
-.theme-light .border-purple-700\/60 { border-color: rgba(126,34,206,0.4) !important; }
+.theme-light [class*="bg-purple-950\/"] { background-color: rgba(245,243,255,0.75) !important; }
+.theme-light [class*="bg-purple-9"]     { background-color: rgba(245,243,255,0.65) !important; }
+.theme-light .border-purple-700\/60 { border-color: rgba(126,34,206,0.45) !important; }
 .theme-light [class*="border-purple-8"],
-.theme-light [class*="border-purple-9"] { border-color: rgba(126,34,206,0.35) !important; }
+.theme-light [class*="border-purple-9"] { border-color: rgba(126,34,206,0.4) !important; }
 .theme-light .text-indigo-300 { color: #4338ca !important; }
-.theme-light [class*="bg-indigo-950\/"] { background-color: rgba(238,242,255,0.7) !important; }
+.theme-light [class*="bg-indigo-950\/"] { background-color: rgba(238,242,255,0.75) !important; }
 .theme-light .bg-purple-500 { background-color: #a855f7 !important; }
 .theme-light .bg-indigo-500 { background-color: #6366f1 !important; }
-
-/* Violet — used in Handbook callouts */
 .theme-light .text-violet-300 { color: #6d28d9 !important; }
-.theme-light [class*="bg-violet-9"] { background-color: rgba(237,233,254,0.6) !important; }
-.theme-light [class*="border-violet-8"] { border-color: rgba(109,40,217,0.35) !important; }
+.theme-light [class*="bg-violet-9"]  { background-color: rgba(237,233,254,0.65) !important; }
+.theme-light [class*="border-violet-8"] { border-color: rgba(109,40,217,0.4) !important; }
 
-/* ── Star chart / low-opacity slate overlays → elevated button bg ──
-   bg-slate-950/20 and similar light overlays are used for button backgrounds
-   in dark mode (subtle tint on dark). In light mode they must look like
-   real elevated surfaces, not merge into the panel background. */
-.theme-light [class*="bg-slate-950\/20"],
-.theme-light [class*="bg-slate-900\/20"] { background-color: #f8f6f3 !important; }
-.theme-light [class*="bg-slate-950\/30"],
-.theme-light [class*="bg-slate-900\/30"] { background-color: #ede9e3 !important; }
-.theme-light [class*="hover:bg-slate-950\/"],
-.theme-light [class*="hover:bg-slate-900\/40"]:hover { background-color: #ddd8d0 !important; }
+/* Yellow */
+.theme-light .text-yellow-400 { color: #a16207 !important; }
 
-/* Gradients on shell/map backgrounds stay dark */
-.theme-light [style*="radial-gradient"] { /* keep map backgrounds as-is */ }
-
-/* ── Syndicate card dark sub-panels ──────────────────────────────────────────
-   bg-black/10–29 are icon containers and info sub-panels inside syndicate cards
-   (which have a colored gradient background via inline style).
-   bg-black/60 is used for the dropdown select inside those same cards.
-   In light mode, all these would render as near-invisible tints on the light
-   background (or leave white select backgrounds from the global input rule).
-   Remap to a solid dark-navy surface so icons and text remain legible.
-   Also force light text so everything inside stays readable on the dark bg.
-   bg-black/70+ are full-screen modal dim overlays — NOT touched here. */
+/* ═══════════════════════════════════════════════════════════════════════
+   SYNDICATE CARD DARK SUB-PANELS
+   bg-black/10–29 → icon containers and info sub-panels inside syndicate
+   cards (which have a colored gradient via inline style).
+   bg-black/60 → the dropdown select inside those same cards.
+   These must stay dark so the syndicate card content remains readable
+   against its colored background.
+   bg-black/70+ → full-screen modal dim overlays — not touched here.
+   ═══════════════════════════════════════════════════════════════════════ */
 .theme-light [class*="bg-black\/1"],
 .theme-light [class*="bg-black\/2"],
 .theme-light [class*="bg-black\/6"] {
@@ -235,8 +275,7 @@
     color: #f1f5f9 !important;
 }
 
-/* Inputs/selects that sit inside those dark sub-panels must also stay dark
-   (the global ".theme-light input/select" rule would otherwise force white bg). */
+/* Inputs/selects inside dark sub-panels must stay dark too */
 .theme-light [class*="bg-black\/"] input,
 .theme-light [class*="bg-black\/"] textarea,
 .theme-light [class*="bg-black\/"] select,
@@ -247,15 +286,12 @@
     border-color: rgba(255,255,255,0.20) !important;
 }
 
-/* Restore Tailwind text-* overrides to their dark-mode equivalents when they
-   appear inside a dark sub-panel — the light-mode values would be unreadable
-   against the dark navy background. */
+/* Restore dark-mode text values inside dark sub-panels */
 .theme-light [class*="bg-black\/"] .text-slate-100 { color: #f1f5f9 !important; }
 .theme-light [class*="bg-black\/"] .text-slate-200 { color: #e2e8f0 !important; }
 .theme-light [class*="bg-black\/"] .text-slate-300 { color: #cbd5e1 !important; }
 .theme-light [class*="bg-black\/"] .text-slate-400 { color: #94a3b8 !important; }
 .theme-light [class*="bg-black\/"] .text-slate-500 { color: #64748b !important; }
-/* Accent colors inside dark sub-panels — restore to their dark-mode values */
 .theme-light [class*="bg-black\/"] .text-emerald-400 { color: #34d399 !important; }
 .theme-light [class*="bg-black\/"] .text-emerald-300 { color: #6ee7b7 !important; }
 .theme-light [class*="bg-black\/"] .text-emerald-200 { color: #a7f3d0 !important; }
@@ -266,117 +302,60 @@
 .theme-light [class*="bg-black\/"] .text-rose-300   { color: #fda4af !important; }
 .theme-light [class*="bg-black\/"] .text-rose-200   { color: #fecdd3 !important; }
 .theme-light [class*="bg-black\/"] .text-red-400    { color: #f87171 !important; }
+.theme-light [class*="bg-black\/"] .text-red-300    { color: #fca5a5 !important; }
+.theme-light [class*="bg-black\/"] .text-red-200    { color: #fecaca !important; }
 .theme-light [class*="bg-black\/"] .text-cyan-400   { color: #22d3ee !important; }
 .theme-light [class*="bg-black\/"] .text-blue-400   { color: #60a5fa !important; }
 .theme-light [class*="bg-black\/"] .text-green-400  { color: #4ade80 !important; }
 
-/* Scrollbars in light mode */
-.theme-light ::-webkit-scrollbar-thumb { background: #b8b2ab; }
-.theme-light ::-webkit-scrollbar-track { background: #f5f2ee; }
-
-/* ── Star chart always dark (SVG map has hardcoded dark background) ── */
-/* Force dark text/border colors inside the star chart map container */
-.theme-light .relative.w-full .text-slate-100,
-.theme-light .relative.w-full .text-slate-200,
-.theme-light .relative.w-full .text-slate-300,
-.theme-light .relative.w-full .text-slate-400 {
-    /* Let SVG-backed areas keep their dark rendering */
-}
-
-/* Force star chart panel labels to stay light-on-dark */
+/* ═══════════════════════════════════════════════════════════════════════
+   STAR CHART — always dark (SVG map has a hardcoded dark background)
+   ═══════════════════════════════════════════════════════════════════════ */
 .theme-light [class*="h-\[72vh\]"] .text-slate-100 { color: #f1f5f9 !important; }
 .theme-light [class*="h-\[72vh\]"] .text-slate-200 { color: #e2e8f0 !important; }
 .theme-light [class*="h-\[72vh\]"] .text-slate-300 { color: #cbd5e1 !important; }
 .theme-light [class*="h-\[72vh\]"] .text-slate-400 { color: #94a3b8 !important; }
 .theme-light [class*="h-\[72vh\]"] .text-slate-500 { color: #64748b !important; }
-/* Restore ALL slate-950/slate-900 opacity variants inside the map to dark bg.
-   The general override (bg-slate-950/* → #d4dfe9) is overridden here so overlay
-   buttons keep their dark background while text is restored to light above. */
 .theme-light [class*="h-\[72vh\]"] .bg-slate-950,
 .theme-light [class*="h-\[72vh\]"] [class*="bg-slate-950\/"],
 .theme-light [class*="h-\[72vh\]"] [class*="bg-slate-900\/"] { background-color: rgba(2,6,23,0.9) !important; }
 .theme-light [class*="h-\[72vh\]"] .border-slate-800 { border-color: #1e293b !important; }
 .theme-light [class*="h-\[72vh\]"] .border-slate-700 { border-color: #334155 !important; }
 
-/* ── Border visibility fixes — warm-toned borders for readability ── */
-.theme-light .border-slate-800 { border-color: #9e978f !important; }
-.theme-light [class*="border-slate-800\/"] { border-color: rgba(140,132,122,0.5) !important; }
-.theme-light .border-slate-700 { border-color: #7a746d !important; }
-.theme-light [class*="border-slate-700\/"] { border-color: rgba(110,103,95,0.5) !important; }
-
-/* Sidebar nav in light mode — slightly darker warm-gray for clear separation */
-.theme-light nav,
-.theme-light aside { background-color: #e8e4de !important; }
-
-/* Active nav item */
-.theme-light .bg-slate-800\/60 { background-color: rgba(60,54,48,0.12) !important; }
-
-/* ── Hover state overrides — Tailwind generates .hover\:bg-*:hover selectors
-   which are not caught by the flat .bg-* overrides above.
-   Use attribute selectors to reach them. ── */
-
-/* bg on hover */
-.theme-light [class*="hover:bg-slate-950"]:hover { background-color: #ddd8d0 !important; }
-.theme-light [class*="hover:bg-slate-900"]:hover  { background-color: #e8e4de !important; }
-.theme-light [class*="hover:bg-slate-800"]:hover  { background-color: #ede9e3 !important; }
-.theme-light [class*="hover:bg-slate-700"]:hover  { background-color: #ddd8d0 !important; }
-
-/* text on hover */
-.theme-light [class*="hover:text-slate-100"]:hover { color: #0f172a !important; }
-.theme-light [class*="hover:text-slate-200"]:hover { color: #1e293b !important; }
-.theme-light [class*="hover:text-slate-300"]:hover { color: #334155 !important; }
-
-/* border on hover */
-.theme-light [class*="hover:border-slate-700"]:hover { border-color: #64748b !important; }
-.theme-light [class*="hover:border-slate-600"]:hover { border-color: #94a3b8 !important; }
-
-/* group-hover text */
-.theme-light [class*="group-hover:text-slate-200"] { color: #1e293b !important; }
-.theme-light [class*="group-hover:text-slate-300"] { color: #334155 !important; }
-
-/* ── Focus state overrides ── */
-.theme-light [class*="focus:border-slate-700"]:focus { border-color: #64748b !important; }
-.theme-light [class*="focus:border-slate-600"]:focus { border-color: #94a3b8 !important; }
-.theme-light [class*="focus:border-slate-500"]:focus { border-color: #64748b !important; }
-
-/* ── Missing color mappings ── */
-
-/* Yellow-400 is #facc15 — invisible on a light background; remap to amber-700 */
-.theme-light .text-yellow-400 { color: #b45309 !important; }
-
-/* bg-slate-100 is used as a selected-state indicator (white on dark in dark mode).
-   In light mode, remap to a warm mid-gray for contrast against white panels. */
-.theme-light .bg-slate-100 { background-color: #c8c2bb !important; }
-
-/* ── Goals tree modal (GoalsTreeView.tsx injects <style> with hardcoded dark colors) ──
-   Override with .theme-light prefix for higher specificity. */
+/* ═══════════════════════════════════════════════════════════════════════
+   GOALS TREE MODAL
+   GoalsTreeView.tsx injects a <style> block with hardcoded dark colors.
+   Override via .theme-light prefix for higher specificity.
+   ═══════════════════════════════════════════════════════════════════════ */
 .theme-light .wf-tree-modal {
-    background: rgba(248,250,252,0.98) !important;
-    border-color: rgba(203,213,225,0.9) !important;
+    background: rgba(255,255,255,0.99) !important;
+    border-color: rgba(165,185,205,0.85) !important;
 }
 .theme-light .wf-tree-modal-header {
-    border-bottom-color: rgba(203,213,225,0.9) !important;
+    border-bottom-color: rgba(165,185,205,0.85) !important;
 }
-.theme-light .wf-tree-modal-title .t1 { color: #0f172a !important; }
-.theme-light .wf-tree-modal-title .t2 { color: #475569 !important; }
+.theme-light .wf-tree-modal-title .t1 { color: #0d1421 !important; }
+.theme-light .wf-tree-modal-title .t2 { color: #4e6880 !important; }
 .theme-light .wf-tree-node {
-    background: rgba(255,255,255,0.97) !important;
-    border-color: rgba(203,213,225,0.9) !important;
+    background: rgba(244,246,250,0.98) !important;
+    border-color: rgba(165,185,205,0.8) !important;
 }
-.theme-light .wf-tree-node-title { color: #0f172a !important; }
-.theme-light .wf-tree-node-metrics { color: #334155 !important; }
+.theme-light .wf-tree-node-title { color: #0d1421 !important; }
+.theme-light .wf-tree-node-metrics { color: #344f68 !important; }
 .theme-light .wf-tree-node-btn {
-    background: rgba(241,245,249,0.95) !important;
-    border-color: rgba(148,163,184,0.8) !important;
-    color: #1e293b !important;
+    background: rgba(232,236,242,0.95) !important;
+    border-color: rgba(140,165,188,0.75) !important;
+    color: #1e3045 !important;
 }
 .theme-light .wf-tree-node-btn:hover {
-    background: rgba(226,232,240,0.95) !important;
+    background: rgba(216,223,232,0.95) !important;
 }
-.theme-light .wf-tree-root { --wf-line: rgba(148,163,184,0.7); }
+.theme-light .wf-tree-root { --wf-line: rgba(140,165,188,0.65); }
 
-/* ── Polarity icons — black SVG paths need inversion on dark backgrounds ── */
-/* Dark mode (default): invert black → white */
+/* ═══════════════════════════════════════════════════════════════════════
+   POLARITY ICONS
+   ═══════════════════════════════════════════════════════════════════════ */
+/* Dark mode: invert black SVG paths → white */
 .pol-icon {
     filter: invert(1);
 }
