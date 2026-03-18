@@ -28,6 +28,9 @@ const PLATINUM_BY_PATH = platinumByPathRaw as Record<string, number>;
 function getPlatinumCost(catalogId: CatalogId): number | null {
     const rec = FULL_CATALOG.recordsById[catalogId];
     if (!rec) return null;
+    // Prime items cannot be purchased from the market with platinum.
+    const name = (rec.displayName ?? "").toLowerCase();
+    if (name.endsWith(" prime") || name.includes(" prime ")) return null;
     const cost = PLATINUM_BY_PATH[rec.path];
     return typeof cost === "number" && cost > 0 ? cost : null;
 }
