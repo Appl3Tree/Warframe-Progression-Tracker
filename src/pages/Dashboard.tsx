@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import WarframeResetTracker from "../components/WarframeResetTracker";
 import ProgressionNextStepsPanel from "../components/ProgressionNextStepsPanel";
 import DailyChecklist from "../components/DailyChecklist";
+import DashboardWorldState from "../components/DashboardWorldState";
 import { useTrackerStore } from "../store/store";
 import { buildProgressionPlan } from "../domain/logic/plannerEngine";
 import { deriveCompletedMap } from "../domain/logic/syndicatePrereqs";
@@ -58,6 +59,9 @@ export default function Dashboard() {
                     <DailyChecklist expanded={!hasProgressionSteps} />
                 </div>
             </div>
+
+            {/* ── World State ── */}
+            <DashboardWorldState />
 
             {/* ── Reset tracker ── */}
             <div className="min-h-0 lg:flex-1">

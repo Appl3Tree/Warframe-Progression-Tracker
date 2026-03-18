@@ -329,14 +329,6 @@ export function buildRequirementsSnapshot(args: {
                         label: rankTitle,
                         need: cost.amount
                     });
-                } else if (cost.kind === "platinum") {
-                    addCurrencyNeed("platinum", cost.amount, {
-                        type: "syndicate",
-                        id: syndicateId,
-                        name: syndicateName,
-                        label: rankTitle,
-                        need: cost.amount
-                    });
                 } else if (cost.kind === "item") {
                     const catalogId = lookupCatalogIdByDisplayName(cost.name);
                     if (!catalogId) continue;

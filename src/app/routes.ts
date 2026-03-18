@@ -18,7 +18,6 @@ export const NAV_ROUTES: NavRoute[] = [
     { key: "goals", label: "Goals", desc: "Personal goal portfolio." },
     { key: "requirements", label: "Farming", desc: "Targeted vs Overlap across goals + syndicates." },
     { key: "handbook", label: "Tenno's Handbook", desc: "Quest order, game mechanics, and farming guides for new players." },
-    { key: "worldstate", label: "World State", desc: "Live cycles, sorties, fissures and Nightwave." },
     { key: "imports", label: "Import / Export", desc: "Progress Pack tools." },
     { key: "settings", label: "Settings", desc: "App preferences." },
     { key: "diagnostics", label: "Diagnostics", desc: "Validation and debug output." }

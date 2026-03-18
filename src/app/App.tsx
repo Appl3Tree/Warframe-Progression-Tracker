@@ -17,7 +17,6 @@ import Diagnostics from "../pages/Diagnostics";
 import Mods from "../pages/Mods";
 import Challenges from "../pages/Challenges";
 import Intrinsics from "../pages/Intrinsics";
-import WorldState from "../pages/WorldState";
 
 const PAGE_COMPONENTS: Record<PageKey, React.ReactNode> = {
     dashboard: <Dashboard />,
@@ -34,7 +33,7 @@ const PAGE_COMPONENTS: Record<PageKey, React.ReactNode> = {
     mods: <Mods />,
     challenges: <Challenges />,
     intrinsics: <Intrinsics />,
-    worldstate: <WorldState />,
+
 };
 
 export default function App() {

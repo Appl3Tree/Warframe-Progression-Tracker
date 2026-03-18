@@ -216,15 +216,6 @@ const ALL_TASKS: TaskDef[] = [
     { id: "conclave_weekly_challenges", label: "Conclave Weekly Challenges", bucket: "conclave", conclaveSub: "conclave_weekly", description: "Finish this week's Conclave weekly challenges.", prereqIds: [PR.HUB_RELAY] },
 ];
 
-function getTimedRef(mode: TimeMode) {
-    return [
-        { id: "tenet", label: "Tenet Weapon Bonus", detail: `Rotates every 4 days at ${fmtFixedUTC(0, 0, mode)}.` },
-        { id: "bounty", label: "Bounty Rotation", detail: "Every 2h 30m — Cetus, Fortuna, Cambion, Zariman, Sanctum." },
-        { id: "plains", label: "Plains of Eidolon", detail: "150-min cycle: ~100m day, ~50m night." },
-        { id: "vallis", label: "Orb Vallis", detail: "26m 40s warm / 20m cold." },
-        { id: "cambion", label: "Cambion Drift", detail: "150-min Fass/Vome cycle." },
-    ];
-}
 
 function getMonthlyRef(mode: TimeMode) {
     return [{ id: "prime", label: "Prime Resurgence", detail: `Approximate monthly rotation ~${fmtFixedUTC(18, 0, mode)}. Reference only.` }];
@@ -1330,12 +1321,11 @@ export default function WarframeResetTracker() {
                 />
             )}
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <RefSection
                     title="Bi-Weekly"
                     rows={[{ id: "baro", label: baro.label, detail: baro.detail, highlight: baro.present }]}
                 />
-                <RefSection title="Timed Rotations" rows={getTimedRef(rc.timeMode)} />
                 <RefSection title="Monthly Reference" rows={getMonthlyRef(rc.timeMode)} />
                 <RefSection title="Event-Driven" rows={EVENT_REF} />
             </div>

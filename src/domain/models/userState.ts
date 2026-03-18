@@ -20,8 +20,7 @@ export type PageKey =
     | "starchart"
     | "mods"
     | "challenges"
-    | "intrinsics"
-    | "worldstate";
+    | "intrinsics";
 
 export interface UserMetaV2 {
     schemaVersion: 2;
