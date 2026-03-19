@@ -608,10 +608,209 @@ function WsChip({ children, color = "text-slate-400", bg = "bg-slate-800/60", bo
     );
 }
 
-/** Build the per-task world state hint map from live data */
-function buildWorldStateHints(data: WorldStateData | null): Record<string, React.ReactNode> {
-    if (!data) return {};
-    const hints: Record<string, React.ReactNode> = {};
+// ─── Calendar helpers + modal ────────────────────────────────────────────────────
+
+const CAL_EVENT_META: Record<string, { dot: string; label: string; textColor: string }> = {
+    "To Do":      { dot: "bg-sky-400",    label: "To Do",      textColor: "text-sky-300"    },
+    "Big Prize!": { dot: "bg-amber-400",  label: "Big Prize!", textColor: "text-amber-300"  },
+    "Override":   { dot: "bg-violet-400", label: "Override",   textColor: "text-violet-300" },
+};
+
+type CalEntry = { dayIndex: number; date: Date; events: Record<string, string | undefined> };
+type MonthGroup = { key: string; label: string; startDow: number; daysInMonth: number; entries: Map<number, CalEntry> };
+
+function parseCalDate(dateStr: string): Date | null {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
+}
+
+function groupCalendarByMonth(days: NonNullable<WorldStateData["calendar"]>["days"]): MonthGroup[] {
+    const groups = new Map<string, MonthGroup>();
+    days.forEach((day, idx) => {
+        const d = parseCalDate(day.date);
+        if (!d) return;
+        const year = d.getUTCFullYear();
+        const month = d.getUTCMonth();
+        const key = `${year}-${String(month + 1).padStart(2, "0")}`;
+        if (!groups.has(key)) {
+            const firstOfMonth = new Date(Date.UTC(year, month, 1));
+            const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+            const label = firstOfMonth.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+            groups.set(key, { key, label, startDow: firstOfMonth.getUTCDay(), daysInMonth, entries: new Map() });
+        }
+        groups.get(key)!.entries.set(d.getUTCDate(), { dayIndex: idx, date: d, events: day.events });
+    });
+    return Array.from(groups.values()).sort((a, b) => a.key.localeCompare(b.key));
+}
+
+const DOW_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+function TrackerCalendarModal({ calendar, onClose }: {
+    calendar: NonNullable<WorldStateData["calendar"]>;
+    onClose: () => void;
+}) {
+    const [selectedEntry, setSelectedEntry] = useState<CalEntry | null>(null);
+    const months = useMemo(() => groupCalendarByMonth(calendar.days ?? []), [calendar.days]);
+    const todayDayIndex = calendar.currentDay !== undefined ? Number(calendar.currentDay) : -1;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div
+                className="relative z-10 rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 sticky top-0 bg-slate-950 z-10">
+                    <div>
+                        <div className="text-base font-semibold text-slate-100">1999 Calendar Season</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Weekly challenges, prizes, and Hex Override choices</div>
+                    </div>
+                    <button onClick={onClose} className="text-slate-500 hover:text-slate-300 p-1 rounded-lg hover:bg-slate-800 transition-colors">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                    </button>
+                </div>
+
+                {/* Legend */}
+                <div className="flex items-center gap-5 px-5 py-2.5 border-b border-slate-800/50 bg-slate-950/80">
+                    {Object.entries(CAL_EVENT_META).map(([key, meta]) => (
+                        <div key={key} className="flex items-center gap-1.5">
+                            <div className={`w-2 h-2 rounded-full ${meta.dot}`} />
+                            <span className={`text-[11px] ${meta.textColor}`}>{meta.label}</span>
+                        </div>
+                    ))}
+                    <span className="ml-auto text-[11px] text-slate-600">Click a day for details</span>
+                </div>
+
+                {/* Month grids */}
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {months.map((month) => (
+                        <div key={month.key}>
+                            <div className="text-sm font-semibold text-slate-300 mb-3">{month.label}</div>
+                            <div className="grid grid-cols-7 mb-1">
+                                {DOW_LABELS.map((l) => (
+                                    <div key={l} className="text-center text-[10px] text-slate-600 font-medium py-1">{l}</div>
+                                ))}
+                            </div>
+                            <div className="grid grid-cols-7 gap-0.5">
+                                {Array.from({ length: month.startDow }, (_, i) => (
+                                    <div key={`blank-${i}`} />
+                                ))}
+                                {Array.from({ length: month.daysInMonth }, (_, i) => {
+                                    const dayNum = i + 1;
+                                    const entry = month.entries.get(dayNum);
+                                    const isToday = entry?.dayIndex === todayDayIndex;
+                                    const isSelected = selectedEntry != null && selectedEntry.dayIndex === entry?.dayIndex;
+                                    const eventKeys = entry ? Object.entries(entry.events).filter(([, v]) => v).map(([k]) => k) : [];
+                                    return (
+                                        <button
+                                            key={dayNum}
+                                            onClick={() => entry && setSelectedEntry(isSelected ? null : entry)}
+                                            disabled={!entry}
+                                            className={[
+                                                "relative flex flex-col items-center rounded-lg py-1 px-0.5 min-h-[40px] transition-colors",
+                                                entry ? "hover:bg-slate-800 cursor-pointer" : "cursor-default",
+                                                isToday ? "ring-1 ring-blue-500/60 bg-slate-800/70" : "",
+                                                isSelected ? "bg-slate-700 ring-1 ring-slate-500" : "",
+                                            ].join(" ")}
+                                        >
+                                            <span className={`text-[11px] font-medium ${isToday ? "text-blue-300" : entry ? "text-slate-300" : "text-slate-700"}`}>
+                                                {dayNum}
+                                            </span>
+                                            {eventKeys.length > 0 && (
+                                                <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
+                                                    {eventKeys.map((k) => (
+                                                        <div key={k} className={`w-1.5 h-1.5 rounded-full ${CAL_EVENT_META[k]?.dot ?? "bg-slate-500"}`} />
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Selected day detail */}
+                {selectedEntry && (
+                    <div className="border-t border-slate-800 px-5 py-4 bg-slate-900/40">
+                        <div className="text-xs font-medium text-slate-400 mb-3">
+                            {selectedEntry.date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}
+                        </div>
+                        <div className="space-y-2">
+                            {Object.entries(selectedEntry.events).filter(([, v]) => v).map(([type, value]) => {
+                                const meta = CAL_EVENT_META[type];
+                                return (
+                                    <div key={type} className="rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5">
+                                        <div className="flex items-center gap-1.5 mb-1">
+                                            {meta && <div className={`w-2 h-2 rounded-full ${meta.dot}`} />}
+                                            <div className={`text-xs font-semibold ${meta?.textColor ?? "text-slate-400"}`}>{type}</div>
+                                        </div>
+                                        <div className="text-sm text-slate-200 leading-snug">{value}</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function CalendarHint({ calendar }: { calendar: NonNullable<WorldStateData["calendar"]> }) {
+    const [open, setOpen] = useState(false);
+    const todayIdx = calendar.currentDay !== undefined ? Number(calendar.currentDay) : -1;
+    const today = todayIdx >= 0 && todayIdx < calendar.days.length ? calendar.days[todayIdx] : null;
+    const todayEventKeys = today ? Object.entries(today.events).filter(([, v]) => v).map(([k]) => k) : [];
+
+    return (
+        <>
+            <div className="mt-1.5 flex items-center gap-2 flex-wrap">
+                {todayEventKeys.length > 0 ? (
+                    todayEventKeys.map((k) => {
+                        const meta = CAL_EVENT_META[k];
+                        return meta ? (
+                            <div key={k} className="flex items-center gap-1">
+                                <div className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
+                                <span className={`text-[9px] ${meta.textColor}`}>{meta.label}</span>
+                            </div>
+                        ) : null;
+                    })
+                ) : (
+                    <span className="text-[9px] text-slate-600">No events today</span>
+                )}
+                <button
+                    onClick={(e) => { e.stopPropagation(); setOpen(true); }}
+                    className="ml-auto flex items-center gap-1 text-[9px] text-slate-500 hover:text-slate-300 border border-slate-700 hover:border-slate-500 rounded px-1.5 py-0.5 transition-colors"
+                >
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.75" />
+                        <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+                    </svg>
+                    View calendar
+                </button>
+            </div>
+            {open && <TrackerCalendarModal calendar={calendar} onClose={() => setOpen(false)} />}
+        </>
+    );
+}
+
+type HintMaps = { inline: Record<string, React.ReactNode>; expandable: Record<string, React.ReactNode> };
+
+/** Build per-task world state hint maps from live data.
+ *  `inline`     — always visible (e.g. calendar button)
+ *  `expandable` — revealed by chevron (missions, acts, choices, etc.)
+ */
+function buildWorldStateHints(data: WorldStateData | null): HintMaps {
+    if (!data) return { inline: {}, expandable: {} };
+    const inline: Record<string, React.ReactNode> = {};
+    const expandable: Record<string, React.ReactNode> = {};
+    const hints = expandable; // all non-calendar hints go into expandable
 
     // ── Sortie ──────────────────────────────────────────────────────────────────
     if (data.sortie && !data.sortie.expired) {
@@ -749,30 +948,9 @@ function buildWorldStateHints(data: WorldStateData | null): Record<string, React
         );
     }
 
-    // ── 1999 Calendar — today's events ───────────────────────────────────────────
+    // ── 1999 Calendar — inline CalendarHint with modal ──────────────────────────
     if (data.calendar?.days?.length) {
-        const cal = data.calendar;
-        const idx = cal.currentDay !== undefined ? Number(cal.currentDay) : -1;
-        const today = idx >= 0 && idx < cal.days.length ? cal.days[idx] : null;
-        const entries = today ? Object.entries(today.events).filter(([, v]) => v) : [];
-
-        if (entries.length > 0) {
-            const ICON: Record<string, string> = { "To Do": "📋", "Big Prize!": "🏆", "Override": "⚡" };
-            const COLOR: Record<string, string> = { "To Do": "text-sky-300", "Big Prize!": "text-amber-300", "Override": "text-violet-300" };
-            hints["calendar_1999"] = (
-                <div className="mt-1.5 space-y-1">
-                    {today?.date && <div className="text-[9px] text-slate-500">{today.date}</div>}
-                    {entries.map(([type, value]) => (
-                        <div key={type} className="rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1">
-                            <div className={`text-[9px] font-semibold mb-0.5 ${COLOR[type] ?? "text-slate-400"}`}>
-                                {ICON[type] ?? ""} {type}
-                            </div>
-                            <div className="text-[10px] text-slate-300">{value}</div>
-                        </div>
-                    ))}
-                </div>
-            );
-        }
+        inline["calendar_1999"] = <CalendarHint calendar={data.calendar} />;
     }
 
     // ── Steel Path Honor ─────────────────────────────────────────────────────────
@@ -796,7 +974,16 @@ function buildWorldStateHints(data: WorldStateData | null): Record<string, React
         );
     }
 
-    return hints;
+    return { inline, expandable };
+}
+
+// Chevron icon used by expand/collapse buttons
+function ChevronDown({ className }: { className?: string }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
 }
 
 // Renders a flat list of tasks for a single sub-section
@@ -806,16 +993,28 @@ function TaskList({
     onToggle,
     netracellRuns,
     onNetracellChange,
-    hints,
+    inlineHints,
+    expandableHints,
 }: {
     tasks: TaskDef[];
     completedIds: string[];
     onToggle: (id: string) => void;
     netracellRuns?: number;
     onNetracellChange?: (n: number) => void;
-    hints?: Record<string, React.ReactNode>;
+    inlineHints?: Record<string, React.ReactNode>;
+    expandableHints?: Record<string, React.ReactNode>;
 }) {
+    const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
     const runs = netracellRuns ?? 0;
+
+    const toggleExpand = (id: string) => {
+        setExpandedIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
 
     const pending = tasks.filter((t) => getTaskRenderState(t, completedIds, runs) === "pending");
     const completed = tasks.filter((t) => getTaskRenderState(t, completedIds, runs) !== "pending");
@@ -827,6 +1026,65 @@ function TaskList({
             </div>
         );
     }
+
+    const renderTaskBody = (
+        t: TaskDef,
+        description: string,
+        labelClass: string,
+        checkboxNode: React.ReactNode,
+        outerClass: string,
+        onClickToggle?: () => void,
+    ) => {
+        const hasExpandable = !!expandableHints?.[t.id];
+        const isExpanded = expandedIds.has(t.id);
+        const hasInline = !!inlineHints?.[t.id];
+
+        return (
+            <div key={t.id} className={`rounded-xl border transition-colors w-full overflow-hidden ${outerClass}`}>
+                <div className="flex items-start">
+                    {onClickToggle ? (
+                        <button
+                            className="flex items-start gap-2.5 flex-1 min-w-0 px-3 py-2.5 text-left"
+                            onClick={onClickToggle}
+                        >
+                            {checkboxNode}
+                            <div className="min-w-0 flex-1">
+                                <div className={`text-sm font-medium leading-tight ${labelClass}`}>{t.label}</div>
+                                <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
+                            </div>
+                        </button>
+                    ) : (
+                        <div className="flex items-start gap-2.5 flex-1 min-w-0 px-3 py-2.5">
+                            {checkboxNode}
+                            <div className="min-w-0 flex-1">
+                                <div className={`text-sm font-medium leading-tight ${labelClass}`}>{t.label}</div>
+                                <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
+                            </div>
+                        </div>
+                    )}
+                    {hasExpandable && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); toggleExpand(t.id); }}
+                            className="flex-shrink-0 px-2 py-3 text-slate-600 hover:text-slate-400 transition-colors self-start"
+                            title={isExpanded ? "Hide details" : "Show details"}
+                        >
+                            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${isExpanded ? "rotate-180" : ""}`} />
+                        </button>
+                    )}
+                </div>
+                {hasInline && (
+                    <div className="px-3 pb-2.5">
+                        {inlineHints![t.id]}
+                    </div>
+                )}
+                {hasExpandable && isExpanded && (
+                    <div className="px-3 pb-2.5 pt-1.5 border-t border-slate-800/60">
+                        {expandableHints![t.id]}
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
@@ -844,19 +1102,13 @@ function TaskList({
                     );
                 }
 
-                return (
-                    <button
-                        key={t.id}
-                        className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl border border-transparent hover:border-slate-700 hover:bg-slate-900/50 text-left transition-colors w-full"
-                        onClick={() => onToggle(t.id)}
-                    >
-                        <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-slate-600 bg-slate-900" />
-                        <div className="min-w-0 flex-1">
-                            <div className="text-sm font-medium text-slate-200 leading-tight">{t.label}</div>
-                            <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
-                            {hints?.[t.id]}
-                        </div>
-                    </button>
+                return renderTaskBody(
+                    t,
+                    description,
+                    "text-slate-200",
+                    <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-slate-600 bg-slate-900" />,
+                    "border-transparent hover:border-slate-700 hover:bg-slate-900/50",
+                    () => onToggle(t.id),
                 );
             })}
 
@@ -884,39 +1136,29 @@ function TaskList({
                 }
 
                 if (state === "auto_blocked") {
-                    return (
-                        <div
-                            key={t.id}
-                            className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl border border-amber-900/30 bg-amber-950/10 text-left w-full opacity-80"
-                        >
-                            <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-amber-800/50 bg-amber-950/20 flex items-center justify-center">
-                                <svg className="w-3 h-3 text-amber-400" viewBox="0 0 24 24" fill="none">
-                                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" />
-                                </svg>
-                            </div>
-                            <div className="min-w-0">
-                                <div className="text-sm font-medium text-amber-300 leading-tight line-through">{t.label}</div>
-                                <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
-                            </div>
-                        </div>
+                    return renderTaskBody(
+                        t,
+                        description,
+                        "text-amber-300 line-through",
+                        <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-amber-800/50 bg-amber-950/20 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-amber-400" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" />
+                            </svg>
+                        </div>,
+                        "border-amber-900/30 bg-amber-950/10 opacity-80",
+                        undefined, // no toggle
                     );
                 }
 
-                return (
-                    <button
-                        key={t.id}
-                        className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl border border-emerald-900/30 bg-emerald-950/10 text-left transition-colors w-full opacity-70 hover:opacity-100"
-                        onClick={() => onToggle(t.id)}
-                    >
-                        <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-emerald-800 bg-emerald-950/30 flex items-center justify-center">
-                            <CheckIcon />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <div className="text-sm font-medium text-emerald-500 leading-tight">{t.label}</div>
-                            <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
-                            {hints?.[t.id]}
-                        </div>
-                    </button>
+                return renderTaskBody(
+                    t,
+                    description,
+                    "text-emerald-500",
+                    <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-emerald-800 bg-emerald-950/30 flex items-center justify-center">
+                        <CheckIcon />
+                    </div>,
+                    "border-emerald-900/30 bg-emerald-950/10 opacity-70 hover:opacity-100",
+                    () => onToggle(t.id),
                 );
             })}
         </div>
@@ -934,7 +1176,8 @@ function TaskPanel({
     timeMode,
     netracellRuns,
     onNetracellChange,
-    hints,
+    inlineHints,
+    expandableHints,
 }: {
     bucket: Bucket;
     tasks: TaskDef[];
@@ -945,7 +1188,8 @@ function TaskPanel({
     timeMode: TimeMode;
     netracellRuns?: number;
     onNetracellChange?: (n: number) => void;
-    hints?: Record<string, React.ReactNode>;
+    inlineHints?: Record<string, React.ReactNode>;
+    expandableHints?: Record<string, React.ReactNode>;
 }) {
     const runs = netracellRuns ?? 0;
     const done = getCompletedTaskCount(tasks, completedIds, runs);
@@ -982,7 +1226,8 @@ function TaskPanel({
                         onToggle={onToggle}
                         netracellRuns={netracellRuns}
                         onNetracellChange={onNetracellChange}
-                        hints={hints}
+                        inlineHints={inlineHints}
+                        expandableHints={expandableHints}
                     />
                 </div>
             )}
@@ -1004,7 +1249,8 @@ function ConclavePanel({
     onToggleWeekly,
     onClearDaily,
     onClearWeekly,
-    hints,
+    inlineHints,
+    expandableHints,
 }: {
     dailyTasks: TaskDef[];
     weeklyTasks: TaskDef[];
@@ -1018,7 +1264,8 @@ function ConclavePanel({
     onToggleWeekly: (id: string) => void;
     onClearDaily: () => void;
     onClearWeekly: () => void;
-    hints?: Record<string, React.ReactNode>;
+    inlineHints?: Record<string, React.ReactNode>;
+    expandableHints?: Record<string, React.ReactNode>;
 }) {
     const dailyDone = getCompletedTaskCount(dailyTasks, completedDailyIds, 0);
     const weeklyDone = getCompletedTaskCount(weeklyTasks, completedWeeklyIds, 0);
@@ -1057,7 +1304,7 @@ function ConclavePanel({
                             </button>
                         </div>
                     </div>
-                    <TaskList tasks={dailyTasks} completedIds={completedDailyIds} onToggle={onToggleDaily} hints={hints} />
+                    <TaskList tasks={dailyTasks} completedIds={completedDailyIds} onToggle={onToggleDaily} inlineHints={inlineHints} expandableHints={expandableHints} />
                 </div>
 
                 <div className="h-px bg-slate-800" />
@@ -1078,7 +1325,7 @@ function ConclavePanel({
                             </button>
                         </div>
                     </div>
-                    <TaskList tasks={weeklyTasks} completedIds={completedWeeklyIds} onToggle={onToggleWeekly} hints={hints} />
+                    <TaskList tasks={weeklyTasks} completedIds={completedWeeklyIds} onToggle={onToggleWeekly} inlineHints={inlineHints} expandableHints={expandableHints} />
                 </div>
             </div>
         </div>
@@ -1246,7 +1493,7 @@ export default function WarframeResetTracker() {
 
     const nextResets = useMemo(() => getNextResets(now), [now]);
     const baro = useMemo(() => getBaroStatus(now, rc.timeMode), [now, rc.timeMode]);
-    const wsHints = useMemo(() => buildWorldStateHints(wsData), [wsData]);
+    const { inline: wsInlineHints, expandable: wsExpandableHints } = useMemo(() => buildWorldStateHints(wsData), [wsData]);
 
     const completedIds = useMemo((): Record<Exclude<Bucket, "conclave">, string[]> & { conclave_daily: string[]; conclave_weekly: string[] } => {
         const keys = getCurrentKeys(now);
@@ -1557,7 +1804,8 @@ export default function WarframeResetTracker() {
                     onToggleWeekly={(id) => toggleStandard(id, "completedConclaveWeeklyTaskIds")}
                     onClearDaily={() => clearBucket("completedConclaveDailyTaskIds")}
                     onClearWeekly={() => clearBucket("completedConclaveWeeklyTaskIds")}
-                    hints={wsHints}
+                    inlineHints={wsInlineHints}
+                    expandableHints={wsExpandableHints}
                 />
             ) : (
                 <TaskPanel
@@ -1570,7 +1818,8 @@ export default function WarframeResetTracker() {
                     timeMode={rc.timeMode}
                     netracellRuns={rc.netracellRuns}
                     onNetracellChange={(n) => setRc((p) => ({ ...p, netracellRuns: n }))}
-                    hints={wsHints}
+                    inlineHints={wsInlineHints}
+                    expandableHints={wsExpandableHints}
                 />
             )}
 
