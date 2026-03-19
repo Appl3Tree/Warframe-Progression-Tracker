@@ -110,6 +110,18 @@ export type VaultTrader = {
     expiry: string;
 };
 
+export type WsEventReward = {
+    asString: string;
+    items: string[];
+    countedItems: Array<{ type: string; count: number }>;
+    credits: number;
+};
+
+export type WsEventInterimStep = {
+    goal: number;
+    reward: WsEventReward;
+};
+
 export type WsEvent = {
     id: string;
     description: string;
@@ -117,7 +129,15 @@ export type WsEvent = {
     expiry: string;
     active: boolean;
     health?: number;
-    rewards?: Array<{ asString: string }>;
+    node?: string;
+    victimNode?: string;
+    affiliatedWith?: string;
+    currentScore?: number;
+    maximumScore?: number;
+    scoreLocTag?: string;
+    tag?: string;
+    rewards: WsEventReward[];
+    interimSteps: WsEventInterimStep[];
 };
 
 export type InvasionReward = {
@@ -440,7 +460,48 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                 vaultTrader: j.vaultTrader ?? null,
 
                 events: Array.isArray(j.events)
-                    ? (j.events as WsEvent[]).filter((e) => e.active !== false)
+                    ? (j.events as any[]).filter((e) => e.active !== false).map((e): WsEvent => {
+                        function buildEvReward(r: any): WsEventReward {
+                            if (!r) return { asString: "", items: [], countedItems: [], credits: 0 };
+                            const items: string[] = Array.isArray(r.items) ? r.items.filter(Boolean) : [];
+                            const countedItems: Array<{ type: string; count: number }> = Array.isArray(r.countedItems)
+                                ? r.countedItems.filter((ci: any) => ci?.type || ci?.key).map((ci: any) => ({ type: ci.type ?? ci.key ?? "", count: ci.count ?? 1 }))
+                                : [];
+                            const parts = [
+                                ...countedItems.map((ci) => ci.count > 1 ? `${ci.count}x ${ci.type}` : ci.type),
+                                ...items,
+                            ];
+                            const credits = r.credits ?? 0;
+                            if (parts.length === 0 && credits > 0) parts.push(`${credits.toLocaleString()} Credits`);
+                            return { asString: parts.join(", "), items, countedItems, credits };
+                        }
+                        const rewards: WsEventReward[] = Array.isArray(e.rewards)
+                            ? e.rewards.map(buildEvReward).filter((r: WsEventReward) => r.asString)
+                            : [];
+                        const interimSteps: WsEventInterimStep[] = Array.isArray(e.interimSteps)
+                            ? e.interimSteps.filter((s: any) => s?.goal != null).map((s: any) => ({
+                                goal: s.goal,
+                                reward: buildEvReward(s.reward),
+                            }))
+                            : [];
+                        return {
+                            id: e.id ?? "",
+                            description: e.description ?? "",
+                            tooltip: e.tooltip ?? "",
+                            expiry: e.expiry ?? "",
+                            active: e.active !== false,
+                            health: typeof e.health === "number" ? e.health : undefined,
+                            node: e.node ?? e.victimNode ?? undefined,
+                            victimNode: e.victimNode ?? undefined,
+                            affiliatedWith: e.affiliatedWith ?? undefined,
+                            currentScore: typeof e.currentScore === "number" ? e.currentScore : undefined,
+                            maximumScore: typeof e.maximumScore === "number" ? e.maximumScore : undefined,
+                            scoreLocTag: e.scoreLocTag ?? undefined,
+                            tag: e.tag ?? undefined,
+                            rewards,
+                            interimSteps,
+                        };
+                    })
                     : [],
 
                 invasions: Array.isArray(j.invasions)
