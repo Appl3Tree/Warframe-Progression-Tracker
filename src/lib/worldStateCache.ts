@@ -404,7 +404,14 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                                     ? Object.fromEntries(
                                         (d.jobs as any[]).map((job: any) => [job.type ?? job.name, job.reward ?? job.description ?? ""])
                                       )
-                                    : (d.events && typeof d.events === "object" ? d.events : {}),
+                                    : (d.events && typeof d.events === "object"
+                                        ? Object.fromEntries(
+                                            Object.entries(d.events).map(([k, v]: [string, any]) => [
+                                                k,
+                                                typeof v === "string" ? v : (v?.challenge ?? v?.type ?? JSON.stringify(v)),
+                                            ])
+                                        )
+                                        : {}),
                             }))
                             : [],
                         currentDay: j.calendar.currentDay ?? j.calendar.activeDayIndex,
