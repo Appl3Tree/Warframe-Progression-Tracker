@@ -287,8 +287,31 @@ function CalendarModal({ calendar, onClose }: { calendar: Calendar; onClose: () 
                                                         </div>
                                                         {ev.title && <div className="text-xs text-slate-200 font-medium">{ev.title}</div>}
                                                         {ev.description && <div className="text-[10px] text-slate-400 mt-0.5">{ev.description}</div>}
-                                                        {ev.reward && (
+                                                        {ev.variants.length > 0 && (
+                                                            <div className="mt-1 space-y-0.5">
+                                                                {ev.variants.map((v, vi) => (
+                                                                    <div key={vi} className="text-[10px] text-slate-400">
+                                                                        {v.label && <span className="text-slate-300 font-medium">{v.label}</span>}
+                                                                        {v.label && v.detail ? " · " : ""}
+                                                                        {v.detail}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                        {Object.entries(ev.extras).map(([k, v]) => (
+                                                            <div key={k} className="mt-0.5 text-[10px] text-slate-500">
+                                                                <span className="capitalize">{k.replace(/([A-Z])/g, " $1").trim()}: </span>
+                                                                <span className="text-slate-300">{v}</span>
+                                                            </div>
+                                                        ))}
+                                                        {ev.standing && (
                                                             <div className="mt-1 flex items-center gap-1">
+                                                                <span className="text-[9px] text-slate-500">Standing:</span>
+                                                                <span className="text-[9px] text-cyan-300 font-medium">{ev.standing}</span>
+                                                            </div>
+                                                        )}
+                                                        {ev.reward && (
+                                                            <div className="mt-0.5 flex items-center gap-1">
                                                                 <span className="text-[9px] text-slate-500">Reward:</span>
                                                                 <span className="text-[9px] text-amber-300 font-medium">{ev.reward}</span>
                                                             </div>

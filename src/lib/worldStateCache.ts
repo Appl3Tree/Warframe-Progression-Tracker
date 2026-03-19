@@ -202,11 +202,19 @@ export type Archimedea = {
 
 // ── 1999 Calendar ─────────────────────────────────────────────────────────────
 
+export type CalendarEventVariant = {
+    label: string;   // node name, hex name, choice name
+    detail: string;  // mission type, modifier, description
+};
+
 export type CalendarEvent = {
     type: string;        // normalized: "To Do" | "Big Prize!" | "Override" | raw API value
     title: string;
     description: string;
     reward: string;      // human-readable reward (e.g. "Credits ×500", item name)
+    standing: string;    // syndicate standing reward if present
+    variants: CalendarEventVariant[];   // Override choices, challenge variants, etc.
+    extras: Record<string, string>;     // any remaining useful named fields from the API
 };
 
 export type CalendarDay = {
@@ -262,13 +270,68 @@ function _normCalEvents(d: any): CalendarEvent[] {
         }
         return String(v);
     };
+    // Coerce variants/choices arrays into a flat label+detail list
+    const toVariants = (v: any): CalendarEventVariant[] => {
+        if (!v || !Array.isArray(v)) return [];
+        return v.map((item: any) => ({
+            label: toStr(item.node ?? item.hex ?? item.label ?? item.name ?? item.type ?? ""),
+            detail: [
+                toStr(item.type ?? item.missionType ?? item.modifier ?? ""),
+                item.modifier && item.type !== item.modifier ? toStr(item.modifier) : "",
+                toStr(item.description ?? item.text ?? ""),
+            ].filter(Boolean).join(" · "),
+        })).filter((v) => v.label || v.detail);
+    };
+    // Known fields we handle explicitly; everything else goes to extras
+    const KNOWN = new Set(["type","category","kind","title","name","description","challenge","text","reward","rewards","prize","standing","variants","jobs","events","expired","expiry","activation","id","node","tag"]);
+    const toExtras = (raw: any): Record<string, string> => {
+        const out: Record<string, string> = {};
+        for (const [k, v] of Object.entries(raw)) {
+            if (KNOWN.has(k) || v == null) continue;
+            const s = toStr(v);
+            if (s && s !== "[object Object]") out[k] = s;
+        }
+        return out;
+    };
     const toEv = (raw: any): CalendarEvent => {
         const typeRaw = String(raw.type ?? raw.category ?? raw.kind ?? "");
+        // Description: try many field names the API might use
+        const desc = toStr(
+            raw.description ?? raw.challenge ?? raw.text ?? raw.objective ??
+            raw.goal ?? raw.mandate ?? raw.shortDescription ?? raw.descriptionShort ?? ""
+        );
+        // Reward: probe multiple possible locations
+        const rewardRaw = raw.reward ?? raw.rewards ?? raw.prize ?? raw.completionReward ?? raw.weeklyReward ?? "";
+        // Nested jobs/challenges within a single event (e.g. weekly To Do with multiple tasks)
+        const innerEvents: CalendarEvent[] = (raw.jobs && Array.isArray(raw.jobs) && raw.jobs.length > 0)
+            ? raw.jobs.map(toEv)
+            : (raw.challenges && Array.isArray(raw.challenges) && raw.challenges.length > 0)
+                ? raw.challenges.map(toEv)
+                : [];
+        if (innerEvents.length > 0) {
+            // Wrap multi-task events: parent type becomes the container, merge children in as variants
+            const merged = innerEvents.reduce<CalendarEventVariant[]>((acc, ev) => {
+                acc.push({ label: ev.title, detail: [ev.description, ev.reward].filter(Boolean).join(" — ") });
+                return acc;
+            }, []);
+            return {
+                type: _normEvType(typeRaw),
+                title: toStr(raw.title ?? raw.name ?? typeRaw),
+                description: desc,
+                reward: toReward(rewardRaw),
+                standing: raw.standing != null ? String(raw.standing) : "",
+                variants: merged.length > 0 ? merged : toVariants(raw.variants),
+                extras: toExtras(raw),
+            };
+        }
         return {
             type: _normEvType(typeRaw),
             title: toStr(raw.title ?? raw.name ?? typeRaw),
-            description: toStr(raw.description ?? raw.challenge ?? raw.text ?? ""),
-            reward: toReward(raw.reward ?? raw.rewards?.[0] ?? raw.prize ?? ""),
+            description: desc,
+            reward: toReward(rewardRaw),
+            standing: raw.standing != null ? String(raw.standing) : "",
+            variants: toVariants(raw.variants ?? raw.choices ?? raw.options ?? []),
+            extras: toExtras(raw),
         };
     };
     if (d.jobs && Array.isArray(d.jobs)) return (d.jobs as any[]).map(toEv);
@@ -276,8 +339,8 @@ function _normCalEvents(d: any): CalendarEvent[] {
     if (d.events && typeof d.events === "object") {
         return Object.entries(d.events).map(([k, v]: [string, any]) =>
             typeof v === "string"
-                ? { type: _normEvType(k), title: k, description: v, reward: "" }
-                : { type: _normEvType(v?.type ?? k), title: toStr(v?.title ?? v?.name ?? k), description: toStr(v?.description ?? v?.challenge ?? ""), reward: toReward(v?.reward ?? v?.rewards?.[0] ?? "") }
+                ? { type: _normEvType(k), title: k, description: v, reward: "", standing: "", variants: [], extras: {} }
+                : { type: _normEvType(v?.type ?? k), title: toStr(v?.title ?? v?.name ?? k), description: toStr(v?.description ?? v?.challenge ?? ""), reward: toReward(v?.reward ?? v?.rewards?.[0] ?? ""), standing: v?.standing != null ? String(v.standing) : "", variants: toVariants(v?.variants ?? []), extras: toExtras(v ?? {}) }
         );
     }
     return [];
