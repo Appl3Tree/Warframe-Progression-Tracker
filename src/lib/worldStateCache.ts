@@ -202,9 +202,15 @@ export type Archimedea = {
 
 // ── 1999 Calendar ─────────────────────────────────────────────────────────────
 
+export type CalendarEvent = {
+    type: string;        // normalized: "To Do" | "Big Prize!" | "Override" | raw API value
+    title: string;
+    description: string;
+};
+
 export type CalendarDay = {
-    date: string;                  // in-game 1999 date string
-    events: Record<string, string>; // "To Do", "Big Prize!", "Override", etc.
+    date: string;
+    events: CalendarEvent[];
 };
 
 export type Calendar = {
@@ -212,6 +218,36 @@ export type Calendar = {
     currentDay?: string;
     season?: string;
 };
+
+// Maps raw API type strings → canonical display types used by CAL_EVENT_META
+const _EV_TYPE_MAP: Record<string, string> = {
+    challenge: "To Do", todo: "To Do", weekly: "To Do", mission: "To Do",
+    prize: "Big Prize!", reward: "Big Prize!", jackpot: "Big Prize!",
+    HexOverride: "Override", hexoverride: "Override", override: "Override",
+};
+function _normEvType(raw: string): string {
+    return _EV_TYPE_MAP[raw] ?? _EV_TYPE_MAP[raw.toLowerCase()] ?? raw;
+}
+function _normCalEvents(d: any): CalendarEvent[] {
+    const toEv = (raw: any): CalendarEvent => {
+        const typeRaw = String(raw.type ?? raw.category ?? raw.kind ?? "");
+        return {
+            type: _normEvType(typeRaw),
+            title: raw.title ?? raw.name ?? typeRaw,
+            description: raw.description ?? raw.challenge ?? raw.text ?? "",
+        };
+    };
+    if (d.jobs && Array.isArray(d.jobs)) return (d.jobs as any[]).map(toEv);
+    if (d.events && Array.isArray(d.events)) return (d.events as any[]).map(toEv);
+    if (d.events && typeof d.events === "object") {
+        return Object.entries(d.events).map(([k, v]: [string, any]) =>
+            typeof v === "string"
+                ? { type: _normEvType(k), title: k, description: v }
+                : { type: _normEvType(v?.type ?? k), title: v?.title ?? v?.name ?? k, description: v?.description ?? v?.challenge ?? "" }
+        );
+    }
+    return [];
+}
 
 // ── Simaris ───────────────────────────────────────────────────────────────────
 
@@ -399,23 +435,7 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                         days: Array.isArray(j.calendar.days)
                             ? j.calendar.days.map((d: any) => ({
                                 date: d.date ?? d.day ?? String(d.dayNumber ?? ""),
-                                events: (d.jobs && Array.isArray(d.jobs))
-                                    // Some API versions use a jobs array
-                                    ? Object.fromEntries(
-                                        (d.jobs as any[]).map((job: any) => {
-                                            const raw = job.reward ?? job.description ?? "";
-                                            const val = typeof raw === "string" ? raw : (raw?.title ?? raw?.description ?? raw?.name ?? JSON.stringify(raw));
-                                            return [job.type ?? job.name, val];
-                                        })
-                                      )
-                                    : (d.events && typeof d.events === "object"
-                                        ? Object.fromEntries(
-                                            Object.entries(d.events).map(([k, v]: [string, any]) => [
-                                                k,
-                                                typeof v === "string" ? v : (v?.title ?? v?.description ?? v?.challenge ?? v?.type ?? JSON.stringify(v)),
-                                            ])
-                                        )
-                                        : {}),
+                                events: _normCalEvents(d),
                             }))
                             : [],
                         currentDay: j.calendar.currentDay ?? j.calendar.activeDayIndex,
