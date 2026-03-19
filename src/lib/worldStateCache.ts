@@ -253,9 +253,16 @@ function _birthdayName(dialogueName: string): string {
 }
 
 // Hardcoded 1999 character birthdays (MM-DD → name) for dates the API returns with empty events
+// Source: Steam guide "Love Guide For The Warframe 1999 Update" (id=3386831846)
 const _BIRTHDAY_DATES: Record<string, string> = {
-    "05-23": "Aoi",
-    "06-15": "Lettie",
+    "01-01": "Kaya",       // Kaya Velasco (Nova protoframe)
+    "02-14": "Lettie",     // Lettie / Belladonna (Trinity protoframe)
+    "03-15": "Minerva",    // Minerva Hendricks (Saryn protoframe)
+    "05-23": "Amir",       // Amir / H16h V0l7463 (Volt protoframe)
+    "06-15": "Flare",      // Flare Varleon (Temple protoframe)
+    "07-10": "Aoi",        // Aoi / xX GLIMMER Xx (Mag protoframe)
+    "11-02": "Eleanor",    // Eleanor / Salem (Nyx protoframe)
+    "12-21": "Velimir",    // Velimir Volkov II (Frost protoframe)
 };
 
 function _normCalEvents(d: any): CalendarEvent[] {

@@ -1258,6 +1258,113 @@ const SECTIONS: Section[] = [
         ),
     },
     {
+        id: "hex-relationships",
+        title: "Hex Relationships",
+        summary: "Dating guide for the six Protoframe members of The Hex in Höllvania — chemistry activities, birthdays, standing levels, and the New Year's Eve finale.",
+        content: (
+            <>
+                <Callout color="blue">
+                    <B>Prerequisite:</B> Complete both <B>The Duviri Paradox</B> and <B>The Hex</B> mainline quests before any relationship content is available.
+                </Callout>
+
+                <SectionHeading>The Hex — dateable members</SectionHeading>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[520px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Name</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Alias / Handle</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Protoframe of</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Birthday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Arthur",  "Broadsword",       "Excalibur", "—"],
+                                ["Eleanor", "Salem",            "Nyx",       "November 2"],
+                                ["Lettie",  "Belladonna",       "Trinity",   "February 14 (Valentine's Day)"],
+                                ["Amir",    "H16h V0l7463",     "Volt",      "May 23"],
+                                ["Aoi",     "xX GLIMMER Xx",   "Mag",       "July 10"],
+                                ["Quincy",  "Soldja1Shot1kil",  "Cyte-09",   "—"],
+                            ].map(([name, alias, frame, bday]) => (
+                                <tr key={name} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-slate-100">{name}</td>
+                                    <td className="px-3 py-2 text-slate-400 font-mono text-[10px]">{alias}</td>
+                                    <td className="px-3 py-2 text-slate-300">{frame}</td>
+                                    <td className="px-3 py-2 text-pink-300">{bday}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+                <P>
+                    Arthur and Quincy's birthdays are not listed in the Steam love guide — celebrate the other four when their calendar dates appear.
+                </P>
+
+                <SectionHeading>Techrot Encore additions — not dateable</SectionHeading>
+                <P>
+                    Four new Protoframes joined The Roundtable in the Techrot Encore update. They have birthdays that appear on the 1999 Calendar, but you <B>cannot date</B> any of them.
+                </P>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[420px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Name</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Protoframe of</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Birthday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Kaya Velasco",      "Nova",   "January 1"],
+                                ["Minerva Hendricks", "Saryn",  "March 15"],
+                                ["Flare Varleon",     "Temple", "June 15"],
+                                ["Velimir Volkov II", "Frost",  "December 21"],
+                            ].map(([name, frame, bday]) => (
+                                <tr key={name} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-slate-300">{name}</td>
+                                    <td className="px-3 py-2 text-slate-400">{frame}</td>
+                                    <td className="px-3 py-2 text-pink-300/70">{bday}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+
+                <SectionHeading>Building chemistry</SectionHeading>
+                <P>
+                    Chemistry points are earned through four daily activities. Do all four every day to maximize Standing gain:
+                </P>
+                <Bullets items={[
+                    <><B>Chat on KIM</B> (Kinemantik Instant Messenger) — talk to The Hex members on your in-game computer daily.</>,
+                    <><B>Send gifts</B> — give items from Höllvania vendors. Each character has preferences; matching them gives a bonus.</>,
+                    <><B>Complete bounties</B> — run Höllvania bounties. Check the <B>Calendar</B> on the garage computer before starting — it shows which days have special challenges and big prizes to prioritize.</>,
+                    <><B>Celebrate birthdays</B> — when a birthday appears on the 1999 Calendar (🎂 icon), interact with that character on that day for a large chemistry bonus.</>,
+                ]} />
+
+                <SectionHeading>Standing levels</SectionHeading>
+                <P>
+                    There are five standing levels per character. Two are key gates:
+                </P>
+                <Bullets items={[
+                    <><B>Level 3 — "2-For-1":</B> Required to unlock the Hex Finale quest. Reach this with the person you want to kiss before attempting the finale.</>,
+                    <><B>Level 5 — "Pizza Party":</B> Maximum relationship. The character will move into your Backroom (not your Orbiter or Drifter's Camp) and be close enough for the New Year's Eve kiss.</>,
+                ]} />
+
+                <SectionHeading>New Year's Eve finale</SectionHeading>
+                <Steps items={[
+                    <>Reach <B>Standing Level 3</B> with your chosen person to unlock the Hex Finale quest.</>,
+                    <>Continue building chemistry to reach <B>Standing Level 5</B> before in-game January arrives.</>,
+                    <>When January comes around in-game, you get the opportunity to kiss the person you've built max relationship with.</>,
+                    <>After the kiss, a prompt appears: <B>REMEMBER</B> (continue dating that person exclusively) or <B>FORGET</B> (free to pursue someone else next cycle).</>,
+                ]} />
+                <Callout color="amber">
+                    Only one person can move into your Backroom at a time. If you want to date a different character in a future season, select <B>FORGET</B> when prompted.
+                </Callout>
+            </>
+        ),
+    },
+    {
         id: "syndicates",
         title: "Syndicates",
         summary: "Faction reputation systems that reward exclusive mods, augments, and weapons. Which ones you choose early matters.",
@@ -1333,7 +1440,7 @@ const SECTIONS: Section[] = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 const NAV_GROUPS = [
-    { id: "story",    label: "Story",              sectionIds: ["quest-order"] },
+    { id: "story",    label: "Story",              sectionIds: ["quest-order", "hex-relationships"] },
     { id: "combat",   label: "Combat Systems",      sectionIds: ["lich-sisters", "kuva", "eidolons", "railjack", "necramech"] },
     { id: "build",    label: "Build & Progression", sectionIds: ["focus", "modding", "steel-path", "farming", "rotations"] },
     { id: "economy",  label: "Economy & Routine",   sectionIds: ["trading", "daily-weekly", "syndicates"] },
