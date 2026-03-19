@@ -1338,11 +1338,16 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
     ? allDrops
     : legacyDrops.map(d => ({ chance: d.chance, location: d.enemyName, rarity: d.rarity, type: entry.name }));
 
-  // Effects: moddescriptions.json → Upgrades fallback → All.json levelStats
+  // Effects: moddescriptions.json → All.json levelStats → Upgrades fallback
+  // All.json levelStats take priority over raw Upgrades data because All.json
+  // contains the actual human-readable per-rank descriptions, while Upgrades
+  // data is game-internal and often only represents a subset of the arcane's effects.
   const modDesc = MODDESC[entry.path];
   const descRanks = modDesc?.Ranks;
   type EffectRow = { label: string; values: string[] };
   const effectRows: EffectRow[] = [];
+
+  const hasAllJsonLevelStats = (allEntry?.levelStats?.length ?? 0) > 0;
 
   if (descRanks && descRanks.length > 0) {
     const varNames = Object.keys(descRanks[0]);
@@ -1351,7 +1356,7 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
       if (vals.every((v) => v === "")) continue;
       effectRows.push({ label: humanizeVarName(varName), values: vals });
     }
-  } else if (upgrades.length > 0) {
+  } else if (upgrades.length > 0 && !hasAllJsonLevelStats) {
     for (const u of upgrades.slice(0, 4)) {
       const type = u.UpgradeType;
       const isNoneType = !type || type === "NONE";
@@ -1375,8 +1380,8 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
     }
   }
 
-  // Use All.json levelStats if effectRows still empty
-  // Clamp to maxRank+1 in case All.json has excess entries
+  // All.json levelStats: used when moddescriptions.json has no Ranks data.
+  // Clamp to maxRank+1 in case All.json has excess entries.
   const levelStats = effectRows.length === 0 ? (allEntry?.levelStats ?? []).slice(0, maxRank + 1) : [];
   const rarityRaw = allEntry?.rarity ?? "";
   const rarity = rarityRaw.toUpperCase();
