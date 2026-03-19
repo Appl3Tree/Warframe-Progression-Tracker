@@ -211,6 +211,7 @@ const CALENDAR_EVENT_STYLES: Record<string, { label: string; color: string; bg: 
     "To Do":      { label: "To Do",      color: "text-sky-300",    bg: "bg-sky-950/30",    border: "border-sky-700/40"    },
     "Big Prize!": { label: "Big Prize!", color: "text-amber-300",  bg: "bg-amber-950/30",  border: "border-amber-700/40"  },
     "Override":   { label: "Override",   color: "text-violet-300", bg: "bg-violet-950/30", border: "border-violet-700/40" },
+    "Birthday":   { label: "Birthday",   color: "text-pink-300",   bg: "bg-pink-950/20",   border: "border-pink-900/40"   },
 };
 
 function CalendarModal({ calendar, onClose }: { calendar: Calendar; onClose: () => void }) {
@@ -279,6 +280,14 @@ function CalendarModal({ calendar, onClose }: { calendar: Calendar; onClose: () 
                                         </div>
                                         <div className="space-y-1.5">
                                             {entries.map((ev, ei) => {
+                                                if (ev.type === "Birthday") {
+                                                    return (
+                                                        <div key={ei} className="rounded-lg border border-pink-900/40 bg-pink-950/20 px-2.5 py-1.5 flex items-center gap-2">
+                                                            <span className="text-base leading-none">🎂</span>
+                                                            <span className="text-xs text-pink-200 font-medium">{ev.title}</span>
+                                                        </div>
+                                                    );
+                                                }
                                                 const style = CALENDAR_EVENT_STYLES[ev.type] ?? { label: ev.type, color: "text-slate-300", bg: "bg-slate-800/40", border: "border-slate-700/40" };
                                                 return (
                                                     <div key={ei} className={["rounded-lg border px-2.5 py-1.5", style.bg, style.border].join(" ")}>
@@ -287,31 +296,8 @@ function CalendarModal({ calendar, onClose }: { calendar: Calendar; onClose: () 
                                                         </div>
                                                         {ev.title && <div className="text-xs text-slate-200 font-medium">{ev.title}</div>}
                                                         {ev.description && <div className="text-[10px] text-slate-400 mt-0.5">{ev.description}</div>}
-                                                        {ev.variants.length > 0 && (
-                                                            <div className="mt-1 space-y-0.5">
-                                                                {ev.variants.map((v, vi) => (
-                                                                    <div key={vi} className="text-[10px] text-slate-400">
-                                                                        {v.label && <span className="text-slate-300 font-medium">{v.label}</span>}
-                                                                        {v.label && v.detail ? " · " : ""}
-                                                                        {v.detail}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                        {Object.entries(ev.extras).map(([k, v]) => (
-                                                            <div key={k} className="mt-0.5 text-[10px] text-slate-500">
-                                                                <span className="capitalize">{k.replace(/([A-Z])/g, " $1").trim()}: </span>
-                                                                <span className="text-slate-300">{v}</span>
-                                                            </div>
-                                                        ))}
-                                                        {ev.standing && (
-                                                            <div className="mt-1 flex items-center gap-1">
-                                                                <span className="text-[9px] text-slate-500">Standing:</span>
-                                                                <span className="text-[9px] text-cyan-300 font-medium">{ev.standing}</span>
-                                                            </div>
-                                                        )}
                                                         {ev.reward && (
-                                                            <div className="mt-0.5 flex items-center gap-1">
+                                                            <div className="mt-1 flex items-center gap-1">
                                                                 <span className="text-[9px] text-slate-500">Reward:</span>
                                                                 <span className="text-[9px] text-amber-300 font-medium">{ev.reward}</span>
                                                             </div>

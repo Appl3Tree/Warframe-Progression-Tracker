@@ -228,34 +228,43 @@ export type Calendar = {
     season?: string;
 };
 
-// Maps raw API type strings → canonical display types used by CAL_EVENT_META
+// Maps raw API type strings → canonical display types
+// Handles both processed strings from translateCalendarEvent() and raw CET_ values
 const _EV_TYPE_MAP: Record<string, string> = {
+    // Raw DE API types
+    "CET_CHALLENGE": "To Do",
+    "CET_UPGRADE":   "Override",
+    "CET_REWARD":    "Big Prize!",
+    "CET_PLOT":      "Birthday",
+    // Possible translateCalendarEvent() output strings
     challenge: "To Do", todo: "To Do", weekly: "To Do", mission: "To Do",
+    upgrade: "Override", hexoverride: "Override", override: "Override",
     prize: "Big Prize!", reward: "Big Prize!", jackpot: "Big Prize!",
-    HexOverride: "Override", hexoverride: "Override", override: "Override",
+    birthday: "Birthday", dialogue: "Birthday", plot: "Birthday",
 };
 function _normEvType(raw: string): string {
     return _EV_TYPE_MAP[raw] ?? _EV_TYPE_MAP[raw.toLowerCase()] ?? raw;
 }
+
+// Extract a character name from a dialogue path like "/Lotus/.../LettieDialogue_rom.dialogue"
+function _birthdayName(dialogueName: string): string {
+    const m = dialogueName.match(/\/(\w+?)(?:Dialogue|dialogue)/);
+    return m ? m[1] : "";
+}
+
 function _normCalEvents(d: any): CalendarEvent[] {
-    // Coerce any value to a plain string — handles localized maps {en:"..."}, reward objects, etc.
     const toStr = (v: any): string => {
         if (!v && v !== 0) return "";
         if (typeof v === "string") return v;
         if (typeof v === "number") return String(v);
         if (typeof v === "object") {
-            // Localized string map e.g. {"en": "Kill 100 Techrot..."}
             if (typeof v.en === "string") return v.en;
-            // warframestat.us reward objects
             if (typeof v.asString === "string") return v.asString;
-            // Generic fallbacks
             const pick = v.text ?? v.title ?? v.description ?? v.name ?? v.value;
             if (pick != null) return toStr(pick);
-            return JSON.stringify(v);
         }
         return String(v);
     };
-    // Build a human-readable reward string from various API shapes
     const toReward = (v: any): string => {
         if (!v) return "";
         if (typeof v === "string") return v;
@@ -263,86 +272,73 @@ function _normCalEvents(d: any): CalendarEvent[] {
         if (Array.isArray(v)) return v.map(toReward).filter(Boolean).join(", ");
         if (typeof v === "object") {
             if (typeof v.asString === "string") return v.asString;
-            // e.g. {itemType: "//Lotus/.../CreditsItem", count: 500}
             const name = v.name ?? v.type ?? v.itemType?.split("/").pop() ?? "";
             const count = v.count && v.count !== 1 ? ` ×${v.count}` : "";
             return name + count || toStr(v);
         }
         return String(v);
     };
-    // Coerce variants/choices arrays into a flat label+detail list
-    const toVariants = (v: any): CalendarEventVariant[] => {
-        if (!v || !Array.isArray(v)) return [];
-        return v.map((item: any) => ({
-            label: toStr(item.node ?? item.hex ?? item.label ?? item.name ?? item.type ?? ""),
-            detail: [
-                toStr(item.type ?? item.missionType ?? item.modifier ?? ""),
-                item.modifier && item.type !== item.modifier ? toStr(item.modifier) : "",
-                toStr(item.description ?? item.text ?? ""),
-            ].filter(Boolean).join(" · "),
-        })).filter((v) => v.label || v.detail);
-    };
-    // Known fields we handle explicitly; everything else goes to extras
-    const KNOWN = new Set(["type","category","kind","title","name","description","challenge","text","reward","rewards","prize","standing","variants","jobs","events","expired","expiry","activation","id","node","tag"]);
+
+    // Fields we handle explicitly — everything else that's a useful string goes to extras
+    const HANDLED = new Set(["type","category","kind","challenge","upgrade","reward","rewards",
+        "dialogueName","dialogueConvo","title","name","description","text","standing","variants",
+        "jobs","events","expired","expiry","activation","id"]);
+
     const toExtras = (raw: any): Record<string, string> => {
         const out: Record<string, string> = {};
         for (const [k, v] of Object.entries(raw)) {
-            if (KNOWN.has(k) || v == null) continue;
+            if (HANDLED.has(k) || v == null) continue;
+            if (typeof v === "object" && !Array.isArray(v)) continue; // skip unhandled nested objects
             const s = toStr(v);
-            if (s && s !== "[object Object]") out[k] = s;
+            if (s) out[k] = s;
         }
         return out;
     };
+
     const toEv = (raw: any): CalendarEvent => {
         const typeRaw = String(raw.type ?? raw.category ?? raw.kind ?? "");
-        // Description: try many field names the API might use
-        const desc = toStr(
-            raw.description ?? raw.challenge ?? raw.text ?? raw.objective ??
-            raw.goal ?? raw.mandate ?? raw.shortDescription ?? raw.descriptionShort ?? ""
-        );
-        // Reward: probe multiple possible locations
-        const rewardRaw = raw.reward ?? raw.rewards ?? raw.prize ?? raw.completionReward ?? raw.weeklyReward ?? "";
-        // Nested jobs/challenges within a single event (e.g. weekly To Do with multiple tasks)
-        const innerEvents: CalendarEvent[] = (raw.jobs && Array.isArray(raw.jobs) && raw.jobs.length > 0)
-            ? raw.jobs.map(toEv)
-            : (raw.challenges && Array.isArray(raw.challenges) && raw.challenges.length > 0)
-                ? raw.challenges.map(toEv)
-                : [];
-        if (innerEvents.length > 0) {
-            // Wrap multi-task events: parent type becomes the container, merge children in as variants
-            const merged = innerEvents.reduce<CalendarEventVariant[]>((acc, ev) => {
-                acc.push({ label: ev.title, detail: [ev.description, ev.reward].filter(Boolean).join(" — ") });
-                return acc;
-            }, []);
+        const eventType = _normEvType(typeRaw);
+
+        // ── Birthday / plot dialogue — just show whose birthday it is, nothing else ──
+        if (eventType === "Birthday") {
+            const name = _birthdayName(raw.dialogueName ?? "");
             return {
-                type: _normEvType(typeRaw),
-                title: toStr(raw.title ?? raw.name ?? typeRaw),
-                description: desc,
-                reward: toReward(rewardRaw),
-                standing: raw.standing != null ? String(raw.standing) : "",
-                variants: merged.length > 0 ? merged : toVariants(raw.variants),
-                extras: toExtras(raw),
+                type: "Birthday",
+                title: name ? `${name}'s Birthday` : "Birthday",
+                description: "", reward: "", standing: "", variants: [], extras: {},
             };
         }
+
+        // ── Challenge (CET_CHALLENGE): challenge is a nested { title, description } object ──
+        // ── Override (CET_UPGRADE):   upgrade  is a nested { title, description } object ──
+        const nested: { title: string; description: string } | null =
+            (raw.challenge && typeof raw.challenge === "object" && raw.challenge.title) ? raw.challenge
+            : (raw.upgrade && typeof raw.upgrade === "object" && raw.upgrade.title) ? raw.upgrade
+            : null;
+
+        // If nested is missing (older API shape or flat structure), fall back to generic probing
+        const title = nested?.title
+            ?? toStr(raw.title ?? raw.name ?? "");
+
+        const description = nested?.description
+            ?? toStr(raw.description ?? raw.text ?? raw.objective ?? raw.goal ?? "");
+
+        // For CET_REWARD the reward is a string; for others probe standard locations
+        const reward = toReward(raw.reward ?? raw.rewards ?? raw.prize ?? "");
+
         return {
-            type: _normEvType(typeRaw),
-            title: toStr(raw.title ?? raw.name ?? typeRaw),
-            description: desc,
-            reward: toReward(rewardRaw),
+            type: eventType,
+            title,
+            description,
+            reward,
             standing: raw.standing != null ? String(raw.standing) : "",
-            variants: toVariants(raw.variants ?? raw.choices ?? raw.options ?? []),
+            variants: [],   // Calendar events don't have variants in the current API
             extras: toExtras(raw),
         };
     };
-    if (d.jobs && Array.isArray(d.jobs)) return (d.jobs as any[]).map(toEv);
+
     if (d.events && Array.isArray(d.events)) return (d.events as any[]).map(toEv);
-    if (d.events && typeof d.events === "object") {
-        return Object.entries(d.events).map(([k, v]: [string, any]) =>
-            typeof v === "string"
-                ? { type: _normEvType(k), title: k, description: v, reward: "", standing: "", variants: [], extras: {} }
-                : { type: _normEvType(v?.type ?? k), title: toStr(v?.title ?? v?.name ?? k), description: toStr(v?.description ?? v?.challenge ?? ""), reward: toReward(v?.reward ?? v?.rewards?.[0] ?? ""), standing: v?.standing != null ? String(v.standing) : "", variants: toVariants(v?.variants ?? []), extras: toExtras(v ?? {}) }
-        );
-    }
+    if (d.jobs   && Array.isArray(d.jobs))   return (d.jobs   as any[]).map(toEv);
     return [];
 }
 

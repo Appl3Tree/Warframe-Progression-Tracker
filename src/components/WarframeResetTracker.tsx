@@ -20,7 +20,7 @@ import { useTrackerStore } from "../store/store";
 import { PR } from "../domain/ids/prereqIds";
 import { SY } from "../domain/ids/syndicateIds";
 import type { SyndicateState } from "../domain/types";
-import { fetchWorldState, getCachedWorldState, type CalendarEvent, type CalendarEventVariant, type WorldStateData } from "../lib/worldStateCache";
+import { fetchWorldState, getCachedWorldState, type CalendarEvent, type WorldStateData } from "../lib/worldStateCache";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -602,51 +602,34 @@ function WsChip({ children, color = "text-slate-400", bg = "bg-slate-800/60", bo
 
 function CalEventCard({ ev }: { ev: CalendarEvent }) {
     const meta = CAL_EVENT_META[ev.type];
-    const hasVariants = ev.variants.length > 0;
-    const extraEntries = Object.entries(ev.extras);
+
+    // Birthday days: show a cake and name only — no gameplay detail to display
+    if (ev.type === "Birthday") {
+        return (
+            <div className="rounded-lg border border-pink-900/40 bg-pink-950/20 px-3 py-2.5 flex items-center gap-2.5">
+                <span className="text-xl leading-none">🎂</span>
+                <div className="text-sm text-pink-200 font-medium">{ev.title}</div>
+            </div>
+        );
+    }
+
     return (
         <div className="rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5">
-            {/* Category header */}
+            {/* Category label */}
             <div className="flex items-center gap-1.5 mb-1.5">
                 <div className={`w-2 h-2 rounded-full shrink-0 ${meta?.dot ?? "bg-slate-500"}`} />
                 <div className={`text-xs font-semibold ${meta?.textColor ?? "text-slate-400"}`}>{meta?.label ?? (ev.type || "Event")}</div>
             </div>
-            {/* Title */}
+
+            {/* Title — what the challenge/override is called */}
             {ev.title && <div className="text-sm text-slate-200 font-medium leading-snug">{ev.title}</div>}
-            {/* Description / objective */}
+
+            {/* Description — what the player actually has to do, or what the override does */}
             {ev.description && <div className="text-xs text-slate-400 mt-1 leading-snug">{ev.description}</div>}
-            {/* Variants — Override choices / sub-tasks */}
-            {hasVariants && (
-                <div className="mt-2 space-y-1">
-                    {ev.variants.map((v: CalendarEventVariant, i: number) => (
-                        <div key={i} className="rounded border border-slate-700/50 bg-slate-900/50 px-2 py-1">
-                            {v.label && <div className="text-[11px] font-medium text-slate-300">{v.label}</div>}
-                            {v.detail && <div className="text-[10px] text-slate-500 mt-0.5">{v.detail}</div>}
-                        </div>
-                    ))}
-                </div>
-            )}
-            {/* Extra fields from API we don't have a specific slot for */}
-            {extraEntries.length > 0 && (
-                <div className="mt-1.5 space-y-0.5">
-                    {extraEntries.map(([k, v]) => (
-                        <div key={k} className="flex items-baseline gap-1 text-[10px]">
-                            <span className="text-slate-500 capitalize">{k.replace(/([A-Z])/g, " $1").trim()}:</span>
-                            <span className="text-slate-300">{v}</span>
-                        </div>
-                    ))}
-                </div>
-            )}
-            {/* Standing */}
-            {ev.standing && (
-                <div className="mt-1.5 flex items-center gap-1">
-                    <span className="text-[10px] text-slate-500">Standing:</span>
-                    <span className="text-[10px] text-cyan-300 font-medium">{ev.standing}</span>
-                </div>
-            )}
+
             {/* Reward */}
             {ev.reward && (
-                <div className="mt-1 flex items-center gap-1">
+                <div className="mt-2 flex items-center gap-1.5">
                     <span className="text-[10px] text-slate-500">Reward:</span>
                     <span className="text-[10px] text-amber-300 font-medium">{ev.reward}</span>
                 </div>
@@ -659,6 +642,7 @@ const CAL_EVENT_META: Record<string, { dot: string; label: string; textColor: st
     "To Do":      { dot: "bg-sky-400",    label: "To Do",      textColor: "text-sky-300"    },
     "Big Prize!": { dot: "bg-amber-400",  label: "Big Prize!", textColor: "text-amber-300"  },
     "Override":   { dot: "bg-violet-400", label: "Override",   textColor: "text-violet-300" },
+    "Birthday":   { dot: "bg-pink-400",   label: "Birthday",   textColor: "text-pink-300"   },
 };
 
 type CalEntry = { dayIndex: number; date: Date; events: CalendarEvent[] };
@@ -721,12 +705,16 @@ function TrackerCalendarModal({ calendar, onClose }: {
 
                 {/* Legend */}
                 <div className="flex items-center gap-5 px-5 py-2.5 border-b border-slate-800/50 bg-slate-950/80">
-                    {Object.entries(CAL_EVENT_META).map(([key, meta]) => (
+                    {Object.entries(CAL_EVENT_META).filter(([key]) => key !== "Birthday").map(([key, meta]) => (
                         <div key={key} className="flex items-center gap-1.5">
                             <div className={`w-2 h-2 rounded-full ${meta.dot}`} />
                             <span className={`text-[11px] ${meta.textColor}`}>{meta.label}</span>
                         </div>
                     ))}
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] leading-none">🎂</span>
+                        <span className="text-[11px] text-pink-300">Birthday</span>
+                    </div>
                     <span className="ml-auto text-[11px] text-slate-600">Click a day for details</span>
                 </div>
 
@@ -771,9 +759,11 @@ function TrackerCalendarModal({ calendar, onClose }: {
                                                     </span>
                                                     {eventKeys.length > 0 && (
                                                         <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
-                                                            {eventKeys.map((k, ki) => (
-                                                                <div key={ki} className={`w-1.5 h-1.5 rounded-full ${CAL_EVENT_META[k]?.dot ?? "bg-slate-500"}`} />
-                                                            ))}
+                                                            {eventKeys.map((k, ki) =>
+                                                                k === "Birthday"
+                                                                    ? <span key={ki} className="text-[9px] leading-none">🎂</span>
+                                                                    : <div key={ki} className={`w-1.5 h-1.5 rounded-full ${CAL_EVENT_META[k]?.dot ?? "bg-slate-500"}`} />
+                                                            )}
                                                         </div>
                                                     )}
                                                 </button>
