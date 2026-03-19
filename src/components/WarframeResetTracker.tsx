@@ -20,6 +20,7 @@ import { useTrackerStore } from "../store/store";
 import { PR } from "../domain/ids/prereqIds";
 import { SY } from "../domain/ids/syndicateIds";
 import type { SyndicateState } from "../domain/types";
+import { fetchWorldState, getCachedWorldState, type WorldStateData } from "../lib/worldStateCache";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -579,6 +580,215 @@ function NetracellCounter({
     );
 }
 
+// ─── World State inline hints ───────────────────────────────────────────────────
+
+const FACTION_COLOR: Record<string, string> = {
+    Grineer: "text-red-400", Corpus: "text-blue-400",
+    Infested: "text-green-400", Infestation: "text-green-400",
+    Corrupted: "text-violet-400", Orokin: "text-violet-400",
+};
+
+function WsChip({ children, color = "text-slate-400", bg = "bg-slate-800/60", border = "border-slate-700/50" }: {
+    children: React.ReactNode; color?: string; bg?: string; border?: string;
+}) {
+    return (
+        <span className={`inline-block rounded-full border px-1.5 py-px text-[9px] font-medium leading-tight ${color} ${bg} ${border}`}>
+            {children}
+        </span>
+    );
+}
+
+/** Build the per-task world state hint map from live data */
+function buildWorldStateHints(data: WorldStateData | null): Record<string, React.ReactNode> {
+    if (!data) return {};
+    const hints: Record<string, React.ReactNode> = {};
+
+    // ── Sortie ──────────────────────────────────────────────────────────────────
+    if (data.sortie && !data.sortie.expired) {
+        const s = data.sortie;
+        hints["sortie_set"] = (
+            <div className="mt-1.5 space-y-1">
+                <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                    <span className={FACTION_COLOR[s.faction] ?? "text-slate-400"}>{s.faction}</span>
+                    <span className="text-slate-600">·</span>
+                    <span className="text-slate-500">{s.boss}</span>
+                    {s.rewardPool && <WsChip color="text-amber-300" bg="bg-amber-950/30" border="border-amber-700/40">{s.rewardPool}</WsChip>}
+                </div>
+                {s.variants.map((v, i) => (
+                    <div key={i} className="rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1">
+                        <div className="flex items-center justify-between gap-1.5">
+                            <span className="text-[10px] font-medium text-slate-300">{v.missionType}</span>
+                            {v.modifier && <WsChip color="text-orange-300" bg="bg-orange-950/20" border="border-orange-700/40">{v.modifier}</WsChip>}
+                        </div>
+                        <div className="text-[9px] text-slate-500">{v.node}</div>
+                        {v.modifierDescription && (
+                            <div className="text-[9px] text-slate-500 mt-0.5 leading-relaxed">{v.modifierDescription}</div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    // ── Archon Hunt ─────────────────────────────────────────────────────────────
+    if (data.archonHunt?.active) {
+        const ah = data.archonHunt;
+        hints["archon_hunt"] = (
+            <div className="mt-1.5 space-y-1">
+                <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                    <span className={FACTION_COLOR[ah.faction] ?? "text-slate-400"}>{ah.faction}</span>
+                    <span className="text-slate-600">·</span>
+                    <span className="text-slate-500">{ah.boss}</span>
+                </div>
+                {ah.missions.map((m, i) => (
+                    <div key={i} className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1">
+                        <span className="text-[9px] font-bold text-slate-500">{i + 1}</span>
+                        <span className="text-[10px] font-medium text-slate-300">{m.type}</span>
+                        <span className="text-[9px] text-slate-500 truncate">{m.node}</span>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    // ── Nightwave acts ───────────────────────────────────────────────────────────
+    if (data.nightwave) {
+        const nw = data.nightwave;
+        const daily  = nw.activeChallenges.filter((a) => a.isDaily);
+        const weekly = nw.activeChallenges.filter((a) => !a.isDaily && !a.isElite);
+        const elite  = nw.activeChallenges.filter((a) => a.isElite);
+
+        const renderActs = (acts: typeof daily) => acts.length === 0 ? null : (
+            <div className="mt-1.5 space-y-1">
+                {acts.map((act) => (
+                    <div key={act.id} className="rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1">
+                        <div className="flex items-center justify-between gap-1">
+                            <span className="text-[10px] font-medium text-slate-300 leading-tight">{act.title}</span>
+                            <span className="shrink-0 text-[9px] font-bold text-blue-300">{act.reputation.toLocaleString()}</span>
+                        </div>
+                        <div className="text-[9px] text-slate-500 mt-0.5 leading-relaxed">{act.desc}</div>
+                    </div>
+                ))}
+            </div>
+        );
+
+        if (daily.length > 0)  hints["nightwave_daily"]  = renderActs(daily);
+        if (weekly.length > 0) hints["nightwave_weekly"] = renderActs(weekly);
+        if (elite.length > 0)  hints["nightwave_elite"]  = renderActs(elite);
+    }
+
+    // ── Circuit choices ──────────────────────────────────────────────────────────
+    if (data.duviriCycle?.choices?.length) {
+        const normalGroup = data.duviriCycle.choices.find((g) => g.category === "normal" || g.categoryKey?.includes("NORMAL"));
+        const hardGroup   = data.duviriCycle.choices.find((g) => g.category === "hard"   || g.categoryKey?.includes("HARD"));
+
+        if (normalGroup) {
+            hints["circuit_reward_track"] = (
+                <div className="mt-1.5">
+                    <div className="text-[9px] text-slate-500 mb-1">This week's Warframe picks</div>
+                    <div className="flex flex-wrap gap-1">
+                        {normalGroup.choices.map((name, i) => (
+                            <WsChip key={i} color="text-blue-300" bg="bg-blue-950/30" border="border-blue-700/40">{name}</WsChip>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+        if (hardGroup) {
+            hints["circuit_incarnon"] = (
+                <div className="mt-1.5">
+                    <div className="text-[9px] text-slate-500 mb-1">This week's Incarnon picks (Steel Path)</div>
+                    <div className="flex flex-wrap gap-1">
+                        {hardGroup.choices.map((name, i) => (
+                            <WsChip key={i} color="text-red-300" bg="bg-red-950/20" border="border-red-700/40">{name}</WsChip>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+    }
+
+    // ── Archimedeas (deep + temporal) ────────────────────────────────────────────
+    for (const arch of (data.archimedeas ?? [])) {
+        if (arch.expired || arch.variants.length === 0) continue;
+
+        const isHex = arch.tag?.includes("H") || arch.tag?.includes("HEX");
+        const taskId = isHex ? "deep_archimedea" : "temporal_archimedea";
+
+        const allMods = [...(arch.personalModifiers ?? []), ...(arch.deviations ?? []), ...(arch.risks ?? [])];
+
+        hints[taskId] = (
+            <div className="mt-1.5 space-y-1">
+                {arch.variants.map((v, i) => (
+                    <div key={i} className="rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1">
+                        <div className="flex items-center justify-between gap-1.5">
+                            <span className="text-[10px] font-medium text-slate-300">{v.type}</span>
+                            {v.modifier && <WsChip color="text-orange-300" bg="bg-orange-950/20" border="border-orange-700/40">{v.modifier}</WsChip>}
+                        </div>
+                        <div className="text-[9px] text-slate-500">{v.node}</div>
+                    </div>
+                ))}
+                {allMods.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-0.5">
+                        {allMods.map((m, i) => (
+                            <WsChip key={i} color="text-cyan-300" bg="bg-cyan-950/20" border="border-cyan-700/40">{m.tag}</WsChip>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // ── 1999 Calendar — today's events ───────────────────────────────────────────
+    if (data.calendar?.days?.length) {
+        const cal = data.calendar;
+        const idx = cal.currentDay !== undefined ? Number(cal.currentDay) : -1;
+        const today = idx >= 0 && idx < cal.days.length ? cal.days[idx] : null;
+        const entries = today ? Object.entries(today.events).filter(([, v]) => v) : [];
+
+        if (entries.length > 0) {
+            const ICON: Record<string, string> = { "To Do": "📋", "Big Prize!": "🏆", "Override": "⚡" };
+            const COLOR: Record<string, string> = { "To Do": "text-sky-300", "Big Prize!": "text-amber-300", "Override": "text-violet-300" };
+            hints["calendar_1999"] = (
+                <div className="mt-1.5 space-y-1">
+                    {today?.date && <div className="text-[9px] text-slate-500">{today.date}</div>}
+                    {entries.map(([type, value]) => (
+                        <div key={type} className="rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1">
+                            <div className={`text-[9px] font-semibold mb-0.5 ${COLOR[type] ?? "text-slate-400"}`}>
+                                {ICON[type] ?? ""} {type}
+                            </div>
+                            <div className="text-[10px] text-slate-300">{value}</div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+    }
+
+    // ── Steel Path Honor ─────────────────────────────────────────────────────────
+    if (data.steelPath?.currentReward) {
+        const sp = data.steelPath.currentReward;
+        hints["steel_path_honors"] = (
+            <div className="mt-1.5 flex items-center gap-1.5 text-[10px]">
+                <span className="text-slate-300 font-medium">{sp.name}</span>
+                <WsChip color="text-slate-400">{sp.cost} Steel Essence</WsChip>
+            </div>
+        );
+    }
+
+    // ── Simaris target ───────────────────────────────────────────────────────────
+    if (data.simaris?.target) {
+        hints["standing_cephalon_simaris"] = (
+            <div className="mt-1 text-[10px] text-slate-400">
+                Synthesis target: <span className="text-slate-200 font-medium">{data.simaris.target}</span>
+                {data.simaris.isTargetActive && <span className="ml-1 text-green-400">(active)</span>}
+            </div>
+        );
+    }
+
+    return hints;
+}
+
 // Renders a flat list of tasks for a single sub-section
 function TaskList({
     tasks,
@@ -586,12 +796,14 @@ function TaskList({
     onToggle,
     netracellRuns,
     onNetracellChange,
+    hints,
 }: {
     tasks: TaskDef[];
     completedIds: string[];
     onToggle: (id: string) => void;
     netracellRuns?: number;
     onNetracellChange?: (n: number) => void;
+    hints?: Record<string, React.ReactNode>;
 }) {
     const runs = netracellRuns ?? 0;
 
@@ -629,9 +841,10 @@ function TaskList({
                         onClick={() => onToggle(t.id)}
                     >
                         <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-slate-600 bg-slate-900" />
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                             <div className="text-sm font-medium text-slate-200 leading-tight">{t.label}</div>
                             <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
+                            {hints?.[t.id]}
                         </div>
                     </button>
                 );
@@ -688,9 +901,10 @@ function TaskList({
                         <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-emerald-800 bg-emerald-950/30 flex items-center justify-center">
                             <CheckIcon />
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                             <div className="text-sm font-medium text-emerald-500 leading-tight">{t.label}</div>
                             <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
+                            {hints?.[t.id]}
                         </div>
                     </button>
                 );
@@ -710,6 +924,7 @@ function TaskPanel({
     timeMode,
     netracellRuns,
     onNetracellChange,
+    hints,
 }: {
     bucket: Bucket;
     tasks: TaskDef[];
@@ -720,6 +935,7 @@ function TaskPanel({
     timeMode: TimeMode;
     netracellRuns?: number;
     onNetracellChange?: (n: number) => void;
+    hints?: Record<string, React.ReactNode>;
 }) {
     const runs = netracellRuns ?? 0;
     const done = getCompletedTaskCount(tasks, completedIds, runs);
@@ -756,6 +972,7 @@ function TaskPanel({
                         onToggle={onToggle}
                         netracellRuns={netracellRuns}
                         onNetracellChange={onNetracellChange}
+                        hints={hints}
                     />
                 </div>
             )}
@@ -777,6 +994,7 @@ function ConclavePanel({
     onToggleWeekly,
     onClearDaily,
     onClearWeekly,
+    hints,
 }: {
     dailyTasks: TaskDef[];
     weeklyTasks: TaskDef[];
@@ -790,6 +1008,7 @@ function ConclavePanel({
     onToggleWeekly: (id: string) => void;
     onClearDaily: () => void;
     onClearWeekly: () => void;
+    hints?: Record<string, React.ReactNode>;
 }) {
     const dailyDone = getCompletedTaskCount(dailyTasks, completedDailyIds, 0);
     const weeklyDone = getCompletedTaskCount(weeklyTasks, completedWeeklyIds, 0);
@@ -828,7 +1047,7 @@ function ConclavePanel({
                             </button>
                         </div>
                     </div>
-                    <TaskList tasks={dailyTasks} completedIds={completedDailyIds} onToggle={onToggleDaily} />
+                    <TaskList tasks={dailyTasks} completedIds={completedDailyIds} onToggle={onToggleDaily} hints={hints} />
                 </div>
 
                 <div className="h-px bg-slate-800" />
@@ -849,7 +1068,7 @@ function ConclavePanel({
                             </button>
                         </div>
                     </div>
-                    <TaskList tasks={weeklyTasks} completedIds={completedWeeklyIds} onToggle={onToggleWeekly} />
+                    <TaskList tasks={weeklyTasks} completedIds={completedWeeklyIds} onToggle={onToggleWeekly} hints={hints} />
                 </div>
             </div>
         </div>
@@ -975,6 +1194,12 @@ export default function WarframeResetTracker() {
     const [showHelp, setHelp] = useState(false);
     const [showCustomize, setCustomize] = useState(false);
     const [selected, setSel] = useState<Bucket>("primary_daily");
+    const [wsData, setWsData] = useState<WorldStateData | null>(() => getCachedWorldState());
+
+    // Fetch world state once on mount (uses shared cache — no double-fetch with WorldState page)
+    useEffect(() => {
+        fetchWorldState().then(setWsData).catch(() => {});
+    }, []);
 
     useEffect(() => {
         saveState(rc);
@@ -993,6 +1218,7 @@ export default function WarframeResetTracker() {
 
     const nextResets = useMemo(() => getNextResets(now), [now]);
     const baro = useMemo(() => getBaroStatus(now, rc.timeMode), [now, rc.timeMode]);
+    const wsHints = useMemo(() => buildWorldStateHints(wsData), [wsData]);
 
     const completedIds = useMemo((): Record<Exclude<Bucket, "conclave">, string[]> & { conclave_daily: string[]; conclave_weekly: string[] } => {
         const keys = getCurrentKeys(now);
@@ -1303,6 +1529,7 @@ export default function WarframeResetTracker() {
                     onToggleWeekly={(id) => toggleStandard(id, "completedConclaveWeeklyTaskIds")}
                     onClearDaily={() => clearBucket("completedConclaveDailyTaskIds")}
                     onClearWeekly={() => clearBucket("completedConclaveWeeklyTaskIds")}
+                    hints={wsHints}
                 />
             ) : (
                 <TaskPanel
@@ -1315,6 +1542,7 @@ export default function WarframeResetTracker() {
                     timeMode={rc.timeMode}
                     netracellRuns={rc.netracellRuns}
                     onNetracellChange={(n) => setRc((p) => ({ ...p, netracellRuns: n }))}
+                    hints={wsHints}
                 />
             )}
 
