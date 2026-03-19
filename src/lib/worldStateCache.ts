@@ -252,6 +252,12 @@ function _birthdayName(dialogueName: string): string {
     return m ? m[1] : "";
 }
 
+// Hardcoded 1999 character birthdays (MM-DD → name) for dates the API returns with empty events
+const _BIRTHDAY_DATES: Record<string, string> = {
+    "05-23": "Aoi",
+    "06-15": "Lettie",
+};
+
 function _normCalEvents(d: any): CalendarEvent[] {
     const toStr = (v: any): string => {
         if (!v && v !== 0) return "";
@@ -526,10 +532,27 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                 calendar: j.calendar
                     ? {
                         days: Array.isArray(j.calendar.days)
-                            ? j.calendar.days.map((d: any) => ({
-                                date: d.date ?? d.day ?? String(d.dayNumber ?? ""),
-                                events: _normCalEvents(d),
-                            }))
+                            ? j.calendar.days.map((d: any) => {
+                                const date: string = d.date ?? d.day ?? String(d.dayNumber ?? "");
+                                let events = _normCalEvents(d);
+                                // If the API returned no events, check if this is a known birthday date
+                                if (events.length === 0 && date) {
+                                    const parsed = new Date(date);
+                                    if (!isNaN(parsed.getTime())) {
+                                        const mm = String(parsed.getUTCMonth() + 1).padStart(2, "0");
+                                        const dd = String(parsed.getUTCDate()).padStart(2, "0");
+                                        const charName = _BIRTHDAY_DATES[`${mm}-${dd}`];
+                                        if (charName) {
+                                            events = [{
+                                                type: "Birthday",
+                                                title: `${charName}'s Birthday`,
+                                                description: "", reward: "", standing: "", variants: [], extras: {},
+                                            }];
+                                        }
+                                    }
+                                }
+                                return { date, events };
+                            })
                             : [],
                         currentDay: j.calendar.currentDay ?? j.calendar.activeDayIndex,
                         season: j.calendar.season,
