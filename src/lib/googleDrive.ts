@@ -128,19 +128,12 @@ export function wasConnected(): boolean {
 }
 
 /**
- * Attempt a silent (no-popup) token acquisition.
- * Returns true if a valid token was obtained.
- * Used for auto-reconnect on page load.
+ * Check whether there is already a valid in-memory token without triggering
+ * any popup. The GIS token model does not support silent refresh — every new
+ * token requires a user gesture. Call this to check state only.
  */
 export async function tryAutoConnect(): Promise<boolean> {
-    if (tokenValid()) return true;
-    try {
-        await loadGis();
-        await acquireToken("");
-        return true;
-    } catch {
-        return false;
-    }
+    return tokenValid();
 }
 
 // ── Drive helpers ─────────────────────────────────────────────────────────────

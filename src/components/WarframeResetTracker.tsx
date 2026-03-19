@@ -187,7 +187,17 @@ const ALL_TASKS: TaskDef[] = [
     { id: "steel_path_honors", label: "Steel Path Honors", bucket: "weekly_monday", description: "Check or buy this week's Steel Path Honors." },
     { id: "palladino_weekly", label: "Palladino — Iron Wake", bucket: "weekly_monday", description: "Check this week's Palladino offerings." },
     { id: "yonta_weekly", label: "Yonta — Weekly Kuva", bucket: "weekly_monday", description: "Claim Yonta's weekly Kuva purchase.", prereqIds: [PR.HUB_ZARIMAN] },
-    { id: "bird3_weekly", label: "Bird-3 — Archon Shard", bucket: "weekly_monday", description: "Check Bird-3's weekly shard purchase.", prereqIds: [PR.HUB_SANCTUM] },
+    {
+        id: "bird3_weekly",
+        label: "Bird-3 — Archon Shard",
+        bucket: "weekly_monday",
+        description: "Check Bird-3's weekly shard purchase. Requires Cavia rank 5 (Family).",
+        prereqIds: [PR.HUB_SANCTUM],
+        isVisible: ({ completedPrereqs, syndicates }) => {
+            if (!completedPrereqs[PR.HUB_SANCTUM]) return false;
+            return (syndicates.find((s) => s.id === SY.CAVIA)?.rank ?? 0) >= 5;
+        },
+    },
     { id: "acrithis_weekly", label: "Acrithis Weekly Shop", bucket: "weekly_monday", description: "Review the weekly Acrithis inventory.", prereqIds: [PR.DUVIRI_PARADOX] },
     { id: "break_narmer", label: "Break Narmer (Kahl)", bucket: "weekly_monday", description: "Complete the weekly Kahl mission.", prereqIds: [PR.VEILBREAKER] },
     { id: "maroo", label: "Maroo — Ayatan Hunt", bucket: "weekly_monday", description: "Run the weekly Ayatan Treasure Hunt." },
