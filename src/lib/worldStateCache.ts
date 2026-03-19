@@ -11,12 +11,16 @@ export type WsCycle = {
     timeLeft: string;
 };
 
-export type DuviriChoice = { category: string; name: string };
+export type DuviriChoiceGroup = {
+    category: string;   // "normal" | "hard"
+    categoryKey: string;
+    choices: string[];  // warframe names (normal) or incarnon weapon names (hard)
+};
 
 export type DuviriCycle = {
     state: string;
     expiry: string;
-    choices: DuviriChoice[];
+    choices: DuviriChoiceGroup[];
 };
 
 export type SortieMission = {
@@ -137,9 +141,16 @@ export type Invasion = {
     defenderReward: InvasionReward | null;
 };
 
+export type SteelPathRotationItem = {
+    name: string;
+    cost: number;
+};
+
 export type SteelPath = {
     currentReward: { name: string; cost: number } | null;
     expiry?: string;
+    rotation: SteelPathRotationItem[];
+    evergreens: SteelPathRotationItem[];
 };
 
 export type ConstructionProgress = {
@@ -163,6 +174,54 @@ export type SentientOutpost = {
     missionType?: string;
 };
 
+// ── Archimedea (Temporal Archimedea / The Hex) ────────────────────────────────
+
+export type ArchimedeaMission = {
+    node: string;
+    type: string;
+    modifier?: string;
+    modifierDescription?: string;
+};
+
+export type ArchimedeaModifier = {
+    tag: string;
+    description?: string;
+    rarity?: string;
+};
+
+export type Archimedea = {
+    id: string;
+    tag: string;         // e.g. "C T_ L A B" (Lab) or "C T_ H E X" (Hex)
+    variants: ArchimedeaMission[];
+    personalModifiers: ArchimedeaModifier[];
+    deviations?: ArchimedeaModifier[];
+    risks?: ArchimedeaModifier[];
+    endDate: string;
+    expired: boolean;
+};
+
+// ── 1999 Calendar ─────────────────────────────────────────────────────────────
+
+export type CalendarDay = {
+    date: string;                  // in-game 1999 date string
+    events: Record<string, string>; // "To Do", "Big Prize!", "Override", etc.
+};
+
+export type Calendar = {
+    days: CalendarDay[];
+    currentDay?: string;
+    season?: string;
+};
+
+// ── Simaris ───────────────────────────────────────────────────────────────────
+
+export type Simaris = {
+    target: string;
+    isTargetActive: boolean;
+};
+
+// ── Combined WorldState ───────────────────────────────────────────────────────
+
 export type WorldStateData = {
     cetusCycle:           WsCycle | null;
     vallisCycle:          WsCycle | null;
@@ -182,6 +241,9 @@ export type WorldStateData = {
     constructionProgress: ConstructionProgress | null;
     dailyDeals:           DailyDeal[];
     sentientOutposts:     SentientOutpost | null;
+    archimedeas:          Archimedea[];
+    calendar:             Calendar | null;
+    simaris:              Simaris | null;
 };
 
 // ── Cache ─────────────────────────────────────────────────────────────────────
@@ -211,19 +273,36 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                 cambionCycle: j.cambionCycle ?? null,
                 zarimanCycle: j.zarimanCycle ?? null,
                 earthCycle:   j.earthCycle   ?? null,
-                duviriCycle:  j.duviriCycle  ?? null,
-                sortie:       j.sortie       ?? null,
-                archonHunt:   j.archonHunt   ?? null,
-                fissures:     Array.isArray(j.fissures) ? j.fissures : [],
-                nightwave:    j.nightwave  ?? null,
-                voidTrader:   j.voidTrader ?? null,
-                vaultTrader:  j.vaultTrader ?? null,
+
+                duviriCycle: j.duviriCycle
+                    ? {
+                        state:  j.duviriCycle.state  ?? "",
+                        expiry: j.duviriCycle.expiry ?? "",
+                        choices: Array.isArray(j.duviriCycle.choices)
+                            ? j.duviriCycle.choices.map((g: any) => ({
+                                category:    g.category    ?? "",
+                                categoryKey: g.categoryKey ?? "",
+                                choices:     Array.isArray(g.choices) ? g.choices : [],
+                            }))
+                            : [],
+                    }
+                    : null,
+
+                sortie:    j.sortie    ?? null,
+                archonHunt: j.archonHunt ?? null,
+
+                fissures: Array.isArray(j.fissures) ? j.fissures : [],
+
+                nightwave: j.nightwave ?? null,
+                voidTrader: j.voidTrader ?? null,
+                vaultTrader: j.vaultTrader ?? null,
+
                 events: Array.isArray(j.events)
                     ? (j.events as WsEvent[]).filter((e) => e.active !== false)
                     : [],
+
                 invasions: Array.isArray(j.invasions)
                     ? (j.invasions as any[]).filter((inv) => !inv.completed).map((inv): Invasion => {
-                        // API uses nested attacker/defender objects
                         const attackerData = inv.attacker ?? {};
                         const defenderData = inv.defender ?? {};
 
@@ -259,12 +338,86 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                         };
                     })
                     : [],
+
                 steelPath: j.steelPath
-                    ? { currentReward: j.steelPath.currentReward ?? null, expiry: j.steelPath.expiry }
+                    ? {
+                        currentReward: j.steelPath.currentReward ?? null,
+                        expiry: j.steelPath.expiry,
+                        rotation: Array.isArray(j.steelPath.rotation)
+                            ? j.steelPath.rotation.map((r: any) => ({ name: r.name ?? r.item ?? "", cost: r.cost ?? 0 }))
+                            : [],
+                        evergreens: Array.isArray(j.steelPath.evergreens)
+                            ? j.steelPath.evergreens.map((r: any) => ({ name: r.name ?? r.item ?? "", cost: r.cost ?? 0 }))
+                            : [],
+                    }
                     : null,
+
                 constructionProgress: j.constructionProgress ?? null,
                 dailyDeals: Array.isArray(j.dailyDeals) ? j.dailyDeals : [],
                 sentientOutposts: j.sentientOutposts ?? null,
+
+                archimedeas: Array.isArray(j.archimedeas)
+                    ? (j.archimedeas as any[]).map((a): Archimedea => ({
+                        id: a.id ?? "",
+                        tag: a.tag ?? "",
+                        variants: Array.isArray(a.variants)
+                            ? a.variants.map((v: any) => ({
+                                node: v.node ?? "",
+                                type: v.type ?? v.missionType ?? "",
+                                modifier: v.modifier,
+                                modifierDescription: v.modifierDescription,
+                            }))
+                            : [],
+                        personalModifiers: Array.isArray(a.personalModifiers)
+                            ? a.personalModifiers.map((m: any) =>
+                                typeof m === "string"
+                                    ? { tag: m }
+                                    : { tag: m.tag ?? m.name ?? "", description: m.description, rarity: m.rarity }
+                              )
+                            : [],
+                        deviations: Array.isArray(a.deviations)
+                            ? a.deviations.map((m: any) =>
+                                typeof m === "string"
+                                    ? { tag: m }
+                                    : { tag: m.tag ?? m.name ?? "", description: m.description, rarity: m.rarity }
+                              )
+                            : [],
+                        risks: Array.isArray(a.risks)
+                            ? a.risks.map((m: any) =>
+                                typeof m === "string"
+                                    ? { tag: m }
+                                    : { tag: m.tag ?? m.name ?? "", description: m.description, rarity: m.rarity }
+                              )
+                            : [],
+                        endDate: a.endDate ?? a.expiry ?? "",
+                        expired: !!a.expired,
+                    }))
+                    : [],
+
+                calendar: j.calendar
+                    ? {
+                        days: Array.isArray(j.calendar.days)
+                            ? j.calendar.days.map((d: any) => ({
+                                date: d.date ?? d.day ?? String(d.dayNumber ?? ""),
+                                events: (d.jobs && Array.isArray(d.jobs))
+                                    // Some API versions use a jobs array
+                                    ? Object.fromEntries(
+                                        (d.jobs as any[]).map((job: any) => [job.type ?? job.name, job.reward ?? job.description ?? ""])
+                                      )
+                                    : (d.events && typeof d.events === "object" ? d.events : {}),
+                            }))
+                            : [],
+                        currentDay: j.calendar.currentDay ?? j.calendar.activeDayIndex,
+                        season: j.calendar.season,
+                    }
+                    : null,
+
+                simaris: j.simaris
+                    ? {
+                        target: j.simaris.target ?? "",
+                        isTargetActive: !!j.simaris.isTargetActive,
+                    }
+                    : null,
             };
 
             _cache = { data, fetchedAt: Date.now() };

@@ -10,7 +10,6 @@ import {
     restoreFromGoogleDrive,
     getLastSyncTime,
     wasConnected,
-    tryAutoConnect,
 } from "../lib/googleDrive";
 
 function downloadText(filename: string, text: string, mimeType = "application/json;charset=utf-8"): void {
@@ -43,18 +42,15 @@ function GoogleDriveSection({ exportJson }: { exportJson: () => string }) {
     const importProgressPackJson = useTrackerStore((s) => s.importProgressPackJson);
 
     const configured = isConfigured();
-    const [connected, setConnected]   = useState(isConnected);
+    const [connected, setConnected]     = useState(isConnected);
     const [driveStatus, setDriveStatus] = useState<{ msg: string; ok: boolean } | null>(null);
-    const [busy, setBusy]             = useState(false);
-    const [lastSync, setLastSync]     = useState<string | null>(getLastSyncTime);
+    const [busy, setBusy]               = useState(false);
+    const [lastSync, setLastSync]       = useState<string | null>(getLastSyncTime);
+    // True when the user previously connected but the in-memory token has expired
+    // (happens on every page reload — GIS token model is ephemeral by design).
+    const previouslyConnected = !connected && wasConnected();
 
-    // On mount: attempt silent token re-acquisition if the user previously connected
-    useEffect(() => {
-        if (!configured || isConnected() || !wasConnected()) return;
-        tryAutoConnect().then((ok) => { if (ok) setConnected(true); }).catch(() => {});
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // Refresh connected state whenever the section mounts or window regains focus
+    // Refresh connected state whenever window regains focus (e.g. after OAuth popup)
     useEffect(() => {
         const onFocus = () => setConnected(isConnected());
         window.addEventListener("focus", onFocus);
@@ -157,6 +153,7 @@ function GoogleDriveSection({ exportJson }: { exportJson: () => string }) {
                     <p className="text-xs text-slate-500">
                         Saves are <span className="text-slate-400">manual</span> — your Drive file only updates when you click
                         "Save to Drive". Nothing is sent automatically.
+                        The Drive connection lasts for the current browser session only; you'll need to reconnect after a page reload.
                     </p>
                 </div>
             </div>
@@ -177,18 +174,36 @@ function GoogleDriveSection({ exportJson }: { exportJson: () => string }) {
             {configured && (
                 <div className="space-y-3">
                     {!connected ? (
-                        <div className="flex flex-wrap items-center gap-3">
-                            <button
-                                className="inline-flex items-center gap-2 rounded-lg border border-blue-700/60 bg-blue-950/30 px-4 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-950/50 transition-colors disabled:opacity-50"
-                                onClick={handleConnect}
-                                disabled={busy}
-                            >
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-                                {busy ? "Connecting…" : "Connect Google Drive"}
-                            </button>
-                            <span className="text-xs text-slate-500">
-                                A Google sign-in window will open.
-                            </span>
+                        <div className="space-y-3">
+                            {/* Previously connected — show reconnect prompt */}
+                            {previouslyConnected && (
+                                <div className="rounded-xl border border-amber-800/50 bg-amber-950/20 px-3 py-2.5 text-xs text-amber-300 flex flex-wrap items-center justify-between gap-2">
+                                    <span>
+                                        <span className="font-semibold text-amber-200">Session expired.</span>{" "}
+                                        Google Drive connections aren't saved between page loads — click to reconnect.
+                                    </span>
+                                    <button
+                                        className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-amber-700/60 bg-amber-950/30 px-3 py-1.5 text-xs font-semibold text-amber-200 hover:bg-amber-950/50 transition-colors disabled:opacity-50"
+                                        onClick={handleConnect}
+                                        disabled={busy}
+                                    >
+                                        {busy ? "Connecting…" : "Reconnect"}
+                                    </button>
+                                </div>
+                            )}
+                            <div className="flex flex-wrap items-center gap-3">
+                                <button
+                                    className="inline-flex items-center gap-2 rounded-lg border border-blue-700/60 bg-blue-950/30 px-4 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-950/50 transition-colors disabled:opacity-50"
+                                    onClick={handleConnect}
+                                    disabled={busy}
+                                >
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+                                    {busy ? "Connecting…" : "Connect Google Drive"}
+                                </button>
+                                <span className="text-xs text-slate-500">
+                                    A Google sign-in window will open.
+                                </span>
+                            </div>
                         </div>
                     ) : (
                         <div className="space-y-3">

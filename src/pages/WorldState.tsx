@@ -9,6 +9,8 @@ import {
     type Fissure,
     type WsCycle,
     type DuviriCycle,
+    type Archimedea,
+    type Calendar,
 } from "../lib/worldStateCache";
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
@@ -114,37 +116,194 @@ function CycleCard({ name, cycle, nextLabel }: { name: string; cycle: WsCycle; n
 }
 
 function DuviriCard({ cycle }: { cycle: DuviriCycle }) {
+    const [open, setOpen] = useState(false);
     const vis = getVisual(cycle.state);
+
+    const normalGroup = cycle.choices.find((g) => g.category === "normal" || g.categoryKey?.includes("NORMAL"));
+    const hardGroup   = cycle.choices.find((g) => g.category === "hard"   || g.categoryKey?.includes("HARD"));
+
     return (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
-            <div className="flex items-center justify-between gap-2 mb-1.5">
-                <div>
-                    <div className="text-[11px] text-slate-500 mb-0.5">Duviri</div>
-                    <div className="flex items-center gap-1.5">
-                        <span className={["w-2 h-2 rounded-full shrink-0", vis.dot].join(" ")} />
-                        <span className={["text-sm font-semibold", vis.color].join(" ")}>{vis.label}</span>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/40">
+            <div className="px-3 py-2.5">
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div>
+                        <div className="text-[11px] text-slate-500 mb-0.5">Duviri</div>
+                        <div className="flex items-center gap-1.5">
+                            <span className={["w-2 h-2 rounded-full shrink-0", vis.dot].join(" ")} />
+                            <span className={["text-sm font-semibold", vis.color].join(" ")}>{vis.label}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="text-right">
+                            <div className="text-[10px] text-slate-500">next in</div>
+                            <Countdown expiry={cycle.expiry} className="font-mono text-xs text-slate-300" />
+                        </div>
                     </div>
                 </div>
-                <div className="text-right">
-                    <div className="text-[10px] text-slate-500">next in</div>
-                    <Countdown expiry={cycle.expiry} className="font-mono text-xs text-slate-300" />
-                </div>
+                {/* Circuit choices toggle */}
+                {cycle.choices.length > 0 && (
+                    <button
+                        onClick={() => setOpen((v) => !v)}
+                        className="flex items-center gap-1 text-[10px] text-violet-400 hover:text-violet-300 transition-colors"
+                    >
+                        <svg className={["w-3 h-3 transition-transform", open ? "rotate-90" : ""].join(" ")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                        The Circuit choices
+                    </button>
+                )}
             </div>
-            {cycle.choices && cycle.choices.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1.5">
-                    {cycle.choices.slice(0, 3).map((c, i) => (
-                        <span key={i} className="rounded-full border border-slate-700 bg-slate-800/60 px-1.5 py-px text-[10px] text-slate-300">
-                            {c.name}
-                        </span>
-                    ))}
+            {/* Expanded circuit panel */}
+            {open && cycle.choices.length > 0 && (
+                <div className="border-t border-slate-800/60 px-3 py-2.5 space-y-2">
+                    {normalGroup && (
+                        <div>
+                            <div className="text-[10px] text-slate-500 mb-1">Normal — Warframe picks</div>
+                            <div className="flex flex-wrap gap-1">
+                                {normalGroup.choices.map((name, i) => (
+                                    <span key={i} className="rounded-full border border-blue-700/50 bg-blue-950/30 px-2 py-px text-[10px] text-blue-300 font-medium">
+                                        {name}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {hardGroup && (
+                        <div>
+                            <div className="text-[10px] text-red-400/70 mb-1">Steel Path — Incarnon picks</div>
+                            <div className="flex flex-wrap gap-1">
+                                {hardGroup.choices.map((name, i) => (
+                                    <span key={i} className="rounded-full border border-red-700/50 bg-red-950/20 px-2 py-px text-[10px] text-red-300 font-medium">
+                                        {name}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
     );
 }
 
+// ── Simaris card ───────────────────────────────────────────────────────────────
+
+function SimarisCard({ target, isTargetActive }: { target: string; isTargetActive: boolean }) {
+    return (
+        <div className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
+            <div className="text-[11px] text-slate-500 mb-0.5">Sanctuary Onslaught Target</div>
+            <div className="flex items-center gap-1.5">
+                <span className={["w-2 h-2 rounded-full shrink-0", isTargetActive ? "bg-green-400" : "bg-slate-600"].join(" ")} />
+                <span className={["text-sm font-semibold", isTargetActive ? "text-green-300" : "text-slate-300"].join(" ")}>
+                    {target || "Unknown"}
+                </span>
+            </div>
+            <div className="text-[10px] text-slate-500 mt-0.5">
+                {isTargetActive ? "Currently active in mission" : "Scan in Sanctuary Onslaught"}
+            </div>
+        </div>
+    );
+}
+
+// ── 1999 Calendar modal ────────────────────────────────────────────────────────
+
+const CALENDAR_EVENT_STYLES: Record<string, { label: string; color: string; bg: string; border: string }> = {
+    "To Do":      { label: "To Do",      color: "text-sky-300",    bg: "bg-sky-950/30",    border: "border-sky-700/40"    },
+    "Big Prize!": { label: "Big Prize!", color: "text-amber-300",  bg: "bg-amber-950/30",  border: "border-amber-700/40"  },
+    "Override":   { label: "Override",   color: "text-violet-300", bg: "bg-violet-950/30", border: "border-violet-700/40" },
+};
+
+function CalendarModal({ calendar, onClose }: { calendar: Calendar; onClose: () => void }) {
+    return (
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+            onClick={onClose}
+        >
+            <div
+                className="relative w-full max-w-2xl max-h-[80vh] overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 shrink-0">
+                    <div>
+                        <div className="text-sm font-semibold text-slate-100">1999 Calendar</div>
+                        {calendar.season && (
+                            <div className="text-[11px] text-slate-500 mt-0.5">{calendar.season}</div>
+                        )}
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="rounded-lg p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors"
+                    >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
+                {/* Legend */}
+                <div className="flex flex-wrap gap-2 px-5 py-2.5 border-b border-slate-800/60 shrink-0">
+                    {Object.values(CALENDAR_EVENT_STYLES).map((s) => (
+                        <span key={s.label} className={["rounded-full border px-2 py-px text-[10px] font-medium", s.color, s.bg, s.border].join(" ")}>
+                            {s.label}
+                        </span>
+                    ))}
+                </div>
+                {/* Days list */}
+                <div className="overflow-y-auto flex-1 p-4">
+                    {calendar.days.length === 0 ? (
+                        <div className="text-xs text-slate-500 text-center py-8">No calendar data available.</div>
+                    ) : (
+                        <div className="space-y-2">
+                            {calendar.days.map((day, i) => {
+                                const entries = Object.entries(day.events).filter(([, v]) => v);
+                                if (entries.length === 0) return null;
+                                const isCurrent = calendar.currentDay !== undefined &&
+                                    (String(i) === String(calendar.currentDay) || day.date === String(calendar.currentDay));
+                                return (
+                                    <div
+                                        key={i}
+                                        className={[
+                                            "rounded-xl border px-3 py-2.5",
+                                            isCurrent
+                                                ? "border-violet-600/60 bg-violet-950/20"
+                                                : "border-slate-800 bg-slate-900/30",
+                                        ].join(" ")}
+                                    >
+                                        <div className="flex items-center justify-between gap-2 mb-2">
+                                            <span className={["text-[11px] font-semibold", isCurrent ? "text-violet-300" : "text-slate-400"].join(" ")}>
+                                                {isCurrent && <span className="mr-1">▶</span>}{day.date || `Day ${i + 1}`}
+                                            </span>
+                                            {isCurrent && (
+                                                <span className="rounded-full border border-violet-600/40 bg-violet-900/30 px-1.5 py-px text-[9px] text-violet-300 font-bold">TODAY</span>
+                                            )}
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            {entries.map(([type, value]) => {
+                                                const style = CALENDAR_EVENT_STYLES[type] ?? { label: type, color: "text-slate-300", bg: "bg-slate-800/40", border: "border-slate-700/40" };
+                                                return (
+                                                    <div key={type} className={["rounded-lg border px-2.5 py-1.5", style.bg, style.border].join(" ")}>
+                                                        <div className={["text-[9px] font-bold uppercase tracking-wider mb-0.5", style.color].join(" ")}>
+                                                            {type}
+                                                        </div>
+                                                        <div className="text-xs text-slate-200">{value}</div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function OverviewTab({ data }: { data: WorldStateData }) {
     const now = useNow();
+    const [calendarOpen, setCalendarOpen] = useState(false);
 
     const cycles: Array<{ name: string; cycle: WsCycle; nextLabel: string }> = [
         data.cetusCycle   && { name: "Plains of Eidolon", cycle: data.cetusCycle,   nextLabel: data.cetusCycle.state   === "day"  ? "Night" : "Day"  },
@@ -161,12 +320,33 @@ function OverviewTab({ data }: { data: WorldStateData }) {
 
     return (
         <div className="space-y-4">
+            {calendarOpen && data.calendar && (
+                <CalendarModal calendar={data.calendar} onClose={() => setCalendarOpen(false)} />
+            )}
+
             {/* Cycles grid */}
             <section>
-                <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Open World Cycles</div>
+                <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Open World Cycles</div>
+                    {data.calendar && (
+                        <button
+                            onClick={() => setCalendarOpen(true)}
+                            className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/40 px-2.5 py-1 text-[11px] text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors"
+                            title="1999 Calendar"
+                        >
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            1999 Calendar
+                        </button>
+                    )}
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                     {cycles.map((c) => <CycleCard key={c.name} {...c} />)}
                     {data.duviriCycle && <DuviriCard cycle={data.duviriCycle} />}
+                    {data.simaris && data.simaris.target && (
+                        <SimarisCard target={data.simaris.target} isTargetActive={data.simaris.isTargetActive} />
+                    )}
                 </div>
             </section>
 
@@ -430,9 +610,83 @@ function FissuresTab({ fissures }: { fissures: Fissure[] }) {
     );
 }
 
+// ── Archimedea card ────────────────────────────────────────────────────────────
+
+const ARCHIMEDEA_TAG_LABELS: Record<string, string> = {
+    "C T_ L A B": "Temporal Archimedea",
+    "C T_ H E X": "The Hex",
+};
+
+function ArchimedeaCard({ arch }: { arch: Archimedea }) {
+    const title = ARCHIMEDEA_TAG_LABELS[arch.tag] ?? arch.tag;
+    const allModifiers = [
+        ...(arch.personalModifiers ?? []),
+        ...(arch.deviations ?? []),
+        ...(arch.risks ?? []),
+    ];
+
+    return (
+        <div className="rounded-xl border border-slate-800 bg-slate-900/30 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/40">
+                <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">{title}</div>
+                {arch.endDate && (
+                    <div className="text-[10px] text-slate-500">
+                        Ends <Countdown expiry={arch.endDate} className="font-mono text-slate-400" />
+                    </div>
+                )}
+            </div>
+            <div className="p-3 space-y-3">
+                {/* Missions */}
+                {arch.variants.length > 0 && (
+                    <div className="space-y-1.5">
+                        {arch.variants.map((v, i) => (
+                            <div key={i} className="rounded-lg border border-slate-800 bg-slate-900/40 px-2.5 py-2">
+                                <div className="flex items-center justify-between gap-2">
+                                    <div>
+                                        <div className="text-xs font-medium text-slate-200">{v.type}</div>
+                                        <div className="text-[10px] text-slate-500">{v.node}</div>
+                                    </div>
+                                    {v.modifier && (
+                                        <span className="shrink-0 rounded-full border border-orange-700/50 bg-orange-950/20 px-1.5 py-px text-[10px] text-orange-300">
+                                            {v.modifier}
+                                        </span>
+                                    )}
+                                </div>
+                                {v.modifierDescription && (
+                                    <div className="mt-1.5 text-[10px] text-slate-400 border-t border-slate-800/60 pt-1.5 leading-relaxed">
+                                        {v.modifierDescription}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+                {/* Modifiers / Deviations / Risks */}
+                {allModifiers.length > 0 && (
+                    <div>
+                        <div className="text-[10px] text-slate-500 mb-1.5">Active Modifiers</div>
+                        <div className="flex flex-wrap gap-1">
+                            {allModifiers.map((m, i) => (
+                                <span
+                                    key={i}
+                                    title={m.description}
+                                    className="rounded-full border border-cyan-700/40 bg-cyan-950/20 px-2 py-px text-[10px] text-cyan-300 cursor-default"
+                                >
+                                    {m.tag}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 // ── Missions tab ──────────────────────────────────────────────────────────────
 
 function MissionsTab({ data }: { data: WorldStateData }) {
+    const activeArchs = data.archimedeas.filter((a) => !a.expired);
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
@@ -460,15 +714,22 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                         </div>
                         <div className="space-y-1.5">
                             {data.sortie.variants.map((v, i) => (
-                                <div key={i} className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/40 px-2.5 py-2">
-                                    <div>
-                                        <div className="text-xs font-medium text-slate-200">{v.missionType}</div>
-                                        <div className="text-[10px] text-slate-500">{v.node}</div>
+                                <div key={i} className="rounded-lg border border-slate-800 bg-slate-900/40 px-2.5 py-2">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div>
+                                            <div className="text-xs font-medium text-slate-200">{v.missionType}</div>
+                                            <div className="text-[10px] text-slate-500">{v.node}</div>
+                                        </div>
+                                        {v.modifier && (
+                                            <span className="shrink-0 rounded-full border border-orange-700/50 bg-orange-950/20 px-1.5 py-px text-[10px] text-orange-300">
+                                                {v.modifier}
+                                            </span>
+                                        )}
                                     </div>
-                                    {v.modifier && (
-                                        <span className="shrink-0 rounded-full border border-orange-700/50 bg-orange-950/20 px-1.5 py-px text-[10px] text-orange-300">
-                                            {v.modifier}
-                                        </span>
+                                    {v.modifierDescription && (
+                                        <div className="mt-1.5 text-[10px] text-slate-400 border-t border-slate-800/60 pt-1.5 leading-relaxed">
+                                            {v.modifierDescription}
+                                        </div>
                                     )}
                                 </div>
                             ))}
@@ -512,6 +773,11 @@ function MissionsTab({ data }: { data: WorldStateData }) {
             )}
 
             {/* Nightwave challenges */}
+            {/* Archimedeas */}
+            {activeArchs.map((arch) => (
+                <ArchimedeaCard key={arch.id} arch={arch} />
+            ))}
+
             {data.nightwave && data.nightwave.activeChallenges.length > 0 && (
                 <div className="rounded-xl border border-slate-800 bg-slate-900/30 overflow-hidden lg:col-span-2">
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/40">

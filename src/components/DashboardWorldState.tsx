@@ -4,7 +4,7 @@
 // Data from https://api.warframestat.us (community API, no auth required).
 // Fetches the full /pc endpoint in a single request to avoid sub-endpoint issues.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 // ── API types ─────────────────────────────────────────────────────────────────
 
@@ -93,17 +93,36 @@ type WsEvent = {
     active: boolean;
 };
 
+type DuviriChoiceGroup = {
+    category: string;
+    categoryKey: string;
+    choices: string[];
+};
+
+type DuviriCycle = {
+    state: string;
+    expiry: string;
+    choices: DuviriChoiceGroup[];
+};
+
+type Simaris = {
+    target: string;
+    isTargetActive: boolean;
+};
+
 type WorldStateData = {
     cetusCycle:   WsCycle | null;
     valesCycle:   WsCycle | null;
     cambionCycle: WsCycle | null;
     zarimanCycle: WsCycle | null;
+    duviriCycle:  DuviriCycle | null;
     sortie:       Sortie | null;
     archonHunt:   ArchonHunt | null;
     fissures:     Fissure[];
     nightwave:    Nightwave | null;
     voidTrader:   VoidTrader | null;
     events:       WsEvent[];
+    simaris:      Simaris | null;
 };
 
 // ── Fetch ─────────────────────────────────────────────────────────────────────
@@ -120,6 +139,19 @@ async function fetchWorldState(): Promise<WorldStateData> {
         valesCycle:   j.valesCycle   ?? j.vallisCycle ?? null,
         cambionCycle: j.cambionCycle ?? null,
         zarimanCycle: j.zarimanCycle ?? null,
+        duviriCycle: j.duviriCycle
+            ? {
+                state:  j.duviriCycle.state  ?? "",
+                expiry: j.duviriCycle.expiry ?? "",
+                choices: Array.isArray(j.duviriCycle.choices)
+                    ? j.duviriCycle.choices.map((g: any) => ({
+                        category:    g.category    ?? "",
+                        categoryKey: g.categoryKey ?? "",
+                        choices:     Array.isArray(g.choices) ? g.choices : [],
+                    }))
+                    : [],
+            }
+            : null,
         sortie:       j.sortie       ?? null,
         archonHunt:   j.archonHunt   ?? null,
         fissures:     Array.isArray(j.fissures)  ? j.fissures  : [],
@@ -128,6 +160,9 @@ async function fetchWorldState(): Promise<WorldStateData> {
         events:       Array.isArray(j.events)
             ? (j.events as WsEvent[]).filter((e) => e.active !== false)
             : [],
+        simaris: j.simaris
+            ? { target: j.simaris.target ?? "", isTargetActive: !!j.simaris.isTargetActive }
+            : null,
     };
 }
 
@@ -209,6 +244,8 @@ function Panel({ title, aside, children }: { title: string; aside?: React.ReactN
 }
 
 function CyclesPanel({ data }: { data: WorldStateData }) {
+    const [circuitOpen, setCircuitOpen] = React.useState(false);
+
     const allCycles = [
         { loc: "Plains of Eidolon", cycle: data.cetusCycle,   next: data.cetusCycle?.state   === "day"  ? "Night" : "Day"  },
         { loc: "Orb Vallis",        cycle: data.valesCycle,   next: data.valesCycle?.state   === "warm" ? "Cold"  : "Warm" },
@@ -216,6 +253,11 @@ function CyclesPanel({ data }: { data: WorldStateData }) {
         { loc: "Zariman",           cycle: data.zarimanCycle, next: "Next" },
     ];
     const cycles = allCycles.filter((c): c is typeof c & { cycle: WsCycle } => c.cycle != null);
+
+    const duviri = data.duviriCycle;
+    const normalGroup = duviri?.choices.find((g) => g.category === "normal" || g.categoryKey?.includes("NORMAL"));
+    const hardGroup   = duviri?.choices.find((g) => g.category === "hard"   || g.categoryKey?.includes("HARD"));
+
     return (
         <Panel title="Open World Cycles">
             <div className="space-y-2">
@@ -235,6 +277,61 @@ function CyclesPanel({ data }: { data: WorldStateData }) {
                         </div>
                     );
                 })}
+
+                {duviri && (
+                    <div className="pt-1 border-t border-slate-800/60">
+                        <div className="flex items-center justify-between gap-2">
+                            <span className="text-slate-400 text-xs">Duviri</span>
+                            <div className="text-right">
+                                <span className={["font-semibold text-xs", getVisual(duviri.state).color].join(" ")}>
+                                    {getVisual(duviri.state).icon} {getVisual(duviri.state).label}
+                                </span>
+                                <span className="text-slate-500 text-xs ml-1.5">
+                                    → Next <Countdown expiry={duviri.expiry} className="font-mono text-slate-300" />
+                                </span>
+                            </div>
+                        </div>
+                        {duviri.choices.length > 0 && (
+                            <button
+                                onClick={() => setCircuitOpen((v) => !v)}
+                                className="mt-1 flex items-center gap-1 text-[10px] text-violet-400 hover:text-violet-300 transition-colors"
+                            >
+                                <svg className={["w-2.5 h-2.5 transition-transform", circuitOpen ? "rotate-90" : ""].join(" ")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="9 18 15 12 9 6" />
+                                </svg>
+                                Circuit choices
+                            </button>
+                        )}
+                        {circuitOpen && (
+                            <div className="mt-1.5 space-y-1.5 pl-2 border-l border-violet-800/40">
+                                {normalGroup && (
+                                    <div>
+                                        <div className="text-[9px] text-slate-500 mb-1">Normal — Warframes</div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {normalGroup.choices.map((name, i) => (
+                                                <span key={i} className="rounded-full border border-blue-700/50 bg-blue-950/30 px-1.5 py-px text-[9px] text-blue-300">
+                                                    {name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {hardGroup && (
+                                    <div>
+                                        <div className="text-[9px] text-red-400/70 mb-1">Steel Path — Incarnon</div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {hardGroup.choices.map((name, i) => (
+                                                <span key={i} className="rounded-full border border-red-700/50 bg-red-950/20 px-1.5 py-px text-[9px] text-red-300">
+                                                    {name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </Panel>
     );
@@ -454,6 +551,24 @@ function FissuresPanel({ fissures }: { fissures: Fissure[] }) {
     );
 }
 
+function SimarisPanel({ simaris }: { simaris: Simaris }) {
+    return (
+        <Panel title="Sanctuary — Simaris Target">
+            <div className="flex items-center gap-2">
+                <span className={["w-2 h-2 rounded-full shrink-0", simaris.isTargetActive ? "bg-green-400" : "bg-slate-600"].join(" ")} />
+                <div>
+                    <div className={["text-xs font-semibold", simaris.isTargetActive ? "text-green-300" : "text-slate-300"].join(" ")}>
+                        {simaris.target || "Unknown"}
+                    </div>
+                    <div className="text-[10px] text-slate-500">
+                        {simaris.isTargetActive ? "Active in current mission" : "Scan in Sanctuary Onslaught"}
+                    </div>
+                </div>
+            </div>
+        </Panel>
+    );
+}
+
 function NightwavePanel({ nightwave }: { nightwave: Nightwave }) {
     const acts = nightwave.activeChallenges.slice().sort((a, b) => {
         if (a.isElite !== b.isElite) return a.isElite ? -1 : 1;
@@ -606,9 +721,19 @@ export default function DashboardWorldState() {
                         {/* Row 3: Fissures (full width) */}
                         <FissuresPanel fissures={data.fissures} />
 
-                        {/* Row 4: Nightwave (if active) */}
-                        {data.nightwave && data.nightwave.activeChallenges.length > 0 && (
-                            <NightwavePanel nightwave={data.nightwave} />
+                        {/* Row 4: Simaris + Nightwave */}
+                        {(data.simaris?.target || (data.nightwave && data.nightwave.activeChallenges.length > 0)) && (
+                            <div className={[
+                                "grid gap-3",
+                                data.simaris?.target && data.nightwave && data.nightwave.activeChallenges.length > 0
+                                    ? "grid-cols-1 lg:grid-cols-2"
+                                    : "grid-cols-1",
+                            ].join(" ")}>
+                                {data.simaris?.target && <SimarisPanel simaris={data.simaris} />}
+                                {data.nightwave && data.nightwave.activeChallenges.length > 0 && (
+                                    <NightwavePanel nightwave={data.nightwave} />
+                                )}
+                            </div>
                         )}
                     </div>
                 )}
