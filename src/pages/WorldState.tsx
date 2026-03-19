@@ -865,28 +865,95 @@ function EventsTab({ data }: { data: WorldStateData }) {
                         Active Events ({data.events.length})
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {data.events.map((ev) => (
-                            <div key={ev.id} className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
-                                <div className="flex items-start justify-between gap-2">
-                                    <div className="min-w-0">
-                                        <div className="text-xs font-medium text-slate-200 truncate">
-                                            {ev.description || ev.tooltip || "Active Event"}
+                        {data.events.map((ev) => {
+                            const title = ev.description || ev.tooltip || "Active Event";
+                            const subtitle = ev.tooltip && ev.description && ev.tooltip !== ev.description ? ev.tooltip : null;
+                            const location = ev.node || ev.victimNode;
+                            const hasProgress = ev.currentScore != null && ev.maximumScore != null && ev.maximumScore > 0;
+                            const pct = hasProgress ? Math.min(100, (ev.currentScore! / ev.maximumScore!) * 100) : null;
+                            return (
+                                <div key={ev.id} className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
+                                    {/* Header: title + countdown */}
+                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                        <div className="min-w-0">
+                                            <div className="text-xs font-medium text-slate-200 leading-tight">{title}</div>
+                                            {subtitle && (
+                                                <div className="text-[10px] text-slate-500 mt-0.5">{subtitle}</div>
+                                            )}
                                         </div>
-                                        {ev.tooltip && ev.description && ev.tooltip !== ev.description && (
-                                            <div className="text-[10px] text-slate-500 mt-0.5 truncate">{ev.tooltip}</div>
-                                        )}
-                                        {ev.rewards && ev.rewards.length > 0 && (
-                                            <div className="mt-1 text-[10px] text-amber-400/80 truncate">
-                                                {ev.rewards[0].asString}
-                                            </div>
+                                        {ev.expiry && (
+                                            <Countdown expiry={ev.expiry} className="shrink-0 font-mono text-[10px] text-slate-400" />
                                         )}
                                     </div>
-                                    {ev.expiry && (
-                                        <Countdown expiry={ev.expiry} className="shrink-0 font-mono text-[10px] text-slate-400" />
+
+                                    {/* Location */}
+                                    {location && (
+                                        <div className="text-[10px] text-slate-500 mb-1">
+                                            {ev.affiliatedWith && <span className="text-slate-400">{ev.affiliatedWith} · </span>}
+                                            {location}
+                                        </div>
+                                    )}
+
+                                    {/* Score progress bar (e.g. Thermia Fractures) */}
+                                    {hasProgress && (
+                                        <div className="mb-1.5">
+                                            <div className="flex justify-between text-[10px] text-slate-500 mb-0.5">
+                                                <span>{ev.scoreLocTag || "Progress"}</span>
+                                                <span className="font-mono">{ev.currentScore!.toLocaleString()} / {ev.maximumScore!.toLocaleString()}</span>
+                                            </div>
+                                            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                                <div className="h-full bg-blue-500/70 rounded-full" style={{ width: `${pct}%` }} />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Health bar (e.g. Ghoul Purge) */}
+                                    {!hasProgress && ev.health != null && (
+                                        <div className="mb-1.5">
+                                            <div className="flex justify-between text-[10px] text-slate-500 mb-0.5">
+                                                <span>Progress</span>
+                                                <span className="font-mono">{ev.health.toFixed(1)}%</span>
+                                            </div>
+                                            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                                <div className="h-full bg-blue-500/70 rounded-full" style={{ width: `${Math.min(100, ev.health)}%` }} />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Final rewards */}
+                                    {ev.rewards.length > 0 && (
+                                        <div className="text-[10px] text-amber-300/80 leading-snug">
+                                            {ev.rewards.map((r, i) => <span key={i}>{i > 0 ? " · " : ""}{r.asString}</span>)}
+                                        </div>
+                                    )}
+
+                                    {/* Interim milestone rewards */}
+                                    {ev.interimSteps.length > 0 && (
+                                        <div className="mt-1.5 space-y-0.5 border-t border-slate-800/60 pt-1.5">
+                                            {ev.interimSteps.map((step, i) => (
+                                                <div key={i} className="flex items-baseline gap-1.5 text-[10px]">
+                                                    <span className={[
+                                                        "shrink-0 font-mono",
+                                                        hasProgress && ev.currentScore! >= step.goal
+                                                            ? "text-green-500/70 line-through"
+                                                            : "text-slate-500"
+                                                    ].join(" ")}>
+                                                        @{step.goal}
+                                                    </span>
+                                                    <span className={[
+                                                        hasProgress && ev.currentScore! >= step.goal
+                                                            ? "text-slate-600 line-through"
+                                                            : "text-slate-400"
+                                                    ].join(" ")}>
+                                                        {step.reward.asString}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     )}
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </section>
             )}
