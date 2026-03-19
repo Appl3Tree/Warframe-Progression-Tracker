@@ -242,20 +242,22 @@ const DT_TO_IMG: Record<string, string> = {
  */
 function renderStatString(stat: string): React.ReactNode {
   const cleaned = stat
-    .replace(/\n/g, "\n")
     .replace(/<LINE_SEPARATOR>/g, " · ")
     .replace(/<LOWER_IS_BETTER>/g, "")
     .replace(/<[A-Z_]+_SECONDARY_COLOR>/g, "")
     .replace(/<\/[A-Z_]+_SECONDARY_COLOR>/g, "")
     .replace(/<(?!DT_)[A-Z_]+>/g, "");
 
-  const parts = cleaned.split(/(<DT_[A-Z_]+>|\|[A-Z_0-9]+\|)/);
+  // Split on DT_ damage type tags, |VARIABLE| tokens, and newlines
+  const parts = cleaned.split(/(<DT_[A-Z_]+>|\|[A-Z_0-9]+\||\n)/);
   if (parts.length === 1) return <>{cleaned}</>;
 
   const nodes: React.ReactNode[] = [];
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
-    if (part.startsWith("<DT_") && part.endsWith(">")) {
+    if (part === "\n") {
+      nodes.push(<br key={i} />);
+    } else if (part.startsWith("<DT_") && part.endsWith(">")) {
       const key = part.slice(1, -1).toLowerCase();
       const imgName = DT_TO_IMG[key];
       const imgUrl = imgName ? STATUS_IMG[imgName] : null;

@@ -117,6 +117,9 @@ export interface TrackerStore {
     isNodeCompleted: (starChartNodeId: string) => boolean;
     setSteelPathNodeCompleted: (starChartNodeId: string, completed: boolean) => void;
     setBulkSteelPathNodesCompleted: (starChartNodeIds: string[], completed: boolean) => void;
+
+    toggleInvasionDone: (id: string) => void;
+    isInvasionDone: (id: string) => boolean;
 }
 
 export const useTrackerStore = create<TrackerStore>()(
@@ -876,7 +879,27 @@ export const useTrackerStore = create<TrackerStore>()(
                     }
                     s.state.meta.updatedAtIso = nowIso();
                 });
-            }
+            },
+
+            toggleInvasionDone: (id) => {
+                set((s) => {
+                    if (!s.state.worldState) {
+                        s.state.worldState = { doneInvasions: [] };
+                    }
+                    const list = s.state.worldState.doneInvasions;
+                    const idx = list.indexOf(id);
+                    if (idx >= 0) {
+                        list.splice(idx, 1);
+                    } else {
+                        list.push(id);
+                    }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            isInvasionDone: (id) => {
+                return get().state.worldState?.doneInvasions.includes(id) ?? false;
+            },
         })),
         {
             name: PERSIST_KEY,
