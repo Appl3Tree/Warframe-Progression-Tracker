@@ -137,4 +137,9 @@ export interface UserStateV2 {
         /** Duviri intrinsic skill ranks. Keys are STYPE_DUVIRI_* strings. */
         duviri: Record<string, number>;
     };
+
+    worldState?: {
+        /** Invasion IDs the user has marked as personally completed (i.e. they ran it). */
+        doneInvasions: string[];
+    };
 }

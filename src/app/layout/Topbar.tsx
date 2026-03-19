@@ -218,6 +218,8 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
     const [loading, setLoading] = useState(false);
     const bellRef = useRef<HTMLDivElement>(null);
     const now = useNow();
+    const toggleInvasionDone = useTrackerStore((s) => s.toggleInvasionDone);
+    const isInvasionDone     = useTrackerStore((s) => s.isInvasionDone);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -422,39 +424,67 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                     Invasions ({data.invasions.length})
                                 </div>
                                 <div className="space-y-2">
-                                    {data.invasions.map((inv) => (
-                                        <div key={inv.id} className="border-t border-slate-800/60 pt-1.5 first:border-0 first:pt-0">
-                                            <div className="flex items-center justify-between gap-1 mb-1">
-                                                <span className="text-[11px] text-slate-200 font-medium min-w-0 truncate">{inv.node}</span>
-                                                <span className="text-[10px] font-mono text-slate-500 shrink-0">{inv.completion.toFixed(1)}%</span>
-                                            </div>
-                                            <div className="h-1 bg-slate-800 rounded-full overflow-hidden mb-1">
-                                                <div
-                                                    className={["h-full rounded-full", inv.vsInfestation ? "bg-green-600/60" : "bg-red-600/60"].join(" ")}
-                                                    style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
-                                                />
-                                            </div>
-                                            <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-0.5 text-[10px]">
-                                                <div>
-                                                    <div className={BELL_FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"}>
-                                                        {inv.attackingFaction}
-                                                    </div>
-                                                    {inv.attackerReward?.asString && (
-                                                        <div className="text-amber-300/70 leading-tight mt-0.5">{inv.attackerReward.asString}</div>
-                                                    )}
+                                    {data.invasions.map((inv) => {
+                                        const done = isInvasionDone(inv.id);
+                                        if (done) {
+                                            return (
+                                                <div key={inv.id} className="border-t border-slate-800/60 pt-1.5 first:border-0 first:pt-0 flex items-center gap-1.5">
+                                                    <span className="text-green-500 text-xs shrink-0">✓</span>
+                                                    <span className="text-[10px] text-slate-500 truncate flex-1">{inv.node}</span>
+                                                    <span className="text-[10px] font-mono text-slate-600 shrink-0">{inv.completion.toFixed(1)}%</span>
+                                                    <button
+                                                        onClick={() => toggleInvasionDone(inv.id)}
+                                                        className="shrink-0 text-[9px] text-slate-700 hover:text-slate-400 transition-colors"
+                                                        title="Mark as not done"
+                                                    >
+                                                        ✕
+                                                    </button>
                                                 </div>
-                                                <div className="text-slate-600 px-0.5">vs</div>
-                                                <div className="text-right">
-                                                    <div className={BELL_FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"}>
-                                                        {inv.defendingFaction}
+                                            );
+                                        }
+                                        return (
+                                            <div key={inv.id} className="border-t border-slate-800/60 pt-1.5 first:border-0 first:pt-0">
+                                                <div className="flex items-center justify-between gap-1 mb-1">
+                                                    <span className="text-[11px] text-slate-200 font-medium min-w-0 truncate">{inv.node}</span>
+                                                    <div className="flex items-center gap-1 shrink-0">
+                                                        <span className="text-[10px] font-mono text-slate-500">{inv.completion.toFixed(1)}%</span>
+                                                        <button
+                                                            onClick={() => toggleInvasionDone(inv.id)}
+                                                            className="text-[9px] text-slate-600 hover:text-green-400 transition-colors px-0.5"
+                                                            title="Mark as done"
+                                                        >
+                                                            ✓
+                                                        </button>
                                                     </div>
-                                                    {inv.defenderReward?.asString && (
-                                                        <div className="text-amber-300/70 leading-tight mt-0.5">{inv.defenderReward.asString}</div>
-                                                    )}
+                                                </div>
+                                                <div className="h-1 bg-slate-800 rounded-full overflow-hidden mb-1">
+                                                    <div
+                                                        className={["h-full rounded-full", inv.vsInfestation ? "bg-green-600/60" : "bg-red-600/60"].join(" ")}
+                                                        style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
+                                                    />
+                                                </div>
+                                                <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-0.5 text-[10px]">
+                                                    <div>
+                                                        <div className={BELL_FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"}>
+                                                            {inv.attackingFaction}
+                                                        </div>
+                                                        {inv.attackerReward?.asString && (
+                                                            <div className="text-amber-300/70 leading-tight mt-0.5">{inv.attackerReward.asString}</div>
+                                                        )}
+                                                    </div>
+                                                    <div className="text-slate-600 px-0.5">vs</div>
+                                                    <div className="text-right">
+                                                        <div className={BELL_FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"}>
+                                                            {inv.defendingFaction}
+                                                        </div>
+                                                        {inv.defenderReward?.asString && (
+                                                            <div className="text-amber-300/70 leading-tight mt-0.5">{inv.defenderReward.asString}</div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
