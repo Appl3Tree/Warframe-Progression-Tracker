@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import {
     fetchWorldState,
+    processInvasions,
     type WorldStateData,
     type Fissure,
     type WsCycle,
@@ -891,96 +892,99 @@ function EventsTab({ data }: { data: WorldStateData }) {
             )}
 
             {/* Invasions */}
-            {hasInvasions && (
-                <section>
-                    {(() => {
-                        const doneCount = data.invasions.filter((inv) => isInvasionDone(inv.id)).length;
-                        return (
-                            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                                Invasions ({data.invasions.length}
-                                {doneCount > 0 && <span className="text-green-500/80"> · {doneCount} done</span>})
-                            </div>
-                        );
-                    })()}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {data.invasions.map((inv) => {
-                            const done = isInvasionDone(inv.id);
-                            if (done) {
-                                return (
-                                    <div key={inv.id} className="rounded-xl border border-green-900/40 bg-green-950/10 px-3 py-2 flex items-center gap-2">
-                                        <span className="text-green-500 text-sm shrink-0">✓</span>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 min-w-0">
-                                                <span className="text-xs text-slate-500 truncate">{inv.node}</span>
-                                                <span className="shrink-0 font-mono text-[10px] text-slate-600">{inv.completion.toFixed(1)}%</span>
+            {hasInvasions && (() => {
+                const sorted = processInvasions(data.invasions).sort((a, b) => {
+                    const aDone = isInvasionDone(a.id) ? 1 : 0;
+                    const bDone = isInvasionDone(b.id) ? 1 : 0;
+                    return aDone - bDone;
+                });
+                const doneCount = sorted.filter((inv) => isInvasionDone(inv.id)).length;
+                return (
+                    <section>
+                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                            Invasions ({sorted.length}
+                            {doneCount > 0 && <span className="text-green-500/80"> · {doneCount} done</span>})
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {sorted.map((inv) => {
+                                const done = isInvasionDone(inv.id);
+                                if (done) {
+                                    return (
+                                        <div key={inv.id} className="rounded-xl border border-green-900/40 bg-green-950/10 px-3 py-2 flex items-center gap-2">
+                                            <span className="text-green-500 text-sm shrink-0">✓</span>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <span className="text-xs text-slate-500 truncate">{inv.displayLabel}</span>
+                                                    <span className="shrink-0 font-mono text-[10px] text-slate-600">{inv.completion.toFixed(1)}%</span>
+                                                </div>
+                                                <div className="h-1 bg-slate-800 rounded-full overflow-hidden mt-1">
+                                                    <div
+                                                        className={["h-full rounded-full opacity-40", inv.vsInfestation ? "bg-green-600" : "bg-red-600"].join(" ")}
+                                                        style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="h-1 bg-slate-800 rounded-full overflow-hidden mt-1">
-                                                <div
-                                                    className={["h-full rounded-full opacity-40", inv.vsInfestation ? "bg-green-600" : "bg-red-600"].join(" ")}
-                                                    style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() => toggleInvasionDone(inv.id)}
-                                            className="shrink-0 text-[10px] text-slate-600 hover:text-slate-400 transition-colors px-1"
-                                            title="Mark as not done"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                );
-                            }
-                            return (
-                                <div key={inv.id} className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
-                                    <div className="flex items-center justify-between gap-2 mb-1.5">
-                                        <div className="text-xs font-medium text-slate-200 min-w-0">{inv.node}</div>
-                                        <div className="flex items-center gap-2 shrink-0">
-                                            <span className="font-mono text-[10px] text-slate-400">{inv.completion.toFixed(1)}%</span>
                                             <button
                                                 onClick={() => toggleInvasionDone(inv.id)}
-                                                className="text-[10px] text-slate-600 hover:text-green-400 transition-colors px-1 py-0.5 rounded border border-transparent hover:border-green-800/50"
-                                                title="Mark as done"
+                                                className="shrink-0 text-[10px] text-slate-600 hover:text-slate-400 transition-colors px-1"
+                                                title="Mark as not done"
                                             >
-                                                ✓
+                                                ✕
                                             </button>
                                         </div>
-                                    </div>
-                                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mb-2">
-                                        <div
-                                            className={["h-full rounded-full", inv.vsInfestation ? "bg-green-600/70" : "bg-red-600/70"].join(" ")}
-                                            style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
-                                        />
-                                    </div>
-                                    {/* Attacker vs Defender with rewards */}
-                                    <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-1 text-[10px]">
-                                        <div>
-                                            <div className={["font-semibold", FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"].join(" ")}>
-                                                {inv.attackingFaction}
+                                    );
+                                }
+                                return (
+                                    <div key={inv.id} className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
+                                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                                            <div className="text-xs font-medium text-slate-200 min-w-0">{inv.displayLabel}</div>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                <span className="font-mono text-[10px] text-slate-400">{inv.completion.toFixed(1)}%</span>
+                                                <button
+                                                    onClick={() => toggleInvasionDone(inv.id)}
+                                                    className="text-[10px] text-slate-600 hover:text-green-400 transition-colors px-1 py-0.5 rounded border border-transparent hover:border-green-800/50"
+                                                    title="Mark as done"
+                                                >
+                                                    ✓
+                                                </button>
                                             </div>
-                                            {inv.attackerReward?.asString && (
-                                                <div className="text-amber-300/80 mt-0.5 leading-tight">{inv.attackerReward.asString}</div>
-                                            )}
                                         </div>
-                                        <div className="text-slate-600 pt-0.5 text-center">vs</div>
-                                        <div className="text-right">
-                                            <div className={["font-semibold", FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"].join(" ")}>
-                                                {inv.defendingFaction}
+                                        <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mb-2">
+                                            <div
+                                                className={["h-full rounded-full", inv.vsInfestation ? "bg-green-600/70" : "bg-red-600/70"].join(" ")}
+                                                style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
+                                            />
+                                        </div>
+                                        {/* Attacker vs Defender with rewards */}
+                                        <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-1 text-[10px]">
+                                            <div>
+                                                <div className={["font-semibold", FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"].join(" ")}>
+                                                    {inv.attackingFaction}
+                                                </div>
+                                                {inv.attackerReward?.asString && (
+                                                    <div className="text-amber-300/80 mt-0.5 leading-tight">{inv.attackerReward.asString}</div>
+                                                )}
                                             </div>
-                                            {inv.defenderReward?.asString && (
-                                                <div className="text-amber-300/80 mt-0.5 leading-tight">{inv.defenderReward.asString}</div>
-                                            )}
+                                            <div className="text-slate-600 pt-0.5 text-center">vs</div>
+                                            <div className="text-right">
+                                                <div className={["font-semibold", FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"].join(" ")}>
+                                                    {inv.defendingFaction}
+                                                </div>
+                                                {inv.defenderReward?.asString && (
+                                                    <div className="text-amber-300/80 mt-0.5 leading-tight">{inv.defenderReward.asString}</div>
+                                                )}
+                                            </div>
                                         </div>
+                                        {inv.desc && (
+                                            <div className="text-[10px] text-slate-500 mt-1.5 border-t border-slate-800/60 pt-1">{inv.desc}</div>
+                                        )}
                                     </div>
-                                    {inv.desc && (
-                                        <div className="text-[10px] text-slate-500 mt-1.5 border-t border-slate-800/60 pt-1">{inv.desc}</div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </section>
-            )}
+                                );
+                            })}
+                        </div>
+                    </section>
+                );
+            })()}
 
             {/* Baro inventory if active */}
             {data.voidTrader?.active && data.voidTrader.inventory.length > 0 && (

@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTrackerStore } from "../../store/store";
-import { fetchWorldState, getCachedWorldState, type WorldStateData } from "../../lib/worldStateCache";
+import { fetchWorldState, getCachedWorldState, processInvasions, type WorldStateData } from "../../lib/worldStateCache";
 
 type PlatformKey = "pc" | "ps" | "xb" | "swi" | "mob";
 
@@ -418,76 +418,83 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                         )}
 
                         {/* Invasions — show all with rewards */}
-                        {data && data.invasions.length > 0 && (
-                            <div className="rounded-lg px-3 py-2 bg-slate-900/60">
-                                <div className="text-[10px] font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
-                                    Invasions ({data.invasions.length})
-                                </div>
-                                <div className="space-y-2">
-                                    {data.invasions.map((inv) => {
-                                        const done = isInvasionDone(inv.id);
-                                        if (done) {
-                                            return (
-                                                <div key={inv.id} className="border-t border-slate-800/60 pt-1.5 first:border-0 first:pt-0 flex items-center gap-1.5">
-                                                    <span className="text-green-500 text-xs shrink-0">✓</span>
-                                                    <span className="text-[10px] text-slate-500 truncate flex-1">{inv.node}</span>
-                                                    <span className="text-[10px] font-mono text-slate-600 shrink-0">{inv.completion.toFixed(1)}%</span>
-                                                    <button
-                                                        onClick={() => toggleInvasionDone(inv.id)}
-                                                        className="shrink-0 text-[9px] text-slate-700 hover:text-slate-400 transition-colors"
-                                                        title="Mark as not done"
-                                                    >
-                                                        ✕
-                                                    </button>
-                                                </div>
-                                            );
-                                        }
-                                        return (
-                                            <div key={inv.id} className="border-t border-slate-800/60 pt-1.5 first:border-0 first:pt-0">
-                                                <div className="flex items-center justify-between gap-1 mb-1">
-                                                    <span className="text-[11px] text-slate-200 font-medium min-w-0 truncate">{inv.node}</span>
-                                                    <div className="flex items-center gap-1 shrink-0">
-                                                        <span className="text-[10px] font-mono text-slate-500">{inv.completion.toFixed(1)}%</span>
+                        {data && data.invasions.length > 0 && (() => {
+                            const sorted = processInvasions(data.invasions).sort((a, b) => {
+                                const aDone = isInvasionDone(a.id) ? 1 : 0;
+                                const bDone = isInvasionDone(b.id) ? 1 : 0;
+                                return aDone - bDone;
+                            });
+                            return (
+                                <div className="rounded-lg px-3 py-2 bg-slate-900/60">
+                                    <div className="text-[10px] font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
+                                        Invasions ({sorted.length})
+                                    </div>
+                                    <div className="space-y-2">
+                                        {sorted.map((inv) => {
+                                            const done = isInvasionDone(inv.id);
+                                            if (done) {
+                                                return (
+                                                    <div key={inv.id} className="border-t border-slate-800/60 pt-1.5 first:border-0 first:pt-0 flex items-center gap-1.5">
+                                                        <span className="text-green-500 text-xs shrink-0">✓</span>
+                                                        <span className="text-[10px] text-slate-500 truncate flex-1">{inv.displayLabel}</span>
+                                                        <span className="text-[10px] font-mono text-slate-600 shrink-0">{inv.completion.toFixed(1)}%</span>
                                                         <button
                                                             onClick={() => toggleInvasionDone(inv.id)}
-                                                            className="text-[9px] text-slate-600 hover:text-green-400 transition-colors px-0.5"
-                                                            title="Mark as done"
+                                                            className="shrink-0 text-[9px] text-slate-700 hover:text-slate-400 transition-colors"
+                                                            title="Mark as not done"
                                                         >
-                                                            ✓
+                                                            ✕
                                                         </button>
                                                     </div>
-                                                </div>
-                                                <div className="h-1 bg-slate-800 rounded-full overflow-hidden mb-1">
-                                                    <div
-                                                        className={["h-full rounded-full", inv.vsInfestation ? "bg-green-600/60" : "bg-red-600/60"].join(" ")}
-                                                        style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
-                                                    />
-                                                </div>
-                                                <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-0.5 text-[10px]">
-                                                    <div>
-                                                        <div className={BELL_FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"}>
-                                                            {inv.attackingFaction}
+                                                );
+                                            }
+                                            return (
+                                                <div key={inv.id} className="border-t border-slate-800/60 pt-1.5 first:border-0 first:pt-0">
+                                                    <div className="flex items-center justify-between gap-1 mb-1">
+                                                        <span className="text-[11px] text-slate-200 font-medium min-w-0 truncate">{inv.displayLabel}</span>
+                                                        <div className="flex items-center gap-1 shrink-0">
+                                                            <span className="text-[10px] font-mono text-slate-500">{inv.completion.toFixed(1)}%</span>
+                                                            <button
+                                                                onClick={() => toggleInvasionDone(inv.id)}
+                                                                className="text-[9px] text-slate-600 hover:text-green-400 transition-colors px-0.5"
+                                                                title="Mark as done"
+                                                            >
+                                                                ✓
+                                                            </button>
                                                         </div>
-                                                        {inv.attackerReward?.asString && (
-                                                            <div className="text-amber-300/70 leading-tight mt-0.5">{inv.attackerReward.asString}</div>
-                                                        )}
                                                     </div>
-                                                    <div className="text-slate-600 px-0.5">vs</div>
-                                                    <div className="text-right">
-                                                        <div className={BELL_FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"}>
-                                                            {inv.defendingFaction}
+                                                    <div className="h-1 bg-slate-800 rounded-full overflow-hidden mb-1">
+                                                        <div
+                                                            className={["h-full rounded-full", inv.vsInfestation ? "bg-green-600/60" : "bg-red-600/60"].join(" ")}
+                                                            style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-0.5 text-[10px]">
+                                                        <div>
+                                                            <div className={BELL_FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"}>
+                                                                {inv.attackingFaction}
+                                                            </div>
+                                                            {inv.attackerReward?.asString && (
+                                                                <div className="text-amber-300/70 leading-tight mt-0.5">{inv.attackerReward.asString}</div>
+                                                            )}
                                                         </div>
-                                                        {inv.defenderReward?.asString && (
-                                                            <div className="text-amber-300/70 leading-tight mt-0.5">{inv.defenderReward.asString}</div>
-                                                        )}
+                                                        <div className="text-slate-600 px-0.5">vs</div>
+                                                        <div className="text-right">
+                                                            <div className={BELL_FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"}>
+                                                                {inv.defendingFaction}
+                                                            </div>
+                                                            {inv.defenderReward?.asString && (
+                                                                <div className="text-amber-300/70 leading-tight mt-0.5">{inv.defenderReward.asString}</div>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
 
                         {/* Nightwave active challenges */}
                         {data?.nightwave && data.nightwave.activeChallenges.length > 0 && (
