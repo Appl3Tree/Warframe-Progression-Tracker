@@ -402,13 +402,17 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                                 events: (d.jobs && Array.isArray(d.jobs))
                                     // Some API versions use a jobs array
                                     ? Object.fromEntries(
-                                        (d.jobs as any[]).map((job: any) => [job.type ?? job.name, job.reward ?? job.description ?? ""])
+                                        (d.jobs as any[]).map((job: any) => {
+                                            const raw = job.reward ?? job.description ?? "";
+                                            const val = typeof raw === "string" ? raw : (raw?.title ?? raw?.description ?? raw?.name ?? JSON.stringify(raw));
+                                            return [job.type ?? job.name, val];
+                                        })
                                       )
                                     : (d.events && typeof d.events === "object"
                                         ? Object.fromEntries(
                                             Object.entries(d.events).map(([k, v]: [string, any]) => [
                                                 k,
-                                                typeof v === "string" ? v : (v?.challenge ?? v?.type ?? JSON.stringify(v)),
+                                                typeof v === "string" ? v : (v?.title ?? v?.description ?? v?.challenge ?? v?.type ?? JSON.stringify(v)),
                                             ])
                                         )
                                         : {}),

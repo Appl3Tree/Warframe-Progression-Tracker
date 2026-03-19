@@ -740,7 +740,7 @@ function TrackerCalendarModal({ calendar, onClose }: {
                                             {meta && <div className={`w-2 h-2 rounded-full ${meta.dot}`} />}
                                             <div className={`text-xs font-semibold ${meta?.textColor ?? "text-slate-400"}`}>{type}</div>
                                         </div>
-                                        <div className="text-sm text-slate-200 leading-snug">{value}</div>
+                                        <div className="text-sm text-slate-200 leading-snug">{typeof value === "string" ? value : JSON.stringify(value)}</div>
                                     </div>
                                 );
                             })}
