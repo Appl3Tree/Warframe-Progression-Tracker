@@ -287,6 +287,12 @@ function CalendarModal({ calendar, onClose }: { calendar: Calendar; onClose: () 
                                                         </div>
                                                         {ev.title && <div className="text-xs text-slate-200 font-medium">{ev.title}</div>}
                                                         {ev.description && <div className="text-[10px] text-slate-400 mt-0.5">{ev.description}</div>}
+                                                        {ev.reward && (
+                                                            <div className="mt-1 flex items-center gap-1">
+                                                                <span className="text-[9px] text-slate-500">Reward:</span>
+                                                                <span className="text-[9px] text-amber-300 font-medium">{ev.reward}</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 );
                                             })}

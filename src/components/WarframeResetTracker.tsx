@@ -755,12 +755,18 @@ function TrackerCalendarModal({ calendar, onClose }: {
                                         const meta = CAL_EVENT_META[ev.type];
                                         return (
                                             <div key={i} className="rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5">
-                                                <div className="flex items-center gap-1.5 mb-1">
+                                                <div className="flex items-center gap-1.5 mb-1.5">
                                                     <div className={`w-2 h-2 rounded-full shrink-0 ${meta?.dot ?? "bg-slate-500"}`} />
                                                     <div className={`text-xs font-semibold ${meta?.textColor ?? "text-slate-400"}`}>{meta?.label ?? (ev.type || "Event")}</div>
                                                 </div>
                                                 {ev.title && <div className="text-sm text-slate-200 font-medium leading-snug">{ev.title}</div>}
-                                                {ev.description && <div className="text-xs text-slate-400 mt-0.5 leading-snug">{ev.description}</div>}
+                                                {ev.description && <div className="text-xs text-slate-400 mt-1 leading-snug">{ev.description}</div>}
+                                                {ev.reward && (
+                                                    <div className="mt-1.5 flex items-center gap-1">
+                                                        <span className="text-[10px] text-slate-500">Reward:</span>
+                                                        <span className="text-[10px] text-amber-300 font-medium">{ev.reward}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     })}

@@ -206,6 +206,7 @@ export type CalendarEvent = {
     type: string;        // normalized: "To Do" | "Big Prize!" | "Override" | raw API value
     title: string;
     description: string;
+    reward: string;      // human-readable reward (e.g. "Credits ×500", item name)
 };
 
 export type CalendarDay = {
@@ -229,12 +230,45 @@ function _normEvType(raw: string): string {
     return _EV_TYPE_MAP[raw] ?? _EV_TYPE_MAP[raw.toLowerCase()] ?? raw;
 }
 function _normCalEvents(d: any): CalendarEvent[] {
+    // Coerce any value to a plain string — handles localized maps {en:"..."}, reward objects, etc.
+    const toStr = (v: any): string => {
+        if (!v && v !== 0) return "";
+        if (typeof v === "string") return v;
+        if (typeof v === "number") return String(v);
+        if (typeof v === "object") {
+            // Localized string map e.g. {"en": "Kill 100 Techrot..."}
+            if (typeof v.en === "string") return v.en;
+            // warframestat.us reward objects
+            if (typeof v.asString === "string") return v.asString;
+            // Generic fallbacks
+            const pick = v.text ?? v.title ?? v.description ?? v.name ?? v.value;
+            if (pick != null) return toStr(pick);
+            return JSON.stringify(v);
+        }
+        return String(v);
+    };
+    // Build a human-readable reward string from various API shapes
+    const toReward = (v: any): string => {
+        if (!v) return "";
+        if (typeof v === "string") return v;
+        if (typeof v === "number") return String(v);
+        if (Array.isArray(v)) return v.map(toReward).filter(Boolean).join(", ");
+        if (typeof v === "object") {
+            if (typeof v.asString === "string") return v.asString;
+            // e.g. {itemType: "//Lotus/.../CreditsItem", count: 500}
+            const name = v.name ?? v.type ?? v.itemType?.split("/").pop() ?? "";
+            const count = v.count && v.count !== 1 ? ` ×${v.count}` : "";
+            return name + count || toStr(v);
+        }
+        return String(v);
+    };
     const toEv = (raw: any): CalendarEvent => {
         const typeRaw = String(raw.type ?? raw.category ?? raw.kind ?? "");
         return {
             type: _normEvType(typeRaw),
-            title: raw.title ?? raw.name ?? typeRaw,
-            description: raw.description ?? raw.challenge ?? raw.text ?? "",
+            title: toStr(raw.title ?? raw.name ?? typeRaw),
+            description: toStr(raw.description ?? raw.challenge ?? raw.text ?? ""),
+            reward: toReward(raw.reward ?? raw.rewards?.[0] ?? raw.prize ?? ""),
         };
     };
     if (d.jobs && Array.isArray(d.jobs)) return (d.jobs as any[]).map(toEv);
@@ -242,8 +276,8 @@ function _normCalEvents(d: any): CalendarEvent[] {
     if (d.events && typeof d.events === "object") {
         return Object.entries(d.events).map(([k, v]: [string, any]) =>
             typeof v === "string"
-                ? { type: _normEvType(k), title: k, description: v }
-                : { type: _normEvType(v?.type ?? k), title: v?.title ?? v?.name ?? k, description: v?.description ?? v?.challenge ?? "" }
+                ? { type: _normEvType(k), title: k, description: v, reward: "" }
+                : { type: _normEvType(v?.type ?? k), title: toStr(v?.title ?? v?.name ?? k), description: toStr(v?.description ?? v?.challenge ?? ""), reward: toReward(v?.reward ?? v?.rewards?.[0] ?? "") }
         );
     }
     return [];
