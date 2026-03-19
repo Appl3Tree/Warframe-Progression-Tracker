@@ -1236,6 +1236,13 @@ export default function WarframeResetTracker() {
                     const tier = tierFor(b);
                     const allDone = tasks > 0 && done === tasks;
 
+                    const pendingTasks = isConclave
+                        ? [
+                            ...conclaveDaily.filter((t) => getTaskRenderState(t, completedIds.conclave_daily, 0) === "pending"),
+                            ...conclaveWeekly.filter((t) => getTaskRenderState(t, completedIds.conclave_weekly, 0) === "pending"),
+                        ]
+                        : bucketTasks.filter((t) => getTaskRenderState(t, completedIds[b as Exclude<Bucket, "conclave">] as string[], rc.netracellRuns) === "pending");
+
                     return (
                         <button
                             key={b}
@@ -1259,6 +1266,14 @@ export default function WarframeResetTracker() {
                                     {done}/{tasks}
                                 </span>
                             </div>
+                            {allDone ? (
+                                <div className="text-[10px] text-emerald-600 mt-1.5 leading-tight">All done</div>
+                            ) : pendingTasks.length > 0 && (
+                                <div className="text-[10px] text-slate-600 mt-1.5 leading-tight truncate">
+                                    {pendingTasks.slice(0, 2).map((t) => t.label).join(" · ")}
+                                    {pendingTasks.length > 2 && <span> +{pendingTasks.length - 2}</span>}
+                                </div>
+                            )}
                         </button>
                     );
                 })}
