@@ -592,3 +592,57 @@ export function getCacheAge(): number | null {
     if (!_cache) return null;
     return Date.now() - _cache.fetchedAt;
 }
+
+// ── Invasion helpers ───────────────────────────────────────────────────────────
+
+export type ProcessedInvasion = Invasion & {
+    /** Human-readable node name (before the parenthesis), e.g. "Cypress" */
+    nodeName: string;
+    /** Planet name parsed from the API node string, e.g. "Pluto" */
+    planet: string;
+    /** Display label formatted as "Planet (Node)", e.g. "Pluto (Cypress)" */
+    displayLabel: string;
+};
+
+/**
+ * Parse, deduplicate, and sort invasions for display.
+ *
+ * - Parses "Node (Planet)" API strings into separate planet/node fields
+ * - Deduplicates: if two invasions share the same node+planet+rewards, keeps
+ *   only the one with the highest completion % (the other is a stale duplicate)
+ * - Sorts alphabetically: planet → nodeName (case-insensitive)
+ *
+ * Done-to-bottom ordering is left to the caller (requires store access).
+ */
+export function processInvasions(invasions: Invasion[]): ProcessedInvasion[] {
+    // Parse planet/node from "Node (Planet)" format
+    const parsed: ProcessedInvasion[] = invasions.map((inv) => {
+        const match = inv.node.match(/^(.+?)\s*\((.+?)\)\s*$/);
+        const nodeName = match ? match[1].trim() : inv.node;
+        const planet   = match ? match[2].trim() : "";
+        const displayLabel = planet ? `${planet} (${nodeName})` : inv.node;
+        return { ...inv, nodeName, planet, displayLabel };
+    });
+
+    // Deduplicate: same node+planet+attacker reward+defender reward → keep highest completion
+    const seen = new Map<string, ProcessedInvasion>();
+    for (const inv of parsed) {
+        const key = [
+            inv.planet,
+            inv.nodeName,
+            inv.attackerReward?.asString ?? "",
+            inv.defenderReward?.asString ?? "",
+        ].join("\x00");
+        const existing = seen.get(key);
+        if (!existing || inv.completion > existing.completion) {
+            seen.set(key, inv);
+        }
+    }
+
+    // Sort alphabetically: planet first, then node name
+    return Array.from(seen.values()).sort((a, b) => {
+        const planet = a.planet.localeCompare(b.planet, undefined, { sensitivity: "base" });
+        if (planet !== 0) return planet;
+        return a.nodeName.localeCompare(b.nodeName, undefined, { sensitivity: "base" });
+    });
+}
