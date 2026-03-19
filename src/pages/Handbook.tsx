@@ -1280,12 +1280,12 @@ const SECTIONS: Section[] = [
                         </thead>
                         <tbody>
                             {[
-                                ["Arthur",  "Broadsword",       "Excalibur", "—"],
+                                ["Arthur",  "Broadsword",       "Excalibur", "November 3"],
                                 ["Eleanor", "Salem",            "Nyx",       "November 2"],
                                 ["Lettie",  "Belladonna",       "Trinity",   "February 14 (Valentine's Day)"],
                                 ["Amir",    "H16h V0l7463",     "Volt",      "May 23"],
                                 ["Aoi",     "xX GLIMMER Xx",   "Mag",       "July 10"],
-                                ["Quincy",  "Soldja1Shot1kil",  "Cyte-09",   "—"],
+                                ["Quincy",  "Soldja1Shot1kil",  "Cyte-09",   "December 4"],
                             ].map(([name, alias, frame, bday]) => (
                                 <tr key={name} className="border-t border-slate-800/60">
                                     <td className="px-3 py-2 font-semibold text-slate-100">{name}</td>
@@ -1297,10 +1297,6 @@ const SECTIONS: Section[] = [
                         </tbody>
                     </table>
                 </TableWrap>
-                <P>
-                    Arthur and Quincy's birthdays are not listed in the Steam love guide — celebrate the other four when their calendar dates appear.
-                </P>
-
                 <SectionHeading>Techrot Encore additions — not dateable</SectionHeading>
                 <P>
                     Four new Protoframes joined The Roundtable in the Techrot Encore update. They have birthdays that appear on the 1999 Calendar, but you <B>cannot date</B> any of them.
@@ -1331,15 +1327,60 @@ const SECTIONS: Section[] = [
                     </table>
                 </TableWrap>
 
+                <SectionHeading>Relationship status words</SectionHeading>
+                <P>
+                    Each Hex member has an individual relationship status that progresses independently of The Hex syndicate standing level. Check it by opening their <B>Profile</B> before chatting — the one-word status is the key indicator. Progression order:
+                </P>
+                <P>
+                    <span className="font-mono text-slate-400">Neutral → Friendly → Liked → Trusted → Close → Best Friends → Loved</span>
+                </P>
+                <Bullets items={[
+                    <><B>Liked</B> by every member — required to unlock the Hex Finale quest.</>,
+                    <><B>Close</B> — minimum status to date someone and receive the New Year's Eve kiss.</>,
+                    <><B>Loved</B> — maximum status; they move into your Backroom.</>,
+                ]} />
+                <Callout color="amber">
+                    Always check a character's <B>Profile</B> before chatting — it shows their personality, gift preferences, and their current status word toward you. It updates after each conversation.
+                </Callout>
+
+                <SectionHeading>Gift preferences</SectionHeading>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[480px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Name</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Buy these</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Arthur",  "Food / cooking items (toaster, etc.)",         "Do NOT buy coffee-related items for him"],
+                                ["Lettie",  "Coffee-related items only",                    "—"],
+                                ["Eleanor", "Paper, pen, pencil, sticky notes, highlighter","She coined the term Techrot — journalist supplies"],
+                                ["Quincy",  "Entrati poster",                               "Best current option"],
+                                ["Amir",    "Tech & games (air hockey, GPU, headphones…)",  "Anything tech or game related"],
+                                ["Aoi",     "Bicycle (80,000 Hollars)",                     "Instantly jumps her to Liked status"],
+                            ].map(([name, buy, note]) => (
+                                <tr key={name} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-slate-100">{name}</td>
+                                    <td className="px-3 py-2 text-slate-300">{buy}</td>
+                                    <td className="px-3 py-2 text-slate-500">{note}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+
                 <SectionHeading>Building chemistry</SectionHeading>
                 <P>
                     Chemistry points are earned through four daily activities. Do all four every day to maximize Standing gain:
                 </P>
                 <Bullets items={[
-                    <><B>Chat on KIM</B> (Kinemantik Instant Messenger) — talk to The Hex members on your in-game computer daily.</>,
-                    <><B>Send gifts</B> — give items from Höllvania vendors. Each character has preferences; matching them gives a bonus.</>,
-                    <><B>Complete bounties</B> — run Höllvania bounties. Check the <B>Calendar</B> on the garage computer before starting — it shows which days have special challenges and big prizes to prioritize.</>,
-                    <><B>Celebrate birthdays</B> — when a birthday appears on the 1999 Calendar (🎂 icon), interact with that character on that day for a large chemistry bonus.</>,
+                    <><B>Chat on KIM</B> — Fast Travel to the Backroom and use the computer on the <B>second floor</B>. Be kind, ask about their hobbies, and pick options that show you care. Eleanor is the only one who enjoys very long conversations.</>,
+                    <><B>Send gifts</B> — buy from Höllvania vendors and match each character's preferences (see table above) for a bonus.</>,
+                    <><B>Complete bounties</B> — run Höllvania bounties with the person you like most. Check the <B>Calendar</B> on the garage computer first — prioritize Wrench Boost days and select the boost for the character you're pursuing.</>,
+                    <><B>Celebrate birthdays</B> — when a birthday appears on the 1999 Calendar, interact with that character on that day for a large chemistry bonus.</>,
                 ]} />
 
                 <SectionHeading>Standing levels</SectionHeading>
@@ -1360,6 +1401,9 @@ const SECTIONS: Section[] = [
                 ]} />
                 <Callout color="amber">
                     Only one person can move into your Backroom at a time. If you want to date a different character in a future season, select <B>FORGET</B> when prompted.
+                </Callout>
+                <Callout color="red">
+                    <B>Breaking up</B> resets that character's relationship status all the way back to <B>Neutral</B> — you will have to rebuild from scratch.
                 </Callout>
             </>
         ),
