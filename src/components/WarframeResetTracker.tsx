@@ -15,7 +15,7 @@
 //      * If 4+ Netracell runs are already spent, Temporal Archimedea is auto-crossed out
 //        because 2 surges are required to run it from the shared pool.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import { PR } from "../domain/ids/prereqIds";
 import { SY } from "../domain/ids/syndicateIds";
@@ -1480,11 +1480,20 @@ export default function WarframeResetTracker() {
         saveState(rc);
     }, [rc]);
 
+    const lastResetKeysRef = useRef("");
     useEffect(() => {
         const tick = () => {
             const n = new Date();
             setNow(n);
             setRc((p) => syncResets(p, n));
+
+            // Re-fetch world state whenever a primary daily, secondary daily, or weekly reset boundary is crossed
+            const keys = getCurrentKeys(n);
+            const keysStr = `${keys.primary_daily}|${keys.secondary_daily}|${keys.weekly_monday}`;
+            if (lastResetKeysRef.current && lastResetKeysRef.current !== keysStr) {
+                fetchWorldState(true).then(setWsData).catch(() => {});
+            }
+            lastResetKeysRef.current = keysStr;
         };
         tick();
         const id = setInterval(tick, 1000);
