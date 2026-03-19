@@ -9,6 +9,8 @@ import {
     saveToGoogleDrive,
     restoreFromGoogleDrive,
     getLastSyncTime,
+    wasConnected,
+    tryAutoConnect,
 } from "../lib/googleDrive";
 
 function downloadText(filename: string, text: string, mimeType = "application/json;charset=utf-8"): void {
@@ -45,6 +47,12 @@ function GoogleDriveSection({ exportJson }: { exportJson: () => string }) {
     const [driveStatus, setDriveStatus] = useState<{ msg: string; ok: boolean } | null>(null);
     const [busy, setBusy]             = useState(false);
     const [lastSync, setLastSync]     = useState<string | null>(getLastSyncTime);
+
+    // On mount: attempt silent token re-acquisition if the user previously connected
+    useEffect(() => {
+        if (!configured || isConnected() || !wasConnected()) return;
+        tryAutoConnect().then((ok) => { if (ok) setConnected(true); }).catch(() => {});
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Refresh connected state whenever the section mounts or window regains focus
     useEffect(() => {

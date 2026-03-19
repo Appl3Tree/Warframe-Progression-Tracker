@@ -222,23 +222,42 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                     ? (j.events as WsEvent[]).filter((e) => e.active !== false)
                     : [],
                 invasions: Array.isArray(j.invasions)
-                    ? (j.invasions as any[]).filter((inv) => !inv.completed).map((inv): Invasion => ({
-                        id: inv.id ?? "",
-                        node: inv.node ?? "",
-                        desc: inv.desc ?? "",
-                        attackingFaction: inv.attackingFaction ?? "",
-                        defendingFaction: inv.defendingFaction ?? "",
-                        completion: typeof inv.completion === "number" ? inv.completion : 0,
-                        completed: !!inv.completed,
-                        eta: inv.eta ?? "",
-                        vsInfestation: !!inv.vsInfestation,
-                        attackerReward: inv.attackerReward
-                            ? { asString: inv.attackerReward.asString ?? "", items: inv.attackerReward.items, credits: inv.attackerReward.credits, countedItems: inv.attackerReward.countedItems }
-                            : null,
-                        defenderReward: inv.defenderReward
-                            ? { asString: inv.defenderReward.asString ?? "", items: inv.defenderReward.items, credits: inv.defenderReward.credits, countedItems: inv.defenderReward.countedItems }
-                            : null,
-                    }))
+                    ? (j.invasions as any[]).filter((inv) => !inv.completed).map((inv): Invasion => {
+                        // API uses nested attacker/defender objects
+                        const attackerData = inv.attacker ?? {};
+                        const defenderData = inv.defender ?? {};
+
+                        function buildReward(r: any): InvasionReward | null {
+                            if (!r) return null;
+                            const countedItems: Array<{ type: string; count: number }> = Array.isArray(r.countedItems) ? r.countedItems : [];
+                            const items: string[] = Array.isArray(r.items) ? r.items : [];
+                            const parts: string[] = [
+                                ...countedItems.map((ci: any) => ci.count > 1 ? `${ci.count}x ${ci.type}` : ci.type),
+                                ...items,
+                            ];
+                            if (parts.length === 0 && (r.credits ?? 0) > 0) parts.push(`${r.credits} Credits`);
+                            return {
+                                asString: parts.join(", "),
+                                items,
+                                credits: r.credits,
+                                countedItems,
+                            };
+                        }
+
+                        return {
+                            id: inv.id ?? "",
+                            node: inv.node ?? "",
+                            desc: inv.desc ?? "",
+                            attackingFaction: attackerData.faction ?? inv.attackingFaction ?? "",
+                            defendingFaction: defenderData.faction ?? inv.defendingFaction ?? "",
+                            completion: typeof inv.completion === "number" ? inv.completion : 0,
+                            completed: !!inv.completed,
+                            eta: inv.eta ?? "",
+                            vsInfestation: !!inv.vsInfestation,
+                            attackerReward: buildReward(attackerData.reward ?? inv.attackerReward),
+                            defenderReward: buildReward(defenderData.reward ?? inv.defenderReward),
+                        };
+                    })
                     : [],
                 steelPath: j.steelPath
                     ? { currentReward: j.steelPath.currentReward ?? null, expiry: j.steelPath.expiry }

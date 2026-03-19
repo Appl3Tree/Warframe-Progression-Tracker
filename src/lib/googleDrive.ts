@@ -17,10 +17,11 @@
  * See .env.example for instructions.
  */
 
-const GDRIVE_FILE_NAME = "wf-tracker-progress.json";
-const FILE_ID_KEY      = "wft_gdrive_file_id";
-const LAST_SYNC_KEY    = "wft_gdrive_last_sync";
-const GDRIVE_SCOPE     = "https://www.googleapis.com/auth/drive.file";
+const GDRIVE_FILE_NAME     = "wf-tracker-progress.json";
+const FILE_ID_KEY          = "wft_gdrive_file_id";
+const LAST_SYNC_KEY        = "wft_gdrive_last_sync";
+const CONNECTED_FLAG_KEY   = "wft_gdrive_connected";
+const GDRIVE_SCOPE         = "https://www.googleapis.com/auth/drive.file";
 const GIS_SRC          = "https://accounts.google.com/gsi/client";
 const DRIVE_API        = "https://www.googleapis.com/drive/v3";
 const DRIVE_UPLOAD_API = "https://www.googleapis.com/upload/drive/v3";
@@ -108,6 +109,7 @@ async function getToken(): Promise<string> {
 export async function connect(): Promise<void> {
     await loadGis();
     await acquireToken("consent");
+    localStorage.setItem(CONNECTED_FLAG_KEY, "1");
 }
 
 /** Revoke the in-memory token and clear stored file references. */
@@ -117,6 +119,28 @@ export async function disconnect(): Promise<void> {
     _token = null;
     localStorage.removeItem(FILE_ID_KEY);
     localStorage.removeItem(LAST_SYNC_KEY);
+    localStorage.removeItem(CONNECTED_FLAG_KEY);
+}
+
+/** True if the user has previously connected (persists across page loads). */
+export function wasConnected(): boolean {
+    return localStorage.getItem(CONNECTED_FLAG_KEY) === "1";
+}
+
+/**
+ * Attempt a silent (no-popup) token acquisition.
+ * Returns true if a valid token was obtained.
+ * Used for auto-reconnect on page load.
+ */
+export async function tryAutoConnect(): Promise<boolean> {
+    if (tokenValid()) return true;
+    try {
+        await loadGis();
+        await acquireToken("");
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 // ── Drive helpers ─────────────────────────────────────────────────────────────
@@ -145,7 +169,9 @@ function makeMultipart(json: string): FormData {
 
 // ── Public Drive actions ──────────────────────────────────────────────────────
 
-export type SaveResult = { fileId: string; modifiedTime: string };
+// Drive v3 API returns `id`, not `fileId`
+type DriveFileResult = { id: string; modifiedTime: string };
+export type SaveResult = { id: string; modifiedTime: string };
 
 /**
  * Save the progress pack JSON to Google Drive.
@@ -162,8 +188,8 @@ export async function saveToGoogleDrive(json: string): Promise<SaveResult> {
             { method: "PATCH", headers: { Authorization: `Bearer ${token}` }, body: makeMultipart(json) },
         );
         if (r.ok) {
-            const d = await r.json() as SaveResult;
-            localStorage.setItem(FILE_ID_KEY, d.fileId);
+            const d = await r.json() as DriveFileResult;
+            localStorage.setItem(FILE_ID_KEY, d.id);
             localStorage.setItem(LAST_SYNC_KEY, d.modifiedTime);
             return d;
         }
@@ -181,8 +207,8 @@ export async function saveToGoogleDrive(json: string): Promise<SaveResult> {
         const msg = await r.text().catch(() => String(r.status));
         throw new Error(`Google Drive upload failed: ${msg}`);
     }
-    const d = await r.json() as SaveResult;
-    localStorage.setItem(FILE_ID_KEY, d.fileId);
+    const d = await r.json() as DriveFileResult;
+    localStorage.setItem(FILE_ID_KEY, d.id);
     localStorage.setItem(LAST_SYNC_KEY, d.modifiedTime);
     return d;
 }
