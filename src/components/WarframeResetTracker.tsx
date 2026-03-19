@@ -20,7 +20,7 @@ import { useTrackerStore } from "../store/store";
 import { PR } from "../domain/ids/prereqIds";
 import { SY } from "../domain/ids/syndicateIds";
 import type { SyndicateState } from "../domain/types";
-import { fetchWorldState, getCachedWorldState, type WorldStateData } from "../lib/worldStateCache";
+import { fetchWorldState, getCachedWorldState, type CalendarEvent, type WorldStateData } from "../lib/worldStateCache";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -606,7 +606,7 @@ const CAL_EVENT_META: Record<string, { dot: string; label: string; textColor: st
     "Override":   { dot: "bg-violet-400", label: "Override",   textColor: "text-violet-300" },
 };
 
-type CalEntry = { dayIndex: number; date: Date; events: Record<string, string | undefined> };
+type CalEntry = { dayIndex: number; date: Date; events: CalendarEvent[] };
 type MonthGroup = { key: string; label: string; startDow: number; daysInMonth: number; entries: Map<number, CalEntry> };
 
 function parseCalDate(dateStr: string): Date | null {
@@ -629,7 +629,7 @@ function groupCalendarByMonth(days: NonNullable<WorldStateData["calendar"]>["day
             const label = firstOfMonth.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
             groups.set(key, { key, label, startDow: firstOfMonth.getUTCDay(), daysInMonth, entries: new Map() });
         }
-        groups.get(key)!.entries.set(d.getUTCDate(), { dayIndex: idx, date: d, events: day.events });
+        groups.get(key)!.entries.set(d.getUTCDate(), { dayIndex: idx, date: d, events: Array.isArray(day.events) ? day.events : [] });
     });
     return Array.from(groups.values()).sort((a, b) => a.key.localeCompare(b.key));
 }
@@ -648,7 +648,7 @@ function TrackerCalendarModal({ calendar, onClose }: {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <div
-                className="relative z-10 rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+                className="relative z-10 rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -675,78 +675,95 @@ function TrackerCalendarModal({ calendar, onClose }: {
                     <span className="ml-auto text-[11px] text-slate-600">Click a day for details</span>
                 </div>
 
-                {/* Month grids */}
-                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {months.map((month) => (
-                        <div key={month.key}>
-                            <div className="text-sm font-semibold text-slate-300 mb-3">{month.label}</div>
-                            <div className="grid grid-cols-7 mb-1">
-                                {DOW_LABELS.map((l) => (
-                                    <div key={l} className="text-center text-[10px] text-slate-600 font-medium py-1">{l}</div>
-                                ))}
-                            </div>
-                            <div className="grid grid-cols-7 gap-0.5">
-                                {Array.from({ length: month.startDow }, (_, i) => (
-                                    <div key={`blank-${i}`} />
-                                ))}
-                                {Array.from({ length: month.daysInMonth }, (_, i) => {
-                                    const dayNum = i + 1;
-                                    const entry = month.entries.get(dayNum);
-                                    const isToday = entry?.dayIndex === todayDayIndex;
-                                    const isSelected = selectedEntry != null && selectedEntry.dayIndex === entry?.dayIndex;
-                                    const eventKeys = entry ? Object.entries(entry.events).filter(([, v]) => v).map(([k]) => k) : [];
-                                    return (
-                                        <button
-                                            key={dayNum}
-                                            onClick={() => entry && setSelectedEntry(isSelected ? null : entry)}
-                                            disabled={!entry}
-                                            className={[
-                                                "relative flex flex-col items-center rounded-lg py-1 px-0.5 min-h-[40px] transition-colors",
-                                                entry ? "hover:bg-slate-800 cursor-pointer" : "cursor-default",
-                                                isToday ? "ring-1 ring-blue-500/60 bg-slate-800/70" : "",
-                                                isSelected ? "bg-slate-700 ring-1 ring-slate-500" : "",
-                                            ].join(" ")}
-                                        >
-                                            <span className={`text-[11px] font-medium ${isToday ? "text-blue-300" : entry ? "text-slate-300" : "text-slate-700"}`}>
-                                                {dayNum}
-                                            </span>
-                                            {eventKeys.length > 0 && (
-                                                <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
-                                                    {eventKeys.map((k) => (
-                                                        <div key={k} className={`w-1.5 h-1.5 rounded-full ${CAL_EVENT_META[k]?.dot ?? "bg-slate-500"}`} />
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                {/* Content: calendar grids + side detail panel */}
+                <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
 
-                {/* Selected day detail */}
-                {selectedEntry && (
-                    <div className="border-t border-slate-800 px-5 py-4 bg-slate-900/40">
-                        <div className="text-xs font-medium text-slate-400 mb-3">
-                            {selectedEntry.date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}
-                        </div>
-                        <div className="space-y-2">
-                            {Object.entries(selectedEntry.events).filter(([, v]) => v).map(([type, value]) => {
-                                const meta = CAL_EVENT_META[type];
-                                return (
-                                    <div key={type} className="rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5">
-                                        <div className="flex items-center gap-1.5 mb-1">
-                                            {meta && <div className={`w-2 h-2 rounded-full ${meta.dot}`} />}
-                                            <div className={`text-xs font-semibold ${meta?.textColor ?? "text-slate-400"}`}>{type}</div>
-                                        </div>
-                                        <div className="text-sm text-slate-200 leading-snug">{typeof value === "string" ? value : JSON.stringify(value)}</div>
+                    {/* Month grids — scrollable */}
+                    <div className="flex-1 p-5 overflow-y-auto">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                            {months.map((month) => (
+                                <div key={month.key}>
+                                    <div className="text-sm font-semibold text-slate-300 mb-3">{month.label}</div>
+                                    <div className="grid grid-cols-7 mb-1">
+                                        {DOW_LABELS.map((l) => (
+                                            <div key={l} className="text-center text-[10px] text-slate-600 font-medium py-1">{l}</div>
+                                        ))}
                                     </div>
-                                );
-                            })}
+                                    <div className="grid grid-cols-7 gap-0.5">
+                                        {Array.from({ length: month.startDow }, (_, i) => (
+                                            <div key={`blank-${i}`} />
+                                        ))}
+                                        {Array.from({ length: month.daysInMonth }, (_, i) => {
+                                            const dayNum = i + 1;
+                                            const entry = month.entries.get(dayNum);
+                                            const isToday = entry?.dayIndex === todayDayIndex;
+                                            const isSelected = selectedEntry != null && selectedEntry.dayIndex === entry?.dayIndex;
+                                            const eventKeys = entry ? entry.events.map((ev) => ev.type) : [];
+                                            return (
+                                                <button
+                                                    key={dayNum}
+                                                    onClick={() => entry && setSelectedEntry(isSelected ? null : entry)}
+                                                    disabled={!entry}
+                                                    className={[
+                                                        "relative flex flex-col items-center rounded-lg py-1 px-0.5 min-h-[40px] transition-colors",
+                                                        entry ? "hover:bg-slate-800 cursor-pointer" : "cursor-default",
+                                                        isToday ? "ring-1 ring-blue-500/60 bg-slate-800/70" : "",
+                                                        isSelected ? "bg-slate-700 ring-1 ring-slate-500" : "",
+                                                    ].join(" ")}
+                                                >
+                                                    <span className={`text-[11px] font-medium ${isToday ? "text-blue-300" : entry ? "text-slate-300" : "text-slate-700"}`}>
+                                                        {dayNum}
+                                                    </span>
+                                                    {eventKeys.length > 0 && (
+                                                        <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
+                                                            {eventKeys.map((k, ki) => (
+                                                                <div key={ki} className={`w-1.5 h-1.5 rounded-full ${CAL_EVENT_META[k]?.dot ?? "bg-slate-500"}`} />
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                )}
+
+                    {/* Day detail — side panel on desktop, below on mobile */}
+                    <div className={[
+                        "md:w-72 shrink-0 overflow-y-auto border-slate-800",
+                        selectedEntry ? "block border-t md:border-t-0 md:border-l" : "hidden md:flex md:border-l",
+                    ].join(" ")}>
+                        {selectedEntry ? (
+                            <div className="p-4">
+                                <div className="text-xs font-medium text-slate-400 mb-3">
+                                    {selectedEntry.date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}
+                                </div>
+                                <div className="space-y-2">
+                                    {selectedEntry.events.map((ev, i) => {
+                                        const meta = CAL_EVENT_META[ev.type];
+                                        return (
+                                            <div key={i} className="rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5">
+                                                <div className="flex items-center gap-1.5 mb-1">
+                                                    <div className={`w-2 h-2 rounded-full shrink-0 ${meta?.dot ?? "bg-slate-500"}`} />
+                                                    <div className={`text-xs font-semibold ${meta?.textColor ?? "text-slate-400"}`}>{meta?.label ?? (ev.type || "Event")}</div>
+                                                </div>
+                                                {ev.title && <div className="text-sm text-slate-200 font-medium leading-snug">{ev.title}</div>}
+                                                {ev.description && <div className="text-xs text-slate-400 mt-0.5 leading-snug">{ev.description}</div>}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex items-center justify-center text-xs text-slate-600 p-6 text-center">
+                                Click a day to see event details
+                            </div>
+                        )}
+                    </div>
+
+                </div>
             </div>
         </div>
     );
@@ -756,16 +773,16 @@ function CalendarHint({ calendar }: { calendar: NonNullable<WorldStateData["cale
     const [open, setOpen] = useState(false);
     const todayIdx = calendar.currentDay !== undefined ? Number(calendar.currentDay) : -1;
     const today = todayIdx >= 0 && todayIdx < calendar.days.length ? calendar.days[todayIdx] : null;
-    const todayEventKeys = today ? Object.entries(today.events).filter(([, v]) => v).map(([k]) => k) : [];
+    const todayEvents = today ? today.events : [];
 
     return (
         <>
             <div className="mt-1.5 flex items-center gap-2 flex-wrap">
-                {todayEventKeys.length > 0 ? (
-                    todayEventKeys.map((k) => {
-                        const meta = CAL_EVENT_META[k];
+                {todayEvents.length > 0 ? (
+                    todayEvents.map((ev, i) => {
+                        const meta = CAL_EVENT_META[ev.type];
                         return meta ? (
-                            <div key={k} className="flex items-center gap-1">
+                            <div key={i} className="flex items-center gap-1">
                                 <div className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
                                 <span className={`text-[9px] ${meta.textColor}`}>{meta.label}</span>
                             </div>

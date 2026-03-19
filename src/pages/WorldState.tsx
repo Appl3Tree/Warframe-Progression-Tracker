@@ -255,7 +255,7 @@ function CalendarModal({ calendar, onClose }: { calendar: Calendar; onClose: () 
                     ) : (
                         <div className="space-y-2">
                             {calendar.days.map((day, i) => {
-                                const entries = Object.entries(day.events).filter(([, v]) => v);
+                                const entries = day.events;
                                 if (entries.length === 0) return null;
                                 const isCurrent = calendar.currentDay !== undefined &&
                                     (String(i) === String(calendar.currentDay) || day.date === String(calendar.currentDay));
@@ -278,14 +278,15 @@ function CalendarModal({ calendar, onClose }: { calendar: Calendar; onClose: () 
                                             )}
                                         </div>
                                         <div className="space-y-1.5">
-                                            {entries.map(([type, value]) => {
-                                                const style = CALENDAR_EVENT_STYLES[type] ?? { label: type, color: "text-slate-300", bg: "bg-slate-800/40", border: "border-slate-700/40" };
+                                            {entries.map((ev, ei) => {
+                                                const style = CALENDAR_EVENT_STYLES[ev.type] ?? { label: ev.type, color: "text-slate-300", bg: "bg-slate-800/40", border: "border-slate-700/40" };
                                                 return (
-                                                    <div key={type} className={["rounded-lg border px-2.5 py-1.5", style.bg, style.border].join(" ")}>
+                                                    <div key={ei} className={["rounded-lg border px-2.5 py-1.5", style.bg, style.border].join(" ")}>
                                                         <div className={["text-[9px] font-bold uppercase tracking-wider mb-0.5", style.color].join(" ")}>
-                                                            {type}
+                                                            {style.label}
                                                         </div>
-                                                        <div className="text-xs text-slate-200">{value}</div>
+                                                        {ev.title && <div className="text-xs text-slate-200 font-medium">{ev.title}</div>}
+                                                        {ev.description && <div className="text-[10px] text-slate-400 mt-0.5">{ev.description}</div>}
                                                     </div>
                                                 );
                                             })}
