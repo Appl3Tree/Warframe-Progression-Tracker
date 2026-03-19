@@ -13,6 +13,11 @@ import {
     type DuviriCycle,
     type Archimedea,
     type Calendar,
+    type GlobalUpgrade,
+    type NewsItem,
+    type Arbitration,
+    type KuvaMission,
+    type PersistentEnemy,
 } from "../lib/worldStateCache";
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
@@ -399,6 +404,16 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                                     {data.voidTrader.inventory.length} items available
                                 </div>
                             )}
+                            {!baroActive && data.voidTrader.schedule.length > 0 && (
+                                <div className="mt-1.5 space-y-0.5">
+                                    {data.voidTrader.schedule.slice(0, 3).map((s, i) => (
+                                        <div key={i} className="text-[10px] text-slate-500">
+                                            {s.item && <span className="text-slate-400 mr-1">{s.item}</span>}
+                                            <Countdown expiry={s.expiry} className="font-mono text-slate-500" />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -520,29 +535,114 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                         <div className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
                             <div className="text-[11px] text-slate-500 mb-1.5">Construction Progress</div>
                             <div className="space-y-1.5">
-                                <div>
-                                    <div className="flex justify-between text-[11px] mb-0.5">
-                                        <span className="text-red-400">Fomorian</span>
-                                        <span className="text-slate-300 font-mono">{parseFloat(cp.fomorianProgress).toFixed(1)}%</span>
+                                {[
+                                    { label: "Fomorian", value: cp.fomorianProgress, color: "bg-red-500/60",  text: "text-red-400"  },
+                                    { label: "Razorback", value: cp.razorbackProgress, color: "bg-blue-500/60", text: "text-blue-400" },
+                                    ...(parseFloat(cp.unknownProgress) > 0
+                                        ? [{ label: "Unknown", value: cp.unknownProgress, color: "bg-slate-500/60", text: "text-slate-400" }]
+                                        : []),
+                                ].map(({ label, value, color, text }) => (
+                                    <div key={label}>
+                                        <div className="flex justify-between text-[11px] mb-0.5">
+                                            <span className={text}>{label}</span>
+                                            <span className="text-slate-300 font-mono">{parseFloat(value).toFixed(1)}%</span>
+                                        </div>
+                                        <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                            <div className={`h-full ${color} rounded-full`} style={{ width: `${Math.min(100, parseFloat(value))}%` }} />
+                                        </div>
                                     </div>
-                                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-red-500/60 rounded-full" style={{ width: `${Math.min(100, parseFloat(cp.fomorianProgress))}%` }} />
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-[11px] mb-0.5">
-                                        <span className="text-blue-400">Razorback</span>
-                                        <span className="text-slate-300 font-mono">{parseFloat(cp.razorbackProgress).toFixed(1)}%</span>
-                                    </div>
-                                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-blue-500/60 rounded-full" style={{ width: `${Math.min(100, parseFloat(cp.razorbackProgress))}%` }} />
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     )}
                 </div>
             </section>
+
+            {/* Active global boosters */}
+            {data.globalUpgrades.length > 0 && (
+                <section>
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Active Boosters</div>
+                    <div className="flex flex-wrap gap-2">
+                        {data.globalUpgrades.map((g, i) => (
+                            <div key={i} className="rounded-xl border border-green-800/40 bg-green-950/20 px-3 py-2">
+                                <div className="text-xs font-semibold text-green-300">{g.desc || `${g.operationSymbol}${g.upgradeOperationValue} ${g.upgrade}`}</div>
+                                {g.expiry && (
+                                    <div className="text-[10px] text-slate-500 mt-0.5">
+                                        Ends <Countdown expiry={g.expiry} className="font-mono text-slate-400" />
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {/* Sentient Outpost */}
+            {data.sentientOutposts?.active && (
+                <section>
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Sentient Outpost</div>
+                    <div className="rounded-xl border border-rose-800/50 bg-rose-950/20 px-3 py-2.5 inline-flex flex-wrap items-center gap-3">
+                        <span className="text-xs font-semibold text-rose-300">● Active</span>
+                        {data.sentientOutposts.mission && (
+                            <>
+                                <span className="text-[11px] text-slate-300">{data.sentientOutposts.mission.type}</span>
+                                <span className="text-[11px] text-slate-500">{data.sentientOutposts.mission.node}</span>
+                                <span className={["text-[11px] font-medium", FACTION_COLORS[data.sentientOutposts.mission.faction] ?? "text-slate-400"].join(" ")}>
+                                    {data.sentientOutposts.mission.faction}
+                                </span>
+                            </>
+                        )}
+                        {data.sentientOutposts.expiry && (
+                            <span className="text-[10px] text-slate-500 ml-auto">
+                                Ends <Countdown expiry={data.sentientOutposts.expiry} className="font-mono text-slate-400" />
+                            </span>
+                        )}
+                    </div>
+                </section>
+            )}
+
+            {/* News */}
+            {data.news.length > 0 && (
+                <section>
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">News</div>
+                    <div className="space-y-1.5">
+                        {data.news.slice(0, 5).map((n, i) => (
+                            <a
+                                key={i}
+                                href={n.link || undefined}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2.5 rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2 hover:bg-slate-800/60 transition-colors group"
+                            >
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+                                        {n.update && (
+                                            <span className="rounded border border-blue-700/50 bg-blue-950/30 px-1 py-px text-[9px] font-bold text-blue-300">UPDATE</span>
+                                        )}
+                                        {n.primeAccess && (
+                                            <span className="rounded border border-amber-700/50 bg-amber-950/30 px-1 py-px text-[9px] font-bold text-amber-300">PRIME</span>
+                                        )}
+                                        {n.stream && (
+                                            <span className="rounded border border-violet-700/50 bg-violet-950/30 px-1 py-px text-[9px] font-bold text-violet-300">STREAM</span>
+                                        )}
+                                        <span className="text-xs text-slate-200 group-hover:text-slate-100 truncate">{n.message}</span>
+                                    </div>
+                                    {n.date && (
+                                        <div className="text-[10px] text-slate-500">
+                                            {new Date(n.date).toLocaleDateString()}
+                                        </div>
+                                    )}
+                                </div>
+                                {n.link && (
+                                    <svg className="w-3 h-3 shrink-0 text-slate-600 group-hover:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                                    </svg>
+                                )}
+                            </a>
+                        ))}
+                    </div>
+                </section>
+            )}
         </div>
     );
 }
@@ -550,6 +650,7 @@ function OverviewTab({ data }: { data: WorldStateData }) {
 // ── Fissures tab ──────────────────────────────────────────────────────────────
 
 function FissuresTab({ fissures }: { fissures: Fissure[] }) {
+    const now = useNow();
     const [tierFilter, setTierFilter] = useState<string>("All");
     const [showSteel,  setShowSteel]  = useState(false);
     const [showStorm,  setShowStorm]  = useState(true);
@@ -605,23 +706,32 @@ function FissuresTab({ fissures }: { fissures: Fissure[] }) {
                 <div className="text-xs text-slate-500 py-4 text-center">No fissures match the current filter.</div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {shown.map((f) => (
-                        <div key={f.id} className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5 flex items-start gap-2.5">
-                            <span className={["shrink-0 mt-0.5 rounded-full border px-1.5 py-px text-[10px] font-bold uppercase tracking-wide", TIER_COLORS[f.tier] ?? "border-slate-700 text-slate-400"].join(" ")}>
-                                {f.tier}
-                            </span>
-                            <div className="min-w-0 flex-1">
-                                <div className="flex flex-wrap items-center gap-1 text-xs text-slate-200 font-medium">
-                                    {f.missionType}
-                                    {f.isStorm && <span className="text-[10px] text-cyan-400 font-semibold">STORM</span>}
-                                    {f.isHard  && <span className="text-[10px] text-red-400 font-semibold">SP</span>}
+                    {shown.map((f) => {
+                        const ageMs = f.activation ? now - new Date(f.activation).getTime() : 0;
+                        const ageMins = ageMs > 0 ? Math.floor(ageMs / 60000) : null;
+                        return (
+                            <div key={f.id} className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5 flex items-start gap-2.5">
+                                <span className={["shrink-0 mt-0.5 rounded-full border px-1.5 py-px text-[10px] font-bold uppercase tracking-wide", TIER_COLORS[f.tier] ?? "border-slate-700 text-slate-400"].join(" ")}>
+                                    {f.tier}
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-center gap-1 text-xs text-slate-200 font-medium">
+                                        {f.missionType}
+                                        {f.isStorm && <span className="text-[10px] text-cyan-400 font-semibold">STORM</span>}
+                                        {f.isHard  && <span className="text-[10px] text-red-400 font-semibold">SP</span>}
+                                    </div>
+                                    <div className="text-[10px] text-slate-500 mt-0.5 truncate">{f.node}</div>
+                                    <div className="text-[10px] text-slate-500">{f.enemy}</div>
+                                    {ageMins !== null && ageMins >= 0 && (
+                                        <div className="text-[10px] text-slate-600 mt-0.5">
+                                            up {ageMins >= 60 ? `${Math.floor(ageMins / 60)}h ${ageMins % 60}m` : `${ageMins}m`}
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="text-[10px] text-slate-500 mt-0.5 truncate">{f.node}</div>
-                                <div className="text-[10px] text-slate-500">{f.enemy}</div>
+                                <Countdown expiry={f.expiry} className="shrink-0 font-mono text-[10px] text-slate-400 text-right" />
                             </div>
-                            <Countdown expiry={f.expiry} className="shrink-0 font-mono text-[10px] text-slate-400 text-right" />
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>
@@ -796,11 +906,73 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                 <ArchimedeaCard key={arch.id} arch={arch} />
             ))}
 
+            {/* Arbitration */}
+            {data.arbitration && (
+                <div className="rounded-xl border border-slate-800 bg-slate-900/30 overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/40">
+                        <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">Arbitration</div>
+                        <div className="text-[10px] text-slate-500">
+                            Rotates <Countdown expiry={data.arbitration.expiry} className="font-mono text-slate-400" />
+                        </div>
+                    </div>
+                    <div className="p-3 flex items-center gap-3">
+                        <div className="min-w-0">
+                            <div className="text-xs font-medium text-slate-200">{data.arbitration.type}</div>
+                            <div className="text-[10px] text-slate-500 mt-0.5">{data.arbitration.node}</div>
+                            <div className={["text-[10px] font-medium mt-0.5", FACTION_COLORS[data.arbitration.enemy] ?? "text-slate-400"].join(" ")}>
+                                {data.arbitration.enemy}
+                            </div>
+                        </div>
+                        {data.arbitration.isSteel && (
+                            <span className="ml-auto shrink-0 rounded-full border border-red-700/50 bg-red-950/20 px-2 py-px text-[10px] font-bold text-red-300">SP</span>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Kuva Siphons & Floods */}
+            {data.kuva.length > 0 && (
+                <div className="rounded-xl border border-slate-800 bg-slate-900/30 overflow-hidden lg:col-span-2">
+                    <div className="px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/40">
+                        <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">Live Kuva Missions</div>
+                    </div>
+                    <div className="p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                        {data.kuva.map((k, i) => (
+                            <div key={i} className={[
+                                "rounded-lg border px-2.5 py-2",
+                                k.isFlood
+                                    ? "border-violet-800/40 bg-violet-950/10"
+                                    : "border-slate-800 bg-slate-900/40",
+                            ].join(" ")}>
+                                <div className="flex items-center justify-between gap-2">
+                                    <div>
+                                        <div className="flex items-center gap-1">
+                                            <span className={["text-xs font-medium", k.isFlood ? "text-violet-300" : "text-slate-200"].join(" ")}>
+                                                {k.isFlood ? "Kuva Flood" : "Kuva Siphon"}
+                                            </span>
+                                        </div>
+                                        <div className="text-[10px] text-slate-500 mt-0.5">{k.node}</div>
+                                        <div className="text-[10px] text-slate-400">{k.type}</div>
+                                    </div>
+                                    <Countdown expiry={k.expiry} className="shrink-0 font-mono text-[10px] text-slate-400 text-right" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {data.nightwave && data.nightwave.activeChallenges.length > 0 && (
                 <div className="rounded-xl border border-slate-800 bg-slate-900/30 overflow-hidden lg:col-span-2">
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/40">
-                        <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">
-                            Nightwave — Season {data.nightwave.season}
+                        <div>
+                            <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">
+                                Nightwave — Season {data.nightwave.season}
+                                {data.nightwave.tag && <span className="normal-case font-normal text-slate-400 ml-1">· {data.nightwave.tag}</span>}
+                            </div>
+                            {data.nightwave.phase > 0 && (
+                                <div className="text-[10px] text-slate-500 mt-0.5">Phase {data.nightwave.phase + 1}</div>
+                            )}
                         </div>
                         <div className="text-[10px] text-slate-500">
                             Ends <Countdown expiry={data.nightwave.expiry} className="font-mono text-slate-400" />
@@ -812,6 +984,7 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                                 .slice()
                                 .sort((a, b) => {
                                     if (a.isElite !== b.isElite) return a.isElite ? -1 : 1;
+                                    if (a.isPermanent !== b.isPermanent) return a.isPermanent ? 1 : -1;
                                     if (a.isDaily !== b.isDaily) return a.isDaily ? 1 : -1;
                                     return b.reputation - a.reputation;
                                 })
@@ -823,15 +996,23 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                                                     {act.isElite && (
                                                         <span className="rounded border border-amber-700/50 bg-amber-950/30 px-1 py-px text-[9px] font-bold text-amber-300">ELITE</span>
                                                     )}
-                                                    {act.isDaily && (
+                                                    {act.isPermanent && (
+                                                        <span className="rounded border border-teal-700/50 bg-teal-950/30 px-1 py-px text-[9px] font-bold text-teal-300">STANDING</span>
+                                                    )}
+                                                    {act.isDaily && !act.isPermanent && (
                                                         <span className="rounded border border-sky-700/50 bg-sky-950/30 px-1 py-px text-[9px] font-bold text-sky-300">DAILY</span>
                                                     )}
-                                                    {!act.isDaily && !act.isElite && (
+                                                    {!act.isDaily && !act.isElite && !act.isPermanent && (
                                                         <span className="rounded border border-slate-700 bg-slate-800/60 px-1 py-px text-[9px] font-bold text-slate-400">WEEKLY</span>
                                                     )}
                                                     <span className="text-xs font-medium text-slate-200">{act.title}</span>
                                                 </div>
                                                 <div className="text-[10px] text-slate-500">{act.desc}</div>
+                                                {!act.isPermanent && act.expiry && (
+                                                    <div className="text-[10px] text-slate-600 mt-0.5">
+                                                        <Countdown expiry={act.expiry} className="font-mono" />
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="shrink-0 text-right">
                                                 <div className="text-xs font-bold text-blue-300">{act.reputation.toLocaleString()}</div>
@@ -853,6 +1034,7 @@ function MissionsTab({ data }: { data: WorldStateData }) {
 function EventsTab({ data }: { data: WorldStateData }) {
     const hasEvents    = data.events.length > 0;
     const hasInvasions = data.invasions.length > 0;
+    const hasAcolytes  = data.persistentEnemies.length > 0;
     const toggleInvasionDone = useTrackerStore((s) => s.toggleInvasionDone);
     const isInvasionDone     = useTrackerStore((s) => s.isInvasionDone);
 
@@ -1025,17 +1207,20 @@ function EventsTab({ data }: { data: WorldStateData }) {
                                         {/* Attacker vs Defender with rewards */}
                                         <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-1 text-[10px]">
                                             <div>
-                                                <div className={["font-semibold", FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"].join(" ")}>
+                                                <div className={["font-semibold flex items-center gap-1", FACTION_COLORS[inv.attackingFaction] ?? "text-slate-400"].join(" ")}>
+                                                    {inv.isAttackerWinning && <span title="Winning">▲</span>}
                                                     {inv.attackingFaction}
                                                 </div>
-                                                {inv.attackerReward?.asString && (
-                                                    <div className="text-amber-300/80 mt-0.5 leading-tight">{inv.attackerReward.asString}</div>
-                                                )}
+                                                {inv.attackerReward?.asString
+                                                    ? <div className="text-amber-300/80 mt-0.5 leading-tight">{inv.attackerReward.asString}</div>
+                                                    : inv.rewardTypes.length > 0 && <div className="text-slate-500 mt-0.5">{inv.rewardTypes.join(", ")}</div>
+                                                }
                                             </div>
                                             <div className="text-slate-600 pt-0.5 text-center">vs</div>
                                             <div className="text-right">
-                                                <div className={["font-semibold", FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"].join(" ")}>
+                                                <div className={["font-semibold flex items-center justify-end gap-1", FACTION_COLORS[inv.defendingFaction] ?? "text-slate-400"].join(" ")}>
                                                     {inv.defendingFaction}
+                                                    {!inv.isAttackerWinning && <span title="Winning">▲</span>}
                                                 </div>
                                                 {inv.defenderReward?.asString && (
                                                     <div className="text-amber-300/80 mt-0.5 leading-tight">{inv.defenderReward.asString}</div>
@@ -1095,7 +1280,56 @@ function EventsTab({ data }: { data: WorldStateData }) {
                 </section>
             )}
 
-            {!hasEvents && !hasInvasions && (
+            {/* Acolytes */}
+            {hasAcolytes && (
+                <section>
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                        Acolytes ({data.persistentEnemies.length})
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {data.persistentEnemies.map((enemy, i) => (
+                            <div key={i} className={[
+                                "rounded-xl border px-3 py-2.5",
+                                enemy.isDiscovered
+                                    ? "border-rose-800/50 bg-rose-950/10"
+                                    : "border-slate-800 bg-slate-900/40",
+                            ].join(" ")}>
+                                <div className="flex items-start justify-between gap-2">
+                                    <div>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className={["w-2 h-2 rounded-full shrink-0", enemy.isDiscovered ? "bg-rose-400" : "bg-slate-600"].join(" ")} />
+                                            <span className="text-xs font-semibold text-slate-200">{enemy.agentType}</span>
+                                        </div>
+                                        <div className="text-[10px] text-slate-500 mt-0.5">
+                                            {enemy.isDiscovered ? `Last seen: ${enemy.lastDiscoveredAt}` : "Not yet located"}
+                                        </div>
+                                        {enemy.region && (
+                                            <div className="text-[10px] text-slate-500">{enemy.region}</div>
+                                        )}
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                        <div className="text-xs font-bold text-rose-300">{enemy.healthPercent.toFixed(1)}%</div>
+                                        <div className="text-[9px] text-slate-500">health</div>
+                                        {enemy.rank > 0 && (
+                                            <div className="text-[10px] text-slate-500 mt-0.5">Rank {enemy.rank}</div>
+                                        )}
+                                    </div>
+                                </div>
+                                {enemy.healthPercent > 0 && (
+                                    <div className="mt-2 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-rose-600/70 rounded-full"
+                                            style={{ width: `${Math.min(100, enemy.healthPercent)}%` }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {!hasEvents && !hasInvasions && !hasAcolytes && (
                 <div className="py-8 text-center text-sm text-slate-500">No active events or invasions.</div>
             )}
         </div>

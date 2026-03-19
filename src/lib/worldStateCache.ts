@@ -33,8 +33,10 @@ export type SortieMission = {
 export type Sortie = {
     boss: string;
     faction: string;
+    factionKey: string;
     rewardPool: string;
     variants: SortieMission[];
+    activation: string;
     expiry: string;
     expired: boolean;
 };
@@ -52,9 +54,13 @@ export type ArchonHunt = {
 export type Fissure = {
     id: string;
     node: string;
+    nodeKey: string;
     missionType: string;
+    missionTypeKey: string;
+    enemyKey: string;
     tier: string;
     tierNum: number;
+    activation: string;
     expiry: string;
     eta: string;
     isStorm: boolean;
@@ -67,6 +73,7 @@ export type NightwaveAct = {
     id: string;
     isDaily: boolean;
     isElite: boolean;
+    isPermanent: boolean;
     desc: string;
     title: string;
     reputation: number;
@@ -75,7 +82,10 @@ export type NightwaveAct = {
 
 export type Nightwave = {
     season: number;
+    tag: string;
+    phase: number;
     activeChallenges: NightwaveAct[];
+    possibleChallenges: NightwaveAct[];
     expiry: string;
 };
 
@@ -85,6 +95,11 @@ export type TraderItem = {
     credits: number;
 };
 
+export type VoidTraderScheduleItem = {
+    expiry: string;
+    item: string;
+};
+
 export type VoidTrader = {
     active: boolean;
     character: string;
@@ -92,6 +107,8 @@ export type VoidTrader = {
     inventory: TraderItem[];
     activation: string;
     expiry: string;
+    completed: boolean;
+    schedule: VoidTraderScheduleItem[];
 };
 
 export type VaultTraderItem = {
@@ -150,13 +167,18 @@ export type InvasionReward = {
 export type Invasion = {
     id: string;
     node: string;
+    nodeKey: string;
     desc: string;
     attackingFaction: string;
     defendingFaction: string;
     completion: number;
+    count: number;
+    requiredRuns: number;
     completed: boolean;
     eta: string;
     vsInfestation: boolean;
+    isAttackerWinning: boolean;
+    rewardTypes: string[];
     attackerReward: InvasionReward | null;
     defenderReward: InvasionReward | null;
 };
@@ -176,22 +198,33 @@ export type SteelPath = {
 export type ConstructionProgress = {
     fomorianProgress: string;
     razorbackProgress: string;
+    unknownProgress: string;
 };
 
 export type DailyDeal = {
     item: string;
+    uniqueName: string;
     discount: number;
     originalPrice: number;
     salePrice: number;
     total: number;
     sold: number;
+    activation: string;
     expiry: string;
+};
+
+export type SentientOutpostMission = {
+    node: string;
+    faction: string;
+    type: string;
 };
 
 export type SentientOutpost = {
     active: boolean;
+    activation?: string;
     expiry?: string;
     missionType?: string;
+    mission: SentientOutpostMission | null;
 };
 
 // ── Archimedea (Temporal Archimedea / The Hex) ────────────────────────────────
@@ -199,8 +232,10 @@ export type SentientOutpost = {
 export type ArchimedeaMission = {
     node: string;
     type: string;
+    faction?: string;
     modifier?: string;
     modifierDescription?: string;
+    risks?: ArchimedeaModifier[];
 };
 
 export type ArchimedeaModifier = {
@@ -246,6 +281,7 @@ export type Calendar = {
     days: CalendarDay[];
     currentDay?: string;
     season?: string;
+    yearIteration?: number;
 };
 
 // Maps raw API type strings → canonical display types
@@ -282,6 +318,8 @@ const _BIRTHDAY_DATES: Record<string, string> = {
     "06-15": "Flare",      // Flare Varleon (Temple protoframe)
     "07-10": "Aoi",        // Aoi / xX GLIMMER Xx (Mag protoframe)
     "11-02": "Eleanor",    // Eleanor / Salem (Nyx protoframe)
+    "11-03": "Arthur",     // Arthur / Broadsword (Excalibur protoframe)
+    "12-04": "Quincy",     // Quincy / Soldja1Shot1kil (Cyte-09 protoframe)
     "12-21": "Velimir",    // Velimir Volkov II (Frost protoframe)
 };
 
@@ -375,6 +413,70 @@ function _normCalEvents(d: any): CalendarEvent[] {
     return [];
 }
 
+// ── Global Upgrades (active boosters) ─────────────────────────────────────────
+
+export type GlobalUpgrade = {
+    upgrade: string;
+    operation: string;
+    operationSymbol: string;
+    upgradeOperationValue: number;
+    desc: string;
+    eta: string;
+    expired: boolean;
+    activation: string;
+    expiry: string;
+};
+
+// ── News ──────────────────────────────────────────────────────────────────────
+
+export type NewsItem = {
+    id: string;
+    message: string;
+    link: string;
+    imageLink: string;
+    priority: boolean;
+    date: string;
+    update: boolean;
+    primeAccess: boolean;
+    stream: boolean;
+    mobileOnly: boolean;
+};
+
+// ── Arbitration ───────────────────────────────────────────────────────────────
+
+export type Arbitration = {
+    node: string;
+    type: string;
+    enemy: string;
+    expiry: string;
+    isSteel: boolean;
+    expired: boolean;
+};
+
+// ── Kuva missions (Siphons & Floods) ──────────────────────────────────────────
+
+export type KuvaMission = {
+    node: string;
+    type: string;
+    tier?: string;
+    expiry: string;
+    isFlood: boolean;
+};
+
+// ── Persistent enemies (Acolytes) ─────────────────────────────────────────────
+
+export type PersistentEnemy = {
+    agentType: string;
+    locationTag: string;
+    rank: number;
+    healthPercent: number;
+    fleeDamage: number;
+    region: string;
+    lastDiscoveredTime: string;
+    lastDiscoveredAt: string;
+    isDiscovered: boolean;
+};
+
 // ── Simaris ───────────────────────────────────────────────────────────────────
 
 export type Simaris = {
@@ -406,6 +508,11 @@ export type WorldStateData = {
     archimedeas:          Archimedea[];
     calendar:             Calendar | null;
     simaris:              Simaris | null;
+    globalUpgrades:       GlobalUpgrade[];
+    news:                 NewsItem[];
+    arbitration:          Arbitration | null;
+    kuva:                 KuvaMission[];
+    persistentEnemies:    PersistentEnemy[];
 };
 
 // ── Cache ─────────────────────────────────────────────────────────────────────
@@ -450,13 +557,83 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                     }
                     : null,
 
-                sortie:    j.sortie    ?? null,
+                sortie: j.sortie
+                    ? {
+                        boss:        j.sortie.boss        ?? "",
+                        faction:     j.sortie.faction     ?? "",
+                        factionKey:  j.sortie.factionKey  ?? "",
+                        rewardPool:  j.sortie.rewardPool  ?? "",
+                        variants:    Array.isArray(j.sortie.variants) ? j.sortie.variants : [],
+                        activation:  j.sortie.activation  ?? "",
+                        expiry:      j.sortie.expiry      ?? "",
+                        expired:     !!j.sortie.expired,
+                    }
+                    : null,
                 archonHunt: j.archonHunt ?? null,
 
-                fissures: Array.isArray(j.fissures) ? j.fissures : [],
+                fissures: Array.isArray(j.fissures)
+                    ? (j.fissures as any[]).map((f): Fissure => ({
+                        id:             f.id             ?? "",
+                        node:           f.node           ?? "",
+                        nodeKey:        f.nodeKey        ?? "",
+                        missionType:    f.missionType    ?? "",
+                        missionTypeKey: f.missionTypeKey ?? "",
+                        enemy:          f.enemy          ?? "",
+                        enemyKey:       f.enemyKey       ?? "",
+                        tier:           f.tier           ?? "",
+                        tierNum:        f.tierNum        ?? 0,
+                        activation:     f.activation     ?? "",
+                        expiry:         f.expiry         ?? "",
+                        eta:            f.eta            ?? "",
+                        isStorm:        !!f.isStorm,
+                        isHard:         !!f.isHard,
+                        expired:        !!f.expired,
+                    }))
+                    : [],
 
-                nightwave: j.nightwave ?? null,
-                voidTrader: j.voidTrader ?? null,
+                nightwave: j.nightwave
+                    ? (() => {
+                        const mapAct = (c: any): NightwaveAct => ({
+                            id:          c.id          ?? "",
+                            isDaily:     !!c.isDaily,
+                            isElite:     !!c.isElite,
+                            isPermanent: !!c.isPermanent,
+                            desc:        c.desc        ?? "",
+                            title:       c.title       ?? "",
+                            reputation:  c.reputation  ?? 0,
+                            expiry:      c.expiry      ?? "",
+                        });
+                        return {
+                            season:            j.nightwave.season  ?? 0,
+                            tag:               j.nightwave.tag     ?? "",
+                            phase:             j.nightwave.phase   ?? 0,
+                            activeChallenges:  Array.isArray(j.nightwave.activeChallenges)
+                                ? j.nightwave.activeChallenges.map(mapAct)
+                                : [],
+                            possibleChallenges: Array.isArray(j.nightwave.possibleChallenges)
+                                ? j.nightwave.possibleChallenges.map(mapAct)
+                                : [],
+                            expiry:            j.nightwave.expiry  ?? "",
+                        };
+                    })()
+                    : null,
+                voidTrader: j.voidTrader
+                    ? {
+                        active:     !!j.voidTrader.active,
+                        character:  j.voidTrader.character  ?? "",
+                        location:   j.voidTrader.location   ?? "",
+                        inventory:  Array.isArray(j.voidTrader.inventory) ? j.voidTrader.inventory : [],
+                        activation: j.voidTrader.activation ?? "",
+                        expiry:     j.voidTrader.expiry     ?? "",
+                        completed:  !!j.voidTrader.completed,
+                        schedule:   Array.isArray(j.voidTrader.schedule)
+                            ? (j.voidTrader.schedule as any[]).map((s): VoidTraderScheduleItem => ({
+                                expiry: s.expiry ?? "",
+                                item:   s.item   ?? "",
+                            }))
+                            : [],
+                    }
+                    : null,
                 vaultTrader: j.vaultTrader ?? null,
 
                 events: Array.isArray(j.events)
@@ -529,13 +706,18 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                         return {
                             id: inv.id ?? "",
                             node: inv.node ?? "",
+                            nodeKey: inv.nodeKey ?? "",
                             desc: inv.desc ?? "",
                             attackingFaction: attackerData.faction ?? inv.attackingFaction ?? "",
                             defendingFaction: defenderData.faction ?? inv.defendingFaction ?? "",
                             completion: typeof inv.completion === "number" ? inv.completion : 0,
+                            count: typeof inv.count === "number" ? inv.count : 0,
+                            requiredRuns: typeof inv.requiredRuns === "number" ? inv.requiredRuns : 0,
                             completed: !!inv.completed,
                             eta: inv.eta ?? "",
                             vsInfestation: !!inv.vsInfestation,
+                            isAttackerWinning: !!inv.isAttackerWinning,
+                            rewardTypes: Array.isArray(inv.rewardTypes) ? inv.rewardTypes : [],
                             attackerReward: buildReward(attackerData.reward ?? inv.attackerReward),
                             defenderReward: buildReward(defenderData.reward ?? inv.defenderReward),
                         };
@@ -555,46 +737,82 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                     }
                     : null,
 
-                constructionProgress: j.constructionProgress ?? null,
-                dailyDeals: Array.isArray(j.dailyDeals) ? j.dailyDeals : [],
-                sentientOutposts: j.sentientOutposts ?? null,
+                constructionProgress: j.constructionProgress
+                    ? {
+                        fomorianProgress: j.constructionProgress.fomorianProgress ?? "0",
+                        razorbackProgress: j.constructionProgress.razorbackProgress ?? "0",
+                        unknownProgress:  j.constructionProgress.unknownProgress   ?? "0",
+                    }
+                    : null,
+
+                dailyDeals: Array.isArray(j.dailyDeals)
+                    ? (j.dailyDeals as any[]).map((d): DailyDeal => ({
+                        item:          d.item          ?? "",
+                        uniqueName:    d.uniqueName    ?? "",
+                        discount:      d.discount      ?? 0,
+                        originalPrice: d.originalPrice ?? 0,
+                        salePrice:     d.salePrice     ?? 0,
+                        total:         d.total         ?? 0,
+                        sold:          d.sold          ?? 0,
+                        activation:    d.activation    ?? "",
+                        expiry:        d.expiry        ?? "",
+                    }))
+                    : [],
+
+                sentientOutposts: j.sentientOutposts
+                    ? {
+                        active:      !!j.sentientOutposts.active,
+                        activation:  j.sentientOutposts.activation ?? undefined,
+                        expiry:      j.sentientOutposts.expiry     ?? undefined,
+                        missionType: j.sentientOutposts.missionType ?? undefined,
+                        mission: j.sentientOutposts.mission
+                            ? {
+                                node:    j.sentientOutposts.mission.node    ?? "",
+                                faction: j.sentientOutposts.mission.faction ?? "",
+                                type:    j.sentientOutposts.mission.type    ?? "",
+                            }
+                            : null,
+                    }
+                    : null,
 
                 archimedeas: Array.isArray(j.archimedeas)
-                    ? (j.archimedeas as any[]).map((a): Archimedea => ({
-                        id: a.id ?? "",
-                        tag: a.tag ?? "",
-                        variants: Array.isArray(a.variants)
-                            ? a.variants.map((v: any) => ({
-                                node: v.node ?? "",
-                                type: v.type ?? v.missionType ?? "",
-                                modifier: v.modifier,
-                                modifierDescription: v.modifierDescription,
-                            }))
-                            : [],
-                        personalModifiers: Array.isArray(a.personalModifiers)
-                            ? a.personalModifiers.map((m: any) =>
-                                typeof m === "string"
-                                    ? { tag: m }
-                                    : { tag: m.tag ?? m.name ?? "", description: m.description, rarity: m.rarity }
-                              )
-                            : [],
-                        deviations: Array.isArray(a.deviations)
-                            ? a.deviations.map((m: any) =>
-                                typeof m === "string"
-                                    ? { tag: m }
-                                    : { tag: m.tag ?? m.name ?? "", description: m.description, rarity: m.rarity }
-                              )
-                            : [],
-                        risks: Array.isArray(a.risks)
-                            ? a.risks.map((m: any) =>
-                                typeof m === "string"
-                                    ? { tag: m }
-                                    : { tag: m.tag ?? m.name ?? "", description: m.description, rarity: m.rarity }
-                              )
-                            : [],
-                        endDate: a.endDate ?? a.expiry ?? "",
-                        expired: !!a.expired,
-                    }))
+                    ? (j.archimedeas as any[]).map((a): Archimedea => {
+                        const mapModifier = (m: any): ArchimedeaModifier =>
+                            typeof m === "string"
+                                ? { tag: m }
+                                : { tag: m.tag ?? m.key ?? m.name ?? "", description: m.description, rarity: m.rarity };
+                        // The parser uses `missions` (new) or `variants` (old) — handle both
+                        const rawMissions: any[] = Array.isArray(a.missions) ? a.missions
+                            : Array.isArray(a.variants) ? a.variants
+                            : [];
+                        const variants: ArchimedeaMission[] = rawMissions.map((v: any) => ({
+                            node:                v.node                ?? "",
+                            type:                v.type                ?? v.missionType   ?? "",
+                            faction:             v.faction             ?? v.factionKey    ?? undefined,
+                            // New parser shape: deviation is a nested {key,name,description} object
+                            modifier:            v.modifier            ?? v.deviation?.name ?? undefined,
+                            modifierDescription: v.modifierDescription ?? v.deviation?.description ?? undefined,
+                            // Per-mission risks from new parser shape
+                            risks: Array.isArray(v.risks) ? v.risks.map(mapModifier) : undefined,
+                        }));
+                        // Top-level personalModifiers (and old-shape deviations/risks)
+                        const personalModifiers = Array.isArray(a.personalModifiers)
+                            ? a.personalModifiers.map(mapModifier) : [];
+                        const deviations = Array.isArray(a.deviations)
+                            ? a.deviations.map(mapModifier) : [];
+                        const risks = Array.isArray(a.risks)
+                            ? a.risks.map(mapModifier) : [];
+                        return {
+                            id:    a.id    ?? "",
+                            tag:   a.tag   ?? a.type ?? "",
+                            variants,
+                            personalModifiers,
+                            deviations,
+                            risks,
+                            endDate: a.endDate ?? a.expiry ?? "",
+                            expired: !!a.expired,
+                        };
+                    })
                     : [],
 
                 calendar: j.calendar
@@ -622,8 +840,11 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                                 return { date, events };
                             })
                             : [],
-                        currentDay: j.calendar.currentDay ?? j.calendar.activeDayIndex,
-                        season: j.calendar.season,
+                        currentDay:    j.calendar.currentDay ?? j.calendar.activeDayIndex,
+                        season:        j.calendar.season,
+                        yearIteration: typeof j.calendar.yearIteration === "number"
+                            ? j.calendar.yearIteration
+                            : undefined,
                     }
                     : null,
 
@@ -633,6 +854,71 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                         isTargetActive: !!j.simaris.isTargetActive,
                     }
                     : null,
+
+                // ── New fields ─────────────────────────────────────────────
+                globalUpgrades: Array.isArray(j.globalUpgrades)
+                    ? (j.globalUpgrades as any[]).filter((g) => !g.expired).map((g): GlobalUpgrade => ({
+                        upgrade:               g.upgrade               ?? "",
+                        operation:             g.operation             ?? "",
+                        operationSymbol:       g.operationSymbol       ?? "",
+                        upgradeOperationValue: g.upgradeOperationValue ?? 0,
+                        desc:                  g.desc                  ?? "",
+                        eta:                   g.eta                   ?? "",
+                        expired:               !!g.expired,
+                        activation:            g.activation            ?? "",
+                        expiry:                g.expiry                ?? "",
+                    }))
+                    : [],
+
+                news: Array.isArray(j.news)
+                    ? (j.news as any[]).filter((n) => !n.mobileOnly).map((n): NewsItem => ({
+                        id:          n.id          ?? "",
+                        message:     n.message     ?? "",
+                        link:        n.link        ?? "",
+                        imageLink:   n.imageLink   ?? "",
+                        priority:    !!n.priority,
+                        date:        n.date        ?? "",
+                        update:      !!n.update,
+                        primeAccess: !!n.primeAccess,
+                        stream:      !!n.stream,
+                        mobileOnly:  !!n.mobileOnly,
+                    }))
+                    : [],
+
+                arbitration: j.arbitration && !j.arbitration.expired
+                    ? {
+                        node:    j.arbitration.node    ?? j.arbitration.location ?? "",
+                        type:    j.arbitration.type    ?? j.arbitration.missionType ?? "",
+                        enemy:   j.arbitration.enemy   ?? j.arbitration.faction ?? "",
+                        expiry:  j.arbitration.expiry  ?? "",
+                        isSteel: !!j.arbitration.isSteel,
+                        expired: !!j.arbitration.expired,
+                    }
+                    : null,
+
+                kuva: Array.isArray(j.kuva)
+                    ? (j.kuva as any[]).map((k): KuvaMission => ({
+                        node:    k.node    ?? k.location ?? "",
+                        type:    k.type    ?? k.missionType ?? "",
+                        tier:    k.tier    ?? undefined,
+                        expiry:  k.expiry  ?? "",
+                        isFlood: !!(k.isFlood ?? k.type?.toLowerCase().includes("flood")),
+                    }))
+                    : [],
+
+                persistentEnemies: Array.isArray(j.persistentEnemies)
+                    ? (j.persistentEnemies as any[]).map((e): PersistentEnemy => ({
+                        agentType:         e.agentType         ?? e.type ?? "",
+                        locationTag:       e.locationTag       ?? "",
+                        rank:              e.rank              ?? 0,
+                        healthPercent:     e.healthPercent     ?? 0,
+                        fleeDamage:        e.fleeDamage        ?? 0,
+                        region:            e.region            ?? "",
+                        lastDiscoveredTime: e.lastDiscoveredTime ?? e.lastDiscoveredAt ?? "",
+                        lastDiscoveredAt:  e.lastDiscoveredAt  ?? "",
+                        isDiscovered:      !!e.isDiscovered,
+                    }))
+                    : [],
             };
 
             _cache = { data, fetchedAt: Date.now() };

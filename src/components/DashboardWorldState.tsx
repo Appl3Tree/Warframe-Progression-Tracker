@@ -46,6 +46,7 @@ type Fissure = {
     missionType: string;
     tier: string;
     tierNum: number;
+    activation: string;
     expiry: string;
     eta: string;
     isStorm: boolean;
@@ -58,6 +59,7 @@ type NightwaveAct = {
     id: string;
     isDaily: boolean;
     isElite: boolean;
+    isPermanent: boolean;
     desc: string;
     title: string;
     reputation: number;
@@ -66,7 +68,17 @@ type NightwaveAct = {
 
 type Nightwave = {
     season: number;
+    tag: string;
+    phase: number;
     activeChallenges: NightwaveAct[];
+    expiry: string;
+};
+
+type GlobalUpgrade = {
+    upgrade: string;
+    operationSymbol: string;
+    upgradeOperationValue: number;
+    desc: string;
     expiry: string;
 };
 
@@ -111,18 +123,19 @@ type Simaris = {
 };
 
 type WorldStateData = {
-    cetusCycle:   WsCycle | null;
-    valesCycle:   WsCycle | null;
-    cambionCycle: WsCycle | null;
-    zarimanCycle: WsCycle | null;
-    duviriCycle:  DuviriCycle | null;
-    sortie:       Sortie | null;
-    archonHunt:   ArchonHunt | null;
-    fissures:     Fissure[];
-    nightwave:    Nightwave | null;
-    voidTrader:   VoidTrader | null;
-    events:       WsEvent[];
-    simaris:      Simaris | null;
+    cetusCycle:     WsCycle | null;
+    valesCycle:     WsCycle | null;
+    cambionCycle:   WsCycle | null;
+    zarimanCycle:   WsCycle | null;
+    duviriCycle:    DuviriCycle | null;
+    sortie:         Sortie | null;
+    archonHunt:     ArchonHunt | null;
+    fissures:       Fissure[];
+    nightwave:      Nightwave | null;
+    voidTrader:     VoidTrader | null;
+    events:         WsEvent[];
+    simaris:        Simaris | null;
+    globalUpgrades: GlobalUpgrade[];
 };
 
 // ── Fetch ─────────────────────────────────────────────────────────────────────
@@ -154,8 +167,42 @@ async function fetchWorldState(): Promise<WorldStateData> {
             : null,
         sortie:       j.sortie       ?? null,
         archonHunt:   j.archonHunt   ?? null,
-        fissures:     Array.isArray(j.fissures)  ? j.fissures  : [],
-        nightwave:    j.nightwave  ?? null,
+        fissures: Array.isArray(j.fissures)
+            ? (j.fissures as any[]).map((f) => ({
+                id:          f.id          ?? "",
+                node:        f.node        ?? "",
+                missionType: f.missionType ?? "",
+                tier:        f.tier        ?? "",
+                tierNum:     f.tierNum     ?? 0,
+                activation:  f.activation  ?? "",
+                expiry:      f.expiry      ?? "",
+                eta:         f.eta         ?? "",
+                isStorm:     !!f.isStorm,
+                isHard:      !!f.isHard,
+                enemy:       f.enemy       ?? "",
+                expired:     !!f.expired,
+            }))
+            : [],
+        nightwave: j.nightwave
+            ? {
+                season:           j.nightwave.season  ?? 0,
+                tag:              j.nightwave.tag     ?? "",
+                phase:            j.nightwave.phase   ?? 0,
+                activeChallenges: Array.isArray(j.nightwave.activeChallenges)
+                    ? j.nightwave.activeChallenges.map((c: any) => ({
+                        id:          c.id          ?? "",
+                        isDaily:     !!c.isDaily,
+                        isElite:     !!c.isElite,
+                        isPermanent: !!c.isPermanent,
+                        desc:        c.desc        ?? "",
+                        title:       c.title       ?? "",
+                        reputation:  c.reputation  ?? 0,
+                        expiry:      c.expiry      ?? "",
+                    }))
+                    : [],
+                expiry: j.nightwave.expiry ?? "",
+            }
+            : null,
         voidTrader:   j.voidTrader ?? null,
         events:       Array.isArray(j.events)
             ? (j.events as WsEvent[]).filter((e) => e.active !== false)
@@ -163,6 +210,15 @@ async function fetchWorldState(): Promise<WorldStateData> {
         simaris: j.simaris
             ? { target: j.simaris.target ?? "", isTargetActive: !!j.simaris.isTargetActive }
             : null,
+        globalUpgrades: Array.isArray(j.globalUpgrades)
+            ? (j.globalUpgrades as any[]).filter((g) => !g.expired).map((g) => ({
+                upgrade:               g.upgrade               ?? "",
+                operationSymbol:       g.operationSymbol       ?? "",
+                upgradeOperationValue: g.upgradeOperationValue ?? 0,
+                desc:                  g.desc                  ?? "",
+                expiry:                g.expiry                ?? "",
+            }))
+            : [],
     };
 }
 
@@ -572,15 +628,21 @@ function SimarisPanel({ simaris }: { simaris: Simaris }) {
 function NightwavePanel({ nightwave }: { nightwave: Nightwave }) {
     const acts = nightwave.activeChallenges.slice().sort((a, b) => {
         if (a.isElite !== b.isElite) return a.isElite ? -1 : 1;
+        if (a.isPermanent !== b.isPermanent) return a.isPermanent ? 1 : -1;
         if (a.isDaily !== b.isDaily) return a.isDaily ? 1 : -1;
         return b.reputation - a.reputation;
     });
 
+    const title = `Nightwave — Season ${nightwave.season}${nightwave.tag ? ` · ${nightwave.tag}` : ""}`;
+
     return (
         <Panel
-            title={`Nightwave — Season ${nightwave.season}`}
+            title={title}
             aside={<div className="text-[10px] text-slate-500">Ends <Countdown expiry={nightwave.expiry} className="font-mono text-slate-400" /></div>}
         >
+            {nightwave.phase > 0 && (
+                <div className="text-[10px] text-slate-500 mb-2">Phase {nightwave.phase + 1}</div>
+            )}
             <div className="space-y-1.5">
                 {acts.map((act) => (
                     <div key={act.id} className="rounded-lg border border-slate-800 bg-slate-900/40 px-2.5 py-2">
@@ -588,8 +650,9 @@ function NightwavePanel({ nightwave }: { nightwave: Nightwave }) {
                             <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-1 mb-0.5">
                                     {act.isElite && <span className="rounded border border-amber-700/50 bg-amber-950/30 px-1 py-px text-[9px] font-bold text-amber-300">ELITE</span>}
-                                    {act.isDaily && <span className="rounded border border-sky-700/50 bg-sky-950/30 px-1 py-px text-[9px] font-bold text-sky-300">DAILY</span>}
-                                    {!act.isDaily && !act.isElite && <span className="rounded border border-slate-700 bg-slate-800/60 px-1 py-px text-[9px] font-bold text-slate-400">WEEKLY</span>}
+                                    {act.isPermanent && <span className="rounded border border-teal-700/50 bg-teal-950/30 px-1 py-px text-[9px] font-bold text-teal-300">STANDING</span>}
+                                    {act.isDaily && !act.isPermanent && <span className="rounded border border-sky-700/50 bg-sky-950/30 px-1 py-px text-[9px] font-bold text-sky-300">DAILY</span>}
+                                    {!act.isDaily && !act.isElite && !act.isPermanent && <span className="rounded border border-slate-700 bg-slate-800/60 px-1 py-px text-[9px] font-bold text-slate-400">WEEKLY</span>}
                                     <span className="text-xs font-medium text-slate-200">{act.title}</span>
                                 </div>
                                 <div className="text-[10px] text-slate-500">{act.desc}</div>
@@ -715,6 +778,22 @@ export default function DashboardWorldState() {
                             ].join(" ")}>
                                 {data.voidTrader && <VoidTraderPanel trader={data.voidTrader} />}
                                 {data.events.length > 0 && <EventsPanel events={data.events} />}
+                            </div>
+                        )}
+
+                        {/* Active global boosters strip */}
+                        {data.globalUpgrades.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {data.globalUpgrades.map((g, i) => (
+                                    <div key={i} className="rounded-xl border border-green-800/40 bg-green-950/20 px-3 py-2">
+                                        <div className="text-xs font-semibold text-green-300">{g.desc || `${g.operationSymbol}${g.upgradeOperationValue} ${g.upgrade}`}</div>
+                                        {g.expiry && (
+                                            <div className="text-[10px] text-slate-500 mt-0.5">
+                                                Ends <Countdown expiry={g.expiry} className="font-mono text-slate-400" />
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
                         )}
 
