@@ -3087,7 +3087,11 @@ export default function Inventory() {
                       <ul className="space-y-0.5 max-h-32 overflow-auto">
                         {sources.slice(0, 15).map((s) => (
                           <li key={s} className="text-xs text-slate-300">
-                            {SOURCE_INDEX[s as any]?.label ?? s}
+                            {SOURCE_INDEX[s as any]?.label ?? s
+                                .replace(/^(?:data|src):/, "")
+                                .replace(/\//g, " › ")
+                                .replace(/-/g, " ")
+                                .replace(/\b\w/g, (c) => c.toUpperCase())}
                           </li>
                         ))}
                         {sources.length > 15 && (

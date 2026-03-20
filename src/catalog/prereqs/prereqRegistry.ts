@@ -10,7 +10,7 @@
 
 import type { PrereqId } from "../../domain/ids/prereqIds";
 import { PR } from "../../domain/ids/prereqIds";
-import { SY } from "../../domain/ids/syndicateIds";
+import { SY, getSyndicateDisplayName } from "../../domain/ids/syndicateIds";
 
 export type PrereqCategory =
     | "Quests"
@@ -32,16 +32,19 @@ export type PrereqCondition =
     | { type: "item_owned"; catalogId: string }
     | { type: "resource_owned"; catalogId: string; quantity: number };
 
-export function describePrereqCondition(cond: PrereqCondition): string {
+export function describePrereqCondition(cond: PrereqCondition, prereqLabelFor?: (id: string) => string): string {
     switch (cond.type) {
         case "mastery_rank":      return `Mastery Rank ${cond.value} required`;
-        case "quest_complete":    return `Quest complete: ${cond.prereqId}`;
+        case "quest_complete": {
+            const label = prereqLabelFor ? prereqLabelFor(cond.prereqId) : null;
+            return label ? `Quest complete: ${label}` : `Quest complete: ${cond.prereqId}`;
+        }
         case "junction_complete": return `Junction complete: ${cond.junctionId}`;
         case "node_complete":     return `Node complete: ${cond.nodeId}`;
         case "planet_unlock":     return `Planet unlocked: ${cond.planetId}`;
-        case "syndicate_rank":    return `${cond.syndicateId} rank ${cond.rank} required`;
+        case "syndicate_rank":    return `${getSyndicateDisplayName(cond.syndicateId)} Rank ${cond.rank} required`;
         case "item_owned":        return `Item owned: ${cond.catalogId}`;
-        case "resource_owned":    return `${cond.quantity}x ${cond.catalogId} required`;
+        case "resource_owned":    return `${cond.quantity}× ${cond.catalogId} required`;
     }
 }
 

@@ -1,4 +1,36 @@
 // ===== FILE: src/domain/ids/syndicateIds.ts =====
+
+/** Human-readable display name for each syndicate ID. */
+export const SYNDICATE_DISPLAY_NAME: Record<string, string> = {
+    syndicate_ostron:            "Ostron",
+    syndicate_quills:            "The Quills",
+    syndicate_solaris_united:    "Solaris United",
+    syndicate_vox_solaris:       "Vox Solaris",
+    syndicate_entrati:           "Entrati",
+    syndicate_necraloid:         "Necraloid",
+    syndicate_ventkids:          "Vent Kids",
+    syndicate_cavia:             "Cavia",
+    syndicate_hex_1999:          "The Hex",
+    syndicate_holdfasts:         "The Holdfasts",
+    syndicate_steel_meridian:    "Steel Meridian",
+    syndicate_arbiters_of_hexis: "Arbiters of Hexis",
+    syndicate_cephalon_suda:     "Cephalon Suda",
+    syndicate_perrin_sequence:   "The Perrin Sequence",
+    syndicate_new_loka:          "New Loka",
+    syndicate_red_veil:          "Red Veil",
+    syndicate_cephalon_simaris:  "Cephalon Simaris",
+    syndicate_conclave:          "Conclave",
+    syndicate_kahls_garrison:    "Kahl's Garrison",
+    syndicate_nightcap:          "Nightcap",
+    syndicate_nightwave:         "Nightwave",
+    syndicate_operational_supply:"Operational Supply",
+};
+
+/** Returns the human-readable name for a syndicate ID, or the raw ID if unknown. */
+export function getSyndicateDisplayName(id: string): string {
+    return SYNDICATE_DISPLAY_NAME[id] ?? id;
+}
+
 export const SY = {
     // Open-world / hub syndicates
     OSTRON: "syndicate_ostron",

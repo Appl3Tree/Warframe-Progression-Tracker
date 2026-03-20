@@ -19,6 +19,7 @@ import type { PrereqId } from "../ids/prereqIds";
 
 import { PROGRESSION_ITEM_IDS } from "../../catalog/items/itemsIndex";
 import { SYNDICATE_VENDOR_CATALOG } from "../catalog/syndicates/syndicateVendorCatalog";
+import { getSyndicateDisplayName } from "../ids/syndicateIds";
 import platinumByPathRaw from "../../data/_generated/wfcd-platinum.byPath.auto.json";
 
 const PROGRESSION_ITEM_ID_SET = new Set<CatalogId>(PROGRESSION_ITEM_IDS);
@@ -301,7 +302,9 @@ export function buildRequirementsSnapshot(args: {
 
     for (const syn of syndicates ?? []) {
         const syndicateId = typeof syn?.id === "string" ? syn.id : "";
-        const syndicateName = typeof syn?.name === "string" ? syn.name : syndicateId || "Unknown Syndicate";
+        const syndicateName = typeof syn?.name === "string" && syn.name
+            ? syn.name
+            : syndicateId ? getSyndicateDisplayName(syndicateId) : "Unknown Syndicate";
 
         // Look up rank-up ladder from vendor catalog instead of relying on syn.nextRankUp
         // (nextRankUp is never populated by the current store/profile import flow).
