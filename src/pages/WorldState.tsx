@@ -13,11 +13,6 @@ import {
     type DuviriCycle,
     type Archimedea,
     type Calendar,
-    type GlobalUpgrade,
-    type NewsItem,
-    type Arbitration,
-    type KuvaMission,
-    type PersistentEnemy,
 } from "../lib/worldStateCache";
 
 // ── Utilities ─────────────────────────────────────────────────────────────────

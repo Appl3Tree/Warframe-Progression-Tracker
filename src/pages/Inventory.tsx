@@ -32,7 +32,17 @@ type SortKey =
   | "count-asc"
   | "owned-first"
   | "unowned-first"
-  | "mastered-last";
+  | "mastered-last"
+  | "release-newest"
+  | "release-oldest";
+
+const VANILLA_CUTOFF = "2013-03-25";
+
+function formatReleaseDate(date: string | undefined): string | undefined {
+  if (!date) return undefined;
+  if (date <= VANILLA_CUTOFF) return "Vanilla";
+  return date;
+}
 
 type PrimaryTab =
   | "all"
@@ -1334,6 +1344,18 @@ export default function Inventory() {
           if (am !== bm) return am - bm;
           break;
         }
+        case "release-newest": {
+          const ad = ALL_BY_UNIQUE[a.path]?.releaseDate ?? "";
+          const bd = ALL_BY_UNIQUE[b.path]?.releaseDate ?? "";
+          if (ad !== bd) return bd > ad ? 1 : -1;
+          break;
+        }
+        case "release-oldest": {
+          const ad = ALL_BY_UNIQUE[a.path]?.releaseDate ?? "";
+          const bd = ALL_BY_UNIQUE[b.path]?.releaseDate ?? "";
+          if (ad !== bd) return ad > bd ? 1 : -1;
+          break;
+        }
         default:
           break;
       }
@@ -1922,6 +1944,8 @@ export default function Inventory() {
                     <option value="owned-first">Owned first</option>
                     <option value="unowned-first">Unowned first</option>
                     <option value="mastered-last">Unmastered first</option>
+                    <option value="release-newest">Release: Newest first</option>
+                    <option value="release-oldest">Release: Oldest first</option>
                   </select>
                 </label>
                 <label className="flex items-center gap-2 text-sm text-slate-200">
@@ -2606,7 +2630,7 @@ export default function Inventory() {
                     )}
                     {allE?.type && <StatBox label="Type" value={allE.type} />}
                     {allE?.releaseDate && (
-                      <StatBox label="Released" value={allE.releaseDate} />
+                      <StatBox label="Released" value={formatReleaseDate(allE.releaseDate) ?? allE.releaseDate} />
                     )}
                     {allE?.introduced?.name && (
                       <StatBox
