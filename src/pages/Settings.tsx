@@ -1,6 +1,7 @@
 // src/pages/Settings.tsx
 import { useEffect, useState } from "react";
 import { useTrackerStore } from "../store/store";
+import { useShallow } from "zustand/react/shallow";
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
 
@@ -131,9 +132,25 @@ function CompactPreview({ compact }: { compact: boolean }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+const WORLD_STATE_CATEGORIES: Array<{ key: string; label: string; description: string }> = [
+    { key: "baro",      label: "Baro Ki'Teer",     description: "Void Trader visits and inventory" },
+    { key: "varzia",    label: "Varzia",            description: "Primed Resurgence vault trader" },
+    { key: "sentient",  label: "Sentient Outpost",  description: "Roaming sentient outpost alerts" },
+    { key: "invasions", label: "Invasions",         description: "Active invasion missions" },
+    { key: "nightwave", label: "Nightwave",         description: "Season challenges and rep rewards" },
+    { key: "events",    label: "Events",            description: "Timed in-game events" },
+];
+
 export default function Settings() {
     const resetToDefaults  = useTrackerStore((s) => s.resetToDefaults);
     const resetAllLocalData = useTrackerStore((s) => s.resetAllLocalData);
+    const { toggleWorldStateCategoryHidden, getHiddenWorldStateCategories } = useTrackerStore(
+        useShallow((s) => ({
+            toggleWorldStateCategoryHidden: s.toggleWorldStateCategoryHidden,
+            getHiddenWorldStateCategories: s.getHiddenWorldStateCategories,
+        }))
+    );
+    const hiddenCategories = getHiddenWorldStateCategories();
 
     const [theme, setTheme]         = useState<AppTheme>(getStoredTheme);
     const [compact, setCompact]     = useState(getCompactRows);
@@ -273,6 +290,39 @@ export default function Settings() {
                                     This timezone is used when "Local" is selected.
                                 </p>
                             </div>
+                        </div>
+                    </SettingsSection>
+
+                    {/* World Events */}
+                    <SettingsSection title="World Events" description="Choose which categories appear in the notification popup and World State page.">
+                        <div className="space-y-2">
+                            {WORLD_STATE_CATEGORIES.map(cat => {
+                                const hidden = hiddenCategories.includes(cat.key);
+                                return (
+                                    <div key={cat.key} className="flex items-center justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <div className="text-sm text-slate-200">{cat.label}</div>
+                                            <div className="text-xs text-slate-500">{cat.description}</div>
+                                        </div>
+                                        <button
+                                            onClick={() => toggleWorldStateCategoryHidden(cat.key)}
+                                            className={[
+                                                "shrink-0 relative inline-flex h-5 w-9 rounded-full border transition-colors focus:outline-none",
+                                                hidden
+                                                    ? "bg-slate-800 border-slate-700"
+                                                    : "bg-blue-600 border-blue-500"
+                                            ].join(" ")}
+                                            aria-pressed={!hidden}
+                                            title={hidden ? `Show ${cat.label}` : `Hide ${cat.label}`}
+                                        >
+                                            <span className={[
+                                                "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform",
+                                                hidden ? "translate-x-0" : "translate-x-4"
+                                            ].join(" ")} />
+                                        </button>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </SettingsSection>
 

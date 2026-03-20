@@ -220,6 +220,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
     const now = useNow();
     const toggleInvasionDone = useTrackerStore((s) => s.toggleInvasionDone);
     const isInvasionDone     = useTrackerStore((s) => s.isInvasionDone);
+    const isWorldStateCategoryHidden = useTrackerStore((s) => s.isWorldStateCategoryHidden);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -308,7 +309,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                         )}
 
                         {/* Baro Ki'Teer */}
-                        {data?.voidTrader && (
+                        {data?.voidTrader && !isWorldStateCategoryHidden("baro") && (
                             <div className={[
                                 "rounded-lg px-3 py-2",
                                 baroActive ? "bg-amber-950/30 border border-amber-800/40" : "bg-slate-900/60",
@@ -358,7 +359,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                         )}
 
                         {/* Varzia */}
-                        {data?.vaultTrader && (
+                        {data?.vaultTrader && !isWorldStateCategoryHidden("varzia") && (
                             <div className={[
                                 "rounded-lg px-3 py-2",
                                 varziaActive ? "bg-violet-950/30 border border-violet-800/40" : "bg-slate-900/60",
@@ -403,7 +404,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                         )}
 
                         {/* Sentient Outpost */}
-                        {sentientActive && (
+                        {sentientActive && !isWorldStateCategoryHidden("sentient") && (
                             <div className="rounded-lg px-3 py-2 bg-red-950/30 border border-red-800/40">
                                 <div className="text-xs font-semibold text-red-300">● Sentient Outpost Active</div>
                                 {data?.sentientOutposts?.missionType && (
@@ -418,7 +419,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                         )}
 
                         {/* Invasions — show all with rewards */}
-                        {data && data.invasions.length > 0 && (() => {
+                        {data && data.invasions.length > 0 && !isWorldStateCategoryHidden("invasions") && (() => {
                             const sorted = processInvasions(data.invasions).sort((a, b) => {
                                 const aDone = isInvasionDone(a.id) ? 1 : 0;
                                 const bDone = isInvasionDone(b.id) ? 1 : 0;
@@ -509,7 +510,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                         })()}
 
                         {/* Nightwave active challenges */}
-                        {data?.nightwave && data.nightwave.activeChallenges.length > 0 && (
+                        {data?.nightwave && data.nightwave.activeChallenges.length > 0 && !isWorldStateCategoryHidden("nightwave") && (
                             <div className="rounded-lg px-3 py-2 bg-slate-900/60">
                                 <div className="flex items-center justify-between mb-1.5">
                                     <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
@@ -552,7 +553,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                         )}
 
                         {/* Active events — all, no truncation */}
-                        {data && data.events.length > 0 && (
+                        {data && data.events.length > 0 && !isWorldStateCategoryHidden("events") && (
                             <div className="rounded-lg px-3 py-2 bg-slate-900/60">
                                 <div className="text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wide">
                                     Events ({data.events.length})
