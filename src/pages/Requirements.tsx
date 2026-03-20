@@ -4,6 +4,17 @@ import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
 import { setPendingStarChartNodeId, sourceIdToStarChartNodeId } from "../store/starChartNav";
+
+/** Format a raw sourceId into a readable fallback label when no sourceLabel is available. */
+function formatRawSourceId(raw: string): string {
+    // Strip the "data:" or "src:" prefix and convert slashes/hyphens to spaces
+    return raw
+        .replace(/^(?:data|src):/, "")
+        .replace(/\//g, " › ")
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+        .trim() || raw;
+}
 import {
     buildRequirementsSnapshot,
     buildFarmingSnapshot,
@@ -493,7 +504,7 @@ export default function Requirements() {
                                                                         setActivePage("starchart");
                                                                     }}
                                                                 >
-                                                                    {s.sourceLabel || String(s.sourceId)} ↗
+                                                                    {s.sourceLabel || formatRawSourceId(String(s.sourceId))} ↗
                                                                 </button>
                                                             );
                                                         }
@@ -502,7 +513,7 @@ export default function Requirements() {
                                                                 key={String(s.sourceId)}
                                                                 className="text-[10px] rounded-full border border-slate-700 bg-slate-900/60 px-2 py-0.5 text-slate-300"
                                                             >
-                                                                {s.sourceLabel || String(s.sourceId)}
+                                                                {s.sourceLabel || formatRawSourceId(String(s.sourceId))}
                                                             </span>
                                                         );
                                                     })}

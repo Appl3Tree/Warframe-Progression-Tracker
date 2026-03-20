@@ -810,6 +810,8 @@ function ArchimedeaCard({ arch, now }: { arch: Archimedea; now: number }) {
 function MissionsTab({ data }: { data: WorldStateData }) {
     const now = useNow();
     const activeArchs = data.archimedeas.filter((a) => !a.expired);
+    const toggleNightwaveChallengeDone = useTrackerStore((s) => s.toggleNightwaveChallengeDone);
+    const isNightwaveChallengeDone     = useTrackerStore((s) => s.isNightwaveChallengeDone);
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
@@ -974,49 +976,86 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                         </div>
                     </div>
                     <div className="p-3">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                            {data.nightwave.activeChallenges
+                        {(() => {
+                            const sorted = data.nightwave.activeChallenges
                                 .slice()
                                 .sort((a, b) => {
+                                    const aDone = isNightwaveChallengeDone(a.id) ? 1 : 0;
+                                    const bDone = isNightwaveChallengeDone(b.id) ? 1 : 0;
+                                    if (aDone !== bDone) return aDone - bDone;
                                     if (a.isElite !== b.isElite) return a.isElite ? -1 : 1;
                                     if (a.isPermanent !== b.isPermanent) return a.isPermanent ? 1 : -1;
                                     if (a.isDaily !== b.isDaily) return a.isDaily ? 1 : -1;
                                     return b.reputation - a.reputation;
-                                })
-                                .map((act) => (
-                                    <div key={act.id} className="rounded-lg border border-slate-800 bg-slate-900/40 px-2.5 py-2">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <div className="min-w-0">
-                                                <div className="flex flex-wrap items-center gap-1 mb-0.5">
-                                                    {act.isElite && (
-                                                        <span className="rounded border border-amber-700/50 bg-amber-950/30 px-1 py-px text-[9px] font-bold text-amber-300">ELITE</span>
-                                                    )}
-                                                    {act.isPermanent && (
-                                                        <span className="rounded border border-teal-700/50 bg-teal-950/30 px-1 py-px text-[9px] font-bold text-teal-300">STANDING</span>
-                                                    )}
-                                                    {act.isDaily && !act.isPermanent && (
-                                                        <span className="rounded border border-sky-700/50 bg-sky-950/30 px-1 py-px text-[9px] font-bold text-sky-300">DAILY</span>
-                                                    )}
-                                                    {!act.isDaily && !act.isElite && !act.isPermanent && (
-                                                        <span className="rounded border border-slate-700 bg-slate-800/60 px-1 py-px text-[9px] font-bold text-slate-400">WEEKLY</span>
-                                                    )}
-                                                    <span className="text-xs font-medium text-slate-200">{act.title}</span>
-                                                </div>
-                                                <div className="text-[10px] text-slate-500">{act.desc}</div>
-                                                {!act.isPermanent && act.expiry && (
-                                                    <div className="text-[10px] text-slate-600 mt-0.5">
-                                                        <Countdown expiry={act.expiry} now={now} className="font-mono" />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="shrink-0 text-right">
-                                                <div className="text-xs font-bold text-blue-300">{act.reputation.toLocaleString()}</div>
-                                                <div className="text-[9px] text-slate-500">rep</div>
-                                            </div>
-                                        </div>
+                                });
+                            const doneCount = sorted.filter((act) => isNightwaveChallengeDone(act.id)).length;
+                            const totalRep  = sorted.reduce((sum, act) => sum + act.reputation, 0);
+                            const earnedRep = sorted
+                                .filter((act) => isNightwaveChallengeDone(act.id))
+                                .reduce((sum, act) => sum + act.reputation, 0);
+                            return (
+                                <>
+                                    <div className="mb-2 flex items-center justify-between text-[10px] text-slate-500">
+                                        <span>{doneCount}/{sorted.length} completed · {earnedRep.toLocaleString()}/{totalRep.toLocaleString()} rep earned</span>
+                                        {doneCount > 0 && (
+                                            <button
+                                                className="text-slate-600 hover:text-slate-400 transition-colors"
+                                                onClick={() => sorted.filter((a) => isNightwaveChallengeDone(a.id)).forEach((a) => toggleNightwaveChallengeDone(a.id))}
+                                            >
+                                                Clear all
+                                            </button>
+                                        )}
                                     </div>
-                                ))}
-                        </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                        {sorted.map((act) => {
+                                            const done = isNightwaveChallengeDone(act.id);
+                                            return (
+                                                <div key={act.id} className={["rounded-lg border px-2.5 py-2 transition-colors", done ? "border-emerald-900/40 bg-emerald-950/10 opacity-60" : "border-slate-800 bg-slate-900/40"].join(" ")}>
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div className="min-w-0 flex items-start gap-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={done}
+                                                                onChange={() => toggleNightwaveChallengeDone(act.id)}
+                                                                className="mt-0.5 shrink-0 cursor-pointer"
+                                                                title={done ? "Mark incomplete" : "Mark complete"}
+                                                            />
+                                                            <div className="min-w-0">
+                                                                <div className="flex flex-wrap items-center gap-1 mb-0.5">
+                                                                    {act.isElite && (
+                                                                        <span className="rounded border border-amber-700/50 bg-amber-950/30 px-1 py-px text-[9px] font-bold text-amber-300">ELITE</span>
+                                                                    )}
+                                                                    {act.isPermanent && (
+                                                                        <span className="rounded border border-teal-700/50 bg-teal-950/30 px-1 py-px text-[9px] font-bold text-teal-300">STANDING</span>
+                                                                    )}
+                                                                    {act.isDaily && !act.isPermanent && (
+                                                                        <span className="rounded border border-sky-700/50 bg-sky-950/30 px-1 py-px text-[9px] font-bold text-sky-300">DAILY</span>
+                                                                    )}
+                                                                    {!act.isDaily && !act.isElite && !act.isPermanent && (
+                                                                        <span className="rounded border border-slate-700 bg-slate-800/60 px-1 py-px text-[9px] font-bold text-slate-400">WEEKLY</span>
+                                                                    )}
+                                                                    <span className={["text-xs font-medium", done ? "line-through text-slate-500" : "text-slate-200"].join(" ")}>{act.title}</span>
+                                                                </div>
+                                                                <div className="text-[10px] text-slate-500">{act.desc}</div>
+                                                                {!act.isPermanent && act.expiry && (
+                                                                    <div className="text-[10px] text-slate-600 mt-0.5">
+                                                                        <Countdown expiry={act.expiry} now={now} className="font-mono" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="shrink-0 text-right">
+                                                            <div className={["text-xs font-bold", done ? "text-emerald-600 line-through" : "text-blue-300"].join(" ")}>{act.reputation.toLocaleString()}</div>
+                                                            <div className="text-[9px] text-slate-500">rep</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </>
+                            );
+                        })()}
                     </div>
                 </div>
             )}
@@ -1034,6 +1073,7 @@ function EventsTab({ data }: { data: WorldStateData }) {
     const hasAcolytes  = data.persistentEnemies.length > 0;
     const toggleInvasionDone = useTrackerStore((s) => s.toggleInvasionDone);
     const isInvasionDone     = useTrackerStore((s) => s.isInvasionDone);
+    const [baroSearch, setBaroSearch] = useState("");
 
     return (
         <div className="space-y-4">
@@ -1248,25 +1288,49 @@ function EventsTab({ data }: { data: WorldStateData }) {
             })()}
 
             {/* Baro inventory if active */}
-            {data.voidTrader?.active && data.voidTrader.inventory.length > 0 && (
-                <section>
-                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                        Baro Ki'Teer Inventory
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
-                        {data.voidTrader.inventory.map((item, i) => (
-                            <div key={i} className="rounded-xl border border-amber-800/30 bg-amber-950/10 px-3 py-2 flex items-center justify-between gap-2">
-                                <div className="text-xs text-slate-200 truncate min-w-0">{item.item}</div>
-                                <div className="shrink-0 text-right text-[10px] whitespace-nowrap">
-                                    <span className="text-amber-300">{item.ducats.toLocaleString()} duc</span>
-                                    <span className="text-slate-600 mx-0.5">+</span>
-                                    <span className="text-yellow-200">{item.credits.toLocaleString()} cr</span>
-                                </div>
+            {data.voidTrader?.active && data.voidTrader.inventory.length > 0 && (() => {
+                const allItems = data.voidTrader.inventory;
+                const q = baroSearch.trim().toLowerCase();
+                const filtered = q ? allItems.filter((it) => it.item.toLowerCase().includes(q)) : allItems;
+                const totalDucats  = allItems.reduce((s, it) => s + it.ducats, 0);
+                const totalCredits = allItems.reduce((s, it) => s + it.credits, 0);
+                return (
+                    <section>
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                Baro Ki'Teer Inventory
+                                <span className="normal-case font-normal text-slate-500 ml-1.5">· {allItems.length} items</span>
                             </div>
-                        ))}
-                    </div>
-                </section>
-            )}
+                            <div className="text-[10px] text-slate-500">
+                                Total: <span className="text-amber-400">{totalDucats.toLocaleString()} duc</span>
+                                <span className="text-slate-600 mx-1">+</span>
+                                <span className="text-yellow-300">{totalCredits.toLocaleString()} cr</span>
+                            </div>
+                        </div>
+                        <input
+                            className="mb-2 w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-1.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-amber-700/60"
+                            placeholder="Filter Baro's inventory…"
+                            value={baroSearch}
+                            onChange={(e) => setBaroSearch(e.target.value)}
+                        />
+                        {filtered.length === 0 ? (
+                            <div className="text-xs text-slate-500 py-2">No items match "{baroSearch}".</div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                                {filtered.map((item, i) => (
+                                    <div key={i} className="rounded-xl border border-amber-800/30 bg-amber-950/10 px-3 py-2 flex items-center justify-between gap-2">
+                                        <div className="text-xs text-slate-200 truncate min-w-0">{item.item}</div>
+                                        <div className="shrink-0 text-right text-[10px] whitespace-nowrap">
+                                            {item.ducats > 0 && <><span className="text-amber-300">{item.ducats.toLocaleString()} duc</span><span className="text-slate-600 mx-0.5">+</span></>}
+                                            <span className="text-yellow-200">{item.credits.toLocaleString()} cr</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </section>
+                );
+            })()}
 
             {/* Varzia inventory if active */}
             {data.vaultTrader?.active && data.vaultTrader.inventory.length > 0 && (

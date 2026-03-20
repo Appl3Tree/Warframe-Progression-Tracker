@@ -120,6 +120,13 @@ export interface TrackerStore {
 
     toggleInvasionDone: (id: string) => void;
     isInvasionDone: (id: string) => boolean;
+
+    toggleNightwaveChallengeDone: (id: string) => void;
+    isNightwaveChallengeDone: (id: string) => boolean;
+
+    toggleWorldStateCategoryHidden: (cat: string) => void;
+    isWorldStateCategoryHidden: (cat: string) => boolean;
+    getHiddenWorldStateCategories: () => string[];
 }
 
 /**
@@ -859,6 +866,47 @@ export const useTrackerStore = create<TrackerStore>()(
 
             isInvasionDone: (id) => {
                 return get().state.worldState?.doneInvasions.includes(id) ?? false;
+            },
+
+            toggleNightwaveChallengeDone: (id) => {
+                set((s) => {
+                    if (!s.state.worldState) {
+                        s.state.worldState = { doneInvasions: [], doneNightwaveChallenges: [] };
+                    }
+                    if (!s.state.worldState.doneNightwaveChallenges) {
+                        s.state.worldState.doneNightwaveChallenges = [];
+                    }
+                    const list = s.state.worldState.doneNightwaveChallenges;
+                    const idx = list.indexOf(id);
+                    if (idx >= 0) { list.splice(idx, 1); } else { list.push(id); }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            isNightwaveChallengeDone: (id) => {
+                return get().state.worldState?.doneNightwaveChallenges?.includes(id) ?? false;
+            },
+
+            toggleWorldStateCategoryHidden: (cat) => {
+                set((s) => {
+                    const hidden = s.state.ui.hiddenWorldStateCategories ?? [];
+                    const idx = hidden.indexOf(cat as any);
+                    if (idx >= 0) {
+                        hidden.splice(idx, 1);
+                    } else {
+                        hidden.push(cat as any);
+                    }
+                    s.state.ui.hiddenWorldStateCategories = hidden;
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            isWorldStateCategoryHidden: (cat) => {
+                return get().state.ui.hiddenWorldStateCategories?.includes(cat as any) ?? false;
+            },
+
+            getHiddenWorldStateCategories: () => {
+                return get().state.ui.hiddenWorldStateCategories ?? [];
             },
         })),
         {

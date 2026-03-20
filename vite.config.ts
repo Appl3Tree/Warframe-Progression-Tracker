@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig, type Plugin } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { execSync } from "node:child_process";
@@ -33,5 +33,9 @@ export default defineConfig({
     ],
     define: {
         __BUILD_ID__: JSON.stringify(buildId)
+    },
+    test: {
+        globals: true,
+        environment: "node",
     }
 });

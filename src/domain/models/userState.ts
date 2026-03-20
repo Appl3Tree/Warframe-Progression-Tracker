@@ -44,9 +44,19 @@ export interface UserPlayerV2 {
     clanXp?: number;
 }
 
+export type WorldStateCategoryKey =
+    | "baro"
+    | "varzia"
+    | "sentient"
+    | "invasions"
+    | "nightwave"
+    | "events";
+
 export interface UserUiV2 {
     activePage: PageKey;
     expandedGoalNodes: Record<string, boolean>;
+    /** Categories hidden from the notification popup and World State page. */
+    hiddenWorldStateCategories?: WorldStateCategoryKey[];
 }
 
 export interface UserPrereqsV2 {
@@ -141,5 +151,7 @@ export interface UserStateV2 {
     worldState?: {
         /** Invasion IDs the user has marked as personally completed (i.e. they ran it). */
         doneInvasions: string[];
+        /** Nightwave challenge IDs the user has marked as completed. */
+        doneNightwaveChallenges?: string[];
     };
 }

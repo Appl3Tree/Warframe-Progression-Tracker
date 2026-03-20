@@ -3,7 +3,7 @@
 import type { SyndicateState } from "../domain/types";
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
 import { canAccessItemByName } from "../domain/logic/plannerEngine";
-import { SY } from "../domain/ids/syndicateIds";
+import { SY, getSyndicateDisplayName } from "../domain/ids/syndicateIds";
 
 export type ReserveSource = {
     syndicateId: string;
@@ -46,7 +46,9 @@ export function computeDerivedReservesFromSyndicates(
 
     for (const syn of syndicates ?? []) {
         const syndicateId = typeof syn?.id === "string" ? syn.id : "";
-        const syndicateName = typeof syn?.name === "string" ? syn.name : syndicateId || "Unknown Syndicate";
+        const syndicateName = typeof syn?.name === "string" && syn.name
+            ? syn.name
+            : syndicateId ? getSyndicateDisplayName(syndicateId) : "Unknown Syndicate";
         const nr = syn?.nextRankUp;
         if (!nr || typeof nr !== "object") continue;
 
