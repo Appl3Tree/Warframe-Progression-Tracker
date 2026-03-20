@@ -58,26 +58,28 @@ const AFFILIATION_TAG_TO_SYNDICATE_ID: Record<string, string> = {
 };
 
 /**
- * Maps DailyAffiliation* / DailyFocus API keys to a human-readable label and
+ * Maps warframestat.us `dailyStanding` subkeys to a human-readable label and
  * optional canonical syndicate ID. Used to auto-populate the daily checklist
  * from profile import data.
+ *
+ * The warframestat.us API nests these under `json.dailyStanding` (camelCase),
+ * NOT as top-level `DailyAffiliation*` fields.
  */
-const DAILY_AFFILIATION_FIELD_MAP: Array<{ apiKey: string; label: string; syndicateId?: string }> = [
-    { apiKey: "DailyAffiliation",         label: "Relay Syndicates",  syndicateId: undefined },
-    { apiKey: "DailyAffiliationPvp",      label: "Conclave",          syndicateId: "syndicate_conclave" },
-    { apiKey: "DailyAffiliationLibrary",  label: "Cephalon Simaris",  syndicateId: "syndicate_cephalon_simaris" },
-    { apiKey: "DailyAffiliationCetus",    label: "Ostron",            syndicateId: "syndicate_ostron" },
-    { apiKey: "DailyAffiliationQuills",   label: "The Quills",        syndicateId: "syndicate_quills" },
-    { apiKey: "DailyAffiliationSolaris",  label: "Solaris United",    syndicateId: "syndicate_solaris_united" },
-    { apiKey: "DailyAffiliationVentkids", label: "Ventkids",          syndicateId: "syndicate_ventkids" },
-    { apiKey: "DailyAffiliationVox",      label: "Vox Solaris",       syndicateId: "syndicate_vox_solaris" },
-    { apiKey: "DailyAffiliationEntrati",  label: "Entrati",           syndicateId: "syndicate_entrati" },
-    { apiKey: "DailyAffiliationNecraloid",label: "Necraloid",         syndicateId: "syndicate_necraloid" },
-    { apiKey: "DailyAffiliationZariman",  label: "The Holdfasts",     syndicateId: "syndicate_holdfasts" },
-    { apiKey: "DailyAffiliationKahl",     label: "Kahl's Garrison",   syndicateId: "syndicate_kahls_garrison" },
-    { apiKey: "DailyAffiliationCavia",    label: "Cavia",             syndicateId: "syndicate_cavia" },
-    { apiKey: "DailyAffiliationHex",      label: "The Hex",           syndicateId: "syndicate_hex_1999" },
-    { apiKey: "DailyFocus",               label: "Focus",             syndicateId: undefined },
+const DAILY_STANDING_KEY_MAP: Array<{ key: string; label: string; syndicateId?: string }> = [
+    { key: "daily",      label: "Relay Syndicates",  syndicateId: undefined },
+    { key: "conclave",   label: "Conclave",          syndicateId: "syndicate_conclave" },
+    { key: "simaris",    label: "Cephalon Simaris",  syndicateId: "syndicate_cephalon_simaris" },
+    { key: "ostron",     label: "Ostron",            syndicateId: "syndicate_ostron" },
+    { key: "quills",     label: "The Quills",        syndicateId: "syndicate_quills" },
+    { key: "solaris",    label: "Solaris United",    syndicateId: "syndicate_solaris_united" },
+    { key: "ventKids",   label: "Ventkids",          syndicateId: "syndicate_ventkids" },
+    { key: "voxSolaris", label: "Vox Solaris",       syndicateId: "syndicate_vox_solaris" },
+    { key: "entrati",    label: "Entrati",           syndicateId: "syndicate_entrati" },
+    { key: "necraloid",  label: "Necraloid",         syndicateId: "syndicate_necraloid" },
+    { key: "holdfasts",  label: "The Holdfasts",     syndicateId: "syndicate_holdfasts" },
+    { key: "kahl",       label: "Kahl's Garrison",   syndicateId: "syndicate_kahls_garrison" },
+    { key: "cavia",      label: "Cavia",             syndicateId: "syndicate_cavia" },
+    { key: "hex",        label: "The Hex",           syndicateId: "syndicate_hex_1999" },
 ];
 
 /** Maximum achievable rank per canonical syndicate ID. */
@@ -1090,11 +1092,19 @@ export function parseWarframeStatApiProfile(json: any): ProfileImportResult {
     }
 
     // ── Daily standing ──────────────────────────────────────────────────────
+    // warframestat.us nests all syndicate standing under `json.dailyStanding`
+    // with camelCase short keys, and puts `dailyFocus` at the top level.
     const dailyAffiliation: ProfileImportResult["dailyAffiliation"] = [];
-    for (const { apiKey, label, syndicateId } of DAILY_AFFILIATION_FIELD_MAP) {
-        if (typeof json[apiKey] === "number") {
-            dailyAffiliation.push({ label, syndicateId, remaining: json[apiKey] as number });
+    if (isObject(json.dailyStanding)) {
+        const ds = json.dailyStanding;
+        for (const { key, label, syndicateId } of DAILY_STANDING_KEY_MAP) {
+            if (typeof ds[key] === "number") {
+                dailyAffiliation.push({ label, syndicateId, remaining: ds[key] as number });
+            }
         }
+    }
+    if (typeof json.dailyFocus === "number") {
+        dailyAffiliation.push({ label: "Focus", syndicateId: undefined, remaining: json.dailyFocus as number });
     }
 
     return {
