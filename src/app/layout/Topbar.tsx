@@ -438,6 +438,11 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                                         <span className="text-green-500 text-xs shrink-0">✓</span>
                                                         <span className="text-[10px] text-slate-500 truncate flex-1">{inv.displayLabel}</span>
                                                         <span className="text-[10px] font-mono text-slate-600 shrink-0">{inv.completion.toFixed(1)}%</span>
+                                                        {inv.requiredRuns > 0 && (
+                                                            <span className="text-[10px] font-mono text-slate-700 shrink-0">
+                                                                {Math.round(inv.completion / 100 * inv.requiredRuns).toLocaleString()}/{inv.requiredRuns.toLocaleString()}
+                                                            </span>
+                                                        )}
                                                         <button
                                                             onClick={() => toggleInvasionDone(inv.id)}
                                                             className="shrink-0 text-[9px] text-slate-700 hover:text-slate-400 transition-colors"
@@ -454,6 +459,11 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                                         <span className="text-[11px] text-slate-200 font-medium min-w-0 truncate">{inv.displayLabel}</span>
                                                         <div className="flex items-center gap-1 shrink-0">
                                                             <span className="text-[10px] font-mono text-slate-500">{inv.completion.toFixed(1)}%</span>
+                                                            {inv.requiredRuns > 0 && (
+                                                                <span className="text-[10px] font-mono text-slate-600">
+                                                                    {Math.round(inv.completion / 100 * inv.requiredRuns).toLocaleString()}/{inv.requiredRuns.toLocaleString()}
+                                                                </span>
+                                                            )}
                                                             <button
                                                                 onClick={() => toggleInvasionDone(inv.id)}
                                                                 className="text-[9px] text-slate-600 hover:text-green-400 transition-colors px-0.5"

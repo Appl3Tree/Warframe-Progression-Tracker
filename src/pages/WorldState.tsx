@@ -1162,7 +1162,7 @@ function EventsTab({ data }: { data: WorldStateData }) {
                                                     <span className="shrink-0 font-mono text-[10px] text-slate-600">{inv.completion.toFixed(1)}%</span>
                                                     {inv.requiredRuns > 0 && (
                                                         <span className="shrink-0 font-mono text-[10px] text-slate-600">
-                                                            {inv.count.toLocaleString()}/{inv.requiredRuns.toLocaleString()}
+                                                            {Math.round(inv.completion / 100 * inv.requiredRuns).toLocaleString()}/{inv.requiredRuns.toLocaleString()}
                                                         </span>
                                                     )}
                                                 </div>
@@ -1191,7 +1191,7 @@ function EventsTab({ data }: { data: WorldStateData }) {
                                                 <span className="font-mono text-[10px] text-slate-400">{inv.completion.toFixed(1)}%</span>
                                                 {inv.requiredRuns > 0 && (
                                                     <span className="font-mono text-[10px] text-slate-500">
-                                                        {inv.count.toLocaleString()}/{inv.requiredRuns.toLocaleString()}
+                                                        {Math.round(inv.completion / 100 * inv.requiredRuns).toLocaleString()}/{inv.requiredRuns.toLocaleString()}
                                                     </span>
                                                 )}
                                                 <button
