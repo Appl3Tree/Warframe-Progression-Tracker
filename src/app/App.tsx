@@ -1,5 +1,6 @@
 // ===== FILE: src/app/App.tsx =====
 import Shell from "./layout/Shell";
+import ErrorBoundary from "./ErrorBoundary";
 import { useTrackerStore } from "../store/store";
 import type { PageKey } from "../domain/models/userState";
 
@@ -43,7 +44,11 @@ export default function App() {
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100">
-            <Shell>{PAGE_COMPONENTS[activePage]}</Shell>
+            <Shell>
+                <ErrorBoundary key={activePage} page={activePage}>
+                    {PAGE_COMPONENTS[activePage]}
+                </ErrorBoundary>
+            </Shell>
         </div>
     );
 }
