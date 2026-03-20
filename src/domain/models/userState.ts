@@ -141,5 +141,7 @@ export interface UserStateV2 {
     worldState?: {
         /** Invasion IDs the user has marked as personally completed (i.e. they ran it). */
         doneInvasions: string[];
+        /** Nightwave challenge IDs the user has marked as completed. */
+        doneNightwaveChallenges?: string[];
     };
 }
