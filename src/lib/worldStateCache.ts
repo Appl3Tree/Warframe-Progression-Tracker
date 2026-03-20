@@ -682,7 +682,7 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                     : [],
 
                 invasions: Array.isArray(j.invasions)
-                    ? (j.invasions as any[]).filter((inv) => !inv.completed).map((inv): Invasion => {
+                    ? (j.invasions as any[]).map((inv): Invasion => {
                         const attackerData = inv.attacker ?? {};
                         const defenderData = inv.defender ?? {};
 
@@ -988,9 +988,9 @@ export function processInvasions(invasions: Invasion[]): ProcessedInvasion[] {
 
     const deduped = Array.from(seen.values());
 
-    // Group by planet+node to find nodes with multiple queued invasions.
-    // When multiple invasions share the same node, hide those stuck at ~50%
-    // (queued invasions waiting for the active one to finish).
+    // Group by planet+node. If any invasion at a node is marked completed,
+    // the node is mid-transition (old invasion finished, new one queued) —
+    // hide ALL invasions at that node until the API cleans up.
     const nodeGroups = new Map<string, ProcessedInvasion[]>();
     for (const inv of deduped) {
         const nodeKey = `${inv.planet}\x00${inv.nodeName}`;
@@ -1000,11 +1000,14 @@ export function processInvasions(invasions: Invasion[]): ProcessedInvasion[] {
     }
 
     const filtered = deduped.filter((inv) => {
+        // Always hide individually completed invasions.
+        if (inv.completed) return false;
+        // If another invasion at this node is completed, the node is settling —
+        // hide all invasions here until the completed one is cleaned up.
         const nodeKey = `${inv.planet}\x00${inv.nodeName}`;
         const group = nodeGroups.get(nodeKey)!;
-        if (group.length <= 1) return true;
-        // Multiple invasions at this node — hide any that are stuck at ~50%
-        return Math.abs(inv.completion - 50) >= 0.5;
+        if (group.some((g) => g.completed)) return false;
+        return true;
     });
 
     // Sort alphabetically: planet first, then node name

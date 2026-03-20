@@ -1160,6 +1160,11 @@ function EventsTab({ data }: { data: WorldStateData }) {
                                                 <div className="flex items-center gap-2 min-w-0">
                                                     <span className="text-xs text-slate-500 truncate">{inv.displayLabel}</span>
                                                     <span className="shrink-0 font-mono text-[10px] text-slate-600">{inv.completion.toFixed(1)}%</span>
+                                                    {inv.requiredRuns > 0 && (
+                                                        <span className="shrink-0 font-mono text-[10px] text-slate-600">
+                                                            {inv.count.toLocaleString()}/{inv.requiredRuns.toLocaleString()}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <div className="h-1 bg-slate-800 rounded-full overflow-hidden mt-1">
                                                     <div
@@ -1184,6 +1189,11 @@ function EventsTab({ data }: { data: WorldStateData }) {
                                             <div className="text-xs font-medium text-slate-200 min-w-0">{inv.displayLabel}</div>
                                             <div className="flex items-center gap-2 shrink-0">
                                                 <span className="font-mono text-[10px] text-slate-400">{inv.completion.toFixed(1)}%</span>
+                                                {inv.requiredRuns > 0 && (
+                                                    <span className="font-mono text-[10px] text-slate-500">
+                                                        {inv.count.toLocaleString()}/{inv.requiredRuns.toLocaleString()}
+                                                    </span>
+                                                )}
                                                 <button
                                                     onClick={() => toggleInvasionDone(inv.id)}
                                                     className="text-[10px] text-slate-600 hover:text-green-400 transition-colors px-1 py-0.5 rounded border border-transparent hover:border-green-800/50"
