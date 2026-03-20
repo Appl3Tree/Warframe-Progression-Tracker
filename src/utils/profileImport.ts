@@ -57,9 +57,31 @@ const AFFILIATION_TAG_TO_SYNDICATE_ID: Record<string, string> = {
     "RadioLegionIntermission15Syndicate": "syndicate_nightwave",
 };
 
+/**
+ * Maps DailyAffiliation* / DailyFocus API keys to a human-readable label and
+ * optional canonical syndicate ID. Used to auto-populate the daily checklist
+ * from profile import data.
+ */
+const DAILY_AFFILIATION_FIELD_MAP: Array<{ apiKey: string; label: string; syndicateId?: string }> = [
+    { apiKey: "DailyAffiliation",         label: "Relay Syndicates",  syndicateId: undefined },
+    { apiKey: "DailyAffiliationPvp",      label: "Conclave",          syndicateId: "syndicate_conclave" },
+    { apiKey: "DailyAffiliationLibrary",  label: "Cephalon Simaris",  syndicateId: "syndicate_cephalon_simaris" },
+    { apiKey: "DailyAffiliationCetus",    label: "Ostron",            syndicateId: "syndicate_ostron" },
+    { apiKey: "DailyAffiliationQuills",   label: "The Quills",        syndicateId: "syndicate_quills" },
+    { apiKey: "DailyAffiliationSolaris",  label: "Solaris United",    syndicateId: "syndicate_solaris_united" },
+    { apiKey: "DailyAffiliationVentkids", label: "Ventkids",          syndicateId: "syndicate_ventkids" },
+    { apiKey: "DailyAffiliationVox",      label: "Vox Solaris",       syndicateId: "syndicate_vox_solaris" },
+    { apiKey: "DailyAffiliationEntrati",  label: "Entrati",           syndicateId: "syndicate_entrati" },
+    { apiKey: "DailyAffiliationNecraloid",label: "Necraloid",         syndicateId: "syndicate_necraloid" },
+    { apiKey: "DailyAffiliationZariman",  label: "The Holdfasts",     syndicateId: "syndicate_holdfasts" },
+    { apiKey: "DailyAffiliationKahl",     label: "Kahl's Garrison",   syndicateId: "syndicate_kahls_garrison" },
+    { apiKey: "DailyAffiliationCavia",    label: "Cavia",             syndicateId: "syndicate_cavia" },
+    { apiKey: "DailyAffiliationHex",      label: "The Hex",           syndicateId: "syndicate_hex_1999" },
+    { apiKey: "DailyFocus",               label: "Focus",             syndicateId: undefined },
+];
+
 /** Maximum achievable rank per canonical syndicate ID. */
-const SYNDICATE_MAX_RANK: Record<string, number> = {
-    "syndicate_nightwave":          180,
+const SYNDICATE_MAX_RANK: Record<string, number> = {    "syndicate_nightwave":          180,
     "syndicate_necraloid":          3,
     "syndicate_kahls_garrison":     5,
     // All others default to 5 (handled below)
@@ -109,6 +131,12 @@ export type ProfileImportResult = {
         railjack: Record<string, number>;
         duviri: Record<string, number>;
     };
+
+    /**
+     * Daily standing / focus remaining from the API profile.
+     * `remaining === 0` means the player has maxed out that syndicate today.
+     */
+    dailyAffiliation: Array<{ label: string; syndicateId?: string; remaining: number }>;
 };
 
 function isObject(v: unknown): v is Record<string, any> {
@@ -824,7 +852,8 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
         },
         completedNodeIds,
         challenges: challengesResult,
-        intrinsics: intrinsicsResult
+        intrinsics: intrinsicsResult,
+        dailyAffiliation: [],
     };
 }
 
@@ -1060,6 +1089,14 @@ export function parseWarframeStatApiProfile(json: any): ProfileImportResult {
         }
     }
 
+    // ── Daily standing ──────────────────────────────────────────────────────
+    const dailyAffiliation: ProfileImportResult["dailyAffiliation"] = [];
+    for (const { apiKey, label, syndicateId } of DAILY_AFFILIATION_FIELD_MAP) {
+        if (typeof json[apiKey] === "number") {
+            dailyAffiliation.push({ label, syndicateId, remaining: json[apiKey] as number });
+        }
+    }
+
     return {
         displayName,
         masteryRank,
@@ -1070,5 +1107,6 @@ export function parseWarframeStatApiProfile(json: any): ProfileImportResult {
         completedNodeIds,
         challenges: challengesResult,
         intrinsics: intrinsicsResult,
+        dailyAffiliation,
     };
 }

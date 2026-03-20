@@ -74,7 +74,7 @@ export interface TrackerStore {
     importProfileViewingDataJson: (text: string) => { ok: boolean; error?: string };
     importProfileFromWarframeStatApi: (json: unknown) => { ok: boolean; error?: string };
 
-    upsertDailyTask: (dateYmd: string, label: string, syndicate?: string, details?: string) => void;
+    upsertDailyTask: (dateYmd: string, label: string, syndicate?: string, details?: string, isDone?: boolean) => void;
     toggleDailyTask: (taskId: string) => void;
     deleteDailyTask: (taskId: string) => void;
 
@@ -367,6 +367,32 @@ export const useTrackerStore = create<TrackerStore>()(
                         if (parsed.challenges) s.state.challenges = parsed.challenges;
                         if (parsed.intrinsics) s.state.intrinsics = parsed.intrinsics;
 
+                        // ── Daily standing automation ──────────────────────
+                        // For each DailyAffiliation* / DailyFocus field returned by
+                        // the API: create a task for today if it doesn't exist yet,
+                        // and mark it done when remaining === 0 (daily cap spent).
+                        if (parsed.dailyAffiliation.length > 0) {
+                            const todayYmd = toYMD(new Date());
+                            for (const { label, syndicateId, remaining } of parsed.dailyAffiliation) {
+                                const normalized = label.trim().toLowerCase();
+                                const existing = s.state.dailyTasks.find(
+                                    (t) => t.dateYmd === todayYmd && t.label.trim().toLowerCase() === normalized
+                                );
+                                const isDone = remaining === 0;
+                                if (existing) {
+                                    if (isDone) existing.isDone = true;
+                                } else {
+                                    s.state.dailyTasks.push({
+                                        id: uid("task"),
+                                        dateYmd: todayYmd,
+                                        label,
+                                        syndicate: syndicateId,
+                                        isDone,
+                                    });
+                                }
+                            }
+                        }
+
                         ensureGoalsArray(s.state);
                         ensureUiExpansion(s.state);
                         ensureResetChecklistState(s.state);
@@ -380,7 +406,7 @@ export const useTrackerStore = create<TrackerStore>()(
                 }
             },
 
-            upsertDailyTask: (dateYmd, label, syndicate, details) => {
+            upsertDailyTask: (dateYmd, label, syndicate, details, isDone) => {
                 set((s) => {
                     const normalized = label.trim().toLowerCase();
                     const existing = s.state.dailyTasks.find(
@@ -390,6 +416,7 @@ export const useTrackerStore = create<TrackerStore>()(
                     if (existing) {
                         existing.syndicate = syndicate;
                         existing.details = details;
+                        if (isDone === true) existing.isDone = true;
                     } else {
                         s.state.dailyTasks.push({
                             id: uid("task"),
@@ -397,7 +424,7 @@ export const useTrackerStore = create<TrackerStore>()(
                             label,
                             syndicate,
                             details,
-                            isDone: false
+                            isDone: isDone === true,
                         });
                     }
 
