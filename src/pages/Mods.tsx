@@ -1,5 +1,5 @@
 // src/pages/Mods.tsx
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
 import MODS_RAW from "../data/mods.json";
 import RIVENS_RAW from "../data/rivens.json";
@@ -1592,6 +1592,56 @@ export default function Mods() {
     return list;
   }, [arcaneCategory, arcaneSearch, arcaneSort]);
 
+  // ── Virtualization ─────────────────────────────────────────────────────────
+  // Each row is a button with py-2.5 + text-sm + border ≈ 42px, plus mb-0.5 gap.
+  const MOD_ROW_H = 44;
+  const OVERSCAN = 8;
+
+  const modsListRef = useRef<HTMLDivElement | null>(null);
+  const [modsVw, setModsVw] = useState({ start: 0, end: 50 });
+
+  const arcanesListRef = useRef<HTMLDivElement | null>(null);
+  const [arcanesVw, setArcanesVw] = useState({ start: 0, end: 50 });
+
+  function recomputeModsWindow() {
+    const el = modsListRef.current;
+    if (!el) return;
+    const viewportH = el.clientHeight;
+    const scrollTop = el.scrollTop;
+    const start = Math.max(0, Math.floor(scrollTop / MOD_ROW_H) - OVERSCAN);
+    const end = Math.min(filteredMods.length, start + Math.ceil(viewportH / MOD_ROW_H) + OVERSCAN * 2);
+    setModsVw({ start, end });
+  }
+
+  function recomputeArcanesWindow() {
+    const el = arcanesListRef.current;
+    if (!el) return;
+    const viewportH = el.clientHeight;
+    const scrollTop = el.scrollTop;
+    const start = Math.max(0, Math.floor(scrollTop / MOD_ROW_H) - OVERSCAN);
+    const end = Math.min(filteredArcanes.length, start + Math.ceil(viewportH / MOD_ROW_H) + OVERSCAN * 2);
+    setArcanesVw({ start, end });
+  }
+
+  useEffect(() => {
+    if (modsListRef.current) modsListRef.current.scrollTop = 0;
+    requestAnimationFrame(() => recomputeModsWindow());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredMods.length]);
+
+  useEffect(() => {
+    if (arcanesListRef.current) arcanesListRef.current.scrollTop = 0;
+    requestAnimationFrame(() => recomputeArcanesWindow());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredArcanes.length]);
+
+  useEffect(() => {
+    const onResize = () => { recomputeModsWindow(); recomputeArcanesWindow(); };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   const showPolarityFilter =
@@ -1763,68 +1813,67 @@ export default function Mods() {
             <div className="text-xs text-slate-500 mb-2">
               {filteredMods.length} mods
             </div>
-            <div className="max-h-[55vh] overflow-y-auto space-y-0.5 pr-1">
-              {filteredMods.length === 0 && (
-                <div className="text-sm text-slate-400 py-4">
-                  No mods found.
-                </div>
-              )}
-              {filteredMods.map((e) => {
-                const isSelected = selectedMod?.path === e.path;
-                const _allE = ALL_MODS_BY_PATH[e.path] ?? ALL_MODS_BY_NAME[e.name];
-                const polarity = e.data?.ArtifactPolarity ?? toAP(_allE?.polarity);
-                const rarityRaw =
-                  e.data?.Rarity ?? ALL_MODS_BY_PATH[e.path]?.rarity ?? "";
-                const rarity = rarityRaw.toUpperCase();
-                return (
-                  <div key={e.path}>
-                    <div className="flex items-center gap-1">
-                      <button
-                        className={[
-                          "flex-1 flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors border",
-                          isSelected
-                            ? "bg-slate-700 border-slate-500 text-slate-100"
-                            : "bg-slate-900/40 border-slate-800/50 text-slate-300 hover:bg-slate-800/60 hover:text-slate-100 hover:border-slate-700",
-                        ].join(" ")}
-                        onClick={() => setSelectedMod(isSelected ? null : e)}
-                      >
-                        <span className="flex-1 font-medium truncate">
-                          {e.name}
-                        </span>
-                        {polarity &&
-                          (() => {
-                            const img = polImg(polarity);
-                            return img ? (
-                              <img
-                                src={img}
-                                alt={polarityLabel(polarity)}
-                                title={polarityLabel(polarity)}
-                                className="shrink-0 w-4 h-4 object-contain pol-icon opacity-70"
-                              />
-                            ) : (
-                              <span className="shrink-0 text-[11px] text-slate-500">
-                                {polarityLabel(polarity)}
-                              </span>
-                            );
-                          })()}
-                        {rarity && (
-                          <span
+            {filteredMods.length === 0 ? (
+              <div className="text-sm text-slate-400 py-4">No mods found.</div>
+            ) : (
+              <div
+                ref={modsListRef}
+                className="max-h-[55vh] overflow-auto pr-1"
+                onScroll={() => recomputeModsWindow()}
+              >
+                <div className="relative" style={{ height: filteredMods.length * MOD_ROW_H }}>
+                  <div
+                    className="absolute left-0 right-0"
+                    style={{ transform: `translateY(${modsVw.start * MOD_ROW_H}px)` }}
+                  >
+                    {filteredMods.slice(modsVw.start, modsVw.end).map((e) => {
+                      const isSelected = selectedMod?.path === e.path;
+                      const _allE = ALL_MODS_BY_PATH[e.path] ?? ALL_MODS_BY_NAME[e.name];
+                      const polarity = e.data?.ArtifactPolarity ?? toAP(_allE?.polarity);
+                      const rarityRaw = e.data?.Rarity ?? ALL_MODS_BY_PATH[e.path]?.rarity ?? "";
+                      const rarity = rarityRaw.toUpperCase();
+                      return (
+                        <div key={e.path} className="flex items-center gap-1 mb-0.5">
+                          <button
                             className={[
-                              "shrink-0 text-[11px] font-medium",
-                              rarityColor(rarity),
+                              "flex-1 flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors border",
+                              isSelected
+                                ? "bg-slate-700 border-slate-500 text-slate-100"
+                                : "bg-slate-900/40 border-slate-800/50 text-slate-300 hover:bg-slate-800/60 hover:text-slate-100 hover:border-slate-700",
                             ].join(" ")}
+                            onClick={() => setSelectedMod(isSelected ? null : e)}
                           >
-                            {rarity.charAt(0) + rarity.slice(1).toLowerCase()}
-                          </span>
-                        )}
-                      </button>
-                      <WikiLink name={e.name} />
-                    </div>
-
+                            <span className="flex-1 font-medium truncate">{e.name}</span>
+                            {polarity &&
+                              (() => {
+                                const img = polImg(polarity);
+                                return img ? (
+                                  <img
+                                    src={img}
+                                    alt={polarityLabel(polarity)}
+                                    title={polarityLabel(polarity)}
+                                    className="shrink-0 w-4 h-4 object-contain pol-icon opacity-70"
+                                  />
+                                ) : (
+                                  <span className="shrink-0 text-[11px] text-slate-500">
+                                    {polarityLabel(polarity)}
+                                  </span>
+                                );
+                              })()}
+                            {rarity && (
+                              <span className={["shrink-0 text-[11px] font-medium", rarityColor(rarity)].join(" ")}>
+                                {rarity.charAt(0) + rarity.slice(1).toLowerCase()}
+                              </span>
+                            )}
+                          </button>
+                          <WikiLink name={e.name} />
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1892,37 +1941,42 @@ export default function Mods() {
             <div className="text-xs text-slate-500 mb-2">
               {filteredArcanes.length} arcanes
             </div>
-            <div className="max-h-[55vh] overflow-y-auto space-y-0.5 pr-1">
-              {filteredArcanes.length === 0 && (
-                <div className="text-sm text-slate-400 py-4">
-                  No arcanes found.
-                </div>
-              )}
-              {filteredArcanes.map((e) => {
-                const isSelected = selectedArcane?.path === e.path;
-                return (
-                  <div key={e.path}>
-                    <div className="flex items-center gap-1">
-                      <button
-                        className={[
-                          "flex-1 flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors border",
-                          isSelected
-                            ? "bg-slate-700 border-slate-500 text-slate-100"
-                            : "bg-slate-900/40 border-slate-800/50 text-slate-300 hover:bg-slate-800/60 hover:text-slate-100 hover:border-slate-700",
-                        ].join(" ")}
-                        onClick={() => setSelectedArcane(isSelected ? null : e)}
-                      >
-                        <span className="flex-1 font-medium truncate">
-                          {e.name}
-                        </span>
-                      </button>
-                      <WikiLink name={e.name} />
-                    </div>
-
+            {filteredArcanes.length === 0 ? (
+              <div className="text-sm text-slate-400 py-4">No arcanes found.</div>
+            ) : (
+              <div
+                ref={arcanesListRef}
+                className="max-h-[55vh] overflow-auto pr-1"
+                onScroll={() => recomputeArcanesWindow()}
+              >
+                <div className="relative" style={{ height: filteredArcanes.length * MOD_ROW_H }}>
+                  <div
+                    className="absolute left-0 right-0"
+                    style={{ transform: `translateY(${arcanesVw.start * MOD_ROW_H}px)` }}
+                  >
+                    {filteredArcanes.slice(arcanesVw.start, arcanesVw.end).map((e) => {
+                      const isSelected = selectedArcane?.path === e.path;
+                      return (
+                        <div key={e.path} className="flex items-center gap-1 mb-0.5">
+                          <button
+                            className={[
+                              "flex-1 flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors border",
+                              isSelected
+                                ? "bg-slate-700 border-slate-500 text-slate-100"
+                                : "bg-slate-900/40 border-slate-800/50 text-slate-300 hover:bg-slate-800/60 hover:text-slate-100 hover:border-slate-700",
+                            ].join(" ")}
+                            onClick={() => setSelectedArcane(isSelected ? null : e)}
+                          >
+                            <span className="flex-1 font-medium truncate">{e.name}</span>
+                          </button>
+                          <WikiLink name={e.name} />
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Section>
