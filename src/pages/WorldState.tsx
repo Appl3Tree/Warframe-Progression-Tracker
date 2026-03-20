@@ -1027,8 +1027,9 @@ function MissionsTab({ data }: { data: WorldStateData }) {
 // ── Events tab ────────────────────────────────────────────────────────────────
 
 function EventsTab({ data }: { data: WorldStateData }) {
+    const processedInvasions = processInvasions(data.invasions);
     const hasEvents    = data.events.length > 0;
-    const hasInvasions = data.invasions.length > 0;
+    const hasInvasions = processedInvasions.length > 0;
     const hasAcolytes  = data.persistentEnemies.length > 0;
     const toggleInvasionDone = useTrackerStore((s) => s.toggleInvasionDone);
     const isInvasionDone     = useTrackerStore((s) => s.isInvasionDone);
@@ -1137,7 +1138,7 @@ function EventsTab({ data }: { data: WorldStateData }) {
 
             {/* Invasions */}
             {hasInvasions && (() => {
-                const sorted = processInvasions(data.invasions).sort((a, b) => {
+                const sorted = processedInvasions.slice().sort((a, b) => {
                     const aDone = isInvasionDone(a.id) ? 1 : 0;
                     const bDone = isInvasionDone(b.id) ? 1 : 0;
                     return aDone - bDone;
