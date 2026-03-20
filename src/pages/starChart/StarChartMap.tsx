@@ -1252,19 +1252,35 @@ export default function StarChartMap(props: {
                                 </div>
                             )}
 
-                            {/* 4.4: Node completion toggle */}
-                            {selectedGroupBaseNodeId && (
-                                <div className="mt-3 flex items-center gap-2">
-                                    <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300 select-none">
-                                        <input
-                                            type="checkbox"
-                                            checked={Boolean(effectiveNodeCompletedMap[selectedGroupBaseNodeId])}
-                                            onChange={(e) => activeSetNodeCompleted(selectedGroupBaseNodeId, e.target.checked)}
-                                        />
-                                        <span>Mark node as completed</span>
-                                    </label>
-                                </div>
-                            )}
+                            {/* Node completion status */}
+                            {selectedGroupBaseNodeId && (() => {
+                                const isCompleted = Boolean(effectiveNodeCompletedMap[selectedGroupBaseNodeId]);
+                                return isCompleted ? (
+                                    <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-emerald-800/50 bg-emerald-950/30 px-3 py-2">
+                                        <div className="flex items-center gap-2 text-xs text-emerald-300 font-medium">
+                                            <span className="text-emerald-400 text-sm">✓</span>
+                                            {steelPathMode ? "Steel Path node completed" : "Node completed"}
+                                        </div>
+                                        <button
+                                            className="text-[10px] text-emerald-600 hover:text-emerald-400 transition-colors"
+                                            onClick={() => activeSetNodeCompleted(selectedGroupBaseNodeId, false)}
+                                        >
+                                            Unmark
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="mt-3 flex items-center gap-2">
+                                        <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300 select-none">
+                                            <input
+                                                type="checkbox"
+                                                checked={false}
+                                                onChange={(e) => activeSetNodeCompleted(selectedGroupBaseNodeId, e.target.checked)}
+                                            />
+                                            <span>Mark node as completed</span>
+                                        </label>
+                                    </div>
+                                );
+                            })()}
 
                             {selectedGroupKey && (
                                 <>
