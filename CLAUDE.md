@@ -22,7 +22,7 @@ Tasks are organized by priority. Update this list as work progresses.
 ### 🟠 UX Polish
 
 - [x] Fix invasion completion % to use runsCompleted / runsRequired instead of API-provided value
-- [ ] Add "almost complete" goal highlighting (e.g. highlight goals that are 90%+ done)
+- [x] Add "almost complete" goal highlighting (e.g. highlight goals that are 90%+ done)
 - [ ] Link farming sources in Requirements page back to the Star Chart node
 - [ ] Add completion status overlay on Star Chart drop panels
 - [ ] Make Handbook more discoverable (consider surfacing on dashboard for new players)

@@ -86,9 +86,18 @@ export const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
     const remaining = Math.max(0, qty - have);
     const pct = qty > 0 ? Math.min(100, Math.round((have / qty) * 100)) : 100;
     const done = remaining === 0;
+    const nearlyDone = !done && pct >= 90;
 
     return (
-        <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3" style={CARD_STYLE}>
+        <div
+            className={[
+                "rounded-xl border p-3",
+                done ? "border-emerald-800/50 bg-emerald-950/10" :
+                nearlyDone ? "border-amber-700/50 bg-amber-950/10" :
+                "border-slate-800 bg-slate-950/30",
+            ].join(" ")}
+            style={CARD_STYLE}
+        >
             {/* Row 1: name + active badge + have/need */}
             <div className="flex flex-wrap items-start gap-x-3 gap-y-1">
                 <div className="flex-1 min-w-0 flex flex-wrap items-center gap-1.5">
@@ -110,10 +119,15 @@ export const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
             {/* Progress bar */}
             <div className="mt-1.5 h-1 w-full rounded-full bg-slate-800 overflow-hidden">
                 <div
-                    className={["h-full rounded-full transition-[width]", done ? "bg-emerald-500" : "bg-blue-500"].join(" ")}
+                    className={["h-full rounded-full transition-[width]",
+                        done ? "bg-emerald-500" : nearlyDone ? "bg-amber-500" : "bg-blue-500"
+                    ].join(" ")}
                     style={{ width: `${pct}%` }}
                 />
             </div>
+            {nearlyDone && (
+                <div className="mt-1 text-[10px] text-amber-400/80 font-medium">{pct}% — almost done</div>
+            )}
 
             {/* Crafting pipeline status — derived from inventory, not manual checkboxes */}
             {hasBp && (
