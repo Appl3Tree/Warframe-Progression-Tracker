@@ -34,7 +34,9 @@ type SortKey =
   | "unowned-first"
   | "mastered-last"
   | "release-newest"
-  | "release-oldest";
+  | "release-oldest"
+  | "mr-asc"
+  | "mr-desc";
 
 const VANILLA_CUTOFF = "2013-03-25";
 
@@ -1356,6 +1358,18 @@ export default function Inventory() {
           if (ad !== bd) return ad > bd ? 1 : -1;
           break;
         }
+        case "mr-asc": {
+          const am = ALL_BY_UNIQUE[a.path]?.masteryReq ?? 0;
+          const bm = ALL_BY_UNIQUE[b.path]?.masteryReq ?? 0;
+          if (am !== bm) return am - bm;
+          break;
+        }
+        case "mr-desc": {
+          const am = ALL_BY_UNIQUE[a.path]?.masteryReq ?? 0;
+          const bm = ALL_BY_UNIQUE[b.path]?.masteryReq ?? 0;
+          if (am !== bm) return bm - am;
+          break;
+        }
         default:
           break;
       }
@@ -1946,6 +1960,8 @@ export default function Inventory() {
                     <option value="mastered-last">Unmastered first</option>
                     <option value="release-newest">Release: Newest first</option>
                     <option value="release-oldest">Release: Oldest first</option>
+                    <option value="mr-asc">MR Req: Low → High</option>
+                    <option value="mr-desc">MR Req: High → Low</option>
                   </select>
                 </label>
                 <label className="flex items-center gap-2 text-sm text-slate-200">

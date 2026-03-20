@@ -49,7 +49,7 @@ function formatReleaseDate(date: string | undefined): string | undefined {
   return date;
 }
 
-type ModSortKey = "az" | "release-newest" | "release-oldest";
+type ModSortKey = "az" | "release-newest" | "release-oldest" | "rarity-asc" | "rarity-desc" | "rank-asc" | "rank-desc";
 
 const ALL_MODS_BY_PATH: Record<string, AllModEntry> = {};
 // Name-based fallback — used when mods.json path doesn't match All.json uniqueName
@@ -513,6 +513,26 @@ function polarityLabel(ap: string | undefined): string {
   if (ap === "AP_WARD") return "Aura";
   if (ap === "AP_PRECEPT") return "Precept";
   return ap ? ap.replace("AP_", "") : "—";
+}
+
+const RARITY_ORDER: Record<string, number> = { COMMON: 0, UNCOMMON: 1, RARE: 2, LEGENDARY: 3 };
+
+function rarityRank(rarity: string | undefined): number {
+  return RARITY_ORDER[rarity?.toUpperCase() ?? ""] ?? -1;
+}
+
+function modMaxRank(e: ModEntry): number {
+  const fromData = e.data?.FusionLimitRange?.[1] ?? (e.data?.FusionLimit ? Number(e.data.FusionLimit) : undefined);
+  if (typeof fromData === "number" && Number.isFinite(fromData)) return fromData;
+  const allEntry = ALL_MODS_BY_PATH[e.path] ?? ALL_MODS_BY_NAME[e.name];
+  return allEntry?.fusionLimit ?? 0;
+}
+
+function modRarity(e: ModEntry): string | undefined {
+  const fromData = e.data?.Rarity;
+  if (fromData) return fromData.toUpperCase();
+  const allEntry = ALL_MODS_BY_PATH[e.path] ?? ALL_MODS_BY_NAME[e.name];
+  return allEntry?.rarity?.toUpperCase();
 }
 
 function rarityColor(rarity: string | undefined): string {
@@ -1559,6 +1579,14 @@ export default function Mods() {
         const bd = (ALL_MODS_BY_PATH[b.path] ?? ALL_MODS_BY_NAME[b.name])?.releaseDate ?? "";
         if (ad !== bd) return modSort === "release-newest" ? (bd > ad ? 1 : -1) : (ad > bd ? 1 : -1);
       }
+      if (modSort === "rarity-asc" || modSort === "rarity-desc") {
+        const ar = rarityRank(modRarity(a)), br = rarityRank(modRarity(b));
+        if (ar !== br) return modSort === "rarity-asc" ? ar - br : br - ar;
+      }
+      if (modSort === "rank-asc" || modSort === "rank-desc") {
+        const ar = modMaxRank(a), br = modMaxRank(b);
+        if (ar !== br) return modSort === "rank-asc" ? ar - br : br - ar;
+      }
       return a.name.localeCompare(b.name);
     });
     return list;
@@ -1586,6 +1614,16 @@ export default function Mods() {
         const ad = ALL_ARCANES_BY_NAME[a.name]?.releaseDate ?? "";
         const bd = ALL_ARCANES_BY_NAME[b.name]?.releaseDate ?? "";
         if (ad !== bd) return arcaneSort === "release-newest" ? (bd > ad ? 1 : -1) : (ad > bd ? 1 : -1);
+      }
+      if (arcaneSort === "rarity-asc" || arcaneSort === "rarity-desc") {
+        const ar = rarityRank(ALL_ARCANES_BY_NAME[a.name]?.rarity?.toUpperCase());
+        const br = rarityRank(ALL_ARCANES_BY_NAME[b.name]?.rarity?.toUpperCase());
+        if (ar !== br) return arcaneSort === "rarity-asc" ? ar - br : br - ar;
+      }
+      if (arcaneSort === "rank-asc" || arcaneSort === "rank-desc") {
+        const ar = ALL_ARCANES_BY_NAME[a.name]?.fusionLimit ?? 0;
+        const br = ALL_ARCANES_BY_NAME[b.name]?.fusionLimit ?? 0;
+        if (ar !== br) return arcaneSort === "rank-asc" ? ar - br : br - ar;
       }
       return a.name.localeCompare(b.name);
     });
@@ -1806,6 +1844,10 @@ export default function Mods() {
                 <option value="az">Name A→Z</option>
                 <option value="release-newest">Release: Newest first</option>
                 <option value="release-oldest">Release: Oldest first</option>
+                <option value="rarity-asc">Rarity: Common → Legendary</option>
+                <option value="rarity-desc">Rarity: Legendary → Common</option>
+                <option value="rank-asc">Max Rank: Low → High</option>
+                <option value="rank-desc">Max Rank: High → Low</option>
               </select>
             </div>
 
@@ -1919,6 +1961,10 @@ export default function Mods() {
                 <option value="az">Name A→Z</option>
                 <option value="release-newest">Release: Newest first</option>
                 <option value="release-oldest">Release: Oldest first</option>
+                <option value="rarity-asc">Rarity: Common → Legendary</option>
+                <option value="rarity-desc">Rarity: Legendary → Common</option>
+                <option value="rank-asc">Max Rank: Low → High</option>
+                <option value="rank-desc">Max Rank: High → Low</option>
               </select>
             </div>
 
