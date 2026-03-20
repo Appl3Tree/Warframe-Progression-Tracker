@@ -37,8 +37,7 @@ function useNow(): number {
     return now;
 }
 
-function Countdown({ expiry, className }: { expiry: string; className?: string }) {
-    const now = useNow();
+function Countdown({ expiry, now, className }: { expiry: string; now: number; className?: string }) {
     return <span className={className}>{msToHms(new Date(expiry).getTime() - now)}</span>;
 }
 
@@ -98,7 +97,7 @@ const TABS: { key: Tab; label: string }[] = [
 
 // ── Overview tab ──────────────────────────────────────────────────────────────
 
-function CycleCard({ name, cycle, nextLabel }: { name: string; cycle: WsCycle; nextLabel: string }) {
+function CycleCard({ name, cycle, nextLabel, now }: { name: string; cycle: WsCycle; nextLabel: string; now: number }) {
     const vis = getVisual(cycle.state);
     return (
         <div className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5 flex items-center justify-between gap-2">
@@ -111,13 +110,13 @@ function CycleCard({ name, cycle, nextLabel }: { name: string; cycle: WsCycle; n
             </div>
             <div className="text-right">
                 <div className="text-[10px] text-slate-500">{nextLabel} in</div>
-                <Countdown expiry={cycle.expiry} className="font-mono text-xs text-slate-300" />
+                <Countdown expiry={cycle.expiry} now={now} className="font-mono text-xs text-slate-300" />
             </div>
         </div>
     );
 }
 
-function DuviriCard({ cycle }: { cycle: DuviriCycle }) {
+function DuviriCard({ cycle, now }: { cycle: DuviriCycle; now: number }) {
     const [open, setOpen] = useState(false);
     const vis = getVisual(cycle.state);
 
@@ -138,7 +137,7 @@ function DuviriCard({ cycle }: { cycle: DuviriCycle }) {
                     <div className="flex items-center gap-2">
                         <div className="text-right">
                             <div className="text-[10px] text-slate-500">next in</div>
-                            <Countdown expiry={cycle.expiry} className="font-mono text-xs text-slate-300" />
+                            <Countdown expiry={cycle.expiry} now={now} className="font-mono text-xs text-slate-300" />
                         </div>
                     </div>
                 </div>
@@ -360,8 +359,8 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                     )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {cycles.map((c) => <CycleCard key={c.name} {...c} />)}
-                    {data.duviriCycle && <DuviriCard cycle={data.duviriCycle} />}
+                    {cycles.map((c) => <CycleCard key={c.name} {...c} now={now} />)}
+                    {data.duviriCycle && <DuviriCard cycle={data.duviriCycle} now={now} />}
                     {data.simaris && data.simaris.target && (
                         <SimarisCard target={data.simaris.target} isTargetActive={data.simaris.isTargetActive} />
                     )}
@@ -388,9 +387,9 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                             <div className="text-[11px] text-slate-400">{data.voidTrader.location}</div>
                             <div className="text-[10px] text-slate-500 mt-1">
                                 {baroActive
-                                    ? <>Leaves <Countdown expiry={data.voidTrader.expiry} className="font-mono text-slate-300" /></>
+                                    ? <>Leaves <Countdown expiry={data.voidTrader.expiry} now={now} className="font-mono text-slate-300" /></>
                                     : baroDue
-                                        ? <>Arrives <Countdown expiry={data.voidTrader.activation} className="font-mono text-slate-300" /></>
+                                        ? <>Arrives <Countdown expiry={data.voidTrader.activation} now={now} className="font-mono text-slate-300" /></>
                                         : null
                                 }
                             </div>
@@ -404,7 +403,7 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                                     {data.voidTrader.schedule.slice(0, 3).map((s, i) => (
                                         <div key={i} className="text-[10px] text-slate-500">
                                             {s.item && <span className="text-slate-400 mr-1">{s.item}</span>}
-                                            <Countdown expiry={s.expiry} className="font-mono text-slate-500" />
+                                            <Countdown expiry={s.expiry} now={now} className="font-mono text-slate-500" />
                                         </div>
                                     ))}
                                 </div>
@@ -429,9 +428,9 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                             )}
                             <div className="text-[10px] text-slate-500 mt-1">
                                 {data.vaultTrader.active && data.vaultTrader.expiry
-                                    ? <>Ends <Countdown expiry={data.vaultTrader.expiry} className="font-mono text-slate-300" /></>
+                                    ? <>Ends <Countdown expiry={data.vaultTrader.expiry} now={now} className="font-mono text-slate-300" /></>
                                     : data.vaultTrader.activation
-                                        ? <>Next <Countdown expiry={data.vaultTrader.activation} className="font-mono text-slate-300" /></>
+                                        ? <>Next <Countdown expiry={data.vaultTrader.activation} now={now} className="font-mono text-slate-300" /></>
                                         : null
                                 }
                             </div>
@@ -450,7 +449,7 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                             </div>
                             {data.steelPath.expiry && (
                                 <div className="text-[10px] text-slate-500 mt-1">
-                                    Rotates <Countdown expiry={data.steelPath.expiry} className="font-mono text-slate-300" />
+                                    Rotates <Countdown expiry={data.steelPath.expiry} now={now} className="font-mono text-slate-300" />
                                 </div>
                             )}
                         </div>
@@ -470,7 +469,7 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                             </div>
                             <div className="text-[10px] text-slate-500 mt-1">
                                 {data.dailyDeals[0].sold}/{data.dailyDeals[0].total} sold ·{" "}
-                                <Countdown expiry={data.dailyDeals[0].expiry} className="font-mono text-slate-300" />
+                                <Countdown expiry={data.dailyDeals[0].expiry} now={now} className="font-mono text-slate-300" />
                             </div>
                         </div>
                     )}
@@ -495,7 +494,7 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                                 </span>
                             )}
                             <div className="text-[10px] text-slate-500 mt-1">
-                                Resets <Countdown expiry={data.sortie.expiry} className="font-mono text-slate-300" />
+                                Resets <Countdown expiry={data.sortie.expiry} now={now} className="font-mono text-slate-300" />
                             </div>
                         </div>
                     )}
@@ -508,7 +507,7 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                             </div>
                             <div className="text-[11px] text-slate-400 mt-0.5">{data.archonHunt.faction}</div>
                             <div className="text-[10px] text-slate-500 mt-1">
-                                Resets <Countdown expiry={data.archonHunt.expiry} className="font-mono text-slate-300" />
+                                Resets <Countdown expiry={data.archonHunt.expiry} now={now} className="font-mono text-slate-300" />
                             </div>
                         </div>
                     )}
@@ -521,7 +520,7 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                                 {data.nightwave.activeChallenges.length} active acts
                             </div>
                             <div className="text-[10px] text-slate-500 mt-1">
-                                Ends <Countdown expiry={data.nightwave.expiry} className="font-mono text-slate-300" />
+                                Ends <Countdown expiry={data.nightwave.expiry} now={now} className="font-mono text-slate-300" />
                             </div>
                         </div>
                     )}
@@ -563,7 +562,7 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                                 <div className="text-xs font-semibold text-green-300">{g.desc || `${g.operationSymbol}${g.upgradeOperationValue} ${g.upgrade}`}</div>
                                 {g.expiry && (
                                     <div className="text-[10px] text-slate-500 mt-0.5">
-                                        Ends <Countdown expiry={g.expiry} className="font-mono text-slate-400" />
+                                        Ends <Countdown expiry={g.expiry} now={now} className="font-mono text-slate-400" />
                                     </div>
                                 )}
                             </div>
@@ -589,7 +588,7 @@ function OverviewTab({ data }: { data: WorldStateData }) {
                         )}
                         {data.sentientOutposts.expiry && (
                             <span className="text-[10px] text-slate-500 ml-auto">
-                                Ends <Countdown expiry={data.sentientOutposts.expiry} className="font-mono text-slate-400" />
+                                Ends <Countdown expiry={data.sentientOutposts.expiry} now={now} className="font-mono text-slate-400" />
                             </span>
                         )}
                     </div>
@@ -723,7 +722,7 @@ function FissuresTab({ fissures }: { fissures: Fissure[] }) {
                                         </div>
                                     )}
                                 </div>
-                                <Countdown expiry={f.expiry} className="shrink-0 font-mono text-[10px] text-slate-400 text-right" />
+                                <Countdown expiry={f.expiry} now={now} className="shrink-0 font-mono text-[10px] text-slate-400 text-right" />
                             </div>
                         );
                     })}
@@ -740,7 +739,7 @@ const ARCHIMEDEA_TAG_LABELS: Record<string, string> = {
     "C T_ H E X": "The Hex",
 };
 
-function ArchimedeaCard({ arch }: { arch: Archimedea }) {
+function ArchimedeaCard({ arch, now }: { arch: Archimedea; now: number }) {
     const title = ARCHIMEDEA_TAG_LABELS[arch.tag] ?? arch.tag;
     const allModifiers = [
         ...(arch.personalModifiers ?? []),
@@ -754,7 +753,7 @@ function ArchimedeaCard({ arch }: { arch: Archimedea }) {
                 <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">{title}</div>
                 {arch.endDate && (
                     <div className="text-[10px] text-slate-500">
-                        Ends <Countdown expiry={arch.endDate} className="font-mono text-slate-400" />
+                        Ends <Countdown expiry={arch.endDate} now={now} className="font-mono text-slate-400" />
                     </div>
                 )}
             </div>
@@ -809,6 +808,7 @@ function ArchimedeaCard({ arch }: { arch: Archimedea }) {
 // ── Missions tab ──────────────────────────────────────────────────────────────
 
 function MissionsTab({ data }: { data: WorldStateData }) {
+    const now = useNow();
     const activeArchs = data.archimedeas.filter((a) => !a.expired);
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -819,7 +819,7 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/40">
                         <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">Daily Sortie</div>
                         <div className="text-[10px] text-slate-500">
-                            Resets <Countdown expiry={data.sortie.expiry} className="font-mono text-slate-400" />
+                            Resets <Countdown expiry={data.sortie.expiry} now={now} className="font-mono text-slate-400" />
                         </div>
                     </div>
                     <div className="p-3">
@@ -867,7 +867,7 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/40">
                         <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">Weekly Archon Hunt</div>
                         <div className="text-[10px] text-slate-500">
-                            Resets <Countdown expiry={data.archonHunt.expiry} className="font-mono text-slate-400" />
+                            Resets <Countdown expiry={data.archonHunt.expiry} now={now} className="font-mono text-slate-400" />
                         </div>
                     </div>
                     <div className="p-3">
@@ -898,7 +898,7 @@ function MissionsTab({ data }: { data: WorldStateData }) {
             {/* Nightwave challenges */}
             {/* Archimedeas */}
             {activeArchs.map((arch) => (
-                <ArchimedeaCard key={arch.id} arch={arch} />
+                <ArchimedeaCard key={arch.id} arch={arch} now={now} />
             ))}
 
             {/* Arbitration */}
@@ -907,7 +907,7 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/40">
                         <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">Arbitration</div>
                         <div className="text-[10px] text-slate-500">
-                            Rotates <Countdown expiry={data.arbitration.expiry} className="font-mono text-slate-400" />
+                            Rotates <Countdown expiry={data.arbitration.expiry} now={now} className="font-mono text-slate-400" />
                         </div>
                     </div>
                     <div className="p-3 flex items-center gap-3">
@@ -949,7 +949,7 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                                         <div className="text-[10px] text-slate-500 mt-0.5">{k.node}</div>
                                         <div className="text-[10px] text-slate-400">{k.type}</div>
                                     </div>
-                                    <Countdown expiry={k.expiry} className="shrink-0 font-mono text-[10px] text-slate-400 text-right" />
+                                    <Countdown expiry={k.expiry} now={now} className="shrink-0 font-mono text-[10px] text-slate-400 text-right" />
                                 </div>
                             </div>
                         ))}
@@ -970,7 +970,7 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                             )}
                         </div>
                         <div className="text-[10px] text-slate-500">
-                            Ends <Countdown expiry={data.nightwave.expiry} className="font-mono text-slate-400" />
+                            Ends <Countdown expiry={data.nightwave.expiry} now={now} className="font-mono text-slate-400" />
                         </div>
                     </div>
                     <div className="p-3">
@@ -1005,7 +1005,7 @@ function MissionsTab({ data }: { data: WorldStateData }) {
                                                 <div className="text-[10px] text-slate-500">{act.desc}</div>
                                                 {!act.isPermanent && act.expiry && (
                                                     <div className="text-[10px] text-slate-600 mt-0.5">
-                                                        <Countdown expiry={act.expiry} className="font-mono" />
+                                                        <Countdown expiry={act.expiry} now={now} className="font-mono" />
                                                     </div>
                                                 )}
                                             </div>
@@ -1027,6 +1027,7 @@ function MissionsTab({ data }: { data: WorldStateData }) {
 // ── Events tab ────────────────────────────────────────────────────────────────
 
 function EventsTab({ data }: { data: WorldStateData }) {
+    const now = useNow();
     const processedInvasions = processInvasions(data.invasions);
     const hasEvents    = data.events.length > 0;
     const hasInvasions = processedInvasions.length > 0;
@@ -1060,7 +1061,7 @@ function EventsTab({ data }: { data: WorldStateData }) {
                                             )}
                                         </div>
                                         {ev.expiry && (
-                                            <Countdown expiry={ev.expiry} className="shrink-0 font-mono text-[10px] text-slate-400" />
+                                            <Countdown expiry={ev.expiry} now={now} className="shrink-0 font-mono text-[10px] text-slate-400" />
                                         )}
                                     </div>
 
