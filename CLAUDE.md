@@ -25,7 +25,7 @@ Tasks are organized by priority. Update this list as work progresses.
 - [x] Add "almost complete" goal highlighting (e.g. highlight goals that are 90%+ done)
 - [x] Link farming sources in Requirements page back to the Star Chart node
 - [x] Add completion status overlay on Star Chart drop panels
-- [ ] Make Handbook more discoverable (consider surfacing on dashboard for new players)
+- [x] Make Handbook more discoverable (consider surfacing on dashboard for new players)
 
 ### 🔵 New Features (Roadmap)
 
