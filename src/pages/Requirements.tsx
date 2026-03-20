@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
+import { useShallow } from "zustand/react/shallow";
 import {
     buildRequirementsSnapshot,
     buildFarmingSnapshot,
@@ -150,10 +151,14 @@ function CurrencyCostChip(props: { line: CurrencyRequirementLine }) {
 export default function Requirements() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
 
-    const syndicates = useTrackerStore((s) => s.state.syndicates ?? []);
-    const goals = useTrackerStore((s) => s.state.goals ?? []);
-    const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
-    const inventory = useTrackerStore((s) => s.state.inventory);
+    const { syndicates, goals, completedPrereqs, inventory } = useTrackerStore(
+        useShallow((s) => ({
+            syndicates: s.state.syndicates ?? [],
+            goals: s.state.goals ?? [],
+            completedPrereqs: s.state.prereqs?.completed ?? {},
+            inventory: s.state.inventory,
+        }))
+    );
 
     const [mode, setMode] = useState<RequirementViewMode>("targeted");
     const [expandMode, setExpandMode] = useState<RequirementExpandMode>("direct");

@@ -8,6 +8,7 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
+import { useShallow } from "zustand/react/shallow";
 import { buildRequirementsSnapshot, type SyndicateScopeMode } from "../domain/logic/requirementEngine";
 import { getItemRequirements } from "../catalog/items/itemRequirements";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
@@ -162,10 +163,14 @@ function ReqItemRow(props: { catalogId: CatalogId; name: string; totalNeed: numb
 export default function Goals() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
 
-    const goals = useTrackerStore((s) => (Array.isArray((s.state as any).goals) ? (s.state as any).goals : EMPTY_ARR));
-    const syndicates = useTrackerStore((s) => s.state.syndicates ?? []);
-    const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? EMPTY_OBJ);
-    const inventory = useTrackerStore((s) => s.state.inventory);
+    const { goals, syndicates, completedPrereqs, inventory } = useTrackerStore(
+        useShallow((s) => ({
+            goals: Array.isArray((s.state as any).goals) ? (s.state as any).goals : EMPTY_ARR,
+            syndicates: s.state.syndicates ?? [],
+            completedPrereqs: s.state.prereqs?.completed ?? EMPTY_OBJ,
+            inventory: s.state.inventory,
+        }))
+    );
 
     const [tab, setTab] = useState<GoalsTab>("personal");
 
