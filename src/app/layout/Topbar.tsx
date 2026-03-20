@@ -266,7 +266,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
     const hasAnything = !!(
         data?.voidTrader || varziaActive || sentientActive ||
         (data?.events.length ?? 0) > 0 ||
-        (data?.invasions.length ?? 0) > 0 ||
+        (data?.invasions.filter((inv) => !inv.completed).length ?? 0) > 0 ||
         (data?.nightwave?.activeChallenges.length ?? 0) > 0
     );
 
