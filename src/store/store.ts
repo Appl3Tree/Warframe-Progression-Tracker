@@ -74,7 +74,7 @@ export interface TrackerStore {
     importProfileViewingDataJson: (text: string) => { ok: boolean; error?: string };
     importProfileFromWarframeStatApi: (json: unknown) => { ok: boolean; error?: string };
 
-    upsertDailyTask: (dateYmd: string, label: string, syndicate?: string, details?: string, isDone?: boolean) => void;
+    upsertDailyTask: (dateYmd: string, label: string, syndicate?: string, details?: string) => void;
     toggleDailyTask: (taskId: string) => void;
     deleteDailyTask: (taskId: string) => void;
 
@@ -367,30 +367,36 @@ export const useTrackerStore = create<TrackerStore>()(
                         if (parsed.challenges) s.state.challenges = parsed.challenges;
                         if (parsed.intrinsics) s.state.intrinsics = parsed.intrinsics;
 
-                        // ── Daily standing automation ──────────────────────
-                        // For each DailyAffiliation* / DailyFocus field returned by
-                        // the API: create a task for today if it doesn't exist yet,
-                        // and mark it done when remaining === 0 (daily cap spent).
-                        if (parsed.dailyAffiliation.length > 0) {
-                            const todayYmd = toYMD(new Date());
-                            for (const { label, syndicateId, remaining } of parsed.dailyAffiliation) {
-                                const normalized = label.trim().toLowerCase();
-                                const existing = s.state.dailyTasks.find(
-                                    (t) => t.dateYmd === todayYmd && t.label.trim().toLowerCase() === normalized
-                                );
-                                const isDone = remaining === 0;
-                                if (existing) {
-                                    if (isDone) existing.isDone = true;
-                                } else {
-                                    s.state.dailyTasks.push({
-                                        id: uid("task"),
-                                        dateYmd: todayYmd,
-                                        label,
-                                        syndicate: syndicateId,
-                                        isDone,
-                                    });
+                        // ── Reset tracker automation ───────────────────────
+                        // Mark standing tasks done in the WarframeResetTracker's
+                        // localStorage state when the daily cap is fully spent.
+                        const { primary_daily: pdIds, conclave_daily: cdIds } = parsed.completedResetTaskIds;
+                        if (pdIds.length > 0 || cdIds.length > 0) {
+                            try {
+                                const now = new Date();
+                                // Primary daily key = UTC date string
+                                const primaryKey = now.toISOString().slice(0, 10);
+                                // Conclave daily key = 16:00 UTC boundary
+                                const th16 = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 16));
+                                const conclaveDayKey = now >= th16
+                                    ? th16.toISOString().slice(0, 10)
+                                    : new Date(th16.getTime() - 86_400_000).toISOString().slice(0, 10);
+
+                                let rc: Record<string, any> = {};
+                                try { rc = JSON.parse(localStorage.getItem("wfpt:resetChecklist") ?? "{}") ?? {}; } catch { /* */ }
+
+                                if (pdIds.length > 0) {
+                                    const prev: string[] = Array.isArray(rc.completedPrimaryDailyTaskIds) ? rc.completedPrimaryDailyTaskIds : [];
+                                    rc = { ...rc, primaryDailyResetKey: primaryKey, completedPrimaryDailyTaskIds: [...new Set([...prev, ...pdIds])] };
                                 }
-                            }
+                                if (cdIds.length > 0) {
+                                    const prev: string[] = Array.isArray(rc.completedConclaveDailyTaskIds) ? rc.completedConclaveDailyTaskIds : [];
+                                    rc = { ...rc, conclaveDailyResetKey: conclaveDayKey, completedConclaveDailyTaskIds: [...new Set([...prev, ...cdIds])] };
+                                }
+
+                                localStorage.setItem("wfpt:resetChecklist", JSON.stringify(rc));
+                                window.dispatchEvent(new CustomEvent("wfpt:resetChecklist:external-update"));
+                            } catch { /* ignore storage errors */ }
                         }
 
                         ensureGoalsArray(s.state);
@@ -406,7 +412,7 @@ export const useTrackerStore = create<TrackerStore>()(
                 }
             },
 
-            upsertDailyTask: (dateYmd, label, syndicate, details, isDone) => {
+            upsertDailyTask: (dateYmd, label, syndicate, details) => {
                 set((s) => {
                     const normalized = label.trim().toLowerCase();
                     const existing = s.state.dailyTasks.find(
@@ -416,7 +422,6 @@ export const useTrackerStore = create<TrackerStore>()(
                     if (existing) {
                         existing.syndicate = syndicate;
                         existing.details = details;
-                        if (isDone === true) existing.isDone = true;
                     } else {
                         s.state.dailyTasks.push({
                             id: uid("task"),
@@ -424,7 +429,7 @@ export const useTrackerStore = create<TrackerStore>()(
                             label,
                             syndicate,
                             details,
-                            isDone: isDone === true,
+                            isDone: false,
                         });
                     }
 

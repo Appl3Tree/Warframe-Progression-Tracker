@@ -58,28 +58,38 @@ const AFFILIATION_TAG_TO_SYNDICATE_ID: Record<string, string> = {
 };
 
 /**
- * Maps warframestat.us `dailyStanding` subkeys to a human-readable label and
- * optional canonical syndicate ID. Used to auto-populate the daily checklist
- * from profile import data.
+ * Maps warframestat.us `dailyStanding` subkeys to reset tracker task IDs.
+ * When `remaining === 0`, those task IDs are marked done in the WarframeResetTracker.
  *
  * The warframestat.us API nests these under `json.dailyStanding` (camelCase),
  * NOT as top-level `DailyAffiliation*` fields.
+ *
+ * `bucket` matches the WarframeResetTracker localStorage completed-ID arrays:
+ *   "primary_daily"  → completedPrimaryDailyTaskIds
+ *   "conclave_daily" → completedConclaveDailyTaskIds
  */
-const DAILY_STANDING_KEY_MAP: Array<{ key: string; label: string; syndicateId?: string }> = [
-    { key: "daily",      label: "Relay Syndicates",  syndicateId: undefined },
-    { key: "conclave",   label: "Conclave",          syndicateId: "syndicate_conclave" },
-    { key: "simaris",    label: "Cephalon Simaris",  syndicateId: "syndicate_cephalon_simaris" },
-    { key: "ostron",     label: "Ostron",            syndicateId: "syndicate_ostron" },
-    { key: "quills",     label: "The Quills",        syndicateId: "syndicate_quills" },
-    { key: "solaris",    label: "Solaris United",    syndicateId: "syndicate_solaris_united" },
-    { key: "ventKids",   label: "Ventkids",          syndicateId: "syndicate_ventkids" },
-    { key: "voxSolaris", label: "Vox Solaris",       syndicateId: "syndicate_vox_solaris" },
-    { key: "entrati",    label: "Entrati",           syndicateId: "syndicate_entrati" },
-    { key: "necraloid",  label: "Necraloid",         syndicateId: "syndicate_necraloid" },
-    { key: "holdfasts",  label: "The Holdfasts",     syndicateId: "syndicate_holdfasts" },
-    { key: "kahl",       label: "Kahl's Garrison",   syndicateId: "syndicate_kahls_garrison" },
-    { key: "cavia",      label: "Cavia",             syndicateId: "syndicate_cavia" },
-    { key: "hex",        label: "The Hex",           syndicateId: "syndicate_hex_1999" },
+const DAILY_STANDING_KEY_MAP: Array<{
+    key: string;
+    taskIds: string[];
+    bucket: "primary_daily" | "conclave_daily";
+}> = [
+    // Relay factions share one pool — mark all six done when `daily === 0`
+    { key: "daily",      taskIds: ["standing_steel_meridian", "standing_arbiters", "standing_suda", "standing_perrin", "standing_red_veil", "standing_new_loka"], bucket: "primary_daily" },
+    // Conclave standing lives in the conclave-daily bucket
+    { key: "conclave",   taskIds: ["conclave_daily_standing"], bucket: "conclave_daily" },
+    { key: "simaris",    taskIds: ["standing_cephalon_simaris"], bucket: "primary_daily" },
+    { key: "ostron",     taskIds: ["standing_ostron"],           bucket: "primary_daily" },
+    { key: "quills",     taskIds: ["standing_the_quills"],       bucket: "primary_daily" },
+    { key: "solaris",    taskIds: ["standing_solaris"],          bucket: "primary_daily" },
+    { key: "ventKids",   taskIds: ["standing_ventkids"],         bucket: "primary_daily" },
+    { key: "voxSolaris", taskIds: ["standing_vox_solaris"],      bucket: "primary_daily" },
+    { key: "entrati",    taskIds: ["standing_entrati"],          bucket: "primary_daily" },
+    { key: "necraloid",  taskIds: ["standing_necraloid"],        bucket: "primary_daily" },
+    { key: "holdfasts",  taskIds: ["standing_the_holdfasts"],    bucket: "primary_daily" },
+    { key: "kahl",       taskIds: [],                            bucket: "primary_daily" }, // no task in tracker
+    { key: "cavia",      taskIds: ["standing_cavia"],            bucket: "primary_daily" },
+    { key: "hex",        taskIds: ["standing_the_hex"],          bucket: "primary_daily" },
+    // dailyFocus is a separate top-level field handled below
 ];
 
 /** Maximum achievable rank per canonical syndicate ID. */
@@ -135,10 +145,14 @@ export type ProfileImportResult = {
     };
 
     /**
-     * Daily standing / focus remaining from the API profile.
-     * `remaining === 0` means the player has maxed out that syndicate today.
+     * WarframeResetTracker task IDs that should be marked done because the
+     * player has already spent the full daily cap (remaining === 0).
+     * Keyed by the bucket they belong to in the reset tracker's localStorage state.
      */
-    dailyAffiliation: Array<{ label: string; syndicateId?: string; remaining: number }>;
+    completedResetTaskIds: {
+        primary_daily: string[];
+        conclave_daily: string[];
+    };
 };
 
 function isObject(v: unknown): v is Record<string, any> {
@@ -855,7 +869,7 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
         completedNodeIds,
         challenges: challengesResult,
         intrinsics: intrinsicsResult,
-        dailyAffiliation: [],
+        completedResetTaskIds: { primary_daily: [], conclave_daily: [] },
     };
 }
 
@@ -1094,17 +1108,21 @@ export function parseWarframeStatApiProfile(json: any): ProfileImportResult {
     // ── Daily standing ──────────────────────────────────────────────────────
     // warframestat.us nests all syndicate standing under `json.dailyStanding`
     // with camelCase short keys, and puts `dailyFocus` at the top level.
-    const dailyAffiliation: ProfileImportResult["dailyAffiliation"] = [];
+    // When remaining === 0, mark the corresponding reset tracker task(s) done.
+    const completedResetTaskIds: ProfileImportResult["completedResetTaskIds"] = {
+        primary_daily: [],
+        conclave_daily: [],
+    };
     if (isObject(json.dailyStanding)) {
         const ds = json.dailyStanding;
-        for (const { key, label, syndicateId } of DAILY_STANDING_KEY_MAP) {
-            if (typeof ds[key] === "number") {
-                dailyAffiliation.push({ label, syndicateId, remaining: ds[key] as number });
+        for (const { key, taskIds, bucket } of DAILY_STANDING_KEY_MAP) {
+            if (typeof ds[key] === "number" && ds[key] === 0 && taskIds.length > 0) {
+                completedResetTaskIds[bucket].push(...taskIds);
             }
         }
     }
-    if (typeof json.dailyFocus === "number") {
-        dailyAffiliation.push({ label: "Focus", syndicateId: undefined, remaining: json.dailyFocus as number });
+    if (typeof json.dailyFocus === "number" && json.dailyFocus === 0) {
+        completedResetTaskIds.primary_daily.push("focus_daily_cap");
     }
 
     return {
@@ -1117,6 +1135,6 @@ export function parseWarframeStatApiProfile(json: any): ProfileImportResult {
         completedNodeIds,
         challenges: challengesResult,
         intrinsics: intrinsicsResult,
-        dailyAffiliation,
+        completedResetTaskIds,
     };
 }
