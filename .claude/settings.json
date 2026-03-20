@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\": \"Reminder: If any tasks were completed or added this session, update CLAUDE.md to keep the task list current.\"}'",
+            "statusMessage": "Checking task list..."
+          }
+        ]
+      }
+    ]
+  }
+}
