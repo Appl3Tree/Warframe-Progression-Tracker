@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
+import { setPendingStarChartNodeId, sourceIdToStarChartNodeId } from "../store/starChartNav";
 import {
     buildRequirementsSnapshot,
     buildFarmingSnapshot,
@@ -479,14 +480,32 @@ export default function Requirements() {
 
                                                 {/* Sources */}
                                                 <div className="mt-2 flex flex-wrap gap-1">
-                                                    {(l.sources ?? []).map((s) => (
-                                                        <span
-                                                            key={String(s.sourceId)}
-                                                            className="text-[10px] rounded-full border border-slate-700 bg-slate-900/60 px-2 py-0.5 text-slate-300"
-                                                        >
-                                                            {s.sourceLabel || String(s.sourceId)}
-                                                        </span>
-                                                    ))}
+                                                    {(l.sources ?? []).map((s) => {
+                                                        const nodeId = sourceIdToStarChartNodeId(String(s.sourceId));
+                                                        if (nodeId) {
+                                                            return (
+                                                                <button
+                                                                    key={String(s.sourceId)}
+                                                                    className="text-[10px] rounded-full border border-slate-700 bg-slate-900/60 px-2 py-0.5 text-slate-300 hover:border-cyan-700 hover:text-cyan-300 hover:bg-cyan-950/30 transition-colors cursor-pointer"
+                                                                    title="Open in Star Chart"
+                                                                    onClick={() => {
+                                                                        setPendingStarChartNodeId(nodeId);
+                                                                        setActivePage("starchart");
+                                                                    }}
+                                                                >
+                                                                    {s.sourceLabel || String(s.sourceId)} ↗
+                                                                </button>
+                                                            );
+                                                        }
+                                                        return (
+                                                            <span
+                                                                key={String(s.sourceId)}
+                                                                className="text-[10px] rounded-full border border-slate-700 bg-slate-900/60 px-2 py-0.5 text-slate-300"
+                                                            >
+                                                                {s.sourceLabel || String(s.sourceId)}
+                                                            </span>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
 

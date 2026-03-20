@@ -8,7 +8,7 @@
 //   StarChartDuviriView.tsx  — Duviri experience panels
 //   StarChartModal.tsx    — full-screen overlay modal wrapper
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import type { PlanetId, StarChartNode, StarChartPlanet } from "../domain/models/starChart";
 import { STAR_CHART_DATA } from "../domain/catalog/starChart";
@@ -21,6 +21,7 @@ import {
 } from "./starChart/starChartMapData";
 import type { ViewBox, NodeGroupKind, NodeGroup, TabSpec } from "./starChart/starChartMapData";
 import { buildSourceToItemsIndex } from "./starChart/starChartUtils";
+import { getPendingStarChartNodeId } from "../store/starChartNav";
 import { buildDropMetaLookup } from "./starChart/dropMetaLookup";
 import type { DropMetaLookup } from "./starChart/dropMetaLookup";
 import StarChartMap from "./starChart/StarChartMap";
@@ -137,6 +138,31 @@ export default function StarChart() {
             setSelectedTab(tabsForPanel[0]?.kind ?? "base");
         }
     }, [selectedGroupKey, tabsForPanel, selectedTab]);
+
+    // Consume a pending deep-link node set by Requirements page.
+    // Runs once groupedByPlanet is stable (after mount).
+    const navigateToPendingNode = useCallback(() => {
+        const nodeId = getPendingStarChartNodeId();
+        if (!nodeId) return;
+
+        const node = STAR_CHART_DATA.nodes.find((n) => n.id === nodeId);
+        if (!node) return;
+
+        const planetGroups = groupedByPlanet.get(String(node.planetId)) ?? [];
+        const group = planetGroups.find((g) =>
+            Object.values(g.kinds).some((ids) => ids?.includes(node.id as any))
+        );
+        if (!group) return;
+
+        setSelectedPlanetId(node.planetId);
+        setSelectedGroupKey(group.key);
+        setSelectedTab("base");
+    }, [groupedByPlanet]);
+
+    useEffect(() => {
+        navigateToPendingNode();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
