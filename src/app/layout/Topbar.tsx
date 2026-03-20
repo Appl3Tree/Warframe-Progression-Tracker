@@ -642,6 +642,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
     const [lastImportedAt, setLastImportedAt] = useState<string | null>(
         () => localStorage.getItem("wft_last_profile_import") ?? null
     );
+    const [pendingImport, setPendingImport] = useState<{ label: string; execute: () => void } | null>(null);
 
     const fileRef         = useRef<HTMLInputElement | null>(null);
     const panelRef        = useRef<HTMLDivElement | null>(null);
@@ -708,7 +709,11 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
             const res = await fetch(url);
             if (!res.ok) throw new Error(`API returned ${res.status} ${res.statusText}`);
             const json = await res.json();
-            handleImportResult(importProfileFromWarframeStatApi(json));
+            setProfileStatus("");
+            setPendingImport({
+                label: `API — warframestat.us (${id})`,
+                execute: () => handleImportResult(importProfileFromWarframeStatApi(json)),
+            });
         } catch (e: any) {
             setProfileStatus(`API import failed: ${e?.message ?? "Unknown error"}. Try Paste JSON or Import File instead.`);
         } finally {
@@ -943,7 +948,10 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                                     const file = e.target.files?.[0];
                                     if (!file) return;
                                     const raw = await file.text();
-                                    handleImportResult(importProfileViewingDataJson(raw));
+                                    setPendingImport({
+                                        label: `File: ${file.name}`,
+                                        execute: () => handleImportResult(importProfileViewingDataJson(raw)),
+                                    });
                                     e.target.value = "";
                                 }}
                             />
@@ -965,13 +973,42 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                                     <button
                                         className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs text-slate-900 font-semibold hover:bg-white disabled:opacity-50"
                                         disabled={!pasteText.trim()}
-                                        onClick={() => handleImportResult(importProfileViewingDataJson(pasteText))}
+                                        onClick={() => setPendingImport({
+                                            label: "Pasted JSON",
+                                            execute: () => handleImportResult(importProfileViewingDataJson(pasteText)),
+                                        })}
                                     >
                                         Import Pasted JSON
                                     </button>
                                     <button
                                         className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-900"
                                         onClick={() => { setPasteText(""); setShowPastePanel(false); }}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Confirmation step */}
+                        {pendingImport && (
+                            <div className="rounded-lg border border-amber-700/50 bg-amber-950/20 px-3 py-3 space-y-2">
+                                <div className="text-xs font-semibold text-amber-300">Confirm import?</div>
+                                <div className="text-[11px] text-slate-400 leading-relaxed">
+                                    Importing{" "}
+                                    <span className="text-slate-200 font-mono break-all">{pendingImport.label}</span>
+                                    {" "}will overwrite matching items in your current profile. This cannot be undone.
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs text-white font-semibold hover:bg-amber-500 transition-colors"
+                                        onClick={() => { pendingImport.execute(); setPendingImport(null); }}
+                                    >
+                                        Confirm Import
+                                    </button>
+                                    <button
+                                        className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-900 transition-colors"
+                                        onClick={() => setPendingImport(null)}
                                     >
                                         Cancel
                                     </button>

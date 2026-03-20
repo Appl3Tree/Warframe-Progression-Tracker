@@ -9,11 +9,10 @@ Tasks are organized by priority. Update this list as work progresses.
 - [x] Add React error boundaries to every page (prevents full-page crashes when logic engines throw)
 - [x] Add unit tests for the 16 logic engines — especially `requirementEngine`, `goalExpansion`, `processInvasions`
 - [x] Fix WorldState 1-second timer (`useNow()`) to only re-render the active tab
-- [ ] Add Intrinsics page to the sidebar navigation (page exists but is unreachable)
 
 ### 🟡 High Impact (UX & Performance)
 
-- [ ] Add confirmation step before profile import (currently merges immediately with no undo)
+- [x] Add confirmation step before profile import (currently merges immediately with no undo)
 - [ ] Add `useShallow` to heavy Zustand selectors in Goals and Requirements pages
 - [ ] Virtualize long lists: Inventory (1000+ items), Mods (3000+), Challenges (300+)
 - [ ] Complete light mode across all components (many still have hardcoded dark colors)
