@@ -353,6 +353,21 @@
 .theme-light .wf-tree-root { --wf-line: rgba(140,165,188,0.65); }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   RING / FOCUS RING COLORS
+   ═══════════════════════════════════════════════════════════════════════ */
+/* ring-slate-950 is used as a separation ring on badge overlays — remap to the page bg */
+.theme-light [class*="ring-slate-950"] { --tw-ring-color: #f0f4f8 !important; }
+.theme-light [class*="ring-slate-900"] { --tw-ring-color: #f4f6fa !important; }
+.theme-light [class*="ring-slate-700"] { --tw-ring-color: rgba(140,165,188,0.5) !important; }
+.theme-light [class*="ring-slate-600"] { --tw-ring-color: #9aafc0 !important; }
+.theme-light [class*="ring-slate-500"] { --tw-ring-color: rgba(100,140,165,0.4) !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SHADOW OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-light [class*="shadow-black"] { --tw-shadow-color: rgba(0,0,0,0.12) !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════
    POLARITY ICONS
    ═══════════════════════════════════════════════════════════════════════ */
 /* Dark mode: invert black SVG paths → white */
