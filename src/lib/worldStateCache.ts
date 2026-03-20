@@ -1002,11 +1002,14 @@ export function processInvasions(invasions: Invasion[]): ProcessedInvasion[] {
     const filtered = deduped.filter((inv) => {
         // Always hide individually completed invasions.
         if (inv.completed) return false;
-        // If another invasion at this node is completed, the node is settling —
-        // hide all invasions here until the completed one is cleaned up.
+        // If there are multiple non-completed invasions at this node, show only
+        // the active one (count !== 0).
         const nodeKey = `${inv.planet}\x00${inv.nodeName}`;
         const group = nodeGroups.get(nodeKey)!;
-        if (group.some((g) => g.completed)) return false;
+        const nonCompleted = group.filter((g) => !g.completed);
+        if (nonCompleted.length > 1) {
+            return inv.count !== 0;
+        }
         return true;
     });
 
