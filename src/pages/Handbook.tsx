@@ -1409,6 +1409,196 @@ const SECTIONS: Section[] = [
         ),
     },
     {
+        id: "void-fissures",
+        title: "Void Fissures & Relics",
+        summary: "How to crack Relics to earn Prime parts, what each Void Trace does, and how to target specific components.",
+        content: (
+            <>
+                <P>
+                    <B>Relics</B> are the primary way to acquire Prime Warframe and weapon parts. Each Relic
+                    contains five common rewards and one rare (gold) reward. To earn a reward you crack the
+                    Relic in a <B>Void Fissure</B> mission.
+                </P>
+                <SectionHeading>How Void Fissures work</SectionHeading>
+                <Steps items={[
+                    <>Equip a Relic in your Gear loadout before launching the mission.</>,
+                    <>Kill <B>Corrupted enemies</B> (golden aura) to collect <B>Reactant</B>. You need 10 Reactant before mission end.</>,
+                    <>At the end-of-mission reward screen, each player in the squad reveals one random reward from their own Relic. You can pick <B>your own reward or any squadmate's</B>.</>,
+                    <>If you chose a reward you didn't need, you can <B>trade</B> Prime parts at a Relay for Platinum.</>,
+                ]} />
+                <SectionHeading>Relic tiers</SectionHeading>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[400px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2 text-slate-300">Tier</th>
+                                <th className="text-left px-3 py-2 text-slate-300">Sources</th>
+                                <th className="text-left px-3 py-2 text-slate-300">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Axi", "Long endless missions (C rotation)", "Best for Platinum-value gold rewards"],
+                                ["Neo", "Mid-length missions (B rotation)", "Good balance of speed and reward value"],
+                                ["Meso", "Short missions / B-rotation Defenses", "Fast to crack; good for lower-tier primes"],
+                                ["Lith", "Short missions / A rotation", "Fastest to crack; mostly low-tier parts"],
+                            ].map(([t, s, n]) => (
+                                <tr key={t} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-amber-300">{t}</td>
+                                    <td className="px-3 py-2 text-slate-300">{s}</td>
+                                    <td className="px-3 py-2 text-slate-400">{n}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+                <SectionHeading>Void Traces</SectionHeading>
+                <P>
+                    Void Traces are earned after cracking a Relic — you get 6–16 per run. They are used to
+                    <B> Refine</B> (upgrade) a Relic, which improves the odds of getting rarer rewards:
+                </P>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[400px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2 text-slate-300">Refinement</th>
+                                <th className="text-right px-3 py-2 text-slate-300">Void Traces</th>
+                                <th className="text-right px-3 py-2 text-slate-300">Gold (rare) chance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Intact (default)", "0", "~2%"],
+                                ["Exceptional", "25", "~4%"],
+                                ["Flawless", "50", "~6%"],
+                                ["Radiant", "100", "~10%"],
+                            ].map(([r, t, c]) => (
+                                <tr key={r} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 text-slate-100">{r}</td>
+                                    <td className="px-3 py-2 text-right text-amber-300">{t}</td>
+                                    <td className="px-3 py-2 text-right text-slate-300">{c}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+                <Callout color="amber">
+                    <B>Radiant sharing</B> — if all four players bring Radiant (max-refined) Relics of the same
+                    type, each player has a ~10% chance at the gold reward from each of the four Relics revealed,
+                    effectively giving you four chances per run at the rare component. This is the standard
+                    strategy for targeting specific gold parts.
+                </Callout>
+                <SectionHeading>Finding specific Relics</SectionHeading>
+                <P>
+                    Check the in-game Codex → Components section, or use a third-party site like
+                    <Tag> warframe.market</Tag> to find which Relic contains the part you need, and which
+                    missions drop that Relic.
+                </P>
+                <SectionHeading>Vaulted Primes</SectionHeading>
+                <P>
+                    When a Prime is "vaulted", its Relics are removed from the current drop tables.
+                    Vaulted Prime parts can still be obtained by:
+                </P>
+                <Bullets items={[
+                    <>Trading with other players on <Tag>warframe.market</Tag> (Platinum).</>,
+                    <>Watching for <B>Void Relic Resurgence</B> events where DE temporarily re-adds vaulted Relics to the drop pool.</>,
+                    <>Purchasing directly via <B>Varzia</B> (Primed Resurgence) when the Relic appears in her shop.</>,
+                ]} />
+            </>
+        ),
+    },
+    {
+        id: "resources-currencies",
+        title: "Resources & Currencies",
+        summary: "Where to farm common resources, what the in-game currencies are used for, and how to keep your stocks topped up.",
+        content: (
+            <>
+                <SectionHeading>In-game currencies</SectionHeading>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[460px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2 text-slate-300">Currency</th>
+                                <th className="text-left px-3 py-2 text-slate-300">Primary use</th>
+                                <th className="text-left px-3 py-2 text-slate-300">How to earn</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Credits", "Blueprints, crafting, trading fees", "Missions, Index, Profit-Taker"],
+                                ["Platinum", "Premium store, player trading", "Real money or player trades"],
+                                ["Ducats", "Baro Ki'Teer shop", "Sell Prime parts at Relay kiosks"],
+                                ["Endo", "Mod fusion (upgrading mods)", "Arbitrations, Spy missions, selling extra mods"],
+                                ["Kuva", "Re-rolling Riven mods, Kuva weapons", "Kuva Siphons, Floods, Fortress tileset"],
+                                ["Void Traces", "Relic refinement", "Cracking Relics in Void Fissures"],
+                                ["Standing", "Syndicate and open-world ranks", "Missions, daily caps per faction"],
+                            ].map(([c, u, h]) => (
+                                <tr key={c} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-amber-300">{c}</td>
+                                    <td className="px-3 py-2 text-slate-300">{u}</td>
+                                    <td className="px-3 py-2 text-slate-400">{h}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+                <SectionHeading>Common resource farming locations</SectionHeading>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[460px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2 text-slate-300">Resource</th>
+                                <th className="text-left px-3 py-2 text-slate-300">Best location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Orokin Cell", "Gabii (Ceres, Infested Survival) or Draco (Ceres)"],
+                                ["Neural Sensors", "Alad V boss (Jupiter) or Cameria (Jupiter, Infested Survival)"],
+                                ["Neurodes", "Earth Survival missions or Derelict (Orokin Derelict)"],
+                                ["Control Module", "Void missions or Neptune (Oceanum)"],
+                                ["Gallium", "Mars or Uranus Survival missions"],
+                                ["Nano Spores", "Saturn Survival (Telesto recommended) or Deimos"],
+                                ["Polymer Bundle", "Uranus Survival (Assur) or Mercury"],
+                                ["Ferrite", "Mercury or Earth Survival"],
+                                ["Alloy Plate", "Jupiter or Venus Survival"],
+                                ["Plastids", "Phobos, Pluto, or Saturn Survival missions"],
+                                ["Morphics", "Mercury, Mars boss (Sergeant) or boss drop"],
+                            ].map(([r, l]) => (
+                                <tr key={r} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-slate-100">{r}</td>
+                                    <td className="px-3 py-2 text-slate-400">{l}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+                <Callout color="blue">
+                    Farming augments like <B>Pilfering Swarm</B> (Khora) and <B>Pilfering Strangledome</B> (Hydroid)
+                    significantly increase resource drops. Nekros's <B>Desecrate</B> also doubles enemy drop
+                    chances. Stack these for maximum efficiency on any resource farm.
+                </Callout>
+                <SectionHeading>Ducats farming</SectionHeading>
+                <P>
+                    Ducats are earned by selling Prime parts at the <B>Ducat Kiosks</B> found in every Relay.
+                    Check whether Baro currently wants specific items — some parts are worth more ducats
+                    than others.
+                </P>
+                <Bullets items={[
+                    <><B>Common Prime parts</B> (Bronze): 15 ducats each — bulk-sell quickly</>,
+                    <><B>Uncommon Prime parts</B> (Silver): 45 ducats each</>,
+                    <><B>Rare Prime parts</B> (Gold): 100 ducats each — only sell if you have extras</>,
+                ]} />
+                <SectionHeading>Credits farming</SectionHeading>
+                <P>
+                    Credits are quickly burned through crafting and trading fees. The best credit farm is
+                    <B> The Index</B> on Neptune — choose the Medium bet for the best risk/reward ratio.
+                    Corpus Profit-Taker Heist Phase 4 also yields large credit rewards per run.
+                </P>
+            </>
+        ),
+    },
+    {
         id: "syndicates",
         title: "Syndicates",
         summary: "Faction reputation systems that reward exclusive mods, augments, and weapons. Which ones you choose early matters.",
@@ -1488,6 +1678,7 @@ const NAV_GROUPS = [
     { id: "combat",   label: "Combat Systems",      sectionIds: ["lich-sisters", "kuva", "eidolons", "railjack", "necramech"] },
     { id: "build",    label: "Build & Progression", sectionIds: ["focus", "modding", "steel-path", "farming", "rotations"] },
     { id: "economy",  label: "Economy & Routine",   sectionIds: ["trading", "daily-weekly", "syndicates"] },
+    { id: "loot",     label: "Loot & Resources",    sectionIds: ["void-fissures", "resources-currencies"] },
 ] as const;
 
 type NavGroupId = typeof NAV_GROUPS[number]["id"];
@@ -1498,13 +1689,27 @@ type NavGroupId = typeof NAV_GROUPS[number]["id"];
 
 export default function Handbook() {
     const [activeId, setActiveId] = useState<string>("quest-order");
+    const [searchQuery, setSearchQuery] = useState("");
 
     const activeSection = SECTIONS.find((s) => s.id === activeId) ?? SECTIONS[0];
     const activeGroup = NAV_GROUPS.find((g) => (g.sectionIds as readonly string[]).includes(activeId)) ?? NAV_GROUPS[0];
 
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    const searchResults = normalizedQuery.length >= 2
+        ? SECTIONS.filter((s) =>
+            s.title.toLowerCase().includes(normalizedQuery) ||
+            s.summary.toLowerCase().includes(normalizedQuery)
+        )
+        : [];
+    const isSearching = normalizedQuery.length >= 2;
+
+    function selectSection(id: string) {
+        setActiveId(id);
+        setSearchQuery("");
+    }
+
     function selectGroup(gid: NavGroupId) {
         const group = NAV_GROUPS.find((g) => g.id === gid)!;
-        // Jump to first section in group if current section isn't in it
         if (!(group.sectionIds as readonly string[]).includes(activeId)) {
             setActiveId(group.sectionIds[0]);
         }
@@ -1529,20 +1734,64 @@ export default function Handbook() {
                     Explanations of game mechanics that commonly gate progression or cause confusion.
                 </div>
 
-                {/* Row 1: group tabs */}
-                <div className="mt-4">
-                    <div className="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-1.5">Category</div>
-                    <div className="flex flex-wrap gap-2">
-                        {NAV_GROUPS.map((g) => (
-                            <button key={g.id} onClick={() => selectGroup(g.id)} className={groupTabCls(g.id)}>
-                                {g.label}
-                            </button>
-                        ))}
-                    </div>
+                {/* Search */}
+                <div className="mt-4 relative">
+                    <input
+                        type="text"
+                        className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
+                        placeholder="Search topics… (e.g. relics, endo, focus)"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery("")}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 px-1"
+                            aria-label="Clear search"
+                        >
+                            ✕
+                        </button>
+                    )}
                 </div>
 
-                {/* Row 2: section tabs for active group — only shown when group has >1 section */}
-                {activeGroup.sectionIds.length > 1 && (
+                {/* Search results */}
+                {isSearching && (
+                    <div className="mt-3 border-t border-slate-800/60 pt-3">
+                        {searchResults.length === 0 ? (
+                            <div className="text-xs text-slate-500 italic">No sections match "{normalizedQuery}"</div>
+                        ) : (
+                            <div className="space-y-1">
+                                {searchResults.map((s) => (
+                                    <button
+                                        key={s.id}
+                                        onClick={() => selectSection(s.id)}
+                                        className="w-full text-left rounded-lg border border-slate-700/40 bg-slate-900/50 px-3 py-2 hover:bg-slate-800 transition-colors"
+                                    >
+                                        <div className="text-sm font-semibold text-slate-100">{s.title}</div>
+                                        <div className="text-xs text-slate-400 mt-0.5">{s.summary}</div>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Row 1: group tabs — hidden while searching */}
+                {!isSearching && (
+                    <div className="mt-4">
+                        <div className="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-1.5">Category</div>
+                        <div className="flex flex-wrap gap-2">
+                            {NAV_GROUPS.map((g) => (
+                                <button key={g.id} onClick={() => selectGroup(g.id)} className={groupTabCls(g.id)}>
+                                    {g.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Row 2: section tabs for active group — only shown when group has >1 section and not searching */}
+                {!isSearching && activeGroup.sectionIds.length > 1 && (
                     <div className="mt-3 border-t border-slate-800/60 pt-3">
                         <div className="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-1.5">Section</div>
                         <div className="flex flex-wrap gap-1.5">
@@ -1559,10 +1808,12 @@ export default function Handbook() {
                 )}
             </div>
 
-            {/* ── Content ── */}
-            <Card title={activeSection.title} summary={activeSection.summary}>
-                {activeSection.content}
-            </Card>
+            {/* ── Content — hidden while searching ── */}
+            {!isSearching && (
+                <Card title={activeSection.title} summary={activeSection.summary}>
+                    {activeSection.content}
+                </Card>
+            )}
         </div>
     );
 }
