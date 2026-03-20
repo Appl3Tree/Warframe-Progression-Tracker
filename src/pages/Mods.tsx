@@ -41,6 +41,16 @@ interface AllModEntry {
   wikiaThumbnail?: string;
   wikiaUrl?: string;
 }
+const VANILLA_CUTOFF = "2013-03-25";
+
+function formatReleaseDate(date: string | undefined): string | undefined {
+  if (!date) return undefined;
+  if (date <= VANILLA_CUTOFF) return "Vanilla";
+  return date;
+}
+
+type ModSortKey = "az" | "release-newest" | "release-oldest";
+
 const ALL_MODS_BY_PATH: Record<string, AllModEntry> = {};
 // Name-based fallback — used when mods.json path doesn't match All.json uniqueName
 const ALL_MODS_BY_NAME: Record<string, AllModEntry> = {};
@@ -1213,7 +1223,7 @@ function ModModal({
             {allEntry?.compatName  && <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5">Fits: {allEntry.compatName}</span>}
             {isWarframeAugment     && allEntry?.compatName && <span className="rounded border border-purple-900/50 bg-purple-950/20 px-2 py-0.5 text-purple-400">Augment for: {allEntry.compatName}</span>}
             {allEntry?.introduced  && <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5">Added: {allEntry.introduced.name}</span>}
-            {allEntry?.releaseDate && <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5">{allEntry.releaseDate}</span>}
+            {allEntry?.releaseDate && <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5">{formatReleaseDate(allEntry.releaseDate) ?? allEntry.releaseDate}</span>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -1480,11 +1490,13 @@ export default function Mods() {
   const [modPolarity, setModPolarity] = useState<Polarity | null>(null);
   const [parazonFilter, setParazonFilter] = useState<ParazonFilter>("all");
   const [modSearch, setModSearch] = useState("");
+  const [modSort, setModSort] = useState<ModSortKey>("az");
   const [selectedMod, setSelectedMod] = useState<ModEntry | null>(null);
 
   // Arcanes state
   const [arcaneCategory, setArcaneCategory] = useState<ArcaneCategory>("all");
   const [arcaneSearch, setArcaneSearch] = useState("");
+  const [arcaneSort, setArcaneSort] = useState<ModSortKey>("az");
   const [selectedArcane, setSelectedArcane] = useState<ModEntry | null>(null);
 
   // ── Mods list ──────────────────────────────────────────────────────────────
@@ -1541,9 +1553,16 @@ export default function Mods() {
 
     if (q) list = list.filter((e) => normalize(e.name).includes(q));
 
-    list.sort((a, b) => a.name.localeCompare(b.name));
+    list.sort((a, b) => {
+      if (modSort === "release-newest" || modSort === "release-oldest") {
+        const ad = (ALL_MODS_BY_PATH[a.path] ?? ALL_MODS_BY_NAME[a.name])?.releaseDate ?? "";
+        const bd = (ALL_MODS_BY_PATH[b.path] ?? ALL_MODS_BY_NAME[b.name])?.releaseDate ?? "";
+        if (ad !== bd) return modSort === "release-newest" ? (bd > ad ? 1 : -1) : (ad > bd ? 1 : -1);
+      }
+      return a.name.localeCompare(b.name);
+    });
     return list;
-  }, [modCategory, modPolarity, parazonFilter, modSearch]);
+  }, [modCategory, modPolarity, parazonFilter, modSearch, modSort]);
 
   // ── Arcanes list ───────────────────────────────────────────────────────────
 
@@ -1562,9 +1581,16 @@ export default function Mods() {
 
     if (q) list = list.filter((e) => normalize(e.name).includes(q));
 
-    list.sort((a, b) => a.name.localeCompare(b.name));
+    list.sort((a, b) => {
+      if (arcaneSort === "release-newest" || arcaneSort === "release-oldest") {
+        const ad = ALL_ARCANES_BY_NAME[a.name]?.releaseDate ?? "";
+        const bd = ALL_ARCANES_BY_NAME[b.name]?.releaseDate ?? "";
+        if (ad !== bd) return arcaneSort === "release-newest" ? (bd > ad ? 1 : -1) : (ad > bd ? 1 : -1);
+      }
+      return a.name.localeCompare(b.name);
+    });
     return list;
-  }, [arcaneCategory, arcaneSearch]);
+  }, [arcaneCategory, arcaneSearch, arcaneSort]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -1711,10 +1737,10 @@ export default function Mods() {
               </div>
             )}
 
-            {/* Search */}
-            <div className="mb-3">
+            {/* Search + Sort */}
+            <div className="mb-3 flex flex-wrap gap-2 items-end">
               <input
-                className="w-full max-w-sm rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
+                className="flex-1 min-w-[200px] max-w-sm rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
                 value={modSearch}
                 onChange={(e) => {
                   setModSearch(e.target.value);
@@ -1722,6 +1748,15 @@ export default function Mods() {
                 }}
                 placeholder="Search mods…"
               />
+              <select
+                className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm"
+                value={modSort}
+                onChange={(e) => setModSort(e.target.value as ModSortKey)}
+              >
+                <option value="az">Name A→Z</option>
+                <option value="release-newest">Release: Newest first</option>
+                <option value="release-oldest">Release: Oldest first</option>
+              </select>
             </div>
 
             {/* Mod list */}
@@ -1816,10 +1851,10 @@ export default function Mods() {
               </div>
             </div>
 
-            {/* Search */}
-            <div className="mb-3">
+            {/* Search + Sort */}
+            <div className="mb-3 flex flex-wrap gap-2 items-end">
               <input
-                className="w-full max-w-sm rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
+                className="flex-1 min-w-[200px] max-w-sm rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
                 value={arcaneSearch}
                 onChange={(e) => {
                   setArcaneSearch(e.target.value);
@@ -1827,6 +1862,15 @@ export default function Mods() {
                 }}
                 placeholder="Search arcanes…"
               />
+              <select
+                className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm"
+                value={arcaneSort}
+                onChange={(e) => setArcaneSort(e.target.value as ModSortKey)}
+              >
+                <option value="az">Name A→Z</option>
+                <option value="release-newest">Release: Newest first</option>
+                <option value="release-oldest">Release: Oldest first</option>
+              </select>
             </div>
 
             {/* Rank guide */}

@@ -986,8 +986,29 @@ export function processInvasions(invasions: Invasion[]): ProcessedInvasion[] {
         }
     }
 
+    const deduped = Array.from(seen.values());
+
+    // Group by planet+node to find nodes with multiple queued invasions.
+    // When multiple invasions share the same node, hide those stuck at ~50%
+    // (queued invasions waiting for the active one to finish).
+    const nodeGroups = new Map<string, ProcessedInvasion[]>();
+    for (const inv of deduped) {
+        const nodeKey = `${inv.planet}\x00${inv.nodeName}`;
+        const group = nodeGroups.get(nodeKey);
+        if (group) group.push(inv);
+        else nodeGroups.set(nodeKey, [inv]);
+    }
+
+    const filtered = deduped.filter((inv) => {
+        const nodeKey = `${inv.planet}\x00${inv.nodeName}`;
+        const group = nodeGroups.get(nodeKey)!;
+        if (group.length <= 1) return true;
+        // Multiple invasions at this node — hide any that are stuck at ~50%
+        return Math.abs(inv.completion - 50) >= 0.5;
+    });
+
     // Sort alphabetically: planet first, then node name
-    return Array.from(seen.values()).sort((a, b) => {
+    return filtered.sort((a, b) => {
         const planet = a.planet.localeCompare(b.planet, undefined, { sensitivity: "base" });
         if (planet !== 0) return planet;
         return a.nodeName.localeCompare(b.nodeName, undefined, { sensitivity: "base" });
