@@ -1532,6 +1532,13 @@ export default function WarframeResetTracker() {
         saveState(rc);
     }, [rc]);
 
+    // Re-read state if an external write (e.g. profile import) updates localStorage
+    useEffect(() => {
+        const handler = () => setRc(() => syncResets(loadState(), new Date()));
+        window.addEventListener("wfpt:resetChecklist:external-update", handler);
+        return () => window.removeEventListener("wfpt:resetChecklist:external-update", handler);
+    }, []);
+
     const lastResetKeysRef = useRef("");
     useEffect(() => {
         const tick = () => {
