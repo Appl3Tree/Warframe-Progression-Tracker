@@ -971,7 +971,8 @@ export function processInvasions(invasions: Invasion[]): ProcessedInvasion[] {
         return { ...inv, nodeName, planet, displayLabel };
     });
 
-    // Deduplicate: same node+planet+attacker reward+defender reward → keep highest completion
+    // Deduplicate: same node+planet+attacker reward+defender reward → keep highest completion,
+    // but always prefer a non-completed invasion over a completed one.
     const seen = new Map<string, ProcessedInvasion>();
     for (const inv of parsed) {
         const key = [
@@ -981,7 +982,12 @@ export function processInvasions(invasions: Invasion[]): ProcessedInvasion[] {
             inv.defenderReward?.asString ?? "",
         ].join("\x00");
         const existing = seen.get(key);
-        if (!existing || inv.completion > existing.completion) {
+        if (!existing) {
+            seen.set(key, inv);
+        } else if (existing.completed && !inv.completed) {
+            // Always prefer the active invasion over a completed one with the same rewards.
+            seen.set(key, inv);
+        } else if (!existing.completed && !inv.completed && inv.completion > existing.completion) {
             seen.set(key, inv);
         }
     }
