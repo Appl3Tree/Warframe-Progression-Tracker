@@ -433,12 +433,13 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                         {sorted.map((inv) => {
                                             const done = isInvasionDone(inv.id);
                                             const runsCompleted = Math.abs(inv.count);
+                                            const pct = inv.requiredRuns > 0 ? (runsCompleted / inv.requiredRuns * 100) : inv.completion;
                                             if (done) {
                                                 return (
                                                     <div key={inv.id} className="border-t border-slate-800/60 pt-1.5 first:border-0 first:pt-0 flex items-center gap-1.5">
                                                         <span className="text-green-500 text-xs shrink-0">✓</span>
                                                         <span className="text-[10px] text-slate-500 truncate flex-1">{inv.displayLabel}</span>
-                                                        <span className="text-[10px] font-mono text-slate-600 shrink-0">{inv.completion.toFixed(1)}%</span>
+                                                        <span className="text-[10px] font-mono text-slate-600 shrink-0">{pct.toFixed(1)}%</span>
                                                         {inv.requiredRuns > 0 && (
                                                             <span className="text-[10px] font-mono text-slate-700 shrink-0">
                                                                 {runsCompleted.toLocaleString()}/{inv.requiredRuns.toLocaleString()}
@@ -459,7 +460,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                                     <div className="flex items-center justify-between gap-1 mb-1">
                                                         <span className="text-[11px] text-slate-200 font-medium min-w-0 truncate">{inv.displayLabel}</span>
                                                         <div className="flex items-center gap-1 shrink-0">
-                                                            <span className="text-[10px] font-mono text-slate-500">{inv.completion.toFixed(1)}%</span>
+                                                            <span className="text-[10px] font-mono text-slate-500">{pct.toFixed(1)}%</span>
                                                             {inv.requiredRuns > 0 && (
                                                                 <span className="text-[10px] font-mono text-slate-600">
                                                                     {runsCompleted.toLocaleString()}/{inv.requiredRuns.toLocaleString()}
@@ -477,7 +478,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                                     <div className="h-1 bg-slate-800 rounded-full overflow-hidden mb-1">
                                                         <div
                                                             className={["h-full rounded-full", inv.vsInfestation ? "bg-green-600/60" : "bg-red-600/60"].join(" ")}
-                                                            style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
+                                                            style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
                                                         />
                                                     </div>
                                                     <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-0.5 text-[10px]">
