@@ -8,7 +8,7 @@ Tasks are organized by priority. Update this list as work progresses.
 
 - [x] Add React error boundaries to every page (prevents full-page crashes when logic engines throw)
 - [x] Add unit tests for the 16 logic engines — especially `requirementEngine`, `goalExpansion`, `processInvasions`
-- [ ] Fix WorldState 1-second timer (`useNow()`) to only re-render the active tab
+- [x] Fix WorldState 1-second timer (`useNow()`) to only re-render the active tab
 - [ ] Add Intrinsics page to the sidebar navigation (page exists but is unreachable)
 
 ### 🟡 High Impact (UX & Performance)
