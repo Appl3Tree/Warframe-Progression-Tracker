@@ -18,7 +18,7 @@ import type {
 } from "../domain/types";
 import type { PageKey, UserGoalV1, UserStateV2 } from "../domain/models/userState";
 import { migrateToUserStateV2 } from "./migrations";
-import { parseProfileViewingData, parseWarframeStatApiProfile } from "../utils/profileImport";
+import { parseProfileViewingData, parseWarframeStatApiProfile, type ProfileImportResult } from "../utils/profileImport";
 import { SY } from "../domain/ids/syndicateIds";
 import { validateDataOrThrow } from "../domain/logic/startupValidation";
 import { PERSIST_KEY, PERSIST_VERSION } from "./persistence";
@@ -120,6 +120,100 @@ export interface TrackerStore {
 
     toggleInvasionDone: (id: string) => void;
     isInvasionDone: (id: string) => boolean;
+}
+
+/**
+ * Applies a parsed profile import to the Immer draft state.
+ * Shared between importProfileViewingDataJson and importProfileFromWarframeStatApi,
+ * which differ only in their parsing step.
+ */
+function applyParsedProfile(state: UserStateV2, parsed: ProfileImportResult): void {
+    state.player.displayName = parsed.displayName || state.player.displayName;
+    if (parsed.masteryRank !== null) state.player.masteryRank = parsed.masteryRank;
+
+    if (parsed.clan?.name !== undefined) state.player.clanName = parsed.clan.name;
+    if (parsed.clan?.tier !== undefined) state.player.clanTier = parsed.clan.tier;
+    if (parsed.clan?.clanClass !== undefined) state.player.clanClass = parsed.clan.clanClass;
+    if (parsed.clan?.xp !== undefined) state.player.clanXp = parsed.clan.xp;
+
+    // Merge syndicates: preserve manually-entered pledged and standing values.
+    const existingById = new Map<string, SyndicateState>();
+    for (const syn of state.syndicates ?? []) {
+        if (syn && typeof syn.id === "string") existingById.set(syn.id, syn);
+    }
+    const merged: SyndicateState[] = [];
+    for (const incoming of parsed.syndicates ?? []) {
+        const prev = existingById.get(incoming.id);
+        const pledged = typeof prev?.pledged === "boolean" ? prev.pledged : false;
+        const standing = typeof prev?.standing === "number" ? prev.standing : (incoming.standing ?? 0);
+        merged.push({ ...incoming, pledged, standing });
+        existingById.delete(incoming.id);
+    }
+    for (const leftover of existingById.values()) merged.push(leftover);
+    state.syndicates = merged;
+
+    // Normalize mastery keys from raw Lotus paths ("/Lotus/...") to
+    // catalog IDs ("items:/Lotus/...") so they match the format used
+    // by setMastered() and inventory lookups.
+    const normalizedMastered: Record<string, boolean> = {};
+    const normalizedXp: Record<string, number> = {};
+    for (const [path, val] of Object.entries(parsed.mastery.mastered)) {
+        const key = path.startsWith("items:") ? path : `items:${path}`;
+        normalizedMastered[key] = val as boolean;
+    }
+    for (const [path, xp] of Object.entries(parsed.mastery.xpByItem)) {
+        const key = path.startsWith("items:") ? path : `items:${path}`;
+        normalizedXp[key] = xp as number;
+    }
+    // Preserve manually set overLevelMastered across imports.
+    const prevOverLevel = state.mastery?.overLevelMastered ?? {};
+    state.mastery = { xpByItem: normalizedXp, mastered: normalizedMastered, overLevelMastered: prevOverLevel };
+
+    state.missions = parsed.missions;
+    if (parsed.completedNodeIds.length > 0) {
+        if (!state.missions.nodeCompleted) state.missions.nodeCompleted = {};
+        for (const id of parsed.completedNodeIds) {
+            state.missions.nodeCompleted[id] = true;
+        }
+    }
+
+    if (parsed.challenges) state.challenges = parsed.challenges;
+    if (parsed.intrinsics) state.intrinsics = parsed.intrinsics;
+
+    // Mark standing tasks done in the WarframeResetTracker when the daily cap
+    // is fully spent. parseProfileViewingData returns empty arrays so this
+    // block is skipped for that source.
+    const { primary_daily: pdIds, conclave_daily: cdIds } = parsed.completedResetTaskIds;
+    if (pdIds.length > 0 || cdIds.length > 0) {
+        try {
+            const now = new Date();
+            const primaryKey = now.toISOString().slice(0, 10);
+            const th16 = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 16));
+            const conclaveDayKey = now >= th16
+                ? th16.toISOString().slice(0, 10)
+                : new Date(th16.getTime() - 86_400_000).toISOString().slice(0, 10);
+
+            let rc: Record<string, any> = {};
+            try { rc = JSON.parse(localStorage.getItem("wfpt:resetChecklist") ?? "{}") ?? {}; } catch { /* */ }
+
+            if (pdIds.length > 0) {
+                const prev: string[] = Array.isArray(rc.completedPrimaryDailyTaskIds) ? rc.completedPrimaryDailyTaskIds : [];
+                rc = { ...rc, primaryDailyResetKey: primaryKey, completedPrimaryDailyTaskIds: [...new Set([...prev, ...pdIds])] };
+            }
+            if (cdIds.length > 0) {
+                const prev: string[] = Array.isArray(rc.completedConclaveDailyTaskIds) ? rc.completedConclaveDailyTaskIds : [];
+                rc = { ...rc, conclaveDailyResetKey: conclaveDayKey, completedConclaveDailyTaskIds: [...new Set([...prev, ...cdIds])] };
+            }
+
+            localStorage.setItem("wfpt:resetChecklist", JSON.stringify(rc));
+            window.dispatchEvent(new CustomEvent("wfpt:resetChecklist:external-update"));
+        } catch { /* ignore storage errors */ }
+    }
+
+    ensureGoalsArray(state);
+    ensureUiExpansion(state);
+    ensureResetChecklistState(state);
+    state.meta.updatedAtIso = nowIso();
 }
 
 export const useTrackerStore = create<TrackerStore>()(
@@ -227,88 +321,7 @@ export const useTrackerStore = create<TrackerStore>()(
             importProfileViewingDataJson: (text) => {
                 try {
                     const parsed = parseProfileViewingData(text);
-
-                    set((s) => {
-                        s.state.player.displayName = parsed.displayName || s.state.player.displayName;
-                        s.state.player.masteryRank = parsed.masteryRank;
-
-                        s.state.player.clanName = parsed.clan?.name;
-                        s.state.player.clanTier = parsed.clan?.tier;
-                        s.state.player.clanClass = parsed.clan?.clanClass;
-                        s.state.player.clanXp = parsed.clan?.xp;
-
-                        const existingById = new Map<string, SyndicateState>();
-                        for (const syn of s.state.syndicates ?? []) {
-                            if (syn && typeof syn.id === "string") existingById.set(syn.id, syn);
-                        }
-
-                        const merged: SyndicateState[] = [];
-                        for (const incoming of parsed.syndicates ?? []) {
-                            const prev = existingById.get(incoming.id);
-                            const pledged = typeof prev?.pledged === "boolean" ? prev.pledged : false;
-                            // Preserve manually-entered standing — the profile import does not
-                            // include reliable current-standing data (only cumulative totals).
-                            const standing = typeof prev?.standing === "number" ? prev.standing : (incoming.standing ?? 0);
-                            merged.push({
-                                ...incoming,
-                                pledged,
-                                standing
-                            });
-                            existingById.delete(incoming.id);
-                        }
-
-                        for (const leftover of existingById.values()) {
-                            merged.push(leftover);
-                        }
-
-                        s.state.syndicates = merged;
-
-                        // Normalize mastery keys from raw Lotus paths ("/Lotus/...") to
-                        // catalog IDs ("items:/Lotus/...") so they match the format used
-                        // by setMastered() and inventory lookups.
-                        const rawMastery = parsed.mastery;
-                        const normalizedMastered: Record<string, boolean> = {};
-                        const normalizedXp: Record<string, number> = {};
-                        for (const [path, val] of Object.entries(rawMastery.mastered)) {
-                            const key = path.startsWith("items:") ? path : `items:${path}`;
-                            normalizedMastered[key] = val as boolean;
-                        }
-                        for (const [path, xp] of Object.entries(rawMastery.xpByItem)) {
-                            const key = path.startsWith("items:") ? path : `items:${path}`;
-                            normalizedXp[key] = xp as number;
-                        }
-                        // Preserve manually set overLevelMastered across imports.
-                        const prevOverLevel = s.state.mastery?.overLevelMastered ?? {};
-                        s.state.mastery = { xpByItem: normalizedXp, mastered: normalizedMastered, overLevelMastered: prevOverLevel };
-                        s.state.missions = parsed.missions;
-
-                        // Auto-mark normal-mode star chart nodes as completed.
-                        if (parsed.completedNodeIds.length > 0) {
-                            if (!s.state.missions.nodeCompleted) {
-                                s.state.missions.nodeCompleted = {};
-                            }
-                            for (const id of parsed.completedNodeIds) {
-                                s.state.missions.nodeCompleted[id] = true;
-                            }
-                        }
-
-                        // Challenges progress.
-                        if (parsed.challenges) {
-                            s.state.challenges = parsed.challenges;
-                        }
-
-                        // Intrinsics.
-                        if (parsed.intrinsics) {
-                            s.state.intrinsics = parsed.intrinsics;
-                        }
-
-                        ensureGoalsArray(s.state);
-                        ensureUiExpansion(s.state);
-                        ensureResetChecklistState(s.state);
-
-                        s.state.meta.updatedAtIso = nowIso();
-                    });
-
+                    set((s) => { applyParsedProfile(s.state, parsed); });
                     return { ok: true };
                 } catch (e: any) {
                     const msg = typeof e?.message === "string" ? e.message : "Invalid profileViewingData file.";
@@ -319,92 +332,7 @@ export const useTrackerStore = create<TrackerStore>()(
             importProfileFromWarframeStatApi: (json) => {
                 try {
                     const parsed = parseWarframeStatApiProfile(json);
-
-                    set((s) => {
-                        s.state.player.displayName = parsed.displayName || s.state.player.displayName;
-                        s.state.player.masteryRank = parsed.masteryRank;
-
-                        if (parsed.clan?.name) s.state.player.clanName = parsed.clan.name;
-
-                        const existingById = new Map<string, SyndicateState>();
-                        for (const syn of s.state.syndicates ?? []) {
-                            if (syn && typeof syn.id === "string") existingById.set(syn.id, syn);
-                        }
-
-                        const merged: SyndicateState[] = [];
-                        for (const incoming of parsed.syndicates ?? []) {
-                            const prev = existingById.get(incoming.id);
-                            const pledged = typeof prev?.pledged === "boolean" ? prev.pledged : false;
-                            const standing = typeof prev?.standing === "number" ? prev.standing : (incoming.standing ?? 0);
-                            merged.push({ ...incoming, pledged, standing });
-                            existingById.delete(incoming.id);
-                        }
-                        for (const leftover of existingById.values()) merged.push(leftover);
-                        s.state.syndicates = merged;
-
-                        const rawMastery = parsed.mastery;
-                        const normalizedMastered: Record<string, boolean> = {};
-                        const normalizedXp: Record<string, number> = {};
-                        for (const [path, val] of Object.entries(rawMastery.mastered)) {
-                            const key = path.startsWith("items:") ? path : `items:${path}`;
-                            normalizedMastered[key] = val as boolean;
-                        }
-                        for (const [path, xp] of Object.entries(rawMastery.xpByItem)) {
-                            const key = path.startsWith("items:") ? path : `items:${path}`;
-                            normalizedXp[key] = xp as number;
-                        }
-                        const prevOverLevel = s.state.mastery?.overLevelMastered ?? {};
-                        s.state.mastery = { xpByItem: normalizedXp, mastered: normalizedMastered, overLevelMastered: prevOverLevel };
-                        s.state.missions = parsed.missions;
-
-                        if (parsed.completedNodeIds.length > 0) {
-                            if (!s.state.missions.nodeCompleted) s.state.missions.nodeCompleted = {};
-                            for (const id of parsed.completedNodeIds) {
-                                s.state.missions.nodeCompleted[id] = true;
-                            }
-                        }
-
-                        if (parsed.challenges) s.state.challenges = parsed.challenges;
-                        if (parsed.intrinsics) s.state.intrinsics = parsed.intrinsics;
-
-                        // ── Reset tracker automation ───────────────────────
-                        // Mark standing tasks done in the WarframeResetTracker's
-                        // localStorage state when the daily cap is fully spent.
-                        const { primary_daily: pdIds, conclave_daily: cdIds } = parsed.completedResetTaskIds;
-                        if (pdIds.length > 0 || cdIds.length > 0) {
-                            try {
-                                const now = new Date();
-                                // Primary daily key = UTC date string
-                                const primaryKey = now.toISOString().slice(0, 10);
-                                // Conclave daily key = 16:00 UTC boundary
-                                const th16 = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 16));
-                                const conclaveDayKey = now >= th16
-                                    ? th16.toISOString().slice(0, 10)
-                                    : new Date(th16.getTime() - 86_400_000).toISOString().slice(0, 10);
-
-                                let rc: Record<string, any> = {};
-                                try { rc = JSON.parse(localStorage.getItem("wfpt:resetChecklist") ?? "{}") ?? {}; } catch { /* */ }
-
-                                if (pdIds.length > 0) {
-                                    const prev: string[] = Array.isArray(rc.completedPrimaryDailyTaskIds) ? rc.completedPrimaryDailyTaskIds : [];
-                                    rc = { ...rc, primaryDailyResetKey: primaryKey, completedPrimaryDailyTaskIds: [...new Set([...prev, ...pdIds])] };
-                                }
-                                if (cdIds.length > 0) {
-                                    const prev: string[] = Array.isArray(rc.completedConclaveDailyTaskIds) ? rc.completedConclaveDailyTaskIds : [];
-                                    rc = { ...rc, conclaveDailyResetKey: conclaveDayKey, completedConclaveDailyTaskIds: [...new Set([...prev, ...cdIds])] };
-                                }
-
-                                localStorage.setItem("wfpt:resetChecklist", JSON.stringify(rc));
-                                window.dispatchEvent(new CustomEvent("wfpt:resetChecklist:external-update"));
-                            } catch { /* ignore storage errors */ }
-                        }
-
-                        ensureGoalsArray(s.state);
-                        ensureUiExpansion(s.state);
-                        ensureResetChecklistState(s.state);
-                        s.state.meta.updatedAtIso = nowIso();
-                    });
-
+                    set((s) => { applyParsedProfile(s.state, parsed); });
                     return { ok: true };
                 } catch (e: any) {
                     const msg = typeof e?.message === "string" ? e.message : "warframestat.us API profile import failed.";
@@ -937,6 +865,15 @@ export const useTrackerStore = create<TrackerStore>()(
             name: PERSIST_KEY,
             version: PERSIST_VERSION,
             migrate: (persistedState: any) => {
+                // Snapshot the pre-migration data so it can be recovered if the
+                // migration produces bad output or a future schema change is buggy.
+                try {
+                    localStorage.setItem(
+                        `${PERSIST_KEY}_premigration_backup`,
+                        JSON.stringify({ ...persistedState, _backed_up_at: new Date().toISOString() })
+                    );
+                } catch { /* quota exceeded or private browsing — not fatal */ }
+
                 const raw = persistedState?.state ?? persistedState;
                 const migrated = migrateToUserStateV2(raw);
                 if (!migrated) {

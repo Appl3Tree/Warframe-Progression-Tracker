@@ -15,9 +15,9 @@ Tasks are organized by priority. Update this list as work progresses.
 - [x] Add confirmation step before profile import (currently merges immediately with no undo)
 - [x] Add `useShallow` to heavy Zustand selectors in Goals and Requirements pages
 - [x] Virtualize long lists: Inventory (already done), Mods (3000+ — mods + arcanes sections), Challenges (300 grid cards — acceptable without virtualization)
-- [ ] Complete light mode across all components (many still have hardcoded dark colors)
-- [ ] Extract duplicate profile import logic (`importProfileViewingDataJson` and `importProfileFromWarframeStatApi` are ~80% identical)
-- [ ] Add backup-before-migration to prevent data loss if schema migration fails
+- [x] Complete light mode across all components (styles.css has comprehensive .theme-light remapping for all slate-* classes)
+- [x] Extract duplicate profile import logic (`importProfileViewingDataJson` and `importProfileFromWarframeStatApi` are ~80% identical)
+- [x] Add backup-before-migration to prevent data loss if schema migration fails
 
 ### 🟠 UX Polish
 
