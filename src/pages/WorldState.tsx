@@ -1153,6 +1153,8 @@ function EventsTab({ data }: { data: WorldStateData }) {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {sorted.map((inv) => {
                                 const done = isInvasionDone(inv.id);
+                                const runsCompleted = Math.abs(inv.count);
+                                const pct = inv.requiredRuns > 0 ? runsCompleted / inv.requiredRuns * 100 : 0;
                                 if (done) {
                                     return (
                                         <div key={inv.id} className="rounded-xl border border-green-900/40 bg-green-950/10 px-3 py-2 flex items-center gap-2">
@@ -1160,17 +1162,17 @@ function EventsTab({ data }: { data: WorldStateData }) {
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2 min-w-0">
                                                     <span className="text-xs text-slate-500 truncate">{inv.displayLabel}</span>
-                                                    <span className="shrink-0 font-mono text-[10px] text-slate-600">{inv.completion.toFixed(1)}%</span>
+                                                    <span className="shrink-0 font-mono text-[10px] text-slate-600">{pct.toFixed(1)}%</span>
                                                     {inv.requiredRuns > 0 && (
                                                         <span className="shrink-0 font-mono text-[10px] text-slate-600">
-                                                            {Math.round(inv.completion / 100 * inv.requiredRuns).toLocaleString()}/{inv.requiredRuns.toLocaleString()}
+                                                            {runsCompleted.toLocaleString()}/{inv.requiredRuns.toLocaleString()}
                                                         </span>
                                                     )}
                                                 </div>
                                                 <div className="h-1 bg-slate-800 rounded-full overflow-hidden mt-1">
                                                     <div
                                                         className={["h-full rounded-full opacity-40", inv.vsInfestation ? "bg-green-600" : "bg-red-600"].join(" ")}
-                                                        style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
+                                                        style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
                                                     />
                                                 </div>
                                             </div>
@@ -1189,10 +1191,10 @@ function EventsTab({ data }: { data: WorldStateData }) {
                                         <div className="flex items-center justify-between gap-2 mb-1.5">
                                             <div className="text-xs font-medium text-slate-200 min-w-0">{inv.displayLabel}</div>
                                             <div className="flex items-center gap-2 shrink-0">
-                                                <span className="font-mono text-[10px] text-slate-400">{inv.completion.toFixed(1)}%</span>
+                                                <span className="font-mono text-[10px] text-slate-400">{pct.toFixed(1)}%</span>
                                                 {inv.requiredRuns > 0 && (
                                                     <span className="font-mono text-[10px] text-slate-500">
-                                                        {Math.round(inv.completion / 100 * inv.requiredRuns).toLocaleString()}/{inv.requiredRuns.toLocaleString()}
+                                                        {runsCompleted.toLocaleString()}/{inv.requiredRuns.toLocaleString()}
                                                     </span>
                                                 )}
                                                 <button
@@ -1207,7 +1209,7 @@ function EventsTab({ data }: { data: WorldStateData }) {
                                         <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mb-2">
                                             <div
                                                 className={["h-full rounded-full", inv.vsInfestation ? "bg-green-600/70" : "bg-red-600/70"].join(" ")}
-                                                style={{ width: `${Math.min(100, Math.max(0, inv.completion))}%` }}
+                                                style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
                                             />
                                         </div>
                                         {/* Attacker vs Defender with rewards */}
