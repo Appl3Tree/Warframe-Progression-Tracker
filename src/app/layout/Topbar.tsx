@@ -218,9 +218,12 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
     const [loading, setLoading] = useState(false);
     const bellRef = useRef<HTMLDivElement>(null);
     const now = useNow();
-    const toggleInvasionDone = useTrackerStore((s) => s.toggleInvasionDone);
-    const isInvasionDone     = useTrackerStore((s) => s.isInvasionDone);
-    const isWorldStateCategoryHidden = useTrackerStore((s) => s.isWorldStateCategoryHidden);
+    const toggleInvasionDone           = useTrackerStore((s) => s.toggleInvasionDone);
+    const isInvasionDone               = useTrackerStore((s) => s.isInvasionDone);
+    const toggleNightwaveChallengeDone = useTrackerStore((s) => s.toggleNightwaveChallengeDone);
+    const isNightwaveChallengeDone     = useTrackerStore((s) => s.isNightwaveChallengeDone);
+    const isWorldStateCategoryHidden   = useTrackerStore((s) => s.isWorldStateCategoryHidden);
+    const [baroInventoryOpen, setBaroInventoryOpen] = useState(false);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -342,17 +345,39 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                         ) : null}
                                     </div>
                                 </div>
-                                {/* Baro inventory preview when active */}
+                                {/* Baro inventory — collapsible */}
                                 {baroActive && data.voidTrader.inventory.length > 0 && (
-                                    <div className="mt-1.5 space-y-0.5 border-t border-amber-800/20 pt-1.5">
-                                        {data.voidTrader.inventory.map((item, i) => (
-                                            <div key={i} className="flex items-center justify-between gap-1">
-                                                <span className="text-[10px] text-slate-300 min-w-0 truncate">{item.item}</span>
-                                                <span className="text-[10px] text-amber-300/70 shrink-0 whitespace-nowrap">
-                                                    {item.ducats}duc +{item.credits.toLocaleString()}cr
+                                    <div className="mt-1.5 border-t border-amber-800/20 pt-1.5">
+                                        <button
+                                            onClick={() => setBaroInventoryOpen((v) => !v)}
+                                            className="flex items-center gap-1 text-[10px] text-amber-400/80 hover:text-amber-300 transition-colors w-full"
+                                        >
+                                            <svg className={["w-2.5 h-2.5 transition-transform shrink-0", baroInventoryOpen ? "rotate-90" : ""].join(" ")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="9 18 15 12 9 6" />
+                                            </svg>
+                                            Inventory ({data.voidTrader.inventory.length} items
+                                            {data.voidTrader.inventory.some((it) => it.ducats === 0) && (
+                                                <span className="ml-1 rounded border border-green-600/60 bg-green-900/40 px-0.5 text-[8px] font-bold text-green-300">
+                                                    FREE items
                                                 </span>
+                                            )}
+                                            )
+                                        </button>
+                                        {baroInventoryOpen && (
+                                            <div className="mt-1 space-y-0.5">
+                                                {data.voidTrader.inventory.map((item, i) => {
+                                                    const free = item.ducats === 0;
+                                                    return (
+                                                        <div key={i} className={["flex items-center justify-between gap-1 rounded px-1.5 py-0.5", free ? "bg-green-950/30" : ""].join(" ")}>
+                                                            <span className={["text-[10px] min-w-0 truncate", free ? "text-green-200" : "text-slate-300"].join(" ")}>{item.item}</span>
+                                                            <span className={["text-[10px] shrink-0 whitespace-nowrap", free ? "text-green-300 font-semibold" : "text-amber-300/70"].join(" ")}>
+                                                                {free ? "FREE" : `${item.ducats}duc`} +{item.credits.toLocaleString()}cr
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -510,28 +535,42 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                         })()}
 
                         {/* Nightwave active challenges */}
-                        {data?.nightwave && data.nightwave.activeChallenges.length > 0 && !isWorldStateCategoryHidden("nightwave") && (
+                        {data?.nightwave && data.nightwave.activeChallenges.length > 0 && !isWorldStateCategoryHidden("nightwave") && (() => {
+                            const sorted = data.nightwave.activeChallenges
+                                .slice()
+                                .sort((a, b) => {
+                                    const aDone = isNightwaveChallengeDone(a.id) ? 1 : 0;
+                                    const bDone = isNightwaveChallengeDone(b.id) ? 1 : 0;
+                                    if (aDone !== bDone) return aDone - bDone;
+                                    if (a.isElite !== b.isElite) return a.isElite ? -1 : 1;
+                                    if (a.isDaily !== b.isDaily) return a.isDaily ? 1 : -1;
+                                    return b.reputation - a.reputation;
+                                });
+                            const doneCount = sorted.filter((a) => isNightwaveChallengeDone(a.id)).length;
+                            return (
                             <div className="rounded-lg px-3 py-2 bg-slate-900/60">
                                 <div className="flex items-center justify-between mb-1.5">
                                     <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
                                         Nightwave S{data.nightwave.season}
+                                        {doneCount > 0 && <span className="normal-case font-normal text-green-500/70 ml-1">· {doneCount}/{sorted.length}</span>}
                                     </div>
                                     <div className="text-[9px] text-slate-500 font-mono">
                                         {msToHms(new Date(data.nightwave.expiry).getTime() - now)}
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    {data.nightwave.activeChallenges
-                                        .slice()
-                                        .sort((a, b) => {
-                                            if (a.isElite !== b.isElite) return a.isElite ? -1 : 1;
-                                            if (a.isDaily !== b.isDaily) return a.isDaily ? 1 : -1;
-                                            return b.reputation - a.reputation;
-                                        })
-                                        .map((act) => (
-                                            <div key={act.id} className="border-t border-slate-800/60 pt-1 first:border-0 first:pt-0">
+                                    {sorted.map((act) => {
+                                        const done = isNightwaveChallengeDone(act.id);
+                                        return (
+                                            <div key={act.id} className={["border-t border-slate-800/60 pt-1 first:border-0 first:pt-0", done ? "opacity-50" : ""].join(" ")}>
                                                 <div className="flex items-center justify-between gap-1">
                                                     <div className="flex items-center gap-1 min-w-0">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={done}
+                                                            onChange={() => toggleNightwaveChallengeDone(act.id)}
+                                                            className="shrink-0 cursor-pointer"
+                                                        />
                                                         {act.isElite && (
                                                             <span className="shrink-0 rounded border border-amber-700/50 bg-amber-950/30 px-0.5 text-[8px] font-bold text-amber-300">ELITE</span>
                                                         )}
@@ -541,16 +580,18 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                                         {!act.isDaily && !act.isElite && (
                                                             <span className="shrink-0 rounded border border-slate-700 bg-slate-800/60 px-0.5 text-[8px] font-bold text-slate-400">WK</span>
                                                         )}
-                                                        <span className="text-[10px] text-slate-200 truncate">{act.title}</span>
+                                                        <span className={["text-[10px] truncate", done ? "line-through text-slate-500" : "text-slate-200"].join(" ")}>{act.title}</span>
                                                     </div>
-                                                    <span className="text-[10px] font-bold text-blue-300 shrink-0">{act.reputation.toLocaleString()}</span>
+                                                    <span className={["text-[10px] font-bold shrink-0", done ? "text-slate-600 line-through" : "text-blue-300"].join(" ")}>{act.reputation.toLocaleString()}</span>
                                                 </div>
                                                 <div className="text-[9px] text-slate-500 mt-0.5 leading-snug">{act.desc}</div>
                                             </div>
-                                        ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
-                        )}
+                            );
+                        })()}
 
                         {/* Active events — all, no truncation */}
                         {data && data.events.length > 0 && !isWorldStateCategoryHidden("events") && (

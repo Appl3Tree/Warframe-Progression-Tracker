@@ -506,16 +506,22 @@ function VoidTraderPanel({ trader }: { trader: VoidTrader }) {
 
             {trader.active && trader.inventory.length > 0 ? (
                 <div className="space-y-1 max-h-52 overflow-y-auto pr-1">
-                    {trader.inventory.map((item, i) => (
-                        <div key={i} className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/40 px-2.5 py-1.5">
-                            <div className="text-xs font-medium text-slate-200 truncate min-w-0">{item.item}</div>
+                    {trader.inventory.map((item, i) => {
+                        const free = item.ducats === 0;
+                        return (
+                        <div key={i} className={["flex items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5", free ? "border-green-700/60 bg-green-950/20" : "border-slate-800 bg-slate-900/40"].join(" ")}>
+                            <div className={["text-xs font-medium truncate min-w-0", free ? "text-green-200" : "text-slate-200"].join(" ")}>{item.item}</div>
                             <div className="flex items-center gap-2 shrink-0 text-[10px] whitespace-nowrap">
-                                <span className="text-amber-300">{item.ducats.toLocaleString()} duc</span>
+                                {free
+                                    ? <span className="rounded border border-green-600/60 bg-green-900/40 px-1 py-px text-[9px] font-bold text-green-300">FREE</span>
+                                    : <span className="text-amber-300">{item.ducats.toLocaleString()} duc</span>
+                                }
                                 <span className="text-slate-600">+</span>
                                 <span className="text-yellow-200">{item.credits.toLocaleString()} cr</span>
                             </div>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             ) : !trader.active ? (
                 <div className="text-xs text-slate-500">
