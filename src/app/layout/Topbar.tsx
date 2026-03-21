@@ -222,6 +222,8 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
     const isInvasionDone               = useTrackerStore((s) => s.isInvasionDone);
     const toggleNightwaveChallengeDone = useTrackerStore((s) => s.toggleNightwaveChallengeDone);
     const isNightwaveChallengeDone     = useTrackerStore((s) => s.isNightwaveChallengeDone);
+    const toggleEventDone              = useTrackerStore((s) => s.toggleEventDone);
+    const isEventDone                  = useTrackerStore((s) => s.isEventDone);
     const isWorldStateCategoryHidden   = useTrackerStore((s) => s.isWorldStateCategoryHidden);
     const [baroInventoryOpen, setBaroInventoryOpen] = useState(false);
 
@@ -593,38 +595,51 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                             );
                         })()}
 
-                        {/* Active events — all, no truncation */}
+                        {/* Active events */}
                         {data && data.events.length > 0 && !isWorldStateCategoryHidden("events") && (
                             <div className="rounded-lg px-3 py-2 bg-slate-900/60">
                                 <div className="text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wide">
                                     Events ({data.events.length})
                                 </div>
                                 <div className="space-y-1">
-                                    {data.events.map((ev) => (
-                                        <div key={ev.id} className="border-t border-slate-800/60 pt-1 first:border-0 first:pt-0">
-                                            <div className="flex items-start justify-between gap-1">
-                                                <span className="text-[11px] text-slate-300 leading-snug min-w-0">
-                                                    {ev.description || ev.tooltip || "Active Event"}
-                                                </span>
-                                                {ev.expiry && (
-                                                    <span className="font-mono text-[10px] text-slate-500 shrink-0 mt-0.5">
-                                                        {msToHms(new Date(ev.expiry).getTime() - now)}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            {ev.tooltip && ev.description && ev.tooltip !== ev.description && (
-                                                <div className="text-[9px] text-slate-500 mt-0.5 leading-snug">{ev.tooltip}</div>
-                                            )}
-                                            {ev.rewards && ev.rewards.length > 0 && (
-                                                <div className="text-[9px] text-amber-400/70 mt-0.5">{ev.rewards[0].asString}</div>
-                                            )}
-                                            {ev.health != null && (
-                                                <div className="mt-1 h-1 bg-slate-800 rounded-full overflow-hidden">
-                                                    <div className="h-full bg-red-500/50 rounded-full" style={{ width: `${Math.min(100, Math.max(0, ev.health))}%` }} />
+                                    {data.events.map((ev) => {
+                                        const done = isEventDone(ev.id);
+                                        return (
+                                        <div key={ev.id} className={["border-t border-slate-800/60 pt-1 first:border-0 first:pt-0", done ? "opacity-50" : ""].join(" ")}>
+                                            <div className="flex items-start gap-1.5">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={done}
+                                                    onChange={() => toggleEventDone(ev.id)}
+                                                    className="mt-0.5 shrink-0 cursor-pointer"
+                                                />
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-start justify-between gap-1">
+                                                        <span className={["text-[11px] leading-snug min-w-0", done ? "line-through text-slate-500" : "text-slate-300"].join(" ")}>
+                                                            {ev.description || ev.tooltip || "Active Event"}
+                                                        </span>
+                                                        {ev.expiry && (
+                                                            <span className="font-mono text-[10px] text-slate-500 shrink-0 mt-0.5">
+                                                                {msToHms(new Date(ev.expiry).getTime() - now)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    {ev.tooltip && ev.description && ev.tooltip !== ev.description && (
+                                                        <div className="text-[9px] text-slate-500 mt-0.5 leading-snug">{ev.tooltip}</div>
+                                                    )}
+                                                    {ev.rewards && ev.rewards.length > 0 && (
+                                                        <div className="text-[9px] text-amber-400/70 mt-0.5">{ev.rewards[0].asString}</div>
+                                                    )}
+                                                    {ev.health != null && (
+                                                        <div className="mt-1 h-1 bg-slate-800 rounded-full overflow-hidden">
+                                                            <div className="h-full bg-red-500/50 rounded-full" style={{ width: `${Math.min(100, Math.max(0, ev.health))}%` }} />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
+                                            </div>
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
