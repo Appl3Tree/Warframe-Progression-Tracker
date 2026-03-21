@@ -2,7 +2,7 @@
 // World State page — tabbed layout: Overview | Fissures | Missions | Events
 // Data from https://api.warframestat.us (community API, no auth required).
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import {
     fetchWorldState,
@@ -13,6 +13,7 @@ import {
     type DuviriCycle,
     type Archimedea,
     type Calendar,
+    type CalendarEvent,
 } from "../lib/worldStateCache";
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
@@ -208,110 +209,196 @@ function SimarisCard({ target, isTargetActive }: { target: string; isTargetActiv
 
 // ── 1999 Calendar modal ────────────────────────────────────────────────────────
 
-const CALENDAR_EVENT_STYLES: Record<string, { label: string; color: string; bg: string; border: string }> = {
-    "To Do":      { label: "To Do",      color: "text-sky-300",    bg: "bg-sky-950/30",    border: "border-sky-700/40"    },
-    "Big Prize!": { label: "Big Prize!", color: "text-amber-300",  bg: "bg-amber-950/30",  border: "border-amber-700/40"  },
-    "Override":   { label: "Override",   color: "text-violet-300", bg: "bg-violet-950/30", border: "border-violet-700/40" },
-    "Birthday":   { label: "Birthday",   color: "text-pink-300",   bg: "bg-pink-950/20",   border: "border-pink-900/40"   },
+const DOW_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+const CAL_META: Record<string, { dot: string; label: string; textColor: string }> = {
+    "To Do":      { dot: "bg-sky-400",    label: "To Do",      textColor: "text-sky-300"    },
+    "Big Prize!": { dot: "bg-amber-400",  label: "Big Prize!", textColor: "text-amber-300"  },
+    "Override":   { dot: "bg-violet-400", label: "Override",   textColor: "text-violet-300" },
+    "Birthday":   { dot: "bg-pink-400",   label: "Birthday",   textColor: "text-pink-300"   },
 };
 
-function CalendarModal({ calendar, onClose }: { calendar: Calendar; onClose: () => void }) {
+type CalEntry = { dayIndex: number; date: Date; events: CalendarEvent[] };
+type MonthGroup = { key: string; label: string; startDow: number; daysInMonth: number; entries: Map<number, CalEntry> };
+
+function parseCalDate(dateStr: string): Date | null {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
+}
+
+function groupCalendarByMonth(days: Calendar["days"]): MonthGroup[] {
+    const groups = new Map<string, MonthGroup>();
+    days.forEach((day, idx) => {
+        const d = parseCalDate(day.date);
+        if (!d) return;
+        const year = d.getUTCFullYear();
+        const month = d.getUTCMonth();
+        const key = `${year}-${String(month + 1).padStart(2, "0")}`;
+        if (!groups.has(key)) {
+            const firstOfMonth = new Date(Date.UTC(year, month, 1));
+            const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+            const label = firstOfMonth.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+            groups.set(key, { key, label, startDow: firstOfMonth.getUTCDay(), daysInMonth, entries: new Map() });
+        }
+        groups.get(key)!.entries.set(d.getUTCDate(), { dayIndex: idx, date: d, events: Array.isArray(day.events) ? day.events : [] });
+    });
+    return Array.from(groups.values()).sort((a, b) => a.key.localeCompare(b.key));
+}
+
+function CalEventCard({ ev }: { ev: CalendarEvent }) {
+    const meta = CAL_META[ev.type];
+    if (ev.type === "Birthday") {
+        return (
+            <div className="rounded-lg border border-pink-900/40 bg-pink-950/20 px-3 py-2.5 flex items-center gap-2.5">
+                <span className="text-xl leading-none">🎂</span>
+                <div className="text-sm text-pink-200 font-medium">{ev.title}</div>
+            </div>
+        );
+    }
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
-            onClick={onClose}
-        >
+        <div className="rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5">
+            <div className="flex items-center gap-1.5 mb-1.5">
+                <div className={`w-2 h-2 rounded-full shrink-0 ${meta?.dot ?? "bg-slate-500"}`} />
+                <div className={`text-xs font-semibold ${meta?.textColor ?? "text-slate-400"}`}>{meta?.label ?? (ev.type || "Event")}</div>
+            </div>
+            {ev.title && <div className="text-sm text-slate-200 font-medium leading-snug">{ev.title}</div>}
+            {ev.description && <div className="text-xs text-slate-400 mt-1 leading-snug">{ev.description}</div>}
+            {ev.reward && (
+                <div className="mt-2 flex items-center gap-1.5">
+                    <span className="text-[10px] text-slate-500">Reward:</span>
+                    <span className="text-[10px] text-amber-300 font-medium">{ev.reward}</span>
+                </div>
+            )}
+        </div>
+    );
+}
+
+
+function CalendarModal({ calendar, onClose }: { calendar: Calendar; onClose: () => void }) {
+    const [selectedEntry, setSelectedEntry] = useState<CalEntry | null>(null);
+    const months = useMemo(() => groupCalendarByMonth(calendar.days ?? []), [calendar.days]);
+    const todayDayIndex = calendar.currentDay !== undefined ? Number(calendar.currentDay) : -1;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <div
-                className="relative w-full max-w-2xl max-h-[80vh] overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl flex flex-col"
+                className="relative z-10 rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 shrink-0">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 sticky top-0 bg-slate-950 z-10">
                     <div>
-                        <div className="text-sm font-semibold text-slate-100">1999 Calendar</div>
+                        <div className="text-base font-semibold text-slate-100">1999 Calendar</div>
                         {calendar.season && (
-                            <div className="text-[11px] text-slate-500 mt-0.5">{calendar.season}</div>
+                            <div className="text-xs text-slate-500 mt-0.5">{calendar.season}</div>
                         )}
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="rounded-lg p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors"
-                    >
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                    <button onClick={onClose} className="text-slate-500 hover:text-slate-300 p-1 rounded-lg hover:bg-slate-800 transition-colors">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                     </button>
                 </div>
+
                 {/* Legend */}
-                <div className="flex flex-wrap gap-2 px-5 py-2.5 border-b border-slate-800/60 shrink-0">
-                    {Object.values(CALENDAR_EVENT_STYLES).map((s) => (
-                        <span key={s.label} className={["rounded-full border px-2 py-px text-[10px] font-medium", s.color, s.bg, s.border].join(" ")}>
-                            {s.label}
-                        </span>
+                <div className="flex items-center gap-5 px-5 py-2.5 border-b border-slate-800/50 bg-slate-950/80">
+                    {Object.entries(CAL_META).filter(([key]) => key !== "Birthday").map(([key, meta]) => (
+                        <div key={key} className="flex items-center gap-1.5">
+                            <div className={`w-2 h-2 rounded-full ${meta.dot}`} />
+                            <span className={`text-[11px] ${meta.textColor}`}>{meta.label}</span>
+                        </div>
                     ))}
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] leading-none">🎂</span>
+                        <span className="text-[11px] text-pink-300">Birthday</span>
+                    </div>
+                    <span className="ml-auto text-[11px] text-slate-600">Click a day for details</span>
                 </div>
-                {/* Days list */}
-                <div className="overflow-y-auto flex-1 p-4">
-                    {calendar.days.length === 0 ? (
-                        <div className="text-xs text-slate-500 text-center py-8">No calendar data available.</div>
-                    ) : (
-                        <div className="space-y-2">
-                            {calendar.days.map((day, i) => {
-                                const entries = day.events;
-                                if (entries.length === 0) return null;
-                                const isCurrent = calendar.currentDay !== undefined &&
-                                    (String(i) === String(calendar.currentDay) || day.date === String(calendar.currentDay));
-                                return (
-                                    <div
-                                        key={i}
-                                        className={[
-                                            "rounded-xl border px-3 py-2.5",
-                                            isCurrent
-                                                ? "border-violet-600/60 bg-violet-950/20"
-                                                : "border-slate-800 bg-slate-900/30",
-                                        ].join(" ")}
-                                    >
-                                        <div className="flex items-center justify-between gap-2 mb-2">
-                                            <span className={["text-[11px] font-semibold", isCurrent ? "text-violet-300" : "text-slate-400"].join(" ")}>
-                                                {isCurrent && <span className="mr-1">▶</span>}{day.date || `Day ${i + 1}`}
-                                            </span>
-                                            {isCurrent && (
-                                                <span className="rounded-full border border-violet-600/40 bg-violet-900/30 px-1.5 py-px text-[9px] text-violet-300 font-bold">TODAY</span>
-                                            )}
+
+                {/* Content: month grids + side detail panel */}
+                <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
+                    {/* Month grids — scrollable */}
+                    <div className="flex-1 p-5 overflow-y-auto">
+                        {calendar.days.length === 0 ? (
+                            <div className="text-xs text-slate-500 text-center py-8">No calendar data available.</div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                                {months.map((month) => (
+                                    <div key={month.key}>
+                                        <div className="text-sm font-semibold text-slate-300 mb-3">{month.label}</div>
+                                        <div className="grid grid-cols-7 mb-1">
+                                            {DOW_LABELS.map((l) => (
+                                                <div key={l} className="text-center text-[10px] text-slate-600 font-medium py-1">{l}</div>
+                                            ))}
                                         </div>
-                                        <div className="space-y-1.5">
-                                            {entries.map((ev, ei) => {
-                                                if (ev.type === "Birthday") {
-                                                    return (
-                                                        <div key={ei} className="rounded-lg border border-pink-900/40 bg-pink-950/20 px-2.5 py-1.5 flex items-center gap-2">
-                                                            <span className="text-base leading-none">🎂</span>
-                                                            <span className="text-xs text-pink-200 font-medium">{ev.title}</span>
-                                                        </div>
-                                                    );
-                                                }
-                                                const style = CALENDAR_EVENT_STYLES[ev.type] ?? { label: ev.type, color: "text-slate-300", bg: "bg-slate-800/40", border: "border-slate-700/40" };
+                                        <div className="grid grid-cols-7 gap-0.5">
+                                            {Array.from({ length: month.startDow }, (_, i) => (
+                                                <div key={`blank-${i}`} />
+                                            ))}
+                                            {Array.from({ length: month.daysInMonth }, (_, i) => {
+                                                const dayNum = i + 1;
+                                                const entry = month.entries.get(dayNum);
+                                                const isToday = entry?.dayIndex === todayDayIndex;
+                                                const isSelected = selectedEntry != null && selectedEntry.dayIndex === entry?.dayIndex;
+                                                const eventKeys = entry ? entry.events.map((ev) => ev.type) : [];
                                                 return (
-                                                    <div key={ei} className={["rounded-lg border px-2.5 py-1.5", style.bg, style.border].join(" ")}>
-                                                        <div className={["text-[9px] font-bold uppercase tracking-wider mb-0.5", style.color].join(" ")}>
-                                                            {style.label}
-                                                        </div>
-                                                        {ev.title && <div className="text-xs text-slate-200 font-medium">{ev.title}</div>}
-                                                        {ev.description && <div className="text-[10px] text-slate-400 mt-0.5">{ev.description}</div>}
-                                                        {ev.reward && (
-                                                            <div className="mt-1 flex items-center gap-1">
-                                                                <span className="text-[9px] text-slate-500">Reward:</span>
-                                                                <span className="text-[9px] text-amber-300 font-medium">{ev.reward}</span>
+                                                    <button
+                                                        key={dayNum}
+                                                        onClick={() => entry && setSelectedEntry(isSelected ? null : entry)}
+                                                        disabled={!entry}
+                                                        className={[
+                                                            "relative flex flex-col items-center rounded-lg py-1 px-0.5 min-h-[40px] transition-colors",
+                                                            entry ? "hover:bg-slate-800 cursor-pointer" : "cursor-default",
+                                                            isToday ? "ring-1 ring-blue-500/60 bg-slate-800/70" : "",
+                                                            isSelected ? "bg-slate-700 ring-1 ring-slate-500" : "",
+                                                        ].join(" ")}
+                                                    >
+                                                        <span className={`text-[11px] font-medium ${isToday ? "text-blue-300" : entry ? "text-slate-300" : "text-slate-700"}`}>
+                                                            {dayNum}
+                                                        </span>
+                                                        {eventKeys.length > 0 && (
+                                                            <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
+                                                                {eventKeys.map((k, ki) =>
+                                                                    k === "Birthday"
+                                                                        ? <span key={ki} className="text-[9px] leading-none">🎂</span>
+                                                                        : <div key={ki} className={`w-1.5 h-1.5 rounded-full ${CAL_META[k]?.dot ?? "bg-slate-500"}`} />
+                                                                )}
                                                             </div>
                                                         )}
-                                                    </div>
+                                                    </button>
                                                 );
                                             })}
                                         </div>
                                     </div>
-                                );
-                            })}
-                        </div>
-                    )}
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Day detail side panel */}
+                    <div className={[
+                        "md:w-72 shrink-0 overflow-y-auto border-slate-800",
+                        selectedEntry ? "block border-t md:border-t-0 md:border-l" : "hidden md:flex md:border-l",
+                    ].join(" ")}>
+                        {selectedEntry ? (
+                            <div className="p-4">
+                                <div className="text-xs font-medium text-slate-400 mb-3">
+                                    {selectedEntry.date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}
+                                </div>
+                                <div className="space-y-2">
+                                    {selectedEntry.events.map((ev, i) => (
+                                        <CalEventCard key={i} ev={ev} />
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex items-center justify-center text-xs text-slate-600 p-6 text-center">
+                                Click a day to see event details
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
