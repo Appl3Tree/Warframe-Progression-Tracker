@@ -1062,6 +1062,8 @@ function ActivitiesTab({ data }: { data: WorldStateData }) {
     const isInvasionDone               = useTrackerStore((s) => s.isInvasionDone);
     const toggleNightwaveChallengeDone = useTrackerStore((s) => s.toggleNightwaveChallengeDone);
     const isNightwaveChallengeDone     = useTrackerStore((s) => s.isNightwaveChallengeDone);
+    const toggleEventDone              = useTrackerStore((s) => s.toggleEventDone);
+    const isEventDone                  = useTrackerStore((s) => s.isEventDone);
 
     return (
         <div className="space-y-4">
@@ -1158,27 +1160,43 @@ function ActivitiesTab({ data }: { data: WorldStateData }) {
             })()}
 
             {/* Active Events */}
-            {hasEvents && (
+            {hasEvents && (() => {
+                const sortedEvs = data.events.slice().sort((a, b) => {
+                    const aDone = isEventDone(a.id) ? 1 : 0;
+                    const bDone = isEventDone(b.id) ? 1 : 0;
+                    return aDone - bDone;
+                });
+                return (
                 <section>
                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                         Active Events ({data.events.length})
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {data.events.map((ev) => {
+                        {sortedEvs.map((ev) => {
+                            const done = isEventDone(ev.id);
                             const title = ev.description || ev.tooltip || "Active Event";
                             const subtitle = ev.tooltip && ev.description && ev.tooltip !== ev.description ? ev.tooltip : null;
                             const location = ev.node || ev.victimNode;
                             const hasProgress = ev.currentScore != null && ev.maximumScore != null && ev.maximumScore > 0;
                             const pct = hasProgress ? Math.min(100, (ev.currentScore! / ev.maximumScore!) * 100) : null;
                             return (
-                                <div key={ev.id} className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
-                                    {/* Header: title + countdown */}
+                                <div key={ev.id} className={["rounded-xl border px-3 py-2.5 transition-colors", done ? "border-emerald-900/40 bg-emerald-950/10 opacity-60" : "border-slate-800 bg-slate-900/40"].join(" ")}>
+                                    {/* Header: title + countdown + done toggle */}
                                     <div className="flex items-start justify-between gap-2 mb-1">
-                                        <div className="min-w-0">
-                                            <div className="text-xs font-medium text-slate-200 leading-tight">{title}</div>
-                                            {subtitle && (
-                                                <div className="text-[10px] text-slate-500 mt-0.5">{subtitle}</div>
-                                            )}
+                                        <div className="flex items-start gap-2 min-w-0">
+                                            <input
+                                                type="checkbox"
+                                                checked={done}
+                                                onChange={() => toggleEventDone(ev.id)}
+                                                className="mt-0.5 shrink-0 cursor-pointer"
+                                                title={done ? "Mark incomplete" : "Mark complete"}
+                                            />
+                                            <div className="min-w-0">
+                                                <div className={["text-xs font-medium leading-tight", done ? "line-through text-slate-500" : "text-slate-200"].join(" ")}>{title}</div>
+                                                {subtitle && (
+                                                    <div className="text-[10px] text-slate-500 mt-0.5">{subtitle}</div>
+                                                )}
+                                            </div>
                                         </div>
                                         {ev.expiry && (
                                             <Countdown expiry={ev.expiry} now={now} className="shrink-0 font-mono text-[10px] text-slate-400" />
@@ -1231,21 +1249,8 @@ function ActivitiesTab({ data }: { data: WorldStateData }) {
                                         <div className="mt-1.5 space-y-0.5 border-t border-slate-800/60 pt-1.5">
                                             {ev.interimSteps.map((step, i) => (
                                                 <div key={i} className="flex items-baseline gap-1.5 text-[10px]">
-                                                    <span className={[
-                                                        "shrink-0 font-mono",
-                                                        hasProgress && ev.currentScore! >= step.goal
-                                                            ? "text-green-500/70 line-through"
-                                                            : "text-slate-500"
-                                                    ].join(" ")}>
-                                                        @{step.goal}
-                                                    </span>
-                                                    <span className={[
-                                                        hasProgress && ev.currentScore! >= step.goal
-                                                            ? "text-slate-600 line-through"
-                                                            : "text-slate-400"
-                                                    ].join(" ")}>
-                                                        {step.reward.asString}
-                                                    </span>
+                                                    <span className="shrink-0 font-mono text-slate-500">@{step.goal}</span>
+                                                    <span className="text-slate-400">{step.reward.asString}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -1255,7 +1260,8 @@ function ActivitiesTab({ data }: { data: WorldStateData }) {
                         })}
                     </div>
                 </section>
-            )}
+                );
+            })()}
 
             {/* Invasions */}
             {hasInvasions && (() => {
