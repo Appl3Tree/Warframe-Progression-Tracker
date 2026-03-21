@@ -1754,10 +1754,10 @@ export default function WarframeResetTracker() {
                         </span>
                         <div className="min-w-0">
                             <div className="text-sm font-semibold text-amber-300">
-                                Baro Ki'Teer is at the Relay
+                                Baro Ki'Teer — {wsData?.voidTrader?.location ?? "at a Relay"}
                             </div>
                             <div className="text-xs text-amber-500/80 mt-0.5">
-                                Visit before he leaves — check the Void Trader at any Relay
+                                Visit before he leaves
                             </div>
                         </div>
                     </div>

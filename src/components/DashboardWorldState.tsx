@@ -203,7 +203,20 @@ async function fetchWorldState(): Promise<WorldStateData> {
                 expiry: j.nightwave.expiry ?? "",
             }
             : null,
-        voidTrader:   j.voidTrader ?? null,
+        voidTrader: j.voidTrader
+            ? {
+                active:     !!j.voidTrader.active || (
+                    !!j.voidTrader.activation && !!j.voidTrader.expiry &&
+                    Date.now() >= new Date(j.voidTrader.activation).getTime() &&
+                    Date.now() <  new Date(j.voidTrader.expiry).getTime()
+                ),
+                character:  j.voidTrader.character  ?? "",
+                location:   j.voidTrader.location   ?? "",
+                inventory:  Array.isArray(j.voidTrader.inventory) ? j.voidTrader.inventory : [],
+                activation: j.voidTrader.activation ?? "",
+                expiry:     j.voidTrader.expiry     ?? "",
+            }
+            : null,
         events:       Array.isArray(j.events)
             ? (j.events as WsEvent[]).filter((e) => e.active !== false)
             : [],
