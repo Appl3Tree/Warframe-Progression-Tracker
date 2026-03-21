@@ -619,7 +619,11 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                     : null,
                 voidTrader: j.voidTrader
                     ? {
-                        active:     !!j.voidTrader.active,
+                        active:     !!j.voidTrader.active || (
+                            !!j.voidTrader.activation && !!j.voidTrader.expiry &&
+                            Date.now() >= new Date(j.voidTrader.activation).getTime() &&
+                            Date.now() <  new Date(j.voidTrader.expiry).getTime()
+                        ),
                         character:  j.voidTrader.character  ?? "",
                         location:   j.voidTrader.location   ?? "",
                         inventory:  Array.isArray(j.voidTrader.inventory) ? j.voidTrader.inventory : [],
