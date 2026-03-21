@@ -153,5 +153,7 @@ export interface UserStateV2 {
         doneInvasions: string[];
         /** Nightwave challenge IDs the user has marked as completed. */
         doneNightwaveChallenges?: string[];
+        /** Event IDs the user has marked as personally completed. */
+        doneEvents?: string[];
     };
 }
