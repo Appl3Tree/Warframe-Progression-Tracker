@@ -22,6 +22,7 @@ import {
     type RequirementExpandMode
 } from "../domain/logic/requirementEngine";
 import type { CurrencyRequirementLine } from "../domain/logic/requirementEngine";
+import { isItemVaulted } from "../domain/catalog/vaultedItems";
 
 function normalize(s: string): string {
     return s.trim().toLowerCase();
@@ -472,7 +473,17 @@ export default function Requirements() {
                                     <div key={String(l.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div className="min-w-0 flex-1">
-                                                <div className="text-sm font-semibold break-words">{l.name}</div>
+                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                    <span className="text-sm font-semibold break-words">{l.name}</span>
+                                                    {isItemVaulted(catalogId) && (
+                                                        <span
+                                                            className="text-[10px] px-1.5 py-0.5 rounded border border-red-700/50 bg-red-950/40 text-red-400 font-semibold shrink-0"
+                                                            title="This prime item is vaulted — obtain via trading or Prime Resurgence (Varzia)"
+                                                        >
+                                                            VAULTED
+                                                        </span>
+                                                    )}
+                                                </div>
 
                                                 {/* Progress bar */}
                                                 <div className="mt-1.5 flex items-center gap-2">
