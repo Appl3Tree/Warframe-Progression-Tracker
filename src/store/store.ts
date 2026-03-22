@@ -61,6 +61,7 @@ export interface TrackerStore {
     bulkOverwritePrereqs: (patch: Record<string, boolean>) => void;
 
     setCount: (key: string, count: number) => void;
+    setArcaneRankCount: (path: string, rank: number, count: number) => void;
     setMastered: (key: string, val: boolean) => void;
     setOverLevelMastered: (key: string, val: boolean) => void;
 
@@ -269,6 +270,15 @@ export const useTrackerStore = create<TrackerStore>()(
                         s.state.inventory.counts = {};
                     }
                     s.state.inventory.counts[key] = Math.max(0, Number.isFinite(count) ? count : 0);
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setArcaneRankCount: (path, rank, count) => {
+                set((s) => {
+                    if (!s.state.inventory.arcaneRanks) s.state.inventory.arcaneRanks = {};
+                    if (!s.state.inventory.arcaneRanks[path]) s.state.inventory.arcaneRanks[path] = {};
+                    s.state.inventory.arcaneRanks[path][String(rank)] = Math.max(0, Number.isFinite(count) ? Math.floor(count) : 0);
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },

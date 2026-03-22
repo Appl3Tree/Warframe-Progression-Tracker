@@ -847,6 +847,7 @@ const RIVEN_ENTRIES: ModEntry[] = Object.entries(
   .filter((e) => e.name);
 
 // Arcane total needed per rank: triangular numbers
+// Also the "equivalent rank-0 copy count" for a ranked arcane.
 const ARCANE_TOTAL_PER_RANK: Record<number, number> = {
   0: 1,
   1: 3,
@@ -855,6 +856,16 @@ const ARCANE_TOTAL_PER_RANK: Record<number, number> = {
   4: 15,
   5: 21,
 };
+
+/** How many rank-0 equivalents does one copy at the given rank contribute? */
+function arcaneEquiv(rank: number): number {
+  return ARCANE_TOTAL_PER_RANK[rank] ?? 1;
+}
+
+/** Total rank-0 equivalent copies across all ranks. */
+function arcaneTotal(rankCounts: Record<string, number>): number {
+  return Object.entries(rankCounts).reduce((sum, [r, n]) => sum + arcaneEquiv(Number(r)) * n, 0);
+}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -1379,10 +1390,9 @@ function extractScriptLevels(u: ModUpgrade): number[] | null {
 }
 
 function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void }) {
-  const counts   = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_COUNTS);
-  const setCount = useTrackerStore((s) => s.setCount);
-  const key   = modKey(entry.path);
-  const owned = counts[key] ?? 0;
+  const arcaneRanks       = useTrackerStore((s) => s.state.inventory.arcaneRanks ?? {});
+  const setArcaneRankCount = useTrackerStore((s) => s.setArcaneRankCount);
+  const rankCounts: Record<string, number> = arcaneRanks[entry.path] ?? {};
   const data = entry.data;
   const maxRank = decodeMaxRank(data?.FusionLimit);
   const upgrades = (data?.Upgrades ?? []).concat((data as any)?.ExtraUpgrades ?? []);
@@ -1463,23 +1473,48 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
             {allEntry?.type && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-700 bg-slate-900 text-slate-400">{allEntry.type}</span>}
             {allEntry?.introduced && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-800 bg-slate-900 text-slate-500">{allEntry.introduced.name}</span>}
           </div>
-          <div className="shrink-0 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-            <span className="text-[10px] text-slate-500 mr-1">Owned</span>
-            <button
-              className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center"
-              onClick={() => setCount(key, Math.max(0, owned - 1))} title="Decrease count"
-            >−</button>
-            <span className={["w-7 text-center text-sm font-mono font-semibold", owned > 0 ? "text-emerald-400" : "text-slate-500"].join(" ")}>{owned}</span>
-            <button
-              className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center"
-              onClick={() => setCount(key, owned + 1)} title="Increase count"
-            >+</button>
-          </div>
           <button className="shrink-0 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800" onClick={onClose}>Close</button>
         </div>
 
         {/* Body */}
-        <div className="overflow-y-auto flex-1 p-5">
+        <div className="overflow-y-auto flex-1 p-5 space-y-4">
+
+          {/* ── Collection tracker ── */}
+          {(() => {
+            const target = ARCANE_TOTAL_PER_RANK[maxRank] ?? 21;
+            const total = arcaneTotal(rankCounts);
+            const stillNeeds = Math.max(0, target - total);
+            const ranks = Array.from({ length: maxRank + 1 }, (_, i) => i);
+            return (
+              <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Collection</span>
+                  <span className={["text-xs font-semibold", stillNeeds === 0 ? "text-emerald-400" : "text-slate-400"].join(" ")}>
+                    {total} / {target} equiv {stillNeeds === 0 ? "— Max rank ready!" : `— need ${stillNeeds} more R0 equiv`}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {ranks.map((r) => {
+                    const n = Number(rankCounts[String(r)] ?? 0);
+                    return (
+                      <div key={r} className="flex flex-col items-center gap-0.5">
+                        <span className="text-[9px] text-slate-500 font-mono">R{r}</span>
+                        <span className="text-[9px] text-slate-600">≡{arcaneEquiv(r)}</span>
+                        <div className="flex items-center gap-0.5">
+                          <button className="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center"
+                            onClick={() => setArcaneRankCount(entry.path, r, Math.max(0, n - 1))}>−</button>
+                          <span className={["w-6 text-center text-xs font-mono font-semibold", n > 0 ? "text-emerald-400" : "text-slate-600"].join(" ")}>{n}</span>
+                          <button className="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center"
+                            onClick={() => setArcaneRankCount(entry.path, r, n + 1)}>+</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
             {/* Effects */}
@@ -1540,7 +1575,10 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function Mods() {
-  const counts = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_COUNTS);
+  const counts             = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_COUNTS);
+  const arcaneRanksMap     = useTrackerStore((s) => s.state.inventory.arcaneRanks ?? {});
+  const setCount           = useTrackerStore((s) => s.setCount);
+  const setArcaneRankCount = useTrackerStore((s) => s.setArcaneRankCount);
 
   const [section, setSection] = useState<ModSection>("mods");
 
@@ -1653,8 +1691,9 @@ export default function Mods() {
 
     if (q) list = list.filter((e) => normalize(e.name).includes(q));
 
-    if (arcaneOwnedFilter === "owned")   list = list.filter((e) => (counts[modKey(e.path)] ?? 0) > 0);
-    if (arcaneOwnedFilter === "unowned") list = list.filter((e) => (counts[modKey(e.path)] ?? 0) === 0);
+    // Arcane ownership is tracked via arcaneRanks; fall back to flat counts for compatibility
+    if (arcaneOwnedFilter === "owned")   list = list.filter((e) => arcaneTotal(counts[modKey(e.path)] !== undefined ? { "0": counts[modKey(e.path)] } : {}) > 0 || arcaneTotal(arcaneRanksMap[e.path] ?? {}) > 0);
+    if (arcaneOwnedFilter === "unowned") list = list.filter((e) => arcaneTotal(counts[modKey(e.path)] !== undefined ? { "0": counts[modKey(e.path)] } : {}) === 0 && arcaneTotal(arcaneRanksMap[e.path] ?? {}) === 0);
 
     list.sort((a, b) => {
       if (arcaneSort === "release-newest" || arcaneSort === "release-oldest") {
@@ -1675,7 +1714,7 @@ export default function Mods() {
       return a.name.localeCompare(b.name);
     });
     return list;
-  }, [arcaneCategory, arcaneSearch, arcaneSort, arcaneOwnedFilter, counts]);
+  }, [arcaneCategory, arcaneSearch, arcaneSort, arcaneOwnedFilter, counts, arcaneRanksMap]);
 
   // ── Virtualization ─────────────────────────────────────────────────────────
   // Each row is a button with py-2.5 + text-sm + border ≈ 42px, plus mb-0.5 gap.
@@ -1966,12 +2005,22 @@ export default function Mods() {
                                 {rarity.charAt(0) + rarity.slice(1).toLowerCase()}
                               </span>
                             )}
-                            {ownedCount > 0 && (
-                              <span className="shrink-0 text-[10px] font-semibold text-emerald-400 px-1 py-0.5 rounded border border-emerald-800/50 bg-emerald-950/30" title={`${ownedCount} owned`}>
-                                ×{ownedCount}
-                              </span>
-                            )}
                           </button>
+                          {/* Inline owned count +/- */}
+                          <div className="flex items-center shrink-0" onClick={(ev) => ev.stopPropagation()}>
+                            <button
+                              className="w-6 h-[38px] flex items-center justify-center rounded-l border border-r-0 border-slate-700 bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800 text-sm leading-none disabled:opacity-30"
+                              disabled={ownedCount <= 0}
+                              onClick={() => setCount(modKey(e.path), Math.max(0, ownedCount - 1))}
+                            >−</button>
+                            <span className={["w-8 h-[38px] flex items-center justify-center border-y border-slate-700 bg-slate-900 text-sm font-mono", ownedCount > 0 ? "text-emerald-400" : "text-slate-600"].join(" ")}>
+                              {ownedCount}
+                            </span>
+                            <button
+                              className="w-6 h-[38px] flex items-center justify-center rounded-r border border-l-0 border-slate-700 bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800 text-sm leading-none"
+                              onClick={() => setCount(modKey(e.path), ownedCount + 1)}
+                            >+</button>
+                          </div>
                           <WikiLink name={e.name} />
                         </div>
                       );
@@ -2077,7 +2126,9 @@ export default function Mods() {
                   >
                     {filteredArcanes.slice(arcanesVw.start, arcanesVw.end).map((e) => {
                       const isSelected = selectedArcane?.path === e.path;
-                      const ownedCount = counts[modKey(e.path)] ?? 0;
+                      const rankCounts = arcaneRanksMap[e.path] ?? {};
+                      const totalEquiv = arcaneTotal(rankCounts);
+                      const r0Count = rankCounts["0"] ?? 0;
                       return (
                         <div key={e.path} className="flex items-center gap-1 mb-0.5">
                           <button
@@ -2090,12 +2141,29 @@ export default function Mods() {
                             onClick={() => setSelectedArcane(isSelected ? null : e)}
                           >
                             <span className="flex-1 font-medium truncate">{e.name}</span>
-                            {ownedCount > 0 && (
-                              <span className="shrink-0 text-[10px] font-semibold text-emerald-400 px-1 py-0.5 rounded border border-emerald-800/50 bg-emerald-950/30" title={`${ownedCount} owned`}>
-                                ×{ownedCount}
+                            {totalEquiv > 0 && (
+                              <span className="shrink-0 text-[10px] font-semibold text-emerald-400 px-1 py-0.5 rounded border border-emerald-800/50 bg-emerald-950/30" title={`${totalEquiv} equivalent copies`}>
+                                ×{totalEquiv} eq
                               </span>
                             )}
                           </button>
+                          {/* Inline R0 quick count +/- */}
+                          <div className="flex items-center shrink-0" onClick={(ev) => ev.stopPropagation()}>
+                            <button
+                              className="w-6 h-[38px] flex items-center justify-center rounded-l border border-r-0 border-slate-700 bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800 text-sm leading-none disabled:opacity-30"
+                              disabled={r0Count <= 0}
+                              title="Remove one R0 arcane"
+                              onClick={() => setArcaneRankCount(e.path, 0, Math.max(0, r0Count - 1))}
+                            >−</button>
+                            <span className={["w-8 h-[38px] flex items-center justify-center border-y border-slate-700 bg-slate-900 text-[11px] font-mono", r0Count > 0 ? "text-emerald-400" : "text-slate-600"].join(" ")} title="R0 copies owned">
+                              {r0Count}
+                            </span>
+                            <button
+                              className="w-6 h-[38px] flex items-center justify-center rounded-r border border-l-0 border-slate-700 bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800 text-sm leading-none"
+                              title="Add one R0 arcane"
+                              onClick={() => setArcaneRankCount(e.path, 0, r0Count + 1)}
+                            >+</button>
+                          </div>
                           <WikiLink name={e.name} />
                         </div>
                       );

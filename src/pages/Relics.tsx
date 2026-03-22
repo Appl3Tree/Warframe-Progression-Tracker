@@ -371,15 +371,12 @@ export default function Relics() {
         // Build: itemName → catalogId (for remaining count)
         const itemsByCatalogId = new Map<string, { name: string; remaining: number }>();
 
+        // Collect all farming item names and let scoreRelicsForItems do the
+        // relic-membership filtering — the acquisition layer does not tag prime
+        // components with src:relic/ sources, so checking that here yields nothing.
         for (const line of farmingItems) {
-            for (const source of line.sources) {
-                const sid = String(source.sourceId);
-                if (!sid.startsWith("src:relic/")) continue;
-                // This item is relic-farmable — collect its display name
-                itemNames.add(line.name);
-                itemsByCatalogId.set(String(line.key), { name: line.name, remaining: line.remaining });
-                break;
-            }
+            itemNames.add(line.name);
+            itemsByCatalogId.set(String(line.key), { name: line.name, remaining: line.remaining });
         }
 
         const scored = scoreRelicsForItems(itemNames);
