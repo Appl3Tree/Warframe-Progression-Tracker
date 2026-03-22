@@ -367,20 +367,22 @@ export default function Relics() {
     // Find all relic-sourced items and map to relic catalog entries
     const { scoredRelics, goalItemNames } = useMemo(() => {
         const itemNames = new Set<string>();
-
-        // Build: itemName → catalogId (for remaining count)
-        const itemsByCatalogId = new Map<string, { name: string; remaining: number }>();
-
-        // Collect all farming item names and let scoreRelicsForItems do the
-        // relic-membership filtering — the acquisition layer does not tag prime
-        // components with src:relic/ sources, so checking that here yields nothing.
         for (const line of farmingItems) {
             itemNames.add(line.name);
-            itemsByCatalogId.set(String(line.key), { name: line.name, remaining: line.remaining });
         }
 
         const scored = scoreRelicsForItems(itemNames);
-        return { scoredRelics: scored, goalItemNames: itemNames };
+
+        // Only include items that actually appear in at least one relic —
+        // farmingItems may contain non-relic targets (crafting, vendors, etc.)
+        const goalItemNames = new Set<string>();
+        for (const sr of scored) {
+            for (const rw of sr.matchedItems) {
+                goalItemNames.add(rw.itemName);
+            }
+        }
+
+        return { scoredRelics: scored, goalItemNames };
     }, [farmingItems]);
 
     const filteredRelics = useMemo(() => {
@@ -390,6 +392,17 @@ export default function Relics() {
             return true;
         });
     }, [scoredRelics, showVaulted, tierFilter]);
+
+    // Items that appear in the currently-visible (filtered) relics
+    const filteredGoalItemNames = useMemo(() => {
+        const names = new Set<string>();
+        for (const sr of filteredRelics) {
+            for (const rw of sr.matchedItems) {
+                names.add(rw.itemName);
+            }
+        }
+        return names;
+    }, [filteredRelics]);
 
     const hasActiveGoals = goals.some((g) => g.isActive);
     const hasRelicItems = scoredRelics.length > 0;
@@ -494,7 +507,7 @@ export default function Relics() {
                             <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-3">
                                 <div className="text-xs text-slate-500 uppercase tracking-wide mb-2">Items needed from relics</div>
                                 <div className="flex flex-wrap gap-1.5">
-                                    {Array.from(goalItemNames).sort().map((name) => (
+                                    {Array.from(filteredGoalItemNames).sort().map((name) => (
                                         <span
                                             key={name}
                                             className="text-xs px-2 py-0.5 rounded-full border border-slate-700 bg-slate-900/50 text-slate-300"
