@@ -6,7 +6,7 @@ import ALL_RAW from "../../data/All.json";
 const ALL = ALL_RAW as Record<string, unknown>[];
 
 export type WeaponCategory = "Primary" | "Secondary" | "Melee";
-export type ModCompatName = "Rifle" | "Shotgun" | "Pistol" | "Bow" | "Melee";
+export type ModCompatName = "Rifle" | "Sniper" | "Shotgun" | "Pistol" | "Bow" | "Melee";
 
 export interface WeaponDamage {
     total: number;
@@ -50,6 +50,7 @@ function resolveModCompat(category: string, weaponType: string): ModCompatName {
     const t = (weaponType ?? "").toLowerCase();
     if (t === "shotgun") return "Shotgun";
     if (t === "bow") return "Bow";
+    if (t === "sniper") return "Sniper";
     return "Rifle";
 }
 

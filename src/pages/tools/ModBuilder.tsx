@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getWeaponCatalog, type WeaponCategory, type WeaponEntry } from "../../domain/catalog/weaponCatalog";
-import { getModsForCompat, type ModEntry } from "../../domain/catalog/modCatalog";
+import { getModsForWeapon, type ModEntry } from "../../domain/catalog/modCatalog";
 import { calculateBuild } from "../../domain/logic/damageCalc";
 import { optimizeBuild, type OptimizeGoal } from "../../domain/logic/buildOptimizer";
 
@@ -103,10 +103,20 @@ function ModSlot({ index, mod, compatMods, usedNames, onChange }: ModSlotProps) 
                     {mod ? (
                         <>
                             <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5">
+                                <div className="flex items-center gap-1.5 flex-wrap">
                                     <span className="text-xs font-semibold text-slate-100 truncate">{mod.name}</span>
                                     {polSym && (
                                         <span className="text-[10px] text-slate-500 shrink-0">{polSym}</span>
+                                    )}
+                                    {mod.triggerRestriction && (
+                                        <span className="text-[9px] px-1 py-0.5 rounded border border-blue-700/50 bg-blue-950/30 text-blue-400 font-semibold shrink-0">
+                                            {mod.triggerRestriction}-Auto
+                                        </span>
+                                    )}
+                                    {mod.compatBucket === "Augment" && (
+                                        <span className="text-[9px] px-1 py-0.5 rounded border border-purple-700/50 bg-purple-950/30 text-purple-400 font-semibold shrink-0">
+                                            AUG
+                                        </span>
                                     )}
                                 </div>
                                 <div className="text-[10px] text-slate-400 mt-0.5 truncate">{mod.statsLabel}</div>
@@ -162,8 +172,18 @@ function ModSlot({ index, mod, compatMods, usedNames, onChange }: ModSlotProps) 
                                 ].join(" ")}
                                 onClick={() => { onChange(index, m); setOpen(false); setQuery(""); }}
                             >
-                                <div className="flex items-center gap-1.5">
+                                <div className="flex items-center gap-1.5 flex-wrap">
                                     <span className="text-xs font-medium text-slate-200">{m.name}</span>
+                                    {m.triggerRestriction && (
+                                        <span className="text-[9px] px-1 py-0.5 rounded border border-blue-700/50 bg-blue-950/30 text-blue-400 font-semibold">
+                                            {m.triggerRestriction}-Auto only
+                                        </span>
+                                    )}
+                                    {m.compatBucket === "Augment" && (
+                                        <span className="text-[9px] px-1 py-0.5 rounded border border-purple-700/50 bg-purple-950/30 text-purple-400 font-semibold">
+                                            Augment
+                                        </span>
+                                    )}
                                     <span className="text-[10px] text-slate-600 ml-auto">{POLARITY_SYMBOL[m.polarity] ?? "·"}</span>
                                 </div>
                                 <div className="text-[10px] text-slate-500 mt-0.5">{m.statsLabel}</div>
@@ -311,7 +331,7 @@ export default function ModBuilder() {
     }
 
     const compatMods = useMemo(
-        () => (weapon ? getModsForCompat(weapon.modCompat) : []),
+        () => (weapon ? getModsForWeapon(weapon) : []),
         [weapon],
     );
 
@@ -330,7 +350,7 @@ export default function ModBuilder() {
 
     function handleOptimize() {
         if (!weapon) return;
-        const chosen = optimizeBuild(weapon, compatMods, optimizeGoal, SLOT_COUNT);
+        const chosen = optimizeBuild(weapon, null, optimizeGoal, SLOT_COUNT);
         const next = Array(SLOT_COUNT).fill(null) as (ModEntry | null)[];
         chosen.forEach((m, i) => { next[i] = m; });
         setSlots(next);

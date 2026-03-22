@@ -1,60 +1,75 @@
 // src/domain/catalog/modCatalog.ts
 // Parses weapon mod data from All.json into structured ModEntry objects.
+//
+// Compat hierarchy:
+//   Rifle        → all Rifle + Assault Rifle + PRIMARY (universal primary) mods
+//   Sniper       → all Sniper + Rifle + Assault Rifle + PRIMARY mods
+//   Shotgun      → all Shotgun + PRIMARY mods
+//   Bow          → all Bow + PRIMARY mods
+//   Pistol       → all Pistol mods
+//   Melee        → all Melee mods
+//
+// Additionally, weapon-specific augments (e.g. compatName "Hek") are surfaced
+// when the selected weapon's name matches the compat name.
 
 import ALL_RAW from "../../data/All.json";
-import type { ModCompatName } from "./weaponCatalog";
+import type { ModCompatName, WeaponEntry } from "./weaponCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];
 
-// The set of generic weapon compat categories we care about.
-// Excludes weapon-specific augments, warframe mods, etc.
-const WEAPON_COMPATS = new Set<string>([
-    "Rifle", "Shotgun", "Pistol", "Bow", "Melee",
-    // Assault Rifle / Sniper / etc. are treated as Rifle for our purposes
-    "Assault Rifle", "Sniper Rifle", "Sniper",
-]);
+// Maps raw WFCD compatName → internal bucket key
+const COMPAT_MAP: Record<string, string> = {
+    "Rifle":          "Rifle",
+    "Assault Rifle":  "Rifle",   // AR mods work on all rifles
+    "Shotgun":        "Shotgun",
+    "Pistol":         "Pistol",
+    "Bow":            "Bow",
+    "Sniper":         "Sniper",
+    "Sniper Rifle":   "Sniper",
+    "PRIMARY":        "Primary", // universal primary mods (Vigilante set, Hunter Munitions…)
+    "Melee":          "Melee",
+};
 
 export interface ModEffect {
-    /** General damage multiplier — additive with other damage mods */
     damageBonus: number;
     impactBonus: number;
     punctureBonus: number;
     slashBonus: number;
-    /** Elemental damage — expressed as % of base damage */
     heatBonus: number;
     coldBonus: number;
     electricityBonus: number;
     toxinBonus: number;
     magneticBonus: number;
     radiationBonus: number;
-    /** Crit / status */
     critChanceBonus: number;
     critMultBonus: number;
     statusChanceBonus: number;
-    /** Multishot / rate / mag */
     multishotBonus: number;
     fireRateBonus: number;
     magazineBonus: number;
     reloadSpeedBonus: number;
-    /** Melee-specific attack speed (treated like fireRate) */
     attackSpeedBonus: number;
 }
 
 export interface ModEntry {
     uniqueName: string;
     name: string;
-    /** "Rifle" | "Shotgun" | "Pistol" | "Bow" | "Melee" (normalised) */
-    compatName: ModCompatName;
+    /** Canonical compat bucket (e.g. "Rifle", "Sniper", "Primary", "Pistol"…) */
+    compatBucket: string;
+    /** Raw WFCD compat name — used for weapon-specific augment matching */
+    rawCompatName: string;
     polarity: string;
     rarity: string;
-    /** Drain at max rank (baseDrain + fusionLimit) */
     drain: number;
     fusionLimit: number;
-    /** Human-readable summary of max-rank stats */
     statsLabel: string;
     effect: ModEffect;
-    /** True if this mod has any damage-relevant effects */
     hasDamageEffect: boolean;
+    /**
+     * If set, this mod only works on weapons with this trigger type (e.g. "Semi").
+     * Example: Cannonade series.
+     */
+    triggerRestriction?: string;
 }
 
 // ---- Stat string parser ----
@@ -63,13 +78,11 @@ function stripColorTags(s: string): string {
     return s.replace(/<[^>]+>/g, "").trim();
 }
 
-/** Extract leading signed number (interpreted as fraction, e.g. "+165%" → 1.65) */
 function extractPercent(s: string): number | null {
     const m = s.match(/^([+-]?\d+(?:\.\d+)?)\s*%/);
     return m ? parseFloat(m[1]) / 100 : null;
 }
 
-/** Strip trailing parenthetical annotation like "(x2 for Bows)" */
 function stripParens(s: string): string {
     return s.replace(/\s*\(.*\)$/, "").trim();
 }
@@ -79,7 +92,6 @@ function parseStatLine(raw: string): Partial<ModEffect> {
     const value = extractPercent(clean);
     if (value === null) return {};
 
-    // Text after the leading "±N% " portion
     const rest = stripParens(clean.replace(/^[+-]?\d+(?:\.\d+)?%\s*/, "").trim()).toLowerCase();
 
     if (rest === "damage" || rest === "melee damage") return { damageBonus: value };
@@ -123,58 +135,63 @@ function mergeEffect(base: ModEffect, partial: Partial<ModEffect>): ModEffect {
 }
 
 function hasDamageEffect(e: ModEffect): boolean {
-    return (
-        e.damageBonus !== 0 || e.critChanceBonus !== 0 || e.critMultBonus !== 0 ||
-        e.statusChanceBonus !== 0 || e.multishotBonus !== 0 || e.fireRateBonus !== 0 ||
-        e.attackSpeedBonus !== 0 || e.magazineBonus !== 0 || e.reloadSpeedBonus !== 0 ||
-        e.heatBonus !== 0 || e.coldBonus !== 0 || e.electricityBonus !== 0 ||
-        e.toxinBonus !== 0 || e.impactBonus !== 0 || e.punctureBonus !== 0 ||
-        e.slashBonus !== 0 || e.magneticBonus !== 0 || e.radiationBonus !== 0
-    );
+    return Object.values(e).some(v => v !== 0);
 }
 
-/** Normalise compatName to our canonical set */
-function normaliseCompat(raw: string): ModCompatName | null {
-    const t = raw.trim();
-    if (t === "Rifle" || t === "Assault Rifle" || t === "Sniper Rifle" || t === "Sniper") return "Rifle";
-    if (t === "Shotgun") return "Shotgun";
-    if (t === "Pistol") return "Pistol";
-    if (t === "Bow") return "Bow";
-    if (t === "Melee") return "Melee";
-    return null;
+/** Detect trigger restriction from mod name (e.g. "Semi-Rifle Cannonade" → "Semi") */
+function detectTriggerRestriction(name: string): string | undefined {
+    if (/^semi-/i.test(name)) return "Semi";
+    return undefined;
 }
 
-// ---- Public API ----
+// ---- Cache ----
 
-/** Map from (name+compat) → best version (highest fusionLimit) */
-let _cache: Map<ModCompatName, ModEntry[]> | null = null;
+interface ModCaches {
+    /** Generic weapon-class mods, keyed by bucket (Rifle, Shotgun, Pistol, Bow, Sniper, Primary, Melee) */
+    byBucket: Map<string, ModEntry[]>;
+    /**
+     * Weapon-specific augments, keyed by the rawCompatName (weapon name).
+     * e.g. "Hek" → [Scattered Justice, …]
+     */
+    byWeaponName: Map<string, ModEntry[]>;
+}
 
-function buildCache(): Map<ModCompatName, ModEntry[]> {
-    // Dedup key: keep highest-fusionLimit entry per (name, compat)
-    const best = new Map<string, { entry: Record<string, unknown>; fl: number }>();
+let _caches: ModCaches | null = null;
+
+function buildCaches(): ModCaches {
+    // Deduplicate: keep highest-fusionLimit entry per (name + bucket / rawCompatName)
+    const bestGeneric = new Map<string, { item: Record<string, unknown>; fl: number }>();
+    const bestAugment = new Map<string, { item: Record<string, unknown>; fl: number }>();
 
     for (const item of ALL) {
         if (item.category !== "Mods") continue;
         const rawCompat = String(item.compatName ?? "");
-        if (!WEAPON_COMPATS.has(rawCompat)) continue;
-        const compat = normaliseCompat(rawCompat);
-        if (!compat) continue;
         const name = String(item.name ?? "");
         const fl = Number(item.fusionLimit ?? 0);
-        const key = `${name}||${compat}`;
-        const cur = best.get(key);
-        if (!cur || fl > cur.fl) best.set(key, { entry: item, fl });
+
+        const bucket = COMPAT_MAP[rawCompat];
+        if (bucket) {
+            // Generic weapon-class mod
+            const key = `${name}||${bucket}`;
+            const cur = bestGeneric.get(key);
+            if (!cur || fl > cur.fl) bestGeneric.set(key, { item, fl });
+        } else if (rawCompat && rawCompat.length >= 2 && rawCompat.length <= 30) {
+            // Potential weapon-specific augment (compat name looks like a weapon name)
+            // Exclude known non-weapon compats
+            const skip = new Set(["ANY", "AURA", "BEAST", "COMPANION", "Archgun",
+                "Archmelee", "Archwing", "Railjack", "Parazon", "Tome",
+                "Assault Saw", "Gunblade", "Bayonet"]);
+            if (!skip.has(rawCompat) && !/^\s*[A-Z]+\s*$/.test(rawCompat)) {
+                const key = `${name}||${rawCompat}`;
+                const cur = bestAugment.get(key);
+                if (!cur || fl > cur.fl) bestAugment.set(key, { item: { ...item, _rawCompat: rawCompat }, fl });
+            }
+        }
     }
 
-    const byCompat = new Map<ModCompatName, ModEntry[]>();
-    const compats: ModCompatName[] = ["Rifle", "Shotgun", "Pistol", "Bow", "Melee"];
-    for (const c of compats) byCompat.set(c, []);
-
-    for (const { entry } of best.values()) {
-        const rawCompat = String(entry.compatName ?? "");
-        const compat = normaliseCompat(rawCompat)!;
-        const levelStats = entry.levelStats as Array<{ stats: string[] }> | undefined;
-        if (!levelStats || levelStats.length === 0) continue;
+    function parseEntry(item: Record<string, unknown>, bucket: string, rawCompat: string): ModEntry | null {
+        const levelStats = item.levelStats as Array<{ stats: string[] }> | undefined;
+        if (!levelStats || levelStats.length === 0) return null;
 
         const maxRankStats = levelStats[levelStats.length - 1].stats ?? [];
         let effect = emptyEffect();
@@ -182,60 +199,133 @@ function buildCache(): Map<ModCompatName, ModEntry[]> {
             effect = mergeEffect(effect, parseStatLine(s));
         }
 
-        const fl = Number(entry.fusionLimit ?? 0);
-        const drain = Number(entry.baseDrain ?? 2) + fl;
+        const fl = Number(item.fusionLimit ?? 0);
+        const drain = Number(item.baseDrain ?? 2) + fl;
 
-        // Stats label: join stripped, de-colored strings
         const statsLabel = maxRankStats
             .map(s => stripColorTags(s))
             .filter(s => extractPercent(s) !== null)
             .join("  ·  ");
 
-        const modEntry: ModEntry = {
-            uniqueName: String(entry.uniqueName ?? ""),
-            name: String(entry.name ?? ""),
-            compatName: compat,
-            polarity: String(entry.polarity ?? ""),
-            rarity: String(entry.rarity ?? ""),
+        const name = String(item.name ?? "");
+
+        return {
+            uniqueName: String(item.uniqueName ?? ""),
+            name,
+            compatBucket: bucket,
+            rawCompatName: rawCompat,
+            polarity: String(item.polarity ?? ""),
+            rarity: String(item.rarity ?? ""),
             drain,
             fusionLimit: fl,
             statsLabel,
             effect,
             hasDamageEffect: hasDamageEffect(effect),
+            triggerRestriction: detectTriggerRestriction(name),
         };
-
-        byCompat.get(compat)!.push(modEntry);
     }
 
-    // Sort each compat list alphabetically
-    for (const list of byCompat.values()) {
-        list.sort((a, b) => a.name.localeCompare(b.name));
+    const byBucket = new Map<string, ModEntry[]>();
+    const byWeaponName = new Map<string, ModEntry[]>();
+
+    for (const { item, fl: _ } of bestGeneric.values()) {
+        const rawCompat = String(item.compatName ?? "");
+        const bucket = COMPAT_MAP[rawCompat];
+        if (!bucket) continue;
+        const entry = parseEntry(item, bucket, rawCompat);
+        if (!entry) continue;
+        if (!byBucket.has(bucket)) byBucket.set(bucket, []);
+        byBucket.get(bucket)!.push(entry);
     }
 
-    return byCompat;
+    for (const { item } of bestAugment.values()) {
+        const rawCompat = String((item._rawCompat as string | undefined) ?? item.compatName ?? "");
+        const entry = parseEntry(item, "Augment", rawCompat);
+        if (!entry) continue;
+        if (!byWeaponName.has(rawCompat)) byWeaponName.set(rawCompat, []);
+        byWeaponName.get(rawCompat)!.push(entry);
+    }
+
+    // Sort each list alphabetically
+    for (const list of byBucket.values()) list.sort((a, b) => a.name.localeCompare(b.name));
+    for (const list of byWeaponName.values()) list.sort((a, b) => a.name.localeCompare(b.name));
+
+    return { byBucket, byWeaponName };
 }
 
-function getCache(): Map<ModCompatName, ModEntry[]> {
-    if (!_cache) _cache = buildCache();
-    return _cache;
+function getCaches(): ModCaches {
+    if (!_caches) _caches = buildCaches();
+    return _caches;
+}
+
+// ---- Public API ----
+
+/**
+ * Returns the buckets to search for a given weapon modCompat, in priority order.
+ * e.g. "Sniper" weapons also accept Rifle and Primary mods.
+ */
+function bucketsForCompat(compat: ModCompatName): string[] {
+    switch (compat) {
+        case "Sniper":   return ["Sniper", "Rifle", "Primary"];
+        case "Rifle":    return ["Rifle", "Primary"];
+        case "Shotgun":  return ["Shotgun", "Primary"];
+        case "Bow":      return ["Bow", "Primary"];
+        case "Pistol":   return ["Pistol"];
+        case "Melee":    return ["Melee"];
+    }
 }
 
 /**
- * Get all mods compatible with the given weapon compat category.
- * Bow weapons accept both Bow mods AND Rifle mods.
+ * Get all mods compatible with a weapon's modCompat category (no trigger filtering,
+ * no weapon-specific augments).  Useful for generic mod browsing.
  */
 export function getModsForCompat(compat: ModCompatName): ModEntry[] {
-    const cache = getCache();
-    if (compat === "Bow") {
-        // Bow-specific mods + Rifle mods that also apply
-        const bow = cache.get("Bow") ?? [];
-        const rifle = cache.get("Rifle") ?? [];
-        const seen = new Set<string>();
-        const out: ModEntry[] = [];
-        for (const m of [...bow, ...rifle]) {
+    const { byBucket } = getCaches();
+    const seen = new Set<string>();
+    const out: ModEntry[] = [];
+    for (const bucket of bucketsForCompat(compat)) {
+        for (const m of byBucket.get(bucket) ?? []) {
             if (!seen.has(m.name)) { seen.add(m.name); out.push(m); }
         }
-        return out.sort((a, b) => a.name.localeCompare(b.name));
     }
-    return cache.get(compat) ?? [];
+    return out.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Get all mods valid for a specific weapon instance:
+ * - Generic compat mods for the weapon's class
+ * - Trigger-restriction filtering (e.g. Cannonade only on Semi weapons)
+ * - Weapon-specific augments (e.g. Scattered Justice on Hek/Vaykor Hek)
+ */
+export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
+    const { byWeaponName } = getCaches();
+    const baseMods = getModsForCompat(weapon.modCompat);
+
+    // Apply trigger restriction
+    const trigger = weapon.trigger ?? "";
+    const filtered = baseMods.filter(m =>
+        !m.triggerRestriction || m.triggerRestriction === trigger
+    );
+
+    // Add weapon-specific augments where compat name is a substring of weapon name
+    // (handles "Hek" matching both "Hek" and "Vaykor Hek")
+    const weaponNameLower = weapon.name.toLowerCase();
+    const augments: ModEntry[] = [];
+    const augSeen = new Set(filtered.map(m => m.name));
+
+    for (const [compatKey, mods] of byWeaponName.entries()) {
+        const compatLower = compatKey.toLowerCase();
+        if (weaponNameLower.includes(compatLower) || compatLower.includes(weaponNameLower)) {
+            for (const m of mods) {
+                if (!augSeen.has(m.name)) {
+                    augSeen.add(m.name);
+                    augments.push(m);
+                }
+            }
+        }
+    }
+
+    const out = [...filtered];
+    if (augments.length > 0) out.push(...augments.sort((a, b) => a.name.localeCompare(b.name)));
+    return out;
 }
