@@ -123,6 +123,7 @@ export interface TrackerStore {
 
     toggleNightwaveChallengeDone: (id: string) => void;
     isNightwaveChallengeDone: (id: string) => boolean;
+    setNightwaveChallengesDone: (ids: string[], done: boolean) => void;
 
     toggleEventDone: (id: string) => void;
     isEventDone: (id: string) => boolean;
@@ -888,6 +889,26 @@ export const useTrackerStore = create<TrackerStore>()(
 
             isNightwaveChallengeDone: (id) => {
                 return get().state.worldState?.doneNightwaveChallenges?.includes(id) ?? false;
+            },
+
+            setNightwaveChallengesDone: (ids, done) => {
+                set((s) => {
+                    if (!s.state.worldState) {
+                        s.state.worldState = { doneInvasions: [], doneNightwaveChallenges: [] };
+                    }
+                    if (!s.state.worldState.doneNightwaveChallenges) {
+                        s.state.worldState.doneNightwaveChallenges = [];
+                    }
+                    const list = s.state.worldState.doneNightwaveChallenges;
+                    if (done) {
+                        for (const id of ids) {
+                            if (!list.includes(id)) list.push(id);
+                        }
+                    } else {
+                        s.state.worldState.doneNightwaveChallenges = list.filter((id) => !ids.includes(id));
+                    }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
             },
 
             toggleEventDone: (id) => {

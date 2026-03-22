@@ -857,9 +857,8 @@ type HintMaps = { inline: Record<string, React.ReactNode>; expandable: Record<st
 /** Build per-task world state hint maps from live data.
  *  `inline`     — always visible (e.g. calendar button)
  *  `expandable` — revealed by chevron (missions, acts, choices, etc.)
- *  `nightwaveAutoTaskIds` — task IDs auto-completed from the Nightwave tracker
  */
-function buildWorldStateHints(data: WorldStateData | null, nightwaveAutoTaskIds: Set<string>): HintMaps {
+function buildWorldStateHints(data: WorldStateData | null): HintMaps {
     if (!data) return { inline: {}, expandable: {} };
     const inline: Record<string, React.ReactNode> = {};
     const expandable: Record<string, React.ReactNode> = {};
@@ -920,13 +919,8 @@ function buildWorldStateHints(data: WorldStateData | null, nightwaveAutoTaskIds:
         const weekly = nw.activeChallenges.filter((a) => !a.isDaily && !a.isElite);
         const elite  = nw.activeChallenges.filter((a) => a.isElite);
 
-        const renderActs = (acts: typeof daily, taskId: string) => acts.length === 0 ? null : (
+        const renderActs = (acts: typeof daily) => acts.length === 0 ? null : (
             <div className="mt-1.5 space-y-1">
-                {nightwaveAutoTaskIds.has(taskId) && (
-                    <div className="text-[9px] text-emerald-500 font-medium mb-1">
-                        All acts completed in Nightwave tracker — auto-marked
-                    </div>
-                )}
                 {acts.map((act) => (
                     <div key={act.id} className="rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1">
                         <div className="flex items-center justify-between gap-1">
@@ -939,9 +933,9 @@ function buildWorldStateHints(data: WorldStateData | null, nightwaveAutoTaskIds:
             </div>
         );
 
-        if (daily.length > 0)  hints["nightwave_daily"]  = renderActs(daily,  "nightwave_daily");
-        if (weekly.length > 0) hints["nightwave_weekly"] = renderActs(weekly, "nightwave_weekly");
-        if (elite.length > 0)  hints["nightwave_elite"]  = renderActs(elite,  "nightwave_elite");
+        if (daily.length > 0)  hints["nightwave_daily"]  = renderActs(daily);
+        if (weekly.length > 0) hints["nightwave_weekly"] = renderActs(weekly);
+        if (elite.length > 0)  hints["nightwave_elite"]  = renderActs(elite);
     }
 
     // ── Circuit choices ──────────────────────────────────────────────────────────
@@ -1521,7 +1515,7 @@ function CustomizePanel({
 export default function WarframeResetTracker() {
     const completedPrereqs = useTrackerStore((s) => s.state.prereqs.completed) ?? {};
     const syndicates = useTrackerStore((s) => s.state.syndicates) ?? [];
-    const doneNightwaveChallenges = useTrackerStore((s) => s.state.worldState?.doneNightwaveChallenges ?? []);
+    const setNightwaveChallengesDone = useTrackerStore((s) => s.setNightwaveChallengesDone);
 
     const [rc, setRc] = useState<RCState>(() => loadState());
     const [now, setNow] = useState(() => new Date());
@@ -1581,37 +1575,9 @@ export default function WarframeResetTracker() {
         };
     }, [rc, now]);
 
-    // Auto-complete nightwave reset tasks when all challenges of that type are marked done
-    const nightwaveAutoTaskIds = useMemo((): Set<string> => {
-        if (!wsData?.nightwave) return new Set();
-        const { activeChallenges } = wsData.nightwave;
-        const daily  = activeChallenges.filter((a) => a.isDaily);
-        const weekly = activeChallenges.filter((a) => !a.isDaily && !a.isElite);
-        const elite  = activeChallenges.filter((a) => a.isElite);
-        const done = new Set(doneNightwaveChallenges);
-        const result = new Set<string>();
-        if (daily.length  > 0 && daily.every( (a) => done.has(a.id))) result.add("nightwave_daily");
-        if (weekly.length > 0 && weekly.every((a) => done.has(a.id))) result.add("nightwave_weekly");
-        if (elite.length  > 0 && elite.every( (a) => done.has(a.id))) result.add("nightwave_elite");
-        return result;
-    }, [wsData, doneNightwaveChallenges]);
-
-    // Merge auto-completed nightwave IDs into completedIds so tasks render as done
-    const effectiveCompletedIds = useMemo(() => {
-        const injectAuto = (arr: string[], ...taskIds: string[]) => {
-            const extra = taskIds.filter((id) => nightwaveAutoTaskIds.has(id) && !arr.includes(id));
-            return extra.length > 0 ? [...arr, ...extra] : arr;
-        };
-        return {
-            ...completedIds,
-            primary_daily: injectAuto(completedIds.primary_daily, "nightwave_daily"),
-            weekly_monday: injectAuto(completedIds.weekly_monday, "nightwave_weekly", "nightwave_elite"),
-        };
-    }, [completedIds, nightwaveAutoTaskIds]);
-
     const { inline: wsInlineHints, expandable: wsExpandableHints } = useMemo(
-        () => buildWorldStateHints(wsData, nightwaveAutoTaskIds),
-        [wsData, nightwaveAutoTaskIds]
+        () => buildWorldStateHints(wsData),
+        [wsData]
     );
 
     const eligibleTasks = useMemo(
@@ -1683,6 +1649,21 @@ export default function WarframeResetTracker() {
     }, []);
 
     const toggle = useCallback((id: string, bucket: Bucket) => {
+        // When a nightwave reset task is toggled, sync the individual challenges in the Nightwave tracker
+        if (id === "nightwave_daily" || id === "nightwave_weekly" || id === "nightwave_elite") {
+            const activeChallenges = wsData?.nightwave?.activeChallenges ?? [];
+            const challengeIds =
+                id === "nightwave_daily"  ? activeChallenges.filter((a) => a.isDaily).map((a) => a.id) :
+                id === "nightwave_weekly" ? activeChallenges.filter((a) => !a.isDaily && !a.isElite).map((a) => a.id) :
+                                           activeChallenges.filter((a) => a.isElite).map((a) => a.id);
+            const bucket2Key = bucket === "primary_daily" ? "completedPrimaryDailyTaskIds" as const : "completedWeeklyMondayTaskIds" as const;
+            // Determine direction: if task is not yet done, we're marking it done
+            const markingDone = !completedIds[bucket === "primary_daily" ? "primary_daily" : "weekly_monday"].includes(id);
+            if (challengeIds.length > 0) setNightwaveChallengesDone(challengeIds, markingDone);
+            toggleStandard(id, bucket2Key);
+            return;
+        }
+
         if (bucket === "primary_daily") {
             toggleStandard(id, "completedPrimaryDailyTaskIds");
             return;
@@ -1720,7 +1701,7 @@ export default function WarframeResetTracker() {
 
             toggleStandard(id, "completedWeeklyMondayTaskIds");
         }
-    }, [toggleStandard]);
+    }, [toggleStandard, wsData, completedIds, setNightwaveChallengesDone]);
 
     const clearBucket = useCallback((ck: keyof RCState) => setRc((p) => ({ ...p, [ck]: [] })), []);
     const clearWeeklyMonday = useCallback(() => {
@@ -1848,7 +1829,7 @@ export default function WarframeResetTracker() {
                     const tasks = isConclave ? conclaveTotalTasks : bucketTasks.length;
                     const done = isConclave
                         ? conclaveTotalDone
-                        : getCompletedTaskCount(bucketTasks, effectiveCompletedIds[b as Exclude<Bucket, "conclave">] as string[], rc.netracellRuns);
+                        : getCompletedTaskCount(bucketTasks, completedIds[b as Exclude<Bucket, "conclave">] as string[], rc.netracellRuns);
                     const pct = tasks > 0 ? Math.round((done / tasks) * 100) : 0;
                     const ms = msFor(b);
                     const tier = tierFor(b);
@@ -1859,7 +1840,7 @@ export default function WarframeResetTracker() {
                             ...conclaveDaily.filter((t) => getTaskRenderState(t, completedIds.conclave_daily, 0) === "pending"),
                             ...conclaveWeekly.filter((t) => getTaskRenderState(t, completedIds.conclave_weekly, 0) === "pending"),
                         ]
-                        : bucketTasks.filter((t) => getTaskRenderState(t, effectiveCompletedIds[b as Exclude<Bucket, "conclave">] as string[], rc.netracellRuns) === "pending");
+                        : bucketTasks.filter((t) => getTaskRenderState(t, completedIds[b as Exclude<Bucket, "conclave">] as string[], rc.netracellRuns) === "pending");
 
                     return (
                         <button
@@ -1918,7 +1899,7 @@ export default function WarframeResetTracker() {
                 <TaskPanel
                     bucket={selected}
                     tasks={byBucket(selected as Exclude<Bucket, "conclave">)}
-                    completedIds={effectiveCompletedIds[selected as Exclude<Bucket, "conclave">] as string[]}
+                    completedIds={completedIds[selected as Exclude<Bucket, "conclave">] as string[]}
                     tier={tierFor(selected)}
                     onToggle={(id) => toggle(id, selected)}
                     onClear={() => selected === "weekly_monday" ? clearWeeklyMonday() : clearBucket(COMPLETED_KEY[selected as Exclude<Bucket, "conclave">]!)}
