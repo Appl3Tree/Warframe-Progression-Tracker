@@ -122,6 +122,7 @@ type ModSection = "mods" | "arcanes";
 type OwnedFilter = "all" | "owned" | "unowned";
 
 const EMPTY_COUNTS: Record<string, number> = {};
+const EMPTY_ARCANE_RANKS: Record<string, Record<string, number>> = {};
 function modKey(path: string): string { return `mods:${path}`; }
 
 type ModCategory =
@@ -1576,7 +1577,7 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
 
 export default function Mods() {
   const counts             = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_COUNTS);
-  const arcaneRanksMap     = useTrackerStore((s) => s.state.inventory.arcaneRanks ?? {});
+  const arcaneRanksMap     = useTrackerStore((s) => s.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
   const setCount           = useTrackerStore((s) => s.setCount);
   const setArcaneRankCount = useTrackerStore((s) => s.setArcaneRankCount);
 
