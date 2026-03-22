@@ -29,9 +29,9 @@ Tasks are organized by priority. Update this list as work progresses.
 
 ### 🔵 New Features (Roadmap)
 
-- [ ] Relic farming assistant (void fissure tier optimizer, void trace calculator)
+- [x] Relic farming assistant (void fissure tier optimizer, void trace calculator)
 - [ ] Mod ownership tracking (prerequisite for loadout planning)
-- [ ] Vaulted/unvaulted item status integration
+- [x] Vaulted/unvaulted item status integration
 - [ ] Nightwave challenge optimizer ("which weeklies give max creds fastest?")
 - [ ] Steel Path rotation calendar (when does my target item return?)
 
