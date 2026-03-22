@@ -191,6 +191,16 @@ function applyParsedProfile(state: UserStateV2, parsed: ProfileImportResult): vo
     if (parsed.challenges) state.challenges = parsed.challenges;
     if (parsed.intrinsics) state.intrinsics = parsed.intrinsics;
 
+    // Merge mod counts into inventory (keyed as "mods:<LotusPath>").
+    // Overwrite existing counts for mods present in the import; leave
+    // manually-entered counts for mods not in the export intact.
+    if (parsed.modCounts && Object.keys(parsed.modCounts).length > 0) {
+        if (!state.inventory.counts) state.inventory.counts = {};
+        for (const [key, count] of Object.entries(parsed.modCounts)) {
+            state.inventory.counts[key] = count;
+        }
+    }
+
     // Mark standing tasks done in the WarframeResetTracker when the daily cap
     // is fully spent. parseProfileViewingData returns empty arrays so this
     // block is skipped for that source.
