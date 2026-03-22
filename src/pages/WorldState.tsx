@@ -1052,8 +1052,8 @@ function MissionsTab({ data }: { data: WorldStateData }) {
 
 // ── Nightwave section (with optimizer) ────────────────────────────────────────
 
-const NIGHTWAVE_RANK_COST = 10_000; // standing per rank
-const NORA_CREDS_PER_RANK = 50;     // creds awarded each rank (standard ranks)
+const NIGHTWAVE_RANK_COST = 10_000;         // standing per rank
+const NORA_CREDS_PER_PRESTIGE_RANK = 15;   // creds per prestige rank (ranks 31+); ranks 1–30 vary by season
 
 function NightwaveSection({ nightwave }: { nightwave: Nightwave }) {
     const now = useNow();
@@ -1080,7 +1080,7 @@ function NightwaveSection({ nightwave }: { nightwave: Nightwave }) {
         .filter((a) => !isNightwaveChallengeDone(a.id))
         .sort((a, b) => b.reputation - a.reputation);
     const potentialRep   = undoneByRep.reduce((s, a) => s + a.reputation, 0);
-    const potentialCreds = Math.floor(potentialRep / NIGHTWAVE_RANK_COST) * NORA_CREDS_PER_RANK;
+    const potentialPrestigeCreds = Math.floor(potentialRep / NIGHTWAVE_RANK_COST) * NORA_CREDS_PER_PRESTIGE_RANK;
 
     return (
         <section>
@@ -1124,9 +1124,9 @@ function NightwaveSection({ nightwave }: { nightwave: Nightwave }) {
                             <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px]">
                                 <span className="text-slate-500">{undoneByRep.length} acts remaining · {potentialRep.toLocaleString()} rep available</span>
                                 <span className="font-semibold text-amber-300">
-                                    ≈ {potentialCreds} Nora's Creds potential
+                                    ≈ {potentialPrestigeCreds} Nora's Creds (prestige rate)
                                 </span>
-                                <span className="text-slate-600 italic">(assumes 50 creds / rank · {NIGHTWAVE_RANK_COST.toLocaleString()} standing / rank)</span>
+                                <span className="text-slate-600 italic">(15 creds/rank for prestige ranks 31+ · ranks 1–30 vary by season)</span>
                             </div>
                             {undoneByRep.length === 0 ? (
                                 <div className="text-xs text-slate-500 italic">All acts completed.</div>
@@ -1147,7 +1147,7 @@ function NightwaveSection({ nightwave }: { nightwave: Nightwave }) {
                                                         <div key={`rank-${r}`} className="flex items-center gap-2 py-1 my-0.5">
                                                             <div className="flex-1 h-px bg-amber-800/40" />
                                                             <span className="shrink-0 text-[9px] font-bold uppercase tracking-wide text-amber-400 px-1.5 py-0.5 rounded border border-amber-700/40 bg-amber-950/30">
-                                                                Rank up → +{NORA_CREDS_PER_RANK} Nora's Creds
+                                                                Rank up → +{NORA_CREDS_PER_PRESTIGE_RANK} Nora's Creds (prestige)
                                                             </span>
                                                             <div className="flex-1 h-px bg-amber-800/40" />
                                                         </div>
