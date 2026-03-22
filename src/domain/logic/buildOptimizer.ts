@@ -3,6 +3,7 @@
 
 import type { WeaponEntry } from "../catalog/weaponCatalog";
 import type { ModEntry } from "../catalog/modCatalog";
+import { getModsForWeapon } from "../catalog/modCatalog";
 import { calculateBuild, avgCritMultiplier } from "./damageCalc";
 
 export type OptimizeGoal =
@@ -32,15 +33,17 @@ function score(weapon: WeaponEntry, slots: (ModEntry | null)[], goal: OptimizeGo
 /**
  * Greedy best-first optimizer.  Fills up to `slotCount` slots one at a time,
  * each time picking the available mod that maximises the objective score.
+ * Uses getModsForWeapon so trigger restrictions and augments are respected.
  *
  * Returns an array of selected mods (length ≤ slotCount).
  */
 export function optimizeBuild(
     weapon: WeaponEntry,
-    availableMods: ModEntry[],
+    availableMods: ModEntry[] | null,  // null = auto-derive from weapon
     goal: OptimizeGoal,
     slotCount: number,
 ): ModEntry[] {
+    if (!availableMods) availableMods = getModsForWeapon(weapon);
     const selected: (ModEntry | null)[] = Array(slotCount).fill(null);
     const usedNames = new Set<string>();
 
