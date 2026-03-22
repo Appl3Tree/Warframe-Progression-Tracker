@@ -145,6 +145,12 @@ export type ProfileImportResult = {
     };
 
     /**
+     * Mod/arcane counts keyed by "mods:<LotusPath>".
+     * Only present when the source JSON contains a Mods array (profile viewing data).
+     */
+    modCounts?: Record<string, number>;
+
+    /**
      * WarframeResetTracker task IDs that should be marked done because the
      * player has already spent the full daily cap (remaining === 0).
      * Keyed by the bucket they belong to in the reset tracker's localStorage state.
@@ -857,6 +863,21 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
         }
     }
 
+    // Mod counts: root.Mods is an array of { ItemType, ItemCount } in the
+    // profile viewing data export. ItemCount defaults to 1 when absent.
+    let modCountsResult: Record<string, number> | undefined;
+    if (Array.isArray(root?.Mods)) {
+        const counts: Record<string, number> = {};
+        for (const m of root.Mods) {
+            if (!isObject(m)) continue;
+            const itemType = typeof m.ItemType === "string" ? m.ItemType : "";
+            if (!itemType) continue;
+            const count = typeof m.ItemCount === "number" ? Math.max(1, Math.floor(m.ItemCount)) : 1;
+            counts[`mods:${itemType}`] = count;
+        }
+        if (Object.keys(counts).length > 0) modCountsResult = counts;
+    }
+
     return {
         displayName,
         masteryRank,
@@ -869,6 +890,7 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
         completedNodeIds,
         challenges: challengesResult,
         intrinsics: intrinsicsResult,
+        modCounts: modCountsResult,
         completedResetTaskIds: { primary_daily: [], conclave_daily: [] },
     };
 }

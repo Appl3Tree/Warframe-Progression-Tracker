@@ -1,6 +1,7 @@
 // src/pages/Mods.tsx
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
+import { useTrackerStore } from "../store/store";
 import MODS_RAW from "../data/mods.json";
 import RIVENS_RAW from "../data/rivens.json";
 import MODDESC_RAW from "../data/moddescriptions.json";
@@ -118,6 +119,10 @@ interface ModEntry {
 }
 
 type ModSection = "mods" | "arcanes";
+type OwnedFilter = "all" | "owned" | "unowned";
+
+const EMPTY_COUNTS: Record<string, number> = {};
+function modKey(path: string): string { return `mods:${path}`; }
 
 type ModCategory =
   | "all"
@@ -1166,6 +1171,10 @@ function ModModal({
   isRiven?: boolean;
   onClose: () => void;
 }) {
+  const counts  = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_COUNTS);
+  const setCount = useTrackerStore((s) => s.setCount);
+  const key = modKey(entry.path);
+  const owned = counts[key] ?? 0;
   const data = entry.data;
   const allEntry = ALL_MODS_BY_PATH[entry.path] ?? ALL_MODS_BY_NAME[entry.name ?? ""];
 
@@ -1225,6 +1234,18 @@ function ModModal({
             {isWarframeAugment     && <span className="text-[10px] px-1.5 py-0.5 rounded border border-purple-700/50 bg-purple-950/30 text-purple-300 font-semibold">AUGMENT</span>}
             {allEntry?.tradable    && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-600    bg-slate-800    text-slate-400">Tradable</span>}
             {allEntry?.transmutable && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-600   bg-slate-800    text-slate-400">Transmutable</span>}
+          </div>
+          <div className="shrink-0 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+            <span className="text-[10px] text-slate-500 mr-1">Owned</span>
+            <button
+              className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center"
+              onClick={() => setCount(key, Math.max(0, owned - 1))} title="Decrease count"
+            >−</button>
+            <span className={["w-7 text-center text-sm font-mono font-semibold", owned > 0 ? "text-emerald-400" : "text-slate-500"].join(" ")}>{owned}</span>
+            <button
+              className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center"
+              onClick={() => setCount(key, owned + 1)} title="Increase count"
+            >+</button>
           </div>
           <button className="shrink-0 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800" onClick={onClose}>Close</button>
         </div>
@@ -1358,6 +1379,10 @@ function extractScriptLevels(u: ModUpgrade): number[] | null {
 }
 
 function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void }) {
+  const counts   = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_COUNTS);
+  const setCount = useTrackerStore((s) => s.setCount);
+  const key   = modKey(entry.path);
+  const owned = counts[key] ?? 0;
   const data = entry.data;
   const maxRank = decodeMaxRank(data?.FusionLimit);
   const upgrades = (data?.Upgrades ?? []).concat((data as any)?.ExtraUpgrades ?? []);
@@ -1438,6 +1463,18 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
             {allEntry?.type && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-700 bg-slate-900 text-slate-400">{allEntry.type}</span>}
             {allEntry?.introduced && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-800 bg-slate-900 text-slate-500">{allEntry.introduced.name}</span>}
           </div>
+          <div className="shrink-0 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+            <span className="text-[10px] text-slate-500 mr-1">Owned</span>
+            <button
+              className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center"
+              onClick={() => setCount(key, Math.max(0, owned - 1))} title="Decrease count"
+            >−</button>
+            <span className={["w-7 text-center text-sm font-mono font-semibold", owned > 0 ? "text-emerald-400" : "text-slate-500"].join(" ")}>{owned}</span>
+            <button
+              className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center"
+              onClick={() => setCount(key, owned + 1)} title="Increase count"
+            >+</button>
+          </div>
           <button className="shrink-0 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800" onClick={onClose}>Close</button>
         </div>
 
@@ -1503,6 +1540,8 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function Mods() {
+  const counts = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_COUNTS);
+
   const [section, setSection] = useState<ModSection>("mods");
 
   // Mods state
@@ -1511,12 +1550,14 @@ export default function Mods() {
   const [parazonFilter, setParazonFilter] = useState<ParazonFilter>("all");
   const [modSearch, setModSearch] = useState("");
   const [modSort, setModSort] = useState<ModSortKey>("az");
+  const [modOwnedFilter, setModOwnedFilter] = useState<OwnedFilter>("all");
   const [selectedMod, setSelectedMod] = useState<ModEntry | null>(null);
 
   // Arcanes state
   const [arcaneCategory, setArcaneCategory] = useState<ArcaneCategory>("all");
   const [arcaneSearch, setArcaneSearch] = useState("");
   const [arcaneSort, setArcaneSort] = useState<ModSortKey>("az");
+  const [arcaneOwnedFilter, setArcaneOwnedFilter] = useState<OwnedFilter>("all");
   const [selectedArcane, setSelectedArcane] = useState<ModEntry | null>(null);
 
   // ── Mods list ──────────────────────────────────────────────────────────────
@@ -1573,6 +1614,9 @@ export default function Mods() {
 
     if (q) list = list.filter((e) => normalize(e.name).includes(q));
 
+    if (modOwnedFilter === "owned")   list = list.filter((e) => (counts[modKey(e.path)] ?? 0) > 0);
+    if (modOwnedFilter === "unowned") list = list.filter((e) => (counts[modKey(e.path)] ?? 0) === 0);
+
     list.sort((a, b) => {
       if (modSort === "release-newest" || modSort === "release-oldest") {
         const ad = (ALL_MODS_BY_PATH[a.path] ?? ALL_MODS_BY_NAME[a.name])?.releaseDate ?? "";
@@ -1590,7 +1634,7 @@ export default function Mods() {
       return a.name.localeCompare(b.name);
     });
     return list;
-  }, [modCategory, modPolarity, parazonFilter, modSearch, modSort]);
+  }, [modCategory, modPolarity, parazonFilter, modSearch, modSort, modOwnedFilter, counts]);
 
   // ── Arcanes list ───────────────────────────────────────────────────────────
 
@@ -1608,6 +1652,9 @@ export default function Mods() {
     }
 
     if (q) list = list.filter((e) => normalize(e.name).includes(q));
+
+    if (arcaneOwnedFilter === "owned")   list = list.filter((e) => (counts[modKey(e.path)] ?? 0) > 0);
+    if (arcaneOwnedFilter === "unowned") list = list.filter((e) => (counts[modKey(e.path)] ?? 0) === 0);
 
     list.sort((a, b) => {
       if (arcaneSort === "release-newest" || arcaneSort === "release-oldest") {
@@ -1628,7 +1675,7 @@ export default function Mods() {
       return a.name.localeCompare(b.name);
     });
     return list;
-  }, [arcaneCategory, arcaneSearch, arcaneSort]);
+  }, [arcaneCategory, arcaneSearch, arcaneSort, arcaneOwnedFilter, counts]);
 
   // ── Virtualization ─────────────────────────────────────────────────────────
   // Each row is a button with py-2.5 + text-sm + border ≈ 42px, plus mb-0.5 gap.
@@ -1825,6 +1872,17 @@ export default function Mods() {
               </div>
             )}
 
+            {/* Owned filter */}
+            <div className="mb-3">
+              <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Ownership</div>
+              <div className="flex gap-1.5">
+                {(["all", "owned", "unowned"] as const).map((f) => (
+                  <SubPill key={f} label={f === "all" ? "All" : f === "owned" ? "Owned" : "Not Owned"}
+                    active={modOwnedFilter === f} onClick={() => setModOwnedFilter(f)} />
+                ))}
+              </div>
+            </div>
+
             {/* Search + Sort */}
             <div className="mb-3 flex flex-wrap gap-2 items-end">
               <input
@@ -1874,6 +1932,7 @@ export default function Mods() {
                       const polarity = e.data?.ArtifactPolarity ?? toAP(_allE?.polarity);
                       const rarityRaw = e.data?.Rarity ?? ALL_MODS_BY_PATH[e.path]?.rarity ?? "";
                       const rarity = rarityRaw.toUpperCase();
+                      const ownedCount = counts[modKey(e.path)] ?? 0;
                       return (
                         <div key={e.path} className="flex items-center gap-1 mb-0.5">
                           <button
@@ -1907,6 +1966,11 @@ export default function Mods() {
                                 {rarity.charAt(0) + rarity.slice(1).toLowerCase()}
                               </span>
                             )}
+                            {ownedCount > 0 && (
+                              <span className="shrink-0 text-[10px] font-semibold text-emerald-400 px-1 py-0.5 rounded border border-emerald-800/50 bg-emerald-950/30" title={`${ownedCount} owned`}>
+                                ×{ownedCount}
+                              </span>
+                            )}
                           </button>
                           <WikiLink name={e.name} />
                         </div>
@@ -1938,6 +2002,17 @@ export default function Mods() {
                       setSelectedArcane(null);
                     }}
                   />
+                ))}
+              </div>
+            </div>
+
+            {/* Owned filter */}
+            <div className="mb-3">
+              <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Ownership</div>
+              <div className="flex gap-1.5">
+                {(["all", "owned", "unowned"] as const).map((f) => (
+                  <SubPill key={f} label={f === "all" ? "All" : f === "owned" ? "Owned" : "Not Owned"}
+                    active={arcaneOwnedFilter === f} onClick={() => setArcaneOwnedFilter(f)} />
                 ))}
               </div>
             </div>
@@ -2002,6 +2077,7 @@ export default function Mods() {
                   >
                     {filteredArcanes.slice(arcanesVw.start, arcanesVw.end).map((e) => {
                       const isSelected = selectedArcane?.path === e.path;
+                      const ownedCount = counts[modKey(e.path)] ?? 0;
                       return (
                         <div key={e.path} className="flex items-center gap-1 mb-0.5">
                           <button
@@ -2014,6 +2090,11 @@ export default function Mods() {
                             onClick={() => setSelectedArcane(isSelected ? null : e)}
                           >
                             <span className="flex-1 font-medium truncate">{e.name}</span>
+                            {ownedCount > 0 && (
+                              <span className="shrink-0 text-[10px] font-semibold text-emerald-400 px-1 py-0.5 rounded border border-emerald-800/50 bg-emerald-950/30" title={`${ownedCount} owned`}>
+                                ×{ownedCount}
+                              </span>
+                            )}
                           </button>
                           <WikiLink name={e.name} />
                         </div>
