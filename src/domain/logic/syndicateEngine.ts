@@ -4,9 +4,9 @@
 import type { SyndicateVendorEntry, SyndicateRankUpRequirement } from "../../domain/catalog/syndicates/syndicateVendorCatalog";
 import { SYNDICATE_VENDOR_CATALOG } from "../../domain/catalog/syndicates/syndicateVendorCatalog";
 
-// Standing daily caps per Mastery Rank (approximate in-game values)
+// Standing daily caps per Mastery Rank (in-game values: 16,000 base + 500 per MR)
 const STANDING_CAP_BASE = 16_000;
-const STANDING_CAP_PER_MR = 1_000;
+const STANDING_CAP_PER_MR = 500;
 
 export function getStandingCapPerDay(masteryRank: number): number {
     const mr = Math.max(0, Math.floor(masteryRank));

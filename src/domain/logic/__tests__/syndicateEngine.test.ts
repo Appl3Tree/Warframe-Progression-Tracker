@@ -55,10 +55,10 @@ describe("getStandingCapPerDay", () => {
         expect(getStandingCapPerDay(0)).toBe(16_000);
     });
 
-    it("adds 1,000 per MR rank", () => {
-        expect(getStandingCapPerDay(1)).toBe(17_000);
-        expect(getStandingCapPerDay(10)).toBe(26_000);
-        expect(getStandingCapPerDay(30)).toBe(46_000);
+    it("adds 500 per MR rank", () => {
+        expect(getStandingCapPerDay(1)).toBe(16_500);
+        expect(getStandingCapPerDay(10)).toBe(21_000);
+        expect(getStandingCapPerDay(30)).toBe(31_000);
     });
 
     it("clamps negative MR to 0", () => {
