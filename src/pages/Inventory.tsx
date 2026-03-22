@@ -2319,6 +2319,16 @@ export default function Inventory() {
                       String(r.id),
                       r.path,
                     );
+                  const rowAllE = ALL_BY_UNIQUE[r.path];
+                  const isVaulted = rowAllE?.vaulted ?? false;
+                  const hasVaultedParts =
+                    !isVaulted &&
+                    (rowAllE?.components?.some(
+                      (comp) =>
+                        comp.uniqueName &&
+                        ALL_BY_UNIQUE[comp.uniqueName]?.vaulted,
+                    ) ??
+                      false);
 
                   return (
                     <div
@@ -2349,22 +2359,42 @@ export default function Inventory() {
                                 : "Not owned"
                           }
                         />
-                        <button
-                          className={[
-                            "text-left truncate text-sm transition-colors hover:text-cyan-300",
-                            isMastered
-                              ? "text-cyan-400/80"
-                              : isOwned
-                                ? "text-slate-100"
-                                : "text-slate-400",
-                          ].join(" ")}
-                          onClick={() =>
-                            setSelectedDetailId(isSelected ? null : r.id)
-                          }
-                          title="Click for details"
-                        >
-                          {r.label}
-                        </button>
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <button
+                              className={[
+                                "text-left truncate text-sm transition-colors hover:text-cyan-300 min-w-0",
+                                isMastered
+                                  ? "text-cyan-400/80"
+                                  : isOwned
+                                    ? "text-slate-100"
+                                    : "text-slate-400",
+                              ].join(" ")}
+                              onClick={() =>
+                                setSelectedDetailId(isSelected ? null : r.id)
+                              }
+                              title="Click for details"
+                            >
+                              {r.label}
+                            </button>
+                            {isVaulted && (
+                              <span
+                                className="shrink-0 text-[10px] px-1.5 py-0.5 rounded border border-rose-700/50 bg-rose-950/40 text-rose-400 font-semibold"
+                                title="This prime item is vaulted — obtain via trading or Prime Resurgence (Varzia)"
+                              >
+                                VAULTED
+                              </span>
+                            )}
+                            {hasVaultedParts && (
+                              <span
+                                className="shrink-0 text-[10px] px-1.5 py-0.5 rounded border border-orange-700/50 bg-orange-950/40 text-orange-400 font-semibold"
+                                title="This item requires vaulted components to build"
+                              >
+                                VAULTED PARTS
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
                       {/* Count with +/- buttons */}
