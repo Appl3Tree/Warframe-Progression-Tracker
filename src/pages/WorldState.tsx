@@ -1120,14 +1120,11 @@ function ActivitiesTab({ data }: { data: WorldStateData }) {
                                         return (
                                             <div key={act.id} className={["rounded-lg border px-2.5 py-2 transition-colors", done ? "border-emerald-900/40 bg-emerald-950/10 opacity-60" : "border-slate-800 bg-slate-900/40"].join(" ")}>
                                                 <div className="flex items-start justify-between gap-2">
-                                                    <div className="min-w-0 flex items-start gap-2">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={done}
-                                                            onChange={() => toggleNightwaveChallengeDone(act.id)}
-                                                            className="mt-0.5 shrink-0 cursor-pointer"
-                                                            title={done ? "Mark incomplete" : "Mark complete"}
-                                                        />
+                                                    <div className="min-w-0 flex items-start gap-1.5">
+                                                        {done
+                                                            ? <span className="text-green-500 text-xs shrink-0 mt-0.5">✓</span>
+                                                            : null
+                                                        }
                                                         <div className="min-w-0">
                                                             <div className="flex flex-wrap items-center gap-1 mb-0.5">
                                                                 {act.isElite && <span className="rounded border border-amber-700/50 bg-amber-950/30 px-1 py-px text-[9px] font-bold text-amber-300">ELITE</span>}
@@ -1144,9 +1141,14 @@ function ActivitiesTab({ data }: { data: WorldStateData }) {
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <div className="shrink-0 text-right">
+                                                    <div className="shrink-0 text-right flex flex-col items-end gap-1">
                                                         <div className={["text-xs font-bold", done ? "text-emerald-600 line-through" : "text-blue-300"].join(" ")}>{act.reputation.toLocaleString()}</div>
                                                         <div className="text-[9px] text-slate-500">rep</div>
+                                                        <button
+                                                            onClick={() => toggleNightwaveChallengeDone(act.id)}
+                                                            className={["text-[9px] transition-colors px-0.5", done ? "text-slate-700 hover:text-slate-400" : "text-slate-600 hover:text-green-400"].join(" ")}
+                                                            title={done ? "Mark as not done" : "Mark as done"}
+                                                        >{done ? "✕" : "✓"}</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1183,14 +1185,8 @@ function ActivitiesTab({ data }: { data: WorldStateData }) {
                                 <div key={ev.id} className={["rounded-xl border px-3 py-2.5 transition-colors", done ? "border-emerald-900/40 bg-emerald-950/10 opacity-60" : "border-slate-800 bg-slate-900/40"].join(" ")}>
                                     {/* Header: title + countdown + done toggle */}
                                     <div className="flex items-start justify-between gap-2 mb-1">
-                                        <div className="flex items-start gap-2 min-w-0">
-                                            <input
-                                                type="checkbox"
-                                                checked={done}
-                                                onChange={() => toggleEventDone(ev.id)}
-                                                className="mt-0.5 shrink-0 cursor-pointer"
-                                                title={done ? "Mark incomplete" : "Mark complete"}
-                                            />
+                                        <div className="flex items-start gap-1.5 min-w-0">
+                                            {done && <span className="text-green-500 text-xs shrink-0 mt-0.5">✓</span>}
                                             <div className="min-w-0">
                                                 <div className={["text-xs font-medium leading-tight", done ? "line-through text-slate-500" : "text-slate-200"].join(" ")}>{title}</div>
                                                 {subtitle && (
@@ -1198,9 +1194,16 @@ function ActivitiesTab({ data }: { data: WorldStateData }) {
                                                 )}
                                             </div>
                                         </div>
-                                        {ev.expiry && (
-                                            <Countdown expiry={ev.expiry} now={now} className="shrink-0 font-mono text-[10px] text-slate-400" />
-                                        )}
+                                        <div className="flex items-center gap-1.5 shrink-0">
+                                            {ev.expiry && (
+                                                <Countdown expiry={ev.expiry} now={now} className="font-mono text-[10px] text-slate-400" />
+                                            )}
+                                            <button
+                                                onClick={() => toggleEventDone(ev.id)}
+                                                className={["text-[9px] transition-colors px-0.5", done ? "text-slate-700 hover:text-slate-400" : "text-slate-600 hover:text-green-400"].join(" ")}
+                                                title={done ? "Mark as not done" : "Mark as done"}
+                                            >{done ? "✕" : "✓"}</button>
+                                        </div>
                                     </div>
 
                                     {/* Location */}

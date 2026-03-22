@@ -563,28 +563,41 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                 <div className="space-y-1.5">
                                     {sorted.map((act) => {
                                         const done = isNightwaveChallengeDone(act.id);
+                                        const typeBadge = act.isElite
+                                            ? <span className="shrink-0 rounded border border-amber-700/50 bg-amber-950/30 px-0.5 text-[8px] font-bold text-amber-300">ELITE</span>
+                                            : act.isDaily
+                                                ? <span className="shrink-0 rounded border border-sky-700/50 bg-sky-950/30 px-0.5 text-[8px] font-bold text-sky-300">DAILY</span>
+                                                : <span className="shrink-0 rounded border border-slate-700 bg-slate-800/60 px-0.5 text-[8px] font-bold text-slate-400">WK</span>;
+                                        if (done) {
+                                            return (
+                                                <div key={act.id} className="border-t border-slate-800/60 pt-1 first:border-0 first:pt-0 flex items-center gap-1.5">
+                                                    <span className="text-green-500 text-xs shrink-0">✓</span>
+                                                    {typeBadge}
+                                                    <span className="text-[10px] text-slate-500 truncate flex-1 line-through">{act.title}</span>
+                                                    <span className="text-[10px] text-slate-700 line-through shrink-0">{act.reputation.toLocaleString()}</span>
+                                                    <button
+                                                        onClick={() => toggleNightwaveChallengeDone(act.id)}
+                                                        className="shrink-0 text-[9px] text-slate-700 hover:text-slate-400 transition-colors"
+                                                        title="Mark as not done"
+                                                    >✕</button>
+                                                </div>
+                                            );
+                                        }
                                         return (
-                                            <div key={act.id} className={["border-t border-slate-800/60 pt-1 first:border-0 first:pt-0", done ? "opacity-50" : ""].join(" ")}>
+                                            <div key={act.id} className="border-t border-slate-800/60 pt-1 first:border-0 first:pt-0">
                                                 <div className="flex items-center justify-between gap-1">
                                                     <div className="flex items-center gap-1 min-w-0">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={done}
-                                                            onChange={() => toggleNightwaveChallengeDone(act.id)}
-                                                            className="shrink-0 cursor-pointer"
-                                                        />
-                                                        {act.isElite && (
-                                                            <span className="shrink-0 rounded border border-amber-700/50 bg-amber-950/30 px-0.5 text-[8px] font-bold text-amber-300">ELITE</span>
-                                                        )}
-                                                        {act.isDaily && !act.isElite && (
-                                                            <span className="shrink-0 rounded border border-sky-700/50 bg-sky-950/30 px-0.5 text-[8px] font-bold text-sky-300">DAILY</span>
-                                                        )}
-                                                        {!act.isDaily && !act.isElite && (
-                                                            <span className="shrink-0 rounded border border-slate-700 bg-slate-800/60 px-0.5 text-[8px] font-bold text-slate-400">WK</span>
-                                                        )}
-                                                        <span className={["text-[10px] truncate", done ? "line-through text-slate-500" : "text-slate-200"].join(" ")}>{act.title}</span>
+                                                        {typeBadge}
+                                                        <span className="text-[10px] text-slate-200 truncate">{act.title}</span>
                                                     </div>
-                                                    <span className={["text-[10px] font-bold shrink-0", done ? "text-slate-600 line-through" : "text-blue-300"].join(" ")}>{act.reputation.toLocaleString()}</span>
+                                                    <div className="flex items-center gap-1 shrink-0">
+                                                        <span className="text-[10px] font-bold text-blue-300">{act.reputation.toLocaleString()}</span>
+                                                        <button
+                                                            onClick={() => toggleNightwaveChallengeDone(act.id)}
+                                                            className="text-[9px] text-slate-600 hover:text-green-400 transition-colors px-0.5"
+                                                            title="Mark as done"
+                                                        >✓</button>
+                                                    </div>
                                                 </div>
                                                 <div className="text-[9px] text-slate-500 mt-0.5 leading-snug">{act.desc}</div>
                                             </div>
@@ -604,40 +617,49 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                 <div className="space-y-1">
                                     {data.events.map((ev) => {
                                         const done = isEventDone(ev.id);
+                                        const label = ev.description || ev.tooltip || "Active Event";
+                                        if (done) {
+                                            return (
+                                                <div key={ev.id} className="border-t border-slate-800/60 pt-1 first:border-0 first:pt-0 flex items-center gap-1.5">
+                                                    <span className="text-green-500 text-xs shrink-0">✓</span>
+                                                    <span className="text-[10px] text-slate-500 truncate flex-1 line-through">{label}</span>
+                                                    <button
+                                                        onClick={() => toggleEventDone(ev.id)}
+                                                        className="shrink-0 text-[9px] text-slate-700 hover:text-slate-400 transition-colors"
+                                                        title="Mark as not done"
+                                                    >✕</button>
+                                                </div>
+                                            );
+                                        }
                                         return (
-                                        <div key={ev.id} className={["border-t border-slate-800/60 pt-1 first:border-0 first:pt-0", done ? "opacity-50" : ""].join(" ")}>
-                                            <div className="flex items-start gap-1.5">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={done}
-                                                    onChange={() => toggleEventDone(ev.id)}
-                                                    className="mt-0.5 shrink-0 cursor-pointer"
-                                                />
-                                                <div className="min-w-0 flex-1">
-                                                    <div className="flex items-start justify-between gap-1">
-                                                        <span className={["text-[11px] leading-snug min-w-0", done ? "line-through text-slate-500" : "text-slate-300"].join(" ")}>
-                                                            {ev.description || ev.tooltip || "Active Event"}
-                                                        </span>
+                                            <div key={ev.id} className="border-t border-slate-800/60 pt-1 first:border-0 first:pt-0">
+                                                <div className="flex items-start justify-between gap-1">
+                                                    <span className="text-[11px] text-slate-300 leading-snug min-w-0">{label}</span>
+                                                    <div className="flex items-center gap-1 shrink-0">
                                                         {ev.expiry && (
-                                                            <span className="font-mono text-[10px] text-slate-500 shrink-0 mt-0.5">
+                                                            <span className="font-mono text-[10px] text-slate-500">
                                                                 {msToHms(new Date(ev.expiry).getTime() - now)}
                                                             </span>
                                                         )}
+                                                        <button
+                                                            onClick={() => toggleEventDone(ev.id)}
+                                                            className="text-[9px] text-slate-600 hover:text-green-400 transition-colors px-0.5"
+                                                            title="Mark as done"
+                                                        >✓</button>
                                                     </div>
-                                                    {ev.tooltip && ev.description && ev.tooltip !== ev.description && (
-                                                        <div className="text-[9px] text-slate-500 mt-0.5 leading-snug">{ev.tooltip}</div>
-                                                    )}
-                                                    {ev.rewards && ev.rewards.length > 0 && (
-                                                        <div className="text-[9px] text-amber-400/70 mt-0.5">{ev.rewards[0].asString}</div>
-                                                    )}
-                                                    {ev.health != null && (
-                                                        <div className="mt-1 h-1 bg-slate-800 rounded-full overflow-hidden">
-                                                            <div className="h-full bg-red-500/50 rounded-full" style={{ width: `${Math.min(100, Math.max(0, ev.health))}%` }} />
-                                                        </div>
-                                                    )}
                                                 </div>
+                                                {ev.tooltip && ev.description && ev.tooltip !== ev.description && (
+                                                    <div className="text-[9px] text-slate-500 mt-0.5 leading-snug">{ev.tooltip}</div>
+                                                )}
+                                                {ev.rewards && ev.rewards.length > 0 && (
+                                                    <div className="text-[9px] text-amber-400/70 mt-0.5">{ev.rewards[0].asString}</div>
+                                                )}
+                                                {ev.health != null && (
+                                                    <div className="mt-1 h-1 bg-slate-800 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-red-500/50 rounded-full" style={{ width: `${Math.min(100, Math.max(0, ev.health))}%` }} />
+                                                    </div>
+                                                )}
                                             </div>
-                                        </div>
                                         );
                                     })}
                                 </div>
