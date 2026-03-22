@@ -101,7 +101,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.NEW_STRANGE,
         label: "The New Strange",
         category: "Quests",
-        description: "Required for Natah and for the Sedna → Eris junction.",
+        description: "Required for Natah.",
         prerequisites: [PR.STOLEN_DREAMS, PR.JUNCTION_MARS_CERES]
     },
     {
