@@ -17,6 +17,7 @@ import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { getItemRequirements } from "../catalog/items/itemRequirements";
 import { uid, nowIso } from "../store/storeUtils";
 import ALL_RAW from "../data/All.json";
+import { getRelicByKey } from "../domain/catalog/relicCatalog";
 
 const _statusImgs = import.meta.glob<string>("../assets/statuses/*.png", { eager: true, import: "default" });
 const STATUS_IMG_INV: Record<string, string> = {};
@@ -318,6 +319,33 @@ function InvDropRow({ d, small = false }: {
       <div className={["flex items-center gap-1.5 rounded px-2 py-1 bg-slate-900/40 border border-slate-800/50", sz].join(" ")}>
         <a href={farmUrl} target="_blank" rel="noopener noreferrer"
           className="flex-1 truncate text-slate-300 hover:text-cyan-300 hover:underline transition-colors">{d.location}</a>
+        <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
+        <span className="font-mono text-slate-500 shrink-0">{(d.chance * 100).toFixed(2)}%</span>
+        <a href={farmUrl} target="_blank" rel="noopener noreferrer"
+          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIconSvg}</a>
+      </div>
+    );
+  }
+
+  if (kind === "relic") {
+    // "Lith C2 Relic (Exceptional)" → key "lith c2", base name "Lith C2 Relic"
+    const baseName = d.location.replace(/\s+\(.*?\)\s*$/, "").trim();
+    const relicKey = baseName.replace(/\s+Relic\s*$/i, "").trim().toLowerCase();
+    const relic = getRelicByKey(relicKey);
+    const isVaulted = relic ? !relic.isActive : false;
+    const quality = d.location.match(/\(([^)]+)\)$/)?.[1];
+    const farmUrl = `https://wiki.warframe.com/w/${encodeURIComponent(baseName.replace(/\s+/g, "_"))}`;
+    return (
+      <div className={["flex items-center gap-1.5 rounded px-2 py-1 border", isVaulted ? "bg-red-950/10 border-red-900/40" : "bg-slate-900/40 border-slate-800/50", sz].join(" ")}>
+        <a href={farmUrl} target="_blank" rel="noopener noreferrer"
+          className="flex-1 truncate text-slate-300 hover:text-cyan-300 hover:underline transition-colors">{baseName}</a>
+        {quality && <span className="shrink-0 text-slate-500">{quality}</span>}
+        {isVaulted && (
+          <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1 py-0.5 rounded border border-red-700/50 bg-red-950/40 text-red-400"
+            title="This relic is vaulted — obtain via trading or Prime Resurgence (Varzia)">
+            Vaulted
+          </span>
+        )}
         <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
         <span className="font-mono text-slate-500 shrink-0">{(d.chance * 100).toFixed(2)}%</span>
         <a href={farmUrl} target="_blank" rel="noopener noreferrer"
