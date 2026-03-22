@@ -14,6 +14,7 @@ import {
     type Archimedea,
     type Calendar,
     type CalendarEvent,
+    type Nightwave,
 } from "../lib/worldStateCache";
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
@@ -1049,6 +1050,199 @@ function MissionsTab({ data }: { data: WorldStateData }) {
     );
 }
 
+// ── Nightwave section (with optimizer) ────────────────────────────────────────
+
+const NIGHTWAVE_RANK_COST = 10_000; // standing per rank
+const NORA_CREDS_PER_RANK = 50;     // creds awarded each rank (standard ranks)
+
+function NightwaveSection({ nightwave }: { nightwave: Nightwave }) {
+    const now = useNow();
+    const toggleNightwaveChallengeDone = useTrackerStore((s) => s.toggleNightwaveChallengeDone);
+    const isNightwaveChallengeDone     = useTrackerStore((s) => s.isNightwaveChallengeDone);
+    const [showOptimizer, setShowOptimizer] = useState(false);
+
+    const sorted = nightwave.activeChallenges.slice().sort((a, b) => {
+        const aDone = isNightwaveChallengeDone(a.id) ? 1 : 0;
+        const bDone = isNightwaveChallengeDone(b.id) ? 1 : 0;
+        if (aDone !== bDone) return aDone - bDone;
+        if (a.isElite !== b.isElite) return a.isElite ? -1 : 1;
+        if (a.isPermanent !== b.isPermanent) return a.isPermanent ? 1 : -1;
+        if (a.isDaily !== b.isDaily) return a.isDaily ? 1 : -1;
+        return b.reputation - a.reputation;
+    });
+
+    const doneCount = sorted.filter((act) => isNightwaveChallengeDone(act.id)).length;
+    const totalRep  = sorted.reduce((sum, act) => sum + act.reputation, 0);
+    const earnedRep = sorted.filter((act) => isNightwaveChallengeDone(act.id)).reduce((sum, act) => sum + act.reputation, 0);
+
+    // Optimizer: undone acts sorted by rep descending (highest value first)
+    const undoneByRep = sorted
+        .filter((a) => !isNightwaveChallengeDone(a.id))
+        .sort((a, b) => b.reputation - a.reputation);
+    const potentialRep   = undoneByRep.reduce((s, a) => s + a.reputation, 0);
+    const potentialCreds = Math.floor(potentialRep / NIGHTWAVE_RANK_COST) * NORA_CREDS_PER_RANK;
+
+    return (
+        <section>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/30 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/40">
+                    <div>
+                        <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">
+                            Nightwave — Season {nightwave.season}
+                            {nightwave.tag && <span className="normal-case font-normal text-slate-400 ml-1">· {nightwave.tag}</span>}
+                        </div>
+                        {nightwave.phase > 0 && (
+                            <div className="text-[10px] text-slate-500 mt-0.5">Phase {nightwave.phase + 1}</div>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setShowOptimizer((v) => !v)}
+                            className={[
+                                "text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded border transition-colors",
+                                showOptimizer
+                                    ? "border-amber-700/60 bg-amber-950/30 text-amber-300 hover:bg-amber-950/50"
+                                    : "border-slate-700 bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:border-slate-600",
+                            ].join(" ")}
+                            title="Show acts sorted by reputation to maximise Nora's Creds"
+                        >
+                            {showOptimizer ? "All Acts" : "Optimize"}
+                        </button>
+                        <div className="text-right">
+                            <div className="text-[10px] text-slate-500">
+                                Ends <Countdown expiry={nightwave.expiry} now={now} className="font-mono text-slate-400" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-3">
+                    {showOptimizer ? (
+                        /* ── Optimizer view ── */
+                        <div>
+                            {/* Summary row */}
+                            <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px]">
+                                <span className="text-slate-500">{undoneByRep.length} acts remaining · {potentialRep.toLocaleString()} rep available</span>
+                                <span className="font-semibold text-amber-300">
+                                    ≈ {potentialCreds} Nora's Creds potential
+                                </span>
+                                <span className="text-slate-600 italic">(assumes 50 creds / rank · {NIGHTWAVE_RANK_COST.toLocaleString()} standing / rank)</span>
+                            </div>
+                            {undoneByRep.length === 0 ? (
+                                <div className="text-xs text-slate-500 italic">All acts completed.</div>
+                            ) : (
+                                <div className="space-y-0">
+                                    {(() => {
+                                        let cumulative = 0;
+                                        const rows: React.ReactNode[] = [];
+                                        undoneByRep.forEach((act, idx) => {
+                                            const prevCumulative = cumulative;
+                                            cumulative += act.reputation;
+                                            // Insert rank-up marker whenever we cross a 10k boundary
+                                            const ranksBefore = Math.floor(prevCumulative / NIGHTWAVE_RANK_COST);
+                                            const ranksAfter  = Math.floor(cumulative / NIGHTWAVE_RANK_COST);
+                                            if (ranksAfter > ranksBefore) {
+                                                for (let r = ranksBefore + 1; r <= ranksAfter; r++) {
+                                                    rows.push(
+                                                        <div key={`rank-${r}`} className="flex items-center gap-2 py-1 my-0.5">
+                                                            <div className="flex-1 h-px bg-amber-800/40" />
+                                                            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wide text-amber-400 px-1.5 py-0.5 rounded border border-amber-700/40 bg-amber-950/30">
+                                                                Rank up → +{NORA_CREDS_PER_RANK} Nora's Creds
+                                                            </span>
+                                                            <div className="flex-1 h-px bg-amber-800/40" />
+                                                        </div>
+                                                    );
+                                                }
+                                            }
+                                            rows.push(
+                                                <div key={act.id} className="flex items-center gap-2 rounded px-2 py-1.5 hover:bg-slate-800/40 transition-colors">
+                                                    <span className="text-[10px] font-mono text-slate-600 w-4 shrink-0">{idx + 1}.</span>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex flex-wrap items-center gap-1">
+                                                            {act.isElite && <span className="rounded border border-amber-700/50 bg-amber-950/30 px-1 py-px text-[9px] font-bold text-amber-300">ELITE</span>}
+                                                            {act.isDaily && !act.isPermanent && <span className="rounded border border-sky-700/50 bg-sky-950/30 px-1 py-px text-[9px] font-bold text-sky-300">DAILY</span>}
+                                                            {!act.isDaily && !act.isElite && !act.isPermanent && <span className="rounded border border-slate-700 bg-slate-800/60 px-1 py-px text-[9px] font-bold text-slate-400">WEEKLY</span>}
+                                                            <span className="text-xs font-medium text-slate-200">{act.title}</span>
+                                                        </div>
+                                                        <div className="text-[10px] text-slate-500 truncate">{act.desc}</div>
+                                                    </div>
+                                                    <div className="shrink-0 text-right flex flex-col items-end gap-0.5">
+                                                        <span className="text-xs font-bold text-blue-300">{act.reputation.toLocaleString()}</span>
+                                                        <span className="text-[9px] text-slate-600 font-mono">{cumulative.toLocaleString()} total</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => toggleNightwaveChallengeDone(act.id)}
+                                                        className="shrink-0 text-[9px] text-slate-600 hover:text-green-400 transition-colors px-0.5"
+                                                        title="Mark as done"
+                                                    >✓</button>
+                                                </div>
+                                            );
+                                        });
+                                        return rows;
+                                    })()}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        /* ── Normal view ── */
+                        <div>
+                            <div className="mb-2 flex items-center justify-between text-[10px] text-slate-500">
+                                <span>{doneCount}/{sorted.length} completed · {earnedRep.toLocaleString()}/{totalRep.toLocaleString()} rep earned</span>
+                                {doneCount > 0 && (
+                                    <button
+                                        className="text-slate-600 hover:text-slate-400 transition-colors"
+                                        onClick={() => sorted.filter((a) => isNightwaveChallengeDone(a.id)).forEach((a) => toggleNightwaveChallengeDone(a.id))}
+                                    >
+                                        Clear all
+                                    </button>
+                                )}
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                {sorted.map((act) => {
+                                    const done = isNightwaveChallengeDone(act.id);
+                                    return (
+                                        <div key={act.id} className={["rounded-lg border px-2.5 py-2 transition-colors", done ? "border-emerald-900/40 bg-emerald-950/10 opacity-60" : "border-slate-800 bg-slate-900/40"].join(" ")}>
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="min-w-0 flex items-start gap-1.5">
+                                                    {done ? <span className="text-green-500 text-xs shrink-0 mt-0.5">✓</span> : null}
+                                                    <div className="min-w-0">
+                                                        <div className="flex flex-wrap items-center gap-1 mb-0.5">
+                                                            {act.isElite && <span className="rounded border border-amber-700/50 bg-amber-950/30 px-1 py-px text-[9px] font-bold text-amber-300">ELITE</span>}
+                                                            {act.isPermanent && <span className="rounded border border-teal-700/50 bg-teal-950/30 px-1 py-px text-[9px] font-bold text-teal-300">STANDING</span>}
+                                                            {act.isDaily && !act.isPermanent && <span className="rounded border border-sky-700/50 bg-sky-950/30 px-1 py-px text-[9px] font-bold text-sky-300">DAILY</span>}
+                                                            {!act.isDaily && !act.isElite && !act.isPermanent && <span className="rounded border border-slate-700 bg-slate-800/60 px-1 py-px text-[9px] font-bold text-slate-400">WEEKLY</span>}
+                                                            <span className={["text-xs font-medium", done ? "line-through text-slate-500" : "text-slate-200"].join(" ")}>{act.title}</span>
+                                                        </div>
+                                                        <div className="text-[10px] text-slate-500">{act.desc}</div>
+                                                        {!act.isPermanent && act.expiry && (
+                                                            <div className="text-[10px] text-slate-600 mt-0.5">
+                                                                <Countdown expiry={act.expiry} now={now} className="font-mono" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="shrink-0 text-right flex flex-col items-end gap-1">
+                                                    <div className={["text-xs font-bold", done ? "text-emerald-600 line-through" : "text-blue-300"].join(" ")}>{act.reputation.toLocaleString()}</div>
+                                                    <div className="text-[9px] text-slate-500">rep</div>
+                                                    <button
+                                                        onClick={() => toggleNightwaveChallengeDone(act.id)}
+                                                        className={["text-[9px] transition-colors px-0.5", done ? "text-slate-700 hover:text-slate-400" : "text-slate-600 hover:text-green-400"].join(" ")}
+                                                        title={done ? "Mark as not done" : "Mark as done"}
+                                                    >{done ? "✕" : "✓"}</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </section>
+    );
+}
+
 // ── Activities tab ────────────────────────────────────────────────────────────
 
 function ActivitiesTab({ data }: { data: WorldStateData }) {
@@ -1060,106 +1254,13 @@ function ActivitiesTab({ data }: { data: WorldStateData }) {
     const hasAcolytes  = data.persistentEnemies.length > 0;
     const toggleInvasionDone           = useTrackerStore((s) => s.toggleInvasionDone);
     const isInvasionDone               = useTrackerStore((s) => s.isInvasionDone);
-    const toggleNightwaveChallengeDone = useTrackerStore((s) => s.toggleNightwaveChallengeDone);
-    const isNightwaveChallengeDone     = useTrackerStore((s) => s.isNightwaveChallengeDone);
     const toggleEventDone              = useTrackerStore((s) => s.toggleEventDone);
     const isEventDone                  = useTrackerStore((s) => s.isEventDone);
 
     return (
         <div className="space-y-4">
             {/* Nightwave challenges */}
-            {hasNightwave && (() => {
-                const sorted = data.nightwave!.activeChallenges
-                    .slice()
-                    .sort((a, b) => {
-                        const aDone = isNightwaveChallengeDone(a.id) ? 1 : 0;
-                        const bDone = isNightwaveChallengeDone(b.id) ? 1 : 0;
-                        if (aDone !== bDone) return aDone - bDone;
-                        if (a.isElite !== b.isElite) return a.isElite ? -1 : 1;
-                        if (a.isPermanent !== b.isPermanent) return a.isPermanent ? 1 : -1;
-                        if (a.isDaily !== b.isDaily) return a.isDaily ? 1 : -1;
-                        return b.reputation - a.reputation;
-                    });
-                const doneCount  = sorted.filter((act) => isNightwaveChallengeDone(act.id)).length;
-                const totalRep   = sorted.reduce((sum, act) => sum + act.reputation, 0);
-                const earnedRep  = sorted.filter((act) => isNightwaveChallengeDone(act.id)).reduce((sum, act) => sum + act.reputation, 0);
-                return (
-                    <section>
-                        <div className="rounded-xl border border-slate-800 bg-slate-900/30 overflow-hidden">
-                            <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/60 bg-slate-900/40">
-                                <div>
-                                    <div className="text-xs font-semibold text-slate-200 uppercase tracking-wide">
-                                        Nightwave — Season {data.nightwave!.season}
-                                        {data.nightwave!.tag && <span className="normal-case font-normal text-slate-400 ml-1">· {data.nightwave!.tag}</span>}
-                                    </div>
-                                    {data.nightwave!.phase > 0 && (
-                                        <div className="text-[10px] text-slate-500 mt-0.5">Phase {data.nightwave!.phase + 1}</div>
-                                    )}
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-[10px] text-slate-500">
-                                        Ends <Countdown expiry={data.nightwave!.expiry} now={now} className="font-mono text-slate-400" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-3">
-                                <div className="mb-2 flex items-center justify-between text-[10px] text-slate-500">
-                                    <span>{doneCount}/{sorted.length} completed · {earnedRep.toLocaleString()}/{totalRep.toLocaleString()} rep earned</span>
-                                    {doneCount > 0 && (
-                                        <button
-                                            className="text-slate-600 hover:text-slate-400 transition-colors"
-                                            onClick={() => sorted.filter((a) => isNightwaveChallengeDone(a.id)).forEach((a) => toggleNightwaveChallengeDone(a.id))}
-                                        >
-                                            Clear all
-                                        </button>
-                                    )}
-                                </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                    {sorted.map((act) => {
-                                        const done = isNightwaveChallengeDone(act.id);
-                                        return (
-                                            <div key={act.id} className={["rounded-lg border px-2.5 py-2 transition-colors", done ? "border-emerald-900/40 bg-emerald-950/10 opacity-60" : "border-slate-800 bg-slate-900/40"].join(" ")}>
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <div className="min-w-0 flex items-start gap-1.5">
-                                                        {done
-                                                            ? <span className="text-green-500 text-xs shrink-0 mt-0.5">✓</span>
-                                                            : null
-                                                        }
-                                                        <div className="min-w-0">
-                                                            <div className="flex flex-wrap items-center gap-1 mb-0.5">
-                                                                {act.isElite && <span className="rounded border border-amber-700/50 bg-amber-950/30 px-1 py-px text-[9px] font-bold text-amber-300">ELITE</span>}
-                                                                {act.isPermanent && <span className="rounded border border-teal-700/50 bg-teal-950/30 px-1 py-px text-[9px] font-bold text-teal-300">STANDING</span>}
-                                                                {act.isDaily && !act.isPermanent && <span className="rounded border border-sky-700/50 bg-sky-950/30 px-1 py-px text-[9px] font-bold text-sky-300">DAILY</span>}
-                                                                {!act.isDaily && !act.isElite && !act.isPermanent && <span className="rounded border border-slate-700 bg-slate-800/60 px-1 py-px text-[9px] font-bold text-slate-400">WEEKLY</span>}
-                                                                <span className={["text-xs font-medium", done ? "line-through text-slate-500" : "text-slate-200"].join(" ")}>{act.title}</span>
-                                                            </div>
-                                                            <div className="text-[10px] text-slate-500">{act.desc}</div>
-                                                            {!act.isPermanent && act.expiry && (
-                                                                <div className="text-[10px] text-slate-600 mt-0.5">
-                                                                    <Countdown expiry={act.expiry} now={now} className="font-mono" />
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    <div className="shrink-0 text-right flex flex-col items-end gap-1">
-                                                        <div className={["text-xs font-bold", done ? "text-emerald-600 line-through" : "text-blue-300"].join(" ")}>{act.reputation.toLocaleString()}</div>
-                                                        <div className="text-[9px] text-slate-500">rep</div>
-                                                        <button
-                                                            onClick={() => toggleNightwaveChallengeDone(act.id)}
-                                                            className={["text-[9px] transition-colors px-0.5", done ? "text-slate-700 hover:text-slate-400" : "text-slate-600 hover:text-green-400"].join(" ")}
-                                                            title={done ? "Mark as not done" : "Mark as done"}
-                                                        >{done ? "✕" : "✓"}</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                );
-            })()}
+            {hasNightwave && <NightwaveSection nightwave={data.nightwave!} />}
 
             {/* Active Events */}
             {hasEvents && (() => {
