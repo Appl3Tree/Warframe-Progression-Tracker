@@ -1,5 +1,6 @@
-// src/pages/Relics.tsx
+// src/pages/Relics.tsx  (now serves as the Tools page — Relic Farming + Mod Builder)
 import { useMemo, useState } from "react";
+import ModBuilder from "./tools/ModBuilder";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
 import {
@@ -335,9 +336,53 @@ function VoidTraceCalc() {
     );
 }
 
-// ---- Main Page ----
+// ---- Tools Page wrapper ----
 
-export default function Relics() {
+type ToolsTab = "relics" | "modbuilder";
+
+const TOOLS_TABS: { key: ToolsTab; label: string; desc: string }[] = [
+    { key: "relics",     label: "Relic Farming",  desc: "Find which relics contain your goal items and plan void fissure runs." },
+    { key: "modbuilder", label: "Mod Builder",     desc: "Build and optimize weapon loadouts using the wiki damage formula." },
+];
+
+export default function Tools() {
+    const [toolsTab, setToolsTab] = useState<ToolsTab>("relics");
+
+    return (
+        <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-4">
+            {/* Page header */}
+            <div>
+                <h1 className="text-2xl font-bold">Tools</h1>
+                <p className="text-sm text-slate-400 mt-1">{TOOLS_TABS.find(t => t.key === toolsTab)?.desc}</p>
+            </div>
+
+            {/* Top-level tab bar */}
+            <div className="flex gap-1.5">
+                {TOOLS_TABS.map(t => (
+                    <button
+                        key={t.key}
+                        onClick={() => setToolsTab(t.key)}
+                        className={[
+                            "rounded-full px-4 py-1.5 text-sm border transition-colors",
+                            toolsTab === t.key
+                                ? "bg-slate-100 text-slate-900 border-slate-100"
+                                : "bg-slate-950/40 text-slate-200 border-slate-700 hover:bg-slate-900",
+                        ].join(" ")}
+                    >
+                        {t.label}
+                    </button>
+                ))}
+            </div>
+
+            {toolsTab === "modbuilder" && <ModBuilder />}
+            {toolsTab === "relics" && <RelicFarming />}
+        </div>
+    );
+}
+
+// ---- Relic Farming (previously the entire page) ----
+
+function RelicFarming() {
     const { goals, completedPrereqs, inventory } = useTrackerStore(
         useShallow((s) => ({
             goals: s.state.goals ?? [],
@@ -408,15 +453,7 @@ export default function Relics() {
     const hasRelicItems = scoredRelics.length > 0;
 
     return (
-        <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-4">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold">Relic Farming</h1>
-                <p className="text-sm text-slate-400 mt-1">
-                    Find which relics contain your goal items and plan your void fissure runs.
-                </p>
-            </div>
-
+        <div className="space-y-4">
             {/* Tab bar */}
             <div className="flex gap-1.5">
                 {([
