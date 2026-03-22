@@ -239,7 +239,7 @@ const QUESTS: Quest[] = [
     {
         name: "The Deadlock Protocol",
         type: "warframe",
-        note: "Unlocks Protea and the Corpus Ship Railjack tileset. Requires Vox Solaris completion + Saturn Junction + Mastery Rank 4.",
+        note: "Unlocks Protea and the Corpus Ship Railjack tileset. Unlocked as a reward for completing the Saturn Junction. Requires Mastery Rank 4.",
     },
     {
         name: "The Duviri Paradox",
@@ -298,12 +298,12 @@ const QUESTS: Quest[] = [
     {
         name: "Patient Zero",
         type: "side",
-        note: "Unlocks the Mutalist Alad V boss fight on Eris, whose assassination node drops Mesa's Neuroptics blueprint. Requires the Pluto → Eris Junction.",
+        note: "Unlocks the Mutalist Alad V boss fight on Eris, whose assassination node drops Mesa's Neuroptics blueprint. Requires the Sedna → Eris Junction.",
     },
     {
         name: "The Jordas Precept",
         type: "warframe",
-        note: "Unlocks Atlas; an Archwing-heavy quest ending in the Jordas Golem assassination. Requires the Pluto → Eris Junction and an Archwing.",
+        note: "Unlocks Atlas; an Archwing-heavy quest ending in the Jordas Golem assassination. Requires the Sedna → Eris Junction and an Archwing.",
     },
     {
         name: "Rising Tide",
@@ -690,9 +690,10 @@ const SECTIONS: Section[] = [
         content: (
             <>
                 <P>
-                    <B>Steel Path</B> adds +100 to enemy level scaling and +2,500% to enemy armor, shields,
-                    and health. It unlocks by completing every node on the Star Chart that was accessible
-                    before The New War (Zariman, Deimos labs, and Höllvania nodes are not required).
+                    <B>Steel Path</B> adds +100 to enemy level scaling and +150% to enemy health, armor,
+                    and shields (making them 2.5× as tough). It unlocks by completing every node on the
+                    Star Chart that was accessible before The New War (Zariman, Deimos labs, and Höllvania
+                    nodes are not required).
                 </P>
 
                 <SectionHeading>Commonly missed nodes that block Steel Path unlock:</SectionHeading>
@@ -1249,10 +1250,10 @@ const SECTIONS: Section[] = [
                     "Both players pay a Credit tax per trade. Tax scales with item value — high-value Riven trades cost millions of Credits, so keep a large Credit buffer.",
                 ]} />
                 <Callout color="amber">
-                    <B>Trade limits scale with Mastery Rank.</B> At lower ranks you can only make a small
-                    number of trades per day — MR 1 allows 2 trades/day, increasing by 1 per rank up to
-                    a maximum of 30/day at MR 30. If you hit your daily limit, you'll need to wait until
-                    the next UTC midnight reset. Ranking up is the only way to increase this cap.
+                    <B>Trade limits scale with Mastery Rank.</B> You must reach at least MR 2 to trade.
+                    Your daily trade limit equals your Mastery Rank — MR 2 = 2 trades/day, MR 10 = 10
+                    trades/day, up to 30/day at MR 30. If you hit your daily limit, you'll need to wait
+                    until the next UTC midnight reset. Ranking up is the only way to increase this cap.
                 </Callout>
             </>
         ),

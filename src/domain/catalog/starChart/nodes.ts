@@ -125,7 +125,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         pos: undefined,
         edges: [],
         unlocksPlanetId: "planet:uranus",
-        prereqIds: [PR.JUNCTION_EUROPA_SATURN, PR.STOLEN_DREAMS]
+        prereqIds: [PR.JUNCTION_EUROPA_SATURN]
     },
     {
         id: "node:junction_uranus_neptune",
@@ -165,7 +165,7 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         pos: undefined,
         edges: [],
         unlocksPlanetId: "planet:eris",
-        prereqIds: [PR.JUNCTION_PLUTO_SEDNA, PR.NEW_STRANGE]
+        prereqIds: [PR.JUNCTION_PLUTO_SEDNA]
     },
     {
         id: "node:junction_earth_lua",
