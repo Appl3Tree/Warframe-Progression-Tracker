@@ -157,4 +157,39 @@ export interface UserStateV2 {
         /** Event IDs the user has marked as personally completed. */
         doneEvents?: string[];
     };
+
+    modBuilder?: {
+        /**
+         * Saved weapon builds keyed by a user-chosen name.
+         * Each build stores the weapon uniqueName, slot mods, slot polarities,
+         * and build configuration so it can be fully restored.
+         */
+        savedBuilds: SavedBuild[];
+        /**
+         * Mod names the user owns. When the "owned only" toggle is on,
+         * the optimizer and mod picker are filtered to this set.
+         * Empty = treat as "own everything" (same as toggle off).
+         */
+        ownedModNames: string[];
+    };
+}
+
+export interface SavedBuild {
+    id: string;
+    name: string;
+    weaponUniqueName: string;
+    weaponName: string;
+    /** Mod unique names per slot (empty string = empty slot) */
+    slotModUniqueNames: string[];
+    slotPolarities: string[];
+    weaponRank: number;
+    hasCatalyst: boolean;
+    hasExilus: boolean;
+    exilusModUniqueName?: string;
+    exilusPol?: string;
+    arcane1UniqueName?: string;
+    arcane1Rank?: number;
+    arcane2UniqueName?: string;
+    arcane2Rank?: number;
+    createdAt: string;
 }

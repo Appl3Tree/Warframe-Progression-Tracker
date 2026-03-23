@@ -49,26 +49,30 @@ export interface ModEffect {
     magazineBonus: number;
     reloadSpeedBonus: number;
     attackSpeedBonus: number;
+    /** Faction damage multiplier as a bonus fraction, e.g. 0.3 = ×1.3. 0 if not a faction mod. */
+    factionDamageBonus: number;
+    /** Which faction this mod targets, e.g. "Grineer". Empty string if not a faction mod. */
+    targetFaction: string;
 }
 
 export interface ModEntry {
     uniqueName: string;
     name: string;
-    /** Canonical compat bucket (e.g. "Rifle", "Sniper", "Primary", "Pistol"…) */
     compatBucket: string;
-    /** Raw WFCD compat name — used for weapon-specific augment matching */
     rawCompatName: string;
     polarity: string;
     rarity: string;
     drain: number;
+    baseDrain: number;
     fusionLimit: number;
     statsLabel: string;
+    /** Effects at each rank index 0..fusionLimit */
+    effectsByRank: ModEffect[];
+    /** Max-rank effect (= effectsByRank[fusionLimit]) */
     effect: ModEffect;
     hasDamageEffect: boolean;
-    /**
-     * If set, this mod only works on weapons with this trigger type (e.g. "Semi").
-     * Example: Cannonade series.
-     */
+    isAura: boolean;
+    isExilus: boolean;
     triggerRestriction?: string;
 }
 
@@ -115,7 +119,20 @@ function parseStatLine(raw: string): Partial<ModEffect> {
     return {};
 }
 
-function emptyEffect(): ModEffect {
+/** Parse faction damage lines like "x1.3 Damage to Grineer" → factionDamageBonus=0.3, targetFaction="Grineer" */
+function parseFactionLine(raw: string): Partial<ModEffect> {
+    const clean = stripColorTags(raw).trim();
+    const m = clean.match(/^x([\d.]+)\s+Damage\s+to\s+(.+)$/i);
+    if (!m) return {};
+    const multiplier = parseFloat(m[1]);
+    if (!isFinite(multiplier) || multiplier <= 0) return {};
+    return {
+        factionDamageBonus: multiplier - 1,   // store as bonus fraction (e.g. 1.3 → 0.3)
+        targetFaction: m[2].trim(),
+    };
+}
+
+export function emptyEffect(): ModEffect {
     return {
         damageBonus: 0, impactBonus: 0, punctureBonus: 0, slashBonus: 0,
         heatBonus: 0, coldBonus: 0, electricityBonus: 0, toxinBonus: 0,
@@ -123,19 +140,28 @@ function emptyEffect(): ModEffect {
         critChanceBonus: 0, critMultBonus: 0, statusChanceBonus: 0,
         multishotBonus: 0, fireRateBonus: 0, magazineBonus: 0,
         reloadSpeedBonus: 0, attackSpeedBonus: 0,
+        factionDamageBonus: 0, targetFaction: "",
     };
 }
 
 function mergeEffect(base: ModEffect, partial: Partial<ModEffect>): ModEffect {
     const out = { ...base };
     for (const k of Object.keys(partial) as (keyof ModEffect)[]) {
-        out[k] = (out[k] ?? 0) + (partial[k] ?? 0);
+        if (k === "targetFaction") {
+            // Keep the non-empty faction name
+            const v = partial[k];
+            if (v) out[k] = v;
+        } else {
+            (out[k] as number) = ((out[k] as number) ?? 0) + ((partial[k] as number) ?? 0);
+        }
     }
     return out;
 }
 
 function hasDamageEffect(e: ModEffect): boolean {
-    return Object.values(e).some(v => v !== 0);
+    return Object.entries(e).some(([k, v]) =>
+        k !== "targetFaction" && v !== 0
+    );
 }
 
 /** Detect trigger restriction from mod name (e.g. "Semi-Rifle Cannonade" → "Semi") */
@@ -144,7 +170,22 @@ function detectTriggerRestriction(name: string): string | undefined {
     return undefined;
 }
 
-// ---- Cache ----
+// ── Weapon Exilus mod identification ─────────────────────────────────────────
+// WFCD does not tag weapon exilus mods with isExilus — only Warframe mods get
+// that flag. This curated set lists all known weapon exilus-compatible mods
+// (those that can go in the Exilus Weapon Adapter slot).
+// Source: https://warframe.wiki.com/w/Exilus_Weapon_Adapter
+const WEAPON_EXILUS_NAMES = new Set([
+    "Cautious Shot", "Combustion Beam", "Concealed Explosives",
+    "Eagle Eye", "Embedded Catalyzer", "Empowered Quiver",
+    "Guided Ordnance", "Hydraulic Crosshairs", "Lethal Momentum",
+    "Magnum Force", "Ruinous Extension", "Shell Rush",
+    "Silent Battery", "Sinister Reach", "Speed Trigger",
+    "Stabilizer", "Steady Hands", "Tainted Mag",
+    "Terminal Velocity", "Thunderbolt", "Tidal Impunity",
+    "Vigilante Armaments", "Vigilante Fervor", "Vigilante Offense",
+    "Vigilante Supplies", "Wildfire",
+]);
 
 interface ModCaches {
     /** Generic weapon-class mods, keyed by bucket (Rifle, Shotgun, Pistol, Bow, Sniper, Primary, Melee) */
@@ -158,23 +199,59 @@ interface ModCaches {
 
 let _caches: ModCaches | null = null;
 
+/**
+ * Returns the expected canonical fusionLimit for a mod based on its name.
+ * Primed, Galvanized, Umbra, and Legendary mods are rank 10.
+ * All other mods are rank 5.
+ * We use this to avoid picking up legacy/debug entries in All.json that share
+ * a name with a standard mod but have an incorrect fusionLimit (e.g. fl=10
+ * for a non-Primed mod, or fl=3 for a partial-rank variant).
+ */
+function expectedFusionLimit(name: string): number {
+    const n = name.toLowerCase();
+    if (n.startsWith("primed ") || n.startsWith("galvanized ") ||
+        n.startsWith("umbra ") || n.includes("legendary ")) {
+        return 10;
+    }
+    return 5;
+}
+
+/**
+ * Score an entry for deduplication preference.
+ * Higher = preferred.
+ * Exact fusionLimit match to expected → 2
+ * Off-by-one (e.g. fl=3 partial rank) → 1
+ * Further off → 0 (worst)
+ */
+function dedupScore(name: string, fl: number): number {
+    const expected = expectedFusionLimit(name);
+    if (fl === expected) return 2;
+    if (fl === 3) return 0; // partial-rank variants, always skip
+    return 1;
+}
+
 function buildCaches(): ModCaches {
-    // Deduplicate: keep highest-fusionLimit entry per (name + bucket / rawCompatName)
-    const bestGeneric = new Map<string, { item: Record<string, unknown>; fl: number }>();
-    const bestAugment = new Map<string, { item: Record<string, unknown>; fl: number }>();
+    // Deduplicate: keep the entry whose fusionLimit best matches the expected
+    // canonical rank for that mod name. This prevents legacy fl=10 entries from
+    // overriding real fl=5 standard mods (e.g. "Shotgun Barrage" 165% vs 90%).
+    const bestGeneric = new Map<string, { item: Record<string, unknown>; fl: number; score: number }>();
+    const bestAugment = new Map<string, { item: Record<string, unknown>; fl: number; score: number }>();
 
     for (const item of ALL) {
         if (item.category !== "Mods") continue;
         const rawCompat = String(item.compatName ?? "");
         const name = String(item.name ?? "");
         const fl = Number(item.fusionLimit ?? 0);
+        const score = dedupScore(name, fl);
 
         const bucket = COMPAT_MAP[rawCompat];
         if (bucket) {
             // Generic weapon-class mod
             const key = `${name}||${bucket}`;
             const cur = bestGeneric.get(key);
-            if (!cur || fl > cur.fl) bestGeneric.set(key, { item, fl });
+            if (!cur || score > cur.score || (score === cur.score && fl > cur.fl)) {
+                bestGeneric.set(key, { item, fl, score });
+            }
         } else if (rawCompat && rawCompat.length >= 2 && rawCompat.length <= 30) {
             // Potential weapon-specific augment (compat name looks like a weapon name)
             // Exclude known non-weapon compats
@@ -184,7 +261,10 @@ function buildCaches(): ModCaches {
             if (!skip.has(rawCompat) && !/^\s*[A-Z]+\s*$/.test(rawCompat)) {
                 const key = `${name}||${rawCompat}`;
                 const cur = bestAugment.get(key);
-                if (!cur || fl > cur.fl) bestAugment.set(key, { item: { ...item, _rawCompat: rawCompat }, fl });
+                const augScore = dedupScore(name, fl);
+                if (!cur || augScore > cur.score || (augScore === cur.score && fl > cur.fl)) {
+                    bestAugment.set(key, { item: { ...item, _rawCompat: rawCompat }, fl, score: augScore });
+                }
             }
         }
     }
@@ -193,15 +273,29 @@ function buildCaches(): ModCaches {
         const levelStats = item.levelStats as Array<{ stats: string[] }> | undefined;
         if (!levelStats || levelStats.length === 0) return null;
 
-        const maxRankStats = levelStats[levelStats.length - 1].stats ?? [];
-        let effect = emptyEffect();
-        for (const s of maxRankStats) {
-            effect = mergeEffect(effect, parseStatLine(s));
-        }
-
         const fl = Number(item.fusionLimit ?? 0);
-        const drain = Number(item.baseDrain ?? 2) + fl;
+        const rawBaseDrain = Number(item.baseDrain ?? 2);
+        const drain = rawBaseDrain + fl;
+        const isAura = rawCompat === "AURA" || rawBaseDrain < 0;
+        // isExilus: use the WFCD flag for Warframe mods; use curated list for weapon mods
+        const isExilus = !!(item.isExilus) || WEAPON_EXILUS_NAMES.has(String(item.name ?? ""));
 
+        // Build effects at every rank 0..fusionLimit
+        const effectsByRank: ModEffect[] = levelStats.map(ls => {
+            let e = emptyEffect();
+            for (const s of (ls.stats ?? [])) {
+                e = mergeEffect(e, parseStatLine(s));
+                e = mergeEffect(e, parseFactionLine(s));
+            }
+            return e;
+        });
+        // Pad up to fusionLimit if levelStats has fewer entries
+        while (effectsByRank.length <= fl) {
+            effectsByRank.push(effectsByRank[effectsByRank.length - 1] ?? emptyEffect());
+        }
+        const effect = effectsByRank[fl] ?? emptyEffect();
+
+        const maxRankStats = levelStats[levelStats.length - 1].stats ?? [];
         const statsLabel = maxRankStats
             .map(s => stripColorTags(s))
             .filter(s => extractPercent(s) !== null)
@@ -217,10 +311,14 @@ function buildCaches(): ModCaches {
             polarity: String(item.polarity ?? ""),
             rarity: String(item.rarity ?? ""),
             drain,
+            baseDrain: rawBaseDrain,
             fusionLimit: fl,
             statsLabel,
+            effectsByRank,
             effect,
             hasDamageEffect: hasDamageEffect(effect),
+            isAura,
+            isExilus,
             triggerRestriction: detectTriggerRestriction(name),
         };
     }
@@ -269,7 +367,8 @@ function bucketsForCompat(compat: ModCompatName): string[] {
         case "Sniper":   return ["Sniper", "Rifle", "Primary"];
         case "Rifle":    return ["Rifle", "Primary"];
         case "Shotgun":  return ["Shotgun", "Primary"];
-        case "Bow":      return ["Bow", "Primary"];
+        // Bows accept Bow-specific mods, all Rifle mods, and universal Primary mods
+        case "Bow":      return ["Bow", "Rifle", "Primary"];
         case "Pistol":   return ["Pistol"];
         case "Melee":    return ["Melee"];
     }

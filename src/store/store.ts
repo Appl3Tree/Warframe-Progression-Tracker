@@ -132,6 +132,13 @@ export interface TrackerStore {
     toggleWorldStateCategoryHidden: (cat: string) => void;
     isWorldStateCategoryHidden: (cat: string) => boolean;
     getHiddenWorldStateCategories: () => string[];
+
+    // ── Mod Builder ──────────────────────────────────────────────────────────
+    saveModBuild: (build: import("../domain/models/userState").SavedBuild) => void;
+    deleteModBuild: (id: string) => void;
+    getSavedBuilds: () => import("../domain/models/userState").SavedBuild[];
+    setOwnedModNames: (names: string[]) => void;
+    getOwnedModNames: () => string[];
 }
 
 /**
@@ -971,6 +978,37 @@ export const useTrackerStore = create<TrackerStore>()(
             getHiddenWorldStateCategories: () => {
                 return get().state.ui.hiddenWorldStateCategories ?? [];
             },
+
+            // ── Mod Builder ─────────────────────────────────────────────────
+            saveModBuild: (build) => {
+                set((s) => {
+                    if (!s.state.modBuilder) s.state.modBuilder = { savedBuilds: [], ownedModNames: [] };
+                    const idx = s.state.modBuilder.savedBuilds.findIndex(b => b.id === build.id);
+                    if (idx >= 0) s.state.modBuilder.savedBuilds[idx] = build;
+                    else s.state.modBuilder.savedBuilds.push(build);
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            deleteModBuild: (id) => {
+                set((s) => {
+                    if (!s.state.modBuilder) return;
+                    s.state.modBuilder.savedBuilds = s.state.modBuilder.savedBuilds.filter(b => b.id !== id);
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            getSavedBuilds: () => get().state.modBuilder?.savedBuilds ?? [],
+
+            setOwnedModNames: (names) => {
+                set((s) => {
+                    if (!s.state.modBuilder) s.state.modBuilder = { savedBuilds: [], ownedModNames: [] };
+                    s.state.modBuilder.ownedModNames = names;
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            getOwnedModNames: () => get().state.modBuilder?.ownedModNames ?? [],
         })),
         {
             name: PERSIST_KEY,
