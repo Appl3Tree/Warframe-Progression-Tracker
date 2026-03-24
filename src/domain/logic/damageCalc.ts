@@ -55,6 +55,10 @@ const AIMING_UPTIME_ASSUMPTION = 0.75;
 const ON_KILL_UPTIME_ASSUMPTION = 0.6;
 const ON_HEADSHOT_UPTIME_ASSUMPTION = 0.55;
 const ON_HEADSHOT_KILL_UPTIME_ASSUMPTION = 0.35;
+const ON_HIT_UPTIME_ASSUMPTION = 0.85;
+const WEAK_POINT_HIT_UPTIME_ASSUMPTION = 0.55;
+const HIT_RATE_ASSUMPTION = 0.75;
+const WEAK_POINT_HIT_RATE_ASSUMPTION = 0.45;
 
 export interface DamageMetrics {
     modded: ModdedWeaponStats;
@@ -147,9 +151,54 @@ export function estimateConditionalUptime(
         case "onHeadshotKill":
             uptime = ON_HEADSHOT_KILL_UPTIME_ASSUMPTION;
             break;
+        case "onHit":
+            uptime = ON_HIT_UPTIME_ASSUMPTION;
+            break;
+        case "onWeakPointHit":
+            uptime = WEAK_POINT_HIT_UPTIME_ASSUMPTION;
+            break;
+        case "onWeakPointKill":
+            uptime = ON_HEADSHOT_KILL_UPTIME_ASSUMPTION * 0.9;
+            break;
+        case "onMeleeKill":
+        case "onKillOrAssist":
+            uptime = ON_KILL_UPTIME_ASSUMPTION;
+            break;
+        case "onConsecutiveThrow":
+            uptime = 0.45;
+            break;
     }
     if (conditional.requiresAiming) uptime *= AIMING_UPTIME_ASSUMPTION;
     return Math.max(0, Math.min(1, uptime));
+}
+
+function estimateConditionalStackFactor(
+    conditional: ConditionalEffect,
+    fireRate: number,
+    _magazineSize: number,
+): number {
+    if ((conditional.maxStacks ?? 1) <= 1) return 1;
+
+    switch (conditional.trigger) {
+        case "onKill":
+        case "onMeleeKill":
+        case "onKillOrAssist":
+            return Math.max(1, conditional.maxStacks * 0.7);
+        case "onHeadshotKill":
+        case "onWeakPointKill":
+            return Math.max(1, conditional.maxStacks * 0.5);
+        case "onHit":
+        case "onConsecutiveThrow": {
+            const expected = fireRate * Math.max(0.25, conditional.durationSeconds || 0.25) * HIT_RATE_ASSUMPTION;
+            return Math.max(1, Math.min(conditional.maxStacks, expected * 0.85));
+        }
+        case "onWeakPointHit": {
+            const expected = fireRate * Math.max(0.25, conditional.durationSeconds || 0.25) * WEAK_POINT_HIT_RATE_ASSUMPTION;
+            return Math.max(1, Math.min(conditional.maxStacks, expected * 0.8));
+        }
+        default:
+            return 1;
+    }
 }
 
 export function calculateBuild(
@@ -170,6 +219,16 @@ export function calculateBuild(
     let magazineBonus = 0;
     let reloadSpeedBonus = 0;
     let attackSpeedBonus = 0;
+    let blastBonus = 0;
+    let gasBonus = 0;
+    let magneticBonus = 0;
+    let radiationBonus = 0;
+    let viralBonus = 0;
+    let corrosiveBonus = 0;
+    let perHitCritChanceBonus = 0;
+    let nextMagazineStatusChancePerShot = 0;
+    let nextMagazineMultishotPerShot = 0;
+    let nextMagazineMaxStacks = 0;
     let factionDamageBonus = 0;
     let impactStatusAppliesMagneticChance = 0;
     let impactStatusAppliesSlashChance = 0;
@@ -196,6 +255,16 @@ export function calculateBuild(
         magazineBonus += e.magazineBonus;
         reloadSpeedBonus += e.reloadSpeedBonus;
         attackSpeedBonus += e.attackSpeedBonus;
+        blastBonus += e.blastBonus;
+        gasBonus += e.gasBonus;
+        magneticBonus += e.magneticBonus;
+        radiationBonus += e.radiationBonus;
+        viralBonus += e.viralBonus;
+        corrosiveBonus += e.corrosiveBonus;
+        perHitCritChanceBonus += e.perHitCritChanceBonus;
+        nextMagazineStatusChancePerShot += e.nextMagazineStatusChancePerShot;
+        nextMagazineMultishotPerShot += e.nextMagazineMultishotPerShot;
+        nextMagazineMaxStacks = Math.max(nextMagazineMaxStacks, e.nextMagazineMaxStacks);
         impactStatusAppliesMagneticChance += e.impactStatusAppliesMagneticChance;
         impactStatusAppliesSlashChance += e.impactStatusAppliesSlashChance;
         impactStatusExtraProcLowFireRateThreshold = Math.max(impactStatusExtraProcLowFireRateThreshold, e.impactStatusExtraProcLowFireRateThreshold);
@@ -217,9 +286,61 @@ export function calculateBuild(
             if (value > 0) orderedPrimaryElementBonuses.push({ type, value, order: index });
         }
 
+        directBonusBreakdown.blast += e.blastBonus;
+        directBonusBreakdown.gas += e.gasBonus;
         directBonusBreakdown.magnetic += e.magneticBonus;
         directBonusBreakdown.radiation += e.radiationBonus;
+        directBonusBreakdown.viral += e.viralBonus;
+        directBonusBreakdown.corrosive += e.corrosiveBonus;
     });
+
+    const baseFireRateBonus = weapon.category === "Melee" ? attackSpeedBonus : fireRateBonus;
+    const baselineRawFireRate = weapon.fireRate * (1 + baseFireRateBonus);
+    const baselineMagazineSize = Math.max(1, Math.round(weapon.magazineSize * (1 + magazineBonus)));
+    let conditionalDamageBonus = 0;
+    let conditionalCritChanceBonus = 0;
+    let conditionalCritMultBonus = 0;
+    let conditionalStatusChanceBonus = 0;
+    let conditionalMultishotBonus = 0;
+    let conditionalFireRateBonus = 0;
+    let conditionalReloadSpeedBonus = 0;
+    const conditionalDirectBonusBreakdown = emptyBreakdown();
+    for (const conditional of conditionalEffects) {
+        const factor =
+            estimateConditionalUptime(conditional, baselineRawFireRate, baselineMagazineSize) *
+            estimateConditionalStackFactor(conditional, baselineRawFireRate, baselineMagazineSize);
+        conditionalDamageBonus += (conditional.stats.damageBonus ?? 0) * factor;
+        conditionalCritChanceBonus += (conditional.stats.critChanceBonus ?? 0) * factor;
+        conditionalCritMultBonus += (conditional.stats.critMultBonus ?? 0) * factor;
+        conditionalStatusChanceBonus += (conditional.stats.statusChanceBonus ?? 0) * factor;
+        conditionalMultishotBonus += (conditional.stats.multishotBonus ?? 0) * factor;
+        conditionalFireRateBonus += (conditional.stats.fireRateBonus ?? 0) * factor;
+        conditionalReloadSpeedBonus += (conditional.stats.reloadSpeedBonus ?? 0) * factor;
+        conditionalDirectBonusBreakdown.blast += (conditional.stats.blastBonus ?? 0) * factor;
+        conditionalDirectBonusBreakdown.gas += (conditional.stats.gasBonus ?? 0) * factor;
+        conditionalDirectBonusBreakdown.magnetic += (conditional.stats.magneticBonus ?? 0) * factor;
+        conditionalDirectBonusBreakdown.radiation += (conditional.stats.radiationBonus ?? 0) * factor;
+        conditionalDirectBonusBreakdown.viral += (conditional.stats.viralBonus ?? 0) * factor;
+        conditionalDirectBonusBreakdown.corrosive += (conditional.stats.corrosiveBonus ?? 0) * factor;
+    }
+
+    damageBonus += conditionalDamageBonus;
+    critChanceBonus += conditionalCritChanceBonus;
+    critMultBonus += conditionalCritMultBonus;
+    statusChanceBonus += conditionalStatusChanceBonus;
+    multishotBonus += conditionalMultishotBonus;
+    fireRateBonus += conditionalFireRateBonus;
+    reloadSpeedBonus += conditionalReloadSpeedBonus;
+
+    const expectedHitsPerMag = baselineMagazineSize * weapon.multishot * HIT_RATE_ASSUMPTION;
+    if (perHitCritChanceBonus > 0) {
+        critChanceBonus += perHitCritChanceBonus * Math.max(0, expectedHitsPerMag - 1) / 2;
+    }
+    if (nextMagazineMaxStacks > 0) {
+        const nextMagStacks = Math.min(nextMagazineMaxStacks, baselineMagazineSize * HIT_RATE_ASSUMPTION);
+        statusChanceBonus += nextMagazineStatusChancePerShot * nextMagStacks * 0.5;
+        multishotBonus += nextMagazineMultishotPerShot * nextMagStacks * 0.5;
+    }
 
     const baseDamageMultiplier = 1 + damageBonus;
     const totalBase = Math.max(0.0001, totalDamageOf({
@@ -263,8 +384,9 @@ export function calculateBuild(
     rawBreakdown.viral += weapon.damage.viral * baseDamageMultiplier;
     rawBreakdown.corrosive += weapon.damage.corrosive * baseDamageMultiplier;
 
-    rawBreakdown.magnetic += totalBase * directBonusBreakdown.magnetic;
-    rawBreakdown.radiation += totalBase * directBonusBreakdown.radiation;
+    for (const key of ["blast", "gas", "magnetic", "radiation", "viral", "corrosive"] as const) {
+        rawBreakdown[key] += totalBase * (directBonusBreakdown[key] + conditionalDirectBonusBreakdown[key]);
+    }
 
     const quantum = totalBase / 16;
     const damageBreakdown = emptyBreakdown();
@@ -280,35 +402,6 @@ export function calculateBuild(
     const critMultiplier = weapon.critMultiplier * (1 + critMultBonus);
     const averageCritTier = Math.max(0, critChance);
     const statusChance = weapon.statusChance * (1 + statusChanceBonus) + finalStatusChanceBonus;
-
-    const baseFireRateBonus = weapon.category === "Melee" ? attackSpeedBonus : fireRateBonus;
-    const baselineRawFireRate = weapon.fireRate * (1 + baseFireRateBonus);
-    const baselineMagazineSize = Math.max(1, Math.round(weapon.magazineSize * (1 + magazineBonus)));
-    let conditionalDamageBonus = 0;
-    let conditionalCritChanceBonus = 0;
-    let conditionalCritMultBonus = 0;
-    let conditionalStatusChanceBonus = 0;
-    let conditionalMultishotBonus = 0;
-    let conditionalFireRateBonus = 0;
-    let conditionalReloadSpeedBonus = 0;
-    for (const conditional of conditionalEffects) {
-        const uptime = estimateConditionalUptime(conditional, baselineRawFireRate, baselineMagazineSize);
-        conditionalDamageBonus += (conditional.stats.damageBonus ?? 0) * uptime;
-        conditionalCritChanceBonus += (conditional.stats.critChanceBonus ?? 0) * uptime;
-        conditionalCritMultBonus += (conditional.stats.critMultBonus ?? 0) * uptime;
-        conditionalStatusChanceBonus += (conditional.stats.statusChanceBonus ?? 0) * uptime;
-        conditionalMultishotBonus += (conditional.stats.multishotBonus ?? 0) * uptime;
-        conditionalFireRateBonus += (conditional.stats.fireRateBonus ?? 0) * uptime;
-        conditionalReloadSpeedBonus += (conditional.stats.reloadSpeedBonus ?? 0) * uptime;
-    }
-
-    damageBonus += conditionalDamageBonus;
-    critChanceBonus += conditionalCritChanceBonus;
-    critMultBonus += conditionalCritMultBonus;
-    statusChanceBonus += conditionalStatusChanceBonus;
-    multishotBonus += conditionalMultishotBonus;
-    fireRateBonus += conditionalFireRateBonus;
-    reloadSpeedBonus += conditionalReloadSpeedBonus;
 
     const rawFireRate = weapon.fireRate * (1 + (weapon.category === "Melee" ? attackSpeedBonus : fireRateBonus));
     let fireRate = rawFireRate;

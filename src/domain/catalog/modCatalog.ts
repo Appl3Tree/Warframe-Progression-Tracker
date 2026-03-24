@@ -136,11 +136,15 @@ export interface ConditionalEffect {
         | "beamRangeBonus"
         | "accuracyBonus"
         | "weakPointDamageBonus"
+        | "blastBonus"
         | "heatBonus"
         | "coldBonus"
         | "toxinBonus"
+        | "radiationBonus"
         | "magneticBonus"
         | "gasBonus"
+        | "viralBonus"
+        | "corrosiveBonus"
         | "ammoEfficiencyBonus"
         | "directDamagePerStatusBonus"
     >>;
@@ -239,21 +243,17 @@ function explodeStatLines(raw: string): string[] {
 
 function parseTriggeredStatLine(raw: string): Partial<ModEffect> {
     const clean = stripColorTags(raw).replace(/\\n/g, " ").replace(/\s+/g, " ").trim();
-    const match = clean.match(/^(On Reload From Empty|On Reload|On Headshot Kill|On Headshot|On Kill):\s*(.+)$/i);
+    const match = clean.match(/^(On Reload From Empty|On Reload|On Headshot Kill|On Headshot|On Weak Point Kill|On Weak Point Hit|On Weak Point hits? with Primary Fire|On Melee Kill|On Kill or Assist|On Consecutive throw|On Hit|On Kill):\s*(.+)$/i);
     if (!match) return {};
 
     const triggerRaw = match[1].toLowerCase();
     const body = match[2].trim();
     const durationMatch = body.match(/\bfor\s+(\d+(?:\.\d+)?)s\b/i);
     const durationSeconds = durationMatch ? parseFloat(durationMatch[1]) : 0;
+    const stackMatch = body.match(/\bstacks?\s+up\s+to\s+(\d+)x\b/i);
+    const maxStacks = stackMatch ? Math.max(1, Number(stackMatch[1])) : 1;
     const requiresAiming = /\bwhen aiming\b|\bwhile aiming\b/i.test(body);
-    const stats = mergeEffect(
-        emptyEffect(),
-        mergeEffect(
-            emptyEffect(),
-            parseStatLine(body),
-        ),
-    );
+    const stats = mergeEffect(emptyEffect(), parseStatLine(body, { applyStackMultiplier: false }));
 
     const extractedStats: ConditionalEffect["stats"] = {};
     const statKeys: (keyof ConditionalEffect["stats"])[] = [
@@ -266,6 +266,17 @@ function parseTriggeredStatLine(raw: string): Partial<ModEffect> {
         "reloadSpeedBonus",
         "projectileSpeedBonus",
         "beamRangeBonus",
+        "accuracyBonus",
+        "weakPointDamageBonus",
+        "blastBonus",
+        "heatBonus",
+        "coldBonus",
+        "toxinBonus",
+        "radiationBonus",
+        "magneticBonus",
+        "gasBonus",
+        "viralBonus",
+        "corrosiveBonus",
         "ammoEfficiencyBonus",
         "directDamagePerStatusBonus",
     ];
@@ -281,6 +292,12 @@ function parseTriggeredStatLine(raw: string): Partial<ModEffect> {
     else if (triggerRaw === "on kill") trigger = "onKill";
     else if (triggerRaw === "on headshot") trigger = "onHeadshot";
     else if (triggerRaw === "on headshot kill") trigger = "onHeadshotKill";
+    else if (triggerRaw === "on hit") trigger = "onHit";
+    else if (triggerRaw === "on weak point hit" || triggerRaw === "on weak point hits with primary fire") trigger = "onWeakPointHit";
+    else if (triggerRaw === "on weak point kill") trigger = "onWeakPointKill";
+    else if (triggerRaw === "on melee kill") trigger = "onMeleeKill";
+    else if (triggerRaw === "on kill or assist") trigger = "onKillOrAssist";
+    else if (triggerRaw === "on consecutive throw") trigger = "onConsecutiveThrow";
     if (!trigger) return {};
 
     return {
@@ -289,17 +306,40 @@ function parseTriggeredStatLine(raw: string): Partial<ModEffect> {
                 trigger,
                 durationSeconds,
                 requiresAiming,
+                maxStacks,
                 stats: extractedStats,
             },
         ],
     };
 }
 
-function parseStatLine(raw: string): Partial<ModEffect> {
+function parseRampingLine(raw: string): Partial<ModEffect> {
+    const clean = stripColorTags(raw).replace(/\\n/g, " ").replace(/\s+/g, " ").trim();
+
+    let match = clean.match(/^Each hit increases Critical Chance by ([+-]?\d+(?:\.\d+)?)%\.\s*Resets upon reloading or holstering\.?$/i);
+    if (match) {
+        return { perHitCritChanceBonus: parseFloat(match[1]) / 100 };
+    }
+
+    match = clean.match(/^On Reload:\s*Next Magazine has Status Chance and Multishot increased by ([+-]?\d+(?:\.\d+)?)% per shot landed with current Magazine\.\s*Max (\d+) stacks\.?$/i);
+    if (match) {
+        return {
+            nextMagazineStatusChancePerShot: parseFloat(match[1]) / 100,
+            nextMagazineMultishotPerShot: parseFloat(match[1]) / 100,
+            nextMagazineMaxStacks: Number(match[2]),
+        };
+    }
+
+    return {};
+}
+
+function parseStatLine(raw: string, options?: { applyStackMultiplier?: boolean }): Partial<ModEffect> {
     const clean = stripColorTags(raw);
     if (/^On [^:]+:/i.test(clean)) return {};
     const stackMatch = clean.match(/stacks?\s+up\s+to\s+(\d+)x/i);
-    const stackMult = stackMatch ? Math.max(1, Number(stackMatch[1])) : 1;
+    const stackMult = options?.applyStackMultiplier === false
+        ? 1
+        : (stackMatch ? Math.max(1, Number(stackMatch[1])) : 1);
     const withoutPrefix = clean.replace(/^[^+-\d]*([+-]?\d)/, "$1");
     const value = extractPercent(withoutPrefix);
     if (value === null) return {};
@@ -642,6 +682,7 @@ function buildCaches(): ModCaches {
             let e = emptyEffect();
             for (const rawStat of (ls.stats ?? [])) {
                 for (const s of explodeStatLines(rawStat)) {
+                    e = mergeEffect(e, parseRampingLine(s));
                     e = mergeEffect(e, parseTriggeredStatLine(s));
                     e = mergeEffect(e, parseStatLine(s));
                     e = mergeEffect(e, parseFlatNumericLine(s));
