@@ -14,7 +14,7 @@ import type { ModEntry } from "../catalog/modCatalog";
 import { getModsForWeapon } from "../catalog/modCatalog";
 import type { ArcaneEntry } from "../catalog/arcaneCatalog";
 import { getArcanesByWeaponCategory } from "../catalog/arcaneCatalog";
-import { calculateBuild, avgCritMultiplier } from "./damageCalc";
+import { calculateBuild, avgCritMultiplier, estimateConditionalUptime } from "./damageCalc";
 import { computeCapacity, effectiveDrain, type CapacityConfig, type SlotConfig } from "./capacityCalc";
 
 export type OptimizeGoal = "damage" | "crit" | "status" | "balanced";
@@ -124,6 +124,7 @@ function scoreEffects(
     let ammoEfficiencyBonus = 0;
     let directDamagePerStatusBonus = 0;
     let finalStatusChanceBonus = 0;
+    const conditionalEffects = allEffects.flatMap(effect => effect?.conditionalEffects ?? []);
 
     for (const effect of allEffects) {
         if (!effect) continue;
@@ -147,6 +148,14 @@ function scoreEffects(
         ammoEfficiencyBonus += effect.ammoEfficiencyBonus ?? 0;
         directDamagePerStatusBonus += effect.directDamagePerStatusBonus ?? 0;
         finalStatusChanceBonus += effect.finalStatusChanceBonus ?? 0;
+    }
+
+    const baselineFireRate = weapon.fireRate * (1 + (weapon.category === "Melee" ? 0 : 0));
+    const baselineMagazineSize = Math.max(1, Math.round(weapon.magazineSize));
+    for (const conditional of conditionalEffects) {
+        const uptime = estimateConditionalUptime(conditional, baselineFireRate, baselineMagazineSize);
+        ammoEfficiencyBonus += (conditional.stats.ammoEfficiencyBonus ?? 0) * uptime;
+        directDamagePerStatusBonus += (conditional.stats.directDamagePerStatusBonus ?? 0) * uptime;
     }
 
     const statusWeight =

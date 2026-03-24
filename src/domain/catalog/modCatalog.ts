@@ -50,7 +50,11 @@ export interface ModEffect {
     coldBonus: number;
     electricityBonus: number;
     toxinBonus: number;
+    blastBonus: number;
+    gasBonus: number;
     magneticBonus: number;
+    viralBonus: number;
+    corrosiveBonus: number;
     radiationBonus: number;
     critChanceBonus: number;
     critMultBonus: number;
@@ -79,6 +83,10 @@ export interface ModEffect {
     lifeStealBonus: number;
     ammoEfficiencyBonus: number;
     directDamagePerStatusBonus: number;
+    perHitCritChanceBonus: number;
+    nextMagazineStatusChancePerShot: number;
+    nextMagazineMultishotPerShot: number;
+    nextMagazineMaxStacks: number;
     finalStatusChanceBonus: number;
     /** Chance for an Impact status proc to also apply Magnetic. */
     impactStatusAppliesMagneticChance: number;
@@ -90,10 +98,52 @@ export interface ModEffect {
     impactStatusExtraProcLowFireRateMultiplier: number;
     /** Chance for a critical hit to also apply Slash. */
     critAppliesSlashChance: number;
+    conditionalEffects: ConditionalEffect[];
     /** Faction damage multiplier as a bonus fraction, e.g. 0.3 = ×1.3. 0 if not a faction mod. */
     factionDamageBonus: number;
     /** Which faction this mod targets, e.g. "Grineer". Empty string if not a faction mod. */
     targetFaction: string;
+}
+
+export type ConditionalTrigger =
+    | "onReload"
+    | "onReloadFromEmpty"
+    | "onKill"
+    | "onHeadshot"
+    | "onHeadshotKill"
+    | "onHit"
+    | "onWeakPointHit"
+    | "onWeakPointKill"
+    | "onMeleeKill"
+    | "onKillOrAssist"
+    | "onConsecutiveThrow";
+
+export interface ConditionalEffect {
+    trigger: ConditionalTrigger;
+    durationSeconds: number;
+    requiresAiming: boolean;
+    maxStacks: number;
+    stats: Partial<Pick<
+        ModEffect,
+        | "damageBonus"
+        | "critChanceBonus"
+        | "critMultBonus"
+        | "statusChanceBonus"
+        | "multishotBonus"
+        | "fireRateBonus"
+        | "reloadSpeedBonus"
+        | "projectileSpeedBonus"
+        | "beamRangeBonus"
+        | "accuracyBonus"
+        | "weakPointDamageBonus"
+        | "heatBonus"
+        | "coldBonus"
+        | "toxinBonus"
+        | "magneticBonus"
+        | "gasBonus"
+        | "ammoEfficiencyBonus"
+        | "directDamagePerStatusBonus"
+    >>;
 }
 
 export interface ModEntry {
@@ -158,22 +208,96 @@ function explodeStatLines(raw: string): string[] {
         .filter(Boolean);
 
     const out: string[] = [];
+    let currentTriggerPrefix = "";
     for (const line of lines) {
-        const trailerMatch = line.match(/(\s+for\s+\d+(?:\.\d+)?s(?:\.\s*Stacks up to \d+x\.?)?|\.\s*Stacks up to \d+x\.?)$/i);
-        const trailer = trailerMatch ? trailerMatch[1] : "";
-        const base = trailer ? line.slice(0, -trailer.length).trim() : line;
-        const parts = base.split(/\s+and\s+(?=[+-]?\d)/i).map(part => part.trim()).filter(Boolean);
-        if (parts.length > 1) {
-            for (const part of parts) out.push(trailer ? `${part}${trailer}` : part);
+        if (/^On [^:]+:\s*$/i.test(line)) {
+            currentTriggerPrefix = line;
             continue;
         }
-        out.push(line);
+        if (/^On [^:]+:/i.test(line)) {
+            currentTriggerPrefix = line.replace(/^((On [^:]+:)).*$/i, "$1");
+        }
+        const contextualLine =
+            currentTriggerPrefix && !/^On [^:]+:/i.test(line)
+                ? `${currentTriggerPrefix} ${line}`
+                : line;
+        const triggerPrefixMatch = contextualLine.match(/^((?:On [^:]+:)\s*)(.+)$/i);
+        const triggerPrefix = triggerPrefixMatch?.[1] ?? "";
+        const triggerBody = triggerPrefixMatch?.[2] ?? contextualLine;
+        const trailerMatch = line.match(/(\s+for\s+\d+(?:\.\d+)?s(?:\.\s*Stacks up to \d+x\.?)?|\.\s*Stacks up to \d+x\.?)$/i);
+        const trailer = trailerMatch ? trailerMatch[1] : "";
+        const base = trailer ? triggerBody.slice(0, -trailer.length).trim() : triggerBody;
+        const parts = base.split(/\s+and\s+(?=[+-]?\d)/i).map(part => part.trim()).filter(Boolean);
+        if (parts.length > 1) {
+            for (const part of parts) out.push(`${triggerPrefix}${trailer ? `${part}${trailer}` : part}`.trim());
+            continue;
+        }
+        out.push(`${triggerPrefix}${triggerBody}`.trim());
     }
     return out;
 }
 
+function parseTriggeredStatLine(raw: string): Partial<ModEffect> {
+    const clean = stripColorTags(raw).replace(/\\n/g, " ").replace(/\s+/g, " ").trim();
+    const match = clean.match(/^(On Reload From Empty|On Reload|On Headshot Kill|On Headshot|On Kill):\s*(.+)$/i);
+    if (!match) return {};
+
+    const triggerRaw = match[1].toLowerCase();
+    const body = match[2].trim();
+    const durationMatch = body.match(/\bfor\s+(\d+(?:\.\d+)?)s\b/i);
+    const durationSeconds = durationMatch ? parseFloat(durationMatch[1]) : 0;
+    const requiresAiming = /\bwhen aiming\b|\bwhile aiming\b/i.test(body);
+    const stats = mergeEffect(
+        emptyEffect(),
+        mergeEffect(
+            emptyEffect(),
+            parseStatLine(body),
+        ),
+    );
+
+    const extractedStats: ConditionalEffect["stats"] = {};
+    const statKeys: (keyof ConditionalEffect["stats"])[] = [
+        "damageBonus",
+        "critChanceBonus",
+        "critMultBonus",
+        "statusChanceBonus",
+        "multishotBonus",
+        "fireRateBonus",
+        "reloadSpeedBonus",
+        "projectileSpeedBonus",
+        "beamRangeBonus",
+        "ammoEfficiencyBonus",
+        "directDamagePerStatusBonus",
+    ];
+    for (const key of statKeys) {
+        const value = stats[key];
+        if (value && value !== 0) extractedStats[key] = value;
+    }
+    if (Object.keys(extractedStats).length === 0) return {};
+
+    let trigger: ConditionalTrigger | null = null;
+    if (triggerRaw === "on reload") trigger = "onReload";
+    else if (triggerRaw === "on reload from empty") trigger = "onReloadFromEmpty";
+    else if (triggerRaw === "on kill") trigger = "onKill";
+    else if (triggerRaw === "on headshot") trigger = "onHeadshot";
+    else if (triggerRaw === "on headshot kill") trigger = "onHeadshotKill";
+    if (!trigger) return {};
+
+    return {
+        conditionalEffects: [
+            {
+                trigger,
+                durationSeconds,
+                requiresAiming,
+                stats: extractedStats,
+            },
+        ],
+    };
+}
+
 function parseStatLine(raw: string): Partial<ModEffect> {
     const clean = stripColorTags(raw);
+    if (/^On [^:]+:/i.test(clean)) return {};
     const stackMatch = clean.match(/stacks?\s+up\s+to\s+(\d+)x/i);
     const stackMult = stackMatch ? Math.max(1, Number(stackMatch[1])) : 1;
     const withoutPrefix = clean.replace(/^[^+-\d]*([+-]?\d)/, "$1");
@@ -214,7 +338,11 @@ function parseStatLine(raw: string): Partial<ModEffect> {
     if (rest === "cold") return { coldBonus: scaled };
     if (rest === "electricity") return { electricityBonus: scaled };
     if (rest === "toxin") return { toxinBonus: scaled };
+    if (rest === "blast") return { blastBonus: scaled };
+    if (rest === "gas") return { gasBonus: scaled };
     if (rest === "magnetic") return { magneticBonus: scaled };
+    if (rest === "viral") return { viralBonus: scaled };
+    if (rest === "corrosive") return { corrosiveBonus: scaled };
     if (rest === "radiation") return { radiationBonus: scaled };
     if (rest === "impact") return { impactBonus: scaled };
     if (rest === "puncture") return { punctureBonus: scaled };
@@ -262,6 +390,7 @@ function parseConditionalStatusLine(raw: string): Partial<ModEffect> {
 
 function parseFlatNumericLine(raw: string): Partial<ModEffect> {
     const clean = stripColorTags(raw).replace(/\\n/g, " ").trim();
+    if (/^On [^:]+:/i.test(clean)) return {};
     let match = clean.match(/^\+?(\d+(?:\.\d+)?)\s*Punch Through$/i);
     if (match) return { punchThrough: parseFloat(match[1]) };
 
@@ -289,6 +418,7 @@ function parseFlatNumericLine(raw: string): Partial<ModEffect> {
 /** Parse faction damage lines like "x1.3 Damage to Grineer" → factionDamageBonus=0.3, targetFaction="Grineer" */
 function parseFactionLine(raw: string): Partial<ModEffect> {
     const clean = stripColorTags(raw).trim();
+    if (/^On [^:]+:/i.test(clean)) return {};
     const m = clean.match(/^x([\d.]+)\s+Damage\s+to\s+(.+)$/i);
     if (!m) return {};
     const multiplier = parseFloat(m[1]);
@@ -303,7 +433,7 @@ export function emptyEffect(): ModEffect {
     return {
         damageBonus: 0, impactBonus: 0, punctureBonus: 0, slashBonus: 0,
         heatBonus: 0, coldBonus: 0, electricityBonus: 0, toxinBonus: 0,
-        magneticBonus: 0, radiationBonus: 0,
+        blastBonus: 0, gasBonus: 0, magneticBonus: 0, viralBonus: 0, corrosiveBonus: 0, radiationBonus: 0,
         critChanceBonus: 0, critMultBonus: 0, statusChanceBonus: 0,
         multishotBonus: 0, fireRateBonus: 0, magazineBonus: 0,
         reloadSpeedBonus: 0, attackSpeedBonus: 0,
@@ -314,12 +444,14 @@ export function emptyEffect(): ModEffect {
         comboDurationBonus: 0, initialComboBonus: 0, comboCountChanceBonus: 0,
         heavyAttackEfficiencyBonus: 0, heavyAttackWindUpBonus: 0,
         lifeStealBonus: 0, ammoEfficiencyBonus: 0, directDamagePerStatusBonus: 0,
+        perHitCritChanceBonus: 0, nextMagazineStatusChancePerShot: 0, nextMagazineMultishotPerShot: 0, nextMagazineMaxStacks: 0,
         finalStatusChanceBonus: 0,
         impactStatusAppliesMagneticChance: 0,
         impactStatusAppliesSlashChance: 0,
         impactStatusExtraProcLowFireRateThreshold: 0,
         impactStatusExtraProcLowFireRateMultiplier: 0,
         critAppliesSlashChance: 0,
+        conditionalEffects: [],
         factionDamageBonus: 0, targetFaction: "",
     };
 }
@@ -331,6 +463,8 @@ function mergeEffect(base: ModEffect, partial: Partial<ModEffect>): ModEffect {
             // Keep the non-empty faction name
             const v = partial[k];
             if (v) out[k] = v;
+        } else if (k === "conditionalEffects") {
+            out.conditionalEffects = [...(out.conditionalEffects ?? []), ...((partial.conditionalEffects ?? []) as ConditionalEffect[])];
         } else if (k === "impactStatusExtraProcLowFireRateThreshold" || k === "impactStatusExtraProcLowFireRateMultiplier") {
             (out[k] as number) = Math.max(((out[k] as number) ?? 0), ((partial[k] as number) ?? 0));
         } else {
@@ -342,7 +476,7 @@ function mergeEffect(base: ModEffect, partial: Partial<ModEffect>): ModEffect {
 
 function hasDamageEffect(e: ModEffect): boolean {
     return Object.entries(e).some(([k, v]) =>
-        k !== "targetFaction" && v !== 0
+        k !== "targetFaction" && (k === "conditionalEffects" ? Array.isArray(v) && v.length > 0 : v !== 0)
     );
 }
 
@@ -508,6 +642,7 @@ function buildCaches(): ModCaches {
             let e = emptyEffect();
             for (const rawStat of (ls.stats ?? [])) {
                 for (const s of explodeStatLines(rawStat)) {
+                    e = mergeEffect(e, parseTriggeredStatLine(s));
                     e = mergeEffect(e, parseStatLine(s));
                     e = mergeEffect(e, parseFlatNumericLine(s));
                     e = mergeEffect(e, parseConditionalStatusLine(s));

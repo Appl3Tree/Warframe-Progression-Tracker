@@ -2,7 +2,7 @@
 // Damage + status calculations for the mod builder / optimizer.
 
 import type { WeaponEntry } from "../catalog/weaponCatalog";
-import type { ModEffect } from "../catalog/modCatalog";
+import type { ConditionalEffect, ModEffect } from "../catalog/modCatalog";
 
 type DamageKey =
     | "impact" | "puncture" | "slash"
@@ -50,6 +50,11 @@ export interface ModdedWeaponStats {
     averageProcsPerShot: number;
     extraProcsPerShot: Partial<Record<DamageKey, number>>;
 }
+
+const AIMING_UPTIME_ASSUMPTION = 0.75;
+const ON_KILL_UPTIME_ASSUMPTION = 0.6;
+const ON_HEADSHOT_UPTIME_ASSUMPTION = 0.55;
+const ON_HEADSHOT_KILL_UPTIME_ASSUMPTION = 0.35;
 
 export interface DamageMetrics {
     modded: ModdedWeaponStats;
@@ -120,6 +125,33 @@ function totalDamageOf(breakdown: Record<DamageKey, number>) {
     return DAMAGE_KEYS.reduce((sum, key) => sum + breakdown[key], 0);
 }
 
+export function estimateConditionalUptime(
+    conditional: ConditionalEffect,
+    fireRate: number,
+    magazineSize: number,
+): number {
+    let uptime = 0;
+    switch (conditional.trigger) {
+        case "onReload":
+        case "onReloadFromEmpty": {
+            const magTime = magazineSize / Math.max(0.0001, fireRate);
+            uptime = conditional.durationSeconds > 0 ? Math.min(1, conditional.durationSeconds / Math.max(0.0001, magTime)) : 1;
+            break;
+        }
+        case "onKill":
+            uptime = ON_KILL_UPTIME_ASSUMPTION;
+            break;
+        case "onHeadshot":
+            uptime = ON_HEADSHOT_UPTIME_ASSUMPTION;
+            break;
+        case "onHeadshotKill":
+            uptime = ON_HEADSHOT_KILL_UPTIME_ASSUMPTION;
+            break;
+    }
+    if (conditional.requiresAiming) uptime *= AIMING_UPTIME_ASSUMPTION;
+    return Math.max(0, Math.min(1, uptime));
+}
+
 export function calculateBuild(
     weapon: WeaponEntry,
     mods: (ModEffect | null)[],
@@ -144,6 +176,7 @@ export function calculateBuild(
     let impactStatusExtraProcLowFireRateThreshold = 0;
     let impactStatusExtraProcLowFireRateMultiplier = 1;
     let critAppliesSlashChance = 0;
+    const conditionalEffects: ConditionalEffect[] = [];
 
     const orderedPrimaryElementBonuses: Array<{ type: DamageKey; value: number; order: number }> = [];
     const directBonusBreakdown = emptyBreakdown();
@@ -168,6 +201,7 @@ export function calculateBuild(
         impactStatusExtraProcLowFireRateThreshold = Math.max(impactStatusExtraProcLowFireRateThreshold, e.impactStatusExtraProcLowFireRateThreshold);
         impactStatusExtraProcLowFireRateMultiplier = Math.max(impactStatusExtraProcLowFireRateMultiplier, e.impactStatusExtraProcLowFireRateMultiplier || 1);
         critAppliesSlashChance += e.critAppliesSlashChance;
+        conditionalEffects.push(...(e.conditionalEffects ?? []));
 
         if (targetFaction && e.targetFaction && e.targetFaction.toLowerCase() === targetFaction.toLowerCase()) {
             factionDamageBonus += e.factionDamageBonus;
@@ -246,6 +280,35 @@ export function calculateBuild(
     const critMultiplier = weapon.critMultiplier * (1 + critMultBonus);
     const averageCritTier = Math.max(0, critChance);
     const statusChance = weapon.statusChance * (1 + statusChanceBonus) + finalStatusChanceBonus;
+
+    const baseFireRateBonus = weapon.category === "Melee" ? attackSpeedBonus : fireRateBonus;
+    const baselineRawFireRate = weapon.fireRate * (1 + baseFireRateBonus);
+    const baselineMagazineSize = Math.max(1, Math.round(weapon.magazineSize * (1 + magazineBonus)));
+    let conditionalDamageBonus = 0;
+    let conditionalCritChanceBonus = 0;
+    let conditionalCritMultBonus = 0;
+    let conditionalStatusChanceBonus = 0;
+    let conditionalMultishotBonus = 0;
+    let conditionalFireRateBonus = 0;
+    let conditionalReloadSpeedBonus = 0;
+    for (const conditional of conditionalEffects) {
+        const uptime = estimateConditionalUptime(conditional, baselineRawFireRate, baselineMagazineSize);
+        conditionalDamageBonus += (conditional.stats.damageBonus ?? 0) * uptime;
+        conditionalCritChanceBonus += (conditional.stats.critChanceBonus ?? 0) * uptime;
+        conditionalCritMultBonus += (conditional.stats.critMultBonus ?? 0) * uptime;
+        conditionalStatusChanceBonus += (conditional.stats.statusChanceBonus ?? 0) * uptime;
+        conditionalMultishotBonus += (conditional.stats.multishotBonus ?? 0) * uptime;
+        conditionalFireRateBonus += (conditional.stats.fireRateBonus ?? 0) * uptime;
+        conditionalReloadSpeedBonus += (conditional.stats.reloadSpeedBonus ?? 0) * uptime;
+    }
+
+    damageBonus += conditionalDamageBonus;
+    critChanceBonus += conditionalCritChanceBonus;
+    critMultBonus += conditionalCritMultBonus;
+    statusChanceBonus += conditionalStatusChanceBonus;
+    multishotBonus += conditionalMultishotBonus;
+    fireRateBonus += conditionalFireRateBonus;
+    reloadSpeedBonus += conditionalReloadSpeedBonus;
 
     const rawFireRate = weapon.fireRate * (1 + (weapon.category === "Melee" ? attackSpeedBonus : fireRateBonus));
     let fireRate = rawFireRate;
