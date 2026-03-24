@@ -88,23 +88,176 @@ interface TargetProfile {
     shieldShare: number;
     grouped: boolean;
     effectiveHealth: number;
+    healthMaterial: "flesh" | "clonedFlesh" | "infestedFlesh" | "machinery" | "robotic";
+    armorMaterial: "" | "ferriteArmor" | "alloyArmor";
+    shieldMaterial: "" | "shield" | "protoShield";
 }
 
 function getTargetProfile(targetFaction: string): TargetProfile {
     switch (targetFaction.toLowerCase()) {
         case "grineer":
-            return { armor: 2700, healthShare: 1, shieldShare: 0, grouped: false, effectiveHealth: 25000 };
+            return {
+                armor: 2700,
+                healthShare: 1,
+                shieldShare: 0,
+                grouped: false,
+                effectiveHealth: 25000,
+                healthMaterial: "clonedFlesh",
+                armorMaterial: "ferriteArmor",
+                shieldMaterial: "",
+            };
         case "corpus":
-            return { armor: 0, healthShare: 0.4, shieldShare: 0.6, grouped: false, effectiveHealth: 18000 };
+            return {
+                armor: 0,
+                healthShare: 0.4,
+                shieldShare: 0.6,
+                grouped: false,
+                effectiveHealth: 18000,
+                healthMaterial: "flesh",
+                armorMaterial: "",
+                shieldMaterial: "shield",
+            };
         case "infested":
-            return { armor: 0, healthShare: 1, shieldShare: 0, grouped: true, effectiveHealth: 16000 };
+            return {
+                armor: 0,
+                healthShare: 1,
+                shieldShare: 0,
+                grouped: true,
+                effectiveHealth: 16000,
+                healthMaterial: "infestedFlesh",
+                armorMaterial: "",
+                shieldMaterial: "",
+            };
         case "orokin":
-            return { armor: 1200, healthShare: 0.85, shieldShare: 0.15, grouped: false, effectiveHealth: 22000 };
+            return {
+                armor: 1200,
+                healthShare: 0.85,
+                shieldShare: 0.15,
+                grouped: false,
+                effectiveHealth: 22000,
+                healthMaterial: "flesh",
+                armorMaterial: "alloyArmor",
+                shieldMaterial: "protoShield",
+            };
         case "the murmur":
-            return { armor: 600, healthShare: 1, shieldShare: 0, grouped: false, effectiveHealth: 20000 };
+            return {
+                armor: 600,
+                healthShare: 1,
+                shieldShare: 0,
+                grouped: false,
+                effectiveHealth: 20000,
+                healthMaterial: "robotic",
+                armorMaterial: "alloyArmor",
+                shieldMaterial: "",
+            };
         default:
-            return { armor: 0, healthShare: 1, shieldShare: 0, grouped: false, effectiveHealth: 18000 };
+            return {
+                armor: 0,
+                healthShare: 1,
+                shieldShare: 0,
+                grouped: false,
+                effectiveHealth: 18000,
+                healthMaterial: "flesh",
+                armorMaterial: "",
+                shieldMaterial: "",
+            };
     }
+}
+
+const HEALTH_TYPE_MODIFIERS: Partial<Record<TargetProfile["healthMaterial"], Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>>>> = {
+    flesh: {
+        impact: 0.25,
+        slash: -0.25,
+        toxin: 0.5,
+        viral: 0.5,
+        gas: -0.25,
+    },
+    clonedFlesh: {
+        slash: 0.25,
+        heat: 0.25,
+        viral: 0.75,
+        gas: -0.5,
+    },
+    infestedFlesh: {
+        slash: 0.25,
+        heat: 0.5,
+        gas: 0.75,
+        radiation: -0.5,
+        viral: -0.5,
+    },
+    machinery: {
+        electricity: 0.5,
+        toxin: -0.25,
+        blast: 0.75,
+        viral: -0.25,
+    },
+    robotic: {
+        puncture: 0.25,
+        electricity: 0.5,
+        toxin: -0.25,
+        radiation: 0.25,
+    },
+};
+
+const ARMOR_TYPE_MODIFIERS: Partial<Record<Exclude<TargetProfile["armorMaterial"], "">, Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>>>> = {
+    ferriteArmor: {
+        puncture: 0.5,
+        slash: -0.15,
+        blast: -0.25,
+        corrosive: 0.75,
+    },
+    alloyArmor: {
+        puncture: 0.15,
+        slash: -0.5,
+        cold: 0.25,
+        electricity: -0.5,
+        magnetic: -0.5,
+        radiation: 0.75,
+    },
+};
+
+const SHIELD_TYPE_MODIFIERS: Partial<Record<Exclude<TargetProfile["shieldMaterial"], "">, Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>>>> = {
+    shield: {
+        impact: 0.5,
+        puncture: -0.2,
+        cold: 0.5,
+        magnetic: 0.75,
+        radiation: -0.25,
+    },
+    protoShield: {
+        impact: 0.15,
+        puncture: 0.5,
+        heat: -0.5,
+        corrosive: -0.5,
+        magnetic: 0.75,
+    },
+};
+
+function typeMaterialModifier(
+    damageType: typeof PROC_DAMAGE_KEYS[number],
+    table: Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>> | undefined,
+): number {
+    return 1 + (table?.[damageType] ?? 0);
+}
+
+function directDamageTypeMultiplier(
+    damageType: typeof PROC_DAMAGE_KEYS[number],
+    target: TargetProfile,
+    effectiveArmorMultiplier: number,
+    viralHealthDamageBonus: number,
+    magneticShieldDamageBonus: number,
+): number {
+    const healthModifier =
+        target.healthShare *
+        typeMaterialModifier(damageType, HEALTH_TYPE_MODIFIERS[target.healthMaterial]) *
+        typeMaterialModifier(damageType, target.armorMaterial ? ARMOR_TYPE_MODIFIERS[target.armorMaterial] : undefined) *
+        effectiveArmorMultiplier *
+        (1 + viralHealthDamageBonus);
+    const shieldModifier =
+        target.shieldShare *
+        typeMaterialModifier(damageType, target.shieldMaterial ? SHIELD_TYPE_MODIFIERS[target.shieldMaterial] : undefined) *
+        (1 + magneticShieldDamageBonus);
+    return healthModifier + shieldModifier;
 }
 
 function armorDamageMultiplier(armor: number): number {
@@ -243,23 +396,36 @@ function scoreEffects(
     const combinedArmorStrip = 1 - ((1 - modded.heatArmorStrip) * (1 - modded.corrosiveArmorStrip));
     const strippedArmor = target.armor * Math.max(0, 1 - combinedArmorStrip);
     const effectiveArmorMultiplier = armorDamageMultiplier(strippedArmor);
-    const healthDamageMultiplier =
-        target.healthShare *
-        effectiveArmorMultiplier *
-        (1 + modded.viralHealthDamageBonus);
-    const shieldDamageMultiplier =
-        target.shieldShare *
-        (1 + modded.magneticShieldDamageBonus);
-    const targetAdjustedDirectMultiplier = Math.max(
-        0.1,
-        healthDamageMultiplier + shieldDamageMultiplier,
-    );
     const activeStatusTypes = Math.max(
         1,
         Object.entries(modded.expectedStacksByType).reduce((count, [, value]) => count + ((value ?? 0) >= 0.25 ? 1 : 0), 0),
     );
     const directDamagePerStatusMultiplier = 1 + directDamagePerStatusBonus * activeStatusTypes;
-    const adjustedDirectDps = sustainedDPS * targetAdjustedDirectMultiplier * directDamagePerStatusMultiplier;
+    const directTypeWeightTotal = PROC_DAMAGE_KEYS.reduce(
+        (sum, key) => sum + (modded.damageBreakdown[key] ?? 0),
+        0,
+    );
+    const targetAdjustedDirectMultiplier = directTypeWeightTotal > 0
+        ? PROC_DAMAGE_KEYS.reduce((sum, key) => {
+            const share = (modded.damageBreakdown[key] ?? 0) / directTypeWeightTotal;
+            if (share <= 0) return sum;
+            let typeMultiplier = directDamageTypeMultiplier(
+                key,
+                target,
+                effectiveArmorMultiplier,
+                modded.viralHealthDamageBonus,
+                modded.magneticShieldDamageBonus,
+            );
+            if (key === "toxin" && target.shieldShare > 0) {
+                // Toxin bypasses most shields, so its shield contribution is smaller but its health contribution remains.
+                typeMultiplier += target.shieldShare * 0.1;
+            }
+            return sum + share * typeMultiplier;
+        }, 0)
+        : 1;
+    const adjustedDirectDps = sustainedDPS *
+        Math.max(0.1, targetAdjustedDirectMultiplier) *
+        directDamagePerStatusMultiplier;
     const estimatedTimeToKill = target.effectiveHealth / Math.max(1, adjustedDirectDps);
     const realizedSlashFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
     const realizedHeatFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
@@ -421,7 +587,7 @@ export function assignModsToSlots(
 // polarities if allowForma is set) — this avoids over-conservative capacity
 // rejection that was killing builds with polarity-matched mods.
 
-const BEAM_WIDTH = 64;
+const BEAM_WIDTH = 256;
 
 interface BeamState {
     mods: (ModEntry | null)[];
@@ -485,11 +651,9 @@ function beamSearch(
                 }
 
                 const s = scoreSlots(weapon, newMods, newRanks, goal, targetFaction, arcaneEffect);
-                if (s > state.score) {
-                    const newUsed = new Set(state.usedGroups);
-                    newUsed.add(mod.incompatibilityGroup);
-                    nextStates.push({ mods: newMods, ranks: newRanks, usedGroups: newUsed, score: s });
-                }
+                const newUsed = new Set(state.usedGroups);
+                newUsed.add(mod.incompatibilityGroup);
+                nextStates.push({ mods: newMods, ranks: newRanks, usedGroups: newUsed, score: s });
             }
         }
 
