@@ -87,28 +87,35 @@ interface TargetProfile {
     healthShare: number;
     shieldShare: number;
     grouped: boolean;
+    effectiveHealth: number;
 }
 
 function getTargetProfile(targetFaction: string): TargetProfile {
     switch (targetFaction.toLowerCase()) {
         case "grineer":
-            return { armor: 2700, healthShare: 1, shieldShare: 0, grouped: false };
+            return { armor: 2700, healthShare: 1, shieldShare: 0, grouped: false, effectiveHealth: 25000 };
         case "corpus":
-            return { armor: 0, healthShare: 0.4, shieldShare: 0.6, grouped: false };
+            return { armor: 0, healthShare: 0.4, shieldShare: 0.6, grouped: false, effectiveHealth: 18000 };
         case "infested":
-            return { armor: 0, healthShare: 1, shieldShare: 0, grouped: true };
+            return { armor: 0, healthShare: 1, shieldShare: 0, grouped: true, effectiveHealth: 16000 };
         case "orokin":
-            return { armor: 1200, healthShare: 0.85, shieldShare: 0.15, grouped: false };
+            return { armor: 1200, healthShare: 0.85, shieldShare: 0.15, grouped: false, effectiveHealth: 22000 };
         case "the murmur":
-            return { armor: 600, healthShare: 1, shieldShare: 0, grouped: false };
+            return { armor: 600, healthShare: 1, shieldShare: 0, grouped: false, effectiveHealth: 20000 };
         default:
-            return { armor: 0, healthShare: 1, shieldShare: 0, grouped: false };
+            return { armor: 0, healthShare: 1, shieldShare: 0, grouped: false, effectiveHealth: 18000 };
     }
 }
 
 function armorDamageMultiplier(armor: number): number {
     if (armor <= 0) return 1;
     return Math.max(0.1, 1 - 0.9 * Math.sqrt(armor / 2700));
+}
+
+function dotRealizationFactor(timeToKill: number, duration: number): number {
+    if (duration <= 0 || !Number.isFinite(timeToKill) || timeToKill <= 0) return 1;
+    if (timeToKill < duration) return Math.max(0.05, timeToKill / (2 * duration));
+    return Math.max(0.2, 1 - duration / (2 * timeToKill));
 }
 
 // ── Scoring ───────────────────────────────────────────────────────────────────
@@ -247,24 +254,35 @@ function scoreEffects(
         0.1,
         healthDamageMultiplier + shieldDamageMultiplier,
     );
-    const adjustedDirectDps = sustainedDPS * targetAdjustedDirectMultiplier;
+    const activeStatusTypes = Math.max(
+        1,
+        Object.entries(modded.expectedStacksByType).reduce((count, [, value]) => count + ((value ?? 0) >= 0.25 ? 1 : 0), 0),
+    );
+    const directDamagePerStatusMultiplier = 1 + directDamagePerStatusBonus * activeStatusTypes;
+    const adjustedDirectDps = sustainedDPS * targetAdjustedDirectMultiplier * directDamagePerStatusMultiplier;
+    const estimatedTimeToKill = target.effectiveHealth / Math.max(1, adjustedDirectDps);
+    const realizedSlashFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
+    const realizedHeatFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
+    const realizedToxinFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
+    const realizedElectricFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
+    const realizedGasFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
     const adjustedDotDps =
-        (modded.dotDpsByType.slash ?? 0) * target.healthShare * (1 + modded.viralHealthDamageBonus) +
-        (modded.dotDpsByType.heat ?? 0) * target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) +
+        (modded.dotDpsByType.slash ?? 0) * target.healthShare * (1 + modded.viralHealthDamageBonus) * realizedSlashFactor +
+        (modded.dotDpsByType.heat ?? 0) * target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) * realizedHeatFactor +
         (modded.dotDpsByType.toxin ?? 0) * (
-            target.healthShare * (1 + modded.viralHealthDamageBonus) +
+            target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) +
             target.shieldShare * 0.35
-        ) +
+        ) * realizedToxinFactor +
         (modded.dotDpsByType.electricity ?? 0) * (
             (target.healthShare * effectiveArmorMultiplier + target.shieldShare) *
             (target.grouped ? 1.2 : 1)
-        ) +
+        ) * realizedElectricFactor +
         (modded.dotDpsByType.gas ?? 0) * (
             target.healthShare *
             effectiveArmorMultiplier *
             (1 + modded.viralHealthDamageBonus) *
             (target.grouped ? 1.25 : 1.05)
-        );
+        ) * realizedGasFactor;
     const blastUtilityDps = modded.blastDetonationDamagePerShot * modded.fireRate * (target.grouped ? 1.25 : 0.75);
     const gasUtility = modded.gasCloudRadius * 0.04;
     const coldCritMultiplierGain = modded.coldCritDamageBonus > 0
