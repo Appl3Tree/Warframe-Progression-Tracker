@@ -18,6 +18,8 @@ import { getItemRequirements } from "../catalog/items/itemRequirements";
 import { uid, nowIso } from "../store/storeUtils";
 import ALL_RAW from "../data/All.json";
 import { getRelicByKey } from "../domain/catalog/relicCatalog";
+import { getPrimeAvailabilityStatus, getRelicAvailabilityStatus } from "../domain/catalog/vaultedItems";
+import { useWorldStateData } from "../lib/useWorldStateData";
 
 const _statusImgs = import.meta.glob<string>("../assets/statuses/*.png", { eager: true, import: "default" });
 const STATUS_IMG_INV: Record<string, string> = {};
@@ -279,9 +281,10 @@ function classifyDropInv(location: string): "syndicate" | "enemy" | "mission" | 
   return "other";
 }
 
-function InvDropRow({ d, small = false }: {
+function InvDropRow({ d, small = false, worldState = null }: {
   d: { chance: number; location: string; rarity: string; type?: string };
   small?: boolean;
+  worldState?: import("../lib/worldStateCache").WorldStateData | null;
 }) {
   const kind = classifyDropInv(d.location);
   const sz = small ? "text-[10px]" : "text-xs";
@@ -332,18 +335,34 @@ function InvDropRow({ d, small = false }: {
     const baseName = d.location.replace(/\s+\(.*?\)\s*$/, "").trim();
     const relicKey = baseName.replace(/\s+Relic\s*$/i, "").trim().toLowerCase();
     const relic = getRelicByKey(relicKey);
-    const isVaulted = relic ? !relic.isActive : false;
+    const availability = relic
+      ? getRelicAvailabilityStatus(relic.key, relic.isActive, worldState)
+      : "available";
     const quality = d.location.match(/\(([^)]+)\)$/)?.[1];
     const farmUrl = `https://wiki.warframe.com/w/${encodeURIComponent(baseName.replace(/\s+/g, "_"))}`;
     return (
-      <div className={["flex items-center gap-1.5 rounded px-2 py-1 border", isVaulted ? "bg-red-950/10 border-red-900/40" : "bg-slate-900/40 border-slate-800/50", sz].join(" ")}>
+      <div className={[
+        "flex items-center gap-1.5 rounded px-2 py-1 border",
+        availability === "vaulted"
+          ? "bg-red-950/10 border-red-900/40"
+          : availability === "prime_resurgence"
+            ? "bg-violet-950/10 border-violet-900/40"
+            : "bg-slate-900/40 border-slate-800/50",
+        sz,
+      ].join(" ")}>
         <a href={farmUrl} target="_blank" rel="noopener noreferrer"
           className="flex-1 truncate text-slate-300 hover:text-cyan-300 hover:underline transition-colors">{baseName}</a>
         {quality && <span className="shrink-0 text-slate-500">{quality}</span>}
-        {isVaulted && (
+        {availability === "vaulted" && (
           <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1 py-0.5 rounded border border-red-700/50 bg-red-950/40 text-red-400"
             title="This relic is vaulted — obtain via trading or Prime Resurgence (Varzia)">
             Vaulted
+          </span>
+        )}
+        {availability === "prime_resurgence" && (
+          <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1 py-0.5 rounded border border-violet-700/50 bg-violet-950/40 text-violet-300"
+            title="This relic is currently available from Varzia's Prime Resurgence stock">
+            Prime Resurgence
           </span>
         )}
         <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
@@ -1171,6 +1190,7 @@ const EMPTY_ARRAY: never[] = [];
 type OwnershipFilter = "all" | "owned" | "unowned" | "mastered";
 
 export default function Inventory() {
+  const worldState = useWorldStateData();
   const counts = useTrackerStore(
     (s) => s.state.inventory.counts ?? EMPTY_NUM_RECORD,
   );
@@ -2348,13 +2368,15 @@ export default function Inventory() {
                       r.path,
                     );
                   const rowAllE = ALL_BY_UNIQUE[r.path];
-                  const isVaulted = rowAllE?.vaulted ?? false;
+                  const primeAvailability = getPrimeAvailabilityStatus(String(r.id), worldState);
+                  const isVaulted = primeAvailability === "vaulted";
+                  const isPrimeResurgence = primeAvailability === "prime_resurgence";
                   const hasVaultedParts =
                     !isVaulted &&
                     (rowAllE?.components?.some(
                       (comp) =>
                         comp.uniqueName &&
-                        ALL_BY_UNIQUE[comp.uniqueName]?.vaulted,
+                        getPrimeAvailabilityStatus(`items:${comp.uniqueName}`, worldState) === "vaulted",
                     ) ??
                       false);
 
@@ -2405,6 +2427,14 @@ export default function Inventory() {
                             >
                               {r.label}
                             </button>
+                            {isPrimeResurgence && (
+                              <span
+                                className="shrink-0 text-[10px] px-1.5 py-0.5 rounded border border-violet-700/50 bg-violet-950/40 text-violet-300 font-semibold"
+                                title="This prime item is currently obtainable through Varzia's Prime Resurgence relics"
+                              >
+                                PRIME RESURGENCE
+                              </span>
+                            )}
                             {isVaulted && (
                               <span
                                 className="shrink-0 text-[10px] px-1.5 py-0.5 rounded border border-rose-700/50 bg-rose-950/40 text-rose-400 font-semibold"
@@ -2650,7 +2680,12 @@ export default function Inventory() {
                         PRIME
                       </span>
                     )}
-                    {allE?.vaulted && (
+                    {allE && getPrimeAvailabilityStatus(`items:${allE.uniqueName}`, worldState) === "prime_resurgence" && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded border border-violet-700/50 bg-violet-950/30 text-violet-300 font-semibold">
+                        PRIME RESURGENCE
+                      </span>
+                    )}
+                    {allE && getPrimeAvailabilityStatus(`items:${allE.uniqueName}`, worldState) === "vaulted" && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded border border-rose-700/50 bg-rose-950/30 text-rose-300 font-semibold">
                         VAULTED
                       </span>
@@ -3081,7 +3116,7 @@ export default function Inventory() {
                                       return b.chance - a.chance;
                                     })
                                     .slice(0, 8)
-                                    .map((d, j) => <InvDropRow key={j} d={d} small />)}
+                                    .map((d, j) => <InvDropRow key={j} d={d} small worldState={worldState} />)}
                                   {comp.drops!.length > 8 && (
                                     <div className="text-[10px] text-slate-600">
                                       +{comp.drops!.length - 8} more locations
@@ -3111,7 +3146,7 @@ export default function Inventory() {
                               return b.chance - a.chance;
                             })
                             .slice(0, 20)
-                            .map((d, i) => <InvDropRow key={i} d={d} />)}
+                            .map((d, i) => <InvDropRow key={i} d={d} worldState={worldState} />)}
                           {allE.drops.length > 20 && (
                             <div className="text-xs text-slate-600 px-2">
                               +{allE.drops.length - 20} more

@@ -7,13 +7,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getWeaponCatalog, type WeaponCategory, type WeaponEntry } from "../../domain/catalog/weaponCatalog";
-import { getModsForWeapon, type ModEntry, type ModEffect, emptyEffect } from "../../domain/catalog/modCatalog";
+import { getModsForWeapon, getStancesForWeapon, type ModEntry, emptyEffect } from "../../domain/catalog/modCatalog";
 import { getArcanesByWeaponCategory, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
 import { calculateBuild } from "../../domain/logic/damageCalc";
 import { optimizeBuild, explainBuild, type OptimizeGoal, type BuildReasoning } from "../../domain/logic/buildOptimizer";
 import {
     computeCapacity, totalModCapacity, minModCapacity, effectiveDrain,
-    maxWeaponRank, type CapacityConfig, type SlotConfig,
+    maxWeaponRank, type CapacityConfig,
 } from "../../domain/logic/capacityCalc";
 import { useTrackerStore } from "../../store/store";
 import type { SavedBuild } from "../../domain/models/userState";
@@ -130,6 +130,10 @@ function makeRivenEntry(
         hasDamageEffect: true,
         isAura: false,
         isExilus: false,
+        isStance: false,
+        incompatibilityGroup: "__riven__",
+        compatibilityTags: [],
+        incompatibilityTags: [],
     };
 }
 
@@ -195,6 +199,20 @@ function PolarityPicker({ value, onChange }: { value: string; onChange: (p: stri
     );
 }
 
+function shouldAutoInstallCatalyst(
+    cfg: CapacityConfig,
+    slotPols: string[],
+    slots: (ModEntry | null)[],
+    ranks: number[],
+): boolean {
+    if (cfg.hasCatalyst) return false;
+    const slotCfgs = slotPols.map(polarity => ({ polarity }));
+    const uncatalyzed = computeCapacity(cfg, slotCfgs, slots, ranks);
+    if (!uncatalyzed.overCapacity) return false;
+    const catalyzed = computeCapacity({ ...cfg, hasCatalyst: true }, slotCfgs, slots, ranks);
+    return !catalyzed.overCapacity;
+}
+
 // ── Stat Badge ────────────────────────────────────────────────────────────────
 
 function StatBadge({ label, value, sub, highlight, tooltip }: {
@@ -237,16 +255,18 @@ function CapBar({ used, total, over }: { used: number; total: number; over: bool
 interface SlotProps {
     index: number; label?: string;
     mod: ModEntry | null; rank: number; slotPolarity: string;
-    compatMods: ModEntry[]; usedNames: Set<string>;
+    compatMods: ModEntry[]; usedGroups: Set<string>;
     ownedNames: Set<string>; onlyOwned: boolean; isExilusSlot?: boolean;
+    excluded: Set<string>;
     onChange: (i: number, m: ModEntry | null) => void;
     onRankChange: (i: number, r: number) => void;
     onPolarityChange: (i: number, p: string) => void;
+    onToggleExclude: (name: string) => void;
     effDrain: number;
 }
 
-function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedNames,
-    ownedNames, onlyOwned, isExilusSlot, onChange, onRankChange, onPolarityChange, effDrain }: SlotProps) {
+function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups,
+    ownedNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onToggleExclude, effDrain }: SlotProps) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
@@ -266,12 +286,12 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedNames,
         return compatMods.filter(m => {
             if (isExilusSlot && !m.isExilus) return false;
             if (m.compatBucket === "Riven") return false;  // rivens go in a dedicated slot
-            if (usedNames.has(m.name) && m !== mod) return false;
+            if (usedGroups.has(m.incompatibilityGroup) && m.incompatibilityGroup !== mod?.incompatibilityGroup) return false;
             if (onlyOwned && ownedNames.size > 0 && !ownedNames.has(m.name)) return false;
             if (q && !m.name.toLowerCase().includes(q) && !m.statsLabel.toLowerCase().includes(q)) return false;
             return true;
         });
-    }, [compatMods, usedNames, mod, query, onlyOwned, ownedNames, isExilusSlot]);
+    }, [compatMods, usedGroups, mod, query, onlyOwned, ownedNames, isExilusSlot]);
 
     const polMatch    = !!(mod && slotPolarity && slotPolarity === mod.polarity);
     const polMismatch = !!(mod && slotPolarity && slotPolarity !== mod.polarity && slotPolarity !== "");
@@ -380,6 +400,25 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedNames,
                                         <span className="text-xs font-medium text-slate-200 flex-1 truncate">{m.name}</span>
                                         {!owned && <span className="text-[9px] text-slate-600 shrink-0">(unowned)</span>}
                                         {m.effect.targetFaction && <span className="text-[9px] px-1 rounded border border-orange-700/50 bg-orange-950/30 text-orange-400 shrink-0">{m.effect.targetFaction}</span>}
+                                        <span
+                                            role="button"
+                                            tabIndex={0}
+                                            onClick={(e) => { e.stopPropagation(); onToggleExclude(m.name); }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" || e.key === " ") {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    onToggleExclude(m.name);
+                                                }
+                                            }}
+                                            className={["text-[9px] px-1.5 py-0.5 rounded border shrink-0 transition-colors",
+                                                excluded.has(m.name)
+                                                    ? "border-red-700/60 bg-red-950/30 text-red-300"
+                                                    : "border-slate-700 text-slate-500 hover:border-red-700/60 hover:text-red-300"].join(" ")}
+                                            title={excluded.has(m.name) ? "Remove from exclusions" : "Exclude from optimizer"}
+                                        >
+                                            {excluded.has(m.name) ? "Excluded" : "Exclude"}
+                                        </span>
                                         <span className={["text-[9px] font-mono font-bold shrink-0 px-1 rounded",
                                             match ? "text-green-400 bg-green-950/30" : mismatch ? "text-amber-400 bg-amber-950/30" : "text-slate-500"].join(" ")}>
                                             {eff < 0 ? `+${Math.abs(eff)}` : eff}
@@ -806,10 +845,11 @@ function ReasoningPanel({ reasoning }: { reasoning: BuildReasoning }) {
 // ── Saved Builds ──────────────────────────────────────────────────────────────
 
 function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolarities, currentCfg,
-    exilusMod, exilusPol, arcane1, arcane1Rank, hasExilus, onLoad }: {
+    stanceMod, stanceRank, exilusMod, exilusPol, arcane1, arcane1Rank, hasExilus, onLoad }: {
     weapon: WeaponEntry | null;
     currentSlots: (ModEntry | null)[]; currentRanks: number[]; currentPolarities: string[];
     currentCfg: { weaponRank: number; hasCatalyst: boolean };
+    stanceMod: ModEntry | null; stanceRank: number;
     exilusMod: ModEntry | null; exilusPol: string;
     arcane1: ArcaneEntry | null; arcane1Rank: number;
     hasExilus: boolean;
@@ -821,7 +861,7 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
     const allMods      = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
     const [saveName, setSaveName] = useState("");
     const [saving, setSaving]     = useState(false);
-    const [comparing, setComparing] = useState<string | null>(null);
+    const [comparing, setComparing] = useState<Set<string>>(new Set());
 
     function handleSave() {
         if (!weapon || !saveName.trim()) return;
@@ -829,6 +869,9 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
             id: uid(), name: saveName.trim(),
             weaponUniqueName: weapon.uniqueName, weaponName: weapon.name,
             slotModUniqueNames: currentSlots.map(m => m?.uniqueName ?? ""),
+            slotRanks: [...currentRanks],
+            stanceModUniqueName: stanceMod?.uniqueName,
+            stanceRank,
             slotPolarities: [...currentPolarities],
             weaponRank: currentCfg.weaponRank, hasCatalyst: currentCfg.hasCatalyst,
             hasExilus,
@@ -842,6 +885,16 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
 
     const thisWeapon = savedBuilds.filter(b => weapon && b.weaponUniqueName === weapon.uniqueName);
     const others     = savedBuilds.filter(b => !weapon || b.weaponUniqueName !== weapon.uniqueName);
+    const comparedBuilds = thisWeapon.filter(b => comparing.has(b.id));
+
+    function toggleCompare(id: string) {
+        setComparing(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }
 
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 space-y-3">
@@ -858,16 +911,46 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
                         className="rounded-lg bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-600 disabled:opacity-40 transition-colors">Save</button>
                 </div>
             )}
+            {comparedBuilds.length > 1 && weapon && (
+                <div className="rounded-xl border border-blue-900/40 bg-blue-950/10 p-3">
+                    <div className="text-[10px] uppercase tracking-wide text-blue-300 mb-2">Side-by-side comparison</div>
+                    <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${comparedBuilds.length}, minmax(0, 1fr))` }}>
+                        {comparedBuilds.map(b => {
+                            const effects = b.slotModUniqueNames.map((un, i) => {
+                                const mod = allMods.find(m => m.uniqueName === un);
+                                if (!mod) return null;
+                                const rank = b.slotRanks?.[i] ?? mod.fusionLimit;
+                                return mod.effectsByRank[rank] ?? mod.effect;
+                            });
+                            const stats = calculateBuild(weapon, effects);
+                            return (
+                                <div key={b.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-1">
+                                    <div className="text-xs font-semibold text-slate-100">{b.name}</div>
+                                    <div className="flex justify-between gap-2 text-[11px]"><span className="text-slate-500">Sustained DPS</span><span className="font-mono text-slate-200">{fmt(stats.sustainedDPS)}</span></div>
+                                    <div className="flex justify-between gap-2 text-[11px]"><span className="text-slate-500">Crit Tier</span><span className="font-mono text-slate-200">{stats.modded.averageCritTier.toFixed(2)}x</span></div>
+                                    <div className="flex justify-between gap-2 text-[11px]"><span className="text-slate-500">Avg Procs/Shot</span><span className="font-mono text-slate-200">{fmt(stats.modded.averageProcsPerShot, 2)}</span></div>
+                                    <div className="flex justify-between gap-2 text-[11px]"><span className="text-slate-500">Status</span><span className="font-mono text-slate-200">{fmt(stats.modded.statusChance * 100, 1)}%</span></div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
             {savedBuilds.length === 0 && <div className="text-[11px] text-slate-600 text-center py-2">No saved builds yet.</div>}
             {thisWeapon.length > 0 && (
                 <div className="space-y-1.5">
                     <div className="text-[10px] text-slate-500 uppercase tracking-wide">This weapon</div>
                     {thisWeapon.map(b => {
-                        const mods  = b.slotModUniqueNames.map(un => allMods.find(m => m.uniqueName === un) ?? null);
-                        const stats = weapon ? calculateBuild(weapon, mods.map(m => m?.effect ?? null)) : null;
+                        const effects = b.slotModUniqueNames.map((un, i) => {
+                            const mod = allMods.find(m => m.uniqueName === un) ?? null;
+                            if (!mod) return null;
+                            const rank = b.slotRanks?.[i] ?? mod.fusionLimit;
+                            return mod.effectsByRank[rank] ?? mod.effect;
+                        });
+                        const stats = weapon ? calculateBuild(weapon, effects) : null;
                         return (
                             <div key={b.id} className={["rounded-lg border px-3 py-2",
-                                comparing === b.id ? "border-blue-700/50 bg-blue-950/10" : "border-slate-800 bg-slate-900/40"].join(" ")}>
+                                comparing.has(b.id) ? "border-blue-700/50 bg-blue-950/10" : "border-slate-800 bg-slate-900/40"].join(" ")}>
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="min-w-0">
                                         <div className="text-xs font-semibold text-slate-200 truncate">{b.name}</div>
@@ -879,16 +962,16 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
                                         </div>
                                     </div>
                                     <div className="flex gap-1 shrink-0">
-                                        <button onClick={() => setComparing(comparing === b.id ? null : b.id)}
+                                        <button onClick={() => toggleCompare(b.id)}
                                             className={["text-[10px] px-2 py-1 rounded border transition-colors",
-                                                comparing === b.id ? "border-blue-600 bg-blue-900/40 text-blue-300" : "border-slate-700 text-slate-400 hover:text-slate-200"].join(" ")}>
-                                            Compare
+                                                comparing.has(b.id) ? "border-blue-600 bg-blue-900/40 text-blue-300" : "border-slate-700 text-slate-400 hover:text-slate-200"].join(" ")}>
+                                            {comparing.has(b.id) ? "Selected" : "Compare"}
                                         </button>
                                         <button onClick={() => onLoad(b)} className="text-[10px] px-2 py-1 rounded border border-slate-700 text-slate-400 hover:text-slate-200 transition-colors">Load</button>
                                         <button onClick={() => deleteBuild(b.id)} className="text-[10px] text-slate-700 hover:text-red-400 transition-colors px-1">✕</button>
                                     </div>
                                 </div>
-                                {comparing === b.id && stats && (
+                                {comparing.has(b.id) && stats && (
                                     <div className="grid grid-cols-3 gap-1.5 mt-2 pt-2 border-t border-slate-800/60">
                                         {[["DPS", fmt(stats.sustainedDPS)], ["Crit%", fmt(stats.modded.critChance*100,1)+"%"], ["Status%", fmt(stats.modded.statusChance*100,1)+"%"]].map(([lbl, val]) => (
                                             <div key={lbl} className="text-center">
@@ -924,10 +1007,10 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
 // ── Owned Mods ────────────────────────────────────────────────────────────────
 
 function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
-    const getOwned = useTrackerStore(s => s.getOwnedModNames);
+    const ownedNames = useTrackerStore(s => s.state.modBuilder?.ownedModNames ?? []);
     const setOwned = useTrackerStore(s => s.setOwnedModNames);
     const [query, setQuery] = useState("");
-    const owned   = useMemo(() => new Set(getOwned()), [getOwned]);
+    const owned   = useMemo(() => new Set(ownedNames), [ownedNames]);
     const allMods = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
     const filtered = useMemo(() => {
         const q = query.toLowerCase();
@@ -972,12 +1055,14 @@ interface BuildCfg { weaponRank: number; hasCatalyst: boolean; masteryRank: numb
 
 export default function ModBuilder() {
     const masteryRank      = useTrackerStore(s => s.state.player.masteryRank) ?? 0;
-    const getOwnedModNames = useTrackerStore(s => s.getOwnedModNames);
+    const ownedNames = useTrackerStore(s => s.state.modBuilder?.ownedModNames ?? []);
 
     const [weapon, setWeapon]          = useState<WeaponEntry | null>(null);
     const [slots, setSlots]            = useState<(ModEntry | null)[]>(Array(SLOT_COUNT).fill(null));
     const [ranks, setRanks]            = useState<number[]>(Array(SLOT_COUNT).fill(0));
     const [slotPols, setSlotPols]      = useState<string[]>(Array(SLOT_COUNT).fill(""));
+    const [stanceMod, setStanceMod]    = useState<ModEntry | null>(null);
+    const [stanceRank, setStanceRank]  = useState(0);
     // Exilus
     const [hasExilus, setHasExilus]    = useState(false);
     const [exilusMod, setExilusMod]    = useState<ModEntry | null>(null);
@@ -1014,30 +1099,37 @@ export default function ModBuilder() {
 
     useEffect(() => { setBuildCfg(p => ({ ...p, masteryRank })); }, [masteryRank]);
 
-    function handleSelectWeapon(w: WeaponEntry) {
-        setWeapon(w);
+    function resetBuildForWeapon(w: WeaponEntry, opts?: { resetConfig?: boolean }) {
         setSlots(Array(SLOT_COUNT).fill(null));
         setRanks(Array(SLOT_COUNT).fill(0));
         const pols = Array(SLOT_COUNT).fill("") as string[];
         w.polarities.forEach((p, i) => { if (i < SLOT_COUNT) pols[i] = p; });
         setSlotPols(pols);
+        setStanceMod(null); setStanceRank(0);
         setExilusMod(null); setExilusRank(0); setExilusPol(""); setHasExilus(false);
         setRivenMod(null); setRivenSlotIdx(null);
         setArcane1(null); setArcane1Rank(0);
         setSelectedAttackIdx(0);
-        setBuildCfg(p => ({ ...p, weaponRank: 30, hasCatalyst: false }));
+        if (opts?.resetConfig) setBuildCfg(p => ({ ...p, weaponRank: 30, hasCatalyst: false }));
         setReasoning(null);
     }
 
+    function handleSelectWeapon(w: WeaponEntry) {
+        setWeapon(w);
+        resetBuildForWeapon(w, { resetConfig: true });
+    }
+
     const compatMods   = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
+    const stanceMods   = useMemo(() => weapon ? getStancesForWeapon(weapon) : [], [weapon]);
     const weaponArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
-    const ownedSet     = useMemo(() => new Set(getOwnedModNames()), [getOwnedModNames]);
-    const usedNames    = useMemo(() => {
-        const s = new Set(slots.filter(Boolean).map(m => m!.name));
-        if (exilusMod) s.add(exilusMod.name);
-        if (rivenMod)  s.add(rivenMod.name);
+    const ownedSet     = useMemo(() => new Set(ownedNames), [ownedNames]);
+    const usedGroups   = useMemo(() => {
+        const s = new Set(slots.filter(Boolean).map(m => m!.incompatibilityGroup));
+        if (stanceMod) s.add(stanceMod.incompatibilityGroup);
+        if (exilusMod) s.add(exilusMod.incompatibilityGroup);
+        if (rivenMod)  s.add(rivenMod.incompatibilityGroup);
         return s;
-    }, [slots, exilusMod, rivenMod]);
+    }, [slots, stanceMod, exilusMod, rivenMod]);
 
     // Forma count: count slots whose current polarity differs from weapon default
     const formaCount = useMemo(() => {
@@ -1084,11 +1176,22 @@ export default function ModBuilder() {
 
     const allSlotsForCap = useMemo(() => {
         const s = [...slots];
+        if (weapon?.category === "Melee" && stanceMod) s.unshift(stanceMod);
         if (hasExilus) s.push(exilusMod);
         return s;
-    }, [slots, exilusMod, hasExilus]);
-    const allPolsForCap  = useMemo(() => { const p = [...slotPols]; if (hasExilus) p.push(exilusPol); return p; }, [slotPols, exilusPol, hasExilus]);
-    const allRanksForCap = useMemo(() => { const r = [...ranks]; if (hasExilus) r.push(exilusRank); return r; }, [ranks, exilusRank, hasExilus]);
+    }, [slots, stanceMod, exilusMod, hasExilus, weapon]);
+    const allPolsForCap  = useMemo(() => {
+        const p = [...slotPols];
+        if (weapon?.category === "Melee") p.unshift(weapon.stancePolarity ?? "");
+        if (hasExilus) p.push(exilusPol);
+        return p;
+    }, [slotPols, exilusPol, hasExilus, weapon]);
+    const allRanksForCap = useMemo(() => {
+        const r = [...ranks];
+        if (weapon?.category === "Melee" && stanceMod) r.unshift(stanceRank);
+        if (hasExilus) r.push(exilusRank);
+        return r;
+    }, [ranks, stanceMod, stanceRank, exilusRank, hasExilus, weapon]);
 
     const capacity = useMemo(() => {
         if (!weapon) return null;
@@ -1121,7 +1224,7 @@ export default function ModBuilder() {
                 slotPolarities:   slotPols,
                 allowCatalyst,
                 allowForma,
-                optimizeExilus:   optExilus && hasExilus,
+                optimizeExilus:   optExilus,
                 exilusPolarity:   exilusPol,
                 optimizeArcane:   optArcane,
                 buildForAttack:   atk,
@@ -1134,13 +1237,22 @@ export default function ModBuilder() {
             // Apply polarity changes from forma optimizer
             if (allowForma) setSlotPols([...result.slotPolarities]);
 
-            // Apply catalyst marker if optimizer needed it
-            if (result.needsCatalyst) setBuildCfg(p => ({ ...p, hasCatalyst: true }));
-
             // Apply exilus mod if optimized
-            if (optExilus && hasExilus && result.exilusMod) {
+            if (optExilus) {
+                setHasExilus(true);
                 setExilusMod(result.exilusMod);
-                setExilusRank(result.exilusRank);
+                setExilusRank(result.exilusMod ? result.exilusRank : 0);
+            }
+
+            const finalSlotsForCap = [...result.slots, ...(optExilus ? [result.exilusMod] : [])];
+            const finalRanksForCap = [...result.slotRanks, ...(optExilus ? [result.exilusMod ? result.exilusRank : 0] : [])];
+            const finalPolsForCap  = [...result.slotPolarities, ...(optExilus ? [exilusPol] : [])];
+
+            if (
+                result.needsCatalyst ||
+                (allowCatalyst && shouldAutoInstallCatalyst(capacityCfg, finalPolsForCap, finalSlotsForCap, finalRanksForCap))
+            ) {
+                setBuildCfg(p => ({ ...p, hasCatalyst: true }));
             }
 
             // Apply arcane if optimized
@@ -1157,13 +1269,22 @@ export default function ModBuilder() {
         if (!weapon) return;
         const mods = build.slotModUniqueNames.map(un => compatMods.find(m => m.uniqueName === un) ?? null);
         const ns   = [...mods, ...Array(SLOT_COUNT).fill(null)].slice(0, SLOT_COUNT) as (ModEntry | null)[];
-        setSlots(ns); setRanks(ns.map(m => m ? m.fusionLimit : 0));
+        setSlots(ns);
+        setRanks(ns.map((m, i) => m ? (build.slotRanks?.[i] ?? m.fusionLimit) : 0));
         setSlotPols([...build.slotPolarities, ...Array(SLOT_COUNT).fill("")].slice(0, SLOT_COUNT));
         setBuildCfg(p => ({ ...p, weaponRank: build.weaponRank, hasCatalyst: build.hasCatalyst }));
+        if (build.stanceModUniqueName) {
+            const sm = stanceMods.find(m => m.uniqueName === build.stanceModUniqueName) ?? null;
+            setStanceMod(sm);
+            setStanceRank(sm ? (build.stanceRank ?? sm.fusionLimit) : 0);
+        } else {
+            setStanceMod(null);
+            setStanceRank(0);
+        }
         setHasExilus(build.hasExilus ?? false);
         if (build.exilusModUniqueName) {
             const em = compatMods.find(m => m.uniqueName === build.exilusModUniqueName) ?? null;
-            setExilusMod(em); setExilusRank(em ? em.fusionLimit : 0);
+            setExilusMod(em); setExilusRank(em ? (build.exilusRank ?? em.fusionLimit) : 0);
         }
         setExilusPol(build.exilusPol ?? "");
         if (build.arcane1UniqueName) {
@@ -1210,6 +1331,7 @@ export default function ModBuilder() {
                     {tab === "owned"   && <OwnedModsPanel weapon={weapon} />}
                     {tab === "saves"   && <SavedBuildsPanel weapon={weapon} currentSlots={slots} currentRanks={ranks}
                         currentPolarities={slotPols} currentCfg={buildCfg}
+                        stanceMod={stanceMod} stanceRank={stanceRank}
                         exilusMod={exilusMod} exilusPol={exilusPol}
                         arcane1={arcane1} arcane1Rank={arcane1Rank}
                         hasExilus={hasExilus} onLoad={handleLoadBuild} />}
@@ -1287,15 +1409,48 @@ export default function ModBuilder() {
                             <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="text-sm font-semibold">Mod Slots</div>
-                                    <span className="text-[10px] text-slate-500">{slots.filter(Boolean).length}/{SLOT_COUNT} filled</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] text-slate-500">{slots.filter(Boolean).length}/{SLOT_COUNT} filled</span>
+                                        <button
+                                            onClick={() => weapon && resetBuildForWeapon(weapon)}
+                                            className="text-[10px] px-2.5 py-1 rounded-full border border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200 transition-colors"
+                                        >
+                                            Reset Build
+                                        </button>
+                                    </div>
                                 </div>
+                                {weapon.category === "Melee" && weapon.stancePolarity && stanceMods.length > 0 && (
+                                    <div className="mb-3 pb-3 border-b border-slate-800/50">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div>
+                                                <div className="text-[10px] uppercase tracking-wide text-slate-500">Stance Slot</div>
+                                                <div className="text-[11px] text-slate-600">{weapon.stanceClass ?? "Melee Stance"}</div>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+                                                <span>Slot</span>
+                                                <PolarityIcon polarity={weapon.stancePolarity} className="w-3.5 h-3.5" />
+                                            </div>
+                                        </div>
+                                        <ModSlot index={0} label="Stance" mod={stanceMod} rank={stanceRank}
+                                            slotPolarity={weapon.stancePolarity} compatMods={stanceMods}
+                                            usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                            excluded={excluded}
+                                            onChange={(_, m) => { setStanceMod(m); setStanceRank(m ? m.fusionLimit : 0); }}
+                                            onRankChange={(_, r) => setStanceRank(r)}
+                                            onPolarityChange={() => {}}
+                                            onToggleExclude={toggleExclude}
+                                            effDrain={stanceMod ? effectiveDrain(stanceMod, weapon.stancePolarity, stanceRank) : 0} />
+                                    </div>
+                                )}
                                 <div className="grid grid-cols-2 gap-2">
                                     {slots.map((mod, i) => (
                                         <ModSlot key={i} index={i} mod={mod} rank={ranks[i] ?? 0}
                                             slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
-                                            usedNames={usedNames} ownedNames={ownedSet} onlyOwned={false}
+                                            usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                            excluded={excluded}
                                             onChange={handleSlotChange} onRankChange={handleRankChange}
                                             onPolarityChange={handlePolChange}
+                                            onToggleExclude={toggleExclude}
                                             effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0} />
                                     ))}
                                 </div>
@@ -1319,11 +1474,13 @@ export default function ModBuilder() {
                                 {hasExilus ? (
                                     <ModSlot index={0} label="Exilus" mod={exilusMod} rank={exilusRank}
                                         slotPolarity={exilusPol} compatMods={compatMods}
-                                        usedNames={usedNames} ownedNames={ownedSet} onlyOwned={false}
+                                        usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
                                         isExilusSlot={true}
+                                        excluded={excluded}
                                         onChange={handleExilusChange}
                                         onRankChange={(_, r) => setExilusRank(r)}
                                         onPolarityChange={(_, p) => setExilusPol(p)}
+                                        onToggleExclude={toggleExclude}
                                         effDrain={exilusMod ? effectiveDrain(exilusMod, exilusPol, exilusRank) : 0} />
                                 ) : (
                                     <div className="text-[11px] text-slate-600 text-center py-1">Requires an Exilus Weapon Adapter to unlock.</div>
@@ -1413,7 +1570,7 @@ export default function ModBuilder() {
                                         {([
                                             { k: "catalyst", label: "Allow Catalyst",  active: allowCatalyst, set: setAllowCatalyst, desc: "Assume Orokin Catalyst installed (doubles capacity). Marks build as needing one." },
                                             { k: "forma",    label: "Allow Forma",     active: allowForma,    set: setAllowForma,    desc: "Reassign slot polarities for minimum drain. Updates your slot polarities." },
-                                            { k: "exilus",   label: "Optimize Exilus", active: optExilus,     set: setOptExilus,     desc: "Pick best exilus mod. Requires Exilus Adapter to be installed." },
+                                            { k: "exilus",   label: "Optimize Exilus", active: optExilus,     set: setOptExilus,     desc: "Pick the best exilus mod and auto-install an Exilus Adapter for the optimized build if needed." },
                                             { k: "arcane",   label: "Optimize Arcane", active: optArcane,     set: setOptArcane,     desc: "Pick best arcane enhancement with permanent stat bonuses." },
                                         ] as const).map(t => (
                                             <button key={t.k} onClick={() => t.set(!t.active)} title={t.desc}
@@ -1430,7 +1587,7 @@ export default function ModBuilder() {
                                         ))}
                                     </div>
                                     {optExilus && !hasExilus && (
-                                        <div className="text-[10px] text-amber-500 mt-1">&#9888; Install Exilus Adapter above to enable exilus optimization.</div>
+                                        <div className="text-[10px] text-cyan-400 mt-1">Optimizer will auto-install an Exilus Adapter for the optimized result.</div>
                                     )}
                                 </div>
 
@@ -1457,7 +1614,7 @@ export default function ModBuilder() {
                                         {optimizing ? "Optimizing…" : "Optimize ▶"}
                                     </button>
                                     <p className="text-[10px] text-slate-600">
-                                        Beam search (width 64).{respectCap ? " Capacity-constrained." : ""}{allowNonMax ? " Sub-ranked mods allowed." : ""}{allowCatalyst ? " Catalyst assumed." : ""}{allowForma ? " Forma assigned." : ""}{onlyOwned && ownedSet.size > 0 ? " Owned only." : ""}{factionOn ? ` vs ${faction}.` : ""}{optExilus && hasExilus ? " Exilus included." : ""}{optArcane ? " Arcane included." : ""}
+                                        Beam search (width 64).{respectCap ? " Capacity-constrained." : ""}{allowNonMax ? " Sub-ranked mods allowed." : ""}{allowCatalyst ? " Catalyst assumed." : ""}{allowForma ? " Forma assigned." : ""}{onlyOwned && ownedSet.size > 0 ? " Owned only." : ""}{factionOn ? ` vs ${faction}.` : ""}{optExilus ? " Exilus included." : ""}{optArcane ? " Arcane included." : ""}
                                     </p>
                                 </div>
                             </div>
@@ -1495,7 +1652,7 @@ export default function ModBuilder() {
                                 };
 
                                 // Damage type rows for a given damage object
-                                const dmgRows = (d: typeof weapon.damage) => [
+                                const dmgRows = (d: Record<string, number>) => [
                                     { k: "impact",      l: "Impact",   v: d.impact },
                                     { k: "puncture",    l: "Punct",    v: d.puncture },
                                     { k: "slash",       l: "Slash",    v: d.slash },
@@ -1516,7 +1673,7 @@ export default function ModBuilder() {
                                     const result = calcForAttack(atkIdx);
                                     const stats  = result.modded;
                                     const atk    = weapon.attacks[atkIdx];
-                                    const dmgSrc = atk ? atk.damage : weapon.damage;
+                                    const dmgSrc = stats.damageBreakdown;
 
                                     return (
                                         <div key={atkIdx} className={weapon.attacks.length > 1 ? "border border-slate-800/60 rounded-xl p-3 space-y-3" : "space-y-3"}>
@@ -1582,7 +1739,7 @@ export default function ModBuilder() {
                                                 <StatBadge label="Magazine" value={String(stats.magazineSize)} />
                                                 <StatBadge label="Reload" value={stats.reloadTime.toFixed(2) + "s"} />
                                                 <StatBadge label="Avg Procs/Shot"
-                                                    value={fmt(stats.multishot * stats.statusChance, 2)}
+                                                    value={fmt(stats.averageProcsPerShot, 2)}
                                                     tooltip="Average number of status procs per trigger pull = Multishot × Status Chance." />
                                             </div>
 
@@ -1601,12 +1758,12 @@ export default function ModBuilder() {
                                                             {rows.map(e => (
                                                                 <StatBadge key={e.k} label={e.l}
                                                                     value={fmt(e.v, 1)}
-                                                                    sub={fmt(e.v / total * 100, 0) + "%"}
+                                                                    sub={fmt((stats.procChanceByType[e.k as keyof typeof stats.procChanceByType] ?? (e.v / total)) * 100, 0) + "%"}
                                                                     tooltip={STATUS_TIPS[e.k]} />
                                                             ))}
                                                         </div>
                                                         <div className="text-[9px] text-slate-600 mt-1.5">
-                                                            Proc distribution is proportional to damage share. Hover each type to see its status effect.
+                                                            Proc distribution uses the modded damage mix. Hover each type to see its status effect.
                                                         </div>
                                                     </div>
                                                 );
@@ -1620,6 +1777,9 @@ export default function ModBuilder() {
                                                         : `${fmt(stats.critChance * 100, 1)}% crit — guaranteed yellow crits (${fmt((stats.critChance - 1) * 100, 0)}% orange per shot)`}
                                                 </div>
                                             )}
+                                            <div className="text-[10px] text-slate-600">
+                                                Average crit tier: <span className="font-mono text-slate-300">{stats.averageCritTier.toFixed(2)}x</span>
+                                            </div>
                                         </div>
                                     );
                                 };

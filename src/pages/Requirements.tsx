@@ -22,7 +22,8 @@ import {
     type RequirementExpandMode
 } from "../domain/logic/requirementEngine";
 import type { CurrencyRequirementLine } from "../domain/logic/requirementEngine";
-import { isItemVaulted } from "../domain/catalog/vaultedItems";
+import { getPrimeAvailabilityStatus } from "../domain/catalog/vaultedItems";
+import { useWorldStateData } from "../lib/useWorldStateData";
 
 function normalize(s: string): string {
     return s.trim().toLowerCase();
@@ -177,6 +178,7 @@ export default function Requirements() {
     const [expandMode, setExpandMode] = useState<RequirementExpandMode>("direct");
     const [query, setQuery] = useState("");
     const [showHidden, setShowHidden] = useState(false);
+    const worldState = useWorldStateData();
     // "farming" = default farming view (platinum excluded from overlap/targeted display)
     // "platinum" = platinum cost summary view
     const [platView, setPlatView] = useState<"farming" | "platinum">("farming");
@@ -468,6 +470,7 @@ export default function Requirements() {
                                 const totalNeed = detail?.totalNeed ?? l.remaining;
                                 const pct = totalNeed > 0 ? Math.min(100, Math.round((have / totalNeed) * 100)) : 0;
                                 const catalogId = String(l.key);
+                                const primeAvailability = getPrimeAvailabilityStatus(catalogId, worldState);
 
                                 return (
                                     <div key={String(l.key)} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
@@ -475,12 +478,20 @@ export default function Requirements() {
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex flex-wrap items-center gap-1.5">
                                                     <span className="text-sm font-semibold break-words">{l.name}</span>
-                                                    {isItemVaulted(catalogId) && (
+                                                    {primeAvailability === "vaulted" && (
                                                         <span
                                                             className="text-[10px] px-1.5 py-0.5 rounded border border-red-700/50 bg-red-950/40 text-red-400 font-semibold shrink-0"
                                                             title="This prime item is vaulted — obtain via trading or Prime Resurgence (Varzia)"
                                                         >
                                                             VAULTED
+                                                        </span>
+                                                    )}
+                                                    {primeAvailability === "prime_resurgence" && (
+                                                        <span
+                                                            className="text-[10px] px-1.5 py-0.5 rounded border border-violet-700/50 bg-violet-950/40 text-violet-300 font-semibold shrink-0"
+                                                            title="This prime item is currently obtainable through Varzia's Prime Resurgence relics"
+                                                        >
+                                                            PRIME RESURGENCE
                                                         </span>
                                                     )}
                                                 </div>

@@ -181,11 +181,16 @@ export interface SavedBuild {
     weaponName: string;
     /** Mod unique names per slot (empty string = empty slot) */
     slotModUniqueNames: string[];
+    /** Rank per slot, aligned with slotModUniqueNames. */
+    slotRanks?: number[];
+    stanceModUniqueName?: string;
+    stanceRank?: number;
     slotPolarities: string[];
     weaponRank: number;
     hasCatalyst: boolean;
     hasExilus: boolean;
     exilusModUniqueName?: string;
+    exilusRank?: number;
     exilusPol?: string;
     arcane1UniqueName?: string;
     arcane1Rank?: number;

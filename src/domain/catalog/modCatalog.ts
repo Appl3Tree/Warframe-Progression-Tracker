@@ -13,9 +13,20 @@
 // when the selected weapon's name matches the compat name.
 
 import ALL_RAW from "../../data/All.json";
+import MODS_RAW from "../../data/mods.json";
 import type { ModCompatName, WeaponEntry } from "./weaponCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];
+const MODS_META = MODS_RAW as Record<string, {
+    name?: string;
+    path?: string;
+    parent?: string;
+    parents?: string[];
+    data?: {
+        CompatibilityTags?: string[];
+        IncompatibilityTags?: string[];
+    };
+}>;
 
 // Maps raw WFCD compatName → internal bucket key
 const COMPAT_MAP: Record<string, string> = {
@@ -73,6 +84,10 @@ export interface ModEntry {
     hasDamageEffect: boolean;
     isAura: boolean;
     isExilus: boolean;
+    isStance: boolean;
+    incompatibilityGroup: string;
+    compatibilityTags: string[];
+    incompatibilityTags: string[];
     triggerRestriction?: string;
 }
 
@@ -93,29 +108,33 @@ function stripParens(s: string): string {
 
 function parseStatLine(raw: string): Partial<ModEffect> {
     const clean = stripColorTags(raw);
-    const value = extractPercent(clean);
+    const stackMatch = clean.match(/stacks?\s+up\s+to\s+(\d+)x/i);
+    const stackMult = stackMatch ? Math.max(1, Number(stackMatch[1])) : 1;
+    const withoutPrefix = clean.replace(/^[^+-\d]*([+-]?\d)/, "$1");
+    const value = extractPercent(withoutPrefix);
     if (value === null) return {};
 
-    const rest = stripParens(clean.replace(/^[+-]?\d+(?:\.\d+)?%\s*/, "").trim()).toLowerCase();
+    const scaled = value * stackMult;
+    const rest = stripParens(withoutPrefix.replace(/^[+-]?\d+(?:\.\d+)?%\s*/, "").trim()).toLowerCase();
 
-    if (rest === "damage" || rest === "melee damage") return { damageBonus: value };
-    if (rest === "critical chance") return { critChanceBonus: value };
-    if (rest === "critical damage" || rest === "critical multiplier") return { critMultBonus: value };
-    if (rest === "status chance") return { statusChanceBonus: value };
-    if (rest === "multishot") return { multishotBonus: value };
-    if (rest.startsWith("fire rate")) return { fireRateBonus: value };
-    if (rest === "attack speed") return { attackSpeedBonus: value };
-    if (rest === "magazine capacity" || rest === "clip size") return { magazineBonus: value };
-    if (rest === "reload speed") return { reloadSpeedBonus: value };
-    if (rest === "heat") return { heatBonus: value };
-    if (rest === "cold") return { coldBonus: value };
-    if (rest === "electricity") return { electricityBonus: value };
-    if (rest === "toxin") return { toxinBonus: value };
-    if (rest === "magnetic") return { magneticBonus: value };
-    if (rest === "radiation") return { radiationBonus: value };
-    if (rest === "impact") return { impactBonus: value };
-    if (rest === "puncture") return { punctureBonus: value };
-    if (rest === "slash") return { slashBonus: value };
+    if (rest === "damage" || rest === "melee damage") return { damageBonus: scaled };
+    if (rest === "critical chance") return { critChanceBonus: scaled };
+    if (rest === "critical damage" || rest === "critical multiplier") return { critMultBonus: scaled };
+    if (rest === "status chance") return { statusChanceBonus: scaled };
+    if (rest === "multishot") return { multishotBonus: scaled };
+    if (rest.startsWith("fire rate")) return { fireRateBonus: scaled };
+    if (rest === "attack speed") return { attackSpeedBonus: scaled };
+    if (rest === "magazine capacity" || rest === "clip size") return { magazineBonus: scaled };
+    if (rest === "reload speed") return { reloadSpeedBonus: scaled };
+    if (rest === "heat") return { heatBonus: scaled };
+    if (rest === "cold") return { coldBonus: scaled };
+    if (rest === "electricity") return { electricityBonus: scaled };
+    if (rest === "toxin") return { toxinBonus: scaled };
+    if (rest === "magnetic") return { magneticBonus: scaled };
+    if (rest === "radiation") return { radiationBonus: scaled };
+    if (rest === "impact") return { impactBonus: scaled };
+    if (rest === "puncture") return { punctureBonus: scaled };
+    if (rest === "slash") return { slashBonus: scaled };
     return {};
 }
 
@@ -170,23 +189,6 @@ function detectTriggerRestriction(name: string): string | undefined {
     return undefined;
 }
 
-// ── Weapon Exilus mod identification ─────────────────────────────────────────
-// WFCD does not tag weapon exilus mods with isExilus — only Warframe mods get
-// that flag. This curated set lists all known weapon exilus-compatible mods
-// (those that can go in the Exilus Weapon Adapter slot).
-// Source: https://warframe.wiki.com/w/Exilus_Weapon_Adapter
-const WEAPON_EXILUS_NAMES = new Set([
-    "Cautious Shot", "Combustion Beam", "Concealed Explosives",
-    "Eagle Eye", "Embedded Catalyzer", "Empowered Quiver",
-    "Guided Ordnance", "Hydraulic Crosshairs", "Lethal Momentum",
-    "Magnum Force", "Ruinous Extension", "Shell Rush",
-    "Silent Battery", "Sinister Reach", "Speed Trigger",
-    "Stabilizer", "Steady Hands", "Tainted Mag",
-    "Terminal Velocity", "Thunderbolt", "Tidal Impunity",
-    "Vigilante Armaments", "Vigilante Fervor", "Vigilante Offense",
-    "Vigilante Supplies", "Wildfire",
-]);
-
 interface ModCaches {
     /** Generic weapon-class mods, keyed by bucket (Rifle, Shotgun, Pistol, Bow, Sniper, Primary, Melee) */
     byBucket: Map<string, ModEntry[]>;
@@ -195,9 +197,17 @@ interface ModCaches {
      * e.g. "Hek" → [Scattered Justice, …]
      */
     byWeaponName: Map<string, ModEntry[]>;
+    byStanceCompat: Map<string, ModEntry[]>;
 }
 
 let _caches: ModCaches | null = null;
+let _modsMetaByPath: Map<string, {
+    path: string;
+    parent: string;
+    parents: string[];
+    compatibilityTags: string[];
+    incompatibilityTags: string[];
+}> | null = null;
 
 /**
  * Returns the expected canonical fusionLimit for a mod based on its name.
@@ -207,27 +217,66 @@ let _caches: ModCaches | null = null;
  * a name with a standard mod but have an incorrect fusionLimit (e.g. fl=10
  * for a non-Primed mod, or fl=3 for a partial-rank variant).
  */
-function expectedFusionLimit(name: string): number {
-    const n = name.toLowerCase();
-    if (n.startsWith("primed ") || n.startsWith("galvanized ") ||
-        n.startsWith("umbra ") || n.includes("legendary ")) {
-        return 10;
-    }
-    return 5;
+function variantPenalty(uniqueName: string): number {
+    if (/\/beginner\//i.test(uniqueName)) return 3;
+    if (/\/intermediate\//i.test(uniqueName)) return 2;
+    if (/\/expert\//i.test(uniqueName)) return 1;
+    return 0;
 }
 
-/**
- * Score an entry for deduplication preference.
- * Higher = preferred.
- * Exact fusionLimit match to expected → 2
- * Off-by-one (e.g. fl=3 partial rank) → 1
- * Further off → 0 (worst)
- */
-function dedupScore(name: string, fl: number): number {
-    const expected = expectedFusionLimit(name);
-    if (fl === expected) return 2;
-    if (fl === 3) return 0; // partial-rank variants, always skip
-    return 1;
+function dedupScore(item: Record<string, unknown>): number {
+    const uniqueName = String(item.uniqueName ?? "");
+    const fl = Number(item.fusionLimit ?? 0);
+    return (fl * 10) - variantPenalty(uniqueName);
+}
+
+function getModsMetaByPath() {
+    if (_modsMetaByPath) return _modsMetaByPath;
+    const map = new Map<string, {
+        path: string;
+        parent: string;
+        parents: string[];
+        compatibilityTags: string[];
+        incompatibilityTags: string[];
+    }>();
+    for (const value of Object.values(MODS_META)) {
+        if (!value?.path) continue;
+        map.set(value.path, {
+            path: value.path,
+            parent: value.parent ?? "",
+            parents: Array.isArray(value.parents) ? value.parents : [],
+            compatibilityTags: Array.isArray(value.data?.CompatibilityTags) ? value.data!.CompatibilityTags! : [],
+            incompatibilityTags: Array.isArray(value.data?.IncompatibilityTags) ? value.data!.IncompatibilityTags! : [],
+        });
+    }
+    _modsMetaByPath = map;
+    return map;
+}
+
+function resolveCanonicalParent(path: string): string {
+    const meta = getModsMetaByPath().get(path);
+    if (!meta) return path;
+    const skip = new Set([
+        "/Lotus/Types/Game/LotusArtifactUpgrades/BaseArtifactUpgrade",
+        "/Lotus/Types/Game/LotusArtifactUpgrade",
+    ]);
+    const firstSpecificParent = meta.parents.find(parent => !skip.has(parent));
+    return firstSpecificParent ?? meta.path;
+}
+
+function resolveIncompatibilityGroup(path: string): string {
+    return resolveCanonicalParent(path);
+}
+
+function matchesHiddenTags(weapon: WeaponEntry, mod: ModEntry): boolean {
+    const weaponTags = new Set(weapon.tags ?? []);
+    for (const tag of mod.compatibilityTags) {
+        if (!weaponTags.has(tag)) return false;
+    }
+    for (const tag of mod.incompatibilityTags) {
+        if (weaponTags.has(tag)) return false;
+    }
+    return true;
 }
 
 function buildCaches(): ModCaches {
@@ -242,7 +291,7 @@ function buildCaches(): ModCaches {
         const rawCompat = String(item.compatName ?? "");
         const name = String(item.name ?? "");
         const fl = Number(item.fusionLimit ?? 0);
-        const score = dedupScore(name, fl);
+        const score = dedupScore(item);
 
         const bucket = COMPAT_MAP[rawCompat];
         if (bucket) {
@@ -261,7 +310,7 @@ function buildCaches(): ModCaches {
             if (!skip.has(rawCompat) && !/^\s*[A-Z]+\s*$/.test(rawCompat)) {
                 const key = `${name}||${rawCompat}`;
                 const cur = bestAugment.get(key);
-                const augScore = dedupScore(name, fl);
+                const augScore = dedupScore(item);
                 if (!cur || augScore > cur.score || (augScore === cur.score && fl > cur.fl)) {
                     bestAugment.set(key, { item: { ...item, _rawCompat: rawCompat }, fl, score: augScore });
                 }
@@ -277,8 +326,13 @@ function buildCaches(): ModCaches {
         const rawBaseDrain = Number(item.baseDrain ?? 2);
         const drain = rawBaseDrain + fl;
         const isAura = rawCompat === "AURA" || rawBaseDrain < 0;
-        // isExilus: use the WFCD flag for Warframe mods; use curated list for weapon mods
-        const isExilus = !!(item.isExilus) || WEAPON_EXILUS_NAMES.has(String(item.name ?? ""));
+        const isStance = String(item.type ?? "") === "Stance Mod";
+        // Use the shared utility flag for weapon exilus mods, plus WFCD's native flag for Warframe exilus.
+        const isWeaponUtility = !!item.isUtility && !isAura &&
+            (bucket === "Rifle" || bucket === "Shotgun" || bucket === "Pistol" ||
+             bucket === "Bow" || bucket === "Sniper" || bucket === "Primary" ||
+             bucket === "Melee" || bucket === "Augment");
+        const isExilus = !!item.isExilus || isWeaponUtility;
 
         // Build effects at every rank 0..fusionLimit
         const effectsByRank: ModEffect[] = levelStats.map(ls => {
@@ -302,6 +356,8 @@ function buildCaches(): ModCaches {
             .join("  ·  ");
 
         const name = String(item.name ?? "");
+        const path = String(item.uniqueName ?? "");
+        const meta = getModsMetaByPath().get(path);
 
         return {
             uniqueName: String(item.uniqueName ?? ""),
@@ -319,12 +375,17 @@ function buildCaches(): ModCaches {
             hasDamageEffect: hasDamageEffect(effect),
             isAura,
             isExilus,
+            isStance,
+            incompatibilityGroup: resolveIncompatibilityGroup(path),
+            compatibilityTags: meta?.compatibilityTags ?? [],
+            incompatibilityTags: meta?.incompatibilityTags ?? [],
             triggerRestriction: detectTriggerRestriction(name),
         };
     }
 
     const byBucket = new Map<string, ModEntry[]>();
     const byWeaponName = new Map<string, ModEntry[]>();
+    const byStanceCompat = new Map<string, ModEntry[]>();
 
     for (const { item, fl: _ } of bestGeneric.values()) {
         const rawCompat = String(item.compatName ?? "");
@@ -338,8 +399,14 @@ function buildCaches(): ModCaches {
 
     for (const { item } of bestAugment.values()) {
         const rawCompat = String((item._rawCompat as string | undefined) ?? item.compatName ?? "");
-        const entry = parseEntry(item, "Augment", rawCompat);
+        const isStance = String(item.type ?? "") === "Stance Mod";
+        const entry = parseEntry(item, isStance ? "Stance" : "Augment", rawCompat);
         if (!entry) continue;
+        if (isStance) {
+            if (!byStanceCompat.has(rawCompat)) byStanceCompat.set(rawCompat, []);
+            byStanceCompat.get(rawCompat)!.push(entry);
+            continue;
+        }
         if (!byWeaponName.has(rawCompat)) byWeaponName.set(rawCompat, []);
         byWeaponName.get(rawCompat)!.push(entry);
     }
@@ -347,8 +414,9 @@ function buildCaches(): ModCaches {
     // Sort each list alphabetically
     for (const list of byBucket.values()) list.sort((a, b) => a.name.localeCompare(b.name));
     for (const list of byWeaponName.values()) list.sort((a, b) => a.name.localeCompare(b.name));
+    for (const list of byStanceCompat.values()) list.sort((a, b) => a.name.localeCompare(b.name));
 
-    return { byBucket, byWeaponName };
+    return { byBucket, byWeaponName, byStanceCompat };
 }
 
 function getCaches(): ModCaches {
@@ -403,7 +471,8 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
     // Apply trigger restriction
     const trigger = weapon.trigger ?? "";
     const filtered = baseMods.filter(m =>
-        !m.triggerRestriction || m.triggerRestriction === trigger
+        (!m.triggerRestriction || m.triggerRestriction === trigger) &&
+        matchesHiddenTags(weapon, m)
     );
 
     // Add weapon-specific augments where compat name is a substring of weapon name
@@ -416,7 +485,7 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
         const compatLower = compatKey.toLowerCase();
         if (weaponNameLower.includes(compatLower) || compatLower.includes(weaponNameLower)) {
             for (const m of mods) {
-                if (!augSeen.has(m.name)) {
+                if (!augSeen.has(m.name) && matchesHiddenTags(weapon, m)) {
                     augSeen.add(m.name);
                     augments.push(m);
                 }
@@ -427,4 +496,10 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
     const out = [...filtered];
     if (augments.length > 0) out.push(...augments.sort((a, b) => a.name.localeCompare(b.name)));
     return out;
+}
+
+export function getStancesForWeapon(weapon: WeaponEntry): ModEntry[] {
+    if (weapon.category !== "Melee" || !weapon.stanceClass) return [];
+    const { byStanceCompat } = getCaches();
+    return [...(byStanceCompat.get(weapon.stanceClass) ?? [])];
 }

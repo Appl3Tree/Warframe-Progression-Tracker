@@ -12,6 +12,8 @@ import {
     type RelicEntry,
     type ScoredRelic,
 } from "../domain/catalog/relicCatalog";
+import { getRelicAvailabilityStatus, type PrimeAvailabilityStatus } from "../domain/catalog/vaultedItems";
+import { useWorldStateData } from "../lib/useWorldStateData";
 
 // ---- Helpers ----
 
@@ -60,9 +62,12 @@ function RarityBadge({ rarity }: { rarity: string }) {
     );
 }
 
-function MissionList({ relic }: { relic: RelicEntry }) {
+function MissionList({ relic, availability }: { relic: RelicEntry; availability: PrimeAvailabilityStatus }) {
     const [expanded, setExpanded] = useState(false);
     if (relic.missions.length === 0) {
+        if (availability === "prime_resurgence") {
+            return <span className="text-xs text-violet-300/80 italic">Available from Varzia (Prime Resurgence)</span>;
+        }
         return <span className="text-xs text-red-400/80 italic">No active missions (vaulted)</span>;
     }
 
@@ -107,7 +112,13 @@ function MissionList({ relic }: { relic: RelicEntry }) {
     );
 }
 
-function RelicCard({ scored, goalItems }: { scored: ScoredRelic; goalItems: Set<string> }) {
+function RelicCard({
+    scored, goalItems, availability,
+}: {
+    scored: ScoredRelic;
+    goalItems: Set<string>;
+    availability: PrimeAvailabilityStatus;
+}) {
     const { relic, matchedItems } = scored;
     const [showAll, setShowAll] = useState(false);
 
@@ -118,7 +129,7 @@ function RelicCard({ scored, goalItems }: { scored: ScoredRelic; goalItems: Set<
     return (
         <div className={[
             "rounded-xl border p-3 transition-colors",
-            relic.isActive
+            availability !== "vaulted"
                 ? "border-slate-700 bg-slate-950/40"
                 : "border-slate-800/60 bg-slate-950/20 opacity-75",
         ].join(" ")}>
@@ -126,12 +137,17 @@ function RelicCard({ scored, goalItems }: { scored: ScoredRelic; goalItems: Set<
             <div className="flex items-center gap-2 mb-2">
                 <TierBadge tier={relic.tier} />
                 <span className="text-sm font-semibold text-slate-100">{relic.displayName}</span>
-                {!relic.isActive && (
+                {availability === "prime_resurgence" && (
+                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded border border-violet-700/50 bg-violet-950/30 text-violet-300 font-semibold shrink-0">
+                        PRIME RESURGENCE
+                    </span>
+                )}
+                {availability === "vaulted" && (
                     <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded border border-red-700/50 bg-red-950/30 text-red-400 font-semibold shrink-0">
                         VAULTED
                     </span>
                 )}
-                <span className="ml-auto text-[10px] text-slate-500">
+                <span className="text-[10px] text-slate-500">
                     {matchedItems.length}/{allRewards.length} slots match
                 </span>
             </div>
@@ -173,7 +189,7 @@ function RelicCard({ scored, goalItems }: { scored: ScoredRelic; goalItems: Set<
             {/* Mission locations */}
             <div className="border-t border-slate-800 pt-2 mt-2">
                 <div className="text-[10px] text-slate-500 uppercase tracking-wide mb-1">Where to farm</div>
-                <MissionList relic={relic} />
+                <MissionList relic={relic} availability={availability} />
             </div>
         </div>
     );
@@ -383,6 +399,7 @@ export default function Tools() {
 // ---- Relic Farming (previously the entire page) ----
 
 function RelicFarming() {
+    const worldState = useWorldStateData();
     const { goals, completedPrereqs, inventory } = useTrackerStore(
         useShallow((s) => ({
             goals: s.state.goals ?? [],
@@ -432,11 +449,12 @@ function RelicFarming() {
 
     const filteredRelics = useMemo(() => {
         return scoredRelics.filter((sr) => {
-            if (!showVaulted && !sr.relic.isActive) return false;
+            const availability = getRelicAvailabilityStatus(sr.relic.key, sr.relic.isActive, worldState);
+            if (!showVaulted && availability === "vaulted") return false;
             if (tierFilter !== "all" && sr.relic.tier.toLowerCase() !== tierFilter) return false;
             return true;
         });
-    }, [scoredRelics, showVaulted, tierFilter]);
+    }, [scoredRelics, showVaulted, tierFilter, worldState]);
 
     // Items that appear in the currently-visible (filtered) relics
     const filteredGoalItemNames = useMemo(() => {
@@ -508,6 +526,12 @@ function RelicFarming() {
                                         {scoredRelics.filter((s) => s.relic.isActive).length}
                                     </div>
                                 </div>
+                                <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+                                    <div className="text-[11px] uppercase tracking-wide text-slate-400">Prime Resurgence</div>
+                                    <div className="mt-0.5 font-mono text-sm text-slate-100">
+                                        {scoredRelics.filter((s) => getRelicAvailabilityStatus(s.relic.key, s.relic.isActive, worldState) === "prime_resurgence").length}
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Filters */}
@@ -564,19 +588,24 @@ function RelicFarming() {
                                 <div className="space-y-2">
                                     <div className="text-xs text-slate-500">
                                         Sorted by relevance — relics containing more of your needed items appear first.
-                                        {!showVaulted && scoredRelics.some((s) => !s.relic.isActive) && (
+                                        {!showVaulted && scoredRelics.some((s) => getRelicAvailabilityStatus(s.relic.key, s.relic.isActive, worldState) === "vaulted") && (
                                             <span className="ml-1">
                                                 <button
                                                     className="text-red-400 hover:text-red-300 underline"
                                                     onClick={() => setShowVaulted(true)}
                                                 >
-                                                    {scoredRelics.filter((s) => !s.relic.isActive).length} vaulted relics hidden
+                                                    {scoredRelics.filter((s) => getRelicAvailabilityStatus(s.relic.key, s.relic.isActive, worldState) === "vaulted").length} vaulted relics hidden
                                                 </button>
                                             </span>
                                         )}
                                     </div>
                                     {filteredRelics.map((sr) => (
-                                        <RelicCard key={sr.relic.key} scored={sr} goalItems={goalItemNames} />
+                                        <RelicCard
+                                            key={sr.relic.key}
+                                            scored={sr}
+                                            goalItems={goalItemNames}
+                                            availability={getRelicAvailabilityStatus(sr.relic.key, sr.relic.isActive, worldState)}
+                                        />
                                     ))}
                                 </div>
                             )}

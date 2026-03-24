@@ -15,10 +15,7 @@ import { getModsForWeapon } from "../catalog/modCatalog";
 import type { ArcaneEntry } from "../catalog/arcaneCatalog";
 import { getArcanesByWeaponCategory } from "../catalog/arcaneCatalog";
 import { calculateBuild, avgCritMultiplier } from "./damageCalc";
-import {
-    computeCapacity, effectiveDrain, totalModCapacity,
-    type CapacityConfig, type SlotConfig,
-} from "./capacityCalc";
+import { computeCapacity, effectiveDrain, type CapacityConfig, type SlotConfig } from "./capacityCalc";
 
 export type OptimizeGoal = "damage" | "crit" | "status" | "balanced";
 
@@ -101,11 +98,17 @@ function scoreEffects(
 ): number {
     const allEffects = arcaneEffect ? [...effects, arcaneEffect as any] : effects;
     const { modded, sustainedDPS, burstDPS } = calculateBuild(weapon, allEffects, targetFaction);
+    const statusWeight =
+        (modded.procChanceByType.slash ?? 0) * 1.35 +
+        (modded.procChanceByType.viral ?? 0) * 1.25 +
+        (modded.procChanceByType.heat ?? 0) * 1.15 +
+        (modded.procChanceByType.corrosive ?? 0) * 1.1 +
+        (modded.procChanceByType.cold ?? 0) * 1.05;
     switch (goal) {
         case "damage":   return sustainedDPS;
         case "crit":     return avgCritMultiplier(modded.critChance, modded.critMultiplier);
-        case "status":   return modded.statusChance;
-        case "balanced": return burstDPS * (1 + modded.statusChance * 0.5);
+        case "status":   return modded.averageProcsPerShot * (1 + statusWeight);
+        case "balanced": return burstDPS * (1 + modded.averageProcsPerShot * 0.35 + statusWeight * 0.25);
     }
 }
 
@@ -232,7 +235,7 @@ const BEAM_WIDTH = 64;
 interface BeamState {
     mods: (ModEntry | null)[];
     ranks: (number | undefined)[];
-    usedNames: Set<string>;
+    usedGroups: Set<string>;
     score: number;
 }
 
@@ -252,7 +255,7 @@ function beamSearch(
     // Effective polarities for capacity checking during beam search.
     // If allowForma, we'll use each mod's own polarity for its slot (best case).
     // If not, use the real slot polarities.
-    const getCheckPols = (mods: (ModEntry | null)[], ranks: (number | undefined)[]): string[] => {
+    const getCheckPols = (mods: (ModEntry | null)[]): string[] => {
         if (!allowForma) {
             const pols = [...(opts.slotPolarities ?? [])];
             while (pols.length < slotCount) pols.push("");
@@ -262,12 +265,12 @@ function beamSearch(
         return mods.map(m => (m && m.polarity) ? m.polarity : "");
     };
 
-    const arcaneEffect = opts.optimizeArcane ? null : null; // scored separately
+    const arcaneEffect = null;
 
     let beam: BeamState[] = [{
         mods:      Array(slotCount).fill(null),
         ranks:     Array(slotCount).fill(undefined),
-        usedNames: new Set(),
+        usedGroups: new Set(),
         score:     scoreSlots(weapon, Array(slotCount).fill(null), Array(slotCount).fill(undefined), goal, targetFaction),
     }];
 
@@ -278,7 +281,7 @@ function beamSearch(
             nextStates.push(state); // keep empty-slot option
 
             for (const { mod, rank } of candidates) {
-                if (state.usedNames.has(mod.name)) continue;
+                if (state.usedGroups.has(mod.incompatibilityGroup)) continue;
 
                 const newMods  = [...state.mods];
                 const newRanks = [...state.ranks];
@@ -286,15 +289,15 @@ function beamSearch(
                 newRanks[slotIdx] = rank;
 
                 if (capacityConfig) {
-                    const checkPols = getCheckPols(newMods, newRanks);
+                    const checkPols = getCheckPols(newMods);
                     if (!fitsCapacity(newMods, newRanks, capacityConfig, checkPols)) continue;
                 }
 
                 const s = scoreSlots(weapon, newMods, newRanks, goal, targetFaction, arcaneEffect);
                 if (s > state.score) {
-                    const newUsed = new Set(state.usedNames);
-                    newUsed.add(mod.name);
-                    nextStates.push({ mods: newMods, ranks: newRanks, usedNames: newUsed, score: s });
+                    const newUsed = new Set(state.usedGroups);
+                    newUsed.add(mod.incompatibilityGroup);
+                    nextStates.push({ mods: newMods, ranks: newRanks, usedGroups: newUsed, score: s });
                 }
             }
         }
@@ -318,6 +321,9 @@ function beamSearch(
 function optimizeExilusSlot(
     weapon: WeaponEntry,
     allMods: ModEntry[],
+    mainSlots: (ModEntry | null)[],
+    mainSlotRanks: number[],
+    mainSlotPolarities: string[],
     mainBuildEffects: (import("../catalog/modCatalog").ModEffect | null)[],
     goal: OptimizeGoal,
     targetFaction: string,
@@ -338,11 +344,17 @@ function optimizeExilusSlot(
     let bestScore = baseScore;
 
     for (const mod of eligibleExilus) {
-        const maxRank = opts.allowNonMaxRank ? 0 : mod.fusionLimit;
-        for (let r = mod.fusionLimit; r >= maxRank; r--) {
+        const minRank = opts.allowNonMaxRank ? 0 : mod.fusionLimit;
+        for (let r = mod.fusionLimit; r >= minRank; r--) {
+            if (opts.capacityConfig) {
+                const capSlots = [...mainSlots, mod];
+                const capRanks = [...mainSlotRanks, r];
+                const capPols = [...mainSlotPolarities, exilusPolarity];
+                if (!fitsCapacity(capSlots, capRanks, opts.capacityConfig, capPols)) continue;
+            }
             const e = mod.effectsByRank[r] ?? mod.effect;
             const s = scoreEffects(weapon, [...mainBuildEffects, e], goal, targetFaction);
-            if (s > bestScore) { bestScore = s; bestMod = mod; bestRank = r; }
+            if (s >= bestScore) { bestScore = s; bestMod = mod; bestRank = r; }
         }
     }
     return { mod: bestMod, rank: bestRank };
@@ -365,12 +377,10 @@ function optimizeArcaneSlot(
     let bestScore = baseScore;
 
     for (const arc of arcanes) {
-        // Only consider arcanes that have permanent (non-conditional) stat bonuses
-        if (!arc.permanentEffectByRank.some(e => Object.keys(e).length > 0)) continue;
-        const e = arc.permanentEffectByRank[arc.maxRank] ?? {};
+        const e = arc.optimizerEffectByRank[arc.maxRank] ?? arc.permanentEffectByRank[arc.maxRank] ?? {};
         if (!Object.keys(e).length) continue;
         const s = scoreEffects(weapon, [...mainBuildEffects, e as any], goal, targetFaction);
-        if (s > bestScore) { bestScore = s; bestArcane = arc; bestRank = arc.maxRank; }
+        if (s >= bestScore) { bestScore = s; bestArcane = arc; bestRank = arc.maxRank; }
     }
     return { arcane: bestArcane, rank: bestRank };
 }
@@ -451,7 +461,7 @@ export function optimizeBuild(
     let exilusRank = 0;
     if (optimizeExilus) {
         const ex = optimizeExilusSlot(
-            scoringWeapon, availableMods, mainEffects, goal, targetFaction, exilusPolarity, effectiveOpts
+            scoringWeapon, availableMods, slotMods, slotRanks, resultPolarities, mainEffects, goal, targetFaction, exilusPolarity, effectiveOpts
         );
         exilusMod = ex.mod;
         exilusRank = ex.rank;

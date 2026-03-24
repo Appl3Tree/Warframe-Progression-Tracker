@@ -62,6 +62,15 @@ export interface WeaponEntry {
      */
     disposition: number;
     /** All named attacks from the WFCD data */
+    attacks: WeaponAttack[];
+    /** True when this entry comes from WFCD's exalted weapon data. */
+    isExalted?: boolean;
+    /** Optional melee stance polarity. */
+    stancePolarity?: string;
+    /** Optional melee stance family, e.g. "Swords" or "Tonfas". */
+    stanceClass?: string;
+    /** Hidden compatibility tags inferred from the source data. */
+    tags: string[];
 }
 
 /** Kuva/Tenet/Coda weapons can rank to 40 */
@@ -106,11 +115,165 @@ function resolveModCompat(category: string, weaponType: string): ModCompatName {
     return "Rifle";
 }
 
+function classifyExaltedWeapon(item: Record<string, unknown>): {
+    category: WeaponCategory;
+    weaponType: string;
+    modCompat: ModCompatName;
+} | null {
+    const name = String(item.name ?? "");
+    const lower = name.toLowerCase();
+
+    const explicit: Record<string, { category: WeaponCategory; weaponType: string; modCompat: ModCompatName }> = {
+        "artemis bow":           { category: "Primary",   weaponType: "Bow",      modCompat: "Bow" },
+        "artemis bow prime":     { category: "Primary",   weaponType: "Bow",      modCompat: "Bow" },
+        "neutralizer":           { category: "Primary",   weaponType: "Sniper",   modCompat: "Sniper" },
+        "balefire charger":      { category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
+        "balefire charger prime":{ category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
+        "noctua":                { category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
+        "dex pixia":             { category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
+        "dex pixia prime":       { category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
+        "regulators":            { category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
+        "regulators prime":      { category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
+        "glory":                 { category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
+        "arquebex":              { category: "Primary",   weaponType: "Launcher", modCompat: "Rifle" },
+        "ironbride":             { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "exalted blade":         { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "exalted prime blade":   { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "exalted umbra blade":   { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "desert wind":           { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "desert wind prime":     { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "diwata":                { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "diwata prime":          { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "iron staff":            { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "iron staff prime":      { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "garuda talons":         { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "garuda prime talons":   { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "landslide fists":       { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "landslide fists prime": { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "shadow claws":          { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "shadow claws prime":    { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "shadow clones":         { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "shadow clones prime":   { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "shattered lash":        { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "shattered lash prime":  { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "valkyr talons":         { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "valkyr prime talons":   { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "whipclaw":              { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "whipclaw prime":        { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+    };
+    if (explicit[lower]) return explicit[lower];
+
+    if ("stancePolarity" in item || "slamAttack" in item || "heavyAttackDamage" in item) {
+        return { category: "Melee", weaponType: "Melee", modCompat: "Melee" };
+    }
+
+    const description = String(item.description ?? "").toLowerCase();
+    if (description.includes("bow")) {
+        return { category: "Primary", weaponType: "Bow", modCompat: "Bow" };
+    }
+    if (description.includes("sniper")) {
+        return { category: "Primary", weaponType: "Sniper", modCompat: "Sniper" };
+    }
+    if (description.includes("pistol") || description.includes("tome")) {
+        return { category: "Secondary", weaponType: "Pistol", modCompat: "Pistol" };
+    }
+    if (description.includes("blade") || description.includes("sword") || description.includes("melee")) {
+        return { category: "Melee", weaponType: "Melee", modCompat: "Melee" };
+    }
+    return null;
+}
+
+function inferWeaponTags(item: Record<string, unknown>, isExalted: boolean): string[] {
+    const tags = new Set<string>();
+    const name = String(item.name ?? "").toLowerCase();
+    const uniqueName = String(item.uniqueName ?? "").toLowerCase();
+    const trigger = String(item.trigger ?? "").toLowerCase();
+    const description = String(item.description ?? "").toLowerCase();
+    const type = String(item.type ?? "").toLowerCase();
+
+    if (isExalted) tags.add("POWER_WEAPON");
+    if (trigger.includes("semi")) tags.add("SEMI_AUTO");
+    if (description.includes("beam") || description.includes("continuous")) tags.add("BEAM");
+    if (description.includes("projectile") || type.includes("bow") || uniqueName.includes("/bows/")) tags.add("PROJECTILE");
+    if (name === "nataruk" || uniqueName.includes("omicrus")) tags.add("OMICRUS");
+    if (uniqueName.includes("crossbow") || name.includes("attica") || name.includes("zhuge")) tags.add("CROSSBOW");
+    if (name.includes("attica")) tags.add("ATTICA");
+    if (name.includes("zhuge")) tags.add("ZHUGE");
+    if (name.includes("daikyu")) tags.add("DAIKYU");
+    if (uniqueName.includes("grnbow") || name.includes("bramma")) tags.add("GRNBOW");
+    if (uniqueName.includes("crpbow")) tags.add("CRPBOW");
+    if (name.includes("proboscis cernos")) tags.add("INFBOW");
+    if (name.includes("mutalist cernos")) tags.add("INFCERNOS");
+
+    return [...tags];
+}
+
+function inferStanceClass(item: Record<string, unknown>, isExalted: boolean): string | undefined {
+    if (isExalted || typeof item.stancePolarity !== "string") return undefined;
+    const uniqueName = String(item.uniqueName ?? "").toLowerCase();
+    const name = String(item.name ?? "").toLowerCase();
+    const description = String(item.description ?? "").toLowerCase();
+
+    const directMap: Array<[string, string]> = [
+        ["/longsword/", "Swords"],
+        ["/greatsword/", "Heavy Blade"],
+        ["/glaives/", "Glaives"],
+        ["/tonfa/", "Tonfas"],
+        ["/staff/", "Staves"],
+        ["/scythe/", "Scythes"],
+        ["/fist/", "Fists"],
+        ["/swordsandboards/", "Sword And Shield"],
+        ["/hammer/", "Hammers"],
+        ["/machete/", "Machetes"],
+        ["/whip/", "Whips"],
+        ["/rapier/", "Rapiers"],
+        ["/polearm/", "Polearms"],
+        ["/saw/", "Assault Saw"],
+        ["/gunblade/", "Gunblade"],
+        ["/nunchaku/", "Nunchaku"],
+        ["/nikana/", "Nikanas"],
+        ["/dualnikana/", "Dual Nikanas"],
+        ["/warfan/", "Warfans"],
+        ["/sparring/", "Sparring"],
+        ["/dagger/", "Daggers"],
+        ["/claws/", "Claws"],
+    ];
+    for (const [needle, stance] of directMap) {
+        if (uniqueName.includes(needle)) return stance;
+    }
+
+    if (uniqueName.includes("/swords/")) {
+        if (name.includes("&") || description.includes("two separate weapons")) return "Dual Swords";
+        if (description.includes("sai blades") || name.includes("okina")) return "Dual Daggers";
+        if (description.includes("great katana") || name.includes("pennant")) return "Two-Handed Nikana";
+        return "Swords";
+    }
+
+    if (description.includes("shield")) return "Sword And Shield";
+    if (description.includes("dagger")) return name.startsWith("dual ") || name.includes("okina") ? "Dual Daggers" : "Daggers";
+    if (description.includes("dual")) return "Dual Swords";
+    return undefined;
+}
+
 let _cache: WeaponEntry[] | null = null;
 
 function n(v: unknown): number {
     const x = Number(v);
     return isFinite(x) ? x : 0;
+}
+
+function parseDamageRecord(input: unknown): WeaponDamage {
+    const ad = (input as Record<string, number> | undefined) ?? {};
+    const dmgKeys = ["impact","puncture","slash","heat","cold","electricity",
+        "toxin","blast","radiation","gas","magnetic","viral","corrosive"] as const;
+    const out: WeaponDamage = {
+        total: 0, impact: 0, puncture: 0, slash: 0, heat: 0, cold: 0,
+        electricity: 0, toxin: 0, blast: 0, radiation: 0, gas: 0,
+        magnetic: 0, viral: 0, corrosive: 0,
+    };
+    for (const k of dmgKeys) out[k] = n(ad[k]);
+    out.total = dmgKeys.reduce((s, k) => s + out[k], 0) || n(ad.total);
+    return out;
 }
 
 export function getWeaponCatalog(): WeaponEntry[] {
@@ -119,14 +282,16 @@ export function getWeaponCatalog(): WeaponEntry[] {
     const entries: WeaponEntry[] = [];
 
     for (const item of ALL) {
-        const cat = item.category as string;
+        const rawCategory = item.category as string;
+        const exaltedType = String(item.type ?? "") === "Exalted Weapon";
+        const exaltedClass = exaltedType ? classifyExaltedWeapon(item) : null;
+        const cat = exaltedClass?.category ?? rawCategory;
         if (cat !== "Primary" && cat !== "Secondary" && cat !== "Melee") continue;
-        if (!item.damage || !item.name) continue;
+        if (!item.name) continue;
         // Must have some damage or be masterable to count as a real weapon
         if (!item.masterable && !item.wikiaUrl) continue;
 
-        const dmg = item.damage as Record<string, number>;
-        const weaponType = String(item.type ?? "");
+        const weaponType = exaltedClass?.weaponType ?? String(item.type ?? "");
         const trigger    = String(item.trigger ?? "Auto");
         const rawAttacks = Array.isArray(item.attacks) ? item.attacks as Record<string, unknown>[] : [];
 
@@ -134,16 +299,7 @@ export function getWeaponCatalog(): WeaponEntry[] {
         const parsedAttacks: WeaponAttack[] = rawAttacks
             .filter(a => typeof a.name === "string" && a.name.length > 0 && typeof a.damage === "object" && a.damage)
             .map(a => {
-                const ad = a.damage as Record<string, number>;
-                const dmgKeys = ["impact","puncture","slash","heat","cold","electricity",
-                                 "toxin","blast","radiation","gas","magnetic","viral","corrosive"] as const;
-                const attackDmg: WeaponDamage = {
-                    total: 0, impact: 0, puncture: 0, slash: 0, heat: 0, cold: 0,
-                    electricity: 0, toxin: 0, blast: 0, radiation: 0, gas: 0,
-                    magnetic: 0, viral: 0, corrosive: 0,
-                };
-                for (const k of dmgKeys) attackDmg[k] = n(ad[k]);
-                attackDmg.total = dmgKeys.reduce((s, k) => s + attackDmg[k], 0) || n(ad.total);
+                const attackDmg = parseDamageRecord(a.damage);
                 return {
                     name: String(a.name),
                     critChance:    n(a.crit_chance) / 100,
@@ -154,6 +310,8 @@ export function getWeaponCatalog(): WeaponEntry[] {
                     damageTotal: attackDmg.total,
                 };
             });
+        const dmg = parseDamageRecord(item.damage ?? parsedAttacks[0]?.damage);
+        if (!dmg.total && parsedAttacks.length === 0) continue;
 
         const name = String(item.name);
         const uniqueName = String(item.uniqueName ?? "");
@@ -166,23 +324,8 @@ export function getWeaponCatalog(): WeaponEntry[] {
             name,
             category: cat as WeaponCategory,
             weaponType,
-            modCompat: resolveModCompat(cat, weaponType),
-            damage: {
-                total:       n(dmg.total),
-                impact:      n(dmg.impact),
-                puncture:    n(dmg.puncture),
-                slash:       n(dmg.slash),
-                heat:        n(dmg.heat),
-                cold:        n(dmg.cold),
-                electricity: n(dmg.electricity),
-                toxin:       n(dmg.toxin),
-                blast:       n(dmg.blast),
-                radiation:   n(dmg.radiation),
-                gas:         n(dmg.gas),
-                magnetic:    n(dmg.magnetic),
-                viral:       n(dmg.viral),
-                corrosive:   n(dmg.corrosive),
-            },
+            modCompat: exaltedClass?.modCompat ?? resolveModCompat(cat, weaponType),
+            damage: dmg,
             critChance:    n(item.criticalChance),
             critMultiplier: n(item.criticalMultiplier) || 1.5,
             statusChance:  n(item.procChance) || n(item.statusChance),
@@ -199,6 +342,10 @@ export function getWeaponCatalog(): WeaponEntry[] {
             baseSlotCount: 8,
             disposition:   Number(item.omegaAttenuation ?? 1.0),
             attacks:       parsedAttacks,
+            isExalted:     exaltedType,
+            stancePolarity: typeof item.stancePolarity === "string" ? String(item.stancePolarity) : undefined,
+            stanceClass: inferStanceClass(item, exaltedType),
+            tags: inferWeaponTags(item, exaltedType),
         });
     }
 

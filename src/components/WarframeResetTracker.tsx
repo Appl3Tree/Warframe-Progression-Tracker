@@ -1060,6 +1060,7 @@ function TaskList({
 
     const pending = tasks.filter((t) => getTaskRenderState(t, completedIds, runs) === "pending");
     const completed = tasks.filter((t) => getTaskRenderState(t, completedIds, runs) !== "pending");
+    const expandableTaskIds = tasks.filter(t => !!expandableHints?.[t.id]).map(t => t.id);
 
     if (tasks.length === 0) {
         return (
@@ -1129,7 +1130,24 @@ function TaskList({
     };
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
+        <div className="space-y-2">
+            {expandableTaskIds.length > 0 && (
+                <div className="flex justify-end gap-2 px-1">
+                    <button
+                        onClick={() => setExpandedIds(new Set(expandableTaskIds))}
+                        className="text-[10px] rounded-full border border-slate-700 px-2.5 py-1 text-slate-400 hover:border-slate-500 hover:text-slate-200 transition-colors"
+                    >
+                        Expand All
+                    </button>
+                    <button
+                        onClick={() => setExpandedIds(new Set())}
+                        className="text-[10px] rounded-full border border-slate-700 px-2.5 py-1 text-slate-400 hover:border-slate-500 hover:text-slate-200 transition-colors"
+                    >
+                        Collapse All
+                    </button>
+                </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
             {pending.map((t) => {
                 const description = getTaskDescription(t, completedIds, runs);
 
@@ -1203,6 +1221,7 @@ function TaskList({
                     () => onToggle(t.id),
                 );
             })}
+            </div>
         </div>
     );
 }

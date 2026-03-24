@@ -30,19 +30,25 @@ export interface ArcaneEntry {
      * Index = rank (0..maxRank). Used to apply arcane stats to calculations.
      */
     permanentEffectByRank: Partial<ModEffect>[];
+    /** Effects used by the optimizer, including stacked conditional bonuses where parseable. */
+    optimizerEffectByRank: Partial<ModEffect>[];
 }
 
 function stripColorTags(s: string): string {
     return s.replace(/<[^>]+>/g, "").trim();
 }
 
-function parsePermanentEffect(statLine: string): Partial<ModEffect> {
-    const clean = stripColorTags(statLine).replace(/\\n/g, " ").trim();
-    // Skip conditional lines
-    if (/^(On |While |Gain |If |Enemies|Kill|When|Deals|Deal)/i.test(clean)) return {};
-    const m = clean.match(/^([+-]?\d+(?:\.\d+)?)%\s*(.+)/);
+function addEffect(effect: Partial<ModEffect>, partial: Partial<ModEffect>) {
+    for (const [k, v] of Object.entries(partial) as [keyof ModEffect, number][]) {
+        (effect[k] as number) = ((effect[k] as number) ?? 0) + v;
+    }
+}
+
+function parsePercentStatSegment(segment: string, scale = 1): Partial<ModEffect> {
+    const stripped = segment.replace(/^[^+-\d]*([+-]?\d)/, "$1");
+    const m = stripped.match(/^([+-]?\d+(?:\.\d+)?)%\s*(.+)/);
     if (!m) return {};
-    const value = parseFloat(m[1]) / 100;
+    const value = (parseFloat(m[1]) / 100) * scale;
     const rest = m[2].toLowerCase().trim();
     if (rest.includes("reload speed")) return { reloadSpeedBonus: value };
     if (rest.includes("critical chance")) return { critChanceBonus: value };
@@ -54,12 +60,38 @@ function parsePermanentEffect(statLine: string): Partial<ModEffect> {
     return {};
 }
 
+function parseMultiplierStatSegment(segment: string, scale = 1): Partial<ModEffect> {
+    const clean = stripColorTags(segment).replace(/\\n/g, " ").trim();
+    const damageMatch = clean.match(/^x([\d.]+)\s+.*damage/i);
+    if (damageMatch) return { damageBonus: (parseFloat(damageMatch[1]) - 1) * scale };
+    return {};
+}
+
+function parsePermanentEffect(statLine: string): Partial<ModEffect> {
+    const clean = stripColorTags(statLine).replace(/\\n/g, " ").trim();
+    const stackMatch = clean.match(/stacks?\s+up\s+to\s+(\d+)x/i);
+    const stackMult = stackMatch ? Math.max(1, Number(stackMatch[1])) : 1;
+    const effect: Partial<ModEffect> = {};
+
+    // Parse all percent-based clauses, including combined lines like
+    // "+3% Critical Damage and +2.25% Multishot".
+    const percentSegments = clean.match(/[+-]?\d+(?:\.\d+)?%\s*[^+]+?(?=(?:\s+and\s+[+-]?\d|\s*\|\s*|$))/gi) ?? [];
+    for (const segment of percentSegments) addEffect(effect, parsePercentStatSegment(segment, stackMult));
+
+    // Parse multiplier-based lines like "x2.50 Melee Damage..." and x8 damage effects.
+    const multiplierSegments = clean.match(/x[\d.]+\s+[^|]+/gi) ?? [];
+    for (const segment of multiplierSegments) addEffect(effect, parseMultiplierStatSegment(segment, stackMult));
+
+    return effect;
+}
+
 function parseArcaneStats(levelStats: Array<{ stats: string[] }>): {
     statsByRank: string[];
     statsLabel: string;
     baseBonus: string;
     procBonus: string;
     permanentEffectByRank: Partial<ModEffect>[];
+    optimizerEffectByRank: Partial<ModEffect>[];
 } {
     const statsByRank = levelStats.map(ls =>
         (ls.stats ?? []).map(s => stripColorTags(s).replace(/\\n/g, " ")).join(" | ")
@@ -82,6 +114,19 @@ function parseArcaneStats(levelStats: Array<{ stats: string[] }>): {
     const permanentEffectByRank: Partial<ModEffect>[] = levelStats.map(ls => {
         const effect: Partial<ModEffect> = {};
         for (const s of (ls.stats ?? [])) {
+            const clean = stripColorTags(s).replace(/\\n/g, " ").trim();
+            if (/^(On |While |Gain |If |Enemies|Kill|When|Deals)/i.test(clean)) continue;
+            const parsed = parsePermanentEffect(s);
+            for (const [k, v] of Object.entries(parsed) as [keyof ModEffect, number][]) {
+                (effect[k] as number) = ((effect[k] as number) ?? 0) + v;
+            }
+        }
+        return effect;
+    });
+
+    const optimizerEffectByRank: Partial<ModEffect>[] = levelStats.map(ls => {
+        const effect: Partial<ModEffect> = {};
+        for (const s of (ls.stats ?? [])) {
             const parsed = parsePermanentEffect(s);
             for (const [k, v] of Object.entries(parsed) as [keyof ModEffect, number][]) {
                 (effect[k] as number) = ((effect[k] as number) ?? 0) + v;
@@ -96,6 +141,7 @@ function parseArcaneStats(levelStats: Array<{ stats: string[] }>): {
         baseBonus: baseLines.join(" · "),
         procBonus: procLines.join(" · "),
         permanentEffectByRank,
+        optimizerEffectByRank,
     };
 }
 
