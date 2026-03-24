@@ -49,6 +49,22 @@ export interface ModdedWeaponStats {
     procChanceByType: Partial<Record<DamageKey, number>>;
     averageProcsPerShot: number;
     extraProcsPerShot: Partial<Record<DamageKey, number>>;
+    procRatePerSecondByType: Partial<Record<DamageKey, number>>;
+    expectedStacksByType: Partial<Record<DamageKey, number>>;
+    dotDamagePerShot: number;
+    dotDps: number;
+    dotDamagePerShotByType: Partial<Record<DamageKey, number>>;
+    dotDpsByType: Partial<Record<DamageKey, number>>;
+    viralHealthDamageBonus: number;
+    corrosiveArmorStrip: number;
+    magneticShieldDamageBonus: number;
+    radiationAllyDamageBonus: number;
+    coldSlow: number;
+    coldCritDamageBonus: number;
+    punctureEnemyDamageReduction: number;
+    punctureCritChanceBonus: number;
+    impactMercyThresholdBonus: number;
+    tauStatusVulnerability: number;
 }
 
 const AIMING_UPTIME_ASSUMPTION = 0.75;
@@ -59,6 +75,19 @@ const ON_HIT_UPTIME_ASSUMPTION = 0.85;
 const WEAK_POINT_HIT_UPTIME_ASSUMPTION = 0.55;
 const HIT_RATE_ASSUMPTION = 0.75;
 const WEAK_POINT_HIT_RATE_ASSUMPTION = 0.45;
+
+function shouldAssumeFullyStacked(conditional: ConditionalEffect): boolean {
+    switch (conditional.trigger) {
+        case "onKill":
+        case "onHeadshotKill":
+        case "onWeakPointKill":
+        case "onMeleeKill":
+        case "onKillOrAssist":
+            return true;
+        default:
+            return false;
+    }
+}
 
 export interface DamageMetrics {
     modded: ModdedWeaponStats;
@@ -129,11 +158,25 @@ function totalDamageOf(breakdown: Record<DamageKey, number>) {
     return DAMAGE_KEYS.reduce((sum, key) => sum + breakdown[key], 0);
 }
 
+function scaleForStacks(stacks: number, first: number, additional: number, cap: number): number {
+    if (stacks <= 0) return 0;
+    if (stacks <= 1) return first * stacks;
+    return Math.min(cap, first + additional * (stacks - 1));
+}
+
+function scaleLinearCap(stacks: number, perStack: number, cap: number): number {
+    if (stacks <= 0) return 0;
+    return Math.min(cap, stacks * perStack);
+}
+
 export function estimateConditionalUptime(
     conditional: ConditionalEffect,
     fireRate: number,
     magazineSize: number,
 ): number {
+    if (shouldAssumeFullyStacked(conditional)) {
+        return conditional.requiresAiming ? AIMING_UPTIME_ASSUMPTION : 1;
+    }
     let uptime = 0;
     switch (conditional.trigger) {
         case "onReload":
@@ -178,6 +221,9 @@ function estimateConditionalStackFactor(
     _magazineSize: number,
 ): number {
     if ((conditional.maxStacks ?? 1) <= 1) return 1;
+    if (shouldAssumeFullyStacked(conditional)) {
+        return conditional.maxStacks ?? 1;
+    }
 
     switch (conditional.trigger) {
         case "onKill":
@@ -242,56 +288,56 @@ export function calculateBuild(
 
     mods.forEach((e, index) => {
         if (!e) return;
-        damageBonus += e.damageBonus;
-        impactBonus += e.impactBonus;
-        punctureBonus += e.punctureBonus;
-        slashBonus += e.slashBonus;
-        critChanceBonus += e.critChanceBonus;
-        critMultBonus += e.critMultBonus;
-        statusChanceBonus += e.statusChanceBonus;
-        finalStatusChanceBonus += e.finalStatusChanceBonus;
-        multishotBonus += e.multishotBonus;
-        fireRateBonus += e.fireRateBonus;
-        magazineBonus += e.magazineBonus;
-        reloadSpeedBonus += e.reloadSpeedBonus;
-        attackSpeedBonus += e.attackSpeedBonus;
-        blastBonus += e.blastBonus;
-        gasBonus += e.gasBonus;
-        magneticBonus += e.magneticBonus;
-        radiationBonus += e.radiationBonus;
-        viralBonus += e.viralBonus;
-        corrosiveBonus += e.corrosiveBonus;
-        perHitCritChanceBonus += e.perHitCritChanceBonus;
-        nextMagazineStatusChancePerShot += e.nextMagazineStatusChancePerShot;
-        nextMagazineMultishotPerShot += e.nextMagazineMultishotPerShot;
-        nextMagazineMaxStacks = Math.max(nextMagazineMaxStacks, e.nextMagazineMaxStacks);
-        impactStatusAppliesMagneticChance += e.impactStatusAppliesMagneticChance;
-        impactStatusAppliesSlashChance += e.impactStatusAppliesSlashChance;
-        impactStatusExtraProcLowFireRateThreshold = Math.max(impactStatusExtraProcLowFireRateThreshold, e.impactStatusExtraProcLowFireRateThreshold);
+        damageBonus += e.damageBonus ?? 0;
+        impactBonus += e.impactBonus ?? 0;
+        punctureBonus += e.punctureBonus ?? 0;
+        slashBonus += e.slashBonus ?? 0;
+        critChanceBonus += e.critChanceBonus ?? 0;
+        critMultBonus += e.critMultBonus ?? 0;
+        statusChanceBonus += e.statusChanceBonus ?? 0;
+        finalStatusChanceBonus += e.finalStatusChanceBonus ?? 0;
+        multishotBonus += e.multishotBonus ?? 0;
+        fireRateBonus += e.fireRateBonus ?? 0;
+        magazineBonus += e.magazineBonus ?? 0;
+        reloadSpeedBonus += e.reloadSpeedBonus ?? 0;
+        attackSpeedBonus += e.attackSpeedBonus ?? 0;
+        blastBonus += e.blastBonus ?? 0;
+        gasBonus += e.gasBonus ?? 0;
+        magneticBonus += e.magneticBonus ?? 0;
+        radiationBonus += e.radiationBonus ?? 0;
+        viralBonus += e.viralBonus ?? 0;
+        corrosiveBonus += e.corrosiveBonus ?? 0;
+        perHitCritChanceBonus += e.perHitCritChanceBonus ?? 0;
+        nextMagazineStatusChancePerShot += e.nextMagazineStatusChancePerShot ?? 0;
+        nextMagazineMultishotPerShot += e.nextMagazineMultishotPerShot ?? 0;
+        nextMagazineMaxStacks = Math.max(nextMagazineMaxStacks, e.nextMagazineMaxStacks ?? 0);
+        impactStatusAppliesMagneticChance += e.impactStatusAppliesMagneticChance ?? 0;
+        impactStatusAppliesSlashChance += e.impactStatusAppliesSlashChance ?? 0;
+        impactStatusExtraProcLowFireRateThreshold = Math.max(impactStatusExtraProcLowFireRateThreshold, e.impactStatusExtraProcLowFireRateThreshold ?? 0);
         impactStatusExtraProcLowFireRateMultiplier = Math.max(impactStatusExtraProcLowFireRateMultiplier, e.impactStatusExtraProcLowFireRateMultiplier || 1);
-        critAppliesSlashChance += e.critAppliesSlashChance;
+        critAppliesSlashChance += e.critAppliesSlashChance ?? 0;
         conditionalEffects.push(...(e.conditionalEffects ?? []));
 
         if (targetFaction && e.targetFaction && e.targetFaction.toLowerCase() === targetFaction.toLowerCase()) {
-            factionDamageBonus += e.factionDamageBonus;
+            factionDamageBonus += e.factionDamageBonus ?? 0;
         }
 
         const orderedEntries: Array<[DamageKey, number]> = [
-            ["heat", e.heatBonus],
-            ["cold", e.coldBonus],
-            ["electricity", e.electricityBonus],
-            ["toxin", e.toxinBonus],
+            ["heat", e.heatBonus ?? 0],
+            ["cold", e.coldBonus ?? 0],
+            ["electricity", e.electricityBonus ?? 0],
+            ["toxin", e.toxinBonus ?? 0],
         ];
         for (const [type, value] of orderedEntries) {
             if (value > 0) orderedPrimaryElementBonuses.push({ type, value, order: index });
         }
 
-        directBonusBreakdown.blast += e.blastBonus;
-        directBonusBreakdown.gas += e.gasBonus;
-        directBonusBreakdown.magnetic += e.magneticBonus;
-        directBonusBreakdown.radiation += e.radiationBonus;
-        directBonusBreakdown.viral += e.viralBonus;
-        directBonusBreakdown.corrosive += e.corrosiveBonus;
+        directBonusBreakdown.blast += e.blastBonus ?? 0;
+        directBonusBreakdown.gas += e.gasBonus ?? 0;
+        directBonusBreakdown.magnetic += e.magneticBonus ?? 0;
+        directBonusBreakdown.radiation += e.radiationBonus ?? 0;
+        directBonusBreakdown.viral += e.viralBonus ?? 0;
+        directBonusBreakdown.corrosive += e.corrosiveBonus ?? 0;
     });
 
     const baseFireRateBonus = weapon.category === "Melee" ? attackSpeedBonus : fireRateBonus;
@@ -388,10 +434,10 @@ export function calculateBuild(
         rawBreakdown[key] += totalBase * (directBonusBreakdown[key] + conditionalDirectBonusBreakdown[key]);
     }
 
-    const quantum = totalBase / 16;
+    const quantumScale = totalBase / 32;
     const damageBreakdown = emptyBreakdown();
     for (const key of DAMAGE_KEYS) {
-        damageBreakdown[key] = roundQuantized(rawBreakdown[key], quantum);
+        damageBreakdown[key] = roundQuantized(rawBreakdown[key], quantumScale);
     }
 
     const totalDamage = totalDamageOf(damageBreakdown) * (1 + factionDamageBonus);
@@ -452,6 +498,98 @@ export function calculateBuild(
         Object.assign(procChanceByType, combinedWeights);
     }
 
+    const procRatePerSecondByType: Partial<Record<DamageKey, number>> = {};
+    for (const key of DAMAGE_KEYS) {
+        const perShot = averageProcsPerShot * (procChanceByType[key] ?? 0);
+        if (perShot > 0) procRatePerSecondByType[key] = perShot * fireRate;
+    }
+
+    const statusDurationMultiplier = Math.max(0, 1 + mods.reduce((sum, effect) => sum + (effect?.statusDurationBonus ?? 0), 0));
+    const critAverageMultiplier = avgCritMultiplier(critChance, critMultiplier);
+    const statusDamageMultiplier = 1 + mods.reduce((sum, effect) => sum + (effect?.statusDamageBonus ?? 0), 0);
+    const dotBaseDamagePerProc =
+        totalBase *
+        Math.max(0, 1 + factionDamageBonus) *
+        Math.max(0, 1 + factionDamageBonus) *
+        statusDamageMultiplier *
+        critAverageMultiplier;
+
+    const dotConfig: Partial<Record<DamageKey, { duration: number; multiplier: number; bonus: number }>> = {
+        slash: { duration: 6, multiplier: 0.35, bonus: 0 },
+        electricity: { duration: 6, multiplier: 0.5, bonus: 0 },
+        heat: { duration: 6, multiplier: 0.5, bonus: 0 },
+        toxin: { duration: 6, multiplier: 0.5, bonus: 0 },
+        gas: { duration: 6, multiplier: 0.5, bonus: 0 },
+    };
+
+    const dotDamagePerShotByType: Partial<Record<DamageKey, number>> = {};
+    const dotDpsByType: Partial<Record<DamageKey, number>> = {};
+    let dotDamagePerShot = 0;
+    let dotDps = 0;
+    for (const [key, config] of Object.entries(dotConfig) as Array<[DamageKey, { duration: number; multiplier: number; bonus: number }]>) {
+        const expectedProcsPerShotForType = averageProcsPerShot * (procChanceByType[key] ?? 0);
+        if (expectedProcsPerShotForType <= 0) continue;
+        const duration = config.duration * statusDurationMultiplier;
+        if (duration <= 0) continue;
+        const perProcTotal =
+            dotBaseDamagePerProc *
+            config.multiplier *
+            duration *
+            (1 +
+                (key === "heat" ? (mods.reduce((sum, effect) => sum + (effect?.heatBonus ?? 0), 0)) :
+                 key === "electricity" ? (mods.reduce((sum, effect) => sum + (effect?.electricityBonus ?? 0), 0)) :
+                 key === "toxin" ? (mods.reduce((sum, effect) => sum + (effect?.toxinBonus ?? 0), 0)) :
+                 key === "gas" ? (mods.reduce((sum, effect) => sum + (effect?.gasBonus ?? 0), 0)) :
+                 0));
+        const perShotDamage = expectedProcsPerShotForType * perProcTotal;
+        dotDamagePerShotByType[key] = perShotDamage;
+        dotDpsByType[key] = perShotDamage * fireRate;
+        dotDamagePerShot += perShotDamage;
+        dotDps += perShotDamage * fireRate;
+    }
+
+    const expectedStacksByType: Partial<Record<DamageKey, number>> = {};
+    const expectedStacks = (type: DamageKey, duration: number, cap?: number) => {
+        const rate = procRatePerSecondByType[type] ?? 0;
+        const stacks = rate * duration * statusDurationMultiplier;
+        return cap ? Math.min(cap, stacks) : stacks;
+    };
+    expectedStacksByType.impact = expectedStacks("impact", 1, 5);
+    expectedStacksByType.puncture = expectedStacks("puncture", 10, 5);
+    expectedStacksByType.slash = expectedStacks("slash", 6);
+    expectedStacksByType.heat = expectedStacks("heat", 6);
+    expectedStacksByType.cold = expectedStacks("cold", 6, 10);
+    expectedStacksByType.electricity = expectedStacks("electricity", 6);
+    expectedStacksByType.toxin = expectedStacks("toxin", 6);
+    expectedStacksByType.blast = expectedStacks("blast", 1.5, 10);
+    expectedStacksByType.corrosive = expectedStacks("corrosive", 8, 10);
+    expectedStacksByType.gas = expectedStacks("gas", 6, 10);
+    expectedStacksByType.magnetic = expectedStacks("magnetic", 6, 10);
+    expectedStacksByType.radiation = expectedStacks("radiation", 12, 10);
+    expectedStacksByType.viral = expectedStacks("viral", 6, 10);
+
+    const coldStacks = expectedStacksByType.cold ?? 0;
+    const viralStacks = expectedStacksByType.viral ?? 0;
+    const corrosiveStacks = expectedStacksByType.corrosive ?? 0;
+    const magneticStacks = expectedStacksByType.magnetic ?? 0;
+    const punctureStacks = expectedStacksByType.puncture ?? 0;
+    const impactStacks = expectedStacksByType.impact ?? 0;
+    const radiationStacks = expectedStacksByType.radiation ?? 0;
+
+    const coldSlow = coldStacks >= 10 ? 1 : scaleForStacks(Math.min(coldStacks, 9), 0.5, 0.05, 0.9);
+    const coldCritDamageBonus =
+        coldStacks >= 10
+            ? 1.0
+            : scaleForStacks(Math.min(coldStacks, 9), 0.1, 0.05, 0.5);
+    const viralHealthDamageBonus = scaleForStacks(viralStacks, 1.0, 0.25, 3.25);
+    const corrosiveArmorStrip = scaleForStacks(corrosiveStacks, 0.26, 0.06, 0.8);
+    const magneticShieldDamageBonus = scaleForStacks(magneticStacks, 1.0, 0.25, 3.25);
+    const radiationAllyDamageBonus = scaleForStacks(radiationStacks, 1.0, 0.5, 5.5);
+    const punctureEnemyDamageReduction = scaleForStacks(punctureStacks, 0.4, 0.1, 0.8);
+    const punctureCritChanceBonus = scaleLinearCap(punctureStacks, 0.05, 0.25);
+    const impactMercyThresholdBonus = scaleLinearCap(impactStacks, 0.08, 0.4);
+    const tauStatusVulnerability = 0;
+
     const modded: ModdedWeaponStats = {
         arsenalDamage,
         averageShotDamage,
@@ -469,6 +607,22 @@ export function calculateBuild(
         procChanceByType,
         averageProcsPerShot,
         extraProcsPerShot,
+        procRatePerSecondByType,
+        expectedStacksByType,
+        dotDamagePerShot,
+        dotDps,
+        dotDamagePerShotByType,
+        dotDpsByType,
+        viralHealthDamageBonus,
+        corrosiveArmorStrip,
+        magneticShieldDamageBonus,
+        radiationAllyDamageBonus,
+        coldSlow,
+        coldCritDamageBonus,
+        punctureEnemyDamageReduction,
+        punctureCritChanceBonus,
+        impactMercyThresholdBonus,
+        tauStatusVulnerability,
     };
 
     const burstDPS = averageShotDamage * fireRate;

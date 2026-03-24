@@ -7,7 +7,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getWeaponCatalog, type WeaponCategory, type WeaponEntry } from "../../domain/catalog/weaponCatalog";
-import { getModsForWeapon, getStancesForWeapon, type ModEntry, emptyEffect } from "../../domain/catalog/modCatalog";
+import { getModsForWeapon, getStancesForWeapon, type ModEntry, type ModEffect, emptyEffect } from "../../domain/catalog/modCatalog";
 import { getArcanesByWeaponCategory, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
 import { calculateBuild } from "../../domain/logic/damageCalc";
 import { optimizeBuild, explainBuild, type OptimizeGoal, type BuildReasoning } from "../../domain/logic/buildOptimizer";
@@ -83,6 +83,287 @@ function fmt(n: number, d = 0) {
     return n.toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
 }
 function uid() { return Math.random().toString(36).slice(2, 10); }
+
+interface BuildMathSection {
+    title: string;
+    lines: string[];
+}
+
+interface BuildMathBreakdown {
+    sections: BuildMathSection[];
+}
+
+interface BuildExportPayload {
+    exportedAt: string;
+    source: string;
+    weapon: {
+        name: string;
+        uniqueName: string;
+        category: WeaponCategory;
+        selectedAttack: string | null;
+    };
+    assumptions: {
+        goal: OptimizeGoal;
+        targetFaction: string | null;
+        weaponRank: number;
+        masteryRank: number;
+        hasCatalyst: boolean;
+        includeArcaneStats: boolean;
+        selectedAttackIdx: number;
+    };
+    build: {
+        slots: Array<{
+            slot: number;
+            mod: string | null;
+            uniqueName: string | null;
+            rank: number;
+            slotPolarity: string;
+            modPolarity: string | null;
+            statsLabel: string | null;
+        }>;
+        exilus: {
+            enabled: boolean;
+            mod: string | null;
+            uniqueName: string | null;
+            rank: number;
+            slotPolarity: string;
+            statsLabel: string | null;
+        };
+        arcane: {
+            mod: string | null;
+            uniqueName: string | null;
+            rank: number;
+            statsLabel: string | null;
+        };
+    };
+    calculated: ReturnType<typeof calculateBuild> | null;
+    math: BuildMathBreakdown | null;
+}
+
+function sumEffects(effects: (ModEffect | null)[]) {
+    return effects.reduce((acc, effect) => {
+        if (!effect) return acc;
+        acc.damageBonus += effect.damageBonus ?? 0;
+        acc.impactBonus += effect.impactBonus ?? 0;
+        acc.punctureBonus += effect.punctureBonus ?? 0;
+        acc.slashBonus += effect.slashBonus ?? 0;
+        acc.heatBonus += effect.heatBonus ?? 0;
+        acc.coldBonus += effect.coldBonus ?? 0;
+        acc.electricityBonus += effect.electricityBonus ?? 0;
+        acc.toxinBonus += effect.toxinBonus ?? 0;
+        acc.critChanceBonus += effect.critChanceBonus ?? 0;
+        acc.critMultBonus += effect.critMultBonus ?? 0;
+        acc.statusChanceBonus += effect.statusChanceBonus ?? 0;
+        acc.finalStatusChanceBonus += effect.finalStatusChanceBonus ?? 0;
+        acc.multishotBonus += effect.multishotBonus ?? 0;
+        acc.fireRateBonus += effect.fireRateBonus ?? 0;
+        acc.attackSpeedBonus += effect.attackSpeedBonus ?? 0;
+        acc.magazineBonus += effect.magazineBonus ?? 0;
+        acc.reloadSpeedBonus += effect.reloadSpeedBonus ?? 0;
+        acc.statusDamageBonus += effect.statusDamageBonus ?? 0;
+        acc.statusDurationBonus += effect.statusDurationBonus ?? 0;
+        if (effect.targetFaction) acc.factionDamageBonus += effect.factionDamageBonus ?? 0;
+        return acc;
+    }, {
+        damageBonus: 0,
+        impactBonus: 0,
+        punctureBonus: 0,
+        slashBonus: 0,
+        heatBonus: 0,
+        coldBonus: 0,
+        electricityBonus: 0,
+        toxinBonus: 0,
+        critChanceBonus: 0,
+        critMultBonus: 0,
+        statusChanceBonus: 0,
+        finalStatusChanceBonus: 0,
+        multishotBonus: 0,
+        fireRateBonus: 0,
+        attackSpeedBonus: 0,
+        magazineBonus: 0,
+        reloadSpeedBonus: 0,
+        statusDamageBonus: 0,
+        statusDurationBonus: 0,
+        factionDamageBonus: 0,
+    });
+}
+
+function buildMathBreakdown(
+    weapon: WeaponEntry,
+    effects: (ModEffect | null)[],
+    targetFaction = "",
+): BuildMathBreakdown {
+    const totals = sumEffects(effects);
+    const result = calculateBuild(weapon, effects, targetFaction);
+    const stats = result.modded;
+    const baseDamage = weapon.damage.total;
+    const baseDamageMultiplier = 1 + totals.damageBonus;
+    const moddedBaseDamage = baseDamage * baseDamageMultiplier;
+    const quantScale = moddedBaseDamage / 32;
+    const fireRateBonus = weapon.category === "Melee" ? totals.attackSpeedBonus : totals.fireRateBonus;
+    const moddedFireRate = weapon.fireRate * (1 + fireRateBonus);
+    const moddedReload = weapon.reloadTime / Math.max(0.0001, (1 + totals.reloadSpeedBonus));
+    const moddedMagazine = Math.max(1, Math.round(weapon.magazineSize * (1 + totals.magazineBonus)));
+    const avgCritMultiplier = baseDamage > 0 ? stats.averageShotDamage / Math.max(0.0001, stats.arsenalDamage) : 1;
+    const sections: BuildMathSection[] = [
+        {
+            title: "Base Stats",
+            lines: [
+                `Base damage = ${fmt(baseDamage, 3)}`,
+                `Base crit = ${fmt(weapon.critChance * 100, 1)}% × (1 + ${fmt(totals.critChanceBonus * 100, 1)}%) = ${fmt(stats.critChance * 100, 2)}%`,
+                `Base crit mult = ${fmt(weapon.critMultiplier, 2)} × (1 + ${fmt(totals.critMultBonus * 100, 1)}%) = ${fmt(stats.critMultiplier, 3)}`,
+                `Base status = ${fmt(weapon.statusChance * 100, 1)}% × (1 + ${fmt(totals.statusChanceBonus * 100, 1)}%) + ${fmt(totals.finalStatusChanceBonus * 100, 1)}% = ${fmt(stats.statusChance * 100, 2)}%`,
+            ],
+        },
+        {
+            title: "Damage Construction",
+            lines: [
+                `Modded base damage = ${fmt(baseDamage, 3)} × (1 + ${fmt(totals.damageBonus * 100, 1)}%) = ${fmt(moddedBaseDamage, 3)}`,
+                `Physical bonuses: Impact ${fmt(totals.impactBonus * 100, 1)}%, Puncture ${fmt(totals.punctureBonus * 100, 1)}%, Slash ${fmt(totals.slashBonus * 100, 1)}%`,
+                `Primary element bonuses: Heat ${fmt(totals.heatBonus * 100, 1)}%, Cold ${fmt(totals.coldBonus * 100, 1)}%, Electric ${fmt(totals.electricityBonus * 100, 1)}%, Toxin ${fmt(totals.toxinBonus * 100, 1)}%`,
+                `Final damage breakdown after element ordering and combination = ${Object.entries(stats.damageBreakdown).filter(([, v]) => (v as number) > 0).map(([k, v]) => `${k} ${fmt(v as number, 3)}`).join(", ") || "none"}`,
+            ],
+        },
+        {
+            title: "Quantization",
+            lines: [
+                `Scale = Modded Base Damage / 32 = ${fmt(moddedBaseDamage, 3)} / 32 = ${fmt(quantScale, 5)}`,
+                `Each damage type is quantized as Round(Type Damage / Scale) × Scale`,
+                `Quantized total direct damage = ${fmt(stats.totalDamage, 3)}`,
+                targetFaction ? `Faction multiplier applied after quantization = ×${fmt(1 + totals.factionDamageBonus, 3)} (${targetFaction})` : "No faction multiplier applied",
+            ],
+        },
+        {
+            title: "Crit and DPS",
+            lines: [
+                `Multishot = ${fmt(weapon.multishot, 2)} × (1 + ${fmt(totals.multishotBonus * 100, 1)}%) = ${fmt(stats.multishot, 3)}`,
+                `Arsenal damage = Quantized direct damage × multishot = ${fmt(stats.totalDamage, 3)} × ${fmt(stats.multishot, 3)} = ${fmt(stats.arsenalDamage, 3)}`,
+                `Average crit multiplier = ${fmt(avgCritMultiplier, 4)}`,
+                `Average shot = Arsenal damage × average crit multiplier = ${fmt(stats.arsenalDamage, 3)} × ${fmt(avgCritMultiplier, 4)} = ${fmt(stats.averageShotDamage, 3)}`,
+                `Fire rate = ${fmt(weapon.fireRate, 3)} × (1 + ${fmt(fireRateBonus * 100, 1)}%) = ${fmt(moddedFireRate, 3)}`,
+                `Burst DPS = Avg Shot × Fire Rate = ${fmt(stats.averageShotDamage, 3)} × ${fmt(stats.fireRate, 3)} = ${fmt(result.burstDPS, 3)}`,
+                `Sustained DPS uses reload uptime with mag ${moddedMagazine} and reload ${fmt(moddedReload, 3)}s = ${fmt(result.sustainedDPS, 3)}`,
+            ],
+        },
+        {
+            title: "Status and DoT",
+            lines: [
+                `Average procs / shot = multishot × status chance + extra procs = ${fmt(stats.multishot, 3)} × ${fmt(stats.statusChance, 4)} + extras = ${fmt(stats.averageProcsPerShot, 3)}`,
+                `Proc weighting by type = ${Object.entries(stats.procChanceByType).map(([k, v]) => `${k} ${fmt((v ?? 0) * 100, 1)}%`).join(", ") || "none"}`,
+                `Expected stacks = ${Object.entries(stats.expectedStacksByType).filter(([, v]) => (v ?? 0) > 0).map(([k, v]) => `${k} ${fmt(v ?? 0, 2)}`).join(", ") || "none"}`,
+                `DoT per shot = ${fmt(stats.dotDamagePerShot, 3)}`,
+                `DoT DPS = ${fmt(stats.dotDps, 3)}`,
+                `Status-derived effects: Viral +${fmt(stats.viralHealthDamageBonus * 100, 1)}% health damage, Corrosive ${fmt(stats.corrosiveArmorStrip * 100, 1)}% armor strip, Magnetic +${fmt(stats.magneticShieldDamageBonus * 100, 1)}% shield damage`,
+            ],
+        },
+    ];
+
+    return { sections };
+}
+
+function buildExportPayload(args: {
+    weapon: WeaponEntry | null;
+    selectedAttackIdx: number;
+    goal: OptimizeGoal;
+    targetFaction: string | null;
+    buildCfg: BuildCfg;
+    includeArcaneStats: boolean;
+    slots: (ModEntry | null)[];
+    ranks: number[];
+    slotPols: string[];
+    exilusEnabled: boolean;
+    exilusMod: ModEntry | null;
+    exilusRank: number;
+    exilusPol: string;
+    arcane: ArcaneEntry | null;
+    arcaneRank: number;
+}): BuildExportPayload | null {
+    const {
+        weapon, selectedAttackIdx, goal, targetFaction, buildCfg, includeArcaneStats,
+        slots, ranks, slotPols, exilusEnabled, exilusMod, exilusRank, exilusPol, arcane, arcaneRank,
+    } = args;
+    if (!weapon) return null;
+
+    const selectedAttack = weapon.attacks.length > 1 ? weapon.attacks[selectedAttackIdx] ?? null : null;
+    const calcWeapon = selectedAttack
+        ? {
+            ...weapon,
+            damage: selectedAttack.damage,
+            critChance: selectedAttack.critChance,
+            critMultiplier: selectedAttack.critMultiplier,
+            statusChance: selectedAttack.statusChance,
+            fireRate: selectedAttack.speed || weapon.fireRate,
+            chargeTime: selectedAttack.chargeTime ?? null,
+        }
+        : weapon;
+
+    const effects: (ModEffect | null)[] = slots.map((m, i) => {
+        if (!m) return null;
+        const r = ranks[i] ?? m.fusionLimit;
+        return m.effectsByRank[r] ?? m.effect;
+    });
+    if (exilusEnabled && exilusMod) {
+        effects.push(exilusMod.effectsByRank[exilusRank] ?? exilusMod.effect);
+    }
+    if (includeArcaneStats && arcane) {
+        const ae = arcane.permanentEffectByRank[arcaneRank];
+        effects.push({
+            ...emptyEffect(),
+            ...(ae ?? {}),
+            conditionalEffects: [...(ae?.conditionalEffects ?? [])],
+        });
+    }
+
+    const calculated = calculateBuild(calcWeapon, effects, targetFaction ?? "");
+    const math = buildMathBreakdown(calcWeapon, effects, targetFaction ?? "");
+
+    return {
+        exportedAt: new Date().toISOString(),
+        source: "warframe-progression-tracker/mod-builder",
+        weapon: {
+            name: weapon.name,
+            uniqueName: weapon.uniqueName,
+            category: weapon.category,
+            selectedAttack: selectedAttack?.name ?? null,
+        },
+        assumptions: {
+            goal,
+            targetFaction,
+            weaponRank: buildCfg.weaponRank,
+            masteryRank: buildCfg.masteryRank,
+            hasCatalyst: buildCfg.hasCatalyst,
+            includeArcaneStats,
+            selectedAttackIdx,
+        },
+        build: {
+            slots: slots.map((m, i) => ({
+                slot: i + 1,
+                mod: m?.name ?? null,
+                uniqueName: m?.uniqueName ?? null,
+                rank: m ? (ranks[i] ?? m.fusionLimit) : 0,
+                slotPolarity: slotPols[i] ?? "",
+                modPolarity: m?.polarity ?? null,
+                statsLabel: m ? (m.statsTextByRank[ranks[i] ?? m.fusionLimit] ?? m.statsLabel) : null,
+            })),
+            exilus: {
+                enabled: exilusEnabled,
+                mod: exilusMod?.name ?? null,
+                uniqueName: exilusMod?.uniqueName ?? null,
+                rank: exilusMod ? exilusRank : 0,
+                slotPolarity: exilusPol,
+                statsLabel: exilusMod ? (exilusMod.statsTextByRank[exilusRank] ?? exilusMod.statsLabel) : null,
+            },
+            arcane: {
+                mod: arcane?.name ?? null,
+                uniqueName: arcane?.uniqueName ?? null,
+                rank: arcane ? arcaneRank : 0,
+                statsLabel: arcane ? (arcane.statsByRank[arcaneRank] ?? arcane.statsLabel) : null,
+            },
+        },
+        calculated,
+        math,
+    };
+}
 
 // Build a synthetic ModEntry from riven stat values
 function makeRivenEntry(
@@ -814,8 +1095,9 @@ function ExclusionList({ allMods, excluded, onToggle }: {
 
 // ── Reasoning Panel ───────────────────────────────────────────────────────────
 
-function ReasoningPanel({ reasoning }: { reasoning: BuildReasoning }) {
+function ReasoningPanel({ reasoning, math }: { reasoning: BuildReasoning; math: BuildMathBreakdown | null }) {
     const [open, setOpen] = useState(false);
+    const [mode, setMode] = useState<"why" | "math">("why");
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40">
             <button className="w-full flex items-center justify-between px-4 py-3" onClick={() => setOpen(v => !v)}>
@@ -825,21 +1107,60 @@ function ReasoningPanel({ reasoning }: { reasoning: BuildReasoning }) {
             </button>
             {open && (
                 <div className="px-4 pb-4 space-y-3 border-t border-slate-800">
-                    <p className="text-[11px] text-slate-400 pt-3">{reasoning.summary}</p>
-                    <div className="space-y-1.5">
-                        {reasoning.steps.map((step, i) => (
-                            <div key={i} className="flex items-start gap-3 rounded-lg bg-slate-900/50 border border-slate-800/50 px-3 py-2">
-                                <span className="text-[10px] font-mono text-slate-600 shrink-0 mt-0.5">#{i + 1}</span>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <span className="text-xs font-semibold text-slate-200">{step.modName}</span>
-                                        <span className="text-[10px] font-mono text-green-400 shrink-0">+{step.pctGain.toFixed(1)}%</span>
-                                    </div>
-                                    <p className="text-[10px] text-slate-500 mt-0.5">{step.why}</p>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="pt-3 flex items-center gap-2">
+                        <button
+                            className={["px-2.5 py-1 rounded-md text-[10px] border transition-colors",
+                                mode === "why"
+                                    ? "border-blue-600/60 bg-blue-950/40 text-blue-300"
+                                    : "border-slate-700 bg-slate-900/40 text-slate-400 hover:text-slate-200"].join(" ")}
+                            onClick={() => setMode("why")}
+                        >
+                            Why This Build
+                        </button>
+                        <button
+                            className={["px-2.5 py-1 rounded-md text-[10px] border transition-colors",
+                                mode === "math"
+                                    ? "border-blue-600/60 bg-blue-950/40 text-blue-300"
+                                    : "border-slate-700 bg-slate-900/40 text-slate-400 hover:text-slate-200"].join(" ")}
+                            onClick={() => setMode("math")}
+                        >
+                            Show Me the Math
+                        </button>
                     </div>
+                    {mode === "why" ? (
+                        <>
+                            <p className="text-[11px] text-slate-400">{reasoning.summary}</p>
+                            <div className="space-y-1.5">
+                                {reasoning.steps.map((step, i) => (
+                                    <div key={i} className="flex items-start gap-3 rounded-lg bg-slate-900/50 border border-slate-800/50 px-3 py-2">
+                                        <span className="text-[10px] font-mono text-slate-600 shrink-0 mt-0.5">#{i + 1}</span>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span className="text-xs font-semibold text-slate-200">{step.modName}</span>
+                                                <span className="text-[10px] font-mono text-green-400 shrink-0">+{step.pctGain.toFixed(1)}%</span>
+                                            </div>
+                                            <p className="text-[10px] text-slate-500 mt-0.5">{step.why}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="space-y-3">
+                            {math ? math.sections.map((section) => (
+                                <div key={section.title} className="rounded-lg bg-slate-900/50 border border-slate-800/50 px-3 py-3">
+                                    <div className="text-xs font-semibold text-slate-200 mb-2">{section.title}</div>
+                                    <div className="space-y-1">
+                                        {section.lines.map((line, idx) => (
+                                            <div key={idx} className="text-[11px] font-mono text-slate-400 break-words">{line}</div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )) : (
+                                <div className="text-[11px] text-slate-500">Math breakdown unavailable for this build.</div>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
         </div>
@@ -1100,8 +1421,10 @@ export default function ModBuilder() {
     const [optArcane, setOptArcane]      = useState(false);
     // UI
     const [reasoning, setReasoning]    = useState<BuildReasoning | null>(null);
+    const [reasoningMath, setReasoningMath] = useState<BuildMathBreakdown | null>(null);
     const [tab, setTab]                = useState<"build"|"saves"|"owned"|"exclude">("build");
     const [optimizing, setOptimizing]  = useState(false);
+    const [copiedExport, setCopiedExport] = useState(false);
 
     useEffect(() => { setBuildCfg(p => ({ ...p, masteryRank })); }, [masteryRank]);
 
@@ -1118,6 +1441,7 @@ export default function ModBuilder() {
         setSelectedAttackIdx(0);
         if (opts?.resetConfig) setBuildCfg(p => ({ ...p, weaponRank: 30, hasCatalyst: false }));
         setReasoning(null);
+        setReasoningMath(null);
     }
 
     function handleSelectWeapon(w: WeaponEntry) {
@@ -1155,14 +1479,56 @@ export default function ModBuilder() {
         }).length;
     }, [weapon, slotPols]);
 
+    const currentBuildExport = useMemo(() => buildExportPayload({
+        weapon,
+        selectedAttackIdx,
+        goal,
+        targetFaction: factionOn ? faction : null,
+        buildCfg,
+        includeArcaneStats,
+        slots,
+        ranks,
+        slotPols,
+        exilusEnabled: hasExilus,
+        exilusMod,
+        exilusRank,
+        exilusPol,
+        arcane: arcane1,
+        arcaneRank: arcane1Rank,
+    }), [
+        weapon, selectedAttackIdx, goal, factionOn, faction, buildCfg, includeArcaneStats,
+        slots, ranks, slotPols, hasExilus, exilusMod, exilusRank, exilusPol, arcane1, arcane1Rank,
+    ]);
+
+    async function handleCopyBuildExport() {
+        if (!currentBuildExport) return;
+        const json = JSON.stringify(currentBuildExport, null, 2);
+        await navigator.clipboard.writeText(json);
+        setCopiedExport(true);
+        setTimeout(() => setCopiedExport(false), 2000);
+    }
+
     function handleSlotChange(i: number, mod: ModEntry | null) {
         setSlots(p => { const n = [...p]; n[i] = mod; return n; });
         setRanks(p => { const n = [...p]; n[i] = mod ? mod.fusionLimit : 0; return n; });
         setReasoning(null);
+        setReasoningMath(null);
     }
-    function handleRankChange(i: number, r: number) { setRanks(p => { const n = [...p]; n[i] = r; return n; }); }
-    function handlePolChange(i: number, p: string)  { setSlotPols(p2 => { const n = [...p2]; n[i] = p; return n; }); }
-    function handleExilusChange(_: number, m: ModEntry | null) { setExilusMod(m); setExilusRank(m ? m.fusionLimit : 0); }
+    function handleRankChange(i: number, r: number) {
+        setRanks(p => { const n = [...p]; n[i] = r; return n; });
+        setReasoning(null);
+        setReasoningMath(null);
+    }
+    function handlePolChange(i: number, p: string)  {
+        setSlotPols(p2 => { const n = [...p2]; n[i] = p; return n; });
+        setReasoning(null);
+        setReasoningMath(null);
+    }
+    function handleExilusChange(_: number, m: ModEntry | null) {
+        setExilusMod(m); setExilusRank(m ? m.fusionLimit : 0);
+        setReasoning(null);
+        setReasoningMath(null);
+    }
     function toggleExclude(name: string) { setExcluded(p => { const n = new Set(p); n.has(name) ? n.delete(name) : n.add(name); return n; }); }
 
     // For a riven: place it into the first empty normal slot
@@ -1175,6 +1541,8 @@ export default function ModBuilder() {
             setRanks(p => { const n = [...p]; n[targetIdx] = mod.fusionLimit; return n; });
             setRivenSlotIdx(targetIdx);
         }
+        setReasoning(null);
+        setReasoningMath(null);
     }
     function handleRivenRemove() {
         if (rivenSlotIdx !== null) {
@@ -1182,6 +1550,8 @@ export default function ModBuilder() {
             setRanks(p => { const n = [...p]; n[rivenSlotIdx] = 0; return n; });
         }
         setRivenMod(null); setRivenSlotIdx(null);
+        setReasoning(null);
+        setReasoningMath(null);
     }
 
     const capacityCfg: CapacityConfig = {
@@ -1278,6 +1648,34 @@ export default function ModBuilder() {
             }
 
             setReasoning(explainBuild(weapon, result.mods, result.ranks, goal, factionOn ? faction : "", atk));
+            const mathEffects: (ModEffect | null)[] = result.slots.map((m, i) => {
+                if (!m) return null;
+                const r = result.slotRanks[i] ?? m.fusionLimit;
+                return m.effectsByRank[r] ?? m.effect;
+            });
+            if (optExilus && result.exilusMod) {
+                mathEffects.push(result.exilusMod.effectsByRank[result.exilusRank] ?? result.exilusMod.effect);
+            }
+            if (includeArcaneStats && optArcane && result.arcane) {
+                const ae = result.arcane.permanentEffectByRank[result.arcaneRank];
+                mathEffects.push({
+                    ...emptyEffect(),
+                    ...(ae ?? {}),
+                    conditionalEffects: [...(ae?.conditionalEffects ?? [])],
+                });
+            }
+            const mathWeapon = atk
+                ? {
+                    ...weapon,
+                    damage: atk.damage,
+                    critChance: atk.critChance,
+                    critMultiplier: atk.critMultiplier,
+                    statusChance: atk.statusChance,
+                    fireRate: atk.speed || weapon.fireRate,
+                    chargeTime: atk.chargeTime ?? null,
+                }
+                : weapon;
+            setReasoningMath(buildMathBreakdown(mathWeapon, mathEffects, factionOn ? faction : ""));
         } finally { setOptimizing(false); }
     }
 
@@ -1426,6 +1824,13 @@ export default function ModBuilder() {
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="text-sm font-semibold">Mod Slots</div>
                                     <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={handleCopyBuildExport}
+                                            disabled={!currentBuildExport}
+                                            className="text-[10px] px-2.5 py-1 rounded-full border border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200 disabled:opacity-50 disabled:hover:border-slate-700 disabled:hover:text-slate-400 transition-colors"
+                                        >
+                                            {copiedExport ? "Copied Build JSON" : "Copy Build JSON"}
+                                        </button>
                                         <span className="text-[10px] text-slate-500">{slots.filter(Boolean).length}/{SLOT_COUNT} filled</span>
                                         <button
                                             onClick={() => weapon && resetBuildForWeapon(weapon)}
@@ -1434,6 +1839,9 @@ export default function ModBuilder() {
                                             Reset Build
                                         </button>
                                     </div>
+                                </div>
+                                <div className="text-[10px] text-slate-600 mb-3">
+                                    Use <span className="text-slate-400">Copy Build JSON</span> to export the current build, assumptions, calculated stats, and math breakdown for comparison with other optimizers.
                                 </div>
                                 {weapon.category === "Melee" && weapon.stancePolarity && stanceMods.length > 0 && (
                                     <div className="mb-3 pb-3 border-b border-slate-800/50">
@@ -1635,7 +2043,7 @@ export default function ModBuilder() {
                                 </div>
                             </div>
 
-                            {reasoning && <ReasoningPanel reasoning={reasoning} />}
+                            {reasoning && <ReasoningPanel reasoning={reasoning} math={reasoningMath} />}
 
                             {/* ── Calculated Stats ── */}
                             {(() => {
@@ -1648,8 +2056,12 @@ export default function ModBuilder() {
                                     return mod.effectsByRank[r] ?? mod.effect;
                                 });
                                 if (includeArcaneStats && arcane1) {
-                                    const ae = arcane1.permanentEffectByRank[arcane1Rank] ?? {};
-                                    buildEffects.push(ae as any);
+                                    const ae = arcane1.permanentEffectByRank[arcane1Rank];
+                                    buildEffects.push({
+                                        ...emptyEffect(),
+                                        ...(ae ?? {}),
+                                        conditionalEffects: [...(ae?.conditionalEffects ?? [])],
+                                    });
                                 }
 
                                 // Helper: compute metrics for any attack (or base weapon)
@@ -1662,6 +2074,7 @@ export default function ModBuilder() {
                                         critChance: atk.critChance,
                                         critMultiplier: atk.critMultiplier,
                                         statusChance: atk.statusChance,
+                                        fireRate: atk.speed || weapon.fireRate,
                                         chargeTime: atk.chargeTime ?? null,
                                     };
                                     return calculateBuild(synth, buildEffects, factionOn ? faction : "");
@@ -1710,7 +2123,7 @@ export default function ModBuilder() {
                                             )}
 
                                             {/* Primary stats */}
-                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
                                                 <StatBadge label="Arsenal Damage" value={fmt(stats.arsenalDamage)}
                                                     sub="per shot, no crit" />
                                                 <StatBadge label="Avg Shot" value={fmt(stats.averageShotDamage)}
@@ -1719,6 +2132,10 @@ export default function ModBuilder() {
                                                     sub="no reload" />
                                                 <StatBadge label="Sustained DPS" value={fmt(result.sustainedDPS)}
                                                     sub="with reload" />
+                                                <StatBadge label="DoT / Shot" value={fmt(stats.dotDamagePerShot)}
+                                                    sub="expected total" />
+                                                <StatBadge label="DoT DPS" value={fmt(stats.dotDps)}
+                                                    sub="steady-state estimate" />
                                             </div>
 
                                             {/* Crit + status */}

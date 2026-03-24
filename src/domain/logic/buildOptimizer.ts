@@ -92,6 +92,7 @@ function makeWeaponForAttack(weapon: WeaponEntry, atk: WeaponAttack | null | und
         critChance:    atk.critChance,
         critMultiplier: atk.critMultiplier,
         statusChance:  atk.statusChance,
+        fireRate:      atk.speed || weapon.fireRate,
         chargeTime:    atk.chargeTime ?? null,
     };
 }
@@ -163,11 +164,17 @@ function scoreEffects(
     }
 
     const statusWeight =
-        (modded.procChanceByType.slash ?? 0) * 1.35 +
-        (modded.procChanceByType.viral ?? 0) * 1.25 +
-        (modded.procChanceByType.heat ?? 0) * 1.15 +
-        (modded.procChanceByType.corrosive ?? 0) * 1.1 +
-        (modded.procChanceByType.cold ?? 0) * 1.05;
+        modded.dotDps / Math.max(1, sustainedDPS) +
+        modded.viralHealthDamageBonus * 0.3 +
+        modded.corrosiveArmorStrip * 0.3 +
+        modded.magneticShieldDamageBonus * 0.15 +
+        modded.coldSlow * 0.08 +
+        modded.coldCritDamageBonus * 0.12 +
+        modded.punctureEnemyDamageReduction * 0.08 +
+        modded.punctureCritChanceBonus * 0.15 +
+        modded.impactMercyThresholdBonus * 0.05 +
+        modded.radiationAllyDamageBonus * 0.04 +
+        modded.tauStatusVulnerability * 0.08;
     const rangedUtility =
         punchThrough * 0.08 +
         beamRangeBonus * 0.25 +
@@ -197,10 +204,10 @@ function scoreEffects(
     const directDamagePerStatusWeight = directDamagePerStatusBonus * Math.max(1, Math.min(6, estimatedStatusTypes));
 
     switch (goal) {
-        case "damage":   return sustainedDPS * (1 + directDamagePerStatusWeight * 0.35 + utilityWeight * 0.25);
+        case "damage":   return (sustainedDPS + modded.dotDps * 0.8) * (1 + directDamagePerStatusWeight * 0.35 + utilityWeight * 0.25);
         case "crit":     return avgCritMultiplier(modded.critChance, modded.critMultiplier) * (1 + (headshotMultiplierBonus + weakPointCritChanceBonus + weakPointDamageBonus) * 0.35 + directDamagePerStatusWeight * 0.15 + utilityWeight * 0.08);
-        case "status":   return (modded.averageProcsPerShot * (1 + statusWeight + finalStatusChanceBonus + directDamagePerStatusWeight * 0.2)) * (1 + statusDamageBonus * 0.35 + statusDurationBonus * 0.15 + utilityWeight * 0.12);
-        case "balanced": return burstDPS * (1 + modded.averageProcsPerShot * 0.35 + statusWeight * 0.25 + directDamagePerStatusWeight * 0.25 + utilityWeight * 0.2);
+        case "status":   return ((modded.averageProcsPerShot + modded.dotDamagePerShot * 0.02) * (1 + statusWeight + finalStatusChanceBonus + directDamagePerStatusWeight * 0.2)) * (1 + statusDamageBonus * 0.35 + statusDurationBonus * 0.15 + utilityWeight * 0.12);
+        case "balanced": return (burstDPS + modded.dotDps * 0.5) * (1 + modded.averageProcsPerShot * 0.35 + statusWeight * 0.25 + directDamagePerStatusWeight * 0.25 + utilityWeight * 0.2);
     }
 }
 

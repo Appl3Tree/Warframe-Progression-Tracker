@@ -27,6 +27,7 @@ export interface WeaponDamage {
 
 export interface WeaponAttack {
     name: string;
+    speed: number;
     critChance: number;    // 0–1
     critMultiplier: number;
     statusChance: number;  // 0–1
@@ -302,6 +303,7 @@ export function getWeaponCatalog(): WeaponEntry[] {
                 const attackDmg = parseDamageRecord(a.damage);
                 return {
                     name: String(a.name),
+                    speed:          n(a.speed) || 1,
                     critChance:    n(a.crit_chance) / 100,
                     critMultiplier: n(a.crit_mult) || 1.5,
                     statusChance:  n(a.status_chance) / 100,
@@ -330,9 +332,9 @@ export function getWeaponCatalog(): WeaponEntry[] {
             critMultiplier: n(item.criticalMultiplier) || 1.5,
             statusChance:  n(item.procChance) || n(item.statusChance),
             fireRate:      n(item.fireRate) || 1,
-            // Bows and some weapons don't report a magazineSize (they have ammo pouch).
-            // Default to a large value (quiver size) so DPS calculations work correctly.
-            magazineSize:  n(item.magazineSize) || (weaponType.toLowerCase() === "bow" ? 10 : 1),
+            // Bows typically behave like single-shot magazines with effectively no reload animation
+            // between shots; use 1 when the source data does not report a magazine size.
+            magazineSize:  n(item.magazineSize) || 1,
             reloadTime:    n(item.reloadTime),
             multishot:     n(item.multishot) || 1,
             trigger,
