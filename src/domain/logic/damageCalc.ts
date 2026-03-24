@@ -56,6 +56,7 @@ export interface ModdedWeaponStats {
     dotDamagePerShotByType: Partial<Record<DamageKey, number>>;
     dotDpsByType: Partial<Record<DamageKey, number>>;
     viralHealthDamageBonus: number;
+    heatArmorStrip: number;
     corrosiveArmorStrip: number;
     magneticShieldDamageBonus: number;
     radiationAllyDamageBonus: number;
@@ -64,6 +65,8 @@ export interface ModdedWeaponStats {
     punctureEnemyDamageReduction: number;
     punctureCritChanceBonus: number;
     impactMercyThresholdBonus: number;
+    blastDetonationDamagePerShot: number;
+    gasCloudRadius: number;
     tauStatusVulnerability: number;
 }
 
@@ -569,11 +572,13 @@ export function calculateBuild(
     expectedStacksByType.viral = expectedStacks("viral", 6, 10);
 
     const coldStacks = expectedStacksByType.cold ?? 0;
+    const heatStacks = expectedStacksByType.heat ?? 0;
     const viralStacks = expectedStacksByType.viral ?? 0;
     const corrosiveStacks = expectedStacksByType.corrosive ?? 0;
     const magneticStacks = expectedStacksByType.magnetic ?? 0;
     const punctureStacks = expectedStacksByType.puncture ?? 0;
     const impactStacks = expectedStacksByType.impact ?? 0;
+    const gasStacks = expectedStacksByType.gas ?? 0;
     const radiationStacks = expectedStacksByType.radiation ?? 0;
 
     const coldSlow = coldStacks >= 10 ? 1 : scaleForStacks(Math.min(coldStacks, 9), 0.5, 0.05, 0.9);
@@ -582,12 +587,22 @@ export function calculateBuild(
             ? 1.0
             : scaleForStacks(Math.min(coldStacks, 9), 0.1, 0.05, 0.5);
     const viralHealthDamageBonus = scaleForStacks(viralStacks, 1.0, 0.25, 3.25);
+    const heatArmorStrip = Math.min(0.5, 0.5 * Math.min(1, heatStacks));
     const corrosiveArmorStrip = scaleForStacks(corrosiveStacks, 0.26, 0.06, 0.8);
     const magneticShieldDamageBonus = scaleForStacks(magneticStacks, 1.0, 0.25, 3.25);
     const radiationAllyDamageBonus = scaleForStacks(radiationStacks, 1.0, 0.5, 5.5);
     const punctureEnemyDamageReduction = scaleForStacks(punctureStacks, 0.4, 0.1, 0.8);
     const punctureCritChanceBonus = scaleLinearCap(punctureStacks, 0.05, 0.25);
     const impactMercyThresholdBonus = scaleLinearCap(impactStacks, 0.08, 0.4);
+    const blastDetonationDamagePerShot =
+        averageProcsPerShot *
+        (procChanceByType.blast ?? 0) *
+        totalBase *
+        0.3;
+    const gasCloudRadius =
+        gasStacks <= 0
+            ? 0
+            : Math.min(6, 3 + Math.max(0, Math.min(10, gasStacks) - 1) * 0.3);
     const tauStatusVulnerability = 0;
 
     const modded: ModdedWeaponStats = {
@@ -614,6 +629,7 @@ export function calculateBuild(
         dotDamagePerShotByType,
         dotDpsByType,
         viralHealthDamageBonus,
+        heatArmorStrip,
         corrosiveArmorStrip,
         magneticShieldDamageBonus,
         radiationAllyDamageBonus,
@@ -622,6 +638,8 @@ export function calculateBuild(
         punctureEnemyDamageReduction,
         punctureCritChanceBonus,
         impactMercyThresholdBonus,
+        blastDetonationDamagePerShot,
+        gasCloudRadius,
         tauStatusVulnerability,
     };
 

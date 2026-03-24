@@ -82,6 +82,35 @@ const PROC_DAMAGE_KEYS = [
     "blast", "radiation", "gas", "magnetic", "viral", "corrosive",
 ] as const;
 
+interface TargetProfile {
+    armor: number;
+    healthShare: number;
+    shieldShare: number;
+    grouped: boolean;
+}
+
+function getTargetProfile(targetFaction: string): TargetProfile {
+    switch (targetFaction.toLowerCase()) {
+        case "grineer":
+            return { armor: 2700, healthShare: 1, shieldShare: 0, grouped: false };
+        case "corpus":
+            return { armor: 0, healthShare: 0.4, shieldShare: 0.6, grouped: false };
+        case "infested":
+            return { armor: 0, healthShare: 1, shieldShare: 0, grouped: true };
+        case "orokin":
+            return { armor: 1200, healthShare: 0.85, shieldShare: 0.15, grouped: false };
+        case "the murmur":
+            return { armor: 600, healthShare: 1, shieldShare: 0, grouped: false };
+        default:
+            return { armor: 0, healthShare: 1, shieldShare: 0, grouped: false };
+    }
+}
+
+function armorDamageMultiplier(armor: number): number {
+    if (armor <= 0) return 1;
+    return Math.max(0.1, 1 - 0.9 * Math.sqrt(armor / 2700));
+}
+
 // ── Scoring ───────────────────────────────────────────────────────────────────
 
 function makeWeaponForAttack(weapon: WeaponEntry, atk: WeaponAttack | null | undefined): WeaponEntry {
@@ -166,6 +195,7 @@ function scoreEffects(
     const statusWeight =
         modded.dotDps / Math.max(1, sustainedDPS) +
         modded.viralHealthDamageBonus * 0.3 +
+        modded.heatArmorStrip * 0.25 +
         modded.corrosiveArmorStrip * 0.3 +
         modded.magneticShieldDamageBonus * 0.15 +
         modded.coldSlow * 0.08 +
@@ -202,12 +232,56 @@ function scoreEffects(
         PROC_DAMAGE_KEYS.reduce((count, key) => count + ((modded.procChanceByType[key] ?? 0) > 0.02 ? 1 : 0), 0) +
         Object.values(modded.extraProcsPerShot).reduce((count, value) => count + ((value ?? 0) > 0.01 ? 1 : 0), 0);
     const directDamagePerStatusWeight = directDamagePerStatusBonus * Math.max(1, Math.min(6, estimatedStatusTypes));
+    const target = getTargetProfile(targetFaction);
+    const combinedArmorStrip = 1 - ((1 - modded.heatArmorStrip) * (1 - modded.corrosiveArmorStrip));
+    const strippedArmor = target.armor * Math.max(0, 1 - combinedArmorStrip);
+    const effectiveArmorMultiplier = armorDamageMultiplier(strippedArmor);
+    const healthDamageMultiplier =
+        target.healthShare *
+        effectiveArmorMultiplier *
+        (1 + modded.viralHealthDamageBonus);
+    const shieldDamageMultiplier =
+        target.shieldShare *
+        (1 + modded.magneticShieldDamageBonus);
+    const targetAdjustedDirectMultiplier = Math.max(
+        0.1,
+        healthDamageMultiplier + shieldDamageMultiplier,
+    );
+    const adjustedDirectDps = sustainedDPS * targetAdjustedDirectMultiplier;
+    const adjustedDotDps =
+        (modded.dotDpsByType.slash ?? 0) * target.healthShare * (1 + modded.viralHealthDamageBonus) +
+        (modded.dotDpsByType.heat ?? 0) * target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) +
+        (modded.dotDpsByType.toxin ?? 0) * (
+            target.healthShare * (1 + modded.viralHealthDamageBonus) +
+            target.shieldShare * 0.35
+        ) +
+        (modded.dotDpsByType.electricity ?? 0) * (
+            (target.healthShare * effectiveArmorMultiplier + target.shieldShare) *
+            (target.grouped ? 1.2 : 1)
+        ) +
+        (modded.dotDpsByType.gas ?? 0) * (
+            target.healthShare *
+            effectiveArmorMultiplier *
+            (1 + modded.viralHealthDamageBonus) *
+            (target.grouped ? 1.25 : 1.05)
+        );
+    const blastUtilityDps = modded.blastDetonationDamagePerShot * modded.fireRate * (target.grouped ? 1.25 : 0.75);
+    const gasUtility = modded.gasCloudRadius * 0.04;
+    const coldCritMultiplierGain = modded.coldCritDamageBonus > 0
+        ? avgCritMultiplier(modded.critChance + modded.punctureCritChanceBonus, modded.critMultiplier + modded.coldCritDamageBonus) /
+          Math.max(1, avgCritMultiplier(modded.critChance, modded.critMultiplier))
+        : 1;
+    const punctureCritGain = avgCritMultiplier(modded.critChance + modded.punctureCritChanceBonus, modded.critMultiplier) /
+        Math.max(1, avgCritMultiplier(modded.critChance, modded.critMultiplier));
+    const targetAdjustedDamageScore =
+        ((adjustedDirectDps * coldCritMultiplierGain * punctureCritGain) + adjustedDotDps + blastUtilityDps) *
+        (1 + gasUtility);
 
     switch (goal) {
-        case "damage":   return (sustainedDPS + modded.dotDps * 0.8) * (1 + directDamagePerStatusWeight * 0.35 + utilityWeight * 0.25);
+        case "damage":   return targetAdjustedDamageScore * (1 + directDamagePerStatusWeight * 0.35 + utilityWeight * 0.25);
         case "crit":     return avgCritMultiplier(modded.critChance, modded.critMultiplier) * (1 + (headshotMultiplierBonus + weakPointCritChanceBonus + weakPointDamageBonus) * 0.35 + directDamagePerStatusWeight * 0.15 + utilityWeight * 0.08);
-        case "status":   return ((modded.averageProcsPerShot + modded.dotDamagePerShot * 0.02) * (1 + statusWeight + finalStatusChanceBonus + directDamagePerStatusWeight * 0.2)) * (1 + statusDamageBonus * 0.35 + statusDurationBonus * 0.15 + utilityWeight * 0.12);
-        case "balanced": return (burstDPS + modded.dotDps * 0.5) * (1 + modded.averageProcsPerShot * 0.35 + statusWeight * 0.25 + directDamagePerStatusWeight * 0.25 + utilityWeight * 0.2);
+        case "status":   return ((modded.averageProcsPerShot + adjustedDotDps * 0.02 + blastUtilityDps * 0.01) * (1 + statusWeight + finalStatusChanceBonus + directDamagePerStatusWeight * 0.2)) * (1 + statusDamageBonus * 0.35 + statusDurationBonus * 0.15 + utilityWeight * 0.12);
+        case "balanced": return (targetAdjustedDamageScore + burstDPS * 0.25) * (1 + modded.averageProcsPerShot * 0.35 + statusWeight * 0.25 + directDamagePerStatusWeight * 0.25 + utilityWeight * 0.2);
     }
 }
 

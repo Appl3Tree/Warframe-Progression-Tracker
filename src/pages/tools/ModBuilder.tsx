@@ -83,6 +83,9 @@ function fmt(n: number, d = 0) {
     return n.toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
 }
 function uid() { return Math.random().toString(36).slice(2, 10); }
+function displayMagazineValue(weapon: WeaponEntry, magazineSize: number) {
+    return weapon.hasExplicitMagazineSize ? String(magazineSize) : "∞";
+}
 
 interface BuildMathSection {
     title: string;
@@ -204,6 +207,7 @@ function buildMathBreakdown(
     const moddedFireRate = weapon.fireRate * (1 + fireRateBonus);
     const moddedReload = weapon.reloadTime / Math.max(0.0001, (1 + totals.reloadSpeedBonus));
     const moddedMagazine = Math.max(1, Math.round(weapon.magazineSize * (1 + totals.magazineBonus)));
+    const displayMagazine = displayMagazineValue(weapon, moddedMagazine);
     const avgCritMultiplier = baseDamage > 0 ? stats.averageShotDamage / Math.max(0.0001, stats.arsenalDamage) : 1;
     const sections: BuildMathSection[] = [
         {
@@ -242,7 +246,7 @@ function buildMathBreakdown(
                 `Average shot = Arsenal damage × average crit multiplier = ${fmt(stats.arsenalDamage, 3)} × ${fmt(avgCritMultiplier, 4)} = ${fmt(stats.averageShotDamage, 3)}`,
                 `Fire rate = ${fmt(weapon.fireRate, 3)} × (1 + ${fmt(fireRateBonus * 100, 1)}%) = ${fmt(moddedFireRate, 3)}`,
                 `Burst DPS = Avg Shot × Fire Rate = ${fmt(stats.averageShotDamage, 3)} × ${fmt(stats.fireRate, 3)} = ${fmt(result.burstDPS, 3)}`,
-                `Sustained DPS uses reload uptime with mag ${moddedMagazine} and reload ${fmt(moddedReload, 3)}s = ${fmt(result.sustainedDPS, 3)}`,
+                `Sustained DPS uses reload uptime with mag ${displayMagazine} and reload ${fmt(moddedReload, 3)}s = ${fmt(result.sustainedDPS, 3)}`,
             ],
         },
         {
@@ -1722,7 +1726,7 @@ export default function ModBuilder() {
                             <div><span className="text-slate-400">CD</span> {weapon.critMultiplier.toFixed(1)}x</div>
                             <div><span className="text-slate-400">SC</span> {fmt(weapon.statusChance * 100, 1)}%</div>
                             <div><span className="text-slate-400">FR</span> {weapon.fireRate.toFixed(2)}/s</div>
-                            <div><span className="text-slate-400">Mag</span> {weapon.magazineSize}/{weapon.reloadTime.toFixed(1)}s</div>
+                            <div><span className="text-slate-400">Mag</span> {displayMagazineValue(weapon, weapon.magazineSize)}/{weapon.reloadTime.toFixed(1)}s</div>
                         </div>
                         <AttackBreakdown weapon={weapon} />
                     </>
@@ -2169,7 +2173,7 @@ export default function ModBuilder() {
                                                     tooltip={atk?.chargeTime != null
                                                         ? `Effective rate = 1 / (${atk.chargeTime.toFixed(2)}s charge + ${(1/weapon.fireRate).toFixed(2)}s delay). Fire rate mods also speed up charge time.`
                                                         : "Shots per second."} />
-                                                <StatBadge label="Magazine" value={String(stats.magazineSize)} />
+                                                <StatBadge label="Magazine" value={displayMagazineValue(weapon, stats.magazineSize)} />
                                                 <StatBadge label="Reload" value={stats.reloadTime.toFixed(2) + "s"} />
                                                 <StatBadge label="Avg Procs/Shot"
                                                     value={fmt(stats.averageProcsPerShot, 2)}

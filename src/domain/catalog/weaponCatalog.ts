@@ -50,6 +50,7 @@ export interface WeaponEntry {
     statusChance: number;
     fireRate: number;
     magazineSize: number;
+    hasExplicitMagazineSize: boolean;
     reloadTime: number;
     multishot: number;
     trigger: string;
@@ -317,6 +318,7 @@ export function getWeaponCatalog(): WeaponEntry[] {
 
         const name = String(item.name);
         const uniqueName = String(item.uniqueName ?? "");
+        const hasExplicitMagazineSize = Object.prototype.hasOwnProperty.call(item, "magazineSize");
         const rawPolarities = Array.isArray(item.polarities)
             ? (item.polarities as unknown[]).map(p => String(p))
             : [];
@@ -335,6 +337,7 @@ export function getWeaponCatalog(): WeaponEntry[] {
             // Bows typically behave like single-shot magazines with effectively no reload animation
             // between shots; use 1 when the source data does not report a magazine size.
             magazineSize:  n(item.magazineSize) || 1,
+            hasExplicitMagazineSize,
             reloadTime:    n(item.reloadTime),
             multishot:     n(item.multishot) || 1,
             trigger,
