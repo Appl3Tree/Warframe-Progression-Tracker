@@ -84,42 +84,6 @@ function fmt(n: number, d = 0) {
 }
 function uid() { return Math.random().toString(36).slice(2, 10); }
 
-function formatEffectPercent(value: number) {
-    const pct = value * 100;
-    const rounded = Math.abs(pct - Math.round(pct)) < 0.001 ? Math.round(pct).toString() : pct.toFixed(1);
-    return `${pct >= 0 ? "+" : ""}${rounded}%`;
-}
-
-function formatEffectLabel(effect: ReturnType<typeof emptyEffect>) {
-    const parts: string[] = [];
-    const push = (value: number, label: string) => {
-        if (value !== 0) parts.push(`${formatEffectPercent(value)} ${label}`);
-    };
-
-    push(effect.damageBonus, "Damage");
-    push(effect.impactBonus, "Impact");
-    push(effect.punctureBonus, "Puncture");
-    push(effect.slashBonus, "Slash");
-    push(effect.heatBonus, "Heat");
-    push(effect.coldBonus, "Cold");
-    push(effect.electricityBonus, "Electricity");
-    push(effect.toxinBonus, "Toxin");
-    push(effect.magneticBonus, "Magnetic");
-    push(effect.radiationBonus, "Radiation");
-    push(effect.critChanceBonus, "Critical Chance");
-    push(effect.critMultBonus, "Critical Damage");
-    push(effect.statusChanceBonus, "Status Chance");
-    push(effect.multishotBonus, "Multishot");
-    push(effect.fireRateBonus, "Fire Rate");
-    push(effect.attackSpeedBonus, "Attack Speed");
-    push(effect.magazineBonus, "Magazine Capacity");
-    push(effect.reloadSpeedBonus, "Reload Speed");
-    if (effect.targetFaction && effect.factionDamageBonus !== 0) {
-        parts.push(`x${(1 + effect.factionDamageBonus).toFixed(2)} Damage to ${effect.targetFaction}`);
-    }
-    return parts.join("  ·  ");
-}
-
 // Build a synthetic ModEntry from riven stat values
 function makeRivenEntry(
     weaponName: string,
@@ -163,6 +127,7 @@ function makeRivenEntry(
         baseDrain: drain - rank,
         fusionLimit: rank,
         statsLabel,
+        statsTextByRank: [statsLabel],
         effectsByRank: [effect],  // simplified: same effect at all ranks
         effect,
         hasDamageEffect: true,
@@ -330,7 +295,7 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
             return true;
         });
     }, [compatMods, usedGroups, mod, query, onlyOwned, ownedNames, isExilusSlot]);
-    const currentStatsLabel = mod ? formatEffectLabel(mod.effectsByRank[rank] ?? mod.effect) : "";
+    const currentStatsLabel = mod ? (mod.statsTextByRank[rank] ?? mod.statsLabel) : "";
 
     const polMatch    = !!(mod && slotPolarity && slotPolarity === mod.polarity);
     const polMismatch = !!(mod && slotPolarity && slotPolarity !== mod.polarity && slotPolarity !== "");

@@ -75,6 +75,12 @@ export interface OptimizeResult {
     arcaneRank: number;
 }
 
+const PROC_DAMAGE_KEYS = [
+    "impact", "puncture", "slash",
+    "heat", "cold", "electricity", "toxin",
+    "blast", "radiation", "gas", "magnetic", "viral", "corrosive",
+] as const;
+
 // ── Scoring ───────────────────────────────────────────────────────────────────
 
 function makeWeaponForAttack(weapon: WeaponEntry, atk: WeaponAttack | null | undefined): WeaponEntry {
@@ -98,17 +104,90 @@ function scoreEffects(
 ): number {
     const allEffects = arcaneEffect ? [...effects, arcaneEffect as any] : effects;
     const { modded, sustainedDPS, burstDPS } = calculateBuild(weapon, allEffects, targetFaction);
+    let statusDurationBonus = 0;
+    let statusDamageBonus = 0;
+    let projectileSpeedBonus = 0;
+    let accuracyBonus = 0;
+    let blastRadiusBonus = 0;
+    let beamRangeBonus = 0;
+    let punchThrough = 0;
+    let rangeBonus = 0;
+    let headshotMultiplierBonus = 0;
+    let weakPointDamageBonus = 0;
+    let weakPointCritChanceBonus = 0;
+    let comboDurationBonus = 0;
+    let initialComboBonus = 0;
+    let comboCountChanceBonus = 0;
+    let heavyAttackEfficiencyBonus = 0;
+    let heavyAttackWindUpBonus = 0;
+    let lifeStealBonus = 0;
+    let ammoEfficiencyBonus = 0;
+    let directDamagePerStatusBonus = 0;
+    let finalStatusChanceBonus = 0;
+
+    for (const effect of allEffects) {
+        if (!effect) continue;
+        statusDurationBonus += effect.statusDurationBonus ?? 0;
+        statusDamageBonus += effect.statusDamageBonus ?? 0;
+        projectileSpeedBonus += effect.projectileSpeedBonus ?? 0;
+        accuracyBonus += effect.accuracyBonus ?? 0;
+        blastRadiusBonus += effect.blastRadiusBonus ?? 0;
+        beamRangeBonus += effect.beamRangeBonus ?? 0;
+        punchThrough += effect.punchThrough ?? 0;
+        rangeBonus += effect.rangeBonus ?? 0;
+        headshotMultiplierBonus += effect.headshotMultiplierBonus ?? 0;
+        weakPointDamageBonus += effect.weakPointDamageBonus ?? 0;
+        weakPointCritChanceBonus += effect.weakPointCritChanceBonus ?? 0;
+        comboDurationBonus += effect.comboDurationBonus ?? 0;
+        initialComboBonus += effect.initialComboBonus ?? 0;
+        comboCountChanceBonus += effect.comboCountChanceBonus ?? 0;
+        heavyAttackEfficiencyBonus += effect.heavyAttackEfficiencyBonus ?? 0;
+        heavyAttackWindUpBonus += effect.heavyAttackWindUpBonus ?? 0;
+        lifeStealBonus += effect.lifeStealBonus ?? 0;
+        ammoEfficiencyBonus += effect.ammoEfficiencyBonus ?? 0;
+        directDamagePerStatusBonus += effect.directDamagePerStatusBonus ?? 0;
+        finalStatusChanceBonus += effect.finalStatusChanceBonus ?? 0;
+    }
+
     const statusWeight =
         (modded.procChanceByType.slash ?? 0) * 1.35 +
         (modded.procChanceByType.viral ?? 0) * 1.25 +
         (modded.procChanceByType.heat ?? 0) * 1.15 +
         (modded.procChanceByType.corrosive ?? 0) * 1.1 +
         (modded.procChanceByType.cold ?? 0) * 1.05;
+    const rangedUtility =
+        punchThrough * 0.08 +
+        beamRangeBonus * 0.25 +
+        projectileSpeedBonus * 0.05 +
+        accuracyBonus * 0.03 +
+        blastRadiusBonus * 0.12 +
+        headshotMultiplierBonus * 0.08 +
+        weakPointDamageBonus * 0.18 +
+        weakPointCritChanceBonus * 0.16;
+    const meleeUtility =
+        rangeBonus * 0.1 +
+        (comboDurationBonus / 10) * 0.08 +
+        (initialComboBonus / 20) * 0.06 +
+        comboCountChanceBonus * 0.08 +
+        heavyAttackEfficiencyBonus * 0.07 +
+        heavyAttackWindUpBonus * 0.05;
+    const sharedUtility =
+        statusDamageBonus * 0.2 +
+        statusDurationBonus * 0.08 +
+        lifeStealBonus * 0.04 +
+        ammoEfficiencyBonus * 0.12 +
+        finalStatusChanceBonus * 0.2;
+    const utilityWeight = sharedUtility + (weapon.category === "Melee" ? meleeUtility : rangedUtility);
+    const estimatedStatusTypes =
+        PROC_DAMAGE_KEYS.reduce((count, key) => count + ((modded.procChanceByType[key] ?? 0) > 0.02 ? 1 : 0), 0) +
+        Object.values(modded.extraProcsPerShot).reduce((count, value) => count + ((value ?? 0) > 0.01 ? 1 : 0), 0);
+    const directDamagePerStatusWeight = directDamagePerStatusBonus * Math.max(1, Math.min(6, estimatedStatusTypes));
+
     switch (goal) {
-        case "damage":   return sustainedDPS;
-        case "crit":     return avgCritMultiplier(modded.critChance, modded.critMultiplier);
-        case "status":   return modded.averageProcsPerShot * (1 + statusWeight);
-        case "balanced": return burstDPS * (1 + modded.averageProcsPerShot * 0.35 + statusWeight * 0.25);
+        case "damage":   return sustainedDPS * (1 + directDamagePerStatusWeight * 0.35 + utilityWeight * 0.25);
+        case "crit":     return avgCritMultiplier(modded.critChance, modded.critMultiplier) * (1 + (headshotMultiplierBonus + weakPointCritChanceBonus + weakPointDamageBonus) * 0.35 + directDamagePerStatusWeight * 0.15 + utilityWeight * 0.08);
+        case "status":   return (modded.averageProcsPerShot * (1 + statusWeight + finalStatusChanceBonus + directDamagePerStatusWeight * 0.2)) * (1 + statusDamageBonus * 0.35 + statusDurationBonus * 0.15 + utilityWeight * 0.12);
+        case "balanced": return burstDPS * (1 + modded.averageProcsPerShot * 0.35 + statusWeight * 0.25 + directDamagePerStatusWeight * 0.25 + utilityWeight * 0.2);
     }
 }
 

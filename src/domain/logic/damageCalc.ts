@@ -48,6 +48,7 @@ export interface ModdedWeaponStats {
     totalDamage: number;
     procChanceByType: Partial<Record<DamageKey, number>>;
     averageProcsPerShot: number;
+    extraProcsPerShot: Partial<Record<DamageKey, number>>;
 }
 
 export interface DamageMetrics {
@@ -131,12 +132,18 @@ export function calculateBuild(
     let critChanceBonus = 0;
     let critMultBonus = 0;
     let statusChanceBonus = 0;
+    let finalStatusChanceBonus = 0;
     let multishotBonus = 0;
     let fireRateBonus = 0;
     let magazineBonus = 0;
     let reloadSpeedBonus = 0;
     let attackSpeedBonus = 0;
     let factionDamageBonus = 0;
+    let impactStatusAppliesMagneticChance = 0;
+    let impactStatusAppliesSlashChance = 0;
+    let impactStatusExtraProcLowFireRateThreshold = 0;
+    let impactStatusExtraProcLowFireRateMultiplier = 1;
+    let critAppliesSlashChance = 0;
 
     const orderedPrimaryElementBonuses: Array<{ type: DamageKey; value: number; order: number }> = [];
     const directBonusBreakdown = emptyBreakdown();
@@ -150,11 +157,17 @@ export function calculateBuild(
         critChanceBonus += e.critChanceBonus;
         critMultBonus += e.critMultBonus;
         statusChanceBonus += e.statusChanceBonus;
+        finalStatusChanceBonus += e.finalStatusChanceBonus;
         multishotBonus += e.multishotBonus;
         fireRateBonus += e.fireRateBonus;
         magazineBonus += e.magazineBonus;
         reloadSpeedBonus += e.reloadSpeedBonus;
         attackSpeedBonus += e.attackSpeedBonus;
+        impactStatusAppliesMagneticChance += e.impactStatusAppliesMagneticChance;
+        impactStatusAppliesSlashChance += e.impactStatusAppliesSlashChance;
+        impactStatusExtraProcLowFireRateThreshold = Math.max(impactStatusExtraProcLowFireRateThreshold, e.impactStatusExtraProcLowFireRateThreshold);
+        impactStatusExtraProcLowFireRateMultiplier = Math.max(impactStatusExtraProcLowFireRateMultiplier, e.impactStatusExtraProcLowFireRateMultiplier || 1);
+        critAppliesSlashChance += e.critAppliesSlashChance;
 
         if (targetFaction && e.targetFaction && e.targetFaction.toLowerCase() === targetFaction.toLowerCase()) {
             factionDamageBonus += e.factionDamageBonus;
@@ -232,7 +245,7 @@ export function calculateBuild(
     const critChance = weapon.critChance * (1 + critChanceBonus);
     const critMultiplier = weapon.critMultiplier * (1 + critMultBonus);
     const averageCritTier = Math.max(0, critChance);
-    const statusChance = weapon.statusChance * (1 + statusChanceBonus);
+    const statusChance = weapon.statusChance * (1 + statusChanceBonus) + finalStatusChanceBonus;
 
     const rawFireRate = weapon.fireRate * (1 + (weapon.category === "Melee" ? attackSpeedBonus : fireRateBonus));
     let fireRate = rawFireRate;
@@ -247,12 +260,41 @@ export function calculateBuild(
     const shotsPerMag = magazineSize;
 
     const procChanceByType: Partial<Record<DamageKey, number>> = {};
-    if (totalDamage > 0) {
+    const baseDamageTotal = totalDamageOf(damageBreakdown);
+    if (baseDamageTotal > 0) {
         for (const key of DAMAGE_KEYS) {
-            if (damageBreakdown[key] > 0) procChanceByType[key] = damageBreakdown[key] / totalDamageOf(damageBreakdown);
+            if (damageBreakdown[key] > 0) procChanceByType[key] = damageBreakdown[key] / baseDamageTotal;
         }
     }
-    const averageProcsPerShot = moddedMultishot * statusChance;
+    const baseProcsPerShot = moddedMultishot * statusChance;
+    const impactProcChance = procChanceByType.impact ?? 0;
+    const lowFireRateApplies =
+        impactStatusExtraProcLowFireRateThreshold > 0 &&
+        fireRate < impactStatusExtraProcLowFireRateThreshold;
+    const impactStatusMultiplier = lowFireRateApplies
+        ? impactStatusExtraProcLowFireRateMultiplier
+        : 1;
+    const extraProcsPerShot: Partial<Record<DamageKey, number>> = {};
+    const addExtraProc = (key: DamageKey, value: number) => {
+        if (value <= 0) return;
+        extraProcsPerShot[key] = (extraProcsPerShot[key] ?? 0) + value;
+    };
+    addExtraProc("magnetic", baseProcsPerShot * impactProcChance * impactStatusAppliesMagneticChance * impactStatusMultiplier);
+    addExtraProc("slash", baseProcsPerShot * impactProcChance * impactStatusAppliesSlashChance * impactStatusMultiplier);
+    addExtraProc("slash", moddedMultishot * Math.min(1, critChance) * critAppliesSlashChance);
+
+    const totalExtraProcsPerShot = Object.values(extraProcsPerShot).reduce((sum, value) => sum + (value ?? 0), 0);
+    const averageProcsPerShot = baseProcsPerShot + totalExtraProcsPerShot;
+    if (averageProcsPerShot > 0) {
+        const combinedWeights: Partial<Record<DamageKey, number>> = {};
+        for (const key of DAMAGE_KEYS) {
+            const baseWeight = (procChanceByType[key] ?? 0) * baseProcsPerShot;
+            const extraWeight = extraProcsPerShot[key] ?? 0;
+            const combined = baseWeight + extraWeight;
+            if (combined > 0) combinedWeights[key] = combined / averageProcsPerShot;
+        }
+        Object.assign(procChanceByType, combinedWeights);
+    }
 
     const modded: ModdedWeaponStats = {
         arsenalDamage,
@@ -270,6 +312,7 @@ export function calculateBuild(
         totalDamage: totalDamageOf(damageBreakdown),
         procChanceByType,
         averageProcsPerShot,
+        extraProcsPerShot,
     };
 
     const burstDPS = averageShotDamage * fireRate;

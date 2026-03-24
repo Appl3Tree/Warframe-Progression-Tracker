@@ -60,6 +60,26 @@ export interface ModEffect {
     magazineBonus: number;
     reloadSpeedBonus: number;
     attackSpeedBonus: number;
+    statusDurationBonus: number;
+    statusDamageBonus: number;
+    projectileSpeedBonus: number;
+    accuracyBonus: number;
+    blastRadiusBonus: number;
+    beamRangeBonus: number;
+    punchThrough: number;
+    rangeBonus: number;
+    headshotMultiplierBonus: number;
+    weakPointDamageBonus: number;
+    weakPointCritChanceBonus: number;
+    comboDurationBonus: number;
+    initialComboBonus: number;
+    comboCountChanceBonus: number;
+    heavyAttackEfficiencyBonus: number;
+    heavyAttackWindUpBonus: number;
+    lifeStealBonus: number;
+    ammoEfficiencyBonus: number;
+    directDamagePerStatusBonus: number;
+    finalStatusChanceBonus: number;
     /** Chance for an Impact status proc to also apply Magnetic. */
     impactStatusAppliesMagneticChance: number;
     /** Chance for an Impact status proc to also apply Slash. */
@@ -118,6 +138,40 @@ function stripParens(s: string): string {
     return s.replace(/\s*\(.*\)$/, "").trim();
 }
 
+function normalizeStatDescriptor(rest: string): string {
+    return rest
+        .replace(/\bfor\s+\d+(?:\.\d+)?s\b\.?/ig, "")
+        .replace(/\bstacks?\s+up\s+to\s+\d+x\b\.?/ig, "")
+        .replace(/\bwhen aiming\b/ig, "")
+        .replace(/\bwhile aiming\b/ig, "")
+        .replace(/\bwhile airborne\b/ig, "")
+        .replace(/\s+/g, " ")
+        .replace(/\s+\.\s*/g, " ")
+        .trim();
+}
+
+function explodeStatLines(raw: string): string[] {
+    const clean = stripColorTags(raw).replace(/\\n/g, "\n");
+    const lines = clean
+        .split(/\n+/)
+        .map(line => line.trim())
+        .filter(Boolean);
+
+    const out: string[] = [];
+    for (const line of lines) {
+        const trailerMatch = line.match(/(\s+for\s+\d+(?:\.\d+)?s(?:\.\s*Stacks up to \d+x\.?)?|\.\s*Stacks up to \d+x\.?)$/i);
+        const trailer = trailerMatch ? trailerMatch[1] : "";
+        const base = trailer ? line.slice(0, -trailer.length).trim() : line;
+        const parts = base.split(/\s+and\s+(?=[+-]?\d)/i).map(part => part.trim()).filter(Boolean);
+        if (parts.length > 1) {
+            for (const part of parts) out.push(trailer ? `${part}${trailer}` : part);
+            continue;
+        }
+        out.push(line);
+    }
+    return out;
+}
+
 function parseStatLine(raw: string): Partial<ModEffect> {
     const clean = stripColorTags(raw);
     const stackMatch = clean.match(/stacks?\s+up\s+to\s+(\d+)x/i);
@@ -127,17 +181,35 @@ function parseStatLine(raw: string): Partial<ModEffect> {
     if (value === null) return {};
 
     const scaled = value * stackMult;
-    const rest = stripParens(withoutPrefix.replace(/^[+-]?\d+(?:\.\d+)?%\s*/, "").trim()).toLowerCase();
+    const rest = normalizeStatDescriptor(
+        stripParens(withoutPrefix.replace(/^[+-]?\d+(?:\.\d+)?%\s*/, "").trim()).toLowerCase()
+    );
 
     if (rest === "damage" || rest === "melee damage") return { damageBonus: scaled };
+    if (rest === "direct damage per status type affecting the target") return { directDamagePerStatusBonus: scaled };
     if (rest === "critical chance") return { critChanceBonus: scaled };
     if (rest === "critical damage" || rest === "critical multiplier") return { critMultBonus: scaled };
     if (rest === "status chance") return { statusChanceBonus: scaled };
     if (rest === "multishot") return { multishotBonus: scaled };
-    if (rest.startsWith("fire rate")) return { fireRateBonus: scaled };
+    if (rest === "ammo efficiency") return { ammoEfficiencyBonus: scaled };
+    if (rest.startsWith("fire rate") || rest.startsWith("fire/charge rate")) return { fireRateBonus: scaled };
     if (rest === "attack speed") return { attackSpeedBonus: scaled };
     if (rest === "magazine capacity" || rest === "clip size") return { magazineBonus: scaled };
     if (rest === "reload speed") return { reloadSpeedBonus: scaled };
+    if (rest === "status duration") return { statusDurationBonus: scaled };
+    if (rest === "status damage") return { statusDamageBonus: scaled };
+    if (rest === "projectile speed") return { projectileSpeedBonus: scaled };
+    if (rest === "accuracy") return { accuracyBonus: scaled };
+    if (rest === "blast radius" || rest === "blast range") return { blastRadiusBonus: scaled };
+    if (rest === "beam range") return { beamRangeBonus: scaled };
+    if (rest === "heavy attack efficiency") return { heavyAttackEfficiencyBonus: scaled };
+    if (rest === "heavy attack wind up speed") return { heavyAttackWindUpBonus: scaled };
+    if (rest === "combo count chance" || rest === "additional combo count chance") return { comboCountChanceBonus: scaled };
+    if (rest === "final status chance") return { finalStatusChanceBonus: scaled };
+    if (rest.includes("headshot multiplier")) return { headshotMultiplierBonus: scaled };
+    if (rest.includes("weak point damage")) return { weakPointDamageBonus: scaled };
+    if (rest.includes("weak point critical chance")) return { weakPointCritChanceBonus: scaled };
+    if (rest.includes("life steal")) return { lifeStealBonus: scaled };
     if (rest === "heat") return { heatBonus: scaled };
     if (rest === "cold") return { coldBonus: scaled };
     if (rest === "electricity") return { electricityBonus: scaled };
@@ -188,6 +260,32 @@ function parseConditionalStatusLine(raw: string): Partial<ModEffect> {
     return {};
 }
 
+function parseFlatNumericLine(raw: string): Partial<ModEffect> {
+    const clean = stripColorTags(raw).replace(/\\n/g, " ").trim();
+    let match = clean.match(/^\+?(\d+(?:\.\d+)?)\s*Punch Through$/i);
+    if (match) return { punchThrough: parseFloat(match[1]) };
+
+    match = clean.match(/^\+?(\d+(?:\.\d+)?)m\s*Beam Range$/i);
+    if (match) return { beamRangeBonus: parseFloat(match[1]) / 12 };
+
+    match = clean.match(/^\+?(\d+(?:\.\d+)?)\s*Range$/i);
+    if (match) return { rangeBonus: parseFloat(match[1]) };
+
+    match = clean.match(/^\+?(\d+(?:\.\d+)?)m\s*Beam Range$/i);
+    if (match) return { beamRangeBonus: parseFloat(match[1]) / 12 };
+
+    match = clean.match(/^\+?(\d+(?:\.\d+)?)s\s*Combo Duration$/i);
+    if (match) return { comboDurationBonus: parseFloat(match[1]) };
+
+    match = clean.match(/^\+?(\d+(?:\.\d+)?)\s*Initial Combo$/i);
+    if (match) return { initialComboBonus: parseFloat(match[1]) };
+
+    match = clean.match(/^Restores (\d+(?:\.\d+)?) Health per Status Type affecting the target$/i);
+    if (match) return { lifeStealBonus: parseFloat(match[1]) / 100 };
+
+    return {};
+}
+
 /** Parse faction damage lines like "x1.3 Damage to Grineer" → factionDamageBonus=0.3, targetFaction="Grineer" */
 function parseFactionLine(raw: string): Partial<ModEffect> {
     const clean = stripColorTags(raw).trim();
@@ -209,10 +307,18 @@ export function emptyEffect(): ModEffect {
         critChanceBonus: 0, critMultBonus: 0, statusChanceBonus: 0,
         multishotBonus: 0, fireRateBonus: 0, magazineBonus: 0,
         reloadSpeedBonus: 0, attackSpeedBonus: 0,
+        statusDurationBonus: 0, statusDamageBonus: 0,
+        projectileSpeedBonus: 0, accuracyBonus: 0, blastRadiusBonus: 0,
+        beamRangeBonus: 0, punchThrough: 0, rangeBonus: 0,
+        headshotMultiplierBonus: 0, weakPointDamageBonus: 0, weakPointCritChanceBonus: 0,
+        comboDurationBonus: 0, initialComboBonus: 0, comboCountChanceBonus: 0,
+        heavyAttackEfficiencyBonus: 0, heavyAttackWindUpBonus: 0,
+        lifeStealBonus: 0, ammoEfficiencyBonus: 0, directDamagePerStatusBonus: 0,
+        finalStatusChanceBonus: 0,
         impactStatusAppliesMagneticChance: 0,
         impactStatusAppliesSlashChance: 0,
         impactStatusExtraProcLowFireRateThreshold: 0,
-        impactStatusExtraProcLowFireRateMultiplier: 1,
+        impactStatusExtraProcLowFireRateMultiplier: 0,
         critAppliesSlashChance: 0,
         factionDamageBonus: 0, targetFaction: "",
     };
@@ -225,6 +331,8 @@ function mergeEffect(base: ModEffect, partial: Partial<ModEffect>): ModEffect {
             // Keep the non-empty faction name
             const v = partial[k];
             if (v) out[k] = v;
+        } else if (k === "impactStatusExtraProcLowFireRateThreshold" || k === "impactStatusExtraProcLowFireRateMultiplier") {
+            (out[k] as number) = Math.max(((out[k] as number) ?? 0), ((partial[k] as number) ?? 0));
         } else {
             (out[k] as number) = ((out[k] as number) ?? 0) + ((partial[k] as number) ?? 0);
         }
@@ -398,10 +506,13 @@ function buildCaches(): ModCaches {
         // Build effects at every rank 0..fusionLimit
         const effectsByRank: ModEffect[] = levelStats.map(ls => {
             let e = emptyEffect();
-            for (const s of (ls.stats ?? [])) {
-                e = mergeEffect(e, parseStatLine(s));
-                e = mergeEffect(e, parseConditionalStatusLine(s));
-                e = mergeEffect(e, parseFactionLine(s));
+            for (const rawStat of (ls.stats ?? [])) {
+                for (const s of explodeStatLines(rawStat)) {
+                    e = mergeEffect(e, parseStatLine(s));
+                    e = mergeEffect(e, parseFlatNumericLine(s));
+                    e = mergeEffect(e, parseConditionalStatusLine(s));
+                    e = mergeEffect(e, parseFactionLine(s));
+                }
             }
             return e;
         });
