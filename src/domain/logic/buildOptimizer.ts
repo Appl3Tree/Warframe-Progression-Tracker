@@ -485,6 +485,16 @@ function scoreSlots(
     return scoreEffects(weapon, effects, goal, targetFaction, arcaneEffect);
 }
 
+export function debugScoreBuild(
+    weapon: WeaponEntry,
+    effects: (ModEffect | null)[],
+    goal: OptimizeGoal,
+    targetFaction: string,
+    arcaneEffect?: Partial<ModEffect> | null,
+): number {
+    return scoreEffects(weapon, effects, goal, targetFaction, arcaneEffect);
+}
+
 // ── Capacity ──────────────────────────────────────────────────────────────────
 
 function fitsCapacity(
@@ -587,13 +597,15 @@ export function assignModsToSlots(
 // polarities if allowForma is set) — this avoids over-conservative capacity
 // rejection that was killing builds with polarity-matched mods.
 
-const BEAM_WIDTH = 256;
+const BEAM_WIDTH = 512;
+const BEAM_WIDTH_PER_FILLED_COUNT = 128;
 
 interface BeamState {
     mods: (ModEntry | null)[];
     ranks: (number | undefined)[];
     usedGroups: Set<string>;
     score: number;
+    filledCount: number;
 }
 
 function beamSearch(
@@ -629,6 +641,7 @@ function beamSearch(
         ranks:     Array(slotCount).fill(undefined),
         usedGroups: new Set(),
         score:     scoreSlots(weapon, Array(slotCount).fill(null), Array(slotCount).fill(undefined), goal, targetFaction),
+        filledCount: 0,
     }];
 
     for (let slotIdx = 0; slotIdx < slotCount; slotIdx++) {
@@ -653,12 +666,30 @@ function beamSearch(
                 const s = scoreSlots(weapon, newMods, newRanks, goal, targetFaction, arcaneEffect);
                 const newUsed = new Set(state.usedGroups);
                 newUsed.add(mod.incompatibilityGroup);
-                nextStates.push({ mods: newMods, ranks: newRanks, usedGroups: newUsed, score: s });
+                nextStates.push({
+                    mods: newMods,
+                    ranks: newRanks,
+                    usedGroups: newUsed,
+                    score: s,
+                    filledCount: state.filledCount + 1,
+                });
             }
         }
 
-        nextStates.sort((a, b) => b.score - a.score);
-        beam = nextStates.slice(0, BEAM_WIDTH);
+        const byFilledCount = new Map<number, BeamState[]>();
+        for (const candidate of nextStates) {
+            if (!byFilledCount.has(candidate.filledCount)) byFilledCount.set(candidate.filledCount, []);
+            byFilledCount.get(candidate.filledCount)!.push(candidate);
+        }
+
+        const diversified: BeamState[] = [];
+        for (const states of byFilledCount.values()) {
+            states.sort((a, b) => b.score - a.score);
+            diversified.push(...states.slice(0, BEAM_WIDTH_PER_FILLED_COUNT));
+        }
+
+        diversified.sort((a, b) => b.score - a.score);
+        beam = diversified.slice(0, BEAM_WIDTH);
     }
 
     const best = beam[0];
