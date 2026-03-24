@@ -875,7 +875,7 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
                                             {b.slotModUniqueNames.filter(Boolean).length} mods · Rank {b.weaponRank}
                                             {b.hasCatalyst ? " · ◈" : ""}
                                             {b.hasExilus ? " · Exilus" : ""}
-                                            {(b.arcane1UniqueName || b.arcane2UniqueName) ? " · Arcanes" : ""}
+                                            {b.arcane1UniqueName ? " · Arcane" : ""}
                                         </div>
                                     </div>
                                     <div className="flex gap-1 shrink-0">
@@ -998,12 +998,15 @@ export default function ModBuilder() {
     const [buildCfg, setBuildCfg]      = useState<BuildCfg>({ weaponRank: 30, hasCatalyst: false, masteryRank });
     // Optimizer
     const [goal, setGoal]              = useState<OptimizeGoal>("damage");
-    const [respectCap, setRespectCap]  = useState(false);
-    const [allowNonMax, setAllowNonMax]= useState(false);
-    const [onlyOwned, setOnlyOwned]    = useState(false);
-    const [factionOn, setFactionOn]    = useState(false);
-    const [faction, setFaction]        = useState("Grineer");
-    const [assumeCatalyst, setAssumeCatalyst] = useState(false);
+    const [respectCap, setRespectCap]    = useState(false);
+    const [allowNonMax, setAllowNonMax]  = useState(false);
+    const [onlyOwned, setOnlyOwned]      = useState(false);
+    const [factionOn, setFactionOn]      = useState(false);
+    const [faction, setFaction]          = useState("Grineer");
+    const [allowCatalyst, setAllowCatalyst] = useState(false);
+    const [allowForma, setAllowForma]    = useState(false);
+    const [optExilus, setOptExilus]      = useState(false);
+    const [optArcane, setOptArcane]      = useState(false);
     // UI
     const [reasoning, setReasoning]    = useState<BuildReasoning | null>(null);
     const [tab, setTab]                = useState<"build"|"saves"|"owned"|"exclude">("build");
@@ -1095,24 +1098,58 @@ export default function ModBuilder() {
 
     async function handleOptimize() {
         if (!weapon) return;
-        // Hard block: if "Owned Only" is on with an empty owned list, return immediately
         if (onlyOwned && ownedSet.size === 0) return;
         setOptimizing(true);
         await new Promise(r => setTimeout(r, 10));
         try {
+            // Resolve which attack to optimize for
+            const atk = weapon.attacks.length > 1 ? weapon.attacks[selectedAttackIdx] : null;
+
+            // If allowCatalyst, override capacityCfg to hasCatalyst:true
+            const capForOpt = respectCap ? (
+                allowCatalyst && !buildCfg.hasCatalyst
+                    ? { ...capacityCfg, hasCatalyst: true }
+                    : capacityCfg
+            ) : undefined;
+
             const result = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
                 ownedModNames:    onlyOwned ? ownedSet : undefined,
                 excludedModNames: excluded.size > 0 ? excluded : undefined,
                 allowNonMaxRank:  allowNonMax,
                 targetFaction:    factionOn ? faction : "",
-                capacityConfig:   respectCap ? capacityCfg : undefined,
+                capacityConfig:   capForOpt,
                 slotPolarities:   slotPols,
-                assumeCatalyst:   assumeCatalyst && !buildCfg.hasCatalyst,
+                allowCatalyst,
+                allowForma,
+                optimizeExilus:   optExilus && hasExilus,
+                exilusPolarity:   exilusPol,
+                optimizeArcane:   optArcane,
+                buildForAttack:   atk,
             });
-            // Use polarity-aware slot assignment from Phase 2 of the optimizer
+
+            // Apply mod slots
             setSlots([...result.slots] as (ModEntry | null)[]);
             setRanks([...result.slotRanks] as number[]);
-            setReasoning(explainBuild(weapon, result.mods, result.ranks, goal, factionOn ? faction : ""));
+
+            // Apply polarity changes from forma optimizer
+            if (allowForma) setSlotPols([...result.slotPolarities]);
+
+            // Apply catalyst marker if optimizer needed it
+            if (result.needsCatalyst) setBuildCfg(p => ({ ...p, hasCatalyst: true }));
+
+            // Apply exilus mod if optimized
+            if (optExilus && hasExilus && result.exilusMod) {
+                setExilusMod(result.exilusMod);
+                setExilusRank(result.exilusRank);
+            }
+
+            // Apply arcane if optimized
+            if (optArcane && result.arcane) {
+                setArcane1(result.arcane);
+                setArcane1Rank(result.arcaneRank);
+            }
+
+            setReasoning(explainBuild(weapon, result.mods, result.ranks, goal, factionOn ? faction : "", atk));
         } finally { setOptimizing(false); }
     }
 
@@ -1347,27 +1384,56 @@ export default function ModBuilder() {
                                         </button>
                                     ))}
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                    {[
-                                        { k: "cap",      label: "Respect Capacity",  active: respectCap,      set: setRespectCap,      desc: "Skip mods exceeding available capacity" },
-                                        { k: "nonmax",   label: "Allow Non-Maxed",   active: allowNonMax,     set: setAllowNonMax,     desc: "Try sub-ranked mods to fit within capacity" },
-                                        { k: "owned",    label: "Owned Only",        active: onlyOwned,       set: setOnlyOwned,       desc: "Only use mods you've marked as owned" },
-                                        { k: "faction",  label: "Faction Focus",     active: factionOn,       set: setFactionOn,       desc: "Include faction damage mods in build" },
-                                        { k: "catalyst", label: "Assume Catalyst",   active: assumeCatalyst,  set: setAssumeCatalyst,  desc: "Optimize as if a Catalyst is installed (doubles capacity for optimizer)" },
-                                    ].map(t => (
+                                {/* Row 1 — filter / search */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                    {([
+                                        { k: "cap",     label: "Respect Capacity", active: respectCap,  set: setRespectCap,  desc: "Only use mods that fit within the weapon mod capacity." },
+                                        { k: "nonmax",  label: "Allow Non-Maxed",  active: allowNonMax, set: setAllowNonMax, desc: "Try lower-ranked mods so more fit within capacity." },
+                                        { k: "owned",   label: "Owned Only",       active: onlyOwned,   set: setOnlyOwned,   desc: "Only use mods you have marked as owned." },
+                                        { k: "faction", label: "Faction Focus",    active: factionOn,   set: setFactionOn,   desc: "Include faction damage mods in the build." },
+                                    ] as const).map(t => (
                                         <button key={t.k} onClick={() => t.set(!t.active)} title={t.desc}
                                             className={["rounded-lg border px-2.5 py-2 text-xs text-left transition-colors",
                                                 t.active ? "border-blue-700/60 bg-blue-950/20 text-blue-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300"].join(" ")}>
                                             <div className="flex items-center gap-1.5">
                                                 <span className={["w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
                                                     t.active ? "border-blue-400 bg-blue-400" : "border-slate-600"].join(" ")}>
-                                                    {t.active && <span className="text-slate-900 text-[8px]">✓</span>}
+                                                    {t.active && <span className="text-slate-900 text-[8px]">&#10003;</span>}
                                                 </span>
                                                 <span className="font-semibold">{t.label}</span>
                                             </div>
                                         </button>
                                     ))}
                                 </div>
+
+                                {/* Row 2 — gear auto-apply */}
+                                <div className="space-y-1.5">
+                                    <div className="text-[10px] text-slate-600 uppercase tracking-wide">Auto-apply to build</div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                        {([
+                                            { k: "catalyst", label: "Allow Catalyst",  active: allowCatalyst, set: setAllowCatalyst, desc: "Assume Orokin Catalyst installed (doubles capacity). Marks build as needing one." },
+                                            { k: "forma",    label: "Allow Forma",     active: allowForma,    set: setAllowForma,    desc: "Reassign slot polarities for minimum drain. Updates your slot polarities." },
+                                            { k: "exilus",   label: "Optimize Exilus", active: optExilus,     set: setOptExilus,     desc: "Pick best exilus mod. Requires Exilus Adapter to be installed." },
+                                            { k: "arcane",   label: "Optimize Arcane", active: optArcane,     set: setOptArcane,     desc: "Pick best arcane enhancement with permanent stat bonuses." },
+                                        ] as const).map(t => (
+                                            <button key={t.k} onClick={() => t.set(!t.active)} title={t.desc}
+                                                className={["rounded-lg border px-2.5 py-2 text-xs text-left transition-colors",
+                                                    t.active ? "border-cyan-700/60 bg-cyan-950/20 text-cyan-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300"].join(" ")}>
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className={["w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
+                                                        t.active ? "border-cyan-400 bg-cyan-400" : "border-slate-600"].join(" ")}>
+                                                        {t.active && <span className="text-slate-900 text-[8px]">&#10003;</span>}
+                                                    </span>
+                                                    <span className="font-semibold">{t.label}</span>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {optExilus && !hasExilus && (
+                                        <div className="text-[10px] text-amber-500 mt-1">&#9888; Install Exilus Adapter above to enable exilus optimization.</div>
+                                    )}
+                                </div>
+
                                 {factionOn && (
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <span className="text-[10px] text-slate-500 uppercase tracking-wide">Target</span>
@@ -1382,16 +1448,16 @@ export default function ModBuilder() {
                                 )}
                                 {onlyOwned && ownedSet.size === 0 && (
                                     <div className="rounded-lg border border-amber-700/40 bg-amber-950/20 px-3 py-2 text-[11px] text-amber-400">
-                                        ⚠ No mods marked as owned — optimizer will return no results. Go to Owned Mods tab first.
+                                        &#9888; No mods marked as owned — optimizer will return no results. Go to Owned Mods tab first.
                                     </div>
                                 )}
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 flex-wrap">
                                     <button onClick={handleOptimize} disabled={optimizing}
                                         className="rounded-full px-5 py-2 text-xs border border-amber-600/60 bg-amber-950/30 text-amber-300 hover:bg-amber-900/40 disabled:opacity-50 transition-colors font-semibold">
                                         {optimizing ? "Optimizing…" : "Optimize ▶"}
                                     </button>
                                     <p className="text-[10px] text-slate-600">
-                                        Beam search (width 32).{respectCap ? " Capacity-constrained." : ""}{allowNonMax ? " Sub-ranked mods allowed." : ""}{onlyOwned && ownedSet.size > 0 ? " Owned only." : ""}{factionOn ? ` vs ${faction}.` : ""}
+                                        Beam search (width 64).{respectCap ? " Capacity-constrained." : ""}{allowNonMax ? " Sub-ranked mods allowed." : ""}{allowCatalyst ? " Catalyst assumed." : ""}{allowForma ? " Forma assigned." : ""}{onlyOwned && ownedSet.size > 0 ? " Owned only." : ""}{factionOn ? ` vs ${faction}.` : ""}{optExilus && hasExilus ? " Exilus included." : ""}{optArcane ? " Arcane included." : ""}
                                     </p>
                                 </div>
                             </div>
