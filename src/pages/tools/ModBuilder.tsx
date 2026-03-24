@@ -1060,6 +1060,8 @@ interface BuildCfg { weaponRank: number; hasCatalyst: boolean; masteryRank: numb
 export default function ModBuilder() {
     const masteryRank      = useTrackerStore(s => s.state.player.masteryRank) ?? 0;
     const ownedNames = useTrackerStore(s => s.state.modBuilder?.ownedModNames ?? EMPTY_STRING_ARRAY);
+    const inventoryArcaneRanks = useTrackerStore(s => s.state.inventory.arcaneRanks ?? {});
+    const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? {});
 
     const [weapon, setWeapon]          = useState<WeaponEntry | null>(null);
     const [slots, setSlots]            = useState<(ModEntry | null)[]>(Array(SLOT_COUNT).fill(null));
@@ -1127,6 +1129,15 @@ export default function ModBuilder() {
     const stanceMods   = useMemo(() => weapon ? getStancesForWeapon(weapon) : [], [weapon]);
     const weaponArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
     const ownedSet     = useMemo(() => new Set(ownedNames), [ownedNames]);
+    const ownedArcaneUniqueNames = useMemo(() => {
+        const set = new Set<string>();
+        for (const [path, ranks] of Object.entries(inventoryArcaneRanks)) {
+            const totalByRanks = Object.values(ranks ?? {}).reduce((sum, count) => sum + (Number(count) || 0), 0);
+            const totalByCounts = Number(inventoryCounts[`mods:${path}`] ?? inventoryCounts[path] ?? 0);
+            if (totalByRanks > 0 || totalByCounts > 0) set.add(path);
+        }
+        return set;
+    }, [inventoryArcaneRanks, inventoryCounts]);
     const usedGroups   = useMemo(() => {
         const s = new Set(slots.filter(Boolean).map(m => m!.incompatibilityGroup));
         if (stanceMod) s.add(stanceMod.incompatibilityGroup);
@@ -1221,6 +1232,7 @@ export default function ModBuilder() {
 
             const result = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
                 ownedModNames:    onlyOwned ? ownedSet : undefined,
+                ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
                 excludedModNames: excluded.size > 0 ? excluded : undefined,
                 allowNonMaxRank:  allowNonMax,
                 targetFaction:    factionOn ? faction : "",

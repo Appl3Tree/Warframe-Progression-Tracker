@@ -5,7 +5,7 @@
 
 import ALL_RAW from "../../data/All.json";
 import type { WeaponCategory } from "./weaponCatalog";
-import type { ModEffect } from "./modCatalog";
+import { emptyEffect, type ConditionalEffect, type ConditionalTrigger, type ModEffect } from "./modCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];
 
@@ -40,6 +40,10 @@ function stripColorTags(s: string): string {
 
 function addEffect(effect: Partial<ModEffect>, partial: Partial<ModEffect>) {
     for (const [k, v] of Object.entries(partial) as [keyof ModEffect, number][]) {
+        if (k === "conditionalEffects") {
+            effect.conditionalEffects = [...(effect.conditionalEffects ?? []), ...((v as unknown as ConditionalEffect[]) ?? [])];
+            continue;
+        }
         (effect[k] as number) = ((effect[k] as number) ?? 0) + v;
     }
 }
@@ -53,10 +57,21 @@ function parsePercentStatSegment(segment: string, scale = 1): Partial<ModEffect>
     if (rest.includes("reload speed")) return { reloadSpeedBonus: value };
     if (rest.includes("critical chance")) return { critChanceBonus: value };
     if (rest.includes("critical damage") || rest.includes("critical multiplier")) return { critMultBonus: value };
+    if (rest.includes("weak point damage")) return { weakPointDamageBonus: value };
+    if (rest.includes("weak point critical chance")) return { weakPointCritChanceBonus: value };
+    if (rest.includes("headshot multiplier")) return { headshotMultiplierBonus: value };
     if (rest.includes("damage") && !rest.includes("headshot")) return { damageBonus: value };
     if (rest.includes("status chance")) return { statusChanceBonus: value };
     if (rest.includes("multishot")) return { multishotBonus: value };
     if (rest.includes("fire rate")) return { fireRateBonus: value };
+    if (rest.includes("ammo efficiency")) return { ammoEfficiencyBonus: value };
+    if (rest.includes("combo duration")) return { comboDurationBonus: value };
+    if (rest.includes("heat damage")) return { heatBonus: value };
+    if (rest.includes("cold damage")) return { coldBonus: value };
+    if (rest.includes("toxin damage")) return { toxinBonus: value };
+    if (rest.includes("gas damage")) return { gasBonus: value };
+    if (rest.includes("corrosive damage")) return { corrosiveBonus: value };
+    if (rest.includes("magnetic damage")) return { magneticBonus: value };
     return {};
 }
 
@@ -83,6 +98,75 @@ function parsePermanentEffect(statLine: string): Partial<ModEffect> {
     for (const segment of multiplierSegments) addEffect(effect, parseMultiplierStatSegment(segment, stackMult));
 
     return effect;
+}
+
+function explodeArcaneLines(raw: string): string[] {
+    const clean = stripColorTags(raw).replace(/\\n/g, "\n");
+    const lines = clean.split(/\n+/).map(line => line.trim()).filter(Boolean);
+    const out: string[] = [];
+    let currentTriggerPrefix = "";
+    for (const line of lines) {
+        if (/^(On |When |If |Gain )[^:]+:\s*$/i.test(line)) {
+            currentTriggerPrefix = line;
+            continue;
+        }
+        if (/^(On |When |If |Gain )[^:]+:/i.test(line)) {
+            currentTriggerPrefix = line.replace(/^(((?:On |When |If |Gain )[^:]+:)).*$/i, "$1");
+        }
+        if (currentTriggerPrefix && !/^(On |When |If |Gain )[^:]+:/i.test(line)) out.push(`${currentTriggerPrefix} ${line}`.trim());
+        else out.push(line);
+    }
+    return out;
+}
+
+function parseArcaneConditionalEffect(line: string): Partial<ModEffect> {
+    const clean = stripColorTags(line).replace(/\\n/g, " ").replace(/\s+/g, " ").trim();
+    const match = clean.match(/^(On Reload From Empty|On Reload|On Precision Headshot Kill|On Headshot Kill|On Weak Point Hit|On Weak Point Kill|On Melee Kill|On Kill or Assist|On Kill|On Base Critical Hits|On Ability Cast|On [A-Za-z ]+ Status Effect|On Weapon [A-Za-z ]+ Status Effect|When [^:]+|If [^:]+|Gain):\s*(.+)$/i);
+    if (!match) return {};
+
+    const triggerRaw = match[1].toLowerCase();
+    const body = match[2].trim();
+    const durationMatch = body.match(/\bfor\s+(\d+(?:\.\d+)?)s\b/i);
+    const durationSeconds = durationMatch ? parseFloat(durationMatch[1]) : 0;
+    const stackMatch = body.match(/\bstacks?\s+up\s+to\s+(\d+)x\b/i);
+    const maxStacks = stackMatch ? Math.max(1, Number(stackMatch[1])) : 1;
+    const requiresAiming = /\bwhen aiming\b|\bwhile aiming\b/i.test(body);
+
+    let trigger: ConditionalTrigger | null = null;
+    if (triggerRaw === "on kill") trigger = "onKill";
+    else if (triggerRaw === "on headshot kill" || triggerRaw === "on precision headshot kill") trigger = "onHeadshotKill";
+    else if (triggerRaw === "on melee kill") trigger = "onMeleeKill";
+    else if (triggerRaw === "on weak point hit") trigger = "onWeakPointHit";
+    else if (triggerRaw === "on weak point kill") trigger = "onWeakPointKill";
+    else if (triggerRaw === "on kill or assist") trigger = "onKillOrAssist";
+    else if (triggerRaw === "on base critical hits") trigger = "onHit";
+    else if (triggerRaw === "on reload") trigger = "onReload";
+    else if (triggerRaw === "on reload from empty") trigger = "onReloadFromEmpty";
+    else if (triggerRaw === "on ability cast") trigger = "onHit";
+    else if (triggerRaw.startsWith("on ") && triggerRaw.includes("status effect")) trigger = "onHit";
+    else if (triggerRaw.startsWith("when ") || triggerRaw === "gain" || triggerRaw.startsWith("if ")) trigger = "onHit";
+    if (!trigger) return {};
+
+    const effect = emptyEffect();
+    const percentSegments = body.match(/[+-]?\d+(?:\.\d+)?%\s*[^+]+?(?=(?:\s+and\s+[+-]?\d|\s*$))/gi) ?? [];
+    for (const segment of percentSegments) addEffect(effect, parsePercentStatSegment(segment));
+
+    const conditionalStats: ConditionalEffect["stats"] = {};
+    const keys: (keyof ConditionalEffect["stats"])[] = [
+        "damageBonus", "critChanceBonus", "critMultBonus", "statusChanceBonus", "multishotBonus",
+        "fireRateBonus", "reloadSpeedBonus", "ammoEfficiencyBonus", "headshotMultiplierBonus" as never,
+        "weakPointDamageBonus", "weakPointCritChanceBonus", "heatBonus", "coldBonus", "toxinBonus",
+        "gasBonus", "magneticBonus", "corrosiveBonus",
+    ].filter(Boolean) as (keyof ConditionalEffect["stats"])[];
+    for (const key of keys) {
+        const value = effect[key as keyof ModEffect] as number | undefined;
+        if (value && value !== 0) (conditionalStats as Record<string, number>)[key] = value;
+    }
+    if (Object.keys(conditionalStats).length === 0) return {};
+
+    return {
+        conditionalEffects: [{ trigger, durationSeconds, requiresAiming, maxStacks, stats: conditionalStats }],
+    };
 }
 
 function parseArcaneStats(levelStats: Array<{ stats: string[] }>): {
@@ -125,11 +209,11 @@ function parseArcaneStats(levelStats: Array<{ stats: string[] }>): {
     });
 
     const optimizerEffectByRank: Partial<ModEffect>[] = levelStats.map(ls => {
-        const effect: Partial<ModEffect> = {};
+        const effect: Partial<ModEffect> = emptyEffect();
         for (const s of (ls.stats ?? [])) {
-            const parsed = parsePermanentEffect(s);
-            for (const [k, v] of Object.entries(parsed) as [keyof ModEffect, number][]) {
-                (effect[k] as number) = ((effect[k] as number) ?? 0) + v;
+            for (const line of explodeArcaneLines(s)) {
+                addEffect(effect, parsePermanentEffect(line));
+                addEffect(effect, parseArcaneConditionalEffect(line));
             }
         }
         return effect;

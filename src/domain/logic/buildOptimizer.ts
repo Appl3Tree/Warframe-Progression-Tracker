@@ -10,8 +10,8 @@
 //            most expensive mod one at a time until it fits.
 
 import type { WeaponEntry, WeaponAttack } from "../catalog/weaponCatalog";
-import type { ModEntry } from "../catalog/modCatalog";
-import { getModsForWeapon } from "../catalog/modCatalog";
+import type { ModEntry, ModEffect } from "../catalog/modCatalog";
+import { emptyEffect, getModsForWeapon } from "../catalog/modCatalog";
 import type { ArcaneEntry } from "../catalog/arcaneCatalog";
 import { getArcanesByWeaponCategory } from "../catalog/arcaneCatalog";
 import { calculateBuild, avgCritMultiplier, estimateConditionalUptime } from "./damageCalc";
@@ -21,6 +21,7 @@ export type OptimizeGoal = "damage" | "crit" | "status" | "balanced";
 
 export interface OptimizerOptions {
     ownedModNames?: Set<string>;
+    ownedArcaneUniqueNames?: Set<string>;
     excludedModNames?: Set<string>;
     allowNonMaxRank?: boolean;
     targetFaction?: string;
@@ -97,12 +98,15 @@ function makeWeaponForAttack(weapon: WeaponEntry, atk: WeaponAttack | null | und
 
 function scoreEffects(
     weapon: WeaponEntry,
-    effects: (import("../catalog/modCatalog").ModEffect | null)[],
+    effects: (ModEffect | null)[],
     goal: OptimizeGoal,
     targetFaction: string,
-    arcaneEffect?: Partial<import("../catalog/modCatalog").ModEffect> | null,
+    arcaneEffect?: Partial<ModEffect> | null,
 ): number {
-    const allEffects = arcaneEffect ? [...effects, arcaneEffect as any] : effects;
+    const normalizedArcaneEffect = arcaneEffect
+        ? { ...emptyEffect(), ...arcaneEffect, conditionalEffects: [...(arcaneEffect.conditionalEffects ?? [])] }
+        : null;
+    const allEffects = normalizedArcaneEffect ? [...effects, normalizedArcaneEffect] : effects;
     const { modded, sustainedDPS, burstDPS } = calculateBuild(weapon, allEffects, targetFaction);
     let statusDurationBonus = 0;
     let statusDamageBonus = 0;
@@ -206,7 +210,7 @@ function scoreSlots(
     ranks: (number | undefined)[],
     goal: OptimizeGoal,
     targetFaction: string,
-    arcaneEffect?: Partial<import("../catalog/modCatalog").ModEffect> | null,
+    arcaneEffect?: Partial<ModEffect> | null,
 ): number {
     const effects = slots.map((m, i) => {
         if (!m) return null;
@@ -452,11 +456,14 @@ function optimizeExilusSlot(
 
 function optimizeArcaneSlot(
     weapon: WeaponEntry,
-    mainBuildEffects: (import("../catalog/modCatalog").ModEffect | null)[],
+    mainBuildEffects: (ModEffect | null)[],
     goal: OptimizeGoal,
     targetFaction: string,
+    opts: OptimizerOptions,
 ): { arcane: ArcaneEntry | null; rank: number } {
-    const arcanes = getArcanesByWeaponCategory(weapon.category);
+    const arcanes = getArcanesByWeaponCategory(weapon.category).filter(arc =>
+        !opts.ownedArcaneUniqueNames || opts.ownedArcaneUniqueNames.has(arc.uniqueName)
+    );
     if (!arcanes.length) return { arcane: null, rank: 0 };
 
     const baseScore = scoreEffects(weapon, mainBuildEffects, goal, targetFaction);
@@ -465,10 +472,12 @@ function optimizeArcaneSlot(
     let bestScore = baseScore;
 
     for (const arc of arcanes) {
-        const e = arc.optimizerEffectByRank[arc.maxRank] ?? arc.permanentEffectByRank[arc.maxRank] ?? {};
-        if (!Object.keys(e).length) continue;
-        const s = scoreEffects(weapon, [...mainBuildEffects, e as any], goal, targetFaction);
-        if (s >= bestScore) { bestScore = s; bestArcane = arc; bestRank = arc.maxRank; }
+        for (let rank = arc.maxRank; rank >= 0; rank--) {
+            const e = arc.optimizerEffectByRank[rank] ?? arc.permanentEffectByRank[rank] ?? {};
+            if (!Object.keys(e).length) continue;
+            const s = scoreEffects(weapon, mainBuildEffects, goal, targetFaction, e);
+            if (s >= bestScore) { bestScore = s; bestArcane = arc; bestRank = rank; }
+        }
     }
     return { arcane: bestArcane, rank: bestRank };
 }
@@ -562,7 +571,7 @@ export function optimizeBuild(
         const allEffects = exilusMod
             ? [...mainEffects, exilusMod.effectsByRank[exilusRank] ?? exilusMod.effect]
             : mainEffects;
-        const arc = optimizeArcaneSlot(scoringWeapon, allEffects, goal, targetFaction);
+        const arc = optimizeArcaneSlot(scoringWeapon, allEffects, goal, targetFaction, effectiveOpts);
         arcane = arc.arcane;
         arcaneRank = arc.rank;
     }
