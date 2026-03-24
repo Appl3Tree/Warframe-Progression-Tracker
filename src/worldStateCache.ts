@@ -646,7 +646,20 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                             : [],
                     }
                     : null,
-                vaultTrader: j.vaultTrader ?? null,
+                vaultTrader: j.vaultTrader
+                    ? {
+                        active:     !!j.vaultTrader.active || (
+                            !!j.vaultTrader.activation && !!j.vaultTrader.expiry &&
+                            Date.now() >= new Date(j.vaultTrader.activation).getTime() &&
+                            Date.now() <  new Date(j.vaultTrader.expiry).getTime()
+                        ),
+                        character:  j.vaultTrader.character  ?? "",
+                        location:   j.vaultTrader.location   ?? "",
+                        inventory:  Array.isArray(j.vaultTrader.inventory) ? j.vaultTrader.inventory : [],
+                        activation: j.vaultTrader.activation ?? "",
+                        expiry:     j.vaultTrader.expiry     ?? "",
+                    }
+                    : null,
 
                 events: Array.isArray(j.events)
                     ? (j.events as any[]).filter((e) => e.active !== false).map((e): WsEvent => {

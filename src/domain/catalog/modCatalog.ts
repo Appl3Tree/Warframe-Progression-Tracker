@@ -60,6 +60,16 @@ export interface ModEffect {
     magazineBonus: number;
     reloadSpeedBonus: number;
     attackSpeedBonus: number;
+    /** Chance for an Impact status proc to also apply Magnetic. */
+    impactStatusAppliesMagneticChance: number;
+    /** Chance for an Impact status proc to also apply Slash. */
+    impactStatusAppliesSlashChance: number;
+    /** If impact-status conversion doubles below a given fire-rate threshold. */
+    impactStatusExtraProcLowFireRateThreshold: number;
+    /** Multiplier applied to impact-status conversion chance below the threshold. */
+    impactStatusExtraProcLowFireRateMultiplier: number;
+    /** Chance for a critical hit to also apply Slash. */
+    critAppliesSlashChance: number;
     /** Faction damage multiplier as a bonus fraction, e.g. 0.3 = ×1.3. 0 if not a faction mod. */
     factionDamageBonus: number;
     /** Which faction this mod targets, e.g. "Grineer". Empty string if not a faction mod. */
@@ -77,6 +87,8 @@ export interface ModEntry {
     baseDrain: number;
     fusionLimit: number;
     statsLabel: string;
+    /** Raw display text for each rank index 0..fusionLimit */
+    statsTextByRank: string[];
     /** Effects at each rank index 0..fusionLimit */
     effectsByRank: ModEffect[];
     /** Max-rank effect (= effectsByRank[fusionLimit]) */
@@ -138,6 +150,44 @@ function parseStatLine(raw: string): Partial<ModEffect> {
     return {};
 }
 
+function parseConditionalStatusLine(raw: string): Partial<ModEffect> {
+    const clean = stripColorTags(raw).replace(/\\n/g, " ").trim();
+
+    let match = clean.match(/^Impact Status Effects have (\d+(?:\.\d+)?)% chance to apply a Magnetic Status Effect(?: \(x(\d+(?:\.\d+)?) when Fire Rate is below (\d+(?:\.\d+)?)\))?$/i);
+    if (match) {
+        return {
+            impactStatusAppliesMagneticChance: parseFloat(match[1]) / 100,
+            impactStatusExtraProcLowFireRateMultiplier: match[2] ? parseFloat(match[2]) : 1,
+            impactStatusExtraProcLowFireRateThreshold: match[3] ? parseFloat(match[3]) : 0,
+        };
+    }
+
+    match = clean.match(/^Impact Status Effects have (\d+(?:\.\d+)?)% chance to apply a Slash Status Effect(?: \(x(\d+(?:\.\d+)?) when Fire Rate is below (\d+(?:\.\d+)?)\))?$/i);
+    if (match) {
+        return {
+            impactStatusAppliesSlashChance: parseFloat(match[1]) / 100,
+            impactStatusExtraProcLowFireRateMultiplier: match[2] ? parseFloat(match[2]) : 1,
+            impactStatusExtraProcLowFireRateThreshold: match[3] ? parseFloat(match[3]) : 0,
+        };
+    }
+
+    match = clean.match(/^(\d+(?:\.\d+)?)% Chance to apply a Magnetic status effect when inflicting an Impact status effect$/i);
+    if (match) {
+        return {
+            impactStatusAppliesMagneticChance: parseFloat(match[1]) / 100,
+            impactStatusExtraProcLowFireRateMultiplier: 1,
+            impactStatusExtraProcLowFireRateThreshold: 0,
+        };
+    }
+
+    match = clean.match(/^\+?(\d+(?:\.\d+)?)% chance to apply .* on Critical$/i);
+    if (match && /slash/i.test(clean)) {
+        return { critAppliesSlashChance: parseFloat(match[1]) / 100 };
+    }
+
+    return {};
+}
+
 /** Parse faction damage lines like "x1.3 Damage to Grineer" → factionDamageBonus=0.3, targetFaction="Grineer" */
 function parseFactionLine(raw: string): Partial<ModEffect> {
     const clean = stripColorTags(raw).trim();
@@ -159,6 +209,11 @@ export function emptyEffect(): ModEffect {
         critChanceBonus: 0, critMultBonus: 0, statusChanceBonus: 0,
         multishotBonus: 0, fireRateBonus: 0, magazineBonus: 0,
         reloadSpeedBonus: 0, attackSpeedBonus: 0,
+        impactStatusAppliesMagneticChance: 0,
+        impactStatusAppliesSlashChance: 0,
+        impactStatusExtraProcLowFireRateThreshold: 0,
+        impactStatusExtraProcLowFireRateMultiplier: 1,
+        critAppliesSlashChance: 0,
         factionDamageBonus: 0, targetFaction: "",
     };
 }
@@ -209,25 +264,31 @@ let _modsMetaByPath: Map<string, {
     incompatibilityTags: string[];
 }> | null = null;
 
+function isTrainingVariant(uniqueName: string): boolean {
+    return /\/(beginner|intermediate|expert)\//i.test(uniqueName);
+}
+
 /**
  * Returns the expected canonical fusionLimit for a mod based on its name.
- * Primed, Galvanized, Umbra, and Legendary mods are rank 10.
- * All other mods are rank 5.
- * We use this to avoid picking up legacy/debug entries in All.json that share
- * a name with a standard mod but have an incorrect fusionLimit (e.g. fl=10
- * for a non-Primed mod, or fl=3 for a partial-rank variant).
+ * This mirrors the real card progression more closely than blindly preferring
+ * the highest fusionLimit from All.json, which can otherwise pick expert
+ * training variants (165%) over the actual standard mod (90%).
  */
-function variantPenalty(uniqueName: string): number {
-    if (/\/beginner\//i.test(uniqueName)) return 3;
-    if (/\/intermediate\//i.test(uniqueName)) return 2;
-    if (/\/expert\//i.test(uniqueName)) return 1;
-    return 0;
+function expectedFusionLimit(name: string): number {
+    if (/^(Primed|Galvanized|Amalgam|Archon)\b/i.test(name)) return 10;
+    if (/^Umbral\b/i.test(name)) return 10;
+    if (/\b(Cannonade|Aptitude|Chamber|Acceleration|Barrage)\b/i.test(name)) return 10;
+    if (/^Serration$/i.test(name)) return 10;
+    return 5;
 }
 
 function dedupScore(item: Record<string, unknown>): number {
     const uniqueName = String(item.uniqueName ?? "");
+    const name = String(item.name ?? "");
     const fl = Number(item.fusionLimit ?? 0);
-    return (fl * 10) - variantPenalty(uniqueName);
+    const trainingPenalty = isTrainingVariant(uniqueName) ? 1000 : 0;
+    const expectedPenalty = Math.abs(fl - expectedFusionLimit(name)) * 10;
+    return -trainingPenalty - expectedPenalty + fl;
 }
 
 function getModsMetaByPath() {
@@ -339,6 +400,7 @@ function buildCaches(): ModCaches {
             let e = emptyEffect();
             for (const s of (ls.stats ?? [])) {
                 e = mergeEffect(e, parseStatLine(s));
+                e = mergeEffect(e, parseConditionalStatusLine(s));
                 e = mergeEffect(e, parseFactionLine(s));
             }
             return e;
@@ -349,11 +411,13 @@ function buildCaches(): ModCaches {
         }
         const effect = effectsByRank[fl] ?? emptyEffect();
 
-        const maxRankStats = levelStats[levelStats.length - 1].stats ?? [];
-        const statsLabel = maxRankStats
-            .map(s => stripColorTags(s))
-            .filter(s => extractPercent(s) !== null)
-            .join("  ·  ");
+        const statsTextByRank = levelStats.map(ls =>
+            (ls.stats ?? [])
+                .map(s => stripColorTags(s).replace(/\\n/g, " ").trim())
+                .filter(Boolean)
+                .join("  ·  ")
+        );
+        const statsLabel = statsTextByRank[fl] ?? statsTextByRank[statsTextByRank.length - 1] ?? "";
 
         const name = String(item.name ?? "");
         const path = String(item.uniqueName ?? "");
@@ -370,6 +434,7 @@ function buildCaches(): ModCaches {
             baseDrain: rawBaseDrain,
             fusionLimit: fl,
             statsLabel,
+            statsTextByRank,
             effectsByRank,
             effect,
             hasDamageEffect: hasDamageEffect(effect),

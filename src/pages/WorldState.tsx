@@ -1538,6 +1538,7 @@ function ActivitiesTab({ data }: { data: WorldStateData }) {
 function TradersTab({ data }: { data: WorldStateData }) {
     const now = useNow();
     const [baroSearch, setBaroSearch] = useState("");
+    const [varziaSearch, setVarziaSearch] = useState("");
 
     return (
         <div className="space-y-4">
@@ -1652,27 +1653,93 @@ function TradersTab({ data }: { data: WorldStateData }) {
                                     <div className="text-[10px] text-slate-500 mt-0.5">{data.vaultTrader.location}</div>
                                 )}
                             </div>
-                            {data.vaultTrader.active && data.vaultTrader.expiry && (
-                                <div className="text-[10px] text-slate-500">
-                                    Ends <Countdown expiry={data.vaultTrader.expiry} now={now} className="font-mono text-slate-400" />
-                                </div>
-                            )}
+                            <div className="text-[10px] text-slate-500">
+                                {data.vaultTrader.active
+                                    ? <>Ends <Countdown expiry={data.vaultTrader.expiry} now={now} className="font-mono text-slate-400" /></>
+                                    : data.vaultTrader.activation && new Date(data.vaultTrader.activation).getTime() > now
+                                        ? <>Returns <Countdown expiry={data.vaultTrader.activation} now={now} className="font-mono text-slate-400" /></>
+                                        : null
+                                }
+                            </div>
                         </div>
                         <div className="p-3">
-                            {data.vaultTrader.active && data.vaultTrader.inventory.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
-                                    {data.vaultTrader.inventory.map((item, i) => (
-                                        <div key={i} className="rounded-xl border border-violet-800/30 bg-violet-950/10 px-3 py-2 flex items-center justify-between gap-2">
-                                            <div className="text-xs text-slate-200 truncate min-w-0">{item.item}</div>
-                                            {item.credits != null && (
-                                                <div className="shrink-0 text-[10px] text-yellow-200 whitespace-nowrap">
-                                                    {item.credits.toLocaleString()} cr
-                                                </div>
-                                            )}
+                            {data.vaultTrader.active && data.vaultTrader.inventory.length > 0 ? (() => {
+                                const allItems = data.vaultTrader.inventory;
+                                const q = varziaSearch.trim().toLowerCase();
+                                const filtered = q ? allItems.filter((it) => it.item.toLowerCase().includes(q)) : allItems;
+                                const discountedItems = allItems.filter((it) => (it.discount ?? 0) > 0).length;
+                                const totalRegalAya = allItems.reduce((s, it) => s + (it.ducats ?? 0), 0);
+                                const totalAya = allItems.reduce((s, it) => s + (it.credits ?? 0), 0);
+
+                                return (
+                                    <>
+                                        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                                            <div className="text-[10px] text-slate-500 flex items-center gap-2">
+                                                <span>{allItems.length} items</span>
+                                                {discountedItems > 0 && (
+                                                    <span
+                                                        className="rounded border border-cyan-600/60 bg-cyan-900/30 px-1.5 py-px text-[9px] font-bold text-cyan-300"
+                                                        title="These items currently have a discount in Varzia's shop"
+                                                    >
+                                                        {discountedItems} DISCOUNTED
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="text-[10px] text-slate-500">
+                                                {totalRegalAya > 0 && <span className="text-fuchsia-300">{totalRegalAya.toLocaleString()} Regal Aya</span>}
+                                                {totalRegalAya > 0 && totalAya > 0 && <span className="text-slate-600 mx-1">+</span>}
+                                                {totalAya > 0 && <span className="text-amber-300">{totalAya.toLocaleString()} Aya</span>}
+                                                {(totalRegalAya > 0 || totalAya > 0) && <span className="text-slate-600 ml-1">total</span>}
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
-                            ) : (
+                                        <input
+                                            className="mb-2 w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-1.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-violet-700/60"
+                                            placeholder="Filter Varzia's inventory…"
+                                            value={varziaSearch}
+                                            onChange={(e) => setVarziaSearch(e.target.value)}
+                                        />
+                                        {filtered.length === 0 ? (
+                                            <div className="text-xs text-slate-500 py-2">No items match "{varziaSearch}".</div>
+                                        ) : (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                                                {filtered.map((item, i) => {
+                                                    const discounted = (item.discount ?? 0) > 0;
+                                                    return (
+                                                        <div
+                                                            key={i}
+                                                            className={[
+                                                                "rounded-xl border px-3 py-2 flex items-center justify-between gap-2",
+                                                                discounted
+                                                                        ? "border-cyan-700/50 bg-cyan-950/20"
+                                                                        : "border-violet-800/30 bg-violet-950/10",
+                                                            ].join(" ")}
+                                                        >
+                                                            <div className="text-xs truncate min-w-0 text-slate-200">{item.item}</div>
+                                                            <div className="shrink-0 text-right text-[10px] whitespace-nowrap">
+                                                                {(item.ducats ?? 0) > 0 && (
+                                                                    <>
+                                                                        <span className="text-fuchsia-300">{item.ducats?.toLocaleString()} Regal Aya</span>
+                                                                        {(item.credits ?? 0) > 0 && <span className="text-slate-600 mx-0.5">+</span>}
+                                                                    </>
+                                                                )}
+                                                                {(item.credits ?? 0) > 0 && <span className="text-amber-200">{item.credits?.toLocaleString()} Aya</span>}
+                                                                {discounted && (
+                                                                    <span
+                                                                        className="ml-1 rounded border border-cyan-600/60 bg-cyan-900/40 px-1 py-px text-[9px] font-bold text-cyan-300"
+                                                                        title={`Discounted ${item.discount}%`}
+                                                                    >
+                                                                        -{item.discount}%
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </>
+                                );
+                            })() : (
                                 <div className="text-xs text-slate-500 py-2 text-center">
                                     {data.vaultTrader.active ? "No inventory available." : "Varzia is not currently active."}
                                 </div>

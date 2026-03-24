@@ -226,6 +226,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
     const isEventDone                  = useTrackerStore((s) => s.isEventDone);
     const isWorldStateCategoryHidden   = useTrackerStore((s) => s.isWorldStateCategoryHidden);
     const [baroInventoryOpen, setBaroInventoryOpen] = useState(false);
+    const [varziaInventoryOpen, setVarziaInventoryOpen] = useState(false);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -260,17 +261,19 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
 
     // Compute badge: true if Baro is active OR sentient outpost is active OR there are invasions
     const baroActive     = data?.voidTrader?.active;
+    const varziaActive   = data?.vaultTrader?.active;
     const sentientActive = data?.sentientOutposts?.active;
-    const showBadge      = !!(baroActive || sentientActive);
+    const showBadge      = !!(baroActive || varziaActive || sentientActive);
 
     // Items to show in dropdown
     const baroMs     = data?.voidTrader ? new Date(data.voidTrader.activation).getTime() - now : 0;
     const baroDue    = data?.voidTrader && !baroActive && baroMs > 0;
-    const varziaActive = data?.vaultTrader?.active;
+    const varziaStartMs = data?.vaultTrader ? new Date(data.vaultTrader.activation).getTime() - now : 0;
+    const varziaDue  = data?.vaultTrader && !varziaActive && varziaStartMs > 0;
     const varziaMs   = data?.vaultTrader?.expiry ? new Date(data.vaultTrader.expiry).getTime() - now : 0;
 
     const hasAnything = !!(
-        data?.voidTrader || varziaActive || sentientActive ||
+        data?.voidTrader || data?.vaultTrader || sentientActive ||
         (data?.events.length ?? 0) > 0 ||
         (data?.invasions.filter((inv) => !inv.completed).length ?? 0) > 0 ||
         (data?.nightwave?.activeChallenges.length ?? 0) > 0
@@ -405,26 +408,54 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
                                             </div>
                                         )}
                                     </div>
-                                    {varziaMs > 0 && (
+                                    {(varziaMs > 0 || varziaDue) && (
                                         <div className="text-right shrink-0">
                                             <div className="text-[10px] text-slate-400">
-                                                Ends<br />
-                                                <span className="font-mono text-violet-300/80">{msToHms(varziaMs)}</span>
+                                                {varziaActive ? "Ends" : "Returns"}<br />
+                                                <span className="font-mono text-violet-300/80">{msToHms(varziaActive ? varziaMs : varziaStartMs)}</span>
                                             </div>
                                         </div>
                                     )}
                                 </div>
-                                {/* Varzia inventory preview when active */}
+                                {/* Varzia inventory — collapsible */}
                                 {varziaActive && data.vaultTrader.inventory.length > 0 && (
-                                    <div className="mt-1.5 space-y-0.5 border-t border-violet-800/20 pt-1.5">
-                                        {data.vaultTrader.inventory.map((item, i) => (
-                                            <div key={i} className="flex items-center justify-between gap-1">
-                                                <span className="text-[10px] text-slate-300 min-w-0 truncate">{item.item}</span>
-                                                {item.credits != null && (
-                                                    <span className="text-[10px] text-violet-300/70 shrink-0">{item.credits.toLocaleString()}cr</span>
-                                                )}
+                                    <div className="mt-1.5 border-t border-violet-800/20 pt-1.5">
+                                        <button
+                                            onClick={() => setVarziaInventoryOpen((v) => !v)}
+                                            className="flex items-center gap-1 text-[10px] text-violet-400/80 hover:text-violet-300 transition-colors w-full"
+                                        >
+                                            <svg className={["w-2.5 h-2.5 transition-transform shrink-0", varziaInventoryOpen ? "rotate-90" : ""].join(" ")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="9 18 15 12 9 6" />
+                                            </svg>
+                                            Inventory ({data.vaultTrader.inventory.length} items
+                                            {data.vaultTrader.inventory.some((it) => (it.discount ?? 0) > 0) && (
+                                                <span
+                                                    className="ml-1 rounded border border-cyan-600/60 bg-cyan-900/40 px-0.5 text-[8px] font-bold text-cyan-300"
+                                                    title="Some items currently have a discount in Varzia's shop"
+                                                >
+                                                    Discounts
+                                                </span>
+                                            )}
+                                            )
+                                        </button>
+                                        {varziaInventoryOpen && (
+                                            <div className="mt-1 space-y-0.5">
+                                                {data.vaultTrader.inventory.map((item, i) => {
+                                                    const discounted = (item.discount ?? 0) > 0;
+                                                    return (
+                                                        <div key={i} className={["flex items-center justify-between gap-1 rounded px-1.5 py-0.5", discounted ? "bg-cyan-950/20" : ""].join(" ")}>
+                                                            <span className="text-[10px] min-w-0 truncate text-slate-300">{item.item}</span>
+                                                            <span className="text-[10px] shrink-0 whitespace-nowrap text-violet-300/80">
+                                                                {(item.ducats ?? 0) > 0 ? `${item.ducats ?? 0} Regal Aya` : ""}
+                                                                {(item.ducats ?? 0) > 0 && (item.credits ?? 0) > 0 ? " +" : ""}
+                                                                {(item.credits ?? 0) > 0 ? `${(item.credits ?? 0).toLocaleString()} Aya` : ""}
+                                                                {discounted ? ` -${item.discount}%` : ""}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
                                 )}
                             </div>

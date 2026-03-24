@@ -74,6 +74,8 @@ const STATUS_TIPS: Record<string, string> = {
     radiation:   "Confusion (10 stacks max): Enemy attacks closest ally, receives +100% friendly-fire damage (first stack), +50% per additional stack (max +550% at 10). Lasts 12s per stack.",
     viral:       "Virus (10 stacks max): Amplifies damage to health by 100% (first stack), +25% each subsequent stack (max +325%). Lasts 6s per stack.",
 };
+const EMPTY_STRING_ARRAY: string[] = [];
+const EMPTY_SAVED_BUILDS: SavedBuild[] = [];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -81,6 +83,42 @@ function fmt(n: number, d = 0) {
     return n.toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
 }
 function uid() { return Math.random().toString(36).slice(2, 10); }
+
+function formatEffectPercent(value: number) {
+    const pct = value * 100;
+    const rounded = Math.abs(pct - Math.round(pct)) < 0.001 ? Math.round(pct).toString() : pct.toFixed(1);
+    return `${pct >= 0 ? "+" : ""}${rounded}%`;
+}
+
+function formatEffectLabel(effect: ReturnType<typeof emptyEffect>) {
+    const parts: string[] = [];
+    const push = (value: number, label: string) => {
+        if (value !== 0) parts.push(`${formatEffectPercent(value)} ${label}`);
+    };
+
+    push(effect.damageBonus, "Damage");
+    push(effect.impactBonus, "Impact");
+    push(effect.punctureBonus, "Puncture");
+    push(effect.slashBonus, "Slash");
+    push(effect.heatBonus, "Heat");
+    push(effect.coldBonus, "Cold");
+    push(effect.electricityBonus, "Electricity");
+    push(effect.toxinBonus, "Toxin");
+    push(effect.magneticBonus, "Magnetic");
+    push(effect.radiationBonus, "Radiation");
+    push(effect.critChanceBonus, "Critical Chance");
+    push(effect.critMultBonus, "Critical Damage");
+    push(effect.statusChanceBonus, "Status Chance");
+    push(effect.multishotBonus, "Multishot");
+    push(effect.fireRateBonus, "Fire Rate");
+    push(effect.attackSpeedBonus, "Attack Speed");
+    push(effect.magazineBonus, "Magazine Capacity");
+    push(effect.reloadSpeedBonus, "Reload Speed");
+    if (effect.targetFaction && effect.factionDamageBonus !== 0) {
+        parts.push(`x${(1 + effect.factionDamageBonus).toFixed(2)} Damage to ${effect.targetFaction}`);
+    }
+    return parts.join("  ·  ");
+}
 
 // Build a synthetic ModEntry from riven stat values
 function makeRivenEntry(
@@ -292,6 +330,7 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
             return true;
         });
     }, [compatMods, usedGroups, mod, query, onlyOwned, ownedNames, isExilusSlot]);
+    const currentStatsLabel = mod ? formatEffectLabel(mod.effectsByRank[rank] ?? mod.effect) : "";
 
     const polMatch    = !!(mod && slotPolarity && slotPolarity === mod.polarity);
     const polMismatch = !!(mod && slotPolarity && slotPolarity !== mod.polarity && slotPolarity !== "");
@@ -317,7 +356,7 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
                                     {mod.effect.targetFaction && <span className="text-[9px] px-1 rounded border border-orange-700/50 bg-orange-950/30 text-orange-400">{mod.effect.targetFaction}</span>}
                                 </div>
                                 <div className="text-[10px] text-slate-400 mt-0.5 truncate">
-                                    {mod.statsLabel}
+                                    {currentStatsLabel}
                                     {rank < mod.fusionLimit && <span className="text-slate-600 ml-1">@{rank}/{mod.fusionLimit}</span>}
                                 </div>
                             </div>
@@ -855,7 +894,7 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
     hasExilus: boolean;
     onLoad: (b: SavedBuild) => void;
 }) {
-    const savedBuilds  = useTrackerStore(s => s.getSavedBuilds());
+    const savedBuilds  = useTrackerStore(s => s.state.modBuilder?.savedBuilds ?? EMPTY_SAVED_BUILDS);
     const saveModBuild = useTrackerStore(s => s.saveModBuild);
     const deleteBuild  = useTrackerStore(s => s.deleteModBuild);
     const allMods      = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
@@ -1007,7 +1046,7 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
 // ── Owned Mods ────────────────────────────────────────────────────────────────
 
 function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
-    const ownedNames = useTrackerStore(s => s.state.modBuilder?.ownedModNames ?? []);
+    const ownedNames = useTrackerStore(s => s.state.modBuilder?.ownedModNames ?? EMPTY_STRING_ARRAY);
     const setOwned = useTrackerStore(s => s.setOwnedModNames);
     const [query, setQuery] = useState("");
     const owned   = useMemo(() => new Set(ownedNames), [ownedNames]);
@@ -1055,7 +1094,7 @@ interface BuildCfg { weaponRank: number; hasCatalyst: boolean; masteryRank: numb
 
 export default function ModBuilder() {
     const masteryRank      = useTrackerStore(s => s.state.player.masteryRank) ?? 0;
-    const ownedNames = useTrackerStore(s => s.state.modBuilder?.ownedModNames ?? []);
+    const ownedNames = useTrackerStore(s => s.state.modBuilder?.ownedModNames ?? EMPTY_STRING_ARRAY);
 
     const [weapon, setWeapon]          = useState<WeaponEntry | null>(null);
     const [slots, setSlots]            = useState<(ModEntry | null)[]>(Array(SLOT_COUNT).fill(null));
