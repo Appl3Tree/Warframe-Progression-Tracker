@@ -608,6 +608,18 @@ interface BeamState {
     filledCount: number;
 }
 
+function beamStateSignature(state: BeamState): string {
+    return state.mods
+        .map((mod, index) => {
+            if (!mod) return null;
+            const rank = state.ranks[index] ?? mod.fusionLimit;
+            return `${mod.uniqueName}@${rank}`;
+        })
+        .filter((part): part is string => !!part)
+        .sort()
+        .join("|");
+}
+
 function beamSearch(
     weapon: WeaponEntry,
     candidates: Candidate[],
@@ -676,8 +688,17 @@ function beamSearch(
             }
         }
 
-        const byFilledCount = new Map<number, BeamState[]>();
+        const deduped = new Map<string, BeamState>();
         for (const candidate of nextStates) {
+            const signature = beamStateSignature(candidate);
+            const existing = deduped.get(signature);
+            if (!existing || candidate.score > existing.score) {
+                deduped.set(signature, candidate);
+            }
+        }
+
+        const byFilledCount = new Map<number, BeamState[]>();
+        for (const candidate of deduped.values()) {
             if (!byFilledCount.has(candidate.filledCount)) byFilledCount.set(candidate.filledCount, []);
             byFilledCount.get(candidate.filledCount)!.push(candidate);
         }
