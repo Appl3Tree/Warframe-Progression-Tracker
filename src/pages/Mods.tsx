@@ -122,8 +122,12 @@ type ModSection = "mods" | "arcanes";
 type OwnedFilter = "all" | "owned" | "unowned";
 
 const EMPTY_COUNTS: Record<string, number> = {};
+const EMPTY_MOD_RANKS: Record<string, number> = {};
 const EMPTY_ARCANE_RANKS: Record<string, Record<string, number>> = {};
 function modKey(path: string): string { return `mods:${path}`; }
+function clampModOwnedRank(maxRank: number, raw: number | undefined): number {
+  return Math.max(0, Math.min(maxRank, Number(raw ?? maxRank)));
+}
 
 type ModCategory =
   | "all"
@@ -1187,7 +1191,9 @@ function ModModal({
   onClose: () => void;
 }) {
   const counts  = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_COUNTS);
+  const modRanks = useTrackerStore((s) => s.state.inventory.modRanks ?? EMPTY_MOD_RANKS);
   const setCount = useTrackerStore((s) => s.setCount);
+  const setModRank = useTrackerStore((s) => s.setModRank);
   const key = modKey(entry.path);
   const owned = counts[key] ?? 0;
   const data = entry.data;
@@ -1196,6 +1202,7 @@ function ModModal({
   const maxRank = isRiven
     ? (data?.FusionLimitRange?.[1] ?? 8)
     : (allEntry?.fusionLimit ?? decodeMaxRank(data?.FusionLimit));
+  const ownedRank = owned > 0 ? clampModOwnedRank(maxRank, modRanks[entry.path]) : 0;
   const baseDrain = allEntry?.baseDrain ?? decodeBaseDrain(data?.BaseDrain);
   const upgrades = data?.Upgrades ?? [];
   const polarity = data?.ArtifactPolarity ?? allEntry?.polarity;
@@ -1259,7 +1266,24 @@ function ModModal({
             <span className={["w-7 text-center text-sm font-mono font-semibold", owned > 0 ? "text-emerald-400" : "text-slate-500"].join(" ")}>{owned}</span>
             <button
               className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center"
-              onClick={() => setCount(key, owned + 1)} title="Increase count"
+              onClick={() => {
+                setCount(key, owned + 1);
+                if (owned <= 0) setModRank(entry.path, maxRank);
+              }} title="Increase count"
+            >+</button>
+            <span className="text-[10px] text-slate-500 ml-3 mr-1">Rank</span>
+            <button
+              className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center disabled:opacity-30"
+              disabled={owned <= 0 || ownedRank <= 0}
+              onClick={() => setModRank(entry.path, Math.max(0, ownedRank - 1))}
+              title="Lower owned rank"
+            >−</button>
+            <span className={["w-8 text-center text-sm font-mono font-semibold", owned > 0 ? "text-emerald-400" : "text-slate-500"].join(" ")}>R{ownedRank}</span>
+            <button
+              className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center disabled:opacity-30"
+              disabled={owned <= 0 || ownedRank >= maxRank}
+              onClick={() => setModRank(entry.path, Math.min(maxRank, ownedRank + 1))}
+              title="Raise owned rank"
             >+</button>
           </div>
           <button className="shrink-0 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800" onClick={onClose}>Close</button>
@@ -1394,7 +1418,7 @@ function extractScriptLevels(u: ModUpgrade): number[] | null {
 }
 
 function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void }) {
-  const arcaneRanks       = useTrackerStore((s) => s.state.inventory.arcaneRanks ?? {});
+  const arcaneRanks       = useTrackerStore((s) => s.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
   const setArcaneRankCount = useTrackerStore((s) => s.setArcaneRankCount);
   const rankCounts: Record<string, number> = arcaneRanks[entry.path] ?? {};
   const data = entry.data;
@@ -1580,8 +1604,10 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
 
 export default function Mods() {
   const counts             = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_COUNTS);
+  const modRanksMap        = useTrackerStore((s) => s.state.inventory.modRanks ?? EMPTY_MOD_RANKS);
   const arcaneRanksMap     = useTrackerStore((s) => s.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
   const setCount           = useTrackerStore((s) => s.setCount);
+  const setModRank         = useTrackerStore((s) => s.setModRank);
   const setArcaneRankCount = useTrackerStore((s) => s.setArcaneRankCount);
 
   const [section, setSection] = useState<ModSection>("mods");
@@ -1746,7 +1772,7 @@ export default function Mods() {
     const scrollTop = el.scrollTop;
     const start = Math.max(0, Math.floor(scrollTop / MOD_ROW_H) - OVERSCAN);
     const end = Math.min(filteredMods.length, start + Math.ceil(viewportH / MOD_ROW_H) + OVERSCAN * 2);
-    setModsVw({ start, end });
+    setModsVw((prev) => (prev.start === start && prev.end === end ? prev : { start, end }));
   }
 
   function recomputeArcanesWindow() {
@@ -1756,7 +1782,7 @@ export default function Mods() {
     const scrollTop = el.scrollTop;
     const start = Math.max(0, Math.floor(scrollTop / MOD_ROW_H) - OVERSCAN);
     const end = Math.min(filteredArcanes.length, start + Math.ceil(viewportH / MOD_ROW_H) + OVERSCAN * 2);
-    setArcanesVw({ start, end });
+    setArcanesVw((prev) => (prev.start === start && prev.end === end ? prev : { start, end }));
   }
 
   useEffect(() => {
@@ -1984,6 +2010,8 @@ export default function Mods() {
                       const rarityRaw = e.data?.Rarity ?? ALL_MODS_BY_PATH[e.path]?.rarity ?? "";
                       const rarity = rarityRaw.toUpperCase();
                       const ownedCount = counts[modKey(e.path)] ?? 0;
+                      const maxRank = modMaxRank(e);
+                      const ownedRank = ownedCount > 0 ? clampModOwnedRank(maxRank, modRanksMap[e.path]) : 0;
                       return (
                         <div key={e.path} className="flex items-center gap-1 mb-0.5">
                           <button
@@ -2030,7 +2058,25 @@ export default function Mods() {
                             </span>
                             <button
                               className="w-6 h-[38px] flex items-center justify-center rounded-r border border-l-0 border-slate-700 bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800 text-sm leading-none"
-                              onClick={() => setCount(modKey(e.path), ownedCount + 1)}
+                              onClick={() => {
+                                setCount(modKey(e.path), ownedCount + 1);
+                                if (ownedCount <= 0) setModRank(e.path, maxRank);
+                              }}
+                            >+</button>
+                          </div>
+                          <div className="flex items-center shrink-0" onClick={(ev) => ev.stopPropagation()}>
+                            <button
+                              className="w-6 h-[38px] flex items-center justify-center rounded-l border border-r-0 border-slate-700 bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800 text-sm leading-none disabled:opacity-30"
+                              disabled={ownedCount <= 0 || ownedRank <= 0}
+                              onClick={() => setModRank(e.path, Math.max(0, ownedRank - 1))}
+                            >−</button>
+                            <span className={["w-10 h-[38px] flex items-center justify-center border-y border-slate-700 bg-slate-900 text-[11px] font-mono", ownedCount > 0 ? "text-emerald-400" : "text-slate-600"].join(" ")}>
+                              R{ownedRank}
+                            </span>
+                            <button
+                              className="w-6 h-[38px] flex items-center justify-center rounded-r border border-l-0 border-slate-700 bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800 text-sm leading-none disabled:opacity-30"
+                              disabled={ownedCount <= 0 || ownedRank >= maxRank}
+                              onClick={() => setModRank(e.path, Math.min(maxRank, ownedRank + 1))}
                             >+</button>
                           </div>
                           <WikiLink name={e.name} />

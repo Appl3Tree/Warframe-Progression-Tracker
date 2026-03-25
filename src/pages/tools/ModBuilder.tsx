@@ -86,6 +86,9 @@ const STATUS_TIPS: Record<string, string> = {
     viral:       "Virus (10 stacks max): Amplifies damage to health by 100% (first stack), +25% each subsequent stack (max +325%). Lasts 6s per stack.",
 };
 const EMPTY_SAVED_BUILDS: SavedBuild[] = [];
+const EMPTY_COUNTS: Record<string, number> = {};
+const EMPTY_MOD_RANKS: Record<string, number> = {};
+const EMPTY_ARCANE_RANKS: Record<string, Record<string, number>> = {};
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -201,6 +204,17 @@ function sumEffects(effects: (ModEffect | null)[]) {
     });
 }
 
+function getOwnedModRank(
+    path: string,
+    maxRank: number,
+    counts: Record<string, number>,
+    modRanks: Record<string, number>,
+) {
+    const owned = Number(counts[`mods:${path}`] ?? counts[path] ?? 0);
+    if (owned <= 0) return 0;
+    return Math.max(0, Math.min(maxRank, Number(modRanks[path] ?? maxRank)));
+}
+
 function buildMathBreakdown(
     weapon: WeaponEntry,
     effects: (ModEffect | null)[],
@@ -209,14 +223,19 @@ function buildMathBreakdown(
     const totals = sumEffects(effects);
     const result = calculateBuild(weapon, effects, targetFaction);
     const stats = result.modded;
+    const ignoresReloadAndMagazine = !!weapon.isExalted;
     const baseDamage = weapon.damage.total;
     const baseDamageMultiplier = 1 + totals.damageBonus;
     const moddedBaseDamage = baseDamage * baseDamageMultiplier;
     const quantScale = moddedBaseDamage / 32;
     const fireRateBonus = weapon.category === "Melee" ? totals.attackSpeedBonus : totals.fireRateBonus;
     const moddedFireRate = weapon.fireRate * (1 + fireRateBonus);
-    const moddedReload = weapon.reloadTime / Math.max(0.0001, (1 + totals.reloadSpeedBonus));
-    const moddedMagazine = Math.max(1, Math.round(weapon.magazineSize * (1 + totals.magazineBonus)));
+    const moddedReload = ignoresReloadAndMagazine
+        ? weapon.reloadTime
+        : weapon.reloadTime / Math.max(0.0001, (1 + totals.reloadSpeedBonus));
+    const moddedMagazine = ignoresReloadAndMagazine
+        ? Math.max(1, weapon.magazineSize)
+        : Math.max(1, Math.round(weapon.magazineSize * (1 + totals.magazineBonus)));
     const displayMagazine = displayMagazineValue(weapon, moddedMagazine);
     const avgCritMultiplier = baseDamage > 0 ? stats.averageShotDamage / Math.max(0.0001, stats.arsenalDamage) : 1;
     const sections: BuildMathSection[] = [
@@ -256,7 +275,9 @@ function buildMathBreakdown(
                 `Average shot = Arsenal damage × average crit multiplier = ${fmt(stats.arsenalDamage, 3)} × ${fmt(avgCritMultiplier, 4)} = ${fmt(stats.averageShotDamage, 3)}`,
                 `Fire rate = ${fmt(weapon.fireRate, 3)} × (1 + ${fmt(fireRateBonus * 100, 1)}%) = ${fmt(moddedFireRate, 3)}`,
                 `Burst DPS = Avg Shot × Fire Rate = ${fmt(stats.averageShotDamage, 3)} × ${fmt(stats.fireRate, 3)} = ${fmt(result.burstDPS, 3)}`,
-                `Sustained DPS uses reload uptime with mag ${displayMagazine} and reload ${fmt(moddedReload, 3)}s = ${fmt(result.sustainedDPS, 3)}`,
+                ignoresReloadAndMagazine
+                    ? `Sustained DPS equals burst DPS for exalted weapons; reload and magazine bonuses are ignored = ${fmt(result.sustainedDPS, 3)}`
+                    : `Sustained DPS uses reload uptime with mag ${displayMagazine} and reload ${fmt(moddedReload, 3)}s = ${fmt(result.sustainedDPS, 3)}`,
             ],
         },
         {
@@ -1392,8 +1413,10 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
 // ── Owned Mods ────────────────────────────────────────────────────────────────
 
 function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
-    const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? {});
+    const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? EMPTY_COUNTS);
+    const inventoryModRanks = useTrackerStore(s => s.state.inventory.modRanks ?? EMPTY_MOD_RANKS);
     const setCount = useTrackerStore(s => s.setCount);
+    const setModRank = useTrackerStore(s => s.setModRank);
     const [query, setQuery] = useState("");
     const allMods = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
     const ownedCountForMod = (path: string) => inventoryCounts[`mods:${path}`] ?? inventoryCounts[path] ?? 0;
@@ -1407,8 +1430,8 @@ function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
             <div className="flex items-center justify-between">
                 <div className="text-sm font-semibold">Owned Mods</div>
                 <div className="flex gap-3 text-[10px]">
-                    <button onClick={() => allMods.forEach(m => setCount(`mods:${m.path}`, 1))} className="text-slate-400 hover:text-slate-200">All</button>
-                    <button onClick={() => allMods.forEach(m => setCount(`mods:${m.path}`, 0))} className="text-slate-400 hover:text-slate-200">None</button>
+                    <button onClick={() => allMods.forEach(m => { setCount(`mods:${m.path}`, 1); setModRank(m.path, m.fusionLimit); })} className="text-slate-400 hover:text-slate-200">All</button>
+                    <button onClick={() => allMods.forEach(m => { setCount(`mods:${m.path}`, 0); setModRank(m.path, 0); })} className="text-slate-400 hover:text-slate-200">None</button>
                     <span className="text-slate-600">{allMods.filter(m => Number(ownedCountForMod(m.path)) > 0).length}/{allMods.length} owned</span>
                 </div>
             </div>
@@ -1418,7 +1441,11 @@ function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
                 {filtered.map(m => (
                     <label key={m.uniqueName} className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-slate-800/40 cursor-pointer">
                         <input type="checkbox" checked={Number(ownedCountForMod(m.path)) > 0}
-                            onChange={() => setCount(`mods:${m.path}`, Number(ownedCountForMod(m.path)) > 0 ? 0 : 1)}
+                            onChange={() => {
+                                const nextOwned = Number(ownedCountForMod(m.path)) > 0 ? 0 : 1;
+                                setCount(`mods:${m.path}`, nextOwned);
+                                setModRank(m.path, nextOwned > 0 ? m.fusionLimit : 0);
+                            }}
                             className="accent-blue-500 shrink-0" />
                         <span className="shrink-0">
                             {m.polarity ? <PolarityIcon polarity={m.polarity} className="w-3.5 h-3.5 opacity-60" /> : <span className="text-slate-700 text-xs">○</span>}
@@ -1426,6 +1453,21 @@ function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
                         <div className="min-w-0 flex-1">
                             <div className="text-xs text-slate-200 truncate">{m.name}</div>
                             {m.statsLabel && <div className="text-[10px] text-slate-500 truncate">{m.statsLabel}</div>}
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0" onClick={e => e.preventDefault()}>
+                            <button
+                                className="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center disabled:opacity-30"
+                                disabled={Number(ownedCountForMod(m.path)) <= 0 || getOwnedModRank(m.path, m.fusionLimit, inventoryCounts, inventoryModRanks) <= 0}
+                                onClick={() => setModRank(m.path, Math.max(0, getOwnedModRank(m.path, m.fusionLimit, inventoryCounts, inventoryModRanks) - 1))}
+                            >−</button>
+                            <span className={["w-8 text-center text-[10px] font-mono", Number(ownedCountForMod(m.path)) > 0 ? "text-emerald-400" : "text-slate-600"].join(" ")}>
+                                R{getOwnedModRank(m.path, m.fusionLimit, inventoryCounts, inventoryModRanks)}
+                            </span>
+                            <button
+                                className="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center disabled:opacity-30"
+                                disabled={Number(ownedCountForMod(m.path)) <= 0 || getOwnedModRank(m.path, m.fusionLimit, inventoryCounts, inventoryModRanks) >= m.fusionLimit}
+                                onClick={() => setModRank(m.path, Math.min(m.fusionLimit, getOwnedModRank(m.path, m.fusionLimit, inventoryCounts, inventoryModRanks) + 1))}
+                            >+</button>
                         </div>
                     </label>
                 ))}
@@ -1460,8 +1502,8 @@ function maxCraftableArcaneRank(rankCounts: Record<string, number>, maxRank: num
 }
 
 function OwnedArcanesPanel({ weapon }: { weapon: WeaponEntry | null }) {
-    const inventoryArcaneRanks = useTrackerStore(s => s.state.inventory.arcaneRanks ?? {});
-    const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? {});
+    const inventoryArcaneRanks = useTrackerStore(s => s.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
+    const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? EMPTY_COUNTS);
     const setArcaneRankCount = useTrackerStore(s => s.setArcaneRankCount);
     const [query, setQuery] = useState("");
     const allArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
@@ -1526,8 +1568,9 @@ interface BuildCfg { weaponRank: number; hasCatalyst: boolean; masteryRank: numb
 
 export default function ModBuilder() {
     const masteryRank      = useTrackerStore(s => s.state.player.masteryRank) ?? 0;
-    const inventoryArcaneRanks = useTrackerStore(s => s.state.inventory.arcaneRanks ?? {});
-    const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? {});
+    const inventoryArcaneRanks = useTrackerStore(s => s.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
+    const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? EMPTY_COUNTS);
+    const inventoryModRanks = useTrackerStore(s => s.state.inventory.modRanks ?? EMPTY_MOD_RANKS);
 
     const [weapon, setWeapon]          = useState<WeaponEntry | null>(null);
     const [slots, setSlots]            = useState<(ModEntry | null)[]>(Array(SLOT_COUNT).fill(null));
@@ -1575,7 +1618,12 @@ export default function ModBuilder() {
     const [optimizing, setOptimizing]  = useState(false);
     const [copiedExport, setCopiedExport] = useState(false);
 
-    useEffect(() => { setBuildCfg(p => ({ ...p, masteryRank })); }, [masteryRank]);
+    useEffect(() => {
+        setBuildCfg((prev) => {
+            if (prev.masteryRank === masteryRank) return prev;
+            return { ...prev, masteryRank };
+        });
+    }, [masteryRank]);
 
     function resetBuildForWeapon(w: WeaponEntry, opts?: { resetConfig?: boolean }) {
         setSlots(Array(SLOT_COUNT).fill(null));
@@ -1606,6 +1654,14 @@ export default function ModBuilder() {
             .filter(mod => Number(inventoryCounts[`mods:${mod.path}`] ?? inventoryCounts[mod.path] ?? 0) > 0)
             .map(mod => mod.name)
     ), [compatMods, inventoryCounts]);
+    const ownedModMaxRankByName = useMemo(() => {
+        const out: Record<string, number> = {};
+        for (const mod of compatMods) {
+            if (Number(inventoryCounts[`mods:${mod.path}`] ?? inventoryCounts[mod.path] ?? 0) <= 0) continue;
+            out[mod.name] = getOwnedModRank(mod.path, mod.fusionLimit, inventoryCounts, inventoryModRanks);
+        }
+        return out;
+    }, [compatMods, inventoryCounts, inventoryModRanks]);
     const ownedArcaneUniqueNames = useMemo(() => {
         const set = new Set<string>();
         for (const [path, ranks] of Object.entries(inventoryArcaneRanks)) {
@@ -1627,6 +1683,37 @@ export default function ModBuilder() {
         }
         return out;
     }, [weaponArcanes, inventoryArcaneRanks, inventoryCounts]);
+    const optimizerDiagnostics = useMemo(() => {
+        if (!weapon) return null;
+        const targetFaction = factionOn ? faction : "";
+        const baseCandidates = compatMods.filter(mod => {
+            if (mod.isAura) return false;
+            if (excluded.has(mod.name)) return false;
+            if (onlyOwned && !ownedSet.has(mod.name)) return false;
+            if (mod.effect.targetFaction && !targetFaction) return false;
+            if (mod.effect.targetFaction && mod.effect.targetFaction.toLowerCase() !== targetFaction.toLowerCase()) return false;
+            return true;
+        });
+        const watchedNames = ["Creeping Bullseye", "Convulsion", "Galvanized Shot", "Primed Target Cracker", "Pistol Gambit"];
+        const watched = watchedNames.map((name) => {
+            const mod = compatMods.find((entry) => entry.name === name) ?? null;
+            const owned = !!mod && ownedSet.has(name);
+            const excludedMod = excluded.has(name);
+            const factionMismatch = !!mod?.effect.targetFaction &&
+                (!targetFaction || mod.effect.targetFaction.toLowerCase() !== targetFaction.toLowerCase());
+            const candidate = !!mod && !excludedMod && (!onlyOwned || owned) && !factionMismatch;
+            return { name, present: !!mod, owned, excluded: excludedMod, candidate, maxRank: mod ? (ownedModMaxRankByName[name] ?? mod.fusionLimit) : null };
+        });
+        return {
+            compatCount: compatMods.length,
+            candidateCount: baseCandidates.length,
+            ownedOnly: onlyOwned,
+            ownedCount: ownedSet.size,
+            excludedCount: excluded.size,
+            targetFaction: targetFaction || "None",
+            watched,
+        };
+    }, [weapon, compatMods, excluded, onlyOwned, ownedSet, factionOn, faction, ownedModMaxRankByName]);
     const usedGroups   = useMemo(() => {
         const s = new Set(slots.filter(Boolean).map(m => m!.incompatibilityGroup));
         if (stanceMod) s.add(stanceMod.incompatibilityGroup);
@@ -1840,6 +1927,7 @@ export default function ModBuilder() {
 
             const result = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
                 ownedModNames:    onlyOwned ? ownedSet : undefined,
+                ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
                 ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
                 ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
                 excludedModNames: excluded.size > 0 ? excluded : undefined,
@@ -1893,6 +1981,7 @@ export default function ModBuilder() {
                         if (catalyzedFit.overCapacity && allowForma) {
                             appliedResult = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
                                 ownedModNames:    onlyOwned ? ownedSet : undefined,
+                                ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
                                 ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
                                 ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
                                 excludedModNames: excluded.size > 0 ? excluded : undefined,
@@ -1913,6 +2002,7 @@ export default function ModBuilder() {
                     } else if (allowForma) {
                         appliedResult = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
                             ownedModNames:    onlyOwned ? ownedSet : undefined,
+                            ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
                             ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
                             ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
                             excludedModNames: excluded.size > 0 ? excluded : undefined,
@@ -2400,6 +2490,38 @@ export default function ModBuilder() {
                                                         ) : (
                                                             <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 px-3 py-3 text-[11px] text-slate-500">
                                                                 Run the optimizer to generate build reasoning.
+                                                            </div>
+                                                        )}
+                                                        {optimizerDiagnostics && (
+                                                            <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 px-3 py-3">
+                                                                <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">Optimizer Inputs</div>
+                                                                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+                                                                    <div className="text-slate-500">Compatible Mods</div>
+                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.compatCount}</div>
+                                                                    <div className="text-slate-500">Usable Candidates</div>
+                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.candidateCount}</div>
+                                                                    <div className="text-slate-500">Owned Only</div>
+                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.ownedOnly ? "On" : "Off"}</div>
+                                                                    <div className="text-slate-500">Owned Matches</div>
+                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.ownedCount}</div>
+                                                                    <div className="text-slate-500">Excluded Mods</div>
+                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.excludedCount}</div>
+                                                                    <div className="text-slate-500">Target Faction</div>
+                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.targetFaction}</div>
+                                                                </div>
+                                                                <div className="mt-3 space-y-1.5">
+                                                                    {optimizerDiagnostics.watched.map((entry) => (
+                                                                        <div key={entry.name} className="flex items-center justify-between gap-3 rounded-md border border-slate-800/60 px-2 py-1 text-[11px]">
+                                                                            <span className="text-slate-300">{entry.name}</span>
+                                                                            <span className="font-mono text-right text-slate-500">
+                                                                                {!entry.present ? "missing" :
+                                                                                    entry.excluded ? "excluded" :
+                                                                                        !entry.owned ? "not-owned" :
+                                                                                            entry.candidate ? "candidate" : "filtered"}
+                                                                            </span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>

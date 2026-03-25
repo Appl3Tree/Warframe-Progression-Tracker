@@ -18,6 +18,12 @@ export interface Inventory {
     counts: Record<string, number>;
 
     /**
+     * Per-mod maximum owned rank keyed by raw Lotus path (without "mods:" prefix).
+     * Sparse: only present when the user has entered or edited rank data.
+     */
+    modRanks?: Record<string, number>;
+
+    /**
      * Per-rank arcane copy counts. Key is the raw Lotus path (without "mods:" prefix),
      * value maps string rank ("0"–"5") to number of copies owned at that rank.
      * Sparse: only present when the user has entered data.

@@ -21,6 +21,7 @@ export type OptimizeGoal = "damage" | "crit" | "status";
 
 export interface OptimizerOptions {
     ownedModNames?: Set<string>;
+    ownedModMaxRankByName?: Record<string, number>;
     ownedArcaneUniqueNames?: Set<string>;
     ownedArcaneMaxRankByUniqueName?: Record<string, number>;
     excludedModNames?: Set<string>;
@@ -538,7 +539,7 @@ function bestPolarity(mod: ModEntry): string {
 interface Candidate { mod: ModEntry; rank: number; }
 
 function buildCandidates(allMods: ModEntry[], opts: OptimizerOptions): Candidate[] {
-    const { ownedModNames, excludedModNames, allowNonMaxRank, targetFaction = "" } = opts;
+    const { ownedModNames, ownedModMaxRankByName, excludedModNames, allowNonMaxRank, targetFaction = "" } = opts;
     const out: Candidate[] = [];
     for (const mod of allMods) {
         if (mod.isAura) continue; // auras go in the aura slot, not regular slots
@@ -547,10 +548,17 @@ function buildCandidates(allMods: ModEntry[], opts: OptimizerOptions): Candidate
         if (mod.effect.targetFaction && !targetFaction) continue;
         if (mod.effect.targetFaction &&
             mod.effect.targetFaction.toLowerCase() !== targetFaction.toLowerCase()) continue;
+        const maxAllowedRank = Math.max(
+            0,
+            Math.min(
+                mod.fusionLimit,
+                ownedModMaxRankByName?.[mod.name] ?? mod.fusionLimit,
+            ),
+        );
         if (allowNonMaxRank) {
-            for (let r = mod.fusionLimit; r >= 0; r--) out.push({ mod, rank: r });
+            for (let r = maxAllowedRank; r >= 0; r--) out.push({ mod, rank: r });
         } else {
-            out.push({ mod, rank: mod.fusionLimit });
+            out.push({ mod, rank: maxAllowedRank });
         }
     }
     return out;
@@ -865,6 +873,78 @@ function refineBuildSet(
     return { mods, ranks };
 }
 
+function fillEmptySlots(
+    weapon: WeaponEntry,
+    selectedMods: ModEntry[],
+    selectedRanks: number[],
+    candidates: Candidate[],
+    goal: OptimizeGoal,
+    slotCount: number,
+    opts: OptimizerOptions,
+    extraEffects: (ModEffect | null)[] = [],
+    arcaneEffect?: Partial<ModEffect> | null,
+): { mods: ModEntry[]; ranks: number[] } {
+    const {
+        slotPolarities = [],
+        targetFaction = "",
+        allowForma = false,
+        capacityConfig,
+    } = opts;
+
+    let mods = [...selectedMods];
+    let ranks = [...selectedRanks];
+    const padded = [...slotPolarities];
+    while (padded.length < slotCount) padded.push("");
+
+    const scoreCurrent = (modsToScore: ModEntry[], ranksToScore: number[]) => {
+        const effects = modsToScore.map((mod, index) => mod.effectsByRank[ranksToScore[index]] ?? mod.effect);
+        return scoreEffects(weapon, [...effects, ...extraEffects], goal, targetFaction, arcaneEffect);
+    };
+
+    let improved = true;
+    while (improved && mods.length < slotCount) {
+        improved = false;
+        const presentGroups = new Set(mods.map(mod => mod.incompatibilityGroup));
+        const presentNames = new Set(mods.map(mod => mod.uniqueName));
+        const baseScore = scoreCurrent(mods, ranks);
+        let bestScore = baseScore;
+        let bestMods = mods;
+        let bestRanks = ranks;
+
+        for (const candidate of candidates) {
+            if (presentGroups.has(candidate.mod.incompatibilityGroup)) continue;
+            if (presentNames.has(candidate.mod.uniqueName)) continue;
+
+            const trialMods = [...mods, candidate.mod];
+            const trialRanks = [...ranks, candidate.rank];
+            const { slotMods, slotRanks, resultPolarities } = assignModsToSlots(
+                trialMods,
+                trialRanks,
+                padded,
+                slotCount,
+                allowForma,
+            );
+
+            if (capacityConfig && !fitsCapacity(slotMods, slotRanks, capacityConfig, resultPolarities, opts.extraCapacitySlots)) continue;
+
+            const compactMods = slotMods.filter((mod): mod is ModEntry => !!mod);
+            const compactRanks = slotMods.flatMap((mod, index) => (mod ? [slotRanks[index]] : []));
+            const trialScore = scoreCurrent(compactMods, compactRanks);
+            if (trialScore > bestScore) {
+                bestScore = trialScore;
+                bestMods = compactMods;
+                bestRanks = compactRanks;
+                improved = true;
+            }
+        }
+
+        mods = bestMods;
+        ranks = bestRanks;
+    }
+
+    return { mods, ranks };
+}
+
 // ── Exilus optimization ───────────────────────────────────────────────────────
 
 function optimizeExilusSlot(
@@ -1088,8 +1168,19 @@ export function optimizeBuild(
         contextualExtraEffects,
         contextualArcaneEffect,
     );
-    mods = refinedWithContext.mods;
-    ranks = refinedWithContext.ranks;
+    const filledWithContext = fillEmptySlots(
+        scoringWeapon,
+        refinedWithContext.mods,
+        refinedWithContext.ranks,
+        candidates,
+        goal,
+        slotCount,
+        effectiveOpts,
+        contextualExtraEffects,
+        contextualArcaneEffect,
+    );
+    mods = filledWithContext.mods;
+    ranks = filledWithContext.ranks;
 
     const reassigned = assignModsToSlots(mods, ranks, padded, slotCount, allowForma);
     let reassignedPolarities = allowForma && !!capCfg

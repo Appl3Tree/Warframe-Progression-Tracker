@@ -255,6 +255,7 @@ export function calculateBuild(
     mods: (ModEffect | null)[],
     targetFaction = "",
 ): DamageMetrics {
+    const ignoresReloadAndMagazine = !!weapon.isExalted;
     let damageBonus = 0;
     let impactBonus = 0;
     let punctureBonus = 0;
@@ -301,8 +302,10 @@ export function calculateBuild(
         finalStatusChanceBonus += e.finalStatusChanceBonus ?? 0;
         multishotBonus += e.multishotBonus ?? 0;
         fireRateBonus += e.fireRateBonus ?? 0;
-        magazineBonus += e.magazineBonus ?? 0;
-        reloadSpeedBonus += e.reloadSpeedBonus ?? 0;
+        if (!ignoresReloadAndMagazine) {
+            magazineBonus += e.magazineBonus ?? 0;
+            reloadSpeedBonus += e.reloadSpeedBonus ?? 0;
+        }
         attackSpeedBonus += e.attackSpeedBonus ?? 0;
         blastBonus += e.blastBonus ?? 0;
         gasBonus += e.gasBonus ?? 0;
@@ -364,7 +367,9 @@ export function calculateBuild(
         conditionalStatusChanceBonus += (conditional.stats.statusChanceBonus ?? 0) * factor;
         conditionalMultishotBonus += (conditional.stats.multishotBonus ?? 0) * factor;
         conditionalFireRateBonus += (conditional.stats.fireRateBonus ?? 0) * factor;
-        conditionalReloadSpeedBonus += (conditional.stats.reloadSpeedBonus ?? 0) * factor;
+        if (!ignoresReloadAndMagazine) {
+            conditionalReloadSpeedBonus += (conditional.stats.reloadSpeedBonus ?? 0) * factor;
+        }
         conditionalDirectBonusBreakdown.blast += (conditional.stats.blastBonus ?? 0) * factor;
         conditionalDirectBonusBreakdown.gas += (conditional.stats.gasBonus ?? 0) * factor;
         conditionalDirectBonusBreakdown.magnetic += (conditional.stats.magneticBonus ?? 0) * factor;
@@ -459,8 +464,12 @@ export function calculateBuild(
         fireRate = 1 / (moddedChargeTime + 1 / Math.max(0.0001, rawFireRate));
     }
 
-    const magazineSize = Math.max(1, Math.round(weapon.magazineSize * (1 + magazineBonus)));
-    const reloadTime = weapon.reloadTime / (1 + reloadSpeedBonus);
+    const magazineSize = ignoresReloadAndMagazine
+        ? Math.max(1, weapon.magazineSize)
+        : Math.max(1, Math.round(weapon.magazineSize * (1 + magazineBonus)));
+    const reloadTime = ignoresReloadAndMagazine
+        ? weapon.reloadTime
+        : weapon.reloadTime / (1 + reloadSpeedBonus);
     const averageShotDamage = arsenalDamage * avgCritMultiplier(critChance, critMultiplier);
     const shotsPerMag = magazineSize;
 
@@ -644,7 +653,9 @@ export function calculateBuild(
     };
 
     const burstDPS = averageShotDamage * fireRate;
-    const sustainedDPS = reloadTime <= 0
+    const sustainedDPS = ignoresReloadAndMagazine
+        ? burstDPS
+        : reloadTime <= 0
         ? burstDPS
         : burstDPS * ((shotsPerMag / Math.max(0.0001, fireRate)) / ((shotsPerMag / Math.max(0.0001, fireRate)) + reloadTime));
 
