@@ -1,7 +1,7 @@
 // Progress pack schemas, default state factory, and import/merge logic.
 
 import { z } from "zod";
-import type { PageKey, UserStateV2 } from "../domain/models/userState";
+import type { PageKey, UserStateV2, WorldStateCategoryKey } from "../domain/models/userState";
 import { SEED_INVENTORY, SEED_MASTERY, SEED_MISSIONS, SEED_SYNDICATES } from "../domain/seed";
 import { nowIso } from "./storeUtils";
 import { makeDefaultResetChecklistState, ensureResetChecklistState } from "./resetChecklist";
@@ -89,7 +89,11 @@ export const ProgressPackSchemaV2 = z
         resetChecklist: z.any().optional(),
         goals: z.any().optional(),
         mastery: z.any().optional(),
-        missions: z.any().optional()
+        missions: z.any().optional(),
+        challenges: z.any().optional(),
+        intrinsics: z.any().optional(),
+        worldState: z.any().optional(),
+        modBuilder: z.any().optional()
     })
     .passthrough();
 
@@ -130,7 +134,10 @@ export function mergeProgressPackIntoState(current: UserStateV2, incoming: any):
             expandedGoalNodes: {
                 ...next.ui.expandedGoalNodes,
                 ...((incoming.ui as any).expandedGoalNodes as Record<string, boolean> | undefined)
-            }
+            },
+            hiddenWorldStateCategories: Array.isArray((incoming.ui as any).hiddenWorldStateCategories)
+                ? ([...(incoming.ui as any).hiddenWorldStateCategories] as WorldStateCategoryKey[])
+                : next.ui.hiddenWorldStateCategories
         };
     }
 
@@ -183,6 +190,29 @@ export function mergeProgressPackIntoState(current: UserStateV2, incoming: any):
 
     if (incoming.missions !== undefined) {
         next.missions = incoming.missions;
+    }
+
+    if (incoming.challenges !== undefined) {
+        next.challenges = incoming.challenges;
+    }
+
+    if (incoming.intrinsics !== undefined) {
+        next.intrinsics = incoming.intrinsics;
+    }
+
+    if (incoming.worldState !== undefined) {
+        next.worldState = incoming.worldState;
+    }
+
+    if (incoming.modBuilder !== undefined) {
+        next.modBuilder = {
+            savedBuilds: Array.isArray(incoming.modBuilder?.savedBuilds)
+                ? incoming.modBuilder.savedBuilds
+                : next.modBuilder?.savedBuilds ?? [],
+            ownedModNames: Array.isArray(incoming.modBuilder?.ownedModNames)
+                ? incoming.modBuilder.ownedModNames
+                : next.modBuilder?.ownedModNames ?? []
+        };
     }
 
     ensureGoalsArray(next);
