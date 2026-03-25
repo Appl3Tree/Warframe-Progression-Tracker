@@ -86,6 +86,34 @@ export interface OptimizeResult {
     arcaneRank: number;
 }
 
+function resultUsesAnyNonMaxed(result: OptimizeResult): boolean {
+    if (result.exilusMod && result.exilusRank < result.exilusMod.fusionLimit) return true;
+    return result.slots.some((mod, index) => !!mod && (result.slotRanks[index] ?? mod.fusionLimit) < mod.fusionLimit);
+}
+
+function scoreOptimizeResult(
+    weapon: WeaponEntry,
+    result: OptimizeResult,
+    goal: OptimizeGoal,
+    targetFaction: string,
+    buildForAttack?: WeaponAttack | null,
+): number {
+    const scoringWeapon = makeWeaponForAttack(weapon, buildForAttack);
+    const effects: (ModEffect | null)[] = result.slots.map((mod, index) => {
+        if (!mod) return null;
+        const rank = result.slotRanks[index] ?? mod.fusionLimit;
+        return mod.effectsByRank[rank] ?? mod.effect;
+    });
+    if (result.exilusMod) {
+        effects.push(result.exilusMod.effectsByRank[result.exilusRank] ?? result.exilusMod.effect);
+    }
+    const arcaneEffect =
+        result.arcane
+            ? (result.arcane.optimizerEffectByRank[result.arcaneRank] ?? result.arcane.permanentEffectByRank[result.arcaneRank] ?? null)
+            : null;
+    return scoreEffects(scoringWeapon, effects, goal, targetFaction, arcaneEffect);
+}
+
 const PROC_DAMAGE_KEYS = [
     "impact", "puncture", "slash",
     "heat", "cold", "electricity", "toxin",
@@ -1022,7 +1050,7 @@ function optimizeArcaneSlot(
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
-export function optimizeBuild(
+function optimizeBuildInternal(
     weapon: WeaponEntry,
     availableMods: ModEntry[] | null,
     goal: OptimizeGoal,
@@ -1224,6 +1252,26 @@ export function optimizeBuild(
         arcane,
         arcaneRank,
     };
+}
+
+export function optimizeBuild(
+    weapon: WeaponEntry,
+    availableMods: ModEntry[] | null,
+    goal: OptimizeGoal,
+    slotCount: number,
+    opts: OptimizerOptions = {},
+): OptimizeResult {
+    const maxOnlyOpts: OptimizerOptions = { ...opts, allowNonMaxRank: false };
+    const maxOnlyResult = optimizeBuildInternal(weapon, availableMods, goal, slotCount, maxOnlyOpts);
+
+    if (!opts.allowNonMaxRank) return maxOnlyResult;
+
+    const nonMaxResult = optimizeBuildInternal(weapon, availableMods, goal, slotCount, opts);
+    if (!resultUsesAnyNonMaxed(nonMaxResult)) return maxOnlyResult;
+
+    const baseScore = scoreOptimizeResult(weapon, maxOnlyResult, goal, opts.targetFaction ?? "", opts.buildForAttack);
+    const nonMaxScore = scoreOptimizeResult(weapon, nonMaxResult, goal, opts.targetFaction ?? "", opts.buildForAttack);
+    return nonMaxScore > baseScore ? nonMaxResult : maxOnlyResult;
 }
 
 // ── Build reasoning ───────────────────────────────────────────────────────────
