@@ -152,6 +152,7 @@ export interface ConditionalEffect {
 
 export interface ModEntry {
     uniqueName: string;
+    path: string;
     name: string;
     compatBucket: string;
     rawCompatName: string;
@@ -663,13 +664,12 @@ function buildCaches(): ModCaches {
 
     function parseEntry(item: Record<string, unknown>, bucket: string, rawCompat: string): ModEntry | null {
         const levelStats = item.levelStats as Array<{ stats: string[] }> | undefined;
-        if (!levelStats || levelStats.length === 0) return null;
-
         const fl = Number(item.fusionLimit ?? 0);
         const rawBaseDrain = Number(item.baseDrain ?? 2);
         const drain = rawBaseDrain + fl;
         const isAura = rawCompat === "AURA" || rawBaseDrain < 0;
         const isStance = String(item.type ?? "") === "Stance Mod";
+        if ((!levelStats || levelStats.length === 0) && !isStance) return null;
         // Use the shared utility flag for weapon exilus mods, plus WFCD's native flag for Warframe exilus.
         const isWeaponUtility = !!item.isUtility && !isAura &&
             (bucket === "Rifle" || bucket === "Shotgun" || bucket === "Pistol" ||
@@ -678,7 +678,8 @@ function buildCaches(): ModCaches {
         const isExilus = !!item.isExilus || isWeaponUtility;
 
         // Build effects at every rank 0..fusionLimit
-        const effectsByRank: ModEffect[] = levelStats.map(ls => {
+        const parsedLevelStats = levelStats ?? [];
+        const effectsByRank: ModEffect[] = parsedLevelStats.map(ls => {
             let e = emptyEffect();
             for (const rawStat of (ls.stats ?? [])) {
                 for (const s of explodeStatLines(rawStat)) {
@@ -692,19 +693,23 @@ function buildCaches(): ModCaches {
             }
             return e;
         });
+        if (effectsByRank.length === 0) effectsByRank.push(emptyEffect());
         // Pad up to fusionLimit if levelStats has fewer entries
         while (effectsByRank.length <= fl) {
             effectsByRank.push(effectsByRank[effectsByRank.length - 1] ?? emptyEffect());
         }
         const effect = effectsByRank[fl] ?? emptyEffect();
 
-        const statsTextByRank = levelStats.map(ls =>
+        const statsTextByRank = parsedLevelStats.map(ls =>
             (ls.stats ?? [])
                 .map(s => stripColorTags(s).replace(/\\n/g, " ").trim())
                 .filter(Boolean)
                 .join("  ·  ")
         );
-        const statsLabel = statsTextByRank[fl] ?? statsTextByRank[statsTextByRank.length - 1] ?? "";
+        if (statsTextByRank.length === 0) {
+            for (let i = 0; i <= fl; i++) statsTextByRank.push("Stance Mod");
+        }
+        const statsLabel = statsTextByRank[fl] ?? statsTextByRank[statsTextByRank.length - 1] ?? (isStance ? "Stance Mod" : "");
 
         const name = String(item.name ?? "");
         const path = String(item.uniqueName ?? "");
@@ -712,6 +717,7 @@ function buildCaches(): ModCaches {
 
         return {
             uniqueName: String(item.uniqueName ?? ""),
+            path,
             name,
             compatBucket: bucket,
             rawCompatName: rawCompat,
@@ -851,7 +857,23 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
 }
 
 export function getStancesForWeapon(weapon: WeaponEntry): ModEntry[] {
-    if (weapon.category !== "Melee" || !weapon.stanceClass) return [];
+    if (weapon.category !== "Melee") return [];
     const { byStanceCompat } = getCaches();
-    return [...(byStanceCompat.get(weapon.stanceClass) ?? [])];
+    const stanceClasses = weapon.stanceClasses?.length
+        ? weapon.stanceClasses
+        : weapon.stanceClass
+            ? [weapon.stanceClass]
+            : [];
+    if (stanceClasses.length === 0) return [];
+
+    const seen = new Set<string>();
+    const out: ModEntry[] = [];
+    for (const stanceClass of stanceClasses) {
+        for (const mod of byStanceCompat.get(stanceClass) ?? []) {
+            if (seen.has(mod.uniqueName)) continue;
+            seen.add(mod.uniqueName);
+            out.push(mod);
+        }
+    }
+    return out.sort((a, b) => a.name.localeCompare(b.name));
 }

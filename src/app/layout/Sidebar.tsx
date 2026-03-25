@@ -4,6 +4,8 @@ import { useTrackerStore } from "../../store/store";
 import { NAV_ROUTES } from "../routes";
 import { getStoredTheme, applyTheme, type AppTheme } from "../../pages/Settings";
 
+const SIDEBAR_COLLAPSED_KEY = "wft_sidebar_collapsed";
+
 // Page icons — simple SVG paths, one per route key
 const PAGE_ICONS: Record<string, React.ReactNode> = {
     dashboard: (
@@ -119,6 +121,7 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
     const activePage = useTrackerStore((s) => s.state.ui.activePage);
     const setActivePage = useTrackerStore((s) => s.setActivePage);
     const [theme, setTheme] = useState<AppTheme>(getStoredTheme);
+    const [collapsed, setCollapsed] = useState<boolean>(() => localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "1");
 
     useEffect(() => { applyTheme(getStoredTheme()); }, []);
 
@@ -126,6 +129,14 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
         const next: AppTheme = theme === "dark" ? "light" : "dark";
         setTheme(next);
         applyTheme(next);
+    }
+
+    function toggleCollapsed() {
+        setCollapsed((prev) => {
+            const next = !prev;
+            localStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? "1" : "0");
+            return next;
+        });
     }
 
     const nav = (
@@ -137,7 +148,8 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
                         key={n.key}
                         onClick={() => { setActivePage(n.key); onClose(); }}
                         className={[
-                            "group flex items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-left transition-colors",
+                            "group relative flex items-center rounded-lg px-2.5 py-2.5 text-left transition-colors",
+                            collapsed ? "justify-center" : "gap-2.5",
                             active
                                 ? "bg-slate-800 text-slate-100"
                                 : "text-slate-400 hover:bg-slate-900 hover:text-slate-200"
@@ -153,9 +165,11 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
                         <span className={active ? "text-slate-100" : "text-slate-500 group-hover:text-slate-300"}>
                             {PAGE_ICONS[n.key]}
                         </span>
-                        <span className="text-sm font-medium leading-none">
-                            {n.label}
-                        </span>
+                        {!collapsed && (
+                            <span className="text-sm font-medium leading-none">
+                                {n.label}
+                            </span>
+                        )}
                     </button>
                 );
             })}
@@ -167,7 +181,10 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
             {/* Theme toggle */}
             <button
                 onClick={toggleTheme}
-                className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-colors"
+                className={[
+                    "w-full flex items-center rounded-lg px-2.5 py-2 text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-colors",
+                    collapsed ? "justify-center" : "gap-2.5",
+                ].join(" ")}
                 title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             >
                 {theme === "dark" ? (
@@ -175,9 +192,11 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
                 ) : (
                     <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
                 )}
-                <span className="text-sm font-medium leading-none">
-                    {theme === "dark" ? "Light Mode" : "Dark Mode"}
-                </span>
+                {!collapsed && (
+                    <span className="text-sm font-medium leading-none">
+                        {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                    </span>
+                )}
             </button>
 
             {/* Ko-fi link */}
@@ -185,12 +204,15 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
                 href="https://ko-fi.com/appl3tree"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-amber-500/80 hover:bg-amber-950/20 hover:text-amber-400 transition-colors"
+                className={[
+                    "w-full flex items-center rounded-lg px-2.5 py-2 text-left text-amber-500/80 hover:bg-amber-950/20 hover:text-amber-400 transition-colors",
+                    collapsed ? "justify-center" : "gap-2.5",
+                ].join(" ")}
                 title="Support on Ko-fi"
                 onClick={onClose}
             >
                 <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/></svg>
-                <span className="text-sm font-medium leading-none">Support</span>
+                {!collapsed && <span className="text-sm font-medium leading-none">Support</span>}
             </a>
         </div>
     );
@@ -198,7 +220,32 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
     return (
         <>
             {/* Desktop sidebar — always visible on md+ */}
-            <aside className="hidden md:flex flex-col w-48 shrink-0 border-r border-slate-800 bg-slate-950/60 overflow-y-auto">
+            <aside className={[
+                "hidden md:flex flex-col shrink-0 border-r border-slate-800 bg-slate-950/60 overflow-y-auto transition-[width] duration-200",
+                collapsed ? "w-[72px]" : "w-48",
+            ].join(" ")}>
+                <div className={["flex items-center border-b border-slate-800/60 p-2", collapsed ? "justify-center" : "justify-end"].join(" ")}>
+                    <button
+                        onClick={toggleCollapsed}
+                        className="rounded-lg border border-slate-800 bg-slate-900/70 p-2 text-slate-400 transition-colors hover:border-slate-600 hover:text-slate-200"
+                        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    >
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            {collapsed ? (
+                                <>
+                                    <path d="M9 18l6-6-6-6" />
+                                    <path d="M4 4v16" />
+                                </>
+                            ) : (
+                                <>
+                                    <path d="M15 18l-6-6 6-6" />
+                                    <path d="M20 4v16" />
+                                </>
+                            )}
+                        </svg>
+                    </button>
+                </div>
                 {nav}
                 {footer}
             </aside>

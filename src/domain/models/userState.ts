@@ -185,6 +185,7 @@ export interface SavedBuild {
     slotRanks?: number[];
     stanceModUniqueName?: string;
     stanceRank?: number;
+    stancePol?: string;
     slotPolarities: string[];
     weaponRank: number;
     hasCatalyst: boolean;

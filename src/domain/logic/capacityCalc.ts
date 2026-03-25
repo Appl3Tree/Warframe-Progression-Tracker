@@ -33,12 +33,11 @@ export function effectiveDrain(
     const rank = modRank ?? mod.fusionLimit; // default to max rank
     const rawDrain = mod.baseDrain + rank;
 
-    if (mod.isAura) {
-        // Aura mods add capacity. WFCD stores baseDrain as a negative value; at rank 0
-        // the grant equals |baseDrain|. Each rank adds +1, so at rank r:
-        //   grant = |baseDrain| + r
-        // e.g. Steel Charge (baseDrain=-4) at rank 5: 4 + 5 = 9 base capacity ✓
-        // Matching polarity doubles the grant; non-matching reduces by 25%.
+    if (mod.isAura || mod.isStance) {
+        // Aura and stance mods add capacity. WFCD stores baseDrain as a negative value for
+        // auras; stances use the same effective rank math but are identified separately.
+        // At rank r the base grant is |baseDrain| + r, then matching polarity doubles it
+        // while non-matching reduces it by 25%.
         const grant = Math.abs(mod.baseDrain) + rank;
         if (slotPolarity === mod.polarity) {
             return -(grant * 2);
@@ -163,7 +162,7 @@ export function computeCapacity(
         const rawDrain = mod.baseDrain + rank;
         const eff = effectiveDrain(mod, slotPol, rank);
 
-        if (mod.isAura) {
+        if (mod.isAura || mod.isStance) {
             auraGrant += Math.abs(eff); // eff is negative for auras
         }
 

@@ -6,7 +6,7 @@ export function useWorldStateData(): WorldStateData | null {
 
     useEffect(() => {
         let cancelled = false;
-        fetchWorldState().then((next) => {
+        fetchWorldState(true).then((next) => {
             if (!cancelled) setData(next);
         }).catch(() => {});
         return () => { cancelled = true; };

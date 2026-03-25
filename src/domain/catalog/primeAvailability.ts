@@ -5,6 +5,7 @@
 import ALL_RAW from "../../data/All.json";
 import SOURCES_RAW from "../../data/sources.json";
 import missionIndexRaw from "../../data/_generated/relic-missionRewards-index.auto.json";
+import { resolvePrimeResurgenceRelicKey } from "./primeResurgence";
 import type { WorldStateData } from "../../lib/worldStateCache";
 
 export type PrimeAvailabilityStatus = "available" | "prime_resurgence" | "vaulted";
@@ -55,19 +56,41 @@ for (const row of missionIndexRaw as MissionEntry[]) {
 
 function normalizeRelicKey(input: string): string | null {
     const match = input.match(RELIC_NAME_RE);
-    if (!match) return null;
-    return `${match[1].toLowerCase()} ${match[2].toLowerCase()}`;
+    if (match) return `${match[1].toLowerCase()} ${match[2].toLowerCase()}`;
+    return resolvePrimeResurgenceRelicKey(input);
+}
+
+function normalizeVarziaInventoryPath(input: string): string {
+    const raw = String(input ?? "").trim();
+    if (!raw) return "";
+    if (raw.startsWith("/Lotus/StoreItems/")) {
+        return raw.replace("/Lotus/StoreItems/", "/Lotus/");
+    }
+    return raw;
 }
 
 function getPrimeResurgenceRelicKeys(worldState?: WorldStateData | null): Set<string> {
     const keys = new Set<string>();
-    if (!worldState?.vaultTrader?.active) return keys;
+    if (!worldState?.vaultTrader) return keys;
 
     for (const item of worldState.vaultTrader.inventory ?? []) {
-        const key = normalizeRelicKey(item.item ?? "");
+        const key = normalizeRelicKey(item.uniqueName ?? item.item ?? "");
         if (key) keys.add(key);
     }
     return keys;
+}
+
+function getPrimeResurgenceDirectItemPaths(worldState?: WorldStateData | null): Set<string> {
+    const paths = new Set<string>();
+    if (!worldState?.vaultTrader) return paths;
+
+    for (const item of worldState.vaultTrader.inventory ?? []) {
+        const path = normalizeVarziaInventoryPath(item.uniqueName ?? "");
+        if (!path) continue;
+        if (!_allByPath.has(path)) continue;
+        paths.add(path);
+    }
+    return paths;
 }
 
 function getDirectSourceStatus(
@@ -103,10 +126,16 @@ function getDirectSourceStatus(
 function resolvePathStatus(
     path: string,
     primeResurgenceRelicKeys: Set<string>,
+    primeResurgenceDirectItemPaths: Set<string>,
     memo: Map<string, PrimeAvailabilityStatus>
 ): PrimeAvailabilityStatus {
     const cached = memo.get(path);
     if (cached) return cached;
+
+    if (primeResurgenceDirectItemPaths.has(path)) {
+        memo.set(path, "prime_resurgence");
+        return "prime_resurgence";
+    }
 
     const directStatus = getDirectSourceStatus(path, primeResurgenceRelicKeys);
     if (directStatus === "available" || directStatus === "prime_resurgence") {
@@ -122,7 +151,7 @@ function resolvePathStatus(
         for (const comp of components) {
             if (!comp.uniqueName) continue;
 
-            const compStatus = resolvePathStatus(comp.uniqueName, primeResurgenceRelicKeys, memo);
+            const compStatus = resolvePathStatus(comp.uniqueName, primeResurgenceRelicKeys, primeResurgenceDirectItemPaths, memo);
             if (compStatus === "vaulted") {
                 memo.set(path, "vaulted");
                 return "vaulted";
@@ -149,7 +178,12 @@ export function getPrimeAvailabilityStatus(
     worldState?: WorldStateData | null
 ): PrimeAvailabilityStatus {
     const path = catalogId.startsWith("items:") ? catalogId.slice(6) : catalogId;
-    return resolvePathStatus(path, getPrimeResurgenceRelicKeys(worldState), new Map());
+    return resolvePathStatus(
+        path,
+        getPrimeResurgenceRelicKeys(worldState),
+        getPrimeResurgenceDirectItemPaths(worldState),
+        new Map()
+    );
 }
 
 export function getRelicAvailabilityStatus(

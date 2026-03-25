@@ -2,6 +2,7 @@
 // Weapon data catalog built from All.json for the mod builder.
 
 import ALL_RAW from "../../data/All.json";
+import { ITEMS_CATALOG } from "./itemsCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];
 
@@ -71,6 +72,8 @@ export interface WeaponEntry {
     stancePolarity?: string;
     /** Optional melee stance family, e.g. "Swords" or "Tonfas". */
     stanceClass?: string;
+    /** All supported melee stance families for the weapon. */
+    stanceClasses?: string[];
     /** Hidden compatibility tags inferred from the source data. */
     tags: string[];
 }
@@ -210,11 +213,74 @@ function inferWeaponTags(item: Record<string, unknown>, isExalted: boolean): str
     return [...tags];
 }
 
-function inferStanceClass(item: Record<string, unknown>, isExalted: boolean): string | undefined {
+const STANCE_TAG_MAP: Record<string, string> = {
+    ASSAULT_SAW_STANCE: "Assault Saw",
+    BLADE_AND_WHIP_STANCE: "Blade And Whip",
+    CLAWS_STANCE: "Claws",
+    DAGGERS_STANCE: "Daggers",
+    DUAL_DAGGERS_STANCE: "Dual Daggers",
+    DUAL_NIKANAS_STANCE: "Dual Nikanas",
+    DUAL_SWORDS_STANCE: "Dual Swords",
+    FISTS_STANCE: "Fists",
+    GLAIVES_STANCE: "Glaives",
+    GUNBLADE_STANCE: "Gunblade",
+    HAMMERS_STANCE: "Hammers",
+    HEAVY_BLADE_STANCE: "Heavy Blade",
+    MACHETES_STANCE: "Machetes",
+    NIKANAS_STANCE: "Nikanas",
+    NUNCHAKU_STANCE: "Nunchaku",
+    POLEARMS_STANCE: "Polearms",
+    RAPIERS_STANCE: "Rapiers",
+    SCYTHES_STANCE: "Scythes",
+    SPARRING_STANCE: "Sparring",
+    STAFF_STANCE: "Staves",
+    SWORDS_STANCE: "Swords",
+    SWORD_AND_SHIELD_STANCE: "Sword And Shield",
+    TONFAS_STANCE: "Tonfas",
+    TWO_HANDED_NIKANA_STANCE: "Two-Handed Nikana",
+    WARFANS_STANCE: "Warfans",
+    WHIPS_STANCE: "Whips",
+};
+
+function inferStanceClassesFromItems(uniqueName: string): string[] {
+    const raw = ITEMS_CATALOG.byKey[uniqueName]?.raw as
+        | {
+            data?: {
+                CompatibilityTags?: string[];
+                WeaponTypes?: Array<{ CompatibilityTags?: string[] }>;
+            };
+        }
+        | undefined;
+    if (!raw?.data) return [];
+
+    const tags = new Set<string>();
+    for (const tag of raw.data.CompatibilityTags ?? []) tags.add(String(tag));
+    for (const variant of raw.data.WeaponTypes ?? []) {
+        for (const tag of variant?.CompatibilityTags ?? []) tags.add(String(tag));
+    }
+
+    const classes = new Set<string>();
+    for (const tag of tags) {
+        const mapped = STANCE_TAG_MAP[tag];
+        if (mapped) classes.add(mapped);
+    }
+    return [...classes];
+}
+
+function inferStanceClassFallback(item: Record<string, unknown>, isExalted: boolean): string | undefined {
     if (isExalted || typeof item.stancePolarity !== "string") return undefined;
     const uniqueName = String(item.uniqueName ?? "").toLowerCase();
     const name = String(item.name ?? "").toLowerCase();
     const description = String(item.description ?? "").toLowerCase();
+
+    if (
+        uniqueName.includes("greatsword") ||
+        uniqueName.includes("stalkertwo") ||
+        description.includes("heavy blade") ||
+        description.includes("great sword")
+    ) {
+        return "Heavy Blade";
+    }
 
     const directMap: Array<[string, string]> = [
         ["/longsword/", "Swords"],
@@ -255,6 +321,16 @@ function inferStanceClass(item: Record<string, unknown>, isExalted: boolean): st
     if (description.includes("dagger")) return name.startsWith("dual ") || name.includes("okina") ? "Dual Daggers" : "Daggers";
     if (description.includes("dual")) return "Dual Swords";
     return undefined;
+}
+
+function inferStanceClasses(item: Record<string, unknown>, isExalted: boolean): string[] {
+    if (isExalted) return [];
+    const uniqueName = String(item.uniqueName ?? "");
+    const fromItems = inferStanceClassesFromItems(uniqueName);
+    if (fromItems.length > 0) return fromItems;
+    if (typeof item.stancePolarity !== "string") return [];
+    const fallback = inferStanceClassFallback(item, isExalted);
+    return fallback ? [fallback] : [];
 }
 
 let _cache: WeaponEntry[] | null = null;
@@ -323,6 +399,7 @@ export function getWeaponCatalog(): WeaponEntry[] {
             ? (item.polarities as unknown[]).map(p => String(p))
             : [];
 
+        const stanceClasses = inferStanceClasses(item, exaltedType);
         entries.push({
             uniqueName,
             name,
@@ -349,7 +426,8 @@ export function getWeaponCatalog(): WeaponEntry[] {
             attacks:       parsedAttacks,
             isExalted:     exaltedType,
             stancePolarity: typeof item.stancePolarity === "string" ? String(item.stancePolarity) : undefined,
-            stanceClass: inferStanceClass(item, exaltedType),
+            stanceClass: stanceClasses[0],
+            stanceClasses,
             tags: inferWeaponTags(item, exaltedType),
         });
     }

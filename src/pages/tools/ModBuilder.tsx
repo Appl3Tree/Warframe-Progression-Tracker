@@ -12,7 +12,7 @@ import { getArcanesByWeaponCategory, type ArcaneEntry } from "../../domain/catal
 import { calculateBuild } from "../../domain/logic/damageCalc";
 import { optimizeBuild, explainBuild, type OptimizeGoal, type BuildReasoning } from "../../domain/logic/buildOptimizer";
 import {
-    computeCapacity, totalModCapacity, minModCapacity, effectiveDrain,
+    computeCapacity, effectiveDrain,
     maxWeaponRank, type CapacityConfig,
 } from "../../domain/logic/capacityCalc";
 import { useTrackerStore } from "../../store/store";
@@ -43,10 +43,21 @@ function PolarityIcon({ polarity, className = "w-4 h-4" }: { polarity: string; c
 const SLOT_COUNT = 8;
 const CATEGORY_LABELS: WeaponCategory[] = ["Primary", "Secondary", "Melee"];
 const GOAL_OPTIONS: { key: OptimizeGoal; label: string; desc: string }[] = [
-    { key: "damage",   label: "Max Damage",  desc: "Maximizes sustained DPS — best all-around." },
-    { key: "crit",     label: "Max Crit",    desc: "Maximizes crit EV (CC × CD)." },
-    { key: "status",   label: "Max Status",  desc: "Maximizes status chance for proc builds." },
-    { key: "balanced", label: "Balanced",    desc: "Balances burst DPS with status chance." },
+    {
+        key: "damage",
+        label: "Optimized",
+        desc: "Finds the best overall build based on the optimizer's current assumptions, selected weapon stats, and any Faction Focus setting.",
+    },
+    {
+        key: "crit",
+        label: "Crit",
+        desc: "Prioritizes direct-hit and critical damage. Best for weapons that kill through front-loaded shots rather than status ramp.",
+    },
+    {
+        key: "status",
+        label: "Status",
+        desc: "Prioritizes proc rate, status scaling, and damage-over-time effects. Best for weapons that gain value from Viral, Heat, Corrosive, and other status effects.",
+    },
 ];
 const FACTIONS = ["Grineer", "Corpus", "Infested", "Orokin", "The Murmur"];
 const POLARITY_OPTS = [
@@ -74,7 +85,6 @@ const STATUS_TIPS: Record<string, string> = {
     radiation:   "Confusion (10 stacks max): Enemy attacks closest ally, receives +100% friendly-fire damage (first stack), +50% per additional stack (max +550% at 10). Lasts 12s per stack.",
     viral:       "Virus (10 stacks max): Amplifies damage to health by 100% (first stack), +25% each subsequent stack (max +325%). Lasts 6s per stack.",
 };
-const EMPTY_STRING_ARRAY: string[] = [];
 const EMPTY_SAVED_BUILDS: SavedBuild[] = [];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -403,6 +413,7 @@ function makeRivenEntry(
         .join("  ·  ");
     return {
         uniqueName: `__riven_${weaponName}`,
+        path: `__riven_${weaponName}`,
         name: `${weaponName} Riven`,
         compatBucket: "Riven",
         rawCompatName: "Riven",
@@ -492,12 +503,16 @@ function shouldAutoInstallCatalyst(
     slotPols: string[],
     slots: (ModEntry | null)[],
     ranks: number[],
+    extraCapacitySlots: Array<{ mod: ModEntry; rank: number; polarity: string }> = [],
 ): boolean {
     if (cfg.hasCatalyst) return false;
     const slotCfgs = slotPols.map(polarity => ({ polarity }));
-    const uncatalyzed = computeCapacity(cfg, slotCfgs, slots, ranks);
+    const extraCfgs = extraCapacitySlots.map(slot => ({ polarity: slot.polarity }));
+    const extraMods = extraCapacitySlots.map(slot => slot.mod);
+    const extraRanks = extraCapacitySlots.map(slot => slot.rank);
+    const uncatalyzed = computeCapacity(cfg, [...extraCfgs, ...slotCfgs], [...extraMods, ...slots], [...extraRanks, ...ranks]);
     if (!uncatalyzed.overCapacity) return false;
-    const catalyzed = computeCapacity({ ...cfg, hasCatalyst: true }, slotCfgs, slots, ranks);
+    const catalyzed = computeCapacity({ ...cfg, hasCatalyst: true }, [...extraCfgs, ...slotCfgs], [...extraMods, ...slots], [...extraRanks, ...ranks]);
     return !catalyzed.overCapacity;
 }
 
@@ -527,6 +542,34 @@ function StatBadge({ label, value, sub, highlight, tooltip }: {
     );
 }
 
+function GoalChip({ label, desc, active, onClick }: {
+    label: string; desc: string; active: boolean; onClick: () => void;
+}) {
+    const [show, setShow] = useState(false);
+    return (
+        <div
+            className="relative"
+            onMouseEnter={() => setShow(true)}
+            onMouseLeave={() => setShow(false)}
+        >
+            <button
+                onClick={onClick}
+                className={[
+                    "rounded-full px-2.5 py-1 text-[11px] border transition-colors",
+                    active ? "bg-slate-100 text-slate-900 border-slate-100" : "bg-slate-950/40 text-slate-300 border-slate-700 hover:bg-slate-900",
+                ].join(" ")}
+            >
+                {label}
+            </button>
+            {show && (
+                <div className="absolute right-0 top-full z-[80] mt-2 w-64 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-[11px] leading-relaxed text-slate-300 shadow-xl">
+                    {desc}
+                </div>
+            )}
+        </div>
+    );
+}
+
 function CapBar({ used, total, over }: { used: number; total: number; over: boolean }) {
     const pct = total > 0 ? Math.min(100, (used / total) * 100) : 0;
     return (
@@ -542,6 +585,7 @@ function CapBar({ used, total, over }: { used: number; total: number; over: bool
 
 interface SlotProps {
     index: number; label?: string;
+    weaponName?: string;
     mod: ModEntry | null; rank: number; slotPolarity: string;
     compatMods: ModEntry[]; usedGroups: Set<string>;
     ownedNames: Set<string>; onlyOwned: boolean; isExilusSlot?: boolean;
@@ -549,14 +593,17 @@ interface SlotProps {
     onChange: (i: number, m: ModEntry | null) => void;
     onRankChange: (i: number, r: number) => void;
     onPolarityChange: (i: number, p: string) => void;
+    onSelectRiven?: (i: number) => void;
     onToggleExclude: (name: string) => void;
     effDrain: number;
+    compactEmpty?: boolean;
 }
 
-function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups,
-    ownedNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onToggleExclude, effDrain }: SlotProps) {
+function ModSlot({ index, label, weaponName, mod, rank, slotPolarity, compatMods, usedGroups,
+    ownedNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onSelectRiven, onToggleExclude, effDrain, compactEmpty }: SlotProps) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
+    const [showDetails, setShowDetails] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
     useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 50); }, [open]);
@@ -586,29 +633,59 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
     const polMismatch = !!(mod && slotPolarity && slotPolarity !== mod.polarity && slotPolarity !== "");
 
     return (
-        <div className="relative" ref={panelRef}>
-            <div className={["rounded-xl border transition-colors",
+        <div className={["relative min-w-0", compactEmpty ? "" : "h-full"].join(" ")} ref={panelRef}>
+            <div className={[(compactEmpty && !mod ? "overflow-hidden " : "") + (compactEmpty ? "" : "h-full ") + "rounded-xl border transition-colors",
                 mod
                     ? polMismatch ? "border-amber-700/40 bg-slate-900/60"
                                   : "border-slate-600 bg-slate-900/60 hover:border-slate-500"
                     : isExilusSlot ? "border-dashed border-slate-600/50 bg-slate-950/30 hover:border-slate-500"
                                    : "border-dashed border-slate-700/60 bg-slate-950/20 hover:border-slate-600"].join(" ")}>
 
-                <div className="p-2.5 flex items-start gap-2 min-h-[56px] cursor-pointer select-none"
+                <div className={["p-3 flex items-start gap-2 cursor-pointer select-none", mod ? "min-h-[112px]" : compactEmpty ? "min-h-[84px]" : "min-h-[112px]"].join(" ")}
                     onClick={() => { setOpen(x => !x); setQuery(""); }}>
                     {mod ? (
                         <>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1 flex-wrap">
-                                    {label && <span className="text-[8px] uppercase tracking-wide text-slate-600">{label}</span>}
-                                    <span className="text-xs font-semibold text-slate-100 truncate">{mod.name}</span>
+                            <div
+                                className="relative flex-1 min-w-0"
+                                onMouseEnter={() => setShowDetails(true)}
+                                onMouseLeave={() => setShowDetails(false)}
+                            >
+                                <div className="flex min-w-0 items-center gap-1">
+                                    {label && <span className="shrink-0 text-[8px] uppercase tracking-wide text-slate-600">{label}</span>}
+                                    <span
+                                        className="min-w-0 flex-1 text-xs font-semibold leading-tight text-slate-100"
+                                        title={mod.name}
+                                        style={{
+                                            display: "-webkit-box",
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: "vertical",
+                                            overflow: "hidden",
+                                        }}
+                                    >
+                                        {mod.name}
+                                    </span>
                                     {mod.compatBucket === "Riven" && <span className="text-[9px] px-1 rounded border border-yellow-700/50 bg-yellow-950/30 text-yellow-400">RIVEN</span>}
                                     {mod.effect.targetFaction && <span className="text-[9px] px-1 rounded border border-orange-700/50 bg-orange-950/30 text-orange-400">{mod.effect.targetFaction}</span>}
                                 </div>
-                                <div className="text-[10px] text-slate-400 mt-0.5 truncate">
+                                <div
+                                    className="mt-1 text-[10px] leading-tight text-slate-400"
+                                    title={currentStatsLabel}
+                                    style={{
+                                        display: "-webkit-box",
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: "vertical",
+                                        overflow: "hidden",
+                                    }}
+                                >
                                     {currentStatsLabel}
                                     {rank < mod.fusionLimit && <span className="text-slate-600 ml-1">@{rank}/{mod.fusionLimit}</span>}
                                 </div>
+                                {showDetails && (
+                                    <div className="pointer-events-none absolute left-0 top-full z-[70] mt-2 w-64 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 shadow-xl">
+                                        <div className="text-xs font-semibold leading-tight text-slate-100">{mod.name}</div>
+                                        <div className="mt-1 text-[11px] leading-relaxed text-slate-300">{currentStatsLabel}</div>
+                                    </div>
+                                )}
                             </div>
                             <div className="flex flex-col items-end gap-1 shrink-0">
                                 <button className="text-slate-600 hover:text-slate-300 text-xs"
@@ -622,9 +699,8 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
                             </div>
                         </>
                     ) : (
-                        <div className={["flex items-center gap-1.5 text-slate-600 text-xs w-full justify-center",
-                            label ? "mt-3 mb-1" : "py-1"].join(" ")}>
-                            {label && <span className="text-[8px] uppercase tracking-wide text-slate-600 absolute top-1.5 left-2.5">{label}</span>}
+                        <div className={["flex items-center gap-1.5 text-slate-600 text-xs w-full justify-center text-center",
+                            compactEmpty ? "py-2" : label ? "py-6" : "py-3"].join(" ")}>
                             <span>+</span><span>{label ? `Add ${label}` : "Add Mod"}</span>
                         </div>
                     )}
@@ -632,17 +708,28 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
 
                 {/* Rank slider */}
                 {mod && mod.fusionLimit > 0 && (
-                    <div className="flex items-center gap-1.5 px-2.5 pb-1.5" onClick={e => e.stopPropagation()}>
-                        <span className="text-[9px] text-slate-600 shrink-0">Rank</span>
-                        <input type="range" min={0} max={mod.fusionLimit} value={rank}
-                            onChange={e => onRankChange(index, +e.target.value)}
-                            className="flex-1 h-1 accent-blue-500 cursor-pointer" />
-                        <span className="text-[9px] font-mono text-slate-400 w-8 text-right shrink-0">{rank}/{mod.fusionLimit}</span>
+                    <div
+                        className="grid grid-cols-[34px_minmax(0,1fr)_46px] items-center gap-2 px-3 pb-2 pt-1"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <span className="text-[9px] text-slate-600">Rank</span>
+                        <div className="min-w-0 px-2">
+                            <input
+                                type="range"
+                                min={0}
+                                max={mod.fusionLimit}
+                                value={rank}
+                                onChange={e => onRankChange(index, +e.target.value)}
+                                className="block w-full min-w-0 h-1.5 cursor-pointer appearance-none rounded-full bg-slate-700 accent-blue-500 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-blue-300 [&::-webkit-slider-thumb]:bg-slate-100 [&::-moz-range-thumb]:h-2.5 [&::-moz-range-thumb]:w-2.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-blue-300 [&::-moz-range-thumb]:bg-slate-100"
+                            />
+                        </div>
+                        <span className="text-[9px] font-mono text-slate-400 text-right">{rank}/{mod.fusionLimit}</span>
                     </div>
                 )}
 
                 {/* Slot polarity */}
-                <div className="flex items-center gap-1.5 px-2.5 pb-2 border-t border-slate-800/40 pt-1.5"
+                {(!compactEmpty || mod) && (
+                <div className="flex items-center gap-1.5 px-3 pb-2.5 border-t border-slate-800/40 pt-1.5"
                     onClick={e => e.stopPropagation()}>
                     <span className="text-[9px] text-slate-600 uppercase tracking-wide">Slot</span>
                     <PolarityPicker value={slotPolarity} onChange={p => onPolarityChange(index, p)} />
@@ -653,6 +740,7 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
                         </div>
                     )}
                 </div>
+                )}
             </div>
 
             {/* Mod picker dropdown */}
@@ -664,6 +752,22 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
                             className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-slate-500" />
                     </div>
                     <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/50">
+                        {!isExilusSlot && weaponName && (
+                            <button
+                                className="w-full px-3 py-2 text-left hover:bg-slate-800/50 transition-colors"
+                                onClick={() => {
+                                    onSelectRiven?.(index);
+                                    setOpen(false);
+                                    setQuery("");
+                                }}
+                            >
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-medium text-yellow-300 flex-1 truncate">{weaponName} Riven</span>
+                                    <span className="text-[9px] px-1 rounded border border-yellow-700/50 bg-yellow-950/30 text-yellow-400 shrink-0">RIVEN</span>
+                                </div>
+                                <div className="text-[10px] text-slate-500 mt-0.5">Configure custom riven stats for this slot.</div>
+                            </button>
+                        )}
                         {mod && (
                             <button className="w-full px-3 py-2 text-left text-xs text-slate-500 hover:bg-slate-800/50"
                                 onClick={() => { onChange(index, null); setOpen(false); setQuery(""); }}>
@@ -764,7 +868,7 @@ function ArcaneSlot({ label, arcane, rank, onChange, onRankChange, availableArca
             <div className={["rounded-xl border transition-colors",
                 arcane ? "border-slate-600 bg-slate-900/60 hover:border-slate-500"
                        : "border-dashed border-slate-700/60 bg-slate-950/20 hover:border-slate-600"].join(" ")}>
-                <div className="p-2.5 flex items-start gap-2 min-h-[56px] cursor-pointer select-none"
+                <div className="p-3 flex items-start gap-2 min-h-[84px] cursor-pointer select-none"
                     onClick={() => { setOpen(x => !x); setQuery(""); }}>
                     {arcane ? (
                         <>
@@ -792,13 +896,22 @@ function ArcaneSlot({ label, arcane, rank, onChange, onRankChange, availableArca
 
                 {/* Rank slider */}
                 {arcane && (
-                    <div className="flex items-center gap-1.5 px-2.5 pb-2 border-t border-slate-800/40 pt-1.5"
-                        onClick={e => e.stopPropagation()}>
-                        <span className="text-[9px] text-slate-600 shrink-0">Rank</span>
-                        <input type="range" min={0} max={arcane.maxRank} value={rank}
-                            onChange={e => onRankChange(+e.target.value)}
-                            className="flex-1 h-1 accent-violet-500 cursor-pointer" />
-                        <span className="text-[9px] font-mono text-slate-400 w-8 text-right shrink-0">{rank}/{arcane.maxRank}</span>
+                    <div
+                        className="grid grid-cols-[34px_minmax(0,1fr)_46px] items-center gap-2 px-3 pb-2 pt-1 border-t border-slate-800/40"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <span className="text-[9px] text-slate-600">Rank</span>
+                        <div className="min-w-0 px-2">
+                            <input
+                                type="range"
+                                min={0}
+                                max={arcane.maxRank}
+                                value={rank}
+                                onChange={e => onRankChange(+e.target.value)}
+                                className="block w-full min-w-0 h-1.5 cursor-pointer appearance-none rounded-full bg-slate-700 accent-violet-500 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-violet-300 [&::-webkit-slider-thumb]:bg-slate-100 [&::-moz-range-thumb]:h-2.5 [&::-moz-range-thumb]:w-2.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-violet-300 [&::-moz-range-thumb]:bg-slate-100"
+                            />
+                        </div>
+                        <span className="text-[9px] font-mono text-slate-400 text-right">{rank}/{arcane.maxRank}</span>
                     </div>
                 )}
             </div>
@@ -833,28 +946,35 @@ function ArcaneSlot({ label, arcane, rank, onChange, onRankChange, availableArca
     );
 }
 
-// ── Riven Slot ────────────────────────────────────────────────────────────────
+// ── Riven Modal ───────────────────────────────────────────────────────────────
 
-function RivenSlotEditor({ weaponName, rivenMod, rivenDrain, rivenPolarity, onUpdate, onRemove }: {
+function RivenModal({ open, weaponName, onClose, onApply }: {
+    open: boolean;
     weaponName: string;
-    rivenMod: ModEntry | null;
-    rivenDrain: number;
-    rivenPolarity: string;
-    onUpdate: (mod: ModEntry) => void;
-    onRemove: () => void;
+    onClose: () => void;
+    onApply: (mod: ModEntry) => void;
 }) {
-    const [open, setOpen] = useState(false);
     const [stats, setStats] = useState<RivenStat[]>([
         { stat: "critChanceBonus", value: 0 },
         { stat: "damageBonus",     value: 0 },
     ]);
-    const [drain, setDrain]     = useState(rivenDrain || 14);
-    const [polarity, setPolarity] = useState(rivenPolarity || "");
+    const [drain, setDrain] = useState(14);
+    const [polarity, setPolarity] = useState("");
+
+    useEffect(() => {
+        if (!open) return;
+        setStats([
+            { stat: "critChanceBonus", value: 0 },
+            { stat: "damageBonus", value: 0 },
+        ]);
+        setDrain(14);
+        setPolarity("");
+    }, [open]);
 
     function handleApply() {
         const mod = makeRivenEntry(weaponName, stats.filter(s => s.value !== 0), 8, polarity, drain);
-        onUpdate(mod);
-        setOpen(false);
+        onApply(mod);
+        onClose();
     }
 
     function addStat() {
@@ -865,42 +985,39 @@ function RivenSlotEditor({ weaponName, rivenMod, rivenDrain, rivenPolarity, onUp
         setStats(p => p.map((s, j) => j === i ? { ...s, [field]: val } : s));
     }
 
-    return (
-        <div className="rounded-xl border border-yellow-700/40 bg-yellow-950/10">
-            <div className="p-2.5 flex items-center gap-2 cursor-pointer" onClick={() => setOpen(v => !v)}>
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                        <span className="text-[8px] uppercase tracking-wide text-yellow-400/60">Riven</span>
-                        <span className="text-xs font-semibold text-slate-100 truncate">
-                            {rivenMod ? rivenMod.name : `${weaponName} Riven Mod`}
-                        </span>
-                        <span className="text-[9px] px-1 rounded border border-yellow-700/50 bg-yellow-950/30 text-yellow-400">RIVEN</span>
-                    </div>
-                    {rivenMod && <div className="text-[10px] text-slate-400 mt-0.5 truncate">{rivenMod.statsLabel}</div>}
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                    {rivenMod && <button className="text-slate-600 hover:text-red-400 text-xs" onClick={e => { e.stopPropagation(); onRemove(); }}>✕</button>}
-                    <svg className={["w-4 h-4 text-slate-500 transition-transform", open ? "rotate-180" : ""].join(" ")}
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
-                </div>
-            </div>
+    if (!open) return null;
 
-            {open && (
-                <div className="border-t border-yellow-800/30 px-3 py-3 space-y-2.5" onClick={e => e.stopPropagation()}>
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative w-full max-w-2xl rounded-2xl border border-yellow-700/40 bg-slate-950 shadow-2xl shadow-black/60 overflow-hidden">
+                <div className="border-b border-yellow-800/30 bg-yellow-950/10 px-4 py-3">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <div className="text-[10px] uppercase tracking-[0.22em] text-yellow-400/70">Riven Configuration</div>
+                            <div className="mt-1 flex items-center gap-2">
+                                <span className="text-lg font-semibold text-slate-100">{weaponName} Riven</span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-yellow-700/50 bg-yellow-950/30 text-yellow-400">RIVEN</span>
+                            </div>
+                        </div>
+                        <button onClick={onClose} className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-400 hover:text-slate-200">Close</button>
+                    </div>
+                </div>
+                <div className="space-y-3 px-4 py-4">
                     <div className="text-[10px] text-slate-500 uppercase tracking-wide">Enter riven stats manually</div>
 
                     {stats.map((s, i) => (
                         <div key={i} className="flex items-center gap-2">
                             <select value={s.stat}
                                 onChange={e => updateStat(i, "stat", e.target.value)}
-                                className="flex-1 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-200 focus:outline-none">
+                                className="flex-1 rounded-lg border border-slate-700 bg-slate-900 px-2 py-2 text-xs text-slate-200 focus:outline-none">
                                 {RIVEN_STATS.map(rs => (
                                     <option key={rs.key} value={rs.key}>{rs.label}</option>
                                 ))}
                             </select>
                             <input type="number" step="0.1" value={s.value}
                                 onChange={e => updateStat(i, "value", parseFloat(e.target.value) || 0)}
-                                className="w-20 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-200 text-right focus:outline-none" />
+                                className="w-24 rounded-lg border border-slate-700 bg-slate-900 px-2 py-2 text-xs text-slate-200 text-right focus:outline-none" />
                             <span className="text-[10px] text-slate-500">%</span>
                             <button onClick={() => removeStat(i)} className="text-slate-600 hover:text-red-400 text-xs">✕</button>
                         </div>
@@ -914,59 +1031,18 @@ function RivenSlotEditor({ weaponName, rivenMod, rivenDrain, rivenPolarity, onUp
                             <span className="text-[10px] text-slate-500">Drain</span>
                             <input type="number" min={0} max={20} value={drain}
                                 onChange={e => setDrain(+e.target.value)}
-                                className="w-14 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-200 focus:outline-none" />
+                                className="w-16 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200 focus:outline-none" />
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="text-[10px] text-slate-500">Polarity</span>
                             <PolarityPicker value={polarity} onChange={setPolarity} />
                         </div>
                         <button onClick={handleApply}
-                            className="ml-auto rounded-lg bg-yellow-700/40 border border-yellow-600/50 px-3 py-1 text-xs font-semibold text-yellow-300 hover:bg-yellow-700/60 transition-colors">
+                            className="ml-auto rounded-lg bg-yellow-700/40 border border-yellow-600/50 px-3 py-1.5 text-xs font-semibold text-yellow-300 hover:bg-yellow-700/60 transition-colors">
                             Apply Riven
                         </button>
                     </div>
                 </div>
-            )}
-        </div>
-    );
-}
-
-// ── Multi-Attack Display ──────────────────────────────────────────────────────
-
-function AttackBreakdown({ weapon }: { weapon: WeaponEntry }) {
-    if (weapon.attacks.length <= 1) return null;
-    return (
-        <div className="mt-3 pt-3 border-t border-slate-800/50">
-            <div className="text-[10px] text-slate-500 uppercase tracking-wide mb-2">Attack Modes</div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {weapon.attacks.map(atk => {
-                    const dmgTypes = Object.entries({
-                        Impact: atk.damage.impact, Puncture: atk.damage.puncture,
-                        Slash: atk.damage.slash, Heat: atk.damage.heat, Cold: atk.damage.cold,
-                        Elec: atk.damage.electricity, Toxin: atk.damage.toxin,
-                    }).filter(([, v]) => v > 0);
-                    return (
-                        <div key={atk.name} className="rounded-lg border border-slate-800 bg-slate-900/40 px-3 py-2">
-                            <div className="flex items-center justify-between gap-2 mb-1.5">
-                                <span className="text-xs font-semibold text-slate-200">{atk.name}</span>
-                                {atk.chargeTime != null && (
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded border border-blue-700/40 bg-blue-950/30 text-blue-400">
-                                        {atk.chargeTime.toFixed(1)}s charge
-                                    </span>
-                                )}
-                            </div>
-                            <div className="grid grid-cols-3 gap-x-3 gap-y-0.5 text-[10px]">
-                                <div><span className="text-slate-500">Dmg</span> <span className="text-slate-200 font-mono">{fmt(atk.damageTotal, 1)}</span></div>
-                                <div><span className="text-slate-500">CC</span> <span className="text-slate-200 font-mono">{fmt(atk.critChance * 100, 0)}%</span></div>
-                                <div><span className="text-slate-500">CD</span> <span className="text-slate-200 font-mono">{atk.critMultiplier.toFixed(1)}x</span></div>
-                                <div><span className="text-slate-500">SC</span> <span className="text-slate-200 font-mono">{fmt(atk.statusChance * 100, 0)}%</span></div>
-                                {dmgTypes.slice(0, 2).map(([type, val]) => (
-                                    <div key={type}><span className="text-slate-500">{type}</span> <span className="text-slate-200 font-mono">{fmt(val, 1)}</span></div>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
             </div>
         </div>
     );
@@ -996,12 +1072,12 @@ function WeaponSelector({ selected, onSelect }: { selected: WeaponEntry | null; 
     return (
         <div className="relative" ref={panelRef}>
             <button onClick={() => setOpen(x => !x)}
-                className={["w-full flex items-center gap-2 rounded-xl border px-4 py-3 text-left transition-colors",
+                className={["w-full flex items-center gap-2 rounded-xl border px-3 py-2 text-left transition-colors",
                     selected ? "border-slate-600 bg-slate-900/60 hover:border-slate-500"
                              : "border-dashed border-slate-700 bg-slate-950/20 hover:border-slate-600"].join(" ")}>
                 {selected ? (
                     <><span className="text-sm font-semibold text-slate-100">{selected.name}</span>
-                    <span className="text-xs text-slate-500">{selected.category} · {selected.weaponType}</span>
+                    <span className="text-[11px] text-slate-500">{selected.category} · {selected.weaponType}</span>
                     {selected.canOverLevel && <span className="text-[9px] px-1 rounded border border-orange-700/50 bg-orange-950/30 text-orange-400 font-semibold">LVL40</span>}
                     <span className="ml-auto text-xs text-slate-600">▾</span></>
                 ) : <span className="text-sm text-slate-500">Select a weapon…</span>}
@@ -1097,88 +1173,14 @@ function ExclusionList({ allMods, excluded, onToggle }: {
     );
 }
 
-// ── Reasoning Panel ───────────────────────────────────────────────────────────
-
-function ReasoningPanel({ reasoning, math }: { reasoning: BuildReasoning; math: BuildMathBreakdown | null }) {
-    const [open, setOpen] = useState(false);
-    const [mode, setMode] = useState<"why" | "math">("why");
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40">
-            <button className="w-full flex items-center justify-between px-4 py-3" onClick={() => setOpen(v => !v)}>
-                <span className="text-sm font-semibold">Why this build?</span>
-                <svg className={["w-4 h-4 text-slate-500 transition-transform", open ? "rotate-180" : ""].join(" ")}
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            {open && (
-                <div className="px-4 pb-4 space-y-3 border-t border-slate-800">
-                    <div className="pt-3 flex items-center gap-2">
-                        <button
-                            className={["px-2.5 py-1 rounded-md text-[10px] border transition-colors",
-                                mode === "why"
-                                    ? "border-blue-600/60 bg-blue-950/40 text-blue-300"
-                                    : "border-slate-700 bg-slate-900/40 text-slate-400 hover:text-slate-200"].join(" ")}
-                            onClick={() => setMode("why")}
-                        >
-                            Why This Build
-                        </button>
-                        <button
-                            className={["px-2.5 py-1 rounded-md text-[10px] border transition-colors",
-                                mode === "math"
-                                    ? "border-blue-600/60 bg-blue-950/40 text-blue-300"
-                                    : "border-slate-700 bg-slate-900/40 text-slate-400 hover:text-slate-200"].join(" ")}
-                            onClick={() => setMode("math")}
-                        >
-                            Show Me the Math
-                        </button>
-                    </div>
-                    {mode === "why" ? (
-                        <>
-                            <p className="text-[11px] text-slate-400">{reasoning.summary}</p>
-                            <div className="space-y-1.5">
-                                {reasoning.steps.map((step, i) => (
-                                    <div key={i} className="flex items-start gap-3 rounded-lg bg-slate-900/50 border border-slate-800/50 px-3 py-2">
-                                        <span className="text-[10px] font-mono text-slate-600 shrink-0 mt-0.5">#{i + 1}</span>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between gap-2">
-                                                <span className="text-xs font-semibold text-slate-200">{step.modName}</span>
-                                                <span className="text-[10px] font-mono text-green-400 shrink-0">+{step.pctGain.toFixed(1)}%</span>
-                                            </div>
-                                            <p className="text-[10px] text-slate-500 mt-0.5">{step.why}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </>
-                    ) : (
-                        <div className="space-y-3">
-                            {math ? math.sections.map((section) => (
-                                <div key={section.title} className="rounded-lg bg-slate-900/50 border border-slate-800/50 px-3 py-3">
-                                    <div className="text-xs font-semibold text-slate-200 mb-2">{section.title}</div>
-                                    <div className="space-y-1">
-                                        {section.lines.map((line, idx) => (
-                                            <div key={idx} className="text-[11px] font-mono text-slate-400 break-words">{line}</div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )) : (
-                                <div className="text-[11px] text-slate-500">Math breakdown unavailable for this build.</div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
-    );
-}
-
 // ── Saved Builds ──────────────────────────────────────────────────────────────
 
 function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolarities, currentCfg,
-    stanceMod, stanceRank, exilusMod, exilusPol, arcane1, arcane1Rank, hasExilus, onLoad }: {
+    stanceMod, stanceRank, stancePol, exilusMod, exilusPol, arcane1, arcane1Rank, hasExilus, onLoad }: {
     weapon: WeaponEntry | null;
     currentSlots: (ModEntry | null)[]; currentRanks: number[]; currentPolarities: string[];
     currentCfg: { weaponRank: number; hasCatalyst: boolean };
-    stanceMod: ModEntry | null; stanceRank: number;
+    stanceMod: ModEntry | null; stanceRank: number; stancePol: string;
     exilusMod: ModEntry | null; exilusPol: string;
     arcane1: ArcaneEntry | null; arcane1Rank: number;
     hasExilus: boolean;
@@ -1188,6 +1190,7 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
     const saveModBuild = useTrackerStore(s => s.saveModBuild);
     const deleteBuild  = useTrackerStore(s => s.deleteModBuild);
     const allMods      = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
+    const panelArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
     const [saveName, setSaveName] = useState("");
     const [saving, setSaving]     = useState(false);
     const [comparing, setComparing] = useState<Set<string>>(new Set());
@@ -1201,6 +1204,7 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
             slotRanks: [...currentRanks],
             stanceModUniqueName: stanceMod?.uniqueName,
             stanceRank,
+            stancePol,
             slotPolarities: [...currentPolarities],
             weaponRank: currentCfg.weaponRank, hasCatalyst: currentCfg.hasCatalyst,
             hasExilus,
@@ -1225,6 +1229,66 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
         });
     }
 
+    function buildSavedBuildEffects(build: SavedBuild): (ModEffect | null)[] {
+        const effects: (ModEffect | null)[] = [];
+        for (let i = 0; i < build.slotModUniqueNames.length; i++) {
+            const uniqueName = build.slotModUniqueNames[i];
+            if (!uniqueName) continue;
+            const mod = allMods.find(m => m.uniqueName === uniqueName) ?? null;
+            if (!mod) continue;
+            const rank = build.slotRanks?.[i] ?? mod.fusionLimit;
+            effects.push(mod.effectsByRank[rank] ?? mod.effect);
+        }
+        if (build.stanceModUniqueName) {
+            const mod = allMods.find(m => m.uniqueName === build.stanceModUniqueName) ?? null;
+            if (mod) {
+                const rank = build.stanceRank ?? mod.fusionLimit;
+                effects.push(mod.effectsByRank[rank] ?? mod.effect);
+            }
+        }
+        if (build.hasExilus && build.exilusModUniqueName) {
+            const mod = allMods.find(m => m.uniqueName === build.exilusModUniqueName) ?? null;
+            if (mod) {
+                const rank = build.exilusRank ?? mod.fusionLimit;
+                effects.push(mod.effectsByRank[rank] ?? mod.effect);
+            }
+        }
+        if (build.arcane1UniqueName) {
+            const arcane = panelArcanes.find(a => a.uniqueName === build.arcane1UniqueName) ?? null;
+            if (arcane) {
+                const rank = build.arcane1Rank ?? arcane.maxRank;
+                const ae = arcane.permanentEffectByRank[rank];
+                effects.push({
+                    ...emptyEffect(),
+                    ...(ae ?? {}),
+                    conditionalEffects: [...(ae?.conditionalEffects ?? [])],
+                });
+            }
+        }
+        return effects;
+    }
+
+    function comparisonRows(stats: ReturnType<typeof calculateBuild>) {
+        const rows: Array<[string, string]> = [
+            ["Burst DPS", fmt(stats.burstDPS)],
+            ["Sustained DPS", fmt(stats.sustainedDPS)],
+            ["Avg Shot", fmt(stats.modded.averageShotDamage)],
+            ["Arsenal Dmg", fmt(stats.modded.arsenalDamage)],
+            ["Crit Chance", `${fmt(stats.modded.critChance * 100, 1)}%`],
+            ["Crit Mult", `${fmt(stats.modded.critMultiplier, 2)}x`],
+            ["Crit Tier", `${fmt(stats.modded.averageCritTier, 2)}x`],
+            ["Status", `${fmt(stats.modded.statusChance * 100, 1)}%`],
+            ["Multishot", fmt(stats.modded.multishot, 2)],
+            ["Fire Rate", fmt(stats.modded.fireRate, 2)],
+            ["Avg Procs", fmt(stats.modded.averageProcsPerShot, 2)],
+            ["DoT DPS", fmt(stats.modded.dotDps)],
+        ];
+        for (const [key, value] of Object.entries(stats.modded.damageBreakdown)) {
+            if ((value ?? 0) > 0) rows.push([key[0].toUpperCase() + key.slice(1), fmt(value ?? 0, 1)]);
+        }
+        return rows;
+    }
+
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -1245,20 +1309,18 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
                     <div className="text-[10px] uppercase tracking-wide text-blue-300 mb-2">Side-by-side comparison</div>
                     <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${comparedBuilds.length}, minmax(0, 1fr))` }}>
                         {comparedBuilds.map(b => {
-                            const effects = b.slotModUniqueNames.map((un, i) => {
-                                const mod = allMods.find(m => m.uniqueName === un);
-                                if (!mod) return null;
-                                const rank = b.slotRanks?.[i] ?? mod.fusionLimit;
-                                return mod.effectsByRank[rank] ?? mod.effect;
-                            });
-                            const stats = calculateBuild(weapon, effects);
+                            const stats = calculateBuild(weapon, buildSavedBuildEffects(b));
                             return (
-                                <div key={b.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-1">
+                                <div key={b.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-2">
                                     <div className="text-xs font-semibold text-slate-100">{b.name}</div>
-                                    <div className="flex justify-between gap-2 text-[11px]"><span className="text-slate-500">Sustained DPS</span><span className="font-mono text-slate-200">{fmt(stats.sustainedDPS)}</span></div>
-                                    <div className="flex justify-between gap-2 text-[11px]"><span className="text-slate-500">Crit Tier</span><span className="font-mono text-slate-200">{stats.modded.averageCritTier.toFixed(2)}x</span></div>
-                                    <div className="flex justify-between gap-2 text-[11px]"><span className="text-slate-500">Avg Procs/Shot</span><span className="font-mono text-slate-200">{fmt(stats.modded.averageProcsPerShot, 2)}</span></div>
-                                    <div className="flex justify-between gap-2 text-[11px]"><span className="text-slate-500">Status</span><span className="font-mono text-slate-200">{fmt(stats.modded.statusChance * 100, 1)}%</span></div>
+                                    <div className="space-y-1">
+                                        {comparisonRows(stats).map(([lbl, val]) => (
+                                            <div key={lbl} className="flex justify-between gap-2 text-[11px]">
+                                                <span className="text-slate-500">{lbl}</span>
+                                                <span className="font-mono text-slate-200 text-right">{val}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             );
                         })}
@@ -1270,13 +1332,7 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
                 <div className="space-y-1.5">
                     <div className="text-[10px] text-slate-500 uppercase tracking-wide">This weapon</div>
                     {thisWeapon.map(b => {
-                        const effects = b.slotModUniqueNames.map((un, i) => {
-                            const mod = allMods.find(m => m.uniqueName === un) ?? null;
-                            if (!mod) return null;
-                            const rank = b.slotRanks?.[i] ?? mod.fusionLimit;
-                            return mod.effectsByRank[rank] ?? mod.effect;
-                        });
-                        const stats = weapon ? calculateBuild(weapon, effects) : null;
+                        const stats = weapon ? calculateBuild(weapon, buildSavedBuildEffects(b)) : null;
                         return (
                             <div key={b.id} className={["rounded-lg border px-3 py-2",
                                 comparing.has(b.id) ? "border-blue-700/50 bg-blue-950/10" : "border-slate-800 bg-slate-900/40"].join(" ")}>
@@ -1301,11 +1357,11 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
                                     </div>
                                 </div>
                                 {comparing.has(b.id) && stats && (
-                                    <div className="grid grid-cols-3 gap-1.5 mt-2 pt-2 border-t border-slate-800/60">
-                                        {[["DPS", fmt(stats.sustainedDPS)], ["Crit%", fmt(stats.modded.critChance*100,1)+"%"], ["Status%", fmt(stats.modded.statusChance*100,1)+"%"]].map(([lbl, val]) => (
-                                            <div key={lbl} className="text-center">
-                                                <div className="text-[9px] text-slate-600 uppercase">{lbl}</div>
-                                                <div className="text-[11px] font-mono text-blue-300">{val}</div>
+                                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2 pt-2 border-t border-slate-800/60">
+                                        {comparisonRows(stats).slice(0, 12).map(([lbl, val]) => (
+                                            <div key={lbl} className="flex items-center justify-between gap-2 text-[10px]">
+                                                <div className="text-slate-600">{lbl}</div>
+                                                <div className="font-mono text-blue-300 text-right">{val}</div>
                                             </div>
                                         ))}
                                     </div>
@@ -1336,11 +1392,11 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
 // ── Owned Mods ────────────────────────────────────────────────────────────────
 
 function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
-    const ownedNames = useTrackerStore(s => s.state.modBuilder?.ownedModNames ?? EMPTY_STRING_ARRAY);
-    const setOwned = useTrackerStore(s => s.setOwnedModNames);
+    const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? {});
+    const setCount = useTrackerStore(s => s.setCount);
     const [query, setQuery] = useState("");
-    const owned   = useMemo(() => new Set(ownedNames), [ownedNames]);
     const allMods = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
+    const ownedCountForMod = (path: string) => inventoryCounts[`mods:${path}`] ?? inventoryCounts[path] ?? 0;
     const filtered = useMemo(() => {
         const q = query.toLowerCase();
         return allMods.filter(m => !q || m.name.toLowerCase().includes(q));
@@ -1351,9 +1407,9 @@ function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
             <div className="flex items-center justify-between">
                 <div className="text-sm font-semibold">Owned Mods</div>
                 <div className="flex gap-3 text-[10px]">
-                    <button onClick={() => setOwned(allMods.map(m => m.name))} className="text-slate-400 hover:text-slate-200">All</button>
-                    <button onClick={() => setOwned([])} className="text-slate-400 hover:text-slate-200">None</button>
-                    <span className="text-slate-600">{owned.size}/{allMods.length} owned</span>
+                    <button onClick={() => allMods.forEach(m => setCount(`mods:${m.path}`, 1))} className="text-slate-400 hover:text-slate-200">All</button>
+                    <button onClick={() => allMods.forEach(m => setCount(`mods:${m.path}`, 0))} className="text-slate-400 hover:text-slate-200">None</button>
+                    <span className="text-slate-600">{allMods.filter(m => Number(ownedCountForMod(m.path)) > 0).length}/{allMods.length} owned</span>
                 </div>
             </div>
             <input type="text" placeholder="Filter mods…" value={query} onChange={e => setQuery(e.target.value)}
@@ -1361,8 +1417,8 @@ function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
             <div className="max-h-64 overflow-y-auto rounded-lg border border-slate-800 divide-y divide-slate-800/50">
                 {filtered.map(m => (
                     <label key={m.uniqueName} className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-slate-800/40 cursor-pointer">
-                        <input type="checkbox" checked={owned.has(m.name)}
-                            onChange={() => { const n = new Set(owned); n.has(m.name) ? n.delete(m.name) : n.add(m.name); setOwned([...n]); }}
+                        <input type="checkbox" checked={Number(ownedCountForMod(m.path)) > 0}
+                            onChange={() => setCount(`mods:${m.path}`, Number(ownedCountForMod(m.path)) > 0 ? 0 : 1)}
                             className="accent-blue-500 shrink-0" />
                         <span className="shrink-0">
                             {m.polarity ? <PolarityIcon polarity={m.polarity} className="w-3.5 h-3.5 opacity-60" /> : <span className="text-slate-700 text-xs">○</span>}
@@ -1378,13 +1434,98 @@ function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
     );
 }
 
+const ARCANE_TOTAL_PER_RANK: Record<number, number> = {
+    0: 1,
+    1: 3,
+    2: 6,
+    3: 10,
+    4: 15,
+    5: 21,
+};
+
+function arcaneEquiv(rank: number): number {
+    return ARCANE_TOTAL_PER_RANK[rank] ?? 1;
+}
+
+function arcaneTotal(rankCounts: Record<string, number>): number {
+    return Object.entries(rankCounts).reduce((sum, [rank, count]) => sum + arcaneEquiv(Number(rank)) * (Number(count) || 0), 0);
+}
+
+function maxCraftableArcaneRank(rankCounts: Record<string, number>, maxRank: number): number {
+    const total = arcaneTotal(rankCounts);
+    for (let rank = maxRank; rank >= 0; rank--) {
+        if (total >= (ARCANE_TOTAL_PER_RANK[rank] ?? 1)) return rank;
+    }
+    return 0;
+}
+
+function OwnedArcanesPanel({ weapon }: { weapon: WeaponEntry | null }) {
+    const inventoryArcaneRanks = useTrackerStore(s => s.state.inventory.arcaneRanks ?? {});
+    const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? {});
+    const setArcaneRankCount = useTrackerStore(s => s.setArcaneRankCount);
+    const [query, setQuery] = useState("");
+    const allArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
+    const filtered = useMemo(() => {
+        const q = query.toLowerCase();
+        return allArcanes.filter(a => !q || a.name.toLowerCase().includes(q));
+    }, [allArcanes, query]);
+
+    return (
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold">Owned Arcanes</div>
+                <div className="text-[10px] text-slate-500">Shared with Mods &amp; Arcanes inventory</div>
+            </div>
+            <input type="text" placeholder="Filter arcanes…" value={query} onChange={e => setQuery(e.target.value)}
+                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-slate-500" />
+            <div className="max-h-[28rem] overflow-y-auto rounded-lg border border-slate-800 divide-y divide-slate-800/50">
+                {filtered.map(arcane => {
+                    const rankCounts = inventoryArcaneRanks[arcane.uniqueName] ?? {};
+                    const fallbackCount = Number(inventoryCounts[`mods:${arcane.uniqueName}`] ?? inventoryCounts[arcane.uniqueName] ?? 0);
+                    const normalizedRankCounts = Object.keys(rankCounts).length > 0 ? rankCounts : (fallbackCount > 0 ? { "0": fallbackCount } : {});
+                    const totalEquiv = arcaneTotal(normalizedRankCounts);
+                    const craftableRank = maxCraftableArcaneRank(normalizedRankCounts, arcane.maxRank);
+                    return (
+                        <div key={arcane.uniqueName} className="px-3 py-3 space-y-2">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                    <div className="text-xs text-slate-200 truncate">{arcane.name}</div>
+                                    <div className="text-[10px] text-slate-500">{totalEquiv} R0 equiv · usable up to R{craftableRank}</div>
+                                </div>
+                                <div className="shrink-0 text-[10px] text-slate-500">{arcane.rarity}</div>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {Array.from({ length: arcane.maxRank + 1 }, (_, rank) => {
+                                    const count = Number(normalizedRankCounts[String(rank)] ?? 0);
+                                    return (
+                                        <div key={rank} className="flex flex-col items-center gap-0.5 rounded-lg border border-slate-800 bg-slate-900/40 px-2 py-1.5">
+                                            <span className="text-[9px] text-slate-500 font-mono">R{rank}</span>
+                                            <span className="text-[9px] text-slate-600">≡{arcaneEquiv(rank)}</span>
+                                            <div className="flex items-center gap-1">
+                                                <button className="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center"
+                                                    onClick={() => setArcaneRankCount(arcane.uniqueName, rank, Math.max(0, count - 1))}>−</button>
+                                                <span className={["w-6 text-center text-xs font-mono font-semibold", count > 0 ? "text-emerald-400" : "text-slate-600"].join(" ")}>{count}</span>
+                                                <button className="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center"
+                                                    onClick={() => setArcaneRankCount(arcane.uniqueName, rank, count + 1)}>+</button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 interface BuildCfg { weaponRank: number; hasCatalyst: boolean; masteryRank: number; }
 
 export default function ModBuilder() {
     const masteryRank      = useTrackerStore(s => s.state.player.masteryRank) ?? 0;
-    const ownedNames = useTrackerStore(s => s.state.modBuilder?.ownedModNames ?? EMPTY_STRING_ARRAY);
     const inventoryArcaneRanks = useTrackerStore(s => s.state.inventory.arcaneRanks ?? {});
     const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? {});
 
@@ -1394,6 +1535,7 @@ export default function ModBuilder() {
     const [slotPols, setSlotPols]      = useState<string[]>(Array(SLOT_COUNT).fill(""));
     const [stanceMod, setStanceMod]    = useState<ModEntry | null>(null);
     const [stanceRank, setStanceRank]  = useState(0);
+    const [stancePol, setStancePol]    = useState("");
     // Exilus
     const [hasExilus, setHasExilus]    = useState(false);
     const [exilusMod, setExilusMod]    = useState<ModEntry | null>(null);
@@ -1423,10 +1565,13 @@ export default function ModBuilder() {
     const [allowForma, setAllowForma]    = useState(false);
     const [optExilus, setOptExilus]      = useState(false);
     const [optArcane, setOptArcane]      = useState(false);
+    const [showOptimizeOptions, setShowOptimizeOptions] = useState(false);
     // UI
+    const [infoTab, setInfoTab]        = useState<"stats"|"why"|"math">("stats");
+    const [rivenEditorSlot, setRivenEditorSlot] = useState<number | null>(null);
     const [reasoning, setReasoning]    = useState<BuildReasoning | null>(null);
     const [reasoningMath, setReasoningMath] = useState<BuildMathBreakdown | null>(null);
-    const [tab, setTab]                = useState<"build"|"saves"|"owned"|"exclude">("build");
+    const [tab, setTab]                = useState<"build"|"saves"|"owned"|"ownedArcanes"|"exclude">("build");
     const [optimizing, setOptimizing]  = useState(false);
     const [copiedExport, setCopiedExport] = useState(false);
 
@@ -1438,9 +1583,9 @@ export default function ModBuilder() {
         const pols = Array(SLOT_COUNT).fill("") as string[];
         w.polarities.forEach((p, i) => { if (i < SLOT_COUNT) pols[i] = p; });
         setSlotPols(pols);
-        setStanceMod(null); setStanceRank(0);
+        setStanceMod(null); setStanceRank(0); setStancePol(w.stancePolarity ?? "");
         setExilusMod(null); setExilusRank(0); setExilusPol(""); setHasExilus(false);
-        setRivenMod(null); setRivenSlotIdx(null);
+        setRivenMod(null); setRivenSlotIdx(null); setRivenEditorSlot(null);
         setArcane1(null); setArcane1Rank(0);
         setSelectedAttackIdx(0);
         if (opts?.resetConfig) setBuildCfg(p => ({ ...p, weaponRank: 30, hasCatalyst: false }));
@@ -1456,7 +1601,11 @@ export default function ModBuilder() {
     const compatMods   = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
     const stanceMods   = useMemo(() => weapon ? getStancesForWeapon(weapon) : [], [weapon]);
     const weaponArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
-    const ownedSet     = useMemo(() => new Set(ownedNames), [ownedNames]);
+    const ownedSet     = useMemo(() => new Set(
+        compatMods
+            .filter(mod => Number(inventoryCounts[`mods:${mod.path}`] ?? inventoryCounts[mod.path] ?? 0) > 0)
+            .map(mod => mod.name)
+    ), [compatMods, inventoryCounts]);
     const ownedArcaneUniqueNames = useMemo(() => {
         const set = new Set<string>();
         for (const [path, ranks] of Object.entries(inventoryArcaneRanks)) {
@@ -1466,6 +1615,18 @@ export default function ModBuilder() {
         }
         return set;
     }, [inventoryArcaneRanks, inventoryCounts]);
+    const ownedArcaneMaxRankByUniqueName = useMemo(() => {
+        const out: Record<string, number> = {};
+        for (const arcane of weaponArcanes) {
+            const rankCounts = inventoryArcaneRanks[arcane.uniqueName] ?? {};
+            const fallbackCount = Number(inventoryCounts[`mods:${arcane.uniqueName}`] ?? inventoryCounts[arcane.uniqueName] ?? 0);
+            const normalizedRankCounts = Object.keys(rankCounts).length > 0 ? rankCounts : (fallbackCount > 0 ? { "0": fallbackCount } : {});
+            if (arcaneTotal(normalizedRankCounts) > 0) {
+                out[arcane.uniqueName] = maxCraftableArcaneRank(normalizedRankCounts, arcane.maxRank);
+            }
+        }
+        return out;
+    }, [weaponArcanes, inventoryArcaneRanks, inventoryCounts]);
     const usedGroups   = useMemo(() => {
         const s = new Set(slots.filter(Boolean).map(m => m!.incompatibilityGroup));
         if (stanceMod) s.add(stanceMod.incompatibilityGroup);
@@ -1477,11 +1638,25 @@ export default function ModBuilder() {
     // Forma count: count slots whose current polarity differs from weapon default
     const formaCount = useMemo(() => {
         if (!weapon) return 0;
-        return slotPols.filter((p, i) => {
-            const defaultPol = weapon.polarities[i] ?? "";
-            return p !== "" && p !== defaultPol;
-        }).length;
-    }, [weapon, slotPols]);
+        const defaultCounts = new Map<string, number>();
+        const currentCounts = new Map<string, number>();
+        const addCount = (map: Map<string, number>, polarity: string) => {
+            if (!polarity) return;
+            map.set(polarity, (map.get(polarity) ?? 0) + 1);
+        };
+        for (const polarity of weapon.polarities) addCount(defaultCounts, polarity);
+        addCount(defaultCounts, weapon.stancePolarity ?? "");
+        for (const polarity of slotPols) addCount(currentCounts, polarity);
+        addCount(currentCounts, stancePol);
+        addCount(currentCounts, exilusPol);
+        let changes = 0;
+        const allKeys = new Set([...defaultCounts.keys(), ...currentCounts.keys()]);
+        for (const key of allKeys) {
+            const extra = (currentCounts.get(key) ?? 0) - (defaultCounts.get(key) ?? 0);
+            if (extra > 0) changes += extra;
+        }
+        return changes;
+    }, [weapon, slotPols, stancePol, exilusPol]);
 
     const currentBuildExport = useMemo(() => buildExportPayload({
         weapon,
@@ -1504,6 +1679,23 @@ export default function ModBuilder() {
         slots, ranks, slotPols, hasExilus, exilusMod, exilusRank, exilusPol, arcane1, arcane1Rank,
     ]);
 
+    const activeAttack = useMemo(
+        () => weapon && weapon.attacks.length > 1 ? (weapon.attacks[selectedAttackIdx] ?? null) : null,
+        [weapon, selectedAttackIdx],
+    );
+    const activeCalcWeapon = useMemo(() => {
+        if (!weapon) return null;
+        if (!activeAttack) return weapon;
+        return {
+            ...weapon,
+            damage: activeAttack.damage,
+            critChance: activeAttack.critChance,
+            critMultiplier: activeAttack.critMultiplier,
+            statusChance: activeAttack.statusChance,
+            fireRate: activeAttack.speed || weapon.fireRate,
+            chargeTime: activeAttack.chargeTime ?? null,
+        };
+    }, [weapon, activeAttack]);
     async function handleCopyBuildExport() {
         if (!currentBuildExport) return;
         const json = JSON.stringify(currentBuildExport, null, 2);
@@ -1515,6 +1707,14 @@ export default function ModBuilder() {
     function handleSlotChange(i: number, mod: ModEntry | null) {
         setSlots(p => { const n = [...p]; n[i] = mod; return n; });
         setRanks(p => { const n = [...p]; n[i] = mod ? mod.fusionLimit : 0; return n; });
+        if (!mod && rivenSlotIdx === i) {
+            setRivenMod(null);
+            setRivenSlotIdx(null);
+        }
+        if (mod && mod.compatBucket !== "Riven" && rivenSlotIdx === i) {
+            setRivenMod(null);
+            setRivenSlotIdx(null);
+        }
         setReasoning(null);
         setReasoningMath(null);
     }
@@ -1535,29 +1735,20 @@ export default function ModBuilder() {
     }
     function toggleExclude(name: string) { setExcluded(p => { const n = new Set(p); n.has(name) ? n.delete(name) : n.add(name); return n; }); }
 
-    // For a riven: place it into the first empty normal slot
-    function handleRivenUpdate(mod: ModEntry) {
-        setRivenMod(mod);
-        // Find or keep the riven slot
-        const targetIdx = rivenSlotIdx ?? slots.findIndex(s => s === null);
-        if (targetIdx >= 0) {
-            setSlots(p => { const n = [...p]; n[targetIdx] = mod; return n; });
-            setRanks(p => { const n = [...p]; n[targetIdx] = mod.fusionLimit; return n; });
-            setRivenSlotIdx(targetIdx);
-        }
-        setReasoning(null);
-        setReasoningMath(null);
-    }
-    function handleRivenRemove() {
-        if (rivenSlotIdx !== null) {
-            setSlots(p => { const n = [...p]; n[rivenSlotIdx] = null; return n; });
-            setRanks(p => { const n = [...p]; n[rivenSlotIdx] = 0; return n; });
-        }
-        setRivenMod(null); setRivenSlotIdx(null);
-        setReasoning(null);
-        setReasoningMath(null);
+    function handleOpenRivenEditor(i: number) {
+        setRivenEditorSlot(i);
     }
 
+    function handleRivenUpdate(mod: ModEntry) {
+        if (rivenEditorSlot === null) return;
+        setRivenMod(mod);
+        setSlots(p => { const n = [...p]; n[rivenEditorSlot] = mod; return n; });
+        setRanks(p => { const n = [...p]; n[rivenEditorSlot] = mod.fusionLimit; return n; });
+        setRivenSlotIdx(rivenEditorSlot);
+        setRivenEditorSlot(null);
+        setReasoning(null);
+        setReasoningMath(null);
+    }
     const capacityCfg: CapacityConfig = {
         weaponRank: buildCfg.weaponRank, hasCatalyst: buildCfg.hasCatalyst,
         masteryRank: buildCfg.masteryRank, canOverLevel: weapon?.canOverLevel ?? false,
@@ -1571,22 +1762,49 @@ export default function ModBuilder() {
     }, [slots, stanceMod, exilusMod, hasExilus, weapon]);
     const allPolsForCap  = useMemo(() => {
         const p = [...slotPols];
-        if (weapon?.category === "Melee") p.unshift(weapon.stancePolarity ?? "");
+        if (weapon?.category === "Melee") p.unshift(stancePol);
         if (hasExilus) p.push(exilusPol);
         return p;
-    }, [slotPols, exilusPol, hasExilus, weapon]);
+    }, [slotPols, stancePol, exilusPol, hasExilus, weapon]);
     const allRanksForCap = useMemo(() => {
         const r = [...ranks];
         if (weapon?.category === "Melee" && stanceMod) r.unshift(stanceRank);
         if (hasExilus) r.push(exilusRank);
         return r;
     }, [ranks, stanceMod, stanceRank, exilusRank, hasExilus, weapon]);
+    const activeBuildEffects = useMemo(() => {
+        const effects: (ModEffect | null)[] = allSlotsForCap.map((mod, i) => {
+            if (!mod) return null;
+            const r = allRanksForCap[i] ?? mod.fusionLimit;
+            return mod.effectsByRank[r] ?? mod.effect;
+        });
+        if (includeArcaneStats && arcane1) {
+            const ae = arcane1.permanentEffectByRank[arcane1Rank];
+            effects.push({
+                ...emptyEffect(),
+                ...(ae ?? {}),
+                conditionalEffects: [...(ae?.conditionalEffects ?? [])],
+            });
+        }
+        return effects;
+    }, [allSlotsForCap, allRanksForCap, includeArcaneStats, arcane1, arcane1Rank]);
+    const activeMetrics = useMemo(
+        () => activeCalcWeapon ? calculateBuild(activeCalcWeapon, activeBuildEffects, factionOn ? faction : "") : null,
+        [activeCalcWeapon, activeBuildEffects, factionOn, faction],
+    );
 
     const capacity = useMemo(() => {
         if (!weapon) return null;
         return computeCapacity(capacityCfg, allPolsForCap.map(p => ({ polarity: p })), allSlotsForCap, allRanksForCap);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [weapon, allSlotsForCap, allPolsForCap, allRanksForCap, buildCfg]);
+    const displayedCapacity = useMemo(() => {
+        if (!capacity) return null;
+        const total = capacity.totalCapacity + capacity.auraGrant;
+        const remaining = capacity.remainingCapacity;
+        const used = total - remaining;
+        return { total, used, remaining, over: capacity.overCapacity };
+    }, [capacity]);
 
     async function handleOptimize() {
         if (!weapon) return;
@@ -1594,6 +1812,22 @@ export default function ModBuilder() {
         setOptimizing(true);
         await new Promise(r => setTimeout(r, 10));
         try {
+            let optimizerStanceMod = stanceMod;
+            let optimizerStanceRank = stanceRank;
+            if (weapon.category === "Melee") {
+                const bestStance = stanceMods.reduce<ModEntry | null>((best, current) => {
+                    if (!stancePol) return best;
+                    if (!best) return current;
+                    const bestDrain = effectiveDrain(best, stancePol, best.fusionLimit);
+                    const currentDrain = effectiveDrain(current, stancePol, current.fusionLimit);
+                    return currentDrain < bestDrain ? current : best;
+                }, null);
+                optimizerStanceMod = bestStance;
+                optimizerStanceRank = bestStance ? bestStance.fusionLimit : 0;
+                setStanceMod(bestStance);
+                setStanceRank(optimizerStanceRank);
+            }
+
             // Resolve which attack to optimize for
             const atk = weapon.attacks.length > 1 ? weapon.attacks[selectedAttackIdx] : null;
 
@@ -1607,61 +1841,193 @@ export default function ModBuilder() {
             const result = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
                 ownedModNames:    onlyOwned ? ownedSet : undefined,
                 ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
+                ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
                 excludedModNames: excluded.size > 0 ? excluded : undefined,
                 allowNonMaxRank:  allowNonMax,
                 targetFaction:    factionOn ? faction : "",
                 capacityConfig:   capForOpt,
                 slotPolarities:   slotPols,
+                defaultSlotPolarities: weapon.polarities,
                 allowCatalyst,
                 allowForma,
                 optimizeExilus:   optExilus,
                 exilusPolarity:   exilusPol,
                 optimizeArcane:   optArcane,
                 buildForAttack:   atk,
+                extraCapacitySlots: weapon.category === "Melee" && optimizerStanceMod
+                    ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
+                    : undefined,
             });
 
-            // Apply mod slots
-            setSlots([...result.slots] as (ModEntry | null)[]);
-            setRanks([...result.slotRanks] as number[]);
+            let appliedResult = result;
+            let appliedCatalyst = buildCfg.hasCatalyst;
+            const baseExtraCapacitySlots = weapon.category === "Melee" && optimizerStanceMod
+                ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
+                : undefined;
 
-            // Apply polarity changes from forma optimizer
-            if (allowForma) setSlotPols([...result.slotPolarities]);
+            if (!respectCap) {
+                const resultSlotsForCap = [...result.slots, ...(optExilus ? [result.exilusMod] : [])];
+                const resultRanksForCap = [...result.slotRanks, ...(optExilus ? [result.exilusMod ? result.exilusRank : 0] : [])];
+                const resultPolsForCap = [...result.slotPolarities, ...(optExilus ? [exilusPol] : [])];
+                const resultExtraCfgs = (baseExtraCapacitySlots ?? []).map(slot => ({ polarity: slot.polarity }));
+                const resultExtraMods = (baseExtraCapacitySlots ?? []).map(slot => slot.mod);
+                const resultExtraRanks = (baseExtraCapacitySlots ?? []).map(slot => slot.rank);
+                const uncatalyzedFit = computeCapacity(
+                    capacityCfg,
+                    [...resultExtraCfgs, ...resultPolsForCap.map(polarity => ({ polarity }))],
+                    [...resultExtraMods, ...resultSlotsForCap],
+                    [...resultExtraRanks, ...resultRanksForCap],
+                );
+
+                if (uncatalyzedFit.overCapacity) {
+                    if (allowCatalyst) {
+                        appliedCatalyst = true;
+                        const catalyzedCfg = { ...capacityCfg, hasCatalyst: true };
+                        const catalyzedFit = computeCapacity(
+                            catalyzedCfg,
+                            [...resultExtraCfgs, ...resultPolsForCap.map(polarity => ({ polarity }))],
+                            [...resultExtraMods, ...resultSlotsForCap],
+                            [...resultExtraRanks, ...resultRanksForCap],
+                        );
+
+                        if (catalyzedFit.overCapacity && allowForma) {
+                            appliedResult = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
+                                ownedModNames:    onlyOwned ? ownedSet : undefined,
+                                ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
+                                ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
+                                excludedModNames: excluded.size > 0 ? excluded : undefined,
+                                allowNonMaxRank:  allowNonMax,
+                                targetFaction:    factionOn ? faction : "",
+                                capacityConfig:   catalyzedCfg,
+                                slotPolarities:   slotPols,
+                                defaultSlotPolarities: weapon.polarities,
+                                allowCatalyst:    false,
+                                allowForma:       true,
+                                optimizeExilus:   optExilus,
+                                exilusPolarity:   exilusPol,
+                                optimizeArcane:   optArcane,
+                                buildForAttack:   atk,
+                                extraCapacitySlots: baseExtraCapacitySlots,
+                            });
+                        }
+                    } else if (allowForma) {
+                        appliedResult = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
+                            ownedModNames:    onlyOwned ? ownedSet : undefined,
+                            ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
+                            ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
+                            excludedModNames: excluded.size > 0 ? excluded : undefined,
+                            allowNonMaxRank:  allowNonMax,
+                            targetFaction:    factionOn ? faction : "",
+                            capacityConfig:   capacityCfg,
+                            slotPolarities:   slotPols,
+                            defaultSlotPolarities: weapon.polarities,
+                            allowCatalyst:    false,
+                            allowForma:       true,
+                            optimizeExilus:   optExilus,
+                            exilusPolarity:   exilusPol,
+                            optimizeArcane:   optArcane,
+                            buildForAttack:   atk,
+                            extraCapacitySlots: baseExtraCapacitySlots,
+                        });
+                    }
+                }
+            }
 
             // Apply exilus mod if optimized
             if (optExilus) {
                 setHasExilus(true);
-                setExilusMod(result.exilusMod);
-                setExilusRank(result.exilusMod ? result.exilusRank : 0);
+                setExilusMod(appliedResult.exilusMod);
+                setExilusRank(appliedResult.exilusMod ? appliedResult.exilusRank : 0);
             }
 
-            const finalSlotsForCap = [...result.slots, ...(optExilus ? [result.exilusMod] : [])];
-            const finalRanksForCap = [...result.slotRanks, ...(optExilus ? [result.exilusMod ? result.exilusRank : 0] : [])];
-            const finalPolsForCap  = [...result.slotPolarities, ...(optExilus ? [exilusPol] : [])];
+            const finalSlotsForCap = [...appliedResult.slots, ...(optExilus ? [appliedResult.exilusMod] : [])];
+            const finalRanksForCap = [...appliedResult.slotRanks, ...(optExilus ? [appliedResult.exilusMod ? appliedResult.exilusRank : 0] : [])];
+            const finalPolsForCap  = [...appliedResult.slotPolarities, ...(optExilus ? [exilusPol] : [])];
 
             if (
-                result.needsCatalyst ||
-                (allowCatalyst && shouldAutoInstallCatalyst(capacityCfg, finalPolsForCap, finalSlotsForCap, finalRanksForCap))
+                appliedCatalyst ||
+                appliedResult.needsCatalyst ||
+                (allowCatalyst && shouldAutoInstallCatalyst(capacityCfg, finalPolsForCap, finalSlotsForCap, finalRanksForCap, baseExtraCapacitySlots ?? []))
             ) {
                 setBuildCfg(p => ({ ...p, hasCatalyst: true }));
+                appliedCatalyst = true;
+            }
+
+            const defaultMainPols = [...weapon.polarities];
+            while (defaultMainPols.length < SLOT_COUNT) defaultMainPols.push("");
+            const catalystAwareCfg = { ...capacityCfg, hasCatalyst: appliedCatalyst || buildCfg.hasCatalyst || appliedResult.needsCatalyst };
+            const defaultExtraCfgs = (baseExtraCapacitySlots ?? []).map(slot => ({ polarity: slot.polarity }));
+            const defaultExtraMods = (baseExtraCapacitySlots ?? []).map(slot => slot.mod);
+            const defaultExtraRanks = (baseExtraCapacitySlots ?? []).map(slot => slot.rank);
+            const defaultFit = computeCapacity(
+                catalystAwareCfg,
+                [...defaultExtraCfgs, ...defaultMainPols.map(polarity => ({ polarity }))],
+                [...defaultExtraMods, ...appliedResult.slots],
+                [...defaultExtraRanks, ...appliedResult.slotRanks],
+            );
+            let slotPolsToApply = allowForma && !defaultFit.overCapacity
+                ? defaultMainPols
+                : appliedResult.slotPolarities;
+            let stancePolToApply = stancePol;
+            let exilusPolToApply = appliedResult.exilusMod ? exilusPol : "";
+
+            if (allowForma) {
+                const fullDefaultPols = [
+                    ...(weapon.category === "Melee" ? [stancePolToApply] : []),
+                    ...defaultMainPols,
+                    ...(optExilus ? [exilusPolToApply] : []),
+                ];
+                const fullDefaultSlots = [
+                    ...(weapon.category === "Melee" && optimizerStanceMod ? [optimizerStanceMod] : []),
+                    ...appliedResult.slots,
+                    ...(optExilus ? [appliedResult.exilusMod] : []),
+                ];
+                const fullDefaultRanks = [
+                    ...(weapon.category === "Melee" && optimizerStanceMod ? [optimizerStanceRank] : []),
+                    ...appliedResult.slotRanks,
+                    ...(optExilus ? [appliedResult.exilusMod ? appliedResult.exilusRank : 0] : []),
+                ];
+                const fullDefaultFit = computeCapacity(
+                    catalystAwareCfg,
+                    fullDefaultPols.map(polarity => ({ polarity })),
+                    fullDefaultSlots,
+                    fullDefaultRanks,
+                );
+                if (!fullDefaultFit.overCapacity) {
+                    slotPolsToApply = defaultMainPols;
+                    stancePolToApply = weapon.stancePolarity ?? "";
+                    exilusPolToApply = "";
+                }
+            }
+
+            // Apply mod slots
+            setSlots([...appliedResult.slots] as (ModEntry | null)[]);
+            setRanks([...appliedResult.slotRanks] as number[]);
+
+            // Apply polarity changes from forma optimizer
+            if (allowForma) {
+                setSlotPols([...slotPolsToApply]);
+                setStancePol(stancePolToApply);
+                setExilusPol(exilusPolToApply);
             }
 
             // Apply arcane if optimized
-            if (optArcane && result.arcane) {
-                setArcane1(result.arcane);
-                setArcane1Rank(result.arcaneRank);
+            if (optArcane && appliedResult.arcane) {
+                setArcane1(appliedResult.arcane);
+                setArcane1Rank(appliedResult.arcaneRank);
             }
 
-            setReasoning(explainBuild(weapon, result.mods, result.ranks, goal, factionOn ? faction : "", atk));
-            const mathEffects: (ModEffect | null)[] = result.slots.map((m, i) => {
+            setReasoning(explainBuild(weapon, appliedResult.mods, appliedResult.ranks, goal, factionOn ? faction : "", atk));
+            const mathEffects: (ModEffect | null)[] = appliedResult.slots.map((m, i) => {
                 if (!m) return null;
-                const r = result.slotRanks[i] ?? m.fusionLimit;
+                const r = appliedResult.slotRanks[i] ?? m.fusionLimit;
                 return m.effectsByRank[r] ?? m.effect;
             });
-            if (optExilus && result.exilusMod) {
-                mathEffects.push(result.exilusMod.effectsByRank[result.exilusRank] ?? result.exilusMod.effect);
+            if (optExilus && appliedResult.exilusMod) {
+                mathEffects.push(appliedResult.exilusMod.effectsByRank[appliedResult.exilusRank] ?? appliedResult.exilusMod.effect);
             }
-            if (includeArcaneStats && optArcane && result.arcane) {
-                const ae = result.arcane.permanentEffectByRank[result.arcaneRank];
+            if (includeArcaneStats && optArcane && appliedResult.arcane) {
+                const ae = appliedResult.arcane.permanentEffectByRank[appliedResult.arcaneRank];
                 mathEffects.push({
                     ...emptyEffect(),
                     ...(ae ?? {}),
@@ -1699,6 +2065,7 @@ export default function ModBuilder() {
             setStanceMod(null);
             setStanceRank(0);
         }
+        setStancePol(build.stancePol ?? weapon.stancePolarity ?? "");
         setHasExilus(build.hasExilus ?? false);
         if (build.exilusModUniqueName) {
             const em = compatMods.find(m => m.uniqueName === build.exilusModUniqueName) ?? null;
@@ -1714,343 +2081,534 @@ export default function ModBuilder() {
 
     return (
         <div className="space-y-4">
-            {/* Weapon selector */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-                <div className="text-sm font-semibold mb-3">Select Weapon</div>
-                <WeaponSelector selected={weapon} onSelect={handleSelectWeapon} />
-                {weapon && (
-                    <>
-                        <div className="mt-3 grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-[11px] text-slate-500">
-                            <div><span className="text-slate-400">Dmg</span> {fmt(weapon.damage.total, 1)}</div>
-                            <div><span className="text-slate-400">CC</span> {fmt(weapon.critChance * 100, 1)}%</div>
-                            <div><span className="text-slate-400">CD</span> {weapon.critMultiplier.toFixed(1)}x</div>
-                            <div><span className="text-slate-400">SC</span> {fmt(weapon.statusChance * 100, 1)}%</div>
-                            <div><span className="text-slate-400">FR</span> {weapon.fireRate.toFixed(2)}/s</div>
-                            <div><span className="text-slate-400">Mag</span> {displayMagazineValue(weapon, weapon.magazineSize)}/{weapon.reloadTime.toFixed(1)}s</div>
-                        </div>
-                        <AttackBreakdown weapon={weapon} />
-                    </>
-                )}
+            {/* Tabs */}
+            <div className="flex gap-1 flex-wrap">
+                {(["build","saves","owned","ownedArcanes","exclude"] as const).map(t => (
+                    <button key={t} onClick={() => (weapon || t === "build") && setTab(t)}
+                        disabled={!weapon && t !== "build"}
+                        className={["rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors",
+                            tab === t ? "bg-slate-100 text-slate-900 border-slate-100" : "bg-slate-950/40 text-slate-400 border-slate-700 hover:bg-slate-900",
+                            !weapon && t !== "build" ? "opacity-40 cursor-not-allowed" : ""].join(" ")}>
+                        {t === "build" ? "Build" : t === "saves" ? "Saved Builds" : t === "owned" ? "Owned Mods" : t === "ownedArcanes" ? "Owned Arcanes" : `Excluded${excluded.size ? ` (${excluded.size})` : ""}`}
+                    </button>
+                ))}
             </div>
 
-            {weapon && (
+            {weapon && tab === "owned"   && <OwnedModsPanel weapon={weapon} />}
+            {weapon && tab === "ownedArcanes" && <OwnedArcanesPanel weapon={weapon} />}
+            {weapon && tab === "saves"   && <SavedBuildsPanel weapon={weapon} currentSlots={slots} currentRanks={ranks}
+                currentPolarities={slotPols} currentCfg={buildCfg}
+                stanceMod={stanceMod} stanceRank={stanceRank} stancePol={stancePol}
+                exilusMod={exilusMod} exilusPol={exilusPol}
+                arcane1={arcane1} arcane1Rank={arcane1Rank}
+                hasExilus={hasExilus} onLoad={handleLoadBuild} />}
+            {weapon && tab === "exclude" && <ExclusionList allMods={compatMods} excluded={excluded} onToggle={toggleExclude} />}
+
+            {tab === "build" && (
                 <>
-                    {/* Tabs */}
-                    <div className="flex gap-1 flex-wrap">
-                        {(["build","saves","owned","exclude"] as const).map(t => (
-                            <button key={t} onClick={() => setTab(t)}
-                                className={["rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors",
-                                    tab === t ? "bg-slate-100 text-slate-900 border-slate-100" : "bg-slate-950/40 text-slate-400 border-slate-700 hover:bg-slate-900"].join(" ")}>
-                                {t === "build" ? "Build" : t === "saves" ? "Saved Builds" : t === "owned" ? "Owned Mods" : `Excluded${excluded.size ? ` (${excluded.size})` : ""}`}
-                            </button>
-                        ))}
-                    </div>
-
-                    {tab === "owned"   && <OwnedModsPanel weapon={weapon} />}
-                    {tab === "saves"   && <SavedBuildsPanel weapon={weapon} currentSlots={slots} currentRanks={ranks}
-                        currentPolarities={slotPols} currentCfg={buildCfg}
-                        stanceMod={stanceMod} stanceRank={stanceRank}
-                        exilusMod={exilusMod} exilusPol={exilusPol}
-                        arcane1={arcane1} arcane1Rank={arcane1Rank}
-                        hasExilus={hasExilus} onLoad={handleLoadBuild} />}
-                    {tab === "exclude" && <ExclusionList allMods={compatMods} excluded={excluded} onToggle={toggleExclude} />}
-
-                    {tab === "build" && (
-                        <>
-                            {/* Config */}
-                            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-                                <div className="text-sm font-semibold mb-3 flex items-center gap-3">
-                                    Configuration
-                                    {formaCount > 0 && (
-                                        <span className="text-[10px] px-2 py-0.5 rounded border border-slate-600 bg-slate-800/60 text-slate-300">
-                                            {formaCount} forma required
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="text-[10px] uppercase tracking-wide text-slate-500 block mb-1.5">Weapon Rank</label>
-                                        <div className="flex items-center gap-2">
-                                            <input type="range" min={0} max={maxWeaponRank(weapon.canOverLevel)} value={buildCfg.weaponRank}
-                                                onChange={e => setBuildCfg(p => ({ ...p, weaponRank: +e.target.value }))} className="flex-1 accent-blue-500" />
-                                            <span className="text-sm font-mono text-slate-200 w-7 text-right">{buildCfg.weaponRank}</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] uppercase tracking-wide text-slate-500 block mb-1.5">Mastery Rank</label>
-                                        <div className="flex items-center gap-2">
-                                            <input type="range" min={0} max={40} value={buildCfg.masteryRank}
-                                                onChange={e => setBuildCfg(p => ({ ...p, masteryRank: +e.target.value }))} className="flex-1 accent-blue-500" />
-                                            <span className="text-sm font-mono text-slate-200 w-7 text-right">{buildCfg.masteryRank}</span>
-                                        </div>
-                                        <div className="text-[9px] text-slate-600 mt-0.5">Min cap: {minModCapacity(buildCfg.masteryRank)}</div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] uppercase tracking-wide text-slate-500">Orokin Catalyst</label>
-                                        <button onClick={() => setBuildCfg(p => ({ ...p, hasCatalyst: !p.hasCatalyst }))}
-                                            className={["flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors",
-                                                buildCfg.hasCatalyst ? "border-cyan-700/60 bg-cyan-950/30 text-cyan-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300"].join(" ")}>
-                                            {buildCfg.hasCatalyst ? "◈ Installed — ×2 capacity" : "○ Not installed"}
-                                        </button>
-                                        <div className="text-[10px] text-slate-400">
-                                            Total: <span className="font-mono text-slate-200 font-semibold">{totalModCapacity(capacityCfg)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Capacity bar */}
-                            {capacity && (
-                                <div className={["rounded-2xl border p-4",
-                                    capacity.overCapacity ? "border-red-700/50 bg-red-950/20" : "border-slate-800 bg-slate-950/40"].join(" ")}>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="text-sm font-semibold flex items-center gap-2">
-                                            Mod Capacity
-                                            {capacity.overCapacity && <span className="text-xs font-normal text-red-400">⚠ Over capacity!</span>}
-                                        </div>
-                                        <div className="font-mono text-sm flex items-center gap-1">
-                                            <span className={capacity.overCapacity ? "text-red-400" : "text-slate-200"}>{capacity.usedCapacity}</span>
-                                            <span className="text-slate-600">/</span>
-                                            <span className="text-slate-300">{capacity.totalCapacity}</span>
-                                            {capacity.auraGrant > 0 && <span className="text-[10px] text-green-400 ml-1">(+{capacity.auraGrant} aura)</span>}
-                                        </div>
-                                    </div>
-                                    <CapBar used={capacity.usedCapacity} total={capacity.totalCapacity} over={capacity.overCapacity} />
-                                    <div className="flex justify-between mt-1.5 text-[10px] text-slate-600">
-                                        <span>{capacity.remainingCapacity >= 0 ? `${capacity.remainingCapacity} remaining` : `${Math.abs(capacity.remainingCapacity)} over`}</span>
-                                        <span>{buildCfg.hasCatalyst ? "Catalyzed ×2 · " : ""}Rank {buildCfg.weaponRank} · MR{buildCfg.masteryRank}</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Mod slots */}
-                            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="text-sm font-semibold">Mod Slots</div>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={handleCopyBuildExport}
-                                            disabled={!currentBuildExport}
-                                            className="text-[10px] px-2.5 py-1 rounded-full border border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200 disabled:opacity-50 disabled:hover:border-slate-700 disabled:hover:text-slate-400 transition-colors"
-                                        >
-                                            {copiedExport ? "Copied Build JSON" : "Copy Build JSON"}
-                                        </button>
-                                        <span className="text-[10px] text-slate-500">{slots.filter(Boolean).length}/{SLOT_COUNT} filled</span>
-                                        <button
-                                            onClick={() => weapon && resetBuildForWeapon(weapon)}
-                                            className="text-[10px] px-2.5 py-1 rounded-full border border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200 transition-colors"
-                                        >
-                                            Reset Build
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="text-[10px] text-slate-600 mb-3">
-                                    Use <span className="text-slate-400">Copy Build JSON</span> to export the current build, assumptions, calculated stats, and math breakdown for comparison with other optimizers.
-                                </div>
-                                {weapon.category === "Melee" && weapon.stancePolarity && stanceMods.length > 0 && (
-                                    <div className="mb-3 pb-3 border-b border-slate-800/50">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div>
-                                                <div className="text-[10px] uppercase tracking-wide text-slate-500">Stance Slot</div>
-                                                <div className="text-[11px] text-slate-600">{weapon.stanceClass ?? "Melee Stance"}</div>
-                                            </div>
-                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
-                                                <span>Slot</span>
-                                                <PolarityIcon polarity={weapon.stancePolarity} className="w-3.5 h-3.5" />
-                                            </div>
-                                        </div>
-                                        <ModSlot index={0} label="Stance" mod={stanceMod} rank={stanceRank}
-                                            slotPolarity={weapon.stancePolarity} compatMods={stanceMods}
-                                            usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
-                                            excluded={excluded}
-                                            onChange={(_, m) => { setStanceMod(m); setStanceRank(m ? m.fusionLimit : 0); }}
-                                            onRankChange={(_, r) => setStanceRank(r)}
-                                            onPolarityChange={() => {}}
-                                            onToggleExclude={toggleExclude}
-                                            effDrain={stanceMod ? effectiveDrain(stanceMod, weapon.stancePolarity, stanceRank) : 0} />
-                                    </div>
-                                )}
-                                <div className="grid grid-cols-2 gap-2">
-                                    {slots.map((mod, i) => (
-                                        <ModSlot key={i} index={i} mod={mod} rank={ranks[i] ?? 0}
-                                            slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
-                                            usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
-                                            excluded={excluded}
-                                            onChange={handleSlotChange} onRankChange={handleRankChange}
-                                            onPolarityChange={handlePolChange}
-                                            onToggleExclude={toggleExclude}
-                                            effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0} />
-                                    ))}
-                                </div>
-                                <div className="mt-3 pt-3 border-t border-slate-800/50 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-slate-500">
-                                    <span><span className="text-green-400 font-bold">#</span> matching (½ cost)</span>
-                                    <span><span className="text-amber-400 font-bold">#</span> non-matching (+¼ cost)</span>
-                                    <span><span className="text-slate-400 font-bold">#</span> no polarity (base cost)</span>
-                                </div>
-                            </div>
-
-                            {/* Exilus slot */}
-                            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="text-sm font-semibold">Exilus Weapon Slot</div>
-                                    <button onClick={() => { setHasExilus(v => !v); if (hasExilus) { setExilusMod(null); setExilusRank(0); } }}
-                                        className={["text-xs px-3 py-1 rounded-full border transition-colors",
-                                            hasExilus ? "border-blue-700/60 bg-blue-950/20 text-blue-300" : "border-slate-700 text-slate-500 hover:border-slate-600"].join(" ")}>
-                                        {hasExilus ? "Adapter installed" : "Install Exilus Adapter"}
-                                    </button>
-                                </div>
-                                {hasExilus ? (
-                                    <ModSlot index={0} label="Exilus" mod={exilusMod} rank={exilusRank}
-                                        slotPolarity={exilusPol} compatMods={compatMods}
-                                        usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
-                                        isExilusSlot={true}
-                                        excluded={excluded}
-                                        onChange={handleExilusChange}
-                                        onRankChange={(_, r) => setExilusRank(r)}
-                                        onPolarityChange={(_, p) => setExilusPol(p)}
-                                        onToggleExclude={toggleExclude}
-                                        effDrain={exilusMod ? effectiveDrain(exilusMod, exilusPol, exilusRank) : 0} />
-                                ) : (
-                                    <div className="text-[11px] text-slate-600 text-center py-1">Requires an Exilus Weapon Adapter to unlock.</div>
-                                )}
-                            </div>
-
-                            {/* Arcane slot — weapons have 1 slot */}
-                            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="text-sm font-semibold">Arcane Enhancement</div>
-                                    {arcane1 && (
-                                        <button
-                                            onClick={() => setIncludeArcaneStats(v => !v)}
-                                            className={["text-xs px-2.5 py-1 rounded-full border transition-colors",
-                                                includeArcaneStats
-                                                    ? "border-violet-700/60 bg-violet-950/30 text-violet-300"
-                                                    : "border-slate-700 text-slate-500 hover:border-slate-600"].join(" ")}
-                                        >
-                                            {includeArcaneStats ? "◈ Stats included in calc" : "○ Stats excluded from calc"}
-                                        </button>
-                                    )}
-                                </div>
-                                <ArcaneSlot label="Arcane" arcane={arcane1} rank={arcane1Rank}
-                                    onChange={setArcane1} onRankChange={setArcane1Rank}
-                                    availableArcanes={weaponArcanes} />
-                                {arcane1 && (
-                                    <div className="mt-2 text-[10px] text-slate-600">
-                                        Permanent stats (like Reload Speed) are included in DPS calculations when toggled on.
-                                        Conditional procs (On Kill, On Headshot, etc.) are display-only.
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Riven slot */}
-                            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-                                <div className="text-sm font-semibold mb-3">Riven Mod</div>
-                                <RivenSlotEditor
-                                    weaponName={weapon.name}
-                                    rivenMod={rivenMod}
-                                    rivenDrain={16}
-                                    rivenPolarity={rivenMod?.polarity ?? ""}
-                                    onUpdate={handleRivenUpdate}
-                                    onRemove={handleRivenRemove} />
-                                <div className="mt-2 text-[10px] text-slate-600">
-                                    Riven stats are entered manually. The riven occupies one of the 8 standard mod slots.
-                                </div>
-                            </div>
-
-                            {/* Optimizer */}
-                            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 space-y-3">
-                                <div className="text-sm font-semibold">Auto-Optimize</div>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {GOAL_OPTIONS.map(g => (
-                                        <button key={g.key} onClick={() => setGoal(g.key)} title={g.desc}
-                                            className={["rounded-full px-3 py-1 text-xs border transition-colors",
-                                                goal === g.key ? "bg-slate-100 text-slate-900 border-slate-100" : "bg-slate-950/40 text-slate-300 border-slate-700 hover:bg-slate-900"].join(" ")}>
-                                            {g.label}
-                                        </button>
-                                    ))}
-                                </div>
-                                {/* Row 1 — filter / search */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                    {([
-                                        { k: "cap",     label: "Respect Capacity", active: respectCap,  set: setRespectCap,  desc: "Only use mods that fit within the weapon mod capacity." },
-                                        { k: "nonmax",  label: "Allow Non-Maxed",  active: allowNonMax, set: setAllowNonMax, desc: "Try lower-ranked mods so more fit within capacity." },
-                                        { k: "owned",   label: "Owned Only",       active: onlyOwned,   set: setOnlyOwned,   desc: "Only use mods you have marked as owned." },
-                                        { k: "faction", label: "Faction Focus",    active: factionOn,   set: setFactionOn,   desc: "Include faction damage mods in the build." },
-                                    ] as const).map(t => (
-                                        <button key={t.k} onClick={() => t.set(!t.active)} title={t.desc}
-                                            className={["rounded-lg border px-2.5 py-2 text-xs text-left transition-colors",
-                                                t.active ? "border-blue-700/60 bg-blue-950/20 text-blue-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300"].join(" ")}>
-                                            <div className="flex items-center gap-1.5">
-                                                <span className={["w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
-                                                    t.active ? "border-blue-400 bg-blue-400" : "border-slate-600"].join(" ")}>
-                                                    {t.active && <span className="text-slate-900 text-[8px]">&#10003;</span>}
-                                                </span>
-                                                <span className="font-semibold">{t.label}</span>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {/* Row 2 — gear auto-apply */}
-                                <div className="space-y-1.5">
-                                    <div className="text-[10px] text-slate-600 uppercase tracking-wide">Auto-apply to build</div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                        {([
-                                            { k: "catalyst", label: "Allow Catalyst",  active: allowCatalyst, set: setAllowCatalyst, desc: "Assume Orokin Catalyst installed (doubles capacity). Marks build as needing one." },
-                                            { k: "forma",    label: "Allow Forma",     active: allowForma,    set: setAllowForma,    desc: "Reassign slot polarities for minimum drain. Updates your slot polarities." },
-                                            { k: "exilus",   label: "Optimize Exilus", active: optExilus,     set: setOptExilus,     desc: "Pick the best exilus mod and auto-install an Exilus Adapter for the optimized build if needed." },
-                                            { k: "arcane",   label: "Optimize Arcane", active: optArcane,     set: setOptArcane,     desc: "Pick best arcane enhancement with permanent stat bonuses." },
-                                        ] as const).map(t => (
-                                            <button key={t.k} onClick={() => t.set(!t.active)} title={t.desc}
-                                                className={["rounded-lg border px-2.5 py-2 text-xs text-left transition-colors",
-                                                    t.active ? "border-cyan-700/60 bg-cyan-950/20 text-cyan-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300"].join(" ")}>
-                                                <div className="flex items-center gap-1.5">
-                                                    <span className={["w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
-                                                        t.active ? "border-cyan-400 bg-cyan-400" : "border-slate-600"].join(" ")}>
-                                                        {t.active && <span className="text-slate-900 text-[8px]">&#10003;</span>}
-                                                    </span>
-                                                    <span className="font-semibold">{t.label}</span>
+                            <div className="rounded-[28px] border border-slate-800 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,32,0.95))] shadow-[0_24px_80px_rgba(2,6,23,0.45)] overflow-visible">
+                                <div className="border-b border-slate-800/80 bg-slate-950/70 px-4 py-3">
+                                    <div className="flex flex-wrap items-start gap-3 justify-between">
+                                        <div className="min-w-0 flex-1">
+                                            <div className="text-[11px] uppercase tracking-[0.24em] text-orange-300/90">Arsenal Modding</div>
+                                            <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                <div className="w-[360px] max-w-full">
+                                                    <WeaponSelector selected={weapon} onSelect={handleSelectWeapon} />
                                                 </div>
+                                                {weapon && formaCount > 0 && (
+                                                    <span className="rounded-full border border-slate-700 bg-slate-900/70 px-2.5 py-1 text-[10px] uppercase tracking-wide text-slate-300">
+                                                        {formaCount} forma
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-2 justify-end">
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {GOAL_OPTIONS.map(g => (
+                                                    <GoalChip
+                                                        key={g.key}
+                                                        label={g.label}
+                                                        desc={g.desc}
+                                                        active={goal === g.key}
+                                                        onClick={() => setGoal(g.key)}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <button
+                                                onClick={() => setShowOptimizeOptions(v => !v)}
+                                                className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1.5 text-[11px] text-slate-300 transition-colors hover:border-slate-500 hover:text-slate-100"
+                                            >
+                                                Options {showOptimizeOptions ? "▴" : "▾"}
                                             </button>
-                                        ))}
+                                            <button onClick={handleOptimize} disabled={optimizing || !weapon}
+                                                className="rounded-xl px-4 py-2 text-sm border border-amber-600/60 bg-amber-950/30 text-amber-300 hover:bg-amber-900/40 disabled:opacity-50 transition-colors font-semibold">
+                                                {optimizing ? "Optimizing…" : "Optimize Build"}
+                                            </button>
+                                            <button
+                                                onClick={handleCopyBuildExport}
+                                                disabled={!currentBuildExport}
+                                                className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1.5 text-[11px] text-slate-300 transition-colors hover:border-slate-500 hover:text-slate-100 disabled:opacity-50"
+                                            >
+                                                {copiedExport ? "Copied Build JSON" : "Copy Build JSON"}
+                                            </button>
+                                            <button
+                                                onClick={() => weapon && resetBuildForWeapon(weapon)}
+                                                disabled={!weapon}
+                                                className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1.5 text-[11px] text-slate-300 transition-colors hover:border-slate-500 hover:text-slate-100 disabled:opacity-50"
+                                            >
+                                                Reset Build
+                                            </button>
+                                        </div>
                                     </div>
-                                    {optExilus && !hasExilus && (
-                                        <div className="text-[10px] text-cyan-400 mt-1">Optimizer will auto-install an Exilus Adapter for the optimized result.</div>
+                                    {showOptimizeOptions && (
+                                        <div className="mt-3 rounded-2xl border border-slate-800/80 bg-slate-950/30 p-3">
+                                            <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+                                                {([
+                                                    { label: "Respect Capacity", active: respectCap, set: setRespectCap, desc: "Only use mods that fit within the weapon mod capacity." },
+                                                    { label: "Allow Non-Maxed", active: allowNonMax, set: setAllowNonMax, desc: "Try lower-ranked mods so more fit within capacity." },
+                                                    { label: "Owned Only", active: onlyOwned, set: setOnlyOwned, desc: "Only use mods you have marked as owned." },
+                                                    { label: "Faction Focus", active: factionOn, set: setFactionOn, desc: "Target the selected faction specifically." },
+                                                    { label: "Allow Catalyst", active: allowCatalyst, set: setAllowCatalyst, desc: "Assume Orokin Catalyst installed if needed." },
+                                                    { label: "Allow Forma", active: allowForma, set: setAllowForma, desc: "Reassign slot polarities to reduce drain." },
+                                                    { label: "Optimize Exilus", active: optExilus, set: setOptExilus, desc: "Include the exilus slot in optimization." },
+                                                    { label: "Optimize Arcane", active: optArcane, set: setOptArcane, desc: "Choose the best arcane for the build." },
+                                                ] as const).map(t => (
+                                                    <button key={t.label} onClick={() => t.set(!t.active)} title={t.desc}
+                                                        className={["rounded-lg border px-2.5 py-1.5 text-[11px] text-left transition-colors",
+                                                            t.active ? "border-sky-700/60 bg-sky-950/20 text-sky-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300"].join(" ")}>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className={["w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
+                                                                t.active ? "border-sky-400 bg-sky-400" : "border-slate-600"].join(" ")}>
+                                                                {t.active && <span className="text-slate-900 text-[8px]">&#10003;</span>}
+                                                            </span>
+                                                            <span className="font-semibold">{t.label}</span>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                                                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+                                                    <div>
+                                                        <label className="text-[10px] uppercase tracking-wide text-slate-500 block mb-1.5">Weapon Rank</label>
+                                                        <div className="flex items-center gap-2">
+                                                            <input type="range" min={0} max={maxWeaponRank(weapon?.canOverLevel ?? false)} value={buildCfg.weaponRank}
+                                                                onChange={e => setBuildCfg(p => ({ ...p, weaponRank: +e.target.value }))} className="flex-1 accent-sky-500" />
+                                                            <span className="text-sm font-mono text-slate-200 w-7 text-right">{buildCfg.weaponRank}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] uppercase tracking-wide text-slate-500 block mb-1.5">Mastery Rank</label>
+                                                        <div className="flex items-center gap-2">
+                                                            <input type="range" min={0} max={40} value={buildCfg.masteryRank}
+                                                                onChange={e => setBuildCfg(p => ({ ...p, masteryRank: +e.target.value }))} className="flex-1 accent-sky-500" />
+                                                            <span className="text-sm font-mono text-slate-200 w-7 text-right">{buildCfg.masteryRank}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] uppercase tracking-wide text-slate-500 block mb-1.5">Installed</label>
+                                                        <button
+                                                            onClick={() => setBuildCfg(p => ({ ...p, hasCatalyst: !p.hasCatalyst }))}
+                                                            className={[
+                                                                "w-full rounded-lg border px-3 py-2 text-[11px] text-left transition-colors",
+                                                                buildCfg.hasCatalyst
+                                                                    ? "border-amber-600/60 bg-amber-950/25 text-amber-300"
+                                                                    : "border-slate-700 bg-slate-900/40 text-slate-400 hover:border-slate-600 hover:text-slate-200",
+                                                            ].join(" ")}
+                                                            title="Marks whether this weapon already has an Orokin Catalyst installed."
+                                                        >
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={[
+                                                                    "w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
+                                                                    buildCfg.hasCatalyst ? "border-amber-400 bg-amber-400" : "border-slate-600",
+                                                                ].join(" ")}>
+                                                                    {buildCfg.hasCatalyst && <span className="text-slate-900 text-[8px]">&#10003;</span>}
+                                                                </span>
+                                                                <span className="font-semibold">Catalyst Installed</span>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="min-h-[34px] flex items-center justify-start lg:justify-end">
+                                                    {factionOn && (
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {FACTIONS.map(f => (
+                                                                <button key={f} onClick={() => setFaction(f)}
+                                                                    className={["rounded-full px-2.5 py-1 text-[10px] border transition-colors",
+                                                                        faction === f ? "bg-orange-900/40 border-orange-600/60 text-orange-300" : "border-slate-700 text-slate-400 hover:border-slate-600"].join(" ")}>
+                                                                    {f}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
 
-                                {factionOn && (
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="text-[10px] text-slate-500 uppercase tracking-wide">Target</span>
-                                        {FACTIONS.map(f => (
-                                            <button key={f} onClick={() => setFaction(f)}
-                                                className={["rounded-full px-2.5 py-0.5 text-xs border transition-colors",
-                                                    faction === f ? "bg-orange-900/40 border-orange-600/60 text-orange-300" : "border-slate-700 text-slate-400 hover:border-slate-600"].join(" ")}>
-                                                {f}
-                                            </button>
-                                        ))}
+                                {weapon ? (
+                                <div className="grid xl:grid-cols-[280px_minmax(0,1fr)] gap-4 p-4">
+                                    <div className="rounded-2xl border border-slate-800 bg-slate-950/55 overflow-hidden">
+                                        <div className="border-b border-slate-800/70 px-4 py-3">
+                                            <div className="flex items-center justify-between">
+                                                <div className="text-[11px] uppercase tracking-[0.22em] text-orange-300">Capacity</div>
+                                                {displayedCapacity && (
+                                                    <div className="font-mono text-lg">
+                                                        <span className={displayedCapacity.over ? "text-red-400" : "text-orange-300"}>{displayedCapacity.used}</span>
+                                                        <span className="text-slate-600">/</span>
+                                                        <span className="text-slate-200">{displayedCapacity.total}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {displayedCapacity && (
+                                                <>
+                                                    <div className="mt-2">
+                                                        <CapBar used={displayedCapacity.used} total={displayedCapacity.total} over={displayedCapacity.over} />
+                                                    </div>
+                                                    <div className="mt-2 flex items-center justify-between text-[10px] text-slate-500">
+                                                        <span>{displayedCapacity.remaining >= 0 ? `${displayedCapacity.remaining} remaining` : `${Math.abs(displayedCapacity.remaining)} over`}</span>
+                                                        <span>{buildCfg.hasCatalyst ? "Catalyzed" : "Uncatalyzed"} · MR {buildCfg.masteryRank}</span>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+
+                                        {activeMetrics && (
+                                            <div className="space-y-4 px-4 py-4">
+                                                {weapon.attacks.length > 1 && (
+                                                    <div className="space-y-2">
+                                                        <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Attack Mode</div>
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {weapon.attacks.map((atk, i) => (
+                                                                <button
+                                                                    key={atk.name}
+                                                                    onClick={() => setSelectedAttackIdx(i)}
+                                                                    className={[
+                                                                        "rounded-full border px-2.5 py-1 text-[10px] transition-colors",
+                                                                        selectedAttackIdx === i
+                                                                            ? "border-sky-400/60 bg-sky-950/40 text-sky-200"
+                                                                            : "border-slate-700 bg-slate-950/40 text-slate-400 hover:border-slate-500",
+                                                                    ].join(" ")}
+                                                                >
+                                                                    {atk.name}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                <div className="flex gap-1.5">
+                                                    {([
+                                                        ["stats", "Weapon Stats"],
+                                                        ["why", "Why This Build"],
+                                                        ["math", "Math"],
+                                                    ] as const).map(([key, label]) => (
+                                                        <button
+                                                            key={key}
+                                                            onClick={() => setInfoTab(key)}
+                                                            className={[
+                                                                "rounded-full border px-2.5 py-1 text-[10px] transition-colors",
+                                                                infoTab === key
+                                                                    ? "border-sky-400/60 bg-sky-950/40 text-sky-200"
+                                                                    : "border-slate-700 bg-slate-950/40 text-slate-400 hover:border-slate-500",
+                                                            ].join(" ")}
+                                                        >
+                                                            {label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+
+                                                {infoTab === "stats" && (
+                                                    <>
+                                                        <div>
+                                                            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-yellow-300">Primary</div>
+                                                            <div className="space-y-1.5 text-sm">
+                                                                {[
+                                                                    ["Attack Speed", `${activeMetrics.modded.fireRate.toFixed(2)}`],
+                                                                    ["Magazine", displayMagazineValue(weapon, activeMetrics.modded.magazineSize)],
+                                                                    ["Reload", `${activeMetrics.modded.reloadTime.toFixed(2)}s`],
+                                                                    ["Multishot", `${activeMetrics.modded.multishot.toFixed(2)}`],
+                                                                    ["Burst DPS", fmt(activeMetrics.burstDPS)],
+                                                                    ["Sustained DPS", fmt(activeMetrics.sustainedDPS)],
+                                                                ].map(([label, value]) => (
+                                                                    <div key={label} className="flex items-center justify-between gap-3">
+                                                                        <span className="text-sky-200/85">{label}</span>
+                                                                        <span className="font-mono text-right text-yellow-200">{value}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        <div>
+                                                            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-yellow-300">Damage</div>
+                                                            <div className="space-y-1.5 text-sm">
+                                                                {[
+                                                                    ["Critical Chance", `${fmt(activeMetrics.modded.critChance * 100, 1)}%`],
+                                                                    ["Critical Damage", `${activeMetrics.modded.critMultiplier.toFixed(1)}x`],
+                                                                    ["Status", `${fmt(activeMetrics.modded.statusChance * 100, 1)}%`],
+                                                                ].map(([label, value]) => (
+                                                                    <div key={label} className="flex items-center justify-between gap-3">
+                                                                        <span className="text-sky-200/85">{label}</span>
+                                                                        <span className="font-mono text-right text-yellow-200">{value}</span>
+                                                                    </div>
+                                                                ))}
+                                                                {Object.entries(activeMetrics.modded.damageBreakdown)
+                                                                    .filter(([, value]) => value > 0)
+                                                                    .sort((a, b) => b[1] - a[1])
+                                                                    .map(([type, value]) => (
+                                                                        <div key={type} className="flex items-center justify-between gap-3">
+                                                                            <span className={[
+                                                                                "capitalize",
+                                                                                type === "viral" ? "text-lime-300" :
+                                                                                type === "heat" ? "text-orange-300" :
+                                                                                type === "cold" ? "text-cyan-300" :
+                                                                                type === "electricity" ? "text-violet-300" :
+                                                                                type === "toxin" ? "text-emerald-300" :
+                                                                                type === "slash" ? "text-red-300" :
+                                                                                type === "puncture" ? "text-yellow-100" :
+                                                                                type === "impact" ? "text-blue-300" :
+                                                                                "text-sky-200/80",
+                                                                            ].join(" ")}>{type}</span>
+                                                                            <span className="font-mono text-right text-yellow-200">{fmt(value, 1)}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                <div className="flex items-center justify-between gap-3 pt-1 text-base">
+                                                                    <span className="text-sky-100">Total</span>
+                                                                    <span className="font-mono text-right text-yellow-300">{fmt(activeMetrics.modded.arsenalDamage, 1)}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                )}
+
+                                                {infoTab === "why" && (
+                                                    <div className="space-y-3">
+                                                        {reasoning ? (
+                                                            <>
+                                                                <p className="text-[11px] text-slate-400">{reasoning.summary}</p>
+                                                                <div className="space-y-1.5">
+                                                                    {reasoning.steps.map((step, i) => (
+                                                                        <div key={i} className="rounded-lg bg-slate-900/50 border border-slate-800/50 px-3 py-2">
+                                                                            <div className="flex items-center justify-between gap-2">
+                                                                                <span className="text-xs font-semibold text-slate-200">{step.modName}</span>
+                                                                                <span className="text-[10px] font-mono text-green-400 shrink-0">+{step.pctGain.toFixed(1)}%</span>
+                                                                            </div>
+                                                                            <p className="mt-1 text-[10px] text-slate-500">{step.why}</p>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 px-3 py-3 text-[11px] text-slate-500">
+                                                                Run the optimizer to generate build reasoning.
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {infoTab === "math" && (
+                                                    <div className="space-y-3">
+                                                        {reasoningMath ? reasoningMath.sections.map((section) => (
+                                                            <div key={section.title} className="rounded-lg bg-slate-900/50 border border-slate-800/50 px-3 py-3">
+                                                                <div className="text-xs font-semibold text-slate-200 mb-2">{section.title}</div>
+                                                                <div className="space-y-1">
+                                                                    {section.lines.map((line, idx) => (
+                                                                        <div key={idx} className="text-[11px] font-mono text-slate-400 break-words">{line}</div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )) : (
+                                                            <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 px-3 py-3 text-[11px] text-slate-500">
+                                                                Run the optimizer to see the substituted math for the current build.
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                                {onlyOwned && ownedSet.size === 0 && (
-                                    <div className="rounded-lg border border-amber-700/40 bg-amber-950/20 px-3 py-2 text-[11px] text-amber-400">
-                                        &#9888; No mods marked as owned — optimizer will return no results. Go to Owned Mods tab first.
+
+                                    <div className="rounded-2xl border border-slate-800 bg-[radial-gradient(circle_at_top,rgba(30,41,59,0.45),rgba(2,6,23,0.9))] p-4">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div>
+                                                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Mod Configuration</div>
+                                                <div className="text-sm text-slate-300">8 standard slots, plus stance/exilus/arcane support.</div>
+                                            </div>
+                                            <div className="text-[10px] text-slate-500">{slots.filter(Boolean).length}/{SLOT_COUNT} slots filled</div>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            {weapon.category === "Melee" ? (
+                                                <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_320px]">
+                                                    <div className="space-y-3">
+                                                        <div className="grid gap-3 md:grid-cols-2">
+                                                            <div className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-2">
+                                                                <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-wide text-slate-500">
+                                                                    <span>Stance</span>
+                                                                    <PolarityPicker value={stancePol} onChange={setStancePol} />
+                                                                </div>
+                                                                {stanceMods.length > 0 ? (
+                                                                    <ModSlot index={0} label="Stance" weaponName={weapon.name} mod={stanceMod} rank={stanceRank}
+                                                                        slotPolarity={stancePol} compatMods={stanceMods}
+                                                                        usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                        excluded={excluded}
+                                                                        onChange={(_, m) => { setStanceMod(m); setStanceRank(m ? m.fusionLimit : 0); }}
+                                                                        onRankChange={(_, r) => setStanceRank(r)}
+                                                                        onPolarityChange={(_, p) => setStancePol(p)}
+                                                                        onToggleExclude={toggleExclude}
+                                                                        effDrain={stanceMod ? effectiveDrain(stanceMod, stancePol, stanceRank) : 0}
+                                                                        compactEmpty={true} />
+                                                                ) : (
+                                                                    <div className="rounded-lg border border-dashed border-slate-700 px-3 py-6 text-center text-[11px] text-slate-600">
+                                                                        No stance slot available.
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-2">
+                                                                <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-wide text-slate-500">
+                                                                    <span>Exilus</span>
+                                                                    <button onClick={() => { setHasExilus(v => !v); if (hasExilus) { setExilusMod(null); setExilusRank(0); } }}
+                                                                        className="rounded-full border border-slate-700 px-2 py-0.5 text-[9px] text-slate-300">
+                                                                        {hasExilus ? "Installed" : "Unlock"}
+                                                                    </button>
+                                                                </div>
+                                                                {hasExilus ? (
+                                                                    <ModSlot index={0} label="Exilus" weaponName={weapon.name} mod={exilusMod} rank={exilusRank}
+                                                                        slotPolarity={exilusPol} compatMods={compatMods}
+                                                                        usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                        isExilusSlot={true}
+                                                                        excluded={excluded}
+                                                                        onChange={handleExilusChange}
+                                                                        onRankChange={(_, r) => setExilusRank(r)}
+                                                                        onPolarityChange={(_, p) => setExilusPol(p)}
+                                                                        onToggleExclude={toggleExclude}
+                                                                        effDrain={exilusMod ? effectiveDrain(exilusMod, exilusPol, exilusRank) : 0}
+                                                                        compactEmpty={true} />
+                                                                ) : (
+                                                                    <div className="rounded-lg border border-dashed border-slate-700 px-3 py-6 text-center text-[11px] text-slate-600">
+                                                                        Requires an Exilus Adapter.
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="grid auto-rows-[minmax(216px,auto)] grid-cols-2 2xl:grid-cols-4 gap-3">
+                                                            {slots.map((mod, i) => (
+                                                                <ModSlot key={i} index={i} weaponName={weapon.name} mod={mod} rank={ranks[i] ?? 0}
+                                                                    slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
+                                                                    usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                    excluded={excluded}
+                                                                    onChange={handleSlotChange} onRankChange={handleRankChange}
+                                                                    onPolarityChange={handlePolChange}
+                                                                    onSelectRiven={handleOpenRivenEditor}
+                                                                    onToggleExclude={toggleExclude}
+                                                                    effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0} />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <div className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-3 self-start">
+                                                        <div className="mb-2 flex items-center justify-between">
+                                                            <div className="text-[10px] uppercase tracking-wide text-slate-500">Arcane</div>
+                                                            {arcane1 && (
+                                                                <button
+                                                                    onClick={() => setIncludeArcaneStats(v => !v)}
+                                                                    className={[
+                                                                        "rounded-full border px-2 py-0.5 text-[9px] transition-colors",
+                                                                        includeArcaneStats
+                                                                            ? "border-violet-700/60 bg-violet-950/30 text-violet-300"
+                                                                            : "border-slate-700 text-slate-500",
+                                                                    ].join(" ")}
+                                                                >
+                                                                    {includeArcaneStats ? "Stats On" : "Stats Off"}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        <ArcaneSlot label="Arcane Enhancement" arcane={arcane1} rank={arcane1Rank}
+                                                            onChange={setArcane1} onRankChange={setArcane1Rank}
+                                                            availableArcanes={weaponArcanes} />
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_320px]">
+                                                    <div className="grid auto-rows-[minmax(216px,auto)] grid-cols-2 2xl:grid-cols-4 gap-3">
+                                                        {slots.map((mod, i) => (
+                                                            <ModSlot key={i} index={i} weaponName={weapon.name} mod={mod} rank={ranks[i] ?? 0}
+                                                                slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
+                                                                usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                excluded={excluded}
+                                                                onChange={handleSlotChange} onRankChange={handleRankChange}
+                                                                onPolarityChange={handlePolChange}
+                                                                onSelectRiven={handleOpenRivenEditor}
+                                                                onToggleExclude={toggleExclude}
+                                                                effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0} />
+                                                        ))}
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        <div className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-3">
+                                                            <div className="mb-2 flex items-center justify-between">
+                                                                <div className="text-[10px] uppercase tracking-wide text-slate-500">Arcane</div>
+                                                                {arcane1 && (
+                                                                    <button
+                                                                        onClick={() => setIncludeArcaneStats(v => !v)}
+                                                                        className={[
+                                                                            "rounded-full border px-2 py-0.5 text-[9px] transition-colors",
+                                                                            includeArcaneStats
+                                                                                ? "border-violet-700/60 bg-violet-950/30 text-violet-300"
+                                                                                : "border-slate-700 text-slate-500",
+                                                                        ].join(" ")}
+                                                                    >
+                                                                        {includeArcaneStats ? "Stats On" : "Stats Off"}
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                            <ArcaneSlot label="Arcane Enhancement" arcane={arcane1} rank={arcane1Rank}
+                                                                onChange={setArcane1} onRankChange={setArcane1Rank}
+                                                                availableArcanes={weaponArcanes} />
+                                                        </div>
+                                                        <div className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-2">
+                                                            <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-wide text-slate-500">
+                                                                <span>Exilus</span>
+                                                                <button onClick={() => { setHasExilus(v => !v); if (hasExilus) { setExilusMod(null); setExilusRank(0); } }}
+                                                                    className="rounded-full border border-slate-700 px-2 py-0.5 text-[9px] text-slate-300">
+                                                                    {hasExilus ? "Installed" : "Unlock"}
+                                                                </button>
+                                                            </div>
+                                                            {hasExilus ? (
+                                                                <ModSlot index={0} label="Exilus" weaponName={weapon.name} mod={exilusMod} rank={exilusRank}
+                                                                    slotPolarity={exilusPol} compatMods={compatMods}
+                                                                    usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                    isExilusSlot={true}
+                                                                    excluded={excluded}
+                                                                    onChange={handleExilusChange}
+                                                                    onRankChange={(_, r) => setExilusRank(r)}
+                                                                    onPolarityChange={(_, p) => setExilusPol(p)}
+                                                                    onToggleExclude={toggleExclude}
+                                                                    effDrain={exilusMod ? effectiveDrain(exilusMod, exilusPol, exilusRank) : 0} />
+                                                            ) : (
+                                                                <div className="rounded-lg border border-dashed border-slate-700 px-3 py-6 text-center text-[11px] text-slate-600">
+                                                                    Requires an Exilus Adapter.
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="text-[10px] text-slate-500">
+                                                Rivens are configured by selecting a Riven from any standard mod slot.
+                                            </div>
+                                        </div>
                                     </div>
-                                )}
-                                <div className="flex items-center gap-3 flex-wrap">
-                                    <button onClick={handleOptimize} disabled={optimizing}
-                                        className="rounded-full px-5 py-2 text-xs border border-amber-600/60 bg-amber-950/30 text-amber-300 hover:bg-amber-900/40 disabled:opacity-50 transition-colors font-semibold">
-                                        {optimizing ? "Optimizing…" : "Optimize ▶"}
-                                    </button>
-                                    <p className="text-[10px] text-slate-600">
-                                        Beam search (width 64).{respectCap ? " Capacity-constrained." : ""}{allowNonMax ? " Sub-ranked mods allowed." : ""}{allowCatalyst ? " Catalyst assumed." : ""}{allowForma ? " Forma assigned." : ""}{onlyOwned && ownedSet.size > 0 ? " Owned only." : ""}{factionOn ? ` vs ${faction}.` : ""}{optExilus ? " Exilus included." : ""}{optArcane ? " Arcane included." : ""}
-                                    </p>
                                 </div>
+                                ) : (
+                                    <div className="p-6 text-center text-slate-500 text-sm">
+                                        Choose a weapon from the Arsenal header to start building.
+                                    </div>
+                                )}
                             </div>
 
-                            {reasoning && <ReasoningPanel reasoning={reasoning} math={reasoningMath} />}
-
-                            {/* ── Calculated Stats ── */}
-                            {(() => {
+                            <div className="grid 2xl:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_320px] gap-4">
+                                <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+                                    <div className="text-sm font-semibold mb-3">Advanced Analysis</div>
+                                    {(() => {
                                 if (!weapon) return null;
 
                                 // Build the full mod effects list (slots + exilus + arcane)
@@ -2224,7 +2782,7 @@ export default function ModBuilder() {
                                 const hasMultipleAttacks = weapon.attacks.length > 1;
 
                                 return (
-                                    <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 space-y-4">
+                                    <div className="space-y-4">
                                         <div className="flex items-center justify-between flex-wrap gap-2">
                                             <div className="text-sm font-semibold flex items-center gap-2">
                                                 Calculated Stats
@@ -2262,17 +2820,36 @@ export default function ModBuilder() {
                                     </div>
                                 );
                             })()}
+                                </div>
 
-                        </>
-                    )}
+                                <div className="space-y-4">
+                                    <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+                                        <div className="text-sm font-semibold mb-3">Build Utilities</div>
+                                        <div className="text-[10px] text-slate-600 mb-3">
+                                            Copy the current build snapshot for comparisons with other tools, or switch tabs to manage owned mods, exclusions, and saved builds.
+                                        </div>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {(["saves","owned","ownedArcanes","exclude"] as const).map(t => (
+                                                <button key={t} onClick={() => setTab(t)}
+                                                    className="rounded-full px-3 py-1 text-xs border border-slate-700 text-slate-300 hover:border-slate-500">
+                                                    {t === "saves" ? "Saved Builds" : t === "owned" ? "Owned Mods" : t === "ownedArcanes" ? "Owned Arcanes" : `Excluded${excluded.size ? ` (${excluded.size})` : ""}`}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                 </>
             )}
 
-            {!weapon && (
-                <div className="rounded-2xl border border-slate-800/60 bg-slate-950/20 p-8 text-center">
-                    <div className="text-slate-400 text-sm">Select a weapon to begin building.</div>
-                    <div className="text-slate-600 text-xs mt-1">Polarity icons · Mod rank sliders · Exilus & Arcane slots · Riven mod · Forma counter · Beam search optimizer</div>
-                </div>
+            {weapon && (
+                <RivenModal
+                    open={rivenEditorSlot !== null}
+                    weaponName={weapon.name}
+                    onClose={() => setRivenEditorSlot(null)}
+                    onApply={handleRivenUpdate}
+                />
             )}
         </div>
     );

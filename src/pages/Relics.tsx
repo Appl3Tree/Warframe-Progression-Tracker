@@ -365,7 +365,10 @@ export default function Tools() {
     const [toolsTab, setToolsTab] = useState<ToolsTab>("relics");
 
     return (
-        <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-4">
+        <div className={[
+            "space-y-4",
+            toolsTab === "modbuilder" ? "px-1 md:px-2" : "p-4 md:p-6 max-w-4xl mx-auto",
+        ].join(" ")}>
             {/* Page header */}
             <div>
                 <h1 className="text-2xl font-bold">Tools</h1>
@@ -419,7 +422,10 @@ function RelicFarming() {
             goals: goals.filter((g) => g.isActive),
             completedPrereqs,
             inventory,
-            expandMode: "direct",
+            // Relic farming needs the full prime part tree, not just the top-level
+            // output or its immediate blueprint, so prime frame/weapon goals surface
+            // all relevant relic rewards.
+            expandMode: "recursive",
             syndicateScope: "nextOnly",
         });
         const farming = buildFarmingSnapshot({ requirements, completedPrereqs });

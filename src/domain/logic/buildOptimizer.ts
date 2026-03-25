@@ -17,11 +17,12 @@ import { getArcanesByWeaponCategory } from "../catalog/arcaneCatalog";
 import { calculateBuild, avgCritMultiplier, estimateConditionalUptime } from "./damageCalc";
 import { computeCapacity, effectiveDrain, type CapacityConfig, type SlotConfig } from "./capacityCalc";
 
-export type OptimizeGoal = "damage" | "crit" | "status" | "balanced";
+export type OptimizeGoal = "damage" | "crit" | "status";
 
 export interface OptimizerOptions {
     ownedModNames?: Set<string>;
     ownedArcaneUniqueNames?: Set<string>;
+    ownedArcaneMaxRankByUniqueName?: Record<string, number>;
     excludedModNames?: Set<string>;
     allowNonMaxRank?: boolean;
     targetFaction?: string;
@@ -29,6 +30,8 @@ export interface OptimizerOptions {
     capacityConfig?: CapacityConfig;
     /** Slot polarities for the 8 main slots (used for both capacity and assignment). */
     slotPolarities?: string[];
+    /** Weapon default slot polarities, used to minimize unnecessary forma. */
+    defaultSlotPolarities?: string[];
     /**
      * If true, optimizer assumes a Catalyst is installed (doubles capacity) regardless
      * of capacityConfig.hasCatalyst. Also marks the result as needing a catalyst.
@@ -56,6 +59,12 @@ export interface OptimizerOptions {
      * Requires the weapon category to be known (from weapon.category).
      */
     optimizeArcane?: boolean;
+    /** Mods that are always present for capacity accounting, e.g. melee stance. */
+    extraCapacitySlots?: Array<{
+        mod: ModEntry;
+        rank: number;
+        polarity: string;
+    }>;
 }
 
 export interface OptimizeResult {
@@ -297,7 +306,7 @@ function scoreEffects(
         ? { ...emptyEffect(), ...arcaneEffect, conditionalEffects: [...(arcaneEffect.conditionalEffects ?? [])] }
         : null;
     const allEffects = normalizedArcaneEffect ? [...effects, normalizedArcaneEffect] : effects;
-    const { modded, sustainedDPS, burstDPS } = calculateBuild(weapon, allEffects, targetFaction);
+    const { modded, sustainedDPS } = calculateBuild(weapon, allEffects, targetFaction);
     let statusDurationBonus = 0;
     let statusDamageBonus = 0;
     let projectileSpeedBonus = 0;
@@ -465,7 +474,6 @@ function scoreEffects(
         case "damage":   return targetAdjustedDamageScore * (1 + directDamagePerStatusWeight * 0.35 + utilityWeight * 0.25);
         case "crit":     return avgCritMultiplier(modded.critChance, modded.critMultiplier) * (1 + (headshotMultiplierBonus + weakPointCritChanceBonus + weakPointDamageBonus) * 0.35 + directDamagePerStatusWeight * 0.15 + utilityWeight * 0.08);
         case "status":   return ((modded.averageProcsPerShot + adjustedDotDps * 0.02 + blastUtilityDps * 0.01) * (1 + statusWeight + finalStatusChanceBonus + directDamagePerStatusWeight * 0.2)) * (1 + statusDamageBonus * 0.35 + statusDurationBonus * 0.15 + utilityWeight * 0.12);
-        case "balanced": return (targetAdjustedDamageScore + burstDPS * 0.25) * (1 + modded.averageProcsPerShot * 0.35 + statusWeight * 0.25 + directDamagePerStatusWeight * 0.25 + utilityWeight * 0.2);
     }
 }
 
@@ -502,10 +510,19 @@ function fitsCapacity(
     ranks: (number | undefined)[],
     cfg: CapacityConfig,
     pols: string[],
+    extraCapacitySlots: OptimizerOptions["extraCapacitySlots"] = [],
 ): boolean {
     const slotCfgs: SlotConfig[] = pols.map(p => ({ polarity: p }));
     while (slotCfgs.length < slots.length) slotCfgs.push({ polarity: "" });
-    return !computeCapacity(cfg, slotCfgs, slots, ranks).overCapacity;
+    const extraCfgs = extraCapacitySlots.map(slot => ({ polarity: slot.polarity }));
+    const extraMods = extraCapacitySlots.map(slot => slot.mod);
+    const extraRanks = extraCapacitySlots.map(slot => slot.rank);
+    return !computeCapacity(
+        cfg,
+        [...extraCfgs, ...slotCfgs],
+        [...extraMods, ...slots],
+        [...extraRanks, ...ranks],
+    ).overCapacity;
 }
 
 // ── Optimal polarity for a mod in a slot ─────────────────────────────────────
@@ -592,6 +609,48 @@ export function assignModsToSlots(
     return { slotMods, slotRanks, resultPolarities: resultPols };
 }
 
+function minimizeFormaPolarities(
+    basePolarities: string[],
+    currentPolarities: string[],
+    slotMods: (ModEntry | null)[],
+    slotRanks: number[],
+    capacityConfig?: CapacityConfig,
+    extraCapacitySlots: Array<{ mod: ModEntry; rank: number; polarity: string }> = [],
+): string[] {
+    const minimized = [...currentPolarities];
+    while (minimized.length < slotMods.length) minimized.push("");
+
+    for (let i = 0; i < slotMods.length; i++) {
+        const original = basePolarities[i] ?? "";
+        if (minimized[i] === original) continue;
+
+        const trial = [...minimized];
+        trial[i] = original;
+
+        if (!capacityConfig || fitsCapacity(slotMods, slotRanks, capacityConfig, trial, extraCapacitySlots)) {
+            minimized[i] = original;
+        }
+    }
+
+    return minimized;
+}
+
+function preferExistingPolaritiesIfTheyFit(
+    basePolarities: string[],
+    optimizedPolarities: string[],
+    slotMods: (ModEntry | null)[],
+    slotRanks: number[],
+    capacityConfig?: CapacityConfig,
+    extraCapacitySlots: Array<{ mod: ModEntry; rank: number; polarity: string }> = [],
+): string[] {
+    const paddedBase = [...basePolarities];
+    while (paddedBase.length < slotMods.length) paddedBase.push("");
+    if (!capacityConfig) return paddedBase;
+    return fitsCapacity(slotMods, slotRanks, capacityConfig, paddedBase, extraCapacitySlots)
+        ? paddedBase
+        : optimizedPolarities;
+}
+
 // ── Beam search ───────────────────────────────────────────────────────────────
 // Scores each candidate set using the REAL slot polarities (or optimal forma
 // polarities if allowForma is set) — this avoids over-conservative capacity
@@ -631,6 +690,7 @@ function beamSearch(
         capacityConfig,
         targetFaction = "",
         allowForma = false,
+        extraCapacitySlots = [],
     } = opts;
 
     // Effective polarities for capacity checking during beam search.
@@ -672,7 +732,7 @@ function beamSearch(
 
                 if (capacityConfig) {
                     const checkPols = getCheckPols(newMods);
-                    if (!fitsCapacity(newMods, newRanks, capacityConfig, checkPols)) continue;
+                    if (!fitsCapacity(newMods, newRanks, capacityConfig, checkPols, extraCapacitySlots)) continue;
                 }
 
                 const s = scoreSlots(weapon, newMods, newRanks, goal, targetFaction, arcaneEffect);
@@ -723,6 +783,88 @@ function beamSearch(
     return { mods: resultMods, ranks: resultRanks };
 }
 
+function refineBuildSet(
+    weapon: WeaponEntry,
+    selectedMods: ModEntry[],
+    selectedRanks: number[],
+    candidates: Candidate[],
+    goal: OptimizeGoal,
+    opts: OptimizerOptions,
+    extraEffects: (ModEffect | null)[] = [],
+    arcaneEffect?: Partial<ModEffect> | null,
+): { mods: ModEntry[]; ranks: number[] } {
+    const {
+        slotPolarities = [],
+        targetFaction = "",
+        allowForma = false,
+        capacityConfig,
+    } = opts;
+
+    let mods = [...selectedMods];
+    let ranks = [...selectedRanks];
+    const padded = [...slotPolarities];
+    while (padded.length < mods.length) padded.push("");
+
+    const scoreCurrent = (modsToScore: ModEntry[], ranksToScore: number[]) => {
+        const effects = modsToScore.map((mod, index) => mod.effectsByRank[ranksToScore[index]] ?? mod.effect);
+        return scoreEffects(weapon, [...effects, ...extraEffects], goal, targetFaction, arcaneEffect);
+    };
+
+    let improved = true;
+    while (improved) {
+        improved = false;
+        let bestScore = scoreCurrent(mods, ranks);
+        let bestMods = mods;
+        let bestRanks = ranks;
+
+        const presentGroups = new Set(mods.map(mod => mod.incompatibilityGroup));
+        const presentNames = new Set(mods.map(mod => mod.uniqueName));
+
+        for (let replaceIdx = 0; replaceIdx < mods.length; replaceIdx++) {
+            const replaced = mods[replaceIdx];
+            const baseGroups = new Set(presentGroups);
+            baseGroups.delete(replaced.incompatibilityGroup);
+            const baseNames = new Set(presentNames);
+            baseNames.delete(replaced.uniqueName);
+
+            for (const candidate of candidates) {
+                if (baseGroups.has(candidate.mod.incompatibilityGroup)) continue;
+                if (baseNames.has(candidate.mod.uniqueName)) continue;
+
+                const trialMods = [...mods];
+                const trialRanks = [...ranks];
+                trialMods[replaceIdx] = candidate.mod;
+                trialRanks[replaceIdx] = candidate.rank;
+
+                const { slotMods, slotRanks, resultPolarities } = assignModsToSlots(
+                    trialMods,
+                    trialRanks,
+                    padded,
+                    trialMods.length,
+                    allowForma,
+                );
+
+                if (capacityConfig && !fitsCapacity(slotMods, slotRanks, capacityConfig, resultPolarities, opts.extraCapacitySlots)) continue;
+
+                const compactMods = slotMods.filter((mod): mod is ModEntry => !!mod);
+                const compactRanks = slotMods.flatMap((mod, index) => (mod ? [slotRanks[index]] : []));
+                const trialScore = scoreCurrent(compactMods, compactRanks);
+                if (trialScore > bestScore) {
+                    bestScore = trialScore;
+                    bestMods = compactMods;
+                    bestRanks = compactRanks;
+                    improved = true;
+                }
+            }
+        }
+
+        mods = bestMods;
+        ranks = bestRanks;
+    }
+
+    return { mods, ranks };
+}
+
 // ── Exilus optimization ───────────────────────────────────────────────────────
 
 function optimizeExilusSlot(
@@ -745,10 +887,9 @@ function optimizeExilusSlot(
     );
     if (!eligibleExilus.length) return { mod: null, rank: 0 };
 
-    const baseScore = scoreEffects(weapon, mainBuildEffects, goal, targetFaction);
     let bestMod: ModEntry | null = null;
     let bestRank = 0;
-    let bestScore = baseScore;
+    let bestScore = -Infinity;
 
     for (const mod of eligibleExilus) {
         const minRank = opts.allowNonMaxRank ? 0 : mod.fusionLimit;
@@ -757,11 +898,11 @@ function optimizeExilusSlot(
                 const capSlots = [...mainSlots, mod];
                 const capRanks = [...mainSlotRanks, r];
                 const capPols = [...mainSlotPolarities, exilusPolarity];
-                if (!fitsCapacity(capSlots, capRanks, opts.capacityConfig, capPols)) continue;
+                if (!fitsCapacity(capSlots, capRanks, opts.capacityConfig, capPols, opts.extraCapacitySlots)) continue;
             }
             const e = mod.effectsByRank[r] ?? mod.effect;
             const s = scoreEffects(weapon, [...mainBuildEffects, e], goal, targetFaction);
-            if (s >= bestScore) { bestScore = s; bestMod = mod; bestRank = r; }
+            if (s > bestScore) { bestScore = s; bestMod = mod; bestRank = r; }
         }
     }
     return { mod: bestMod, rank: bestRank };
@@ -787,7 +928,9 @@ function optimizeArcaneSlot(
     let bestScore = baseScore;
 
     for (const arc of arcanes) {
-        for (let rank = arc.maxRank; rank >= 0; rank--) {
+        const ownedMaxRank = opts.ownedArcaneMaxRankByUniqueName?.[arc.uniqueName];
+        const rankCap = ownedMaxRank == null ? arc.maxRank : Math.min(arc.maxRank, ownedMaxRank);
+        for (let rank = rankCap; rank >= 0; rank--) {
             const e = arc.optimizerEffectByRank[rank] ?? arc.permanentEffectByRank[rank] ?? {};
             if (!Object.keys(e).length) continue;
             const s = scoreEffects(weapon, mainBuildEffects, goal, targetFaction, e);
@@ -810,6 +953,7 @@ export function optimizeBuild(
 
     const {
         slotPolarities = [],
+        defaultSlotPolarities = slotPolarities,
         targetFaction = "",
         allowCatalyst = false,
         allowForma = false,
@@ -834,31 +978,67 @@ export function optimizeBuild(
     const candidates = buildCandidates(availableMods, effectiveOpts);
 
     // Phase 1: Beam search — find best set of mods
-    const { mods, ranks } = beamSearch(scoringWeapon, candidates, goal, slotCount, effectiveOpts);
+    const initial = beamSearch(scoringWeapon, candidates, goal, slotCount, effectiveOpts);
+    let { mods, ranks } = refineBuildSet(
+        scoringWeapon,
+        initial.mods,
+        initial.ranks,
+        candidates,
+        goal,
+        effectiveOpts,
+    );
 
     // Phase 2: Assign mods to slots with polarity awareness
     const padded = [...slotPolarities];
     while (padded.length < slotCount) padded.push("");
+    const paddedDefaults = [...defaultSlotPolarities];
+    while (paddedDefaults.length < slotCount) paddedDefaults.push("");
 
     const { slotMods, slotRanks, resultPolarities } = assignModsToSlots(
         mods, ranks, padded, slotCount, allowForma
     );
+    let finalPolarities = allowForma && !!capCfg
+        ? minimizeFormaPolarities(paddedDefaults, resultPolarities, slotMods, slotRanks, capCfg, effectiveOpts.extraCapacitySlots ?? [])
+        : resultPolarities;
+    if (allowForma) {
+        finalPolarities = preferExistingPolaritiesIfTheyFit(
+            paddedDefaults,
+            finalPolarities,
+            slotMods,
+            slotRanks,
+            capCfg,
+            effectiveOpts.extraCapacitySlots ?? [],
+        );
+    }
 
     // Phase 3: Post-check capacity with real polarities; drop most expensive mod if over
     if (capCfg) {
         let iter = 0;
         while (iter++ < slotCount) {
-            if (fitsCapacity(slotMods, slotRanks, capCfg, resultPolarities)) break;
+            if (fitsCapacity(slotMods, slotRanks, capCfg, finalPolarities, effectiveOpts.extraCapacitySlots)) break;
             let worstSlot = -1, worstDrain = -Infinity;
             for (let si = 0; si < slotCount; si++) {
                 const m = slotMods[si];
                 if (!m) continue;
-                const d = effectiveDrain(m, resultPolarities[si] ?? "", slotRanks[si]);
+                const d = effectiveDrain(m, finalPolarities[si] ?? "", slotRanks[si]);
                 if (d > worstDrain) { worstDrain = d; worstSlot = si; }
             }
             if (worstSlot < 0) break;
             slotMods[worstSlot] = null;
             slotRanks[worstSlot] = 0;
+        }
+        if (allowForma && capCfg) {
+            finalPolarities = minimizeFormaPolarities(paddedDefaults, finalPolarities, slotMods, slotRanks, capCfg, effectiveOpts.extraCapacitySlots ?? []);
+        }
+        if (allowForma) {
+            finalPolarities = preferExistingPolaritiesIfTheyFit(
+                paddedDefaults,
+                finalPolarities,
+                slotMods,
+                slotRanks,
+                capCfg,
+                effectiveOpts.extraCapacitySlots ?? [],
+            );
         }
     }
 
@@ -873,7 +1053,7 @@ export function optimizeBuild(
     let exilusRank = 0;
     if (optimizeExilus) {
         const ex = optimizeExilusSlot(
-            scoringWeapon, availableMods, slotMods, slotRanks, resultPolarities, mainEffects, goal, targetFaction, exilusPolarity, effectiveOpts
+            scoringWeapon, availableMods, slotMods, slotRanks, finalPolarities, mainEffects, goal, targetFaction, exilusPolarity, effectiveOpts
         );
         exilusMod = ex.mod;
         exilusRank = ex.rank;
@@ -891,13 +1071,63 @@ export function optimizeBuild(
         arcaneRank = arc.rank;
     }
 
+    const contextualExtraEffects: (ModEffect | null)[] = [];
+    if (exilusMod) contextualExtraEffects.push(exilusMod.effectsByRank[exilusRank] ?? exilusMod.effect);
+    const contextualArcaneEffect =
+        arcane
+            ? (arcane.optimizerEffectByRank[arcaneRank] ?? arcane.permanentEffectByRank[arcaneRank] ?? null)
+            : null;
+
+    const refinedWithContext = refineBuildSet(
+        scoringWeapon,
+        slotMods.filter((m): m is ModEntry => !!m),
+        slotMods.flatMap((m, i) => (m ? [slotRanks[i]] : [])),
+        candidates,
+        goal,
+        effectiveOpts,
+        contextualExtraEffects,
+        contextualArcaneEffect,
+    );
+    mods = refinedWithContext.mods;
+    ranks = refinedWithContext.ranks;
+
+    const reassigned = assignModsToSlots(mods, ranks, padded, slotCount, allowForma);
+    let reassignedPolarities = allowForma && !!capCfg
+        ? minimizeFormaPolarities(paddedDefaults, reassigned.resultPolarities, reassigned.slotMods, reassigned.slotRanks, capCfg, effectiveOpts.extraCapacitySlots ?? [])
+        : reassigned.resultPolarities;
+    if (allowForma) {
+        reassignedPolarities = preferExistingPolaritiesIfTheyFit(
+            paddedDefaults,
+            reassignedPolarities,
+            reassigned.slotMods,
+            reassigned.slotRanks,
+            capCfg,
+            effectiveOpts.extraCapacitySlots ?? [],
+        );
+    }
+    for (let i = 0; i < slotCount; i++) {
+        slotMods[i] = reassigned.slotMods[i];
+        slotRanks[i] = reassigned.slotRanks[i];
+        finalPolarities[i] = reassignedPolarities[i];
+    }
+
+    const originalCapCfg = opts.capacityConfig;
+    const needsCatalyst =
+        !!(
+            allowCatalyst &&
+            originalCapCfg &&
+            !originalCapCfg.hasCatalyst &&
+            !fitsCapacity(slotMods, slotRanks, originalCapCfg, finalPolarities, effectiveOpts.extraCapacitySlots) &&
+            fitsCapacity(slotMods, slotRanks, { ...originalCapCfg, hasCatalyst: true }, finalPolarities, effectiveOpts.extraCapacitySlots)
+        );
+
     return {
         mods: slotMods.filter((m): m is ModEntry => m !== null),
         ranks: slotRanks.filter((_, i) => slotMods[i] !== null),
         slots: slotMods,
         slotRanks,
-        slotPolarities: resultPolarities,
-        needsCatalyst: allowCatalyst && !!(opts.capacityConfig && !opts.capacityConfig.hasCatalyst),
+        slotPolarities: finalPolarities,
+        needsCatalyst,
         exilusMod,
         exilusRank,
         arcane,
@@ -927,10 +1157,9 @@ export interface BuildReasoning {
 
 function goalLabel(goal: OptimizeGoal): string {
     switch (goal) {
-        case "damage":   return "Sustained DPS";
-        case "crit":     return "Crit EV";
-        case "status":   return "Status Chance";
-        case "balanced": return "Balanced DPS";
+        case "damage": return "Optimized";
+        case "crit": return "Crit Focus";
+        case "status": return "Status Focus";
     }
 }
 

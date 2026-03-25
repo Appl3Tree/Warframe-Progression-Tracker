@@ -3,6 +3,8 @@
 // Used by both the WorldState page and the Topbar notification bell
 // so both components see the same data without double-fetching.
 
+import { resolvePrimeResurgenceRelicDisplay } from "../domain/catalog/primeResurgence";
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type WsCycle = {
@@ -113,6 +115,7 @@ export type VoidTrader = {
 
 export type VaultTraderItem = {
     item: string;
+    uniqueName?: string;
     ducats?: number;
     credits?: number;
     discount?: number;
@@ -523,6 +526,24 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 let _cache: { data: WorldStateData; fetchedAt: number } | null = null;
 let _inflight: Promise<WorldStateData> | null = null;
 
+function normalizeVaultTraderItem(rawItem: any, rawUniqueName?: any): { item: string; uniqueName?: string } {
+    const sourceUniqueName = String(rawUniqueName ?? "").trim();
+    const sourceItem = String(rawItem ?? "").trim();
+    const lookup = sourceUniqueName || sourceItem;
+    if (!lookup) return { item: "" };
+    const resolvedRelic = resolvePrimeResurgenceRelicDisplay(lookup);
+    if (resolvedRelic) {
+        return {
+            item: resolvedRelic,
+            uniqueName: lookup,
+        };
+    }
+    return {
+        item: sourceItem || lookup,
+        uniqueName: sourceUniqueName || undefined,
+    };
+}
+
 export async function fetchWorldState(force = false): Promise<WorldStateData> {
     const now = Date.now();
     if (!force && _cache && now - _cache.fetchedAt < CACHE_TTL) {
@@ -655,7 +676,18 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                         ),
                         character:  j.vaultTrader.character  ?? "",
                         location:   j.vaultTrader.location   ?? "",
-                        inventory:  Array.isArray(j.vaultTrader.inventory) ? j.vaultTrader.inventory : [],
+                        inventory:  Array.isArray(j.vaultTrader.inventory)
+                            ? (j.vaultTrader.inventory as any[]).map((it): VaultTraderItem => {
+                                const normalized = normalizeVaultTraderItem(it?.item, it?.uniqueName);
+                                return {
+                                    item: normalized.item,
+                                    uniqueName: normalized.uniqueName,
+                                    ducats: typeof it?.ducats === "number" ? it.ducats : undefined,
+                                    credits: typeof it?.credits === "number" ? it.credits : undefined,
+                                    discount: typeof it?.discount === "number" ? it.discount : undefined,
+                                };
+                            })
+                            : [],
                         activation: j.vaultTrader.activation ?? "",
                         expiry:     j.vaultTrader.expiry     ?? "",
                     }

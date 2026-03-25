@@ -812,15 +812,18 @@ const MOD_ENTRIES_BASE: ModEntry[] = ALL_ENTRIES.filter(
     e.data?.ItemCompatibility !== "/Lotus/Powersuits/Operator/OperatorSuit",
 );
 
-// Supplement with Railjack/Plexus mods from All.json — these are not in mods.json
+// Supplement with mods from All.json that are missing from mods.json.
+// This catches PvP/event/oddball mods like Air Martial that the builder can still surface.
 const MODS_BASE_PATHS = new Set(MOD_ENTRIES_BASE.map((e) => e.path));
-const RAILJACK_SUPPLEMENT: ModEntry[] = (ALL_RAW as any[])
+const ALL_MODS_SUPPLEMENT: ModEntry[] = (ALL_RAW as any[])
   .filter(
     (item) =>
       item.category === "Mods" &&
-      (item.type === "Plexus Mod" || item.type === "Railjack Mod") &&
       item.name &&
       item.name !== "Unfused Artifact" &&
+      item.type !== "Arcane" &&
+      !String(item.type ?? "").includes("Riven") &&
+      item.compatName !== "Operator" &&
       !MODS_BASE_PATHS.has(item.uniqueName),
   )
   .map((item) => ({
@@ -830,7 +833,7 @@ const RAILJACK_SUPPLEMENT: ModEntry[] = (ALL_RAW as any[])
     data: undefined,
   }));
 
-const MOD_ENTRIES: ModEntry[] = [...MOD_ENTRIES_BASE, ...RAILJACK_SUPPLEMENT];
+const MOD_ENTRIES: ModEntry[] = [...MOD_ENTRIES_BASE, ...ALL_MODS_SUPPLEMENT];
 
 // Arcanes: category "arcane" + category "mod" with OperatorSuit compat (Magus series)
 const ARCANE_ENTRIES: ModEntry[] = ALL_ENTRIES.filter(
@@ -1655,6 +1658,14 @@ export default function Mods() {
 
     if (modOwnedFilter === "owned")   list = list.filter((e) => (counts[modKey(e.path)] ?? 0) > 0);
     if (modOwnedFilter === "unowned") list = list.filter((e) => (counts[modKey(e.path)] ?? 0) === 0);
+
+    // Safety net: some mod families can leak in from multiple sources with the same path.
+    // Dedup by path before rendering so React keys stay stable while scrolling/filtering.
+    const deduped = new Map<string, ModEntry>();
+    for (const entry of list) {
+      if (!deduped.has(entry.path)) deduped.set(entry.path, entry);
+    }
+    list = [...deduped.values()];
 
     list.sort((a, b) => {
       if (modSort === "release-newest" || modSort === "release-oldest") {

@@ -68,6 +68,7 @@ export default function Shell(props: { children: React.ReactNode }) {
         () => localStorage.getItem(NEW_PLAYER_DISMISSED_KEY) !== "1"
     );
     const setActivePage = useTrackerStore((s) => s.setActivePage);
+    const activePage = useTrackerStore((s) => s.state.ui.activePage);
 
     // Apply saved theme on first mount
     useEffect(() => { applyTheme(getStoredTheme()); }, []);
@@ -81,6 +82,8 @@ export default function Shell(props: { children: React.ReactNode }) {
         setActivePage("handbook");
         dismissNewPlayer();
     }
+
+    const isToolsWorkspace = activePage === "relics";
 
     return (
         // Full viewport, no overflow — nothing scrolls at this level
@@ -108,7 +111,10 @@ export default function Shell(props: { children: React.ReactNode }) {
                     {/* Inner wrapper: lg:h-full lets Dashboard fill the viewport via h-full
                         propagation. Pages with more content than the viewport overflow visibly
                         (overflow: visible default) and <main> scrolls normally. */}
-                    <div className="mx-auto max-w-7xl px-4 py-4 lg:h-full">
+                    <div className={[
+                        "py-4 lg:h-full",
+                        isToolsWorkspace ? "px-3 md:px-5 xl:px-6" : "mx-auto max-w-7xl px-4",
+                    ].join(" ")}>
                         {props.children}
                     </div>
                 </main>
