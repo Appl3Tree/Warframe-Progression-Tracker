@@ -197,5 +197,8 @@ export interface SavedBuild {
     arcane1Rank?: number;
     arcane2UniqueName?: string;
     arcane2Rank?: number;
+    valenceBonusPct?: number;
+    valenceElement?: string;
+    optimizeValenceElement?: boolean;
     createdAt: string;
 }
