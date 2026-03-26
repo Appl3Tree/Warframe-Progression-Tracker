@@ -2,8 +2,8 @@
 // Shared prime availability helpers that combine static vaulted flags with
 // live Varzia / Prime Resurgence world state.
 
-import ALL_RAW from "../../data/All.json";
-import SOURCES_RAW from "../../data/sources.json";
+import ALL_RAW from "../../../external/warframe-items/raw/All.json";
+import RELICS_RAW from "../../../external/warframe-drop-data/raw/relics.json";
 import missionIndexRaw from "../../data/_generated/relic-missionRewards-index.auto.json";
 import { resolvePrimeResurgenceRelicKey } from "./primeResurgence";
 import type { WorldStateData } from "../../lib/worldStateCache";
@@ -36,6 +36,7 @@ const RELIC_NAME_RE = /\b(Lith|Meso|Neo|Axi)\s+([A-Za-z0-9]+)\s+Relic\b/i;
 const _allByPath = new Map<string, AllEntry>();
 const _vaultedByPath = new Map<string, boolean>();
 const _isPrimeByPath = new Map<string, boolean>();
+const _nameToPath = new Map<string, string>();
 
 for (const item of ALL_RAW as AllEntry[]) {
     const path = item.uniqueName;
@@ -43,11 +44,34 @@ for (const item of ALL_RAW as AllEntry[]) {
     _allByPath.set(path, item);
     if (item.vaulted) _vaultedByPath.set(path, true);
     if (item.isPrime) _isPrimeByPath.set(path, true);
+    if (item.name) _nameToPath.set(item.name, path);
 }
 
-const _sourcesByPath = new Map<string, SourceEntry[]>(
-    Object.entries(SOURCES_RAW as Record<string, SourceEntry[]>)
-);
+// Build _sourcesByPath from external relics drop data
+const _sourcesByPath = new Map<string, SourceEntry[]>();
+interface RelicReward { itemName?: string; rarity?: string; chance?: number; }
+interface RelicEntry { tier?: string; relicName?: string; state?: string; rewards?: RelicReward[]; }
+const _seenRelicItemPairs = new Set<string>();
+for (const relic of (RELICS_RAW as { relics: RelicEntry[] }).relics ?? []) {
+    const { tier, relicName, state, rewards } = relic;
+    if (!tier || !relicName || state !== "Intact") continue;
+    const sourceLabel = `${tier} ${relicName} Relic`;
+    for (const reward of rewards ?? []) {
+        const itemName = reward.itemName;
+        if (!itemName) continue;
+        const path = _nameToPath.get(itemName);
+        if (!path) continue;
+        const pairKey = `${path}|${sourceLabel}`;
+        if (_seenRelicItemPairs.has(pairKey)) continue;
+        _seenRelicItemPairs.add(pairKey);
+        const existing = _sourcesByPath.get(path);
+        if (existing) {
+            existing.push({ source: sourceLabel });
+        } else {
+            _sourcesByPath.set(path, [{ source: sourceLabel }]);
+        }
+    }
+}
 
 const _activeMissionRelicKeys = new Set<string>();
 for (const row of missionIndexRaw as MissionEntry[]) {

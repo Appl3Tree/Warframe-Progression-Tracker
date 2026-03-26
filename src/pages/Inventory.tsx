@@ -16,7 +16,7 @@ import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { getItemRequirements } from "../catalog/items/itemRequirements";
 import { uid, nowIso } from "../store/storeUtils";
-import ALL_RAW from "../data/All.json";
+import ALL_RAW from "../../external/warframe-items/raw/All.json";
 import { getRelicByKey } from "../domain/catalog/relicCatalog";
 import { getPrimeAvailabilityStatus, getRelicAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";

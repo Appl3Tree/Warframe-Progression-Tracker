@@ -3,7 +3,7 @@
 // Weapon arcanes: Primary *, Secondary *, Melee * prefixes.
 // Each has 6 ranks (0–5). Rank 5 = max.
 
-import ALL_RAW from "../../data/All.json";
+import ALL_RAW from "../../../external/warframe-items/raw/All.json";
 import type { WeaponCategory } from "./weaponCatalog";
 import { emptyEffect, type ConditionalEffect, type ConditionalTrigger, type ModEffect } from "./modCatalog";
 

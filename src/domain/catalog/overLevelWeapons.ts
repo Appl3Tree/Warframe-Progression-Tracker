@@ -7,17 +7,24 @@
 //
 // Affected weapon families: Kuva Lich, Tenet, Technocyte Coda, Paracesis.
 
-import wfdataJson from "../../data/wfdata.json";
+import PRIMARY_RAW from "../../../external/warframe-items/raw/Primary.json";
+import SECONDARY_RAW from "../../../external/warframe-items/raw/Secondary.json";
+import ALL_RAW from "../../../external/warframe-items/raw/All.json";
 
 const OVERLEVEL_NAME_PREFIXES = ["Kuva ", "Tenet ", "Coda ", "Dual Coda "];
 const OVERLEVEL_EXACT_NAMES = new Set(["Paracesis"]);
 
+const _wfdata = {
+    primary:   { items: PRIMARY_RAW as any[] },
+    secondary: { items: SECONDARY_RAW as any[] },
+    melee:     { items: (ALL_RAW as any[]).filter((i: any) => i.category === "Melee") },
+};
+
 function buildOverLevelWeaponPaths(): Set<string> {
     const paths = new Set<string>();
-    const wfdata = wfdataJson as any;
 
-    for (const cat of ["primary", "secondary", "melee"]) {
-        const items: any[] = wfdata?.[cat]?.items ?? [];
+    for (const cat of ["primary", "secondary", "melee"] as const) {
+        const items: any[] = _wfdata[cat]?.items ?? [];
         for (const item of items) {
             const name = String(item?.name ?? "");
             const path = String(item?.uniqueName ?? "");

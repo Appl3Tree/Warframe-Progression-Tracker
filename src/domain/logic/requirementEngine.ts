@@ -20,11 +20,19 @@ import type { PrereqId } from "../ids/prereqIds";
 import { PROGRESSION_ITEM_IDS } from "../../catalog/items/itemsIndex";
 import { SYNDICATE_VENDOR_CATALOG } from "../catalog/syndicates/syndicateVendorCatalog";
 import { getSyndicateDisplayName } from "../ids/syndicateIds";
-import platinumByPathRaw from "../../data/_generated/wfcd-platinum.byPath.auto.json";
+import ALL_RAW from "../../../external/warframe-items/raw/All.json";
 
 const PROGRESSION_ITEM_ID_SET = new Set<CatalogId>(PROGRESSION_ITEM_IDS);
 
-const PLATINUM_BY_PATH = platinumByPathRaw as Record<string, number>;
+const PLATINUM_BY_PATH: Record<string, number> = (() => {
+    const out: Record<string, number> = {};
+    for (const item of ALL_RAW as any[]) {
+        if (item.uniqueName && typeof item.marketCost === "number") {
+            out[item.uniqueName] = item.marketCost;
+        }
+    }
+    return out;
+})();
 
 function getPlatinumCost(catalogId: CatalogId): number | null {
     const rec = FULL_CATALOG.recordsById[catalogId];

@@ -3,9 +3,21 @@ import React, { useMemo, useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
 import MODS_RAW from "../data/mods.json";
-import RIVENS_RAW from "../data/rivens.json";
-import MODDESC_RAW from "../data/moddescriptions.json";
-import ALL_RAW from "../data/All.json";
+import ALL_RAW from "../../external/warframe-items/raw/All.json";
+
+// Rivens: filter from All.json (replaces rivens.json — more entries)
+const RIVENS_RAW: Record<string, any> = (() => {
+  const out: Record<string, any> = {};
+  for (const item of ALL_RAW as any[]) {
+    if (item.uniqueName && String(item.uniqueName).includes("/Randomized/")) {
+      out[item.uniqueName] = item;
+    }
+  }
+  return out;
+})();
+
+// Mod descriptions: covered by All.json levelStats; legacy file no longer needed
+const MODDESC_RAW: Record<string, any> = {};
 import MOD_LOCATIONS_RAW from "../../external/warframe-drop-data/raw/modLocations.json";
 
 // Build a lookup from All.json keyed by uniqueName — includes Mods + Arcanes

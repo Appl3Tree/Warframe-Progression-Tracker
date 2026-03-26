@@ -3,12 +3,25 @@
 
 import wfcdItemsJson from "../../data/_generated/wfcd-items.byCatalogId.auto.json";
 import lotusItemsJson from "../../data/items.json";
-import wfdataJson from "../../data/wfdata.json";
 
 import modsJson from "../../data/mods.json";
-import modsetsJson from "../../data/modsets.json";
-import rivensJson from "../../data/rivens.json";
-import moddescriptionsJson from "../../data/moddescriptions.json";
+
+// External raw sources replacing former src/data/ files
+import WARFRAMES_RAW from "../../../external/warframe-items/raw/Warframes.json";
+import PRIMARY_RAW from "../../../external/warframe-items/raw/Primary.json";
+import SECONDARY_RAW from "../../../external/warframe-items/raw/Secondary.json";
+import ARCHWING_RAW from "../../../external/warframe-items/raw/Archwing.json";
+import ARCH_GUN_RAW from "../../../external/warframe-items/raw/Arch-Gun.json";
+import ARCH_MELEE_RAW from "../../../external/warframe-items/raw/Arch-Melee.json";
+import SENTINELS_RAW from "../../../external/warframe-items/raw/Sentinels.json";
+import SENTINEL_WEAPONS_RAW from "../../../external/warframe-items/raw/SentinelWeapons.json";
+import PETS_RAW from "../../../external/warframe-items/raw/Pets.json";
+import RESOURCES_RAW from "../../../external/warframe-items/raw/Resources.json";
+import MISC_RAW from "../../../external/warframe-items/raw/Misc.json";
+import GEAR_RAW from "../../../external/warframe-items/raw/Gear.json";
+import RAILJACK_RAW from "../../../external/warframe-items/raw/Railjack.json";
+import MODS_EXT_RAW from "../../../external/warframe-items/raw/Mods.json";
+import ALL_EXT_RAW from "../../../external/warframe-items/raw/All.json";
 
 export type CatalogSource =
     | "items"
@@ -56,6 +69,51 @@ export interface FullCatalog {
         displayableInventoryItemCount: number;
     };
 }
+
+// ---------------------------------------------------------------------------
+// Adapters: build path-keyed maps from external WFCD arrays
+// ---------------------------------------------------------------------------
+
+/** Build the wfdata-shaped object from external category files (replaces wfdata.json). */
+function buildWfdataFromExternal(): any {
+    const melee = (ALL_EXT_RAW as any[]).filter((i: any) => i.category === "Melee");
+    return {
+        warframes:     { items: WARFRAMES_RAW },
+        primary:       { items: PRIMARY_RAW },
+        secondary:     { items: SECONDARY_RAW },
+        melee:         { items: melee },
+        archwing:      { items: [...(ARCHWING_RAW as any[]), ...(ARCH_GUN_RAW as any[]), ...(ARCH_MELEE_RAW as any[])] },
+        companions:    { items: [...(SENTINELS_RAW as any[]), ...(SENTINEL_WEAPONS_RAW as any[]), ...(PETS_RAW as any[])] },
+        resources:     { items: RESOURCES_RAW },
+        miscellaneous: { items: [...(MISC_RAW as any[]), ...(GEAR_RAW as any[])] },
+        items:         { items: RAILJACK_RAW },
+    };
+}
+
+/** Convert WFCD Mods.json array → path-keyed object for set bonus mods (replaces modsets.json). */
+function buildModsetsFromExternal(): Record<string, any> {
+    const setBonusPaths = new Set(
+        (MODS_EXT_RAW as any[]).map((m: any) => m.modSet).filter(Boolean)
+    );
+    const out: Record<string, any> = {};
+    for (const m of MODS_EXT_RAW as any[]) {
+        if (!m.uniqueName || !setBonusPaths.has(m.uniqueName)) continue;
+        out[m.uniqueName] = { name: m.name, category: m.category, ...m };
+    }
+    return out;
+}
+
+/** Convert external All.json array → path-keyed object for riven mods (replaces rivens.json). */
+function buildRivensFromExternal(): Record<string, any> {
+    const out: Record<string, any> = {};
+    for (const item of ALL_EXT_RAW as any[]) {
+        if (!item.uniqueName || !String(item.uniqueName).includes("/Randomized/")) continue;
+        out[item.uniqueName] = { name: item.name, category: item.category, ...item };
+    }
+    return out;
+}
+
+// ---------------------------------------------------------------------------
 
 function parseJsonMap(source: string, raw: unknown): Record<string, any> {
     try {
@@ -420,6 +478,7 @@ export function buildFullCatalog(): FullCatalog {
 
     const lotusItemsByPath = parseJsonMap("items", lotusItemsJson);
 
+    const wfdataJson = buildWfdataFromExternal();
     const foundryOverrides = buildFoundryOverrides(wfdataJson);
 
     const allowBase = buildInventoryAllowSetFromWfdata(wfdataJson);
@@ -438,9 +497,9 @@ export function buildFullCatalog(): FullCatalog {
     }
 
     const modsMap = parseJsonMap("mods", modsJson);
-    const modsetsMap = parseJsonMap("modsets", modsetsJson);
-    const rivensMap = parseJsonMap("rivens", rivensJson);
-    const moddescriptionsMap = parseJsonMap("moddescriptions", moddescriptionsJson);
+    const modsetsMap = parseJsonMap("modsets", buildModsetsFromExternal());
+    const rivensMap = parseJsonMap("rivens", buildRivensFromExternal());
+    const moddescriptionsMap: Record<string, any> = {}; // covered by All.json levelStats
 
     const recordsById: Record<CatalogId, CatalogRecordBase> = {} as any;
 
