@@ -202,6 +202,20 @@ Tasks are organized by priority. Update this list as work progresses.
 - [x] Add completion status overlay on Star Chart drop panels
 - [x] Make Handbook more discoverable (consider surfacing on dashboard for new players)
 
+### 🟢 Data / Infrastructure
+
+- [x] Replace `src/data/All.json`, `wfdata.json`, `modsets.json`, `rivens.json`, `sources.json`, `moddescriptions.json` with imports from `external/warframe-items/raw/` and `external/warframe-drop-data/raw/`
+- [x] Delete orphaned `src/data/` files with no TypeScript imports (patchlogs, variants, abilities, abilitystats, glyphs, modularparts)
+- [x] Replace `_generated/wfcd-platinum.byPath.auto.json` with `marketCost` field from `All.json`
+- [ ] Write generation scripts for remaining `_generated/` files (currently committed as stale artifacts):
+  - [ ] `generateWfcdItems.ts` → `wfcd-items.byCatalogId.auto.json`
+  - [ ] `generateWfcdAcquisition.ts` → `wfcd-acquisition.byCatalogId.auto.json`
+  - [ ] `generateWfcdRequirements.ts` → `wfcd-requirements.byCatalogId.auto.json`
+  - [ ] `generateSourceLabelMap.ts` → `wfcd-source-label-map.auto.json` / `source-label-map.auto.json`
+  - [ ] `generateRelicMissionIndex.ts` → `relic-missionRewards-index.auto.json`
+- [ ] Run generation scripts to regenerate all `_generated/` files from external sources
+- [ ] Add npm script (e.g. `generate:data`) to run all generation scripts in order
+
 ### 🔵 New Features (Roadmap)
 
 - [x] Relic farming assistant (void fissure tier optimizer, void trace calculator)
