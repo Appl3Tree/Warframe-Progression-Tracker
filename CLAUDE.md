@@ -4,6 +4,24 @@
 
 Tasks are organized by priority. Update this list as work progresses.
 
+### Current Baseline (Commit `7deeeb9` on 2026-03-26)
+
+- [x] Profile import restores Mod Builder saved builds
+- [x] Owned mods support per-mod maximum rank tracking
+- [x] Progenitor weapons support valence bonus and optional valence-element optimization at rank 40
+- [x] Optimizer goals include `Burst`, `Scaling`, `Crit`, and `Status` (legacy `damage` maps to `Burst`)
+- [x] Prime Resurgence / Varzia availability is integrated into world state and prime availability flows
+- [x] Mod Builder exports build JSON plus math/output snapshots for optimizer debugging
+
+### Working Queue
+
+- [ ] No queued follow-up tasks right now
+
+### Intake Rule
+
+- [ ] If multiple tasks are requested at once, ask which one to focus on first
+- [ ] Add the remaining requested tasks to `Working Queue` before starting implementation
+
 ### 🔴 Critical (Wiki-Aligned Damage Model / Optimizer)
 
 #### Damage Calculation Corrections
