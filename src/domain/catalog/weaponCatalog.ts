@@ -76,6 +76,8 @@ export interface WeaponEntry {
     stanceClasses?: string[];
     /** Hidden compatibility tags inferred from the source data. */
     tags: string[];
+    /** True for progenitor weapons that can carry a Valence Bonus (Kuva/Tenet/Coda). */
+    isProgenitorWeapon?: boolean;
 }
 
 /** Kuva/Tenet/Coda weapons can rank to 40 */
@@ -84,6 +86,13 @@ function isOverLevelWeapon(name: string, uniqueName: string): boolean {
     const u = uniqueName.toLowerCase();
     return n.startsWith("kuva ") || n.startsWith("tenet ") || n.startsWith("coda ") ||
            u.includes("/kuva/") || u.includes("/tenet/") || u.includes("parvos");
+}
+
+function isProgenitorWeapon(name: string, uniqueName: string): boolean {
+    const n = name.toLowerCase();
+    const u = uniqueName.toLowerCase();
+    return n.startsWith("kuva ") || n.startsWith("tenet ") || n.startsWith("coda ") || n.startsWith("dual coda ") ||
+        u.includes("/kuva/") || u.includes("/tenet/") || u.includes("/infestedlich/");
 }
 
 /**
@@ -429,6 +438,7 @@ export function getWeaponCatalog(): WeaponEntry[] {
             stanceClass: stanceClasses[0],
             stanceClasses,
             tags: inferWeaponTags(item, exaltedType),
+            isProgenitorWeapon: isProgenitorWeapon(name, uniqueName),
         });
     }
 

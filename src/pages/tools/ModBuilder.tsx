@@ -10,7 +10,7 @@ import { getWeaponCatalog, type WeaponCategory, type WeaponEntry } from "../../d
 import { getModsForWeapon, getStancesForWeapon, type ModEntry, type ModEffect, emptyEffect } from "../../domain/catalog/modCatalog";
 import { getArcanesByWeaponCategory, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
 import { calculateBuild } from "../../domain/logic/damageCalc";
-import { optimizeBuild, explainBuild, type OptimizeGoal, type BuildReasoning } from "../../domain/logic/buildOptimizer";
+import { optimizeBuild, explainBuild, debugScoreBuild, type OptimizeGoal, type BuildReasoning, type LegacyOptimizeGoal } from "../../domain/logic/buildOptimizer";
 import {
     computeCapacity, effectiveDrain,
     maxWeaponRank, type CapacityConfig,
@@ -44,9 +44,14 @@ const SLOT_COUNT = 8;
 const CATEGORY_LABELS: WeaponCategory[] = ["Primary", "Secondary", "Melee"];
 const GOAL_OPTIONS: { key: OptimizeGoal; label: string; desc: string }[] = [
     {
-        key: "damage",
-        label: "Optimized",
-        desc: "Finds the best overall build based on the optimizer's current assumptions, selected weapon stats, and any Faction Focus setting.",
+        key: "burst",
+        label: "Burst",
+        desc: "Best for front-loaded damage and lower time-to-kill targets. Prioritizes immediate shot value, crit pressure, and fast kills.",
+    },
+    {
+        key: "scaling",
+        label: "Scaling",
+        desc: "Best for tougher enemies and longer fights. Prioritizes status throughput, target-state buildup, and damage that improves as enemies survive longer.",
     },
     {
         key: "crit",
@@ -60,6 +65,16 @@ const GOAL_OPTIONS: { key: OptimizeGoal; label: string; desc: string }[] = [
     },
 ];
 const FACTIONS = ["Grineer", "Corpus", "Infested", "Orokin", "The Murmur"];
+const VALENCE_ELEMENTS = [
+    { key: "impact", label: "Impact" },
+    { key: "heat", label: "Heat" },
+    { key: "cold", label: "Cold" },
+    { key: "electricity", label: "Electricity" },
+    { key: "toxin", label: "Toxin" },
+    { key: "magnetic", label: "Magnetic" },
+    { key: "radiation", label: "Radiation" },
+] as const;
+type ValenceElement = typeof VALENCE_ELEMENTS[number]["key"];
 const POLARITY_OPTS = [
     { key: "",        label: "None"    },
     { key: "madurai", label: "Madurai" },
@@ -119,11 +134,14 @@ interface BuildExportPayload {
         selectedAttack: string | null;
     };
     assumptions: {
-        goal: OptimizeGoal;
+        goal: LegacyOptimizeGoal;
         targetFaction: string | null;
         weaponRank: number;
         masteryRank: number;
         hasCatalyst: boolean;
+        valenceBonusPct?: number;
+        valenceElement?: string | null;
+        optimizeValenceElement?: boolean;
         includeArcaneStats: boolean;
         selectedAttackIdx: number;
     };
@@ -154,6 +172,53 @@ interface BuildExportPayload {
     };
     calculated: ReturnType<typeof calculateBuild> | null;
     math: BuildMathBreakdown | null;
+}
+
+function applyValenceToDamage(
+    damage: WeaponEntry["damage"],
+    bonusPct: number,
+    element: ValenceElement,
+) {
+    if (bonusPct <= 0 || damage.total <= 0) return damage;
+    const bonus = damage.total * bonusPct;
+    return {
+        ...damage,
+        [element]: damage[element] + bonus,
+        total: damage.total + bonus,
+    };
+}
+
+function applyValenceToWeapon(
+    weapon: WeaponEntry,
+    bonusPct: number,
+    element: ValenceElement,
+): WeaponEntry {
+    if (!weapon.isProgenitorWeapon || bonusPct <= 0) return weapon;
+    return {
+        ...weapon,
+        damage: applyValenceToDamage(weapon.damage, bonusPct, element),
+        attacks: weapon.attacks.map((attack) => {
+            const damage = applyValenceToDamage(attack.damage, bonusPct, element);
+            return { ...attack, damage, damageTotal: damage.total };
+        }),
+    };
+}
+
+function makeSelectedAttackWeapon(
+    weapon: WeaponEntry,
+    selectedAttackIdx: number,
+): WeaponEntry {
+    const selectedAttack = weapon.attacks.length > 1 ? weapon.attacks[selectedAttackIdx] ?? null : null;
+    if (!selectedAttack) return weapon;
+    return {
+        ...weapon,
+        damage: selectedAttack.damage,
+        critChance: selectedAttack.critChance,
+        critMultiplier: selectedAttack.critMultiplier,
+        statusChance: selectedAttack.statusChance,
+        fireRate: selectedAttack.speed || weapon.fireRate,
+        chargeTime: selectedAttack.chargeTime ?? null,
+    };
 }
 
 function sumEffects(effects: (ModEffect | null)[]) {
@@ -319,18 +384,9 @@ function buildExportPayload(args: {
     } = args;
     if (!weapon) return null;
 
-    const selectedAttack = weapon.attacks.length > 1 ? weapon.attacks[selectedAttackIdx] ?? null : null;
-    const calcWeapon = selectedAttack
-        ? {
-            ...weapon,
-            damage: selectedAttack.damage,
-            critChance: selectedAttack.critChance,
-            critMultiplier: selectedAttack.critMultiplier,
-            statusChance: selectedAttack.statusChance,
-            fireRate: selectedAttack.speed || weapon.fireRate,
-            chargeTime: selectedAttack.chargeTime ?? null,
-        }
-        : weapon;
+    const valenceWeapon = applyValenceToWeapon(weapon, buildCfg.valenceBonusPct, buildCfg.valenceElement);
+    const selectedAttack = valenceWeapon.attacks.length > 1 ? valenceWeapon.attacks[selectedAttackIdx] ?? null : null;
+    const calcWeapon = makeSelectedAttackWeapon(valenceWeapon, selectedAttackIdx);
 
     const effects: (ModEffect | null)[] = slots.map((m, i) => {
         if (!m) return null;
@@ -367,6 +423,9 @@ function buildExportPayload(args: {
             weaponRank: buildCfg.weaponRank,
             masteryRank: buildCfg.masteryRank,
             hasCatalyst: buildCfg.hasCatalyst,
+            valenceBonusPct: weapon.isProgenitorWeapon ? buildCfg.valenceBonusPct : undefined,
+            valenceElement: weapon.isProgenitorWeapon ? buildCfg.valenceElement : null,
+            optimizeValenceElement: weapon.isProgenitorWeapon ? buildCfg.optimizeValenceElement : undefined,
             includeArcaneStats,
             selectedAttackIdx,
         },
@@ -1200,7 +1259,7 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
     stanceMod, stanceRank, stancePol, exilusMod, exilusPol, arcane1, arcane1Rank, hasExilus, onLoad }: {
     weapon: WeaponEntry | null;
     currentSlots: (ModEntry | null)[]; currentRanks: number[]; currentPolarities: string[];
-    currentCfg: { weaponRank: number; hasCatalyst: boolean };
+    currentCfg: BuildCfg;
     stanceMod: ModEntry | null; stanceRank: number; stancePol: string;
     exilusMod: ModEntry | null; exilusPol: string;
     arcane1: ArcaneEntry | null; arcane1Rank: number;
@@ -1228,6 +1287,9 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
             stancePol,
             slotPolarities: [...currentPolarities],
             weaponRank: currentCfg.weaponRank, hasCatalyst: currentCfg.hasCatalyst,
+            valenceBonusPct: weapon.isProgenitorWeapon ? currentCfg.valenceBonusPct : undefined,
+            valenceElement: weapon.isProgenitorWeapon ? currentCfg.valenceElement : undefined,
+            optimizeValenceElement: weapon.isProgenitorWeapon ? currentCfg.optimizeValenceElement : undefined,
             hasExilus,
             exilusModUniqueName: exilusMod?.uniqueName,
             exilusPol,
@@ -1330,7 +1392,15 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
                     <div className="text-[10px] uppercase tracking-wide text-blue-300 mb-2">Side-by-side comparison</div>
                     <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${comparedBuilds.length}, minmax(0, 1fr))` }}>
                         {comparedBuilds.map(b => {
-                            const stats = calculateBuild(weapon, buildSavedBuildEffects(b));
+                            const buildWeapon = makeSelectedAttackWeapon(
+                                applyValenceToWeapon(
+                                    weapon,
+                                    b.valenceBonusPct ?? 0,
+                                    (b.valenceElement as ValenceElement | undefined) ?? "heat",
+                                ),
+                                0,
+                            );
+                            const stats = calculateBuild(buildWeapon, buildSavedBuildEffects(b));
                             return (
                                 <div key={b.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-2">
                                     <div className="text-xs font-semibold text-slate-100">{b.name}</div>
@@ -1353,7 +1423,17 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
                 <div className="space-y-1.5">
                     <div className="text-[10px] text-slate-500 uppercase tracking-wide">This weapon</div>
                     {thisWeapon.map(b => {
-                        const stats = weapon ? calculateBuild(weapon, buildSavedBuildEffects(b)) : null;
+                        const stats = weapon ? calculateBuild(
+                            makeSelectedAttackWeapon(
+                                applyValenceToWeapon(
+                                    weapon,
+                                    b.valenceBonusPct ?? 0,
+                                    (b.valenceElement as ValenceElement | undefined) ?? "heat",
+                                ),
+                                0,
+                            ),
+                            buildSavedBuildEffects(b),
+                        ) : null;
                         return (
                             <div key={b.id} className={["rounded-lg border px-3 py-2",
                                 comparing.has(b.id) ? "border-blue-700/50 bg-blue-950/10" : "border-slate-800 bg-slate-900/40"].join(" ")}>
@@ -1564,7 +1644,14 @@ function OwnedArcanesPanel({ weapon }: { weapon: WeaponEntry | null }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-interface BuildCfg { weaponRank: number; hasCatalyst: boolean; masteryRank: number; }
+interface BuildCfg {
+    weaponRank: number;
+    hasCatalyst: boolean;
+    masteryRank: number;
+    valenceBonusPct: number;
+    valenceElement: ValenceElement;
+    optimizeValenceElement: boolean;
+}
 
 export default function ModBuilder() {
     const masteryRank      = useTrackerStore(s => s.state.player.masteryRank) ?? 0;
@@ -1596,9 +1683,16 @@ export default function ModBuilder() {
     // Excluded
     const [excluded, setExcluded]      = useState<Set<string>>(new Set());
     // Build config
-    const [buildCfg, setBuildCfg]      = useState<BuildCfg>({ weaponRank: 30, hasCatalyst: false, masteryRank });
+    const [buildCfg, setBuildCfg]      = useState<BuildCfg>({
+        weaponRank: 30,
+        hasCatalyst: false,
+        masteryRank,
+        valenceBonusPct: 0.25,
+        valenceElement: "heat",
+        optimizeValenceElement: false,
+    });
     // Optimizer
-    const [goal, setGoal]              = useState<OptimizeGoal>("damage");
+    const [goal, setGoal]              = useState<OptimizeGoal>("burst");
     const [respectCap, setRespectCap]    = useState(false);
     const [allowNonMax, setAllowNonMax]  = useState(false);
     const [onlyOwned, setOnlyOwned]      = useState(false);
@@ -1636,7 +1730,16 @@ export default function ModBuilder() {
         setRivenMod(null); setRivenSlotIdx(null); setRivenEditorSlot(null);
         setArcane1(null); setArcane1Rank(0);
         setSelectedAttackIdx(0);
-        if (opts?.resetConfig) setBuildCfg(p => ({ ...p, weaponRank: 30, hasCatalyst: false }));
+        if (opts?.resetConfig) {
+            setBuildCfg(p => ({
+                ...p,
+                weaponRank: 30,
+                hasCatalyst: false,
+                valenceBonusPct: 0.25,
+                valenceElement: "heat",
+                optimizeValenceElement: false,
+            }));
+        }
         setReasoning(null);
         setReasoningMath(null);
     }
@@ -1766,23 +1869,13 @@ export default function ModBuilder() {
         slots, ranks, slotPols, hasExilus, exilusMod, exilusRank, exilusPol, arcane1, arcane1Rank,
     ]);
 
-    const activeAttack = useMemo(
-        () => weapon && weapon.attacks.length > 1 ? (weapon.attacks[selectedAttackIdx] ?? null) : null,
-        [weapon, selectedAttackIdx],
-    );
     const activeCalcWeapon = useMemo(() => {
         if (!weapon) return null;
-        if (!activeAttack) return weapon;
-        return {
-            ...weapon,
-            damage: activeAttack.damage,
-            critChance: activeAttack.critChance,
-            critMultiplier: activeAttack.critMultiplier,
-            statusChance: activeAttack.statusChance,
-            fireRate: activeAttack.speed || weapon.fireRate,
-            chargeTime: activeAttack.chargeTime ?? null,
-        };
-    }, [weapon, activeAttack]);
+        return makeSelectedAttackWeapon(
+            applyValenceToWeapon(weapon, buildCfg.valenceBonusPct, buildCfg.valenceElement),
+            selectedAttackIdx,
+        );
+    }, [weapon, selectedAttackIdx, buildCfg.valenceBonusPct, buildCfg.valenceElement]);
     async function handleCopyBuildExport() {
         if (!currentBuildExport) return;
         const json = JSON.stringify(currentBuildExport, null, 2);
@@ -1915,71 +2008,113 @@ export default function ModBuilder() {
                 setStanceRank(optimizerStanceRank);
             }
 
-            // Resolve which attack to optimize for
-            const atk = weapon.attacks.length > 1 ? weapon.attacks[selectedAttackIdx] : null;
+            const scoreOptimizerResult = (
+                candidateWeapon: WeaponEntry,
+                candidateAttackIdx: number,
+                candidateResult: ReturnType<typeof optimizeBuild>,
+            ) => {
+                const scoringWeapon = makeSelectedAttackWeapon(candidateWeapon, candidateAttackIdx);
+                const effects: (ModEffect | null)[] = candidateResult.slots.map((mod, index) => {
+                    if (!mod) return null;
+                    const rank = candidateResult.slotRanks[index] ?? mod.fusionLimit;
+                    return mod.effectsByRank[rank] ?? mod.effect;
+                });
+                if (optExilus && candidateResult.exilusMod) {
+                    effects.push(candidateResult.exilusMod.effectsByRank[candidateResult.exilusRank] ?? candidateResult.exilusMod.effect);
+                }
+                const arcaneEffect = candidateResult.arcane
+                    ? (candidateResult.arcane.optimizerEffectByRank[candidateResult.arcaneRank] ?? candidateResult.arcane.permanentEffectByRank[candidateResult.arcaneRank] ?? null)
+                    : null;
+                return debugScoreBuild(scoringWeapon, effects, goal, factionOn ? faction : "", arcaneEffect);
+            };
 
-            // If allowCatalyst, override capacityCfg to hasCatalyst:true
-            const capForOpt = respectCap ? (
-                allowCatalyst && !buildCfg.hasCatalyst
-                    ? { ...capacityCfg, hasCatalyst: true }
-                    : capacityCfg
-            ) : undefined;
+            const runOptimizeForValence = (valenceElement: ValenceElement) => {
+                const weaponForOpt = applyValenceToWeapon(weapon, buildCfg.valenceBonusPct, valenceElement);
+                const atk = weaponForOpt.attacks.length > 1 ? weaponForOpt.attacks[selectedAttackIdx] : null;
 
-            const result = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
-                ownedModNames:    onlyOwned ? ownedSet : undefined,
-                ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
-                ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
-                ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
-                excludedModNames: excluded.size > 0 ? excluded : undefined,
-                allowNonMaxRank:  allowNonMax,
-                targetFaction:    factionOn ? faction : "",
-                capacityConfig:   capForOpt,
-                slotPolarities:   slotPols,
-                defaultSlotPolarities: weapon.polarities,
-                allowCatalyst,
-                allowForma,
-                optimizeExilus:   optExilus,
-                exilusPolarity:   exilusPol,
-                optimizeArcane:   optArcane,
-                buildForAttack:   atk,
-                extraCapacitySlots: weapon.category === "Melee" && optimizerStanceMod
+                // If allowCatalyst, override capacityCfg to hasCatalyst:true
+                const capForOpt = respectCap ? (
+                    allowCatalyst && !buildCfg.hasCatalyst
+                        ? { ...capacityCfg, hasCatalyst: true }
+                        : capacityCfg
+                ) : undefined;
+
+                const result = optimizeBuild(weaponForOpt, null, goal, SLOT_COUNT, {
+                    ownedModNames:    onlyOwned ? ownedSet : undefined,
+                    ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
+                    ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
+                    ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
+                    excludedModNames: excluded.size > 0 ? excluded : undefined,
+                    allowNonMaxRank:  allowNonMax,
+                    targetFaction:    factionOn ? faction : "",
+                    capacityConfig:   capForOpt,
+                    slotPolarities:   slotPols,
+                    defaultSlotPolarities: weapon.polarities,
+                    allowCatalyst,
+                    allowForma,
+                    optimizeExilus:   optExilus,
+                    exilusPolarity:   exilusPol,
+                    optimizeArcane:   optArcane,
+                    buildForAttack:   atk,
+                    extraCapacitySlots: weapon.category === "Melee" && optimizerStanceMod
+                        ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
+                        : undefined,
+                });
+
+                let appliedResult = result;
+                let appliedCatalyst = buildCfg.hasCatalyst;
+                const baseExtraCapacitySlots = weapon.category === "Melee" && optimizerStanceMod
                     ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
-                    : undefined,
-            });
+                    : undefined;
 
-            let appliedResult = result;
-            let appliedCatalyst = buildCfg.hasCatalyst;
-            const baseExtraCapacitySlots = weapon.category === "Melee" && optimizerStanceMod
-                ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
-                : undefined;
+                if (!respectCap) {
+                    const resultSlotsForCap = [...result.slots, ...(optExilus ? [result.exilusMod] : [])];
+                    const resultRanksForCap = [...result.slotRanks, ...(optExilus ? [result.exilusMod ? result.exilusRank : 0] : [])];
+                    const resultPolsForCap = [...result.slotPolarities, ...(optExilus ? [exilusPol] : [])];
+                    const resultExtraCfgs = (baseExtraCapacitySlots ?? []).map(slot => ({ polarity: slot.polarity }));
+                    const resultExtraMods = (baseExtraCapacitySlots ?? []).map(slot => slot.mod);
+                    const resultExtraRanks = (baseExtraCapacitySlots ?? []).map(slot => slot.rank);
+                    const uncatalyzedFit = computeCapacity(
+                        capacityCfg,
+                        [...resultExtraCfgs, ...resultPolsForCap.map(polarity => ({ polarity }))],
+                        [...resultExtraMods, ...resultSlotsForCap],
+                        [...resultExtraRanks, ...resultRanksForCap],
+                    );
 
-            if (!respectCap) {
-                const resultSlotsForCap = [...result.slots, ...(optExilus ? [result.exilusMod] : [])];
-                const resultRanksForCap = [...result.slotRanks, ...(optExilus ? [result.exilusMod ? result.exilusRank : 0] : [])];
-                const resultPolsForCap = [...result.slotPolarities, ...(optExilus ? [exilusPol] : [])];
-                const resultExtraCfgs = (baseExtraCapacitySlots ?? []).map(slot => ({ polarity: slot.polarity }));
-                const resultExtraMods = (baseExtraCapacitySlots ?? []).map(slot => slot.mod);
-                const resultExtraRanks = (baseExtraCapacitySlots ?? []).map(slot => slot.rank);
-                const uncatalyzedFit = computeCapacity(
-                    capacityCfg,
-                    [...resultExtraCfgs, ...resultPolsForCap.map(polarity => ({ polarity }))],
-                    [...resultExtraMods, ...resultSlotsForCap],
-                    [...resultExtraRanks, ...resultRanksForCap],
-                );
+                    if (uncatalyzedFit.overCapacity) {
+                        if (allowCatalyst) {
+                            appliedCatalyst = true;
+                            const catalyzedCfg = { ...capacityCfg, hasCatalyst: true };
+                            const catalyzedFit = computeCapacity(
+                                catalyzedCfg,
+                                [...resultExtraCfgs, ...resultPolsForCap.map(polarity => ({ polarity }))],
+                                [...resultExtraMods, ...resultSlotsForCap],
+                                [...resultExtraRanks, ...resultRanksForCap],
+                            );
 
-                if (uncatalyzedFit.overCapacity) {
-                    if (allowCatalyst) {
-                        appliedCatalyst = true;
-                        const catalyzedCfg = { ...capacityCfg, hasCatalyst: true };
-                        const catalyzedFit = computeCapacity(
-                            catalyzedCfg,
-                            [...resultExtraCfgs, ...resultPolsForCap.map(polarity => ({ polarity }))],
-                            [...resultExtraMods, ...resultSlotsForCap],
-                            [...resultExtraRanks, ...resultRanksForCap],
-                        );
-
-                        if (catalyzedFit.overCapacity && allowForma) {
-                            appliedResult = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
+                            if (catalyzedFit.overCapacity && allowForma) {
+                                appliedResult = optimizeBuild(weaponForOpt, null, goal, SLOT_COUNT, {
+                                    ownedModNames:    onlyOwned ? ownedSet : undefined,
+                                    ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
+                                    ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
+                                    ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
+                                    excludedModNames: excluded.size > 0 ? excluded : undefined,
+                                    allowNonMaxRank:  allowNonMax,
+                                    targetFaction:    factionOn ? faction : "",
+                                    capacityConfig:   catalyzedCfg,
+                                    slotPolarities:   slotPols,
+                                    defaultSlotPolarities: weapon.polarities,
+                                    allowCatalyst:    false,
+                                    allowForma:       true,
+                                    optimizeExilus:   optExilus,
+                                    exilusPolarity:   exilusPol,
+                                    optimizeArcane:   optArcane,
+                                    buildForAttack:   atk,
+                                    extraCapacitySlots: baseExtraCapacitySlots,
+                                });
+                            }
+                        } else if (allowForma) {
+                            appliedResult = optimizeBuild(weaponForOpt, null, goal, SLOT_COUNT, {
                                 ownedModNames:    onlyOwned ? ownedSet : undefined,
                                 ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
                                 ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
@@ -1987,7 +2122,7 @@ export default function ModBuilder() {
                                 excludedModNames: excluded.size > 0 ? excluded : undefined,
                                 allowNonMaxRank:  allowNonMax,
                                 targetFaction:    factionOn ? faction : "",
-                                capacityConfig:   catalyzedCfg,
+                                capacityConfig:   capacityCfg,
                                 slotPolarities:   slotPols,
                                 defaultSlotPolarities: weapon.polarities,
                                 allowCatalyst:    false,
@@ -1999,28 +2134,32 @@ export default function ModBuilder() {
                                 extraCapacitySlots: baseExtraCapacitySlots,
                             });
                         }
-                    } else if (allowForma) {
-                        appliedResult = optimizeBuild(weapon, null, goal, SLOT_COUNT, {
-                            ownedModNames:    onlyOwned ? ownedSet : undefined,
-                            ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
-                            ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
-                            ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
-                            excludedModNames: excluded.size > 0 ? excluded : undefined,
-                            allowNonMaxRank:  allowNonMax,
-                            targetFaction:    factionOn ? faction : "",
-                            capacityConfig:   capacityCfg,
-                            slotPolarities:   slotPols,
-                            defaultSlotPolarities: weapon.polarities,
-                            allowCatalyst:    false,
-                            allowForma:       true,
-                            optimizeExilus:   optExilus,
-                            exilusPolarity:   exilusPol,
-                            optimizeArcane:   optArcane,
-                            buildForAttack:   atk,
-                            extraCapacitySlots: baseExtraCapacitySlots,
-                        });
                     }
                 }
+
+                return {
+                    weaponForOpt,
+                    atk,
+                    appliedResult,
+                    appliedCatalyst,
+                    baseExtraCapacitySlots,
+                    score: scoreOptimizerResult(weaponForOpt, selectedAttackIdx, appliedResult),
+                    valenceElement,
+                };
+            };
+
+            const valenceElementsToTry = weapon.isProgenitorWeapon && buildCfg.valenceBonusPct > 0 && buildCfg.optimizeValenceElement && buildCfg.weaponRank >= 40
+                ? VALENCE_ELEMENTS.map((entry) => entry.key)
+                : [buildCfg.valenceElement];
+            const bestRun = valenceElementsToTry.reduce<ReturnType<typeof runOptimizeForValence> | null>((best, candidateElement) => {
+                const run = runOptimizeForValence(candidateElement);
+                if (!best || run.score > best.score) return run;
+                return best;
+            }, null);
+            if (!bestRun) return;
+            const { weaponForOpt, atk, appliedResult, appliedCatalyst, baseExtraCapacitySlots, valenceElement } = bestRun;
+            if (weapon.isProgenitorWeapon && valenceElement !== buildCfg.valenceElement) {
+                setBuildCfg(p => ({ ...p, valenceElement }));
             }
 
             // Apply exilus mod if optimized
@@ -2040,7 +2179,6 @@ export default function ModBuilder() {
                 (allowCatalyst && shouldAutoInstallCatalyst(capacityCfg, finalPolsForCap, finalSlotsForCap, finalRanksForCap, baseExtraCapacitySlots ?? []))
             ) {
                 setBuildCfg(p => ({ ...p, hasCatalyst: true }));
-                appliedCatalyst = true;
             }
 
             const defaultMainPols = [...weapon.polarities];
@@ -2107,7 +2245,7 @@ export default function ModBuilder() {
                 setArcane1Rank(appliedResult.arcaneRank);
             }
 
-            setReasoning(explainBuild(weapon, appliedResult.mods, appliedResult.ranks, goal, factionOn ? faction : "", atk));
+            setReasoning(explainBuild(weaponForOpt, appliedResult.mods, appliedResult.ranks, goal, factionOn ? faction : "", atk));
             const mathEffects: (ModEffect | null)[] = appliedResult.slots.map((m, i) => {
                 if (!m) return null;
                 const r = appliedResult.slotRanks[i] ?? m.fusionLimit;
@@ -2124,17 +2262,7 @@ export default function ModBuilder() {
                     conditionalEffects: [...(ae?.conditionalEffects ?? [])],
                 });
             }
-            const mathWeapon = atk
-                ? {
-                    ...weapon,
-                    damage: atk.damage,
-                    critChance: atk.critChance,
-                    critMultiplier: atk.critMultiplier,
-                    statusChance: atk.statusChance,
-                    fireRate: atk.speed || weapon.fireRate,
-                    chargeTime: atk.chargeTime ?? null,
-                }
-                : weapon;
+            const mathWeapon = makeSelectedAttackWeapon(weaponForOpt, selectedAttackIdx);
             setReasoningMath(buildMathBreakdown(mathWeapon, mathEffects, factionOn ? faction : ""));
         } finally { setOptimizing(false); }
     }
@@ -2146,7 +2274,14 @@ export default function ModBuilder() {
         setSlots(ns);
         setRanks(ns.map((m, i) => m ? (build.slotRanks?.[i] ?? m.fusionLimit) : 0));
         setSlotPols([...build.slotPolarities, ...Array(SLOT_COUNT).fill("")].slice(0, SLOT_COUNT));
-        setBuildCfg(p => ({ ...p, weaponRank: build.weaponRank, hasCatalyst: build.hasCatalyst }));
+        setBuildCfg(p => ({
+            ...p,
+            weaponRank: build.weaponRank,
+            hasCatalyst: build.hasCatalyst,
+            valenceBonusPct: build.valenceBonusPct ?? p.valenceBonusPct,
+            valenceElement: (build.valenceElement as ValenceElement | undefined) ?? p.valenceElement,
+            optimizeValenceElement: build.optimizeValenceElement ?? false,
+        }));
         if (build.stanceModUniqueName) {
             const sm = stanceMods.find(m => m.uniqueName === build.stanceModUniqueName) ?? null;
             setStanceMod(sm);
@@ -2262,10 +2397,21 @@ export default function ModBuilder() {
                                                     { label: "Allow Forma", active: allowForma, set: setAllowForma, desc: "Reassign slot polarities to reduce drain." },
                                                     { label: "Optimize Exilus", active: optExilus, set: setOptExilus, desc: "Include the exilus slot in optimization." },
                                                     { label: "Optimize Arcane", active: optArcane, set: setOptArcane, desc: "Choose the best arcane for the build." },
+                                                    ...(weapon?.isProgenitorWeapon ? [{
+                                                        label: "Optimize Valence Element",
+                                                        active: buildCfg.optimizeValenceElement,
+                                                        set: (next: boolean) => setBuildCfg(p => ({ ...p, optimizeValenceElement: next })),
+                                                        desc: buildCfg.weaponRank >= 40
+                                                            ? "Allow the optimizer to choose the best valence element for this max-rank progenitor weapon."
+                                                            : "Available once the progenitor weapon reaches rank 40.",
+                                                    }] as const : []),
                                                 ] as const).map(t => (
                                                     <button key={t.label} onClick={() => t.set(!t.active)} title={t.desc}
+                                                        disabled={t.label === "Optimize Valence Element" && buildCfg.weaponRank < 40}
                                                         className={["rounded-lg border px-2.5 py-1.5 text-[11px] text-left transition-colors",
-                                                            t.active ? "border-sky-700/60 bg-sky-950/20 text-sky-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300"].join(" ")}>
+                                                            t.active ? "border-sky-700/60 bg-sky-950/20 text-sky-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300",
+                                                            t.label === "Optimize Valence Element" && buildCfg.weaponRank < 40 ? "opacity-50 cursor-not-allowed" : "",
+                                                        ].join(" ")}>
                                                         <div className="flex items-center gap-1.5">
                                                             <span className={["w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
                                                                 t.active ? "border-sky-400 bg-sky-400" : "border-slate-600"].join(" ")}>
@@ -2317,6 +2463,37 @@ export default function ModBuilder() {
                                                             </div>
                                                         </button>
                                                     </div>
+                                                    {weapon?.isProgenitorWeapon && (
+                                                        <>
+                                                            <div>
+                                                                <label className="text-[10px] uppercase tracking-wide text-slate-500 block mb-1.5">Valence Bonus</label>
+                                                                <div className="flex items-center gap-2">
+                                                                    <input
+                                                                        type="range"
+                                                                        min={0}
+                                                                        max={60}
+                                                                        step={1}
+                                                                        value={Math.round(buildCfg.valenceBonusPct * 100)}
+                                                                        onChange={e => setBuildCfg(p => ({ ...p, valenceBonusPct: Math.max(0, Math.min(0.6, +e.target.value / 100)) }))}
+                                                                        className="flex-1 accent-sky-500"
+                                                                    />
+                                                                    <span className="text-sm font-mono text-slate-200 w-12 text-right">{Math.round(buildCfg.valenceBonusPct * 100)}%</span>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <label className="text-[10px] uppercase tracking-wide text-slate-500 block mb-1.5">Valence Element</label>
+                                                                <select
+                                                                    value={buildCfg.valenceElement}
+                                                                    onChange={e => setBuildCfg(p => ({ ...p, valenceElement: e.target.value as ValenceElement }))}
+                                                                    className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100"
+                                                                >
+                                                                    {VALENCE_ELEMENTS.map(option => (
+                                                                        <option key={option.key} value={option.key}>{option.label}</option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </div>
                                                 <div className="min-h-[34px] flex items-center justify-start lg:justify-end">
                                                     {factionOn && (

@@ -17,7 +17,22 @@ import { getArcanesByWeaponCategory } from "../catalog/arcaneCatalog";
 import { calculateBuild, avgCritMultiplier, estimateConditionalUptime } from "./damageCalc";
 import { computeCapacity, effectiveDrain, type CapacityConfig, type SlotConfig } from "./capacityCalc";
 
-export type OptimizeGoal = "damage" | "crit" | "status";
+export type OptimizeGoal = "burst" | "scaling" | "crit" | "status";
+export type LegacyOptimizeGoal = OptimizeGoal | "damage";
+
+export function normalizeOptimizeGoal(goal: LegacyOptimizeGoal | null | undefined): OptimizeGoal {
+    switch (goal) {
+        case "damage":
+        case "burst":
+            return "burst";
+        case "scaling":
+        case "crit":
+        case "status":
+            return goal;
+        default:
+            return "burst";
+    }
+}
 
 export interface OptimizerOptions {
     ownedModNames?: Set<string>;
@@ -499,8 +514,21 @@ function scoreEffects(
         ((adjustedDirectDps * coldCritMultiplierGain * punctureCritGain) + adjustedDotDps + blastUtilityDps) *
         (1 + gasUtility);
 
+    const burstScore =
+        targetAdjustedDamageScore *
+        (1 + directDamagePerStatusWeight * 0.35 + utilityWeight * 0.25);
+    const scalingScore =
+        (
+            adjustedDirectDps * (1 + directDamagePerStatusWeight * 0.45) +
+            adjustedDotDps * 1.35 +
+            blastUtilityDps * 0.85
+        ) *
+        (1 + statusWeight * 0.9 + finalStatusChanceBonus * 0.45 + utilityWeight * 0.22) *
+        (1 + modded.averageProcsPerShot * 0.28 + statusDamageBonus * 0.35 + statusDurationBonus * 0.18);
+
     switch (goal) {
-        case "damage":   return targetAdjustedDamageScore * (1 + directDamagePerStatusWeight * 0.35 + utilityWeight * 0.25);
+        case "burst":    return burstScore;
+        case "scaling":  return scalingScore;
         case "crit":     return avgCritMultiplier(modded.critChance, modded.critMultiplier) * (1 + (headshotMultiplierBonus + weakPointCritChanceBonus + weakPointDamageBonus) * 0.35 + directDamagePerStatusWeight * 0.15 + utilityWeight * 0.08);
         case "status":   return ((modded.averageProcsPerShot + adjustedDotDps * 0.02 + blastUtilityDps * 0.01) * (1 + statusWeight + finalStatusChanceBonus + directDamagePerStatusWeight * 0.2)) * (1 + statusDamageBonus * 0.35 + statusDurationBonus * 0.15 + utilityWeight * 0.12);
     }
@@ -1296,7 +1324,8 @@ export interface BuildReasoning {
 
 function goalLabel(goal: OptimizeGoal): string {
     switch (goal) {
-        case "damage": return "Optimized";
+        case "burst": return "Burst";
+        case "scaling": return "Scaling";
         case "crit": return "Crit Focus";
         case "status": return "Status Focus";
     }
