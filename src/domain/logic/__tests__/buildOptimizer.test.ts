@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { getArcanesByWeaponCategory } from "../../catalog/arcaneCatalog";
-import { getModsForWeapon } from "../../catalog/modCatalog";
+import { getModsForWeapon, getStancesForWeapon } from "../../catalog/modCatalog";
 import { getWeaponCatalog } from "../../catalog/weaponCatalog";
 import type { WeaponEntry } from "../../catalog/weaponCatalog";
 import { emptyEffect } from "../../catalog/modCatalog";
-import { debugScoreBuild } from "../buildOptimizer";
+import { debugScoreBuild, optimizeBuild } from "../buildOptimizer";
 import { calculateBuild } from "../damageCalc";
 
 function makeWeapon(overrides: Partial<WeaponEntry> = {}): WeaponEntry {
@@ -51,6 +51,32 @@ function makeWeapon(overrides: Partial<WeaponEntry> = {}): WeaponEntry {
         tags: [],
         ...overrides,
     };
+}
+
+function countFormaLikeUi(
+    weapon: WeaponEntry,
+    slotPolarities: string[],
+    stancePolarity: string,
+    exilusPolarity: string,
+): number {
+    const defaultCounts = new Map<string, number>();
+    const currentCounts = new Map<string, number>();
+    const addCount = (map: Map<string, number>, polarity: string) => {
+        if (!polarity) return;
+        map.set(polarity, (map.get(polarity) ?? 0) + 1);
+    };
+    for (const polarity of weapon.polarities) addCount(defaultCounts, polarity);
+    addCount(defaultCounts, weapon.stancePolarity ?? "");
+    for (const polarity of slotPolarities) addCount(currentCounts, polarity);
+    addCount(currentCounts, stancePolarity);
+    addCount(currentCounts, exilusPolarity);
+    let changes = 0;
+    const allKeys = new Set([...defaultCounts.keys(), ...currentCounts.keys()]);
+    for (const key of allKeys) {
+        const extra = (currentCounts.get(key) ?? 0) - (defaultCounts.get(key) ?? 0);
+        if (extra > 0) changes += extra;
+    }
+    return changes;
 }
 
 describe("build optimizer scoring", () => {
@@ -242,6 +268,47 @@ describe("build optimizer scoring", () => {
         const baneScore = debugScoreBuild(scoringWeapon, baneBuild.map(mod => mod.effect), "scaling", "Grineer", arcaneEffect);
 
         expect(baneScore).toBeGreaterThan(magneticScore);
+    });
+
+    it("reuses built-in polarities, reserves room for exilus, and avoids frozen-only arcanes for War scaling", () => {
+        const weapon = getWeaponCatalog().find(w => w.name === "War");
+        expect(weapon).toBeTruthy();
+
+        const stance = getStancesForWeapon(weapon!).find(mod => mod.name === "Cleaving Whirlwind");
+        expect(stance).toBeTruthy();
+
+        const result = optimizeBuild(weapon!, null, "scaling", 8, {
+            targetFaction: "Grineer",
+            capacityConfig: {
+                weaponRank: 30,
+                hasCatalyst: true,
+                masteryRank: 22,
+                canOverLevel: weapon!.canOverLevel,
+            },
+            slotPolarities: weapon!.polarities,
+            defaultSlotPolarities: weapon!.polarities,
+            allowCatalyst: true,
+            allowForma: true,
+            optimizeExilus: true,
+            exilusPolarity: "",
+            optimizeArcane: true,
+            buildForAttack: weapon!.attacks[0],
+            extraCapacitySlots: [{
+                mod: stance!,
+                rank: stance!.fusionLimit,
+                polarity: weapon!.stancePolarity ?? "",
+            }],
+        });
+
+        expect(result.exilusMod).toBeTruthy();
+        expect(result.arcane?.name).not.toBe("Melee Careen");
+        expect(
+            result.slots.some((mod, index) =>
+                !!mod && result.slotPolarities[index] === "naramon" && mod.polarity === "naramon"),
+        ).toBe(true);
+        expect(
+            countFormaLikeUi(weapon!, result.slotPolarities, weapon!.stancePolarity ?? "", result.exilusPolarity),
+        ).toBe(4);
     });
 });
 

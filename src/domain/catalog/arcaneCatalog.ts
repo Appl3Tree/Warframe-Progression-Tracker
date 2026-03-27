@@ -77,6 +77,7 @@ function parsePercentStatSegment(segment: string, scale = 1): Partial<ModEffect>
 
 function parseMultiplierStatSegment(segment: string, scale = 1): Partial<ModEffect> {
     const clean = stripColorTags(segment).replace(/\\n/g, " ").trim();
+    if (/\bagainst\b/i.test(clean)) return {};
     const damageMatch = clean.match(/^x([\d.]+)\s+.*damage/i);
     if (damageMatch) return { damageBonus: (parseFloat(damageMatch[1]) - 1) * scale };
     return {};
@@ -117,6 +118,55 @@ function explodeArcaneLines(raw: string): string[] {
         else out.push(line);
     }
     return out;
+}
+
+function dedupeDisplaySegments(segments: string[]): string[] {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const segment of segments) {
+        const key = segment.replace(/\s+/g, " ").trim().toLowerCase();
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        out.push(segment);
+    }
+    return out;
+}
+
+function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function buildArcaneDisplayParts(rawStats: string[]) {
+    const cleaned = dedupeDisplaySegments(rawStats.map(s => stripColorTags(s).replace(/\\n/g, " ").trim()));
+    const baseLines: string[] = [];
+    const procLines: string[] = [];
+    for (const line of cleaned) {
+        if (/^(On |While |Gain |If |Enemies|Kill|When|Deals)/i.test(line)) procLines.push(line);
+        else baseLines.push(line);
+    }
+    const normalizedProcLines = dedupeDisplaySegments(
+        procLines
+            .map((line) => {
+                let next = line;
+                for (const baseLine of baseLines) {
+                    if (next.toLowerCase() === baseLine.toLowerCase()) continue;
+                    if (!next.toLowerCase().includes(baseLine.toLowerCase())) continue;
+                    next = next
+                        .replace(new RegExp(`(?:\\s*[|·]\\s*)?${escapeRegExp(baseLine)}`, "i"), "")
+                        .replace(/\s{2,}/g, " ")
+                        .replace(/\s+\.\s*$/g, ".")
+                        .trim();
+                }
+                return next;
+            })
+            .filter(Boolean),
+    );
+    return {
+        cleaned,
+        baseLines: dedupeDisplaySegments(baseLines),
+        procLines: normalizedProcLines,
+        combined: [...dedupeDisplaySegments(baseLines), ...normalizedProcLines].filter(Boolean),
+    };
 }
 
 function parseArcaneConditionalEffect(line: string): Partial<ModEffect> {
@@ -169,6 +219,29 @@ function parseArcaneConditionalEffect(line: string): Partial<ModEffect> {
     };
 }
 
+function sanitizeConditionalEffect(
+    partial: Partial<ModEffect>,
+    permanent: Partial<ModEffect>,
+): Partial<ModEffect> {
+    const conditionalEffects = partial.conditionalEffects ?? [];
+    if (!conditionalEffects.length) return partial;
+    return {
+        ...partial,
+        conditionalEffects: conditionalEffects
+            .map((conditional) => {
+                const stats = { ...conditional.stats };
+                for (const [key, value] of Object.entries(stats)) {
+                    const permanentValue = permanent[key as keyof ModEffect] as number | undefined;
+                    if (permanentValue != null && Math.abs(permanentValue - value) < 1e-9) {
+                        delete stats[key as keyof typeof stats];
+                    }
+                }
+                return { ...conditional, stats };
+            })
+            .filter((conditional) => Object.keys(conditional.stats).length > 0),
+    };
+}
+
 function parseArcaneStats(levelStats: Array<{ stats: string[] }>): {
     statsByRank: string[];
     statsLabel: string;
@@ -177,22 +250,8 @@ function parseArcaneStats(levelStats: Array<{ stats: string[] }>): {
     permanentEffectByRank: Partial<ModEffect>[];
     optimizerEffectByRank: Partial<ModEffect>[];
 } {
-    const statsByRank = levelStats.map(ls =>
-        (ls.stats ?? []).map(s => stripColorTags(s).replace(/\\n/g, " ")).join(" | ")
-    );
-
     const maxStats = levelStats[levelStats.length - 1]?.stats ?? [];
-    const cleaned = maxStats.map(s => stripColorTags(s).replace(/\\n/g, " "));
-
-    const baseLines: string[] = [];
-    const procLines: string[] = [];
-    for (const line of cleaned) {
-        if (/^(On |While |Gain |If |Enemies|Kill|When|Deals)/i.test(line)) {
-            procLines.push(line);
-        } else {
-            baseLines.push(line);
-        }
-    }
+    const maxDisplay = buildArcaneDisplayParts(maxStats);
 
     // Parse permanent effects at each rank
     const permanentEffectByRank: Partial<ModEffect>[] = levelStats.map(ls => {
@@ -210,20 +269,32 @@ function parseArcaneStats(levelStats: Array<{ stats: string[] }>): {
 
     const optimizerEffectByRank: Partial<ModEffect>[] = levelStats.map(ls => {
         const effect: Partial<ModEffect> = emptyEffect();
+        const permanent: Partial<ModEffect> = {};
+        for (const s of (ls.stats ?? [])) {
+            const clean = stripColorTags(s).replace(/\\n/g, " ").trim();
+            if (/^(On |While |Gain |If |Enemies|Kill|When|Deals)/i.test(clean)) continue;
+            addEffect(permanent, parsePermanentEffect(s));
+        }
         for (const s of (ls.stats ?? [])) {
             for (const line of explodeArcaneLines(s)) {
-                addEffect(effect, parsePermanentEffect(line));
-                addEffect(effect, parseArcaneConditionalEffect(line));
+                const clean = stripColorTags(line).replace(/\\n/g, " ").trim();
+                if (/^(On |While |Gain |If |Enemies|Kill|When|Deals)/i.test(clean)) {
+                    addEffect(effect, sanitizeConditionalEffect(parseArcaneConditionalEffect(line), permanent));
+                } else {
+                    addEffect(effect, parsePermanentEffect(line));
+                }
             }
         }
         return effect;
     });
 
     return {
-        statsByRank,
-        statsLabel: cleaned.join(" · "),
-        baseBonus: baseLines.join(" · "),
-        procBonus: procLines.join(" · "),
+        statsByRank: levelStats.map(ls =>
+            buildArcaneDisplayParts(ls.stats ?? []).combined.join(" | "),
+        ),
+        statsLabel: maxDisplay.combined.join(" · "),
+        baseBonus: maxDisplay.baseLines.join(" · "),
+        procBonus: maxDisplay.procLines.join(" · "),
         permanentEffectByRank,
         optimizerEffectByRank,
     };

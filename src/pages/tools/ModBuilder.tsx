@@ -10,7 +10,7 @@ import { getWeaponCatalog, type WeaponCategory, type WeaponEntry } from "../../d
 import { getModsForWeapon, getStancesForWeapon, type ModEntry, type ModEffect, emptyEffect } from "../../domain/catalog/modCatalog";
 import { getArcanesByWeaponCategory, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
 import { calculateBuild } from "../../domain/logic/damageCalc";
-import { optimizeBuild, explainBuild, debugScoreBuild, getFactionFocusOptions, type OptimizeGoal, type BuildReasoning, type LegacyOptimizeGoal } from "../../domain/logic/buildOptimizer";
+import { optimizeBuild, explainBuild, debugScoreBuild, getFactionFocusOptions, minimizePolaritiesByCapacity, type OptimizeGoal, type BuildReasoning, type LegacyOptimizeGoal } from "../../domain/logic/buildOptimizer";
 import {
     computeCapacity, effectiveDrain,
     maxWeaponRank, type CapacityConfig,
@@ -139,6 +139,41 @@ function actionUnitLabel(category: WeaponCategory) {
 
 function actionRateLabel(category: WeaponCategory) {
     return usesHitTerminology(category) ? "Attack Speed" : "Fire Rate";
+}
+
+function normalizeArcaneDisplayText(value: string | null | undefined) {
+    if (!value) return value ?? "";
+    const parts = value
+        .split(/\s+\|\s+|\s+·\s+/)
+        .map((part) => part.trim())
+        .filter(Boolean);
+    if (!parts.length) return value;
+
+    const baseParts = parts.filter((part) => !/^(On |While |Gain |If |Enemies|Kill|When|Deals)/i.test(part));
+    const cleaned = parts
+        .map((part) => {
+            if (!/^(On |While |Gain |If |Enemies|Kill|When|Deals)/i.test(part)) return part;
+            let next = part;
+            for (const base of baseParts) {
+                if (next.toLowerCase() === base.toLowerCase()) continue;
+                next = next
+                    .replace(new RegExp(`(?:\\s*[|·]\\s*)?${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"), "")
+                    .replace(/\s{2,}/g, " ")
+                    .replace(/\s+\.\s*$/g, ".")
+                    .trim();
+            }
+            return next;
+        })
+        .filter(Boolean);
+
+    const seen = new Set<string>();
+    const deduped = cleaned.filter((part) => {
+        const key = part.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+    return deduped.join(" | ");
 }
 
 function svgPolarityIconMarkup(polarity: string | null | undefined, x: number, y: number, size = 16) {
@@ -1170,7 +1205,6 @@ function ModSlot({ index, label, weaponName, mod, rank, slotPolarity, compatMods
                                     {label && <span className="shrink-0 text-[8px] uppercase tracking-wide text-slate-600">{label}</span>}
                                     <span
                                         className="min-w-0 flex-1 text-xs font-semibold leading-tight text-slate-100"
-                                        title={mod.name}
                                         style={{
                                             display: "-webkit-box",
                                             WebkitLineClamp: 2,
@@ -1185,7 +1219,6 @@ function ModSlot({ index, label, weaponName, mod, rank, slotPolarity, compatMods
                                 </div>
                                 <div
                                     className="mt-1 text-[10px] leading-tight text-slate-400"
-                                    title={currentStatsLabel}
                                     style={{
                                         display: "-webkit-box",
                                         WebkitLineClamp: 2,
@@ -1378,7 +1411,7 @@ function ArcaneSlot({ label, arcane, rank, onChange, onRankChange, availableArca
     }, [availableArcanes, query]);
 
     // Current stats at rank
-    const statAtRank = arcane ? (arcane.statsByRank[rank] ?? arcane.statsLabel) : null;
+    const statAtRank = arcane ? normalizeArcaneDisplayText(arcane.statsByRank[rank] ?? arcane.statsLabel) : null;
 
     return (
         <div className="relative" ref={panelRef}>
@@ -1401,7 +1434,6 @@ function ArcaneSlot({ label, arcane, rank, onChange, onRankChange, availableArca
                                 </div>
                                 <div
                                     className="mt-0.5 text-[10px] leading-tight text-slate-400"
-                                    title={statAtRank ?? ""}
                                     style={{
                                         display: "-webkit-box",
                                         WebkitLineClamp: 2,
@@ -2575,7 +2607,7 @@ export default function ModBuilder() {
                 if (!respectCap) {
                     const resultSlotsForCap = [...result.slots, ...(optExilus ? [result.exilusMod] : [])];
                     const resultRanksForCap = [...result.slotRanks, ...(optExilus ? [result.exilusMod ? result.exilusRank : 0] : [])];
-                    const resultPolsForCap = [...result.slotPolarities, ...(optExilus ? [exilusPol] : [])];
+                    const resultPolsForCap = [...result.slotPolarities, ...(optExilus ? [result.exilusPolarity] : [])];
                     const resultExtraCfgs = (baseExtraCapacitySlots ?? []).map(slot => ({ polarity: slot.polarity }));
                     const resultExtraMods = (baseExtraCapacitySlots ?? []).map(slot => slot.mod);
                     const resultExtraRanks = (baseExtraCapacitySlots ?? []).map(slot => slot.rank);
@@ -2676,7 +2708,7 @@ export default function ModBuilder() {
 
             const finalSlotsForCap = [...appliedResult.slots, ...(optExilus ? [appliedResult.exilusMod] : [])];
             const finalRanksForCap = [...appliedResult.slotRanks, ...(optExilus ? [appliedResult.exilusMod ? appliedResult.exilusRank : 0] : [])];
-            const finalPolsForCap  = [...appliedResult.slotPolarities, ...(optExilus ? [exilusPol] : [])];
+            const finalPolsForCap  = [...appliedResult.slotPolarities, ...(optExilus ? [appliedResult.exilusPolarity] : [])];
 
             if (
                 appliedCatalyst ||
@@ -2702,7 +2734,22 @@ export default function ModBuilder() {
                 ? defaultMainPols
                 : appliedResult.slotPolarities;
             let stancePolToApply = stancePol;
-            let exilusPolToApply = appliedResult.exilusMod ? exilusPol : "";
+            let exilusPolToApply = appliedResult.exilusMod ? appliedResult.exilusPolarity : "";
+
+            if (allowForma) {
+                const minimizedAppliedPols = minimizePolaritiesByCapacity(
+                    defaultMainPols,
+                    appliedResult.slots,
+                    appliedResult.slotRanks,
+                    catalystAwareCfg,
+                    baseExtraCapacitySlots ?? [],
+                    appliedResult.exilusMod
+                        ? { mod: appliedResult.exilusMod, rank: appliedResult.exilusRank, basePolarity: "" }
+                        : undefined,
+                );
+                slotPolsToApply = minimizedAppliedPols.mainPolarities;
+                exilusPolToApply = appliedResult.exilusMod ? minimizedAppliedPols.exilusPolarity : "";
+            }
 
             if (allowForma) {
                 const fullDefaultPols = [
