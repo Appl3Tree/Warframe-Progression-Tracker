@@ -183,6 +183,7 @@ function parseArcaneConditionalEffect(line: string): Partial<ModEffect> {
     const requiresAiming = /\bwhen aiming\b|\bwhile aiming\b/i.test(body);
 
     let trigger: ConditionalTrigger | null = null;
+    let requiredStatusType: ConditionalEffect["requiredStatusType"];
     if (triggerRaw === "on kill") trigger = "onKill";
     else if (triggerRaw === "on headshot kill" || triggerRaw === "on precision headshot kill") trigger = "onHeadshotKill";
     else if (triggerRaw === "on melee kill") trigger = "onMeleeKill";
@@ -193,7 +194,14 @@ function parseArcaneConditionalEffect(line: string): Partial<ModEffect> {
     else if (triggerRaw === "on reload") trigger = "onReload";
     else if (triggerRaw === "on reload from empty") trigger = "onReloadFromEmpty";
     else if (triggerRaw === "on ability cast") trigger = "onHit";
-    else if (triggerRaw.startsWith("on ") && triggerRaw.includes("status effect")) trigger = "onHit";
+    else if (triggerRaw.startsWith("on ") && triggerRaw.includes("status effect")) {
+        trigger = "onHit";
+        const statusMatch = triggerRaw.match(/on weapon ([a-z]+) status effect|on ([a-z]+) status effect/i);
+        const statusType = (statusMatch?.[1] ?? statusMatch?.[2] ?? "").toLowerCase();
+        if (statusType) {
+            requiredStatusType = statusType as ConditionalEffect["requiredStatusType"];
+        }
+    }
     else if (triggerRaw.startsWith("when ") || triggerRaw === "gain" || triggerRaw.startsWith("if ")) trigger = "onHit";
     if (!trigger) return {};
 
@@ -215,7 +223,7 @@ function parseArcaneConditionalEffect(line: string): Partial<ModEffect> {
     if (Object.keys(conditionalStats).length === 0) return {};
 
     return {
-        conditionalEffects: [{ trigger, durationSeconds, requiresAiming, maxStacks, stats: conditionalStats }],
+        conditionalEffects: [{ trigger, durationSeconds, requiresAiming, maxStacks, requiredStatusType, stats: conditionalStats }],
     };
 }
 

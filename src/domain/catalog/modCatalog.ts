@@ -126,6 +126,7 @@ export interface ConditionalEffect {
     durationSeconds: number;
     requiresAiming: boolean;
     maxStacks: number;
+    requiredStatusType?: "impact" | "puncture" | "slash" | "heat" | "cold" | "electricity" | "toxin" | "blast" | "radiation" | "gas" | "magnetic" | "viral" | "corrosive" | "void" | "tau" | "true";
     stats: Partial<Pick<
         ModEffect,
         | "damageBonus"

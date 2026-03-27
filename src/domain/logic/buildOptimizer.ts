@@ -59,6 +59,8 @@ export interface OptimizerOptions {
      * The returned slotPolarities reflect the optimal polarities to use.
      */
     allowForma?: boolean;
+    /** Maximum total forma-equivalent polarity changes the optimizer may use. */
+    maxFormaCount?: number;
     /**
      * If true, also try adding an exilus mod to the exilus slot.
      * The returned result will include exilusMod / exilusRank if one was selected.
@@ -509,7 +511,25 @@ function scoreEffects(
     const normalizedArcaneEffect = arcaneEffect
         ? { ...emptyEffect(), ...arcaneEffect, conditionalEffects: [...(arcaneEffect.conditionalEffects ?? [])] }
         : null;
-    const allEffects = normalizedArcaneEffect ? [...effects, normalizedArcaneEffect] : effects;
+    const initialEffects = normalizedArcaneEffect ? [...effects, normalizedArcaneEffect] : effects;
+    const ungatedEffects = initialEffects.map((effect) => {
+        if (!effect?.conditionalEffects?.length) return effect;
+        return {
+            ...effect,
+            conditionalEffects: effect.conditionalEffects.filter((conditional) => !conditional.requiredStatusType),
+        };
+    });
+    const preview = calculateBuild(weapon, ungatedEffects, targetFaction);
+    const allEffects = initialEffects.map((effect) => {
+        if (!effect?.conditionalEffects?.length) return effect;
+        return {
+            ...effect,
+            conditionalEffects: effect.conditionalEffects.filter((conditional) =>
+                !conditional.requiredStatusType ||
+                (preview.modded.expectedStacksByType[conditional.requiredStatusType] ?? 0) >= 0.25,
+            ),
+        };
+    });
     const { modded, burstDPS, sustainedDPS } = calculateBuild(weapon, allEffects, targetFaction);
     let statusDurationBonus = 0;
     let statusDamageBonus = 0;
@@ -560,6 +580,9 @@ function scoreEffects(
     const baselineFireRate = weapon.fireRate * (1 + (weapon.category === "Melee" ? 0 : 0));
     const baselineMagazineSize = Math.max(1, Math.round(weapon.magazineSize));
     for (const conditional of conditionalEffects) {
+        if (conditional.requiredStatusType && (modded.expectedStacksByType[conditional.requiredStatusType] ?? 0) < 0.25) {
+            continue;
+        }
         const factor =
             estimateConditionalUptime(conditional, baselineFireRate, baselineMagazineSize) *
             estimateConditionalStackFactor(conditional, baselineFireRate, baselineMagazineSize);
@@ -865,6 +888,7 @@ export function minimizePolaritiesByCapacity(
     capacityConfig?: CapacityConfig,
     extraCapacitySlots: Array<{ mod: ModEntry; rank: number; polarity: string }> = [],
     exilus?: { mod: ModEntry | null; rank: number; basePolarity: string },
+    maxAdditionalPolarities?: number,
 ): { mainPolarities: string[]; exilusPolarity: string } {
     const mainPolarities = Array(slotMods.length).fill("");
     let exilusPolarity = "";
@@ -943,14 +967,42 @@ export function minimizePolaritiesByCapacity(
             }
         }
         remaining.sort((a, b) => b.savings - a.savings);
+        let addedPolarities = 0;
         for (const candidate of remaining) {
+            if (maxAdditionalPolarities != null && addedPolarities >= maxAdditionalPolarities) break;
             if (candidate.kind === "main") mainPolarities[candidate.index] = candidate.polarity;
             else exilusPolarity = candidate.polarity;
+            addedPolarities++;
             if (fitsCurrent()) break;
         }
     }
 
     return { mainPolarities, exilusPolarity };
+}
+
+function getCapacityAwarePolarities(
+    slotMods: (ModEntry | null)[],
+    slotRanks: number[],
+    slotCount: number,
+    opts: OptimizerOptions,
+    exilus?: { mod: ModEntry | null; rank: number; basePolarity: string },
+): { mainPolarities: string[]; exilusPolarity: string } {
+    const paddedDefaults = [...(opts.defaultSlotPolarities ?? opts.slotPolarities ?? [])];
+    while (paddedDefaults.length < slotCount) paddedDefaults.push("");
+    if (!opts.allowForma) {
+        const mainPolarities = [...(opts.slotPolarities ?? [])];
+        while (mainPolarities.length < slotCount) mainPolarities.push("");
+        return { mainPolarities, exilusPolarity: exilus?.basePolarity ?? (opts.exilusPolarity ?? "") };
+    }
+    return minimizePolaritiesByCapacity(
+        paddedDefaults,
+        slotMods,
+        slotRanks,
+        opts.capacityConfig,
+        opts.extraCapacitySlots ?? [],
+        exilus,
+        opts.maxFormaCount,
+    );
 }
 
 // ── Beam search ───────────────────────────────────────────────────────────────
@@ -1004,8 +1056,8 @@ function beamSearch(
             while (pols.length < slotCount) pols.push("");
             return pols;
         }
-        // With forma: each placed mod gets its own polarity; empty slots are neutral
-        return mods.map(m => (m && m.polarity) ? m.polarity : "");
+        const ranks = mods.map((mod) => mod?.fusionLimit ?? 0);
+        return getCapacityAwarePolarities(mods, ranks, slotCount, opts).mainPolarities;
     };
 
     const arcaneEffect = null;
@@ -1146,7 +1198,10 @@ function refineBuildSet(
                     allowForma,
                 );
 
-                if (capacityConfig && !fitsCapacity(slotMods, slotRanks, capacityConfig, resultPolarities, opts.extraCapacitySlots)) continue;
+                const capPolarities = allowForma
+                    ? getCapacityAwarePolarities(slotMods, slotRanks, trialMods.length, opts).mainPolarities
+                    : resultPolarities;
+                if (capacityConfig && !fitsCapacity(slotMods, slotRanks, capacityConfig, capPolarities, opts.extraCapacitySlots)) continue;
 
                 const compactMods = slotMods.filter((mod): mod is ModEntry => !!mod);
                 const compactRanks = slotMods.flatMap((mod, index) => (mod ? [slotRanks[index]] : []));
@@ -1219,7 +1274,10 @@ function fillEmptySlots(
                 allowForma,
             );
 
-            if (capacityConfig && !fitsCapacity(slotMods, slotRanks, capacityConfig, resultPolarities, opts.extraCapacitySlots)) continue;
+            const capPolarities = allowForma
+                ? getCapacityAwarePolarities(slotMods, slotRanks, slotCount, opts).mainPolarities
+                : resultPolarities;
+            if (capacityConfig && !fitsCapacity(slotMods, slotRanks, capacityConfig, capPolarities, opts.extraCapacitySlots)) continue;
 
             const compactMods = slotMods.filter((mod): mod is ModEntry => !!mod);
             const compactRanks = slotMods.flatMap((mod, index) => (mod ? [slotRanks[index]] : []));
@@ -1261,10 +1319,16 @@ function optimizeExilusSlot(
     );
     if (!eligibleExilus.length) return { mod: null, rank: 0, polarity: exilusPolarity };
 
-    let bestMod: ModEntry | null = null;
-    let bestRank = 0;
-    let bestPolarityForMod = exilusPolarity;
-    let bestScore = -Infinity;
+    const baseScore = scoreEffects(weapon, mainBuildEffects, goal, targetFaction);
+    let bestImprovingMod: ModEntry | null = null;
+    let bestImprovingRank = 0;
+    let bestImprovingPolarity = exilusPolarity;
+    let bestImprovingScore = baseScore;
+    let bestFallbackMod: ModEntry | null = null;
+    let bestFallbackRank = 0;
+    let bestFallbackPolarity = exilusPolarity;
+    let bestFallbackHeuristic = -Infinity;
+    let bestFallbackScore = -Infinity;
 
     for (const mod of eligibleExilus) {
         const minRank = opts.allowNonMaxRank ? 0 : mod.fusionLimit;
@@ -1273,20 +1337,92 @@ function optimizeExilusSlot(
             if (opts.capacityConfig) {
                 const capSlots = [...mainSlots, mod];
                 const capRanks = [...mainSlotRanks, r];
-                const capPols = [...mainSlotPolarities, candidatePolarity];
-                if (!fitsCapacity(capSlots, capRanks, opts.capacityConfig, capPols, opts.extraCapacitySlots)) continue;
+                const cappedPolarities = opts.allowForma
+                    ? getCapacityAwarePolarities(
+                        mainSlots,
+                        mainSlotRanks,
+                        mainSlots.length,
+                        opts,
+                        { mod, rank: r, basePolarity: exilusPolarity },
+                    )
+                    : { mainPolarities: [...mainSlotPolarities], exilusPolarity: candidatePolarity };
+                const capPols = cappedPolarities.mainPolarities;
+                const capExtraSlots = [
+                    ...(opts.extraCapacitySlots ?? []),
+                    { mod, rank: r, polarity: cappedPolarities.exilusPolarity },
+                ];
+                if (!fitsCapacity(capSlots, capRanks, opts.capacityConfig, capPols, capExtraSlots)) continue;
             }
             const e = mod.effectsByRank[r] ?? mod.effect;
             const s = scoreEffects(weapon, [...mainBuildEffects, e], goal, targetFaction);
-            if (s > bestScore) {
-                bestScore = s;
-                bestMod = mod;
-                bestRank = r;
-                bestPolarityForMod = candidatePolarity;
+            if (s > bestImprovingScore + 1e-9) {
+                bestImprovingScore = s;
+                bestImprovingMod = mod;
+                bestImprovingRank = r;
+                bestImprovingPolarity = candidatePolarity;
+            }
+
+            const fallbackHeuristic = scoreExilusUtilityFallback(weapon, mod, e, goal);
+            if (
+                fallbackHeuristic > bestFallbackHeuristic + 1e-9 ||
+                (Math.abs(fallbackHeuristic - bestFallbackHeuristic) <= 1e-9 && s > bestFallbackScore + 1e-9)
+            ) {
+                bestFallbackHeuristic = fallbackHeuristic;
+                bestFallbackScore = s;
+                bestFallbackMod = mod;
+                bestFallbackRank = r;
+                bestFallbackPolarity = candidatePolarity;
             }
         }
     }
-    return { mod: bestMod, rank: bestRank, polarity: bestPolarityForMod };
+
+    if (bestImprovingMod) {
+        return { mod: bestImprovingMod, rank: bestImprovingRank, polarity: bestImprovingPolarity };
+    }
+    return { mod: bestFallbackMod, rank: bestFallbackRank, polarity: bestFallbackPolarity };
+}
+
+function scoreExilusUtilityFallback(
+    weapon: WeaponEntry,
+    mod: ModEntry,
+    effect: Partial<ModEffect> | null | undefined,
+    goal: OptimizeGoal,
+): number {
+    const e = effect ?? {};
+    const text = (mod.statsLabel ?? mod.statsTextByRank[mod.fusionLimit] ?? "").toLowerCase();
+
+    let score = 0;
+
+    score += Math.max(0, e.reloadSpeedBonus ?? 0) * (weapon.category === "Melee" ? 0.02 : 0.22);
+    score += Math.max(0, e.projectileSpeedBonus ?? 0) * 0.12;
+    score += Math.max(0, e.accuracyBonus ?? 0) * 0.08;
+    score += Math.max(0, e.blastRadiusBonus ?? 0) * 0.25;
+    score += Math.max(0, e.beamRangeBonus ?? 0) * 0.28;
+    score += Math.max(0, e.rangeBonus ?? 0) * 0.18;
+    score += Math.max(0, e.statusDurationBonus ?? 0) * 0.12;
+    score += Math.max(0, e.statusDamageBonus ?? 0) * 0.18;
+    score += Math.max(0, e.finalStatusChanceBonus ?? 0) * 0.2;
+    score += Math.max(0, e.ammoEfficiencyBonus ?? 0) * 0.12;
+    score += Math.max(0, e.headshotMultiplierBonus ?? 0) * 0.05;
+    score += Math.max(0, e.weakPointDamageBonus ?? 0) * 0.08;
+    score += Math.max(0, e.weakPointCritChanceBonus ?? 0) * 0.08;
+
+    if (weapon.category !== "Melee" && /holstered/.test(text) && /reload/.test(text)) score += 0.16;
+    if (/reload/.test(text) && !/holstered/.test(text)) score += 0.06;
+    if (/accuracy/.test(text) && !(e.accuracyBonus ?? 0)) score += 0.05;
+    if (/recoil/.test(text)) score += 0.05;
+    if (/ammo/.test(text)) score += 0.04;
+    if (/stagger/.test(text) && weapon.category !== "Melee") score += 0.06;
+    if (/projectile speed/.test(text) && !(e.projectileSpeedBonus ?? 0)) score += 0.04;
+    if (/beam range/.test(text) && !(e.beamRangeBonus ?? 0)) score += 0.05;
+    if (/punch through/.test(text) && !(e.punchThrough ?? 0)) score += 0.05;
+    if (/tennokai/.test(text)) score += goal === "scaling" || goal === "status" ? 0.22 : 0.12;
+    if (/status chance/.test(text) && /tennokai/.test(text)) score += 0.08;
+    if (/silence|silent|noise/.test(text)) score += 0.01;
+    if (/zoom/.test(text)) score += 0.005;
+    if (/double jump|airborne|movement speed/.test(text)) score += 0.002;
+
+    return score;
 }
 
 // ── Arcane optimization ───────────────────────────────────────────────────────
@@ -1386,6 +1522,8 @@ function optimizeBuildInternal(
             slotRanks,
             capCfg,
             effectiveOpts.extraCapacitySlots ?? [],
+            undefined,
+            effectiveOpts.maxFormaCount,
         ).mainPolarities
         : resultPolarities;
 
@@ -1412,6 +1550,8 @@ function optimizeBuildInternal(
                 slotRanks,
                 capCfg,
                 effectiveOpts.extraCapacitySlots ?? [],
+                undefined,
+                effectiveOpts.maxFormaCount,
             ).mainPolarities;
         }
     }
@@ -1538,6 +1678,7 @@ function optimizeBuildInternal(
             capCfg,
             effectiveOpts.extraCapacitySlots ?? [],
             exilusMod ? { mod: exilusMod, rank: exilusRank, basePolarity: exilusPolarity } : undefined,
+            effectiveOpts.maxFormaCount,
         )
         : { mainPolarities: reassigned.resultPolarities, exilusPolarity: finalExilusPolarity };
     let reassignedPolarities = minimizedFinalPolarities.mainPolarities;
@@ -1548,6 +1689,52 @@ function optimizeBuildInternal(
         slotMods[i] = reassigned.slotMods[i];
         slotRanks[i] = reassigned.slotRanks[i];
         finalPolarities[i] = reassignedPolarities[i];
+    }
+
+    if (capCfg) {
+        const finalExtraCapacitySlots = exilusMod
+            ? [
+                ...(effectiveOpts.extraCapacitySlots ?? []),
+                { mod: exilusMod, rank: exilusRank, polarity: finalExilusPolarity },
+            ]
+            : (effectiveOpts.extraCapacitySlots ?? []);
+        let iter = 0;
+        while (iter++ < slotCount) {
+            if (fitsCapacity(slotMods, slotRanks, capCfg, finalPolarities, finalExtraCapacitySlots)) break;
+            let weakestSlot = -1;
+            let weakestPenalty = Infinity;
+            for (let si = 0; si < slotCount; si++) {
+                const m = slotMods[si];
+                if (!m) continue;
+                const trialMods = [...slotMods];
+                const trialRanks = [...slotRanks];
+                trialMods[si] = null;
+                trialRanks[si] = 0;
+                const currentScore = scoreSlots(scoringWeapon, slotMods, slotRanks, goal, targetFaction, contextualArcaneEffect);
+                const trialScore = scoreSlots(scoringWeapon, trialMods, trialRanks, goal, targetFaction, contextualArcaneEffect);
+                const penalty = currentScore - trialScore;
+                if (penalty < weakestPenalty) {
+                    weakestPenalty = penalty;
+                    weakestSlot = si;
+                }
+            }
+            if (weakestSlot < 0) break;
+            slotMods[weakestSlot] = null;
+            slotRanks[weakestSlot] = 0;
+            if (allowForma) {
+                const recapped = minimizePolaritiesByCapacity(
+                    paddedDefaults,
+                    slotMods,
+                    slotRanks,
+                    capCfg,
+                    effectiveOpts.extraCapacitySlots ?? [],
+                    exilusMod ? { mod: exilusMod, rank: exilusRank, basePolarity: exilusPolarity } : undefined,
+                    effectiveOpts.maxFormaCount,
+                );
+                finalPolarities = recapped.mainPolarities;
+                finalExilusPolarity = exilusMod ? recapped.exilusPolarity : "";
+            }
+        }
     }
 
     const originalCapCfg = opts.capacityConfig;

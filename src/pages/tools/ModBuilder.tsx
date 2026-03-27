@@ -2144,6 +2144,11 @@ interface BuildCfg {
     optimizeValenceElement: boolean;
 }
 
+function maxOptimizerFormaForWeapon(weapon: WeaponEntry | null) {
+    if (!weapon) return 9;
+    return weapon.category === "Melee" ? 10 : 9;
+}
+
 export default function ModBuilder() {
     const masteryRank      = useTrackerStore(s => s.state.player.masteryRank) ?? 0;
     const inventoryArcaneRanks = useTrackerStore(s => s.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
@@ -2191,6 +2196,7 @@ export default function ModBuilder() {
     const [faction, setFaction]          = useState("Grineer");
     const [allowCatalyst, setAllowCatalyst] = useState(false);
     const [allowForma, setAllowForma]    = useState(false);
+    const [maxFormaAllowed, setMaxFormaAllowed] = useState(9);
     const [optExilus, setOptExilus]      = useState(false);
     const [optArcane, setOptArcane]      = useState(false);
     const [showOptimizeOptions, setShowOptimizeOptions] = useState(false);
@@ -2211,6 +2217,11 @@ export default function ModBuilder() {
             return { ...prev, masteryRank };
         });
     }, [masteryRank]);
+
+    useEffect(() => {
+        const maxForWeapon = maxOptimizerFormaForWeapon(weapon);
+        setMaxFormaAllowed((prev) => Math.min(Math.max(1, prev), maxForWeapon));
+    }, [weapon]);
 
     function resetBuildForWeapon(w: WeaponEntry, opts?: { resetConfig?: boolean }) {
         setSlots(Array(SLOT_COUNT).fill(null));
@@ -2286,6 +2297,7 @@ export default function ModBuilder() {
         if (rivenMod)  s.add(rivenMod.incompatibilityGroup);
         return s;
     }, [slots, stanceMod, exilusMod, rivenMod]);
+    const maxOptimizerForma = useMemo(() => maxOptimizerFormaForWeapon(weapon), [weapon]);
 
     // Forma count: count slots whose current polarity differs from weapon default
     const formaCount = useMemo(() => {
@@ -2558,6 +2570,7 @@ export default function ModBuilder() {
                     defaultSlotPolarities: weapon.polarities,
                     allowCatalyst,
                     allowForma,
+                    maxFormaCount: allowForma ? maxFormaAllowed : undefined,
                     optimizeExilus:   optExilus,
                     exilusPolarity:   exilusPol,
                     optimizeArcane:   optArcane,
@@ -2612,6 +2625,7 @@ export default function ModBuilder() {
                                     defaultSlotPolarities: weapon.polarities,
                                     allowCatalyst:    false,
                                     allowForma:       true,
+                                    maxFormaCount:    maxFormaAllowed,
                                     optimizeExilus:   optExilus,
                                     exilusPolarity:   exilusPol,
                                     optimizeArcane:   optArcane,
@@ -2633,6 +2647,7 @@ export default function ModBuilder() {
                                 defaultSlotPolarities: weapon.polarities,
                                 allowCatalyst:    false,
                                 allowForma:       true,
+                                maxFormaCount:    maxFormaAllowed,
                                 optimizeExilus:   optExilus,
                                 exilusPolarity:   exilusPol,
                                 optimizeArcane:   optArcane,
@@ -2715,6 +2730,7 @@ export default function ModBuilder() {
                     appliedResult.exilusMod
                         ? { mod: appliedResult.exilusMod, rank: appliedResult.exilusRank, basePolarity: "" }
                         : undefined,
+                    maxFormaAllowed,
                 );
                 slotPolsToApply = minimizedAppliedPols.mainPolarities;
                 exilusPolToApply = appliedResult.exilusMod ? minimizedAppliedPols.exilusPolarity : "";
@@ -2939,20 +2955,62 @@ export default function ModBuilder() {
                                                             : "Available once the progenitor weapon reaches rank 40.",
                                                     }] as const : []),
                                                 ] as const).map(t => (
-                                                    <button key={t.label} onClick={() => t.set(!t.active)} title={t.desc}
-                                                        disabled={t.label === "Optimize Valence Element" && buildCfg.weaponRank < 40}
-                                                        className={["rounded-lg border px-2.5 py-1.5 text-[11px] text-left transition-colors",
-                                                            t.active ? "border-sky-700/60 bg-sky-950/20 text-sky-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300",
-                                                            t.label === "Optimize Valence Element" && buildCfg.weaponRank < 40 ? "opacity-50 cursor-not-allowed" : "",
-                                                        ].join(" ")}>
-                                                        <div className="flex items-center gap-1.5">
-                                                            <span className={["w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
-                                                                t.active ? "border-sky-400 bg-sky-400" : "border-slate-600"].join(" ")}>
-                                                                {t.active && <span className="text-slate-900 text-[8px]">&#10003;</span>}
-                                                            </span>
-                                                            <span className="font-semibold">{t.label}</span>
+                                                    t.label === "Allow Forma" ? (
+                                                        <div
+                                                            key={t.label}
+                                                            title={t.desc}
+                                                            className={[
+                                                                "rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors",
+                                                                t.active ? "border-sky-700/60 bg-sky-950/20 text-sky-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300",
+                                                            ].join(" ")}
+                                                        >
+                                                            <div className="flex items-center justify-between gap-3">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => t.set(!t.active)}
+                                                                    className="flex min-w-0 items-center gap-1.5 text-left"
+                                                                >
+                                                                    <span className={["w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
+                                                                        t.active ? "border-sky-400 bg-sky-400" : "border-slate-600"].join(" ")}>
+                                                                        {t.active && <span className="text-slate-900 text-[8px]">&#10003;</span>}
+                                                                    </span>
+                                                                    <span className="font-semibold">{t.label}</span>
+                                                                </button>
+                                                                {t.active && (
+                                                                    <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-sky-200/85">
+                                                                        <span>Max:</span>
+                                                                        <select
+                                                                            value={maxFormaAllowed}
+                                                                            onChange={(e) => setMaxFormaAllowed(Math.max(1, Math.min(maxOptimizerForma, Number(e.target.value) || 1)))}
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                            className="rounded-md border border-sky-700/60 bg-slate-950/85 px-2 py-1 text-[11px] font-semibold text-slate-100 outline-none transition-colors focus:border-sky-500"
+                                                                        >
+                                                                            {Array.from({ length: maxOptimizerForma }, (_, index) => index + 1).map((count) => (
+                                                                                <option key={count} value={count}>
+                                                                                    {count}
+                                                                                </option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </label>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                    </button>
+                                                    ) : (
+                                                        <button key={t.label} onClick={() => t.set(!t.active)} title={t.desc}
+                                                            disabled={t.label === "Optimize Valence Element" && buildCfg.weaponRank < 40}
+                                                            className={["rounded-lg border px-2.5 py-1.5 text-[11px] text-left transition-colors",
+                                                                t.active ? "border-sky-700/60 bg-sky-950/20 text-sky-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300",
+                                                                t.label === "Optimize Valence Element" && buildCfg.weaponRank < 40 ? "opacity-50 cursor-not-allowed" : "",
+                                                            ].join(" ")}>
+                                                            <div className="flex items-center gap-1.5">
+                                                                <span className={["w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
+                                                                    t.active ? "border-sky-400 bg-sky-400" : "border-slate-600"].join(" ")}>
+                                                                    {t.active && <span className="text-slate-900 text-[8px]">&#10003;</span>}
+                                                                </span>
+                                                                <span className="font-semibold">{t.label}</span>
+                                                            </div>
+                                                        </button>
+                                                    )
                                                 ))}
                                             </div>
                                             <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">

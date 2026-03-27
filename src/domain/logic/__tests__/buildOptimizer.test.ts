@@ -5,6 +5,7 @@ import { getWeaponCatalog } from "../../catalog/weaponCatalog";
 import type { WeaponEntry } from "../../catalog/weaponCatalog";
 import { emptyEffect } from "../../catalog/modCatalog";
 import { debugScoreBuild, optimizeBuild } from "../buildOptimizer";
+import { computeCapacity } from "../capacityCalc";
 import { calculateBuild } from "../damageCalc";
 
 function makeWeapon(overrides: Partial<WeaponEntry> = {}): WeaponEntry {
@@ -309,6 +310,109 @@ describe("build optimizer scoring", () => {
         expect(
             countFormaLikeUi(weapon!, result.slotPolarities, weapon!.stancePolarity ?? "", result.exilusPolarity),
         ).toBe(4);
+    });
+
+    it("only considers exilus-eligible mods for exilus and avoids movement-only no-op picks when better utility exists", () => {
+        const weapon = getWeaponCatalog().find(w => w.name === "Acceltra Prime");
+        expect(weapon).toBeTruthy();
+
+        const result = optimizeBuild(weapon!, null, "scaling", 8, {
+            targetFaction: "Grineer",
+            capacityConfig: {
+                weaponRank: 30,
+                hasCatalyst: true,
+                masteryRank: 22,
+                canOverLevel: weapon!.canOverLevel,
+            },
+            slotPolarities: weapon!.polarities,
+            defaultSlotPolarities: weapon!.polarities,
+            allowCatalyst: true,
+            allowForma: true,
+            optimizeExilus: true,
+            exilusPolarity: "",
+            optimizeArcane: true,
+            buildForAttack: weapon!.attacks[0],
+        });
+
+        expect(result.exilusMod).toBeTruthy();
+        expect(result.exilusMod?.isExilus).toBe(true);
+        expect(result.exilusMod?.name).not.toBe("Aerial Ace");
+        expect((result.exilusMod?.statsLabel ?? "").toLowerCase()).not.toContain("double jump");
+    });
+
+    it("respects the configured max forma cap during optimization", () => {
+        const weapon = getWeaponCatalog().find(w => w.name === "War");
+        expect(weapon).toBeTruthy();
+
+        const stance = getStancesForWeapon(weapon!).find(mod => mod.name === "Cleaving Whirlwind");
+        expect(stance).toBeTruthy();
+
+        const result = optimizeBuild(weapon!, null, "scaling", 8, {
+            targetFaction: "Grineer",
+            capacityConfig: {
+                weaponRank: 30,
+                hasCatalyst: true,
+                masteryRank: 22,
+                canOverLevel: weapon!.canOverLevel,
+            },
+            slotPolarities: weapon!.polarities,
+            defaultSlotPolarities: weapon!.polarities,
+            allowCatalyst: true,
+            allowForma: true,
+            maxFormaCount: 1,
+            optimizeExilus: true,
+            exilusPolarity: "",
+            optimizeArcane: true,
+            buildForAttack: weapon!.attacks[0],
+            extraCapacitySlots: [{
+                mod: stance!,
+                rank: stance!.fusionLimit,
+                polarity: weapon!.stancePolarity ?? "",
+            }],
+        });
+
+        expect(
+            countFormaLikeUi(weapon!, result.slotPolarities, weapon!.stancePolarity ?? "", result.exilusPolarity),
+        ).toBeLessThanOrEqual(1);
+    });
+
+    it("keeps respected-capacity acceltra builds within capacity and avoids toxin-only arcanes on viral setups", () => {
+        const weapon = getWeaponCatalog().find(w => w.name === "Acceltra Prime");
+        expect(weapon).toBeTruthy();
+
+        const result = optimizeBuild(weapon!, null, "burst", 8, {
+            targetFaction: "Grineer",
+            capacityConfig: {
+                weaponRank: 30,
+                hasCatalyst: true,
+                masteryRank: 22,
+                canOverLevel: weapon!.canOverLevel,
+            },
+            slotPolarities: weapon!.polarities,
+            defaultSlotPolarities: weapon!.polarities,
+            allowCatalyst: true,
+            allowForma: true,
+            maxFormaCount: 2,
+            optimizeExilus: true,
+            exilusPolarity: "",
+            optimizeArcane: true,
+            buildForAttack: weapon!.attacks[0],
+        });
+
+        const capacity = computeCapacity(
+            {
+                weaponRank: 30,
+                hasCatalyst: true,
+                masteryRank: 22,
+                canOverLevel: weapon!.canOverLevel,
+            },
+            [...result.slotPolarities.map(polarity => ({ polarity })), { polarity: result.exilusPolarity }],
+            [...result.slots, result.exilusMod],
+            [...result.slotRanks, result.exilusMod ? result.exilusRank : 0],
+        );
+
+        expect(capacity.overCapacity).toBe(false);
+        expect(result.arcane?.name).not.toBe("Primary Blight");
     });
 });
 
