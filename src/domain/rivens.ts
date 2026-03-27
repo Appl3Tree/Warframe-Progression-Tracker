@@ -97,7 +97,7 @@ export const CUSTOM_RIVEN_STAT_DEFS: CustomRivenStatDef[] = [
     },
     {
         key: "damageVsCorpus",
-        label: "Damage vs Corpus",
+        label: "Damage to Corpus",
         unit: "multiplier",
         compat: ["Primary", "Secondary", "Melee"],
         prefix: "Manti",
@@ -108,7 +108,7 @@ export const CUSTOM_RIVEN_STAT_DEFS: CustomRivenStatDef[] = [
     },
     {
         key: "damageVsGrineer",
-        label: "Damage vs Grineer",
+        label: "Damage to Grineer",
         unit: "multiplier",
         compat: ["Primary", "Secondary", "Melee"],
         prefix: "Argi",
@@ -119,7 +119,7 @@ export const CUSTOM_RIVEN_STAT_DEFS: CustomRivenStatDef[] = [
     },
     {
         key: "damageVsInfested",
-        label: "Damage vs Infested",
+        label: "Damage to Infested",
         unit: "multiplier",
         compat: ["Primary", "Secondary", "Melee"],
         prefix: "Pura",
