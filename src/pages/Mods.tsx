@@ -696,23 +696,6 @@ function getDisplayModName(entry: ModEntry): string {
   return entry.name;
 }
 
-function getSpecificBrowseParent(entry: ModEntry): string | null {
-  const genericParents = new Set([
-    "/Lotus/Types/Game/LotusArtifactUpgrades/BaseArtifactUpgrade",
-    "/Lotus/Types/Game/LotusArtifactUpgrade",
-    "/Lotus/Types/Game/BaseCosmeticEnhancer",
-    "/Lotus/Types/Game/LotusLockedCosmeticEnhancer",
-  ]);
-
-  const parentCandidates = [
-    ...(Array.isArray(entry.parents) ? entry.parents : []),
-    entry.parent,
-  ].filter((parent): parent is string => Boolean(parent));
-
-  const specific = parentCandidates.find((parent) => !genericParents.has(parent));
-  return specific ?? null;
-}
-
 function getBrowseCompatKey(entry: ModEntry): string {
   return (
     entry.data?.ItemCompatibility ??
@@ -724,11 +707,7 @@ function getBrowseCompatKey(entry: ModEntry): string {
 
 function getBrowseModFamilyKey(entry: ModEntry): string {
   const variantTier = getModVariantTier(entry);
-  const specificParent = getSpecificBrowseParent(entry);
-  if (specificParent) {
-    return `${entry.name}||${variantTier}||${specificParent}`;
-  }
-  return `${entry.name}||${variantTier}||${getBrowseCompatKey(entry)}||${normalizeBrowseModPath(entry.path)}`;
+  return `${entry.name}||${variantTier}||${getBrowseCompatKey(entry)}`;
 }
 
 function browseModDedupScore(entry: ModEntry): number {
