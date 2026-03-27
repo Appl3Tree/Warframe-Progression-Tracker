@@ -1137,6 +1137,7 @@ function CapBar({ used, total, over }: { used: number; total: number; over: bool
 interface SlotProps {
     index: number; label?: string;
     weaponName?: string;
+    activeRivenSlotIdx?: number | null;
     mod: ModEntry | null; rank: number; slotPolarity: string;
     compatMods: ModEntry[]; usedGroups: Set<string>;
     ownedNames: Set<string>; onlyOwned: boolean; isExilusSlot?: boolean;
@@ -1148,13 +1149,21 @@ interface SlotProps {
     onToggleExclude: (name: string) => void;
     effDrain: number;
     compactEmpty?: boolean;
+    draggable?: boolean;
+    isDragOver?: boolean;
+    onDragStartSlot?: () => void;
+    onDragEndSlot?: () => void;
+    onDragOverSlot?: () => void;
+    onDropSlot?: () => void;
 }
 
-function ModSlot({ index, label, weaponName, mod, rank, slotPolarity, compatMods, usedGroups,
-    ownedNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onSelectRiven, onToggleExclude, effDrain, compactEmpty }: SlotProps) {
+function ModSlot({ index, label, weaponName, activeRivenSlotIdx, mod, rank, slotPolarity, compatMods, usedGroups,
+    ownedNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onSelectRiven, onToggleExclude, effDrain, compactEmpty,
+    draggable, isDragOver, onDragStartSlot, onDragEndSlot, onDragOverSlot, onDropSlot }: SlotProps) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [showDetails, setShowDetails] = useState(false);
+    const [sliderActive, setSliderActive] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
     useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 50); }, [open]);
@@ -1186,11 +1195,34 @@ function ModSlot({ index, label, weaponName, mod, rank, slotPolarity, compatMods
     return (
         <div className={["relative min-w-0", compactEmpty ? "" : "h-full"].join(" ")} ref={panelRef}>
             <div className={[(compactEmpty && !mod ? "overflow-hidden " : "") + (compactEmpty ? "" : "h-full ") + "rounded-xl border transition-colors",
+                isDragOver ? "border-sky-400/80 bg-sky-950/20" :
                 mod
                     ? polMismatch ? "border-amber-700/40 bg-slate-900/60"
                                   : "border-slate-600 bg-slate-900/60 hover:border-slate-500"
                     : isExilusSlot ? "border-dashed border-slate-600/50 bg-slate-950/30 hover:border-slate-500"
-                                   : "border-dashed border-slate-700/60 bg-slate-950/20 hover:border-slate-600"].join(" ")}>
+                                   : "border-dashed border-slate-700/60 bg-slate-950/20 hover:border-slate-600"].join(" ")}
+                draggable={draggable && !!mod && !sliderActive}
+                onDragStart={(e) => {
+                    if (!draggable || !mod || sliderActive) {
+                        e.preventDefault();
+                        return;
+                    }
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", `${label ?? "slot"}-${index}`);
+                    onDragStartSlot?.();
+                }}
+                onDragEnd={() => onDragEndSlot?.()}
+                onDragOver={(e) => {
+                    if (!onDragOverSlot) return;
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    onDragOverSlot();
+                }}
+                onDrop={(e) => {
+                    if (!onDropSlot) return;
+                    e.preventDefault();
+                    onDropSlot();
+                }}>
 
                 <div className={["p-3 flex items-start gap-2 cursor-pointer select-none", mod ? "min-h-[112px]" : compactEmpty ? "min-h-[84px]" : "min-h-[112px]"].join(" ")}
                     onClick={() => { setOpen(x => !x); setQuery(""); }}>
@@ -1268,6 +1300,13 @@ function ModSlot({ index, label, weaponName, mod, rank, slotPolarity, compatMods
                                 min={0}
                                 max={mod.fusionLimit}
                                 value={rank}
+                                onPointerDown={() => setSliderActive(true)}
+                                onMouseDown={() => setSliderActive(true)}
+                                onPointerUp={() => setSliderActive(false)}
+                                onMouseUp={() => setSliderActive(false)}
+                                onTouchEnd={() => setSliderActive(false)}
+                                onBlur={() => setSliderActive(false)}
+                                onDragStart={e => e.preventDefault()}
                                 onChange={e => onRankChange(index, +e.target.value)}
                                 className="block w-full min-w-0 h-1.5 cursor-pointer appearance-none rounded-full bg-slate-700 accent-blue-500 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-blue-300 [&::-webkit-slider-thumb]:bg-slate-100 [&::-moz-range-thumb]:h-2.5 [&::-moz-range-thumb]:w-2.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-blue-300 [&::-moz-range-thumb]:bg-slate-100"
                             />
@@ -1301,7 +1340,7 @@ function ModSlot({ index, label, weaponName, mod, rank, slotPolarity, compatMods
                             className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-slate-500" />
                     </div>
                     <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/50">
-                        {!isExilusSlot && weaponName && (
+                        {!isExilusSlot && weaponName && (activeRivenSlotIdx === null || activeRivenSlotIdx === index || mod?.compatBucket === "Riven") && (
                             <button
                                 className="w-full px-3 py-2 text-left hover:bg-slate-800/50 transition-colors"
                                 onClick={() => {
@@ -2144,6 +2183,14 @@ interface BuildCfg {
     optimizeValenceElement: boolean;
 }
 
+type DragSlotKind = "main" | "exilus";
+type OptimizeMode = "optimize" | "fill";
+
+interface DragSlotRef {
+    kind: DragSlotKind;
+    index: number;
+}
+
 function maxOptimizerFormaForWeapon(weapon: WeaponEntry | null) {
     if (!weapon) return 9;
     return weapon.category === "Melee" ? 10 : 9;
@@ -2210,6 +2257,9 @@ export default function ModBuilder() {
     const [copiedExport, setCopiedExport] = useState(false);
     const [sharingBuildImage, setSharingBuildImage] = useState(false);
     const [sharedBuildImage, setSharedBuildImage] = useState(false);
+    const [draggedSlot, setDraggedSlot] = useState<DragSlotRef | null>(null);
+    const [dragOverSlot, setDragOverSlot] = useState<DragSlotRef | null>(null);
+    const [optimizeMode, setOptimizeMode] = useState<OptimizeMode>("optimize");
 
     useEffect(() => {
         setBuildCfg((prev) => {
@@ -2431,17 +2481,112 @@ export default function ModBuilder() {
         setReasoning(null);
         setReasoningMath(null);
     }
+    function getSlotMod(ref: DragSlotRef | null): ModEntry | null {
+        if (!ref) return null;
+        return ref.kind === "main" ? slots[ref.index] : exilusMod;
+    }
+    function getSlotRank(ref: DragSlotRef | null): number {
+        if (!ref) return 0;
+        return ref.kind === "main" ? (ranks[ref.index] ?? 0) : exilusRank;
+    }
+    function canPlaceModInSlot(mod: ModEntry | null, kind: DragSlotKind): boolean {
+        if (!mod) return true;
+        return kind === "main" ? true : !!mod.isExilus;
+    }
+    function canSwapSlots(source: DragSlotRef | null, target: DragSlotRef | null): boolean {
+        if (!source || !target) return false;
+        if (source.kind === target.kind && source.index === target.index) return false;
+        const sourceMod = getSlotMod(source);
+        if (!sourceMod) return false;
+        const targetMod = getSlotMod(target);
+        return canPlaceModInSlot(sourceMod, target.kind) && canPlaceModInSlot(targetMod, source.kind);
+    }
+    function handleDropSwap(target: DragSlotRef) {
+        if (!draggedSlot || !canSwapSlots(draggedSlot, target)) {
+            setDragOverSlot(null);
+            setDraggedSlot(null);
+            return;
+        }
+
+        const source = draggedSlot;
+        const sourceMod = getSlotMod(source);
+        const targetMod = getSlotMod(target);
+        const sourceRank = getSlotRank(source);
+        const targetRank = getSlotRank(target);
+
+        if (source.kind === "main" && target.kind === "main") {
+            setSlots((prev) => {
+                const next = [...prev];
+                next[source.index] = targetMod;
+                next[target.index] = sourceMod;
+                return next;
+            });
+            setRanks((prev) => {
+                const next = [...prev];
+                next[source.index] = targetMod ? targetRank : 0;
+                next[target.index] = sourceMod ? sourceRank : 0;
+                return next;
+            });
+            if (rivenSlotIdx === source.index) setRivenSlotIdx(target.index);
+            else if (rivenSlotIdx === target.index) setRivenSlotIdx(source.index);
+        } else if (source.kind === "main" && target.kind === "exilus") {
+            setSlots((prev) => {
+                const next = [...prev];
+                next[source.index] = targetMod;
+                return next;
+            });
+            setRanks((prev) => {
+                const next = [...prev];
+                next[source.index] = targetMod ? targetRank : 0;
+                return next;
+            });
+            setExilusMod(sourceMod);
+            setExilusRank(sourceMod ? sourceRank : 0);
+        } else if (source.kind === "exilus" && target.kind === "main") {
+            setSlots((prev) => {
+                const next = [...prev];
+                next[target.index] = sourceMod;
+                return next;
+            });
+            setRanks((prev) => {
+                const next = [...prev];
+                next[target.index] = sourceMod ? sourceRank : 0;
+                return next;
+            });
+            setExilusMod(targetMod);
+            setExilusRank(targetMod ? targetRank : 0);
+        } else {
+            setExilusMod(targetMod);
+            setExilusRank(targetMod ? targetRank : 0);
+        }
+
+        setReasoning(null);
+        setReasoningMath(null);
+        setDragOverSlot(null);
+        setDraggedSlot(null);
+    }
     function toggleExclude(name: string) { setExcluded(p => { const n = new Set(p); n.has(name) ? n.delete(name) : n.add(name); return n; }); }
 
     function handleOpenRivenEditor(i: number) {
+        if (rivenSlotIdx !== null && rivenSlotIdx !== i) return;
         setRivenEditorSlot(i);
     }
 
     function handleRivenUpdate(mod: ModEntry) {
         if (rivenEditorSlot === null) return;
         setRivenMod(mod);
-        setSlots(p => { const n = [...p]; n[rivenEditorSlot] = mod; return n; });
-        setRanks(p => { const n = [...p]; n[rivenEditorSlot] = mod.fusionLimit; return n; });
+        setSlots(p => {
+            const n = [...p];
+            if (rivenSlotIdx !== null && rivenSlotIdx !== rivenEditorSlot) n[rivenSlotIdx] = null;
+            n[rivenEditorSlot] = mod;
+            return n;
+        });
+        setRanks(p => {
+            const n = [...p];
+            if (rivenSlotIdx !== null && rivenSlotIdx !== rivenEditorSlot) n[rivenSlotIdx] = 0;
+            n[rivenEditorSlot] = mod.fusionLimit;
+            return n;
+        });
         setRivenSlotIdx(rivenEditorSlot);
         setRivenEditorSlot(null);
         setReasoning(null);
@@ -2510,20 +2655,46 @@ export default function ModBuilder() {
         setOptimizing(true);
         await new Promise(r => setTimeout(r, 10));
         try {
+            const fillMode = optimizeMode === "fill";
+            const lockedMainSlots = fillMode ? [...slots] : Array(SLOT_COUNT).fill(null);
+            const lockedMainRanks = fillMode ? [...ranks] : Array(SLOT_COUNT).fill(undefined);
+            const lockedSlotMask = fillMode ? slots.map((mod) => !!mod) : Array(SLOT_COUNT).fill(false);
+            const lockedExternalEffects: ModEffect[] = [];
+            if (fillMode && hasExilus && exilusMod) {
+                lockedExternalEffects.push(exilusMod.effectsByRank[exilusRank] ?? exilusMod.effect);
+            }
+            if (fillMode && includeArcaneStats && arcane1) {
+                lockedExternalEffects.push({
+                    ...emptyEffect(),
+                    ...(arcane1.permanentEffectByRank[arcane1Rank] ?? {}),
+                    conditionalEffects: [...(arcane1.permanentEffectByRank[arcane1Rank]?.conditionalEffects ?? [])],
+                });
+            }
+            const lockedIncompatibilityGroups = fillMode
+                ? new Set(slots.filter((mod): mod is ModEntry => !!mod).map((mod) => mod.incompatibilityGroup))
+                : undefined;
+            const lockedUniqueNames = fillMode
+                ? new Set(slots.filter((mod): mod is ModEntry => !!mod).map((mod) => mod.uniqueName))
+                : undefined;
+            const availableFormaBudget = fillMode && allowForma
+                ? Math.max(0, maxFormaAllowed - formaCount)
+                : maxFormaAllowed;
             let optimizerStanceMod = stanceMod;
             let optimizerStanceRank = stanceRank;
             if (weapon.category === "Melee") {
-                const bestStance = stanceMods.reduce<ModEntry | null>((best, current) => {
-                    if (!stancePol) return best;
-                    if (!best) return current;
-                    const bestDrain = effectiveDrain(best, stancePol, best.fusionLimit);
-                    const currentDrain = effectiveDrain(current, stancePol, current.fusionLimit);
-                    return currentDrain < bestDrain ? current : best;
-                }, null);
-                optimizerStanceMod = bestStance;
-                optimizerStanceRank = bestStance ? bestStance.fusionLimit : 0;
-                setStanceMod(bestStance);
-                setStanceRank(optimizerStanceRank);
+                if (!fillMode || !stanceMod) {
+                    const bestStance = stanceMods.reduce<ModEntry | null>((best, current) => {
+                        if (!stancePol) return best;
+                        if (!best) return current;
+                        const bestDrain = effectiveDrain(best, stancePol, best.fusionLimit);
+                        const currentDrain = effectiveDrain(current, stancePol, current.fusionLimit);
+                        return currentDrain < bestDrain ? current : best;
+                    }, null);
+                    optimizerStanceMod = bestStance;
+                    optimizerStanceRank = bestStance ? bestStance.fusionLimit : 0;
+                    setStanceMod(bestStance);
+                    setStanceRank(optimizerStanceRank);
+                }
             }
 
             const scoreOptimizerResult = (
@@ -2567,17 +2738,23 @@ export default function ModBuilder() {
                     targetFaction:    factionOn ? faction : "",
                     capacityConfig:   capForOpt,
                     slotPolarities:   slotPols,
-                    defaultSlotPolarities: weapon.polarities,
+                    defaultSlotPolarities: fillMode ? slotPols : weapon.polarities,
                     allowCatalyst,
                     allowForma,
-                    maxFormaCount: allowForma ? maxFormaAllowed : undefined,
-                    optimizeExilus:   optExilus,
+                    maxFormaCount: allowForma ? availableFormaBudget : undefined,
+                    optimizeExilus:   fillMode ? (optExilus && hasExilus && !exilusMod ? true : optExilus && !hasExilus) : optExilus,
                     exilusPolarity:   exilusPol,
                     optimizeArcane:   optArcane,
                     buildForAttack:   atk,
                     extraCapacitySlots: weapon.category === "Melee" && optimizerStanceMod
                         ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
                         : undefined,
+                    preEquippedEffects: lockedExternalEffects,
+                    lockedSlots: fillMode ? lockedMainSlots : undefined,
+                    lockedSlotRanks: fillMode ? lockedMainRanks : undefined,
+                    lockedSlotMask: fillMode ? lockedSlotMask : undefined,
+                    lockedIncompatibilityGroups,
+                    lockedUniqueNames,
                 });
 
                 let appliedResult = result;
@@ -2622,15 +2799,21 @@ export default function ModBuilder() {
                                     targetFaction:    factionOn ? faction : "",
                                     capacityConfig:   catalyzedCfg,
                                     slotPolarities:   slotPols,
-                                    defaultSlotPolarities: weapon.polarities,
+                                    defaultSlotPolarities: fillMode ? slotPols : weapon.polarities,
                                     allowCatalyst:    false,
                                     allowForma:       true,
-                                    maxFormaCount:    maxFormaAllowed,
-                                    optimizeExilus:   optExilus,
+                                    maxFormaCount:    availableFormaBudget,
+                                    optimizeExilus:   fillMode ? (optExilus && hasExilus && !exilusMod ? true : optExilus && !hasExilus) : optExilus,
                                     exilusPolarity:   exilusPol,
                                     optimizeArcane:   optArcane,
                                     buildForAttack:   atk,
                                     extraCapacitySlots: baseExtraCapacitySlots,
+                                    preEquippedEffects: lockedExternalEffects,
+                                    lockedSlots: fillMode ? lockedMainSlots : undefined,
+                                    lockedSlotRanks: fillMode ? lockedMainRanks : undefined,
+                                    lockedSlotMask: fillMode ? lockedSlotMask : undefined,
+                                    lockedIncompatibilityGroups,
+                                    lockedUniqueNames,
                                 });
                             }
                         } else if (allowForma) {
@@ -2644,15 +2827,21 @@ export default function ModBuilder() {
                                 targetFaction:    factionOn ? faction : "",
                                 capacityConfig:   capacityCfg,
                                 slotPolarities:   slotPols,
-                                defaultSlotPolarities: weapon.polarities,
+                                defaultSlotPolarities: fillMode ? slotPols : weapon.polarities,
                                 allowCatalyst:    false,
                                 allowForma:       true,
-                                maxFormaCount:    maxFormaAllowed,
-                                optimizeExilus:   optExilus,
+                                maxFormaCount:    availableFormaBudget,
+                                optimizeExilus:   fillMode ? (optExilus && hasExilus && !exilusMod ? true : optExilus && !hasExilus) : optExilus,
                                 exilusPolarity:   exilusPol,
                                 optimizeArcane:   optArcane,
                                 buildForAttack:   atk,
                                 extraCapacitySlots: baseExtraCapacitySlots,
+                                preEquippedEffects: lockedExternalEffects,
+                                lockedSlots: fillMode ? lockedMainSlots : undefined,
+                                lockedSlotRanks: fillMode ? lockedMainRanks : undefined,
+                                lockedSlotMask: fillMode ? lockedSlotMask : undefined,
+                                lockedIncompatibilityGroups,
+                                lockedUniqueNames,
                             });
                         }
                     }
@@ -2688,6 +2877,11 @@ export default function ModBuilder() {
                 setHasExilus(true);
                 setExilusMod(appliedResult.exilusMod);
                 setExilusRank(appliedResult.exilusMod ? appliedResult.exilusRank : 0);
+            } else if (!fillMode || !exilusMod) {
+                setHasExilus(false);
+                setExilusMod(null);
+                setExilusRank(0);
+                setExilusPol("");
             }
 
             const finalSlotsForCap = [...appliedResult.slots, ...(optExilus ? [appliedResult.exilusMod] : [])];
@@ -2759,15 +2953,29 @@ export default function ModBuilder() {
                     fullDefaultRanks,
                 );
                 if (!fullDefaultFit.overCapacity) {
-                    slotPolsToApply = defaultMainPols;
-                    stancePolToApply = weapon.stancePolarity ?? "";
-                    exilusPolToApply = "";
-                }
+                slotPolsToApply = fillMode ? slotPols : defaultMainPols;
+                stancePolToApply = weapon.stancePolarity ?? "";
+                exilusPolToApply = "";
+            }
             }
 
-            // Apply mod slots
-            setSlots([...appliedResult.slots] as (ModEntry | null)[]);
-            setRanks([...appliedResult.slotRanks] as number[]);
+            // Apply mod slots. In fill mode, occupied user slots stay authoritative.
+            const nextSlots = (fillMode
+                ? appliedResult.slots.map((mod, i) => (lockedSlotMask[i] ? slots[i] : mod))
+                : [...appliedResult.slots]) as (ModEntry | null)[];
+            const nextRanks = (fillMode
+                ? appliedResult.slotRanks.map((rank, i) => (lockedSlotMask[i] ? (ranks[i] ?? 0) : rank))
+                : [...appliedResult.slotRanks]) as number[];
+            setSlots(nextSlots);
+            setRanks(nextRanks);
+            const nextRivenIdx = nextSlots.findIndex((mod) => mod?.compatBucket === "Riven");
+            if (nextRivenIdx >= 0) {
+                setRivenMod(nextSlots[nextRivenIdx] as ModEntry);
+                setRivenSlotIdx(nextRivenIdx);
+            } else {
+                setRivenMod(null);
+                setRivenSlotIdx(null);
+            }
 
             // Apply polarity changes from forma optimizer
             if (allowForma) {
@@ -2777,7 +2985,7 @@ export default function ModBuilder() {
             }
 
             // Apply arcane if optimized
-            if (optArcane && appliedResult.arcane) {
+            if (optArcane && appliedResult.arcane && (!fillMode || !arcane1)) {
                 setArcane1(appliedResult.arcane);
                 setArcane1Rank(appliedResult.arcaneRank);
             }
@@ -2907,10 +3115,29 @@ export default function ModBuilder() {
                                             >
                                                 Options {showOptimizeOptions ? "▴" : "▾"}
                                             </button>
-                                            <button onClick={handleOptimize} disabled={optimizing || !weapon}
-                                                className="rounded-xl px-4 py-2 text-sm border border-amber-600/60 bg-amber-950/30 text-amber-300 hover:bg-amber-900/40 disabled:opacity-50 transition-colors font-semibold">
-                                                {optimizing ? "Optimizing…" : "Optimize Build"}
-                                            </button>
+                                            <div className="flex items-stretch overflow-hidden rounded-xl border border-amber-600/60 bg-amber-950/30">
+                                                <button onClick={handleOptimize} disabled={optimizing || !weapon}
+                                                    className="px-4 py-2 text-sm text-amber-300 hover:bg-amber-900/40 disabled:opacity-50 transition-colors font-semibold">
+                                                    {optimizing ? "Optimizing…" : optimizeMode === "fill" ? "Fill & Optimize" : "Optimize Build"}
+                                                </button>
+                                                <div className="relative w-10 border-l border-amber-600/40">
+                                                    <select
+                                                        value={optimizeMode}
+                                                        onChange={(e) => setOptimizeMode(e.target.value as OptimizeMode)}
+                                                        className="h-full w-full appearance-none bg-transparent text-transparent outline-none"
+                                                        aria-label="Optimization mode"
+                                                    >
+                                                        <option value="optimize" className="bg-slate-950 text-slate-100">Optimize</option>
+                                                        <option value="fill" className="bg-slate-950 text-slate-100">Fill & Optimize</option>
+                                                    </select>
+                                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex w-full items-center justify-center text-amber-200">
+                                                        <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" aria-hidden="true">
+                                                            <path d="M5 6.5L8 3.5L11 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                            <path d="M5 9.5L8 12.5L11 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <button
                                                 onClick={handleCopyBuildExport}
                                                 disabled={!currentBuildExport}
@@ -2959,15 +3186,19 @@ export default function ModBuilder() {
                                                         <div
                                                             key={t.label}
                                                             title={t.desc}
+                                                            onClick={() => t.set(!t.active)}
                                                             className={[
-                                                                "rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors",
+                                                                "cursor-pointer rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors",
                                                                 t.active ? "border-sky-700/60 bg-sky-950/20 text-sky-300" : "border-slate-700 bg-slate-900/40 text-slate-500 hover:border-slate-600 hover:text-slate-300",
                                                             ].join(" ")}
                                                         >
                                                             <div className="flex items-center justify-between gap-3">
                                                                 <button
                                                                     type="button"
-                                                                    onClick={() => t.set(!t.active)}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        t.set(!t.active);
+                                                                    }}
                                                                     className="flex min-w-0 items-center gap-1.5 text-left"
                                                                 >
                                                                     <span className={["w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
@@ -2977,7 +3208,10 @@ export default function ModBuilder() {
                                                                     <span className="font-semibold">{t.label}</span>
                                                                 </button>
                                                                 {t.active && (
-                                                                    <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-sky-200/85">
+                                                                    <label
+                                                                        className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-sky-200/85"
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                    >
                                                                         <span>Max:</span>
                                                                         <select
                                                                             value={maxFormaAllowed}
@@ -3340,8 +3574,14 @@ export default function ModBuilder() {
                                                                         onRankChange={(_, r) => setExilusRank(r)}
                                                                         onPolarityChange={(_, p) => setExilusPol(p)}
                                                                         onToggleExclude={toggleExclude}
-                                                                        effDrain={exilusMod ? effectiveDrain(exilusMod, exilusPol, exilusRank) : 0}
-                                                                        compactEmpty={true} />
+                                                                    effDrain={exilusMod ? effectiveDrain(exilusMod, exilusPol, exilusRank) : 0}
+                                                                    compactEmpty={true}
+                                                                    draggable={!!exilusMod}
+                                                                    isDragOver={dragOverSlot?.kind === "exilus"}
+                                                                    onDragStartSlot={() => setDraggedSlot({ kind: "exilus", index: 0 })}
+                                                                    onDragEndSlot={() => { setDraggedSlot(null); setDragOverSlot(null); }}
+                                                                    onDragOverSlot={() => setDragOverSlot(canSwapSlots(draggedSlot, { kind: "exilus", index: 0 }) ? { kind: "exilus", index: 0 } : null)}
+                                                                    onDropSlot={() => handleDropSwap({ kind: "exilus", index: 0 })} />
                                                                 ) : (
                                                                     <div className="rounded-lg border border-dashed border-slate-700 px-3 py-6 text-center text-[11px] text-slate-600">
                                                                         Requires an Exilus Adapter.
@@ -3352,7 +3592,7 @@ export default function ModBuilder() {
                                                         </div>
                                                         <div className="grid auto-rows-[minmax(216px,auto)] grid-cols-2 2xl:grid-cols-4 gap-3">
                                                             {slots.map((mod, i) => (
-                                                                <ModSlot key={i} index={i} weaponName={weapon.name} mod={mod} rank={ranks[i] ?? 0}
+                                                                <ModSlot key={i} index={i} weaponName={weapon.name} activeRivenSlotIdx={rivenSlotIdx} mod={mod} rank={ranks[i] ?? 0}
                                                                     slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
                                                                     usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
                                                                     excluded={excluded}
@@ -3360,7 +3600,13 @@ export default function ModBuilder() {
                                                                     onPolarityChange={handlePolChange}
                                                                     onSelectRiven={handleOpenRivenEditor}
                                                                     onToggleExclude={toggleExclude}
-                                                                    effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0} />
+                                                                    effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0}
+                                                                    draggable={!!mod}
+                                                                    isDragOver={dragOverSlot?.kind === "main" && dragOverSlot.index === i}
+                                                                    onDragStartSlot={() => setDraggedSlot({ kind: "main", index: i })}
+                                                                    onDragEndSlot={() => { setDraggedSlot(null); setDragOverSlot(null); }}
+                                                                    onDragOverSlot={() => setDragOverSlot(canSwapSlots(draggedSlot, { kind: "main", index: i }) ? { kind: "main", index: i } : null)}
+                                                                    onDropSlot={() => handleDropSwap({ kind: "main", index: i })} />
                                                             ))}
                                                         </div>
                                                     </div>
@@ -3391,7 +3637,7 @@ export default function ModBuilder() {
                                                     <div className="space-y-3">
                                                         <div className="grid auto-rows-[minmax(216px,auto)] grid-cols-2 2xl:grid-cols-4 gap-3">
                                                             {slots.map((mod, i) => (
-                                                                <ModSlot key={i} index={i} weaponName={weapon.name} mod={mod} rank={ranks[i] ?? 0}
+                                                                <ModSlot key={i} index={i} weaponName={weapon.name} activeRivenSlotIdx={rivenSlotIdx} mod={mod} rank={ranks[i] ?? 0}
                                                                     slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
                                                                     usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
                                                                     excluded={excluded}
@@ -3399,7 +3645,13 @@ export default function ModBuilder() {
                                                                     onPolarityChange={handlePolChange}
                                                                     onSelectRiven={handleOpenRivenEditor}
                                                                     onToggleExclude={toggleExclude}
-                                                                    effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0} />
+                                                                    effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0}
+                                                                    draggable={!!mod}
+                                                                    isDragOver={dragOverSlot?.kind === "main" && dragOverSlot.index === i}
+                                                                    onDragStartSlot={() => setDraggedSlot({ kind: "main", index: i })}
+                                                                    onDragEndSlot={() => { setDraggedSlot(null); setDragOverSlot(null); }}
+                                                                    onDragOverSlot={() => setDragOverSlot(canSwapSlots(draggedSlot, { kind: "main", index: i }) ? { kind: "main", index: i } : null)}
+                                                                    onDropSlot={() => handleDropSwap({ kind: "main", index: i })} />
                                                             ))}
                                                         </div>
                                                     </div>
@@ -3444,7 +3696,13 @@ export default function ModBuilder() {
                                                                     onPolarityChange={(_, p) => setExilusPol(p)}
                                                                     onToggleExclude={toggleExclude}
                                                                     effDrain={exilusMod ? effectiveDrain(exilusMod, exilusPol, exilusRank) : 0}
-                                                                    compactEmpty={true} />
+                                                                    compactEmpty={true}
+                                                                    draggable={!!exilusMod}
+                                                                    isDragOver={dragOverSlot?.kind === "exilus"}
+                                                                    onDragStartSlot={() => setDraggedSlot({ kind: "exilus", index: 0 })}
+                                                                    onDragEndSlot={() => { setDraggedSlot(null); setDragOverSlot(null); }}
+                                                                    onDragOverSlot={() => setDragOverSlot(canSwapSlots(draggedSlot, { kind: "exilus", index: 0 }) ? { kind: "exilus", index: 0 } : null)}
+                                                                    onDropSlot={() => handleDropSwap({ kind: "exilus", index: 0 })} />
                                                             ) : (
                                                                 <div className="rounded-lg border border-dashed border-slate-700 px-3 py-6 text-center text-[11px] text-slate-600">
                                                                     Requires an Exilus Adapter.

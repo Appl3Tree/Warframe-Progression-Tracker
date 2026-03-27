@@ -1463,8 +1463,8 @@ const SECTIONS: Section[] = [
                 </TableWrap>
                 <Callout color="amber">
                     <B>You can only pledge to one syndicate at a time.</B> Pledging to a faction also
-                    passively accrues a small amount of Standing toward its two allied syndicates, and
-                    reduces Standing with its two enemies. Plan your pledges carefully using the{" "}
+                    passively accrues a small amount of Standing toward its allied syndicate(s), and
+                    reduces Standing with its enemies. Plan your pledges carefully using the{" "}
                     <B>Syndicates</B> page in this app. <B>New Loka</B> and <B>Steel Meridian</B> are
                     popular early choices since they sell the farming augments Pilfering Strangledome
                     and Pilfering Swarm respectively.

@@ -83,6 +83,17 @@ export interface OptimizerOptions {
         rank: number;
         polarity: string;
     }>;
+    /** Effects already present and locked into the build. */
+    preEquippedEffects?: (ModEffect | null)[];
+    /** Filled main slots that should remain untouched during optimization. */
+    lockedSlots?: (ModEntry | null)[];
+    lockedSlotRanks?: (number | undefined)[];
+    /** Filled main slot positions whose polarities must remain unchanged. */
+    lockedSlotMask?: boolean[];
+    /** Incompatibility groups already present and locked into the build. */
+    lockedIncompatibilityGroups?: Set<string>;
+    /** Unique mod names already present and locked into the build. */
+    lockedUniqueNames?: Set<string>;
 }
 
 export interface OptimizeResult {
@@ -738,13 +749,14 @@ function scoreSlots(
     goal: OptimizeGoal,
     targetFaction: string,
     arcaneEffect?: Partial<ModEffect> | null,
+    baseEffects: (ModEffect | null)[] = [],
 ): number {
     const effects = slots.map((m, i) => {
         if (!m) return null;
         const r = ranks[i] ?? m.fusionLimit;
         return m.effectsByRank[r] ?? m.effect;
     });
-    return scoreEffects(weapon, effects, goal, targetFaction, arcaneEffect);
+    return scoreEffects(weapon, [...baseEffects, ...effects], goal, targetFaction, arcaneEffect);
 }
 
 export function debugScoreBuild(
@@ -792,12 +804,15 @@ function bestPolarity(mod: ModEntry): string {
 interface Candidate { mod: ModEntry; rank: number; }
 
 function buildCandidates(allMods: ModEntry[], opts: OptimizerOptions): Candidate[] {
-    const { ownedModNames, ownedModMaxRankByName, excludedModNames, allowNonMaxRank, targetFaction = "" } = opts;
+    const { ownedModNames, ownedModMaxRankByName, excludedModNames, allowNonMaxRank, targetFaction = "", lockedIncompatibilityGroups, lockedUniqueNames } = opts;
     const out: Candidate[] = [];
     for (const mod of allMods) {
         if (mod.isAura) continue; // auras go in the aura slot, not regular slots
+        if (mod.compatBucket === "Riven") continue; // custom rivens are user-authored only
         if (excludedModNames?.has(mod.name)) continue;
         if (ownedModNames && !ownedModNames.has(mod.name)) continue;
+        if (lockedIncompatibilityGroups?.has(mod.incompatibilityGroup)) continue;
+        if (lockedUniqueNames?.has(mod.uniqueName)) continue;
         if (mod.effect.targetFaction && !targetFaction) continue;
         if (mod.effect.targetFaction &&
             mod.effect.targetFaction.toLowerCase() !== targetFaction.toLowerCase()) continue;
@@ -889,12 +904,20 @@ export function minimizePolaritiesByCapacity(
     extraCapacitySlots: Array<{ mod: ModEntry; rank: number; polarity: string }> = [],
     exilus?: { mod: ModEntry | null; rank: number; basePolarity: string },
     maxAdditionalPolarities?: number,
+    lockedSlotMask: boolean[] = [],
 ): { mainPolarities: string[]; exilusPolarity: string } {
     const mainPolarities = Array(slotMods.length).fill("");
     let exilusPolarity = "";
 
+    for (let i = 0; i < slotMods.length; i++) {
+        if (lockedSlotMask[i]) mainPolarities[i] = baseMainPolarities[i] ?? "";
+    }
+
     if (!capacityConfig) {
-        for (let i = 0; i < slotMods.length; i++) mainPolarities[i] = slotMods[i]?.polarity ?? "";
+        for (let i = 0; i < slotMods.length; i++) {
+            if (lockedSlotMask[i]) continue;
+            mainPolarities[i] = slotMods[i]?.polarity ?? "";
+        }
         exilusPolarity = exilus?.mod?.polarity ?? "";
         return { mainPolarities, exilusPolarity };
     }
@@ -916,6 +939,7 @@ export function minimizePolaritiesByCapacity(
     };
 
     for (let i = 0; i < slotMods.length; i++) {
+        if (lockedSlotMask[i]) continue;
         const mod = slotMods[i];
         if (!mod) continue;
         const rank = slotRanks[i] ?? mod.fusionLimit;
@@ -1002,6 +1026,7 @@ function getCapacityAwarePolarities(
         opts.extraCapacitySlots ?? [],
         exilus,
         opts.maxFormaCount,
+        opts.lockedSlotMask ?? [],
     );
 }
 
@@ -1045,6 +1070,9 @@ function beamSearch(
         targetFaction = "",
         allowForma = false,
         extraCapacitySlots = [],
+        preEquippedEffects = [],
+        lockedSlots = [],
+        lockedSlotRanks = [],
     } = opts;
 
     // Effective polarities for capacity checking during beam search.
@@ -1063,14 +1091,23 @@ function beamSearch(
     const arcaneEffect = null;
 
     let beam: BeamState[] = [{
-        mods:      Array(slotCount).fill(null),
-        ranks:     Array(slotCount).fill(undefined),
-        usedGroups: new Set(),
-        score:     scoreSlots(weapon, Array(slotCount).fill(null), Array(slotCount).fill(undefined), goal, targetFaction),
-        filledCount: 0,
+        mods:      [...Array(slotCount).fill(null)].map((_, i) => lockedSlots[i] ?? null),
+        ranks:     [...Array(slotCount).fill(undefined)].map((_, i) => lockedSlotRanks[i]),
+        usedGroups: new Set(lockedSlots.filter((mod): mod is ModEntry => !!mod).map((mod) => mod.incompatibilityGroup)),
+        score:     scoreSlots(
+            weapon,
+            [...Array(slotCount).fill(null)].map((_, i) => lockedSlots[i] ?? null),
+            [...Array(slotCount).fill(undefined)].map((_, i) => lockedSlotRanks[i]),
+            goal,
+            targetFaction,
+            undefined,
+            preEquippedEffects,
+        ),
+        filledCount: lockedSlots.filter(Boolean).length,
     }];
 
     for (let slotIdx = 0; slotIdx < slotCount; slotIdx++) {
+        if (lockedSlots[slotIdx]) continue;
         const nextStates: BeamState[] = [];
 
         for (const state of beam) {
@@ -1089,7 +1126,7 @@ function beamSearch(
                     if (!fitsCapacity(newMods, newRanks, capacityConfig, checkPols, extraCapacitySlots)) continue;
                 }
 
-                const s = scoreSlots(weapon, newMods, newRanks, goal, targetFaction, arcaneEffect);
+                const s = scoreSlots(weapon, newMods, newRanks, goal, targetFaction, arcaneEffect, preEquippedEffects);
                 const newUsed = new Set(state.usedGroups);
                 newUsed.add(mod.incompatibilityGroup);
                 nextStates.push({
@@ -1152,6 +1189,7 @@ function refineBuildSet(
         targetFaction = "",
         allowForma = false,
         capacityConfig,
+        preEquippedEffects = [],
     } = opts;
 
     let mods = [...selectedMods];
@@ -1161,7 +1199,7 @@ function refineBuildSet(
 
     const scoreCurrent = (modsToScore: ModEntry[], ranksToScore: number[]) => {
         const effects = modsToScore.map((mod, index) => mod.effectsByRank[ranksToScore[index]] ?? mod.effect);
-        return scoreEffects(weapon, [...effects, ...extraEffects], goal, targetFaction, arcaneEffect);
+        return scoreEffects(weapon, [...preEquippedEffects, ...effects, ...extraEffects], goal, targetFaction, arcaneEffect);
     };
 
     let improved = true;
@@ -1238,6 +1276,7 @@ function fillEmptySlots(
         targetFaction = "",
         allowForma = false,
         capacityConfig,
+        preEquippedEffects = [],
     } = opts;
 
     let mods = [...selectedMods];
@@ -1247,7 +1286,7 @@ function fillEmptySlots(
 
     const scoreCurrent = (modsToScore: ModEntry[], ranksToScore: number[]) => {
         const effects = modsToScore.map((mod, index) => mod.effectsByRank[ranksToScore[index]] ?? mod.effect);
-        return scoreEffects(weapon, [...effects, ...extraEffects], goal, targetFaction, arcaneEffect);
+        return scoreEffects(weapon, [...preEquippedEffects, ...effects, ...extraEffects], goal, targetFaction, arcaneEffect);
     };
 
     let improved = true;
@@ -1478,6 +1517,9 @@ function optimizeBuildInternal(
         exilusPolarity = "",
         optimizeArcane = false,
         buildForAttack = null,
+        lockedSlots = [],
+        lockedSlotRanks = [],
+        preEquippedEffects = [],
     } = opts;
 
     // Score against the selected attack if specified
@@ -1493,17 +1535,22 @@ function optimizeBuildInternal(
     const effectiveOpts: OptimizerOptions = { ...opts, capacityConfig: capCfg };
 
     const candidates = buildCandidates(availableMods, effectiveOpts);
+    const hasLockedMainSlots = lockedSlots.some(Boolean);
 
     // Phase 1: Beam search — find best set of mods
     const initial = beamSearch(scoringWeapon, candidates, goal, slotCount, effectiveOpts);
-    let { mods, ranks } = refineBuildSet(
-        scoringWeapon,
-        initial.mods,
-        initial.ranks,
-        candidates,
-        goal,
-        effectiveOpts,
-    );
+    let mods = initial.mods;
+    let ranks = initial.ranks;
+    if (!hasLockedMainSlots) {
+        ({ mods, ranks } = refineBuildSet(
+            scoringWeapon,
+            initial.mods,
+            initial.ranks,
+            candidates,
+            goal,
+            effectiveOpts,
+        ));
+    }
 
     // Phase 2: Assign mods to slots with polarity awareness
     const padded = [...slotPolarities];
@@ -1512,9 +1559,27 @@ function optimizeBuildInternal(
     while (paddedDefaults.length < slotCount) paddedDefaults.push("");
     const assignmentPolarities = allowForma ? paddedDefaults : padded;
 
-    const { slotMods, slotRanks, resultPolarities } = assignModsToSlots(
-        mods, ranks, assignmentPolarities, slotCount, allowForma
-    );
+    const assigned = hasLockedMainSlots
+        ? {
+            slotMods: [...Array(slotCount).fill(null)].map((_, i) => lockedSlots[i] ?? null),
+            slotRanks: [...Array(slotCount).fill(0)].map((_, i) => lockedSlots[i] ? (lockedSlotRanks[i] ?? lockedSlots[i]!.fusionLimit) : 0),
+            resultPolarities: [...assignmentPolarities],
+        }
+        : assignModsToSlots(mods, ranks, assignmentPolarities, slotCount, allowForma);
+    const slotMods = assigned.slotMods;
+    const slotRanks = assigned.slotRanks;
+    const resultPolarities = assigned.resultPolarities;
+    if (hasLockedMainSlots) {
+        const unlockedMods = mods.flatMap((mod, index) => (mod && !lockedSlots[index] ? [mod] : []));
+        const unlockedRanks = mods.flatMap((mod, index) => (mod && !lockedSlots[index] ? [ranks[index]] : []));
+        for (let i = 0; i < slotCount; i++) {
+            if (lockedSlots[i]) continue;
+            const nextMod = unlockedMods.shift() ?? null;
+            const nextRank = unlockedRanks.shift() ?? 0;
+            slotMods[i] = nextMod;
+            slotRanks[i] = nextMod ? nextRank : 0;
+        }
+    }
     let finalPolarities = allowForma
         ? minimizePolaritiesByCapacity(
             paddedDefaults,
@@ -1524,6 +1589,7 @@ function optimizeBuildInternal(
             effectiveOpts.extraCapacitySlots ?? [],
             undefined,
             effectiveOpts.maxFormaCount,
+            effectiveOpts.lockedSlotMask ?? [],
         ).mainPolarities
         : resultPolarities;
 
@@ -1552,6 +1618,7 @@ function optimizeBuildInternal(
                 effectiveOpts.extraCapacitySlots ?? [],
                 undefined,
                 effectiveOpts.maxFormaCount,
+                effectiveOpts.lockedSlotMask ?? [],
             ).mainPolarities;
         }
     }
@@ -1631,8 +1698,8 @@ function optimizeBuildInternal(
     let arcaneRank = 0;
     if (optimizeArcane) {
         const allEffects = exilusMod
-            ? [...mainEffects, exilusMod.effectsByRank[exilusRank] ?? exilusMod.effect]
-            : mainEffects;
+            ? [...preEquippedEffects, ...mainEffects, exilusMod.effectsByRank[exilusRank] ?? exilusMod.effect]
+            : [...preEquippedEffects, ...mainEffects];
         const arc = optimizeArcaneSlot(scoringWeapon, allEffects, goal, targetFaction, effectiveOpts);
         arcane = arc.arcane;
         arcaneRank = arc.rank;
@@ -1645,31 +1712,42 @@ function optimizeBuildInternal(
             ? (arcane.optimizerEffectByRank[arcaneRank] ?? arcane.permanentEffectByRank[arcaneRank] ?? null)
             : null;
 
-    const refinedWithContext = refineBuildSet(
-        scoringWeapon,
-        slotMods.filter((m): m is ModEntry => !!m),
-        slotMods.flatMap((m, i) => (m ? [slotRanks[i]] : [])),
-        candidates,
-        goal,
-        { ...effectiveOpts, extraCapacitySlots: contextualCapacitySlots },
-        contextualExtraEffects,
-        contextualArcaneEffect,
-    );
-    const filledWithContext = fillEmptySlots(
-        scoringWeapon,
-        refinedWithContext.mods,
-        refinedWithContext.ranks,
-        candidates,
-        goal,
-        slotCount,
-        { ...effectiveOpts, extraCapacitySlots: contextualCapacitySlots },
-        contextualExtraEffects,
-        contextualArcaneEffect,
-    );
-    mods = filledWithContext.mods;
-    ranks = filledWithContext.ranks;
+    if (!hasLockedMainSlots) {
+        const refinedWithContext = refineBuildSet(
+            scoringWeapon,
+            slotMods.filter((m): m is ModEntry => !!m),
+            slotMods.flatMap((m, i) => (m ? [slotRanks[i]] : [])),
+            candidates,
+            goal,
+            { ...effectiveOpts, extraCapacitySlots: contextualCapacitySlots },
+            contextualExtraEffects,
+            contextualArcaneEffect,
+        );
+        const filledWithContext = fillEmptySlots(
+            scoringWeapon,
+            refinedWithContext.mods,
+            refinedWithContext.ranks,
+            candidates,
+            goal,
+            slotCount,
+            { ...effectiveOpts, extraCapacitySlots: contextualCapacitySlots },
+            contextualExtraEffects,
+            contextualArcaneEffect,
+        );
+        mods = filledWithContext.mods;
+        ranks = filledWithContext.ranks;
+    } else {
+        mods = slotMods.filter((m, i): m is ModEntry => !!m && !lockedSlots[i]);
+        ranks = slotMods.flatMap((m, i) => (m && !lockedSlots[i] ? [slotRanks[i]] : []));
+    }
 
-    const reassigned = assignModsToSlots(mods, ranks, assignmentPolarities, slotCount, allowForma);
+    const reassigned = hasLockedMainSlots
+        ? {
+            slotMods: [...slotMods],
+            slotRanks: [...slotRanks],
+            resultPolarities: [...resultPolarities],
+        }
+        : assignModsToSlots(mods, ranks, assignmentPolarities, slotCount, allowForma);
     const minimizedFinalPolarities = allowForma
         ? minimizePolaritiesByCapacity(
             paddedDefaults,
@@ -1679,6 +1757,7 @@ function optimizeBuildInternal(
             effectiveOpts.extraCapacitySlots ?? [],
             exilusMod ? { mod: exilusMod, rank: exilusRank, basePolarity: exilusPolarity } : undefined,
             effectiveOpts.maxFormaCount,
+            effectiveOpts.lockedSlotMask ?? [],
         )
         : { mainPolarities: reassigned.resultPolarities, exilusPolarity: finalExilusPolarity };
     let reassignedPolarities = minimizedFinalPolarities.mainPolarities;
@@ -1730,10 +1809,100 @@ function optimizeBuildInternal(
                     effectiveOpts.extraCapacitySlots ?? [],
                     exilusMod ? { mod: exilusMod, rank: exilusRank, basePolarity: exilusPolarity } : undefined,
                     effectiveOpts.maxFormaCount,
+                    effectiveOpts.lockedSlotMask ?? [],
                 );
                 finalPolarities = recapped.mainPolarities;
                 finalExilusPolarity = exilusMod ? recapped.exilusPolarity : "";
             }
+        }
+    }
+
+    const scoreFinalMainSlots = (trialSlots: (ModEntry | null)[], trialRanks: number[]) =>
+        scoreSlots(
+            scoringWeapon,
+            trialSlots,
+            trialRanks,
+            goal,
+            targetFaction,
+            contextualArcaneEffect,
+            contextualExtraEffects,
+        );
+
+    let greedyImproved = true;
+    while (greedyImproved && slotMods.some((mod) => !mod)) {
+        greedyImproved = false;
+        const baseScore = scoreFinalMainSlots(slotMods, slotRanks);
+        let bestCandidate: {
+            slotIndex: number;
+            mod: ModEntry;
+            rank: number;
+            score: number;
+            polarities: string[];
+            exilusPolarity: string;
+        } | null = null;
+
+        const presentGroups = new Set(slotMods.filter((mod): mod is ModEntry => !!mod).map((mod) => mod.incompatibilityGroup));
+        const presentNames = new Set(slotMods.filter((mod): mod is ModEntry => !!mod).map((mod) => mod.uniqueName));
+        const emptyIndexes = slotMods.flatMap((mod, index) => (mod ? [] : [index]));
+
+        for (const candidate of candidates) {
+            if (presentGroups.has(candidate.mod.incompatibilityGroup)) continue;
+            if (presentNames.has(candidate.mod.uniqueName)) continue;
+
+            for (const slotIndex of emptyIndexes) {
+                const trialSlots = [...slotMods];
+                const trialRanks = [...slotRanks];
+                trialSlots[slotIndex] = candidate.mod;
+                trialRanks[slotIndex] = candidate.rank;
+
+                let trialPolarities = [...finalPolarities];
+                let trialExilusPolarity = finalExilusPolarity;
+                if (allowForma) {
+                    const minimized = minimizePolaritiesByCapacity(
+                        paddedDefaults,
+                        trialSlots,
+                        trialRanks,
+                        capCfg,
+                        effectiveOpts.extraCapacitySlots ?? [],
+                        exilusMod ? { mod: exilusMod, rank: exilusRank, basePolarity: exilusPolarity } : undefined,
+                        effectiveOpts.maxFormaCount,
+                        effectiveOpts.lockedSlotMask ?? [],
+                    );
+                    trialPolarities = minimized.mainPolarities;
+                    trialExilusPolarity = exilusMod ? minimized.exilusPolarity : "";
+                }
+
+                const trialExtraCapacitySlots = exilusMod
+                    ? [
+                        ...(effectiveOpts.extraCapacitySlots ?? []),
+                        { mod: exilusMod, rank: exilusRank, polarity: trialExilusPolarity },
+                    ]
+                    : (effectiveOpts.extraCapacitySlots ?? []);
+
+                if (capCfg && !fitsCapacity(trialSlots, trialRanks, capCfg, trialPolarities, trialExtraCapacitySlots)) continue;
+
+                const trialScore = scoreFinalMainSlots(trialSlots, trialRanks);
+                if (trialScore <= baseScore + 1e-9) continue;
+
+                if (!bestCandidate || trialScore > bestCandidate.score + 1e-9) {
+                    bestCandidate = {
+                        slotIndex,
+                        mod: candidate.mod,
+                        rank: candidate.rank,
+                        score: trialScore,
+                        polarities: trialPolarities,
+                        exilusPolarity: trialExilusPolarity,
+                    };
+                }
+            }
+        }
+
+        if (bestCandidate) {
+            slotMods[bestCandidate.slotIndex] = bestCandidate.mod;
+            slotRanks[bestCandidate.slotIndex] = bestCandidate.rank;
+            finalPolarities = bestCandidate.polarities;
+            finalExilusPolarity = exilusMod ? bestCandidate.exilusPolarity : "";
+            greedyImproved = true;
         }
     }
 
