@@ -189,6 +189,7 @@ interface ModEntry {
   path: string;
   name: string;
   categories?: string[];
+  parent?: string;
   data?: ModData;
   parents?: string[];
 }
@@ -618,6 +619,175 @@ function modRarity(e: ModEntry): string | undefined {
   if (fromData) return fromData.toUpperCase();
   const allEntry = ALL_MODS_BY_PATH[e.path] ?? ALL_MODS_BY_NAME[e.name];
   return allEntry?.rarity?.toUpperCase();
+}
+
+function isTrainingModPath(path: string): boolean {
+  return /\/(beginner|intermediate|expert)\//i.test(path);
+}
+
+function isBaseTemplateModPath(path: string): boolean {
+  return /Base$/i.test(path);
+}
+
+function expectedBrowseFusionLimit(name: string): number {
+  if (/^(Primed|Galvanized|Amalgam|Archon)\b/i.test(name)) return 10;
+  if (/^Umbral\b/i.test(name)) return 10;
+  if (/\b(Cannonade|Aptitude|Chamber|Acceleration|Barrage)\b/i.test(name)) return 10;
+  if (/^Serration$/i.test(name)) return 10;
+  return 5;
+}
+
+function normalizeBrowseModPath(path: string): string {
+  return path
+    .replace(/\/(Beginner|Intermediate|Expert)\//g, "/")
+    .replace(/(Beginner|Intermediate|Expert)$/g, "");
+}
+
+function isBeginnerPath(path: string): boolean {
+  return /\/beginner\//i.test(path) || /Beginner$/i.test(path);
+}
+
+function isExpertPath(path: string): boolean {
+  return /\/expert\//i.test(path) || /Expert$/i.test(path);
+}
+
+const TRAINING_VARIANT_TIERS = new Map<string, "flawed" | "expert">();
+for (const item of ALL_RAW as AllModEntry[]) {
+  if (item.category !== "Mods" || !item.name || !item.uniqueName) continue;
+  const normalizedPath = normalizeBrowseModPath(item.uniqueName);
+  const key = `${item.name}||${normalizedPath}`;
+  const current = TRAINING_VARIANT_TIERS.get(key);
+  if (current) continue;
+
+  const family = (ALL_RAW as AllModEntry[]).filter((candidate) =>
+    candidate.category === "Mods" &&
+    candidate.name === item.name &&
+    candidate.uniqueName &&
+    normalizeBrowseModPath(candidate.uniqueName) === normalizedPath,
+  );
+  const hasStandard = family.some((candidate) => {
+    const path = candidate.uniqueName ?? "";
+    return !isBeginnerPath(path) && !isExpertPath(path);
+  });
+  if (!hasStandard) continue;
+  if (family.some((candidate) => isBeginnerPath(candidate.uniqueName ?? ""))) {
+    TRAINING_VARIANT_TIERS.set(`${item.name}||${normalizedPath}||flawed`, "flawed");
+  }
+  if (family.some((candidate) => isExpertPath(candidate.uniqueName ?? ""))) {
+    TRAINING_VARIANT_TIERS.set(`${item.name}||${normalizedPath}||expert`, "expert");
+  }
+}
+
+function getModVariantTier(entry: ModEntry): "flawed" | "standard" | "expert" {
+  const normalizedPath = normalizeBrowseModPath(entry.path);
+  if (isBeginnerPath(entry.path) && TRAINING_VARIANT_TIERS.has(`${entry.name}||${normalizedPath}||flawed`)) {
+    return "flawed";
+  }
+  if (isExpertPath(entry.path) && TRAINING_VARIANT_TIERS.has(`${entry.name}||${normalizedPath}||expert`)) {
+    return "expert";
+  }
+  return "standard";
+}
+
+function getDisplayModName(entry: ModEntry): string {
+  const tier = getModVariantTier(entry);
+  if (tier === "flawed") return `${entry.name} (Flawed)`;
+  if (tier === "expert") return `${entry.name} (Expert)`;
+  return entry.name;
+}
+
+function getSpecificBrowseParent(entry: ModEntry): string | null {
+  const genericParents = new Set([
+    "/Lotus/Types/Game/LotusArtifactUpgrades/BaseArtifactUpgrade",
+    "/Lotus/Types/Game/LotusArtifactUpgrade",
+    "/Lotus/Types/Game/BaseCosmeticEnhancer",
+    "/Lotus/Types/Game/LotusLockedCosmeticEnhancer",
+  ]);
+
+  const parentCandidates = [
+    ...(Array.isArray(entry.parents) ? entry.parents : []),
+    entry.parent,
+  ].filter((parent): parent is string => Boolean(parent));
+
+  const specific = parentCandidates.find((parent) => !genericParents.has(parent));
+  return specific ?? null;
+}
+
+function getBrowseCompatKey(entry: ModEntry): string {
+  return (
+    entry.data?.ItemCompatibility ??
+    ALL_MODS_BY_PATH[entry.path]?.compatName ??
+    ALL_MODS_BY_NAME[entry.name]?.compatName ??
+    ""
+  );
+}
+
+function getBrowseModFamilyKey(entry: ModEntry): string {
+  const variantTier = getModVariantTier(entry);
+  const specificParent = getSpecificBrowseParent(entry);
+  if (specificParent) {
+    return `${entry.name}||${variantTier}||${specificParent}`;
+  }
+  return `${entry.name}||${variantTier}||${getBrowseCompatKey(entry)}||${normalizeBrowseModPath(entry.path)}`;
+}
+
+function browseModDedupScore(entry: ModEntry): number {
+  const maxRank = modMaxRank(entry);
+  let score = 0;
+  const tier = getModVariantTier(entry);
+  if (!isTrainingModPath(entry.path)) score += 1000;
+  if (tier === "standard" && /\/intermediate\//i.test(entry.path)) score -= 250;
+  if (!isBaseTemplateModPath(entry.path)) score += 500;
+  if (entry.data) score += 100;
+  score -= Math.abs(maxRank - expectedBrowseFusionLimit(entry.name)) * 10;
+  score += maxRank;
+  return score;
+}
+
+function dedupeBrowseMods(entries: ModEntry[]): ModEntry[] {
+  const bestByFamily = new Map<string, { entry: ModEntry; score: number; rank: number }>();
+  for (const entry of entries) {
+    const key = getBrowseModFamilyKey(entry);
+    const score = browseModDedupScore(entry);
+    const rank = modMaxRank(entry);
+    const current = bestByFamily.get(key);
+    if (!current || score > current.score || (score === current.score && rank > current.rank)) {
+      bestByFamily.set(key, { entry, score, rank });
+    }
+  }
+  return [...bestByFamily.values()].map((value) => value.entry);
+}
+
+function getModAvailabilityNote(entry: ModEntry): string | null {
+  if (getModVariantTier(entry) === "flawed") {
+    return null;
+  }
+  if (getModVariantTier(entry) === "expert") {
+    return "This expert-tier variant exists in the game data, but it does not appear to have ever been introduced into the live game.";
+  }
+  return null;
+}
+
+function shouldUseLegacyNameDrops(entry: ModEntry): boolean {
+  return getModVariantTier(entry) === "standard";
+}
+
+function shouldSuppressExactDrops(entry: ModEntry, allEntry: AllModEntry | undefined): boolean {
+  if (getModVariantTier(entry) === "flawed") return true;
+  return getModVariantTier(entry) === "expert" && !allEntry?.introduced && !allEntry?.releaseDate;
+}
+
+function getFlawedModCreditCost(rarity: string | undefined): number {
+  switch ((rarity ?? "").toUpperCase()) {
+    case "COMMON":
+      return 10_000;
+    case "UNCOMMON":
+      return 20_000;
+    case "RARE":
+      return 30_000;
+    default:
+      return 20_000;
+  }
 }
 
 function rarityColor(rarity: string | undefined): string {
@@ -1821,12 +1991,17 @@ function ModModal({
   const rarity = rarityRaw.toUpperCase();
   // Clamp levelStats to maxRank+1 — All.json occasionally has more entries than fusionLimit
   const levelStats = (allEntry?.levelStats ?? []).slice(0, maxRank + 1);
-  const allDrops: AllModDrop[] = allEntry?.drops ?? [];
-  // Legacy enemy drops from modLocations.json as fallback
-  const legacyDrops = modLocationLookup.get(normalize(entry.name)) ?? [];
-  const drops: AllModDrop[] = allDrops.length > 0
-    ? allDrops
+  const exactDrops: AllModDrop[] = shouldSuppressExactDrops(entry, allEntry) ? [] : (allEntry?.drops ?? []);
+  // Only standard variants are allowed to borrow the old name-based fallback.
+  const legacyDrops = shouldUseLegacyNameDrops(entry) ? (modLocationLookup.get(normalize(entry.name)) ?? []) : [];
+  const drops: AllModDrop[] = exactDrops.length > 0
+    ? exactDrops
     : legacyDrops.map(d => ({ chance: d.chance, location: d.enemyName, rarity: d.rarity, type: entry.name }));
+  const displayName = getDisplayModName(entry);
+  const availabilityNote = getModAvailabilityNote(entry);
+  const flawedPurchaseNote = getModVariantTier(entry) === "flawed"
+    ? `Sold from the Mod Storage Box near Cressa Tal in Iron Wake for ${getFlawedModCreditCost(rarityRaw).toLocaleString()} Credits.`
+    : null;
 
   const rarityLabel = rarityRaw.charAt(0).toUpperCase() + rarityRaw.slice(1).toLowerCase();
 
@@ -1845,7 +2020,7 @@ function ModModal({
         {/* ── Modal header ── */}
         <div className={["flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 shrink-0", rarityBg(rarity)].join(" ")}>
           <div className="flex items-center gap-2 flex-wrap min-w-0">
-            <span className="text-base font-bold text-slate-100">{entry.name}</span>
+            <span className="text-base font-bold text-slate-100">{displayName}</span>
             <WikiLink name={entry.name} />
             <span className={["text-xs font-semibold px-2 py-0.5 rounded-full border", rarityColor(rarity), rarityBg(rarity)].join(" ")}>
               {rarityLabel}
@@ -1990,7 +2165,19 @@ function ModModal({
 
             {/* ── RIGHT: Acquisition ── */}
             <div>
-              <DropsSection drops={drops} name={entry.name} />
+          <div className="space-y-3">
+            {flawedPurchaseNote && (
+              <div className="rounded-lg border border-cyan-800/40 bg-cyan-950/20 px-3 py-2 text-xs leading-relaxed text-cyan-100">
+                {flawedPurchaseNote}
+              </div>
+            )}
+            {availabilityNote && (
+              <div className="rounded-lg border border-amber-800/40 bg-amber-950/20 px-3 py-2 text-xs leading-relaxed text-amber-200">
+                {availabilityNote}
+              </div>
+            )}
+            <DropsSection drops={drops} name={entry.name} />
+          </div>
             </div>
           </div>
         </div>
@@ -2306,13 +2493,20 @@ export default function Mods() {
       }
     }
 
-    if (q) list = list.filter((e) => normalize(e.name).includes(q));
+    if (q) list = list.filter((e) => {
+      const displayName = getDisplayModName(e);
+      return normalize(e.name).includes(q) || normalize(displayName).includes(q);
+    });
 
     if (modOwnedFilter === "owned")   list = list.filter((e) => (counts[modKey(e.path)] ?? 0) > 0);
     if (modOwnedFilter === "unowned") list = list.filter((e) => (counts[modKey(e.path)] ?? 0) === 0);
 
-    // Safety net: some mod families can leak in from multiple sources with the same path.
-    // Dedup by path before rendering so React keys stay stable while scrolling/filtering.
+    // Collapse beginner/intermediate/expert/base-template shadows into the
+    // canonical browse entry for that mod family before the final path dedupe.
+    list = dedupeBrowseMods(list);
+
+    // Safety net: some mod families can still leak in from multiple sources with
+    // the same path. Dedup by path before rendering so React keys stay stable.
     const deduped = new Map<string, ModEntry>();
     for (const entry of list) {
       if (!deduped.has(entry.path)) deduped.set(entry.path, entry);
@@ -2727,7 +2921,7 @@ export default function Mods() {
                             ].join(" ")}
                             onClick={() => setSelectedMod(isSelected ? null : e)}
                           >
-                            <span className="flex-1 font-medium truncate">{e.name}</span>
+                            <span className="flex-1 font-medium truncate">{getDisplayModName(e)}</span>
                             {polarity &&
                               (() => {
                                 const img = polImg(polarity);

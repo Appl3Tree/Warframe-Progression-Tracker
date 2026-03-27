@@ -8,7 +8,9 @@ import {
     disconnect,
     saveToGoogleDrive,
     restoreFromGoogleDrive,
+    getDriveBackupFileName,
     getLastSyncTime,
+    getLastSyncLink,
     wasConnected,
 } from "../lib/googleDrive";
 
@@ -46,6 +48,7 @@ function GoogleDriveSection({ exportJson }: { exportJson: () => string }) {
     const [driveStatus, setDriveStatus] = useState<{ msg: string; ok: boolean } | null>(null);
     const [busy, setBusy]               = useState(false);
     const [lastSync, setLastSync]       = useState<string | null>(getLastSyncTime);
+    const [lastSyncLink, setLastSyncLink] = useState<string | null>(getLastSyncLink);
     // True when the user previously connected but the in-memory token has expired
     // (happens on every page reload — GIS token model is ephemeral by design).
     const previouslyConnected = !connected && wasConnected();
@@ -78,7 +81,8 @@ function GoogleDriveSection({ exportJson }: { exportJson: () => string }) {
             const json = exportJson();
             const result = await saveToGoogleDrive(json);
             setLastSync(result.modifiedTime);
-            setDriveStatus({ msg: "Saved to Google Drive.", ok: true });
+            setLastSyncLink(result.webViewLink ?? null);
+            setDriveStatus({ msg: `Saved to Google Drive as ${getDriveBackupFileName()}.`, ok: true });
         } catch (e: any) {
             setDriveStatus({ msg: e.message ?? "Save failed.", ok: false });
         } finally {
@@ -109,6 +113,7 @@ function GoogleDriveSection({ exportJson }: { exportJson: () => string }) {
         await disconnect();
         setConnected(false);
         setLastSync(null);
+        setLastSyncLink(null);
         setDriveStatus(null);
     }
 
@@ -232,6 +237,16 @@ function GoogleDriveSection({ exportJson }: { exportJson: () => string }) {
                                         Last saved: <span className="text-slate-400">{formatRelativeTime(lastSync)}</span>
                                         <span className="text-slate-600 ml-1">({new Date(lastSync).toLocaleString()})</span>
                                     </span>
+                                )}
+                                {lastSyncLink && (
+                                    <a
+                                        href={lastSyncLink}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-blue-400 hover:text-blue-300 transition-colors"
+                                    >
+                                        Open in Drive
+                                    </a>
                                 )}
                                 <button
                                     className="text-slate-600 hover:text-rose-400 transition-colors"

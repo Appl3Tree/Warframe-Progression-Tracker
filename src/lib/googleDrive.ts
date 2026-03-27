@@ -20,6 +20,7 @@
 const GDRIVE_FILE_NAME     = "wf-tracker-progress.json";
 const FILE_ID_KEY          = "wft_gdrive_file_id";
 const LAST_SYNC_KEY        = "wft_gdrive_last_sync";
+const LAST_LINK_KEY        = "wft_gdrive_last_link";
 const CONNECTED_FLAG_KEY   = "wft_gdrive_connected";
 const GDRIVE_SCOPE         = "https://www.googleapis.com/auth/drive.file";
 const GIS_SRC          = "https://accounts.google.com/gsi/client";
@@ -119,6 +120,7 @@ export async function disconnect(): Promise<void> {
     _token = null;
     localStorage.removeItem(FILE_ID_KEY);
     localStorage.removeItem(LAST_SYNC_KEY);
+    localStorage.removeItem(LAST_LINK_KEY);
     localStorage.removeItem(CONNECTED_FLAG_KEY);
 }
 
@@ -153,7 +155,7 @@ async function findFile(token: string): Promise<string | null> {
 }
 
 function makeMultipart(json: string): FormData {
-    const meta = JSON.stringify({ name: GDRIVE_FILE_NAME, mimeType: "application/json" });
+    const meta = JSON.stringify({ name: GDRIVE_FILE_NAME, mimeType: "application/json", parents: ["root"] });
     const form = new FormData();
     form.append("metadata", new Blob([meta], { type: "application/json" }));
     form.append("file",     new Blob([json],  { type: "application/json" }));
@@ -163,8 +165,8 @@ function makeMultipart(json: string): FormData {
 // ── Public Drive actions ──────────────────────────────────────────────────────
 
 // Drive v3 API returns `id`, not `fileId`
-type DriveFileResult = { id: string; modifiedTime: string };
-export type SaveResult = { id: string; modifiedTime: string };
+type DriveFileResult = { id: string; modifiedTime: string; webViewLink?: string };
+export type SaveResult = { id: string; modifiedTime: string; webViewLink?: string };
 
 /**
  * Save the progress pack JSON to Google Drive.
@@ -177,13 +179,14 @@ export async function saveToGoogleDrive(json: string): Promise<SaveResult> {
     if (fileId) {
         // Try to update existing file
         const r = await fetch(
-            `${DRIVE_UPLOAD_API}/files/${fileId}?uploadType=multipart&fields=id,modifiedTime`,
+            `${DRIVE_UPLOAD_API}/files/${fileId}?uploadType=multipart&fields=id,modifiedTime,webViewLink`,
             { method: "PATCH", headers: { Authorization: `Bearer ${token}` }, body: makeMultipart(json) },
         );
         if (r.ok) {
             const d = await r.json() as DriveFileResult;
             localStorage.setItem(FILE_ID_KEY, d.id);
             localStorage.setItem(LAST_SYNC_KEY, d.modifiedTime);
+            if (d.webViewLink) localStorage.setItem(LAST_LINK_KEY, d.webViewLink);
             return d;
         }
         // File was deleted on Drive — fall through to create
@@ -193,7 +196,7 @@ export async function saveToGoogleDrive(json: string): Promise<SaveResult> {
 
     // Create new file
     const r = await fetch(
-        `${DRIVE_UPLOAD_API}/files?uploadType=multipart&fields=id,modifiedTime`,
+        `${DRIVE_UPLOAD_API}/files?uploadType=multipart&fields=id,modifiedTime,webViewLink`,
         { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: makeMultipart(json) },
     );
     if (!r.ok) {
@@ -203,6 +206,7 @@ export async function saveToGoogleDrive(json: string): Promise<SaveResult> {
     const d = await r.json() as DriveFileResult;
     localStorage.setItem(FILE_ID_KEY, d.id);
     localStorage.setItem(LAST_SYNC_KEY, d.modifiedTime);
+    if (d.webViewLink) localStorage.setItem(LAST_LINK_KEY, d.webViewLink);
     return d;
 }
 
@@ -226,4 +230,12 @@ export async function restoreFromGoogleDrive(): Promise<string> {
 /** ISO string of the last successful save, or null. */
 export function getLastSyncTime(): string | null {
     return localStorage.getItem(LAST_SYNC_KEY);
+}
+
+export function getLastSyncLink(): string | null {
+    return localStorage.getItem(LAST_LINK_KEY);
+}
+
+export function getDriveBackupFileName(): string {
+    return GDRIVE_FILE_NAME;
 }

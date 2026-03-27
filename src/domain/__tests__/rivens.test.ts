@@ -62,7 +62,7 @@ describe("custom rivens", () => {
     const definition = getCustomRivenStatDef("damageVsCorpus");
     expect(definition).toBeTruthy();
     expect(definition?.unit).toBe("multiplier");
-    expect(formatRivenStatValue(definition!, 1.55)).toBe("x1.55 Damage vs Corpus");
+    expect(formatRivenStatValue(definition!, 1.55)).toBe("x1.55 Damage to Corpus");
 
     const acceltraPrime = getWeaponCatalog().find((weapon) => weapon.name === "Acceltra Prime");
     const record: CustomRivenRecord = {
@@ -80,7 +80,7 @@ describe("custom rivens", () => {
     };
 
     const built = buildCustomRivenEntry(record, acceltraPrime!);
-    expect(built.statsLabel).toContain("x1.55 Damage vs Corpus");
+    expect(built.statsLabel).toContain("x1.55 Damage to Corpus");
     expect(built.effect.factionDamageBonus).toBeCloseTo(0.55, 6);
     expect(built.effect.targetFaction).toBe("Corpus");
   });
