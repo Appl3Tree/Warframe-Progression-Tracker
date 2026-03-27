@@ -4,7 +4,7 @@
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import type { AcquisitionDef } from "./acquisitionFromSources";
 
-import ITEMS from "../../data/items.json";
+import ITEMS from "../../data/_generated/items-lean.auto.json";
 
 type ItemsJsonRow = {
     path?: string;

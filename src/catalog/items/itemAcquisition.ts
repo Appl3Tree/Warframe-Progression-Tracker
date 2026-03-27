@@ -14,7 +14,7 @@ import { deriveClanTechAcquisitionByCatalogId } from "./acquisitionFromClanTech"
 
 import { getItemRequirements } from "./itemRequirements";
 
-import ITEMS_JSON from "../../data/items.json";
+import ITEMS_JSON from "../../data/_generated/items-lean.auto.json";
 
 const BLUEPRINT_UNCLASSIFIED = "data:blueprint/unclassified";
 const SOURCE_CRAFTING = "data:crafting";

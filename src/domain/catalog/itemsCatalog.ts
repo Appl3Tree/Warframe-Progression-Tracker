@@ -1,4 +1,4 @@
-import rawItems from "../../data/items.json";
+import rawItems from "../../data/_generated/items-lean.auto.json";
 
 export interface RawItemRecord {
     id?: number;

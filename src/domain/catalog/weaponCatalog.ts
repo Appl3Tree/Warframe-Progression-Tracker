@@ -24,6 +24,9 @@ export interface WeaponDamage {
     magnetic: number;
     viral: number;
     corrosive: number;
+    void: number;
+    tau: number;
+    true: number;
 }
 
 export interface WeaponAttack {
@@ -352,11 +355,11 @@ function n(v: unknown): number {
 function parseDamageRecord(input: unknown): WeaponDamage {
     const ad = (input as Record<string, number> | undefined) ?? {};
     const dmgKeys = ["impact","puncture","slash","heat","cold","electricity",
-        "toxin","blast","radiation","gas","magnetic","viral","corrosive"] as const;
+        "toxin","blast","radiation","gas","magnetic","viral","corrosive","void","tau","true"] as const;
     const out: WeaponDamage = {
         total: 0, impact: 0, puncture: 0, slash: 0, heat: 0, cold: 0,
         electricity: 0, toxin: 0, blast: 0, radiation: 0, gas: 0,
-        magnetic: 0, viral: 0, corrosive: 0,
+        magnetic: 0, viral: 0, corrosive: 0, void: 0, tau: 0, true: 0,
     };
     for (const k of dmgKeys) out[k] = n(ad[k]);
     out.total = dmgKeys.reduce((s, k) => s + out[k], 0) || n(ad.total);

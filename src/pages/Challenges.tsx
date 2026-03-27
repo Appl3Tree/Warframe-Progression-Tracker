@@ -1,7 +1,7 @@
 // src/pages/Challenges.tsx
 import { useMemo, useState } from "react";
-import CHALLENGES_RAW from "../data/challenges.json";
-import DICT_RAW from "../data/dict.json";
+import CHALLENGES_RAW from "../../external/browse-wf/challenges.json";
+import DICT_RAW from "../../external/overframe-gg/dict.json";
 import { useTrackerStore } from "../store/store";
 
 interface ChallengeEntry {

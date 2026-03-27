@@ -7,12 +7,14 @@ import type { ConditionalEffect, ModEffect } from "../catalog/modCatalog";
 type DamageKey =
     | "impact" | "puncture" | "slash"
     | "heat" | "cold" | "electricity" | "toxin"
-    | "blast" | "radiation" | "gas" | "magnetic" | "viral" | "corrosive";
+    | "blast" | "radiation" | "gas" | "magnetic" | "viral" | "corrosive"
+    | "void" | "tau" | "true";
 
 const DAMAGE_KEYS: DamageKey[] = [
     "impact", "puncture", "slash",
     "heat", "cold", "electricity", "toxin",
     "blast", "radiation", "gas", "magnetic", "viral", "corrosive",
+    "void", "tau", "true",
 ];
 
 const PRIMARY_ELEMENTS: DamageKey[] = ["heat", "cold", "electricity", "toxin"];
@@ -103,6 +105,7 @@ function emptyBreakdown(): Record<DamageKey, number> {
         impact: 0, puncture: 0, slash: 0,
         heat: 0, cold: 0, electricity: 0, toxin: 0,
         blast: 0, radiation: 0, gas: 0, magnetic: 0, viral: 0, corrosive: 0,
+        void: 0, tau: 0, true: 0,
     };
 }
 
@@ -250,6 +253,8 @@ function estimateConditionalStackFactor(
     }
 }
 
+export { estimateConditionalStackFactor };
+
 export function calculateBuild(
     weapon: WeaponEntry,
     mods: (ModEffect | null)[],
@@ -275,6 +280,9 @@ export function calculateBuild(
     let radiationBonus = 0;
     let viralBonus = 0;
     let corrosiveBonus = 0;
+    let voidBonus = 0;
+    let tauBonus = 0;
+    let trueBonus = 0;
     let perHitCritChanceBonus = 0;
     let nextMagazineStatusChancePerShot = 0;
     let nextMagazineMultishotPerShot = 0;
@@ -313,6 +321,9 @@ export function calculateBuild(
         radiationBonus += e.radiationBonus ?? 0;
         viralBonus += e.viralBonus ?? 0;
         corrosiveBonus += e.corrosiveBonus ?? 0;
+        voidBonus += e.voidBonus ?? 0;
+        tauBonus += e.tauBonus ?? 0;
+        trueBonus += e.trueBonus ?? 0;
         perHitCritChanceBonus += e.perHitCritChanceBonus ?? 0;
         nextMagazineStatusChancePerShot += e.nextMagazineStatusChancePerShot ?? 0;
         nextMagazineMultishotPerShot += e.nextMagazineMultishotPerShot ?? 0;
@@ -344,6 +355,9 @@ export function calculateBuild(
         directBonusBreakdown.radiation += e.radiationBonus ?? 0;
         directBonusBreakdown.viral += e.viralBonus ?? 0;
         directBonusBreakdown.corrosive += e.corrosiveBonus ?? 0;
+        directBonusBreakdown.void += e.voidBonus ?? 0;
+        directBonusBreakdown.tau += e.tauBonus ?? 0;
+        directBonusBreakdown.true += e.trueBonus ?? 0;
     });
 
     const baseFireRateBonus = weapon.category === "Melee" ? attackSpeedBonus : fireRateBonus;
@@ -376,6 +390,9 @@ export function calculateBuild(
         conditionalDirectBonusBreakdown.radiation += (conditional.stats.radiationBonus ?? 0) * factor;
         conditionalDirectBonusBreakdown.viral += (conditional.stats.viralBonus ?? 0) * factor;
         conditionalDirectBonusBreakdown.corrosive += (conditional.stats.corrosiveBonus ?? 0) * factor;
+        conditionalDirectBonusBreakdown.void += (conditional.stats.voidBonus ?? 0) * factor;
+        conditionalDirectBonusBreakdown.tau += (conditional.stats.tauBonus ?? 0) * factor;
+        conditionalDirectBonusBreakdown.true += (conditional.stats.trueBonus ?? 0) * factor;
     }
 
     damageBonus += conditionalDamageBonus;
@@ -386,12 +403,13 @@ export function calculateBuild(
     fireRateBonus += conditionalFireRateBonus;
     reloadSpeedBonus += conditionalReloadSpeedBonus;
 
-    const expectedHitsPerMag = baselineMagazineSize * weapon.multishot * HIT_RATE_ASSUMPTION;
+    const projectedMultishot = weapon.multishot * (1 + multishotBonus);
+    const expectedHitsPerMag = baselineMagazineSize * projectedMultishot * HIT_RATE_ASSUMPTION;
     if (perHitCritChanceBonus > 0) {
         critChanceBonus += perHitCritChanceBonus * Math.max(0, expectedHitsPerMag - 1) / 2;
     }
     if (nextMagazineMaxStacks > 0) {
-        const nextMagStacks = Math.min(nextMagazineMaxStacks, baselineMagazineSize * HIT_RATE_ASSUMPTION);
+        const nextMagStacks = Math.min(nextMagazineMaxStacks, baselineMagazineSize * projectedMultishot * HIT_RATE_ASSUMPTION);
         statusChanceBonus += nextMagazineStatusChancePerShot * nextMagStacks * 0.5;
         multishotBonus += nextMagazineMultishotPerShot * nextMagStacks * 0.5;
     }
@@ -411,6 +429,9 @@ export function calculateBuild(
         magnetic: weapon.damage.magnetic,
         viral: weapon.damage.viral,
         corrosive: weapon.damage.corrosive,
+        void: weapon.damage.void,
+        tau: weapon.damage.tau,
+        true: weapon.damage.true,
     }) * baseDamageMultiplier);
 
     const rawBreakdown = emptyBreakdown();
@@ -437,8 +458,11 @@ export function calculateBuild(
     rawBreakdown.magnetic += weapon.damage.magnetic * baseDamageMultiplier;
     rawBreakdown.viral += weapon.damage.viral * baseDamageMultiplier;
     rawBreakdown.corrosive += weapon.damage.corrosive * baseDamageMultiplier;
+    rawBreakdown.void += weapon.damage.void * baseDamageMultiplier;
+    rawBreakdown.tau += weapon.damage.tau * baseDamageMultiplier;
+    rawBreakdown.true += weapon.damage.true * baseDamageMultiplier;
 
-    for (const key of ["blast", "gas", "magnetic", "radiation", "viral", "corrosive"] as const) {
+    for (const key of ["blast", "gas", "magnetic", "radiation", "viral", "corrosive", "void", "tau", "true"] as const) {
         rawBreakdown[key] += totalBase * (directBonusBreakdown[key] + conditionalDirectBonusBreakdown[key]);
     }
 
@@ -579,6 +603,7 @@ export function calculateBuild(
     expectedStacksByType.magnetic = expectedStacks("magnetic", 6, 10);
     expectedStacksByType.radiation = expectedStacks("radiation", 12, 10);
     expectedStacksByType.viral = expectedStacks("viral", 6, 10);
+    expectedStacksByType.tau = expectedStacks("tau", 8, 10);
 
     const coldStacks = expectedStacksByType.cold ?? 0;
     const heatStacks = expectedStacksByType.heat ?? 0;
@@ -589,6 +614,7 @@ export function calculateBuild(
     const impactStacks = expectedStacksByType.impact ?? 0;
     const gasStacks = expectedStacksByType.gas ?? 0;
     const radiationStacks = expectedStacksByType.radiation ?? 0;
+    const tauStacks = expectedStacksByType.tau ?? 0;
 
     const coldSlow = coldStacks >= 10 ? 1 : scaleForStacks(Math.min(coldStacks, 9), 0.5, 0.05, 0.9);
     const coldCritDamageBonus =
@@ -612,7 +638,7 @@ export function calculateBuild(
         gasStacks <= 0
             ? 0
             : Math.min(6, 3 + Math.max(0, Math.min(10, gasStacks) - 1) * 0.3);
-    const tauStatusVulnerability = 0;
+    const tauStatusVulnerability = scaleLinearCap(tauStacks, 0.1, 1.0);
 
     const modded: ModdedWeaponStats = {
         arsenalDamage,

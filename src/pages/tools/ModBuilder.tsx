@@ -10,7 +10,7 @@ import { getWeaponCatalog, type WeaponCategory, type WeaponEntry } from "../../d
 import { getModsForWeapon, getStancesForWeapon, type ModEntry, type ModEffect, emptyEffect } from "../../domain/catalog/modCatalog";
 import { getArcanesByWeaponCategory, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
 import { calculateBuild } from "../../domain/logic/damageCalc";
-import { optimizeBuild, explainBuild, debugScoreBuild, type OptimizeGoal, type BuildReasoning, type LegacyOptimizeGoal } from "../../domain/logic/buildOptimizer";
+import { optimizeBuild, explainBuild, debugScoreBuild, getFactionFocusOptions, type OptimizeGoal, type BuildReasoning, type LegacyOptimizeGoal } from "../../domain/logic/buildOptimizer";
 import {
     computeCapacity, effectiveDrain,
     maxWeaponRank, type CapacityConfig,
@@ -23,9 +23,16 @@ import type { SavedBuild } from "../../domain/models/userState";
 const _polImgs = import.meta.glob<string>("../../assets/polarities/*.svg", {
     eager: true, query: "?url", import: "default",
 });
+const _polSvgRaw = import.meta.glob<string>("../../assets/polarities/*.svg", {
+    eager: true, query: "?raw", import: "default",
+});
 const POL_IMG: Record<string, string> = {};
+const POL_SVG_RAW: Record<string, string> = {};
 for (const [p, url] of Object.entries(_polImgs)) {
     POL_IMG[p.split("/").pop()!.replace(".svg", "").toLowerCase()] = url as string;
+}
+for (const [p, svg] of Object.entries(_polSvgRaw)) {
+    POL_SVG_RAW[p.split("/").pop()!.replace(".svg", "").toLowerCase()] = svg as string;
 }
 const POL_FILE: Record<string, string> = {
     madurai: "madurai_pol", naramon: "naramon_pol", vazarin: "vazarin_pol",
@@ -64,7 +71,7 @@ const GOAL_OPTIONS: { key: OptimizeGoal; label: string; desc: string }[] = [
         desc: "Prioritizes proc rate, status scaling, and damage-over-time effects. Best for weapons that gain value from Viral, Heat, Corrosive, and other status effects.",
     },
 ];
-const FACTIONS = ["Grineer", "Corpus", "Infested", "Orokin", "The Murmur"];
+const FACTIONS = getFactionFocusOptions();
 const VALENCE_ELEMENTS = [
     { key: "impact", label: "Impact" },
     { key: "heat", label: "Heat" },
@@ -99,6 +106,9 @@ const STATUS_TIPS: Record<string, string> = {
     magnetic:    "Disrupt (10 stacks max): Amplifies damage to Shields/Overguard by 100% (first stack), +25% each subsequent stack (max +325%). Stops shield regen. On shield break: deals Electricity damage equal to 3% of max shields per stack.",
     radiation:   "Confusion (10 stacks max): Enemy attacks closest ally, receives +100% friendly-fire damage (first stack), +50% per additional stack (max +550% at 10). Lasts 12s per stack.",
     viral:       "Virus (10 stacks max): Amplifies damage to health by 100% (first stack), +25% each subsequent stack (max +325%). Lasts 6s per stack.",
+    void:        "Bullet Attract: Void effects can create a bullet attractor effect on the target.",
+    tau:         "Status Vulnerability: Tau effects increase the target's vulnerability to status.",
+    true:        "True Damage: Direct damage that bypasses normal mitigation rules.",
 };
 const EMPTY_SAVED_BUILDS: SavedBuild[] = [];
 const EMPTY_COUNTS: Record<string, number> = {};
@@ -113,6 +123,43 @@ function fmt(n: number, d = 0) {
 function uid() { return Math.random().toString(36).slice(2, 10); }
 function displayMagazineValue(weapon: WeaponEntry, magazineSize: number) {
     return weapon.hasExplicitMagazineSize ? String(magazineSize) : "∞";
+}
+
+function usesHitTerminology(category: WeaponCategory) {
+    return category === "Melee";
+}
+
+function averageDamageLabel(category: WeaponCategory) {
+    return usesHitTerminology(category) ? "Avg Hit" : "Avg Shot";
+}
+
+function actionUnitLabel(category: WeaponCategory) {
+    return usesHitTerminology(category) ? "hit" : "shot";
+}
+
+function actionRateLabel(category: WeaponCategory) {
+    return usesHitTerminology(category) ? "Attack Speed" : "Fire Rate";
+}
+
+function svgPolarityIconMarkup(polarity: string | null | undefined, x: number, y: number, size = 16) {
+    const normalized = (polarity ?? "").toLowerCase();
+    const raw = POL_SVG_RAW[POL_FILE[normalized] ?? ""] ?? null;
+    if (!raw) return `<text x="${x}" y="${y + size - 2}" class="slotMeta">○</text>`;
+    const inner = raw
+        .replace(/<\?xml[\s\S]*?\?>/g, "")
+        .replace(/<svg[^>]*>/i, "")
+        .replace(/<\/svg>\s*$/i, "")
+        .replace(/<metadata[\s\S]*?<\/metadata>/gi, "")
+        .replace(/<defs[\s\S]*?<\/defs>/gi, "")
+        .replace(/<defs[^>]\/>/gi, "")
+        .replace(/<sodipodi:namedview[\s\S]*?\/>/gi, "")
+        .replace(/\s+[a-zA-Z_][\w.-]*:[\w.-]+="[^"]*"/g, "")
+        .replace(/\s+[a-zA-Z_][\w.-]*:[\w.-]+='[^']*'/g, "")
+        .replace(/<\/?[a-zA-Z_][\w.-]*:[\w.-]+[^>]*>/g, "")
+        .replace(/fill:#000000/gi, "fill:#cbd5e1")
+        .replace(/stroke:#000000/gi, "stroke:#cbd5e1");
+    const scale = size / 50;
+    return `<g transform="translate(${x}, ${y}) scale(${scale})" opacity="0.78">${inner}</g>`;
 }
 
 interface BuildMathSection {
@@ -139,6 +186,7 @@ interface BuildExportPayload {
         weaponRank: number;
         masteryRank: number;
         hasCatalyst: boolean;
+        formaCount: number;
         valenceBonusPct?: number;
         valenceElement?: string | null;
         optimizeValenceElement?: boolean;
@@ -146,6 +194,13 @@ interface BuildExportPayload {
         selectedAttackIdx: number;
     };
     build: {
+        stance: {
+            mod: string | null;
+            uniqueName: string | null;
+            rank: number;
+            slotPolarity: string;
+            statsLabel: string | null;
+        };
         slots: Array<{
             slot: number;
             mod: string | null;
@@ -172,6 +227,345 @@ interface BuildExportPayload {
     };
     calculated: ReturnType<typeof calculateBuild> | null;
     math: BuildMathBreakdown | null;
+}
+
+function escapeSvgText(value: string) {
+    return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;");
+}
+
+function wrapSvgText(value: string, maxChars: number) {
+    const words = value.trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return [""];
+    const lines: string[] = [];
+    let current = "";
+    for (const word of words) {
+        const next = current ? `${current} ${word}` : word;
+        if (next.length <= maxChars) {
+            current = next;
+            continue;
+        }
+        if (current) lines.push(current);
+        if (word.length <= maxChars) {
+            current = word;
+            continue;
+        }
+        const chunks = word.match(new RegExp(`.{1,${maxChars}}`, "g")) ?? [word];
+        lines.push(...chunks.slice(0, -1));
+        current = chunks[chunks.length - 1] ?? "";
+    }
+    if (current) lines.push(current);
+    return lines;
+}
+
+function goalLabelForShare(goal: LegacyOptimizeGoal) {
+    return GOAL_OPTIONS.find((option) => option.key === goal)?.label ?? goal;
+}
+
+function renderSvgParagraph(lines: string[], x: number, y: number, lineHeight: number, className: string) {
+    const escaped = lines.map((line) => escapeSvgText(line));
+    return `<text x="${x}" y="${y}" class="${className}">${escaped
+        .map((line, index) => `<tspan x="${x}" dy="${index === 0 ? 0 : lineHeight}">${line}</tspan>`)
+        .join("")}</text>`;
+}
+
+function renderBuildShareSvg(payload: BuildExportPayload) {
+    const width = 1440;
+    const isMelee = payload.weapon.category === "Melee";
+    const stats = payload.calculated?.modded ?? null;
+    const burstDps = payload.calculated?.burstDPS ?? 0;
+    const sustainedDps = payload.calculated?.sustainedDPS ?? 0;
+    const attackLabel = payload.weapon.selectedAttack ?? "Default Attack";
+    const factionLabel = payload.assumptions.targetFaction ?? "General Use";
+    const goalLabel = goalLabelForShare(payload.assumptions.goal);
+    const weaponSubtitle = `${payload.weapon.category} • ${attackLabel}`;
+    const avgDamageStatLabel = averageDamageLabel(payload.weapon.category);
+    const rateStatLabel = actionRateLabel(payload.weapon.category);
+    const summaryStats = [
+        ["Burst DPS", fmt(burstDps)],
+        ["Sustain DPS", fmt(sustainedDps)],
+        [avgDamageStatLabel, fmt(stats?.averageShotDamage ?? 0)],
+        ["Direct Damage", fmt(stats?.totalDamage ?? 0)],
+        ["Crit Chance", `${fmt((stats?.critChance ?? 0) * 100, 1)}%`],
+        ["Crit Mult", `${fmt(stats?.critMultiplier ?? 0, 2)}x`],
+        ["Status", `${fmt((stats?.statusChance ?? 0) * 100, 1)}%`],
+        ["Multishot", `${fmt(stats?.multishot ?? 0, 2)}x`],
+        [rateStatLabel, `${fmt(stats?.fireRate ?? 0, 2)}/s`],
+        ["Magazine", stats ? (stats.shotsPerMag > 9999 ? "∞" : fmt(stats.magazineSize, 0)) : "0"],
+        ["Reload", `${fmt(stats?.reloadTime ?? 0, 2)}s`],
+        ["DoT DPS", fmt(stats?.dotDps ?? 0)],
+    ];
+    const damageRows = stats
+        ? Object.entries(stats.damageBreakdown)
+              .filter(([, value]) => value > 0)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 6)
+        : [];
+    const slotCardWidth = 206;
+    const slotGap = 16;
+    const slotTopY = 258;
+    const leftPanelX = 72;
+    const slotCards = payload.build.slots.map((slot) => {
+        const titleLines = wrapSvgText(slot.mod ?? `Empty Slot ${slot.slot}`, 20);
+        const bodyLines = wrapSvgText(slot.statsLabel ?? "Open slot", 27);
+        const height = 128 + Math.max(0, titleLines.length - 1) * 18 + bodyLines.length * 15;
+        return {
+            title: slot.mod ?? `Empty Slot ${slot.slot}`,
+            subtitle: slot.mod ? `Rank ${slot.rank}` : "No mod equipped",
+            body: slot.statsLabel ?? "Open slot",
+            accent: slot.mod ? "#60a5fa" : "#475569",
+            slotLabel: `Slot ${slot.slot}`,
+            polarity: slot.slotPolarity,
+            titleLines,
+            bodyLines,
+            height,
+        };
+    });
+    const slotRows = [slotCards.slice(0, 4), slotCards.slice(4, 8)];
+    const slotRowHeights = slotRows.map((row) => Math.max(...row.map((card) => card.height)));
+    const slotRowYs = slotRowHeights.reduce<number[]>((ys, _, index) => {
+        if (index === 0) return [slotTopY];
+        return [...ys, ys[index - 1] + slotRowHeights[index - 1] + 22];
+    }, []);
+    const slotBlocks = slotRows
+        .map((row, rowIndex) =>
+            row
+                .map((slot, colIndex) => {
+                    const x = leftPanelX + colIndex * (slotCardWidth + slotGap);
+                    const y = slotRowYs[rowIndex];
+                    return `
+                      <g transform="translate(${x}, ${y})">
+                        <rect width="${slotCardWidth}" height="${slotRowHeights[rowIndex]}" rx="18" fill="#091120" fill-opacity="0.76" stroke="${slot.accent}" stroke-opacity="0.35" />
+                        <rect x="16" y="18" width="${slotCardWidth - 32}" height="10" rx="5" fill="${slot.accent}" fill-opacity="0.22" />
+                        <text x="16" y="45" class="slotEyebrow">${escapeSvgText(slot.slotLabel)}</text>
+                        ${svgPolarityIconMarkup(slot.polarity, slotCardWidth - 32, 26, 16)}
+                        ${renderSvgParagraph(slot.titleLines, 16, 67, 18, "slotTitle")}
+                        <text x="16" y="${85 + Math.max(0, slot.titleLines.length - 1) * 18}" class="slotMeta">${escapeSvgText(slot.subtitle)}</text>
+                        ${renderSvgParagraph(slot.bodyLines, 16, 105 + Math.max(0, slot.titleLines.length - 1) * 18, 15, "slotBody")}
+                      </g>
+                    `;
+                })
+                .join(""),
+        )
+        .join("");
+    const modGridBottom = slotRowYs[slotRowYs.length - 1] + slotRowHeights[slotRowHeights.length - 1];
+    const stanceTitleLines = wrapSvgText(payload.build.stance.mod ?? "No Stance", 28);
+    const stanceBodyLines = wrapSvgText(payload.build.stance.statsLabel ?? "No stance mod equipped", 34);
+    const stanceHeight = 96 + Math.max(0, stanceTitleLines.length - 1) * 18 + stanceBodyLines.length * 17;
+    const exilusTitleLines = wrapSvgText(payload.build.exilus.mod ?? "No Exilus", 28);
+    const exilusBodyLines = wrapSvgText(payload.build.exilus.statsLabel ?? "No exilus mod equipped", 34);
+    const exilusHeight = 96 + Math.max(0, exilusTitleLines.length - 1) * 18 + exilusBodyLines.length * 17;
+    const arcaneTitleLines = wrapSvgText(payload.build.arcane.mod ?? "No Arcane", 28);
+    const arcaneBodyLines = wrapSvgText(payload.build.arcane.statsLabel ?? "No arcane equipped", 34);
+    const arcaneHeight = 96 + Math.max(0, arcaneTitleLines.length - 1) * 18 + arcaneBodyLines.length * 17;
+    const rightRailX = leftPanelX + 4 * (slotCardWidth + slotGap) + 34;
+    const rightRailWidth = 398;
+    const arcaneY = isMelee ? 234 : slotRowYs[0] + Math.max(0, (slotRowHeights[0] - arcaneHeight) / 2);
+    const exilusY = isMelee ? modGridBottom + 28 : slotRowYs[1] + Math.max(0, (slotRowHeights[1] - exilusHeight) / 2);
+    const specialRowHeight = Math.max(stanceHeight, exilusHeight);
+    const topSectionBottom = Math.max(
+        modGridBottom,
+        arcaneY + arcaneHeight,
+        exilusY + exilusHeight,
+        isMelee ? exilusY + specialRowHeight : 0,
+    );
+    const bottomSectionY = topSectionBottom + 54;
+    const performanceTitleY = bottomSectionY + 4;
+    const statGridY = bottomSectionY + 28;
+    const damageMixTopY = statGridY + 350;
+
+    const defs = `
+      <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#08101f" />
+          <stop offset="55%" stop-color="#0f172a" />
+          <stop offset="100%" stop-color="#1a1230" />
+        </linearGradient>
+        <linearGradient id="panel" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#111c33" stop-opacity="0.94" />
+          <stop offset="100%" stop-color="#091120" stop-opacity="0.98" />
+        </linearGradient>
+        <linearGradient id="hero" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#fb923c" stop-opacity="0.22" />
+          <stop offset="45%" stop-color="#60a5fa" stop-opacity="0.14" />
+          <stop offset="100%" stop-color="#22d3ee" stop-opacity="0.18" />
+        </linearGradient>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#020617" flood-opacity="0.45" />
+        </filter>
+        <style>
+          .eyebrow { fill: #fdba74; font: 700 18px Inter, system-ui, sans-serif; letter-spacing: 0.32em; text-transform: uppercase; }
+          .title { fill: #f8fafc; font: 800 48px Inter, system-ui, sans-serif; }
+          .subtitle { fill: #cbd5e1; font: 500 21px Inter, system-ui, sans-serif; }
+          .chip { fill: #e2e8f0; font: 700 18px Inter, system-ui, sans-serif; }
+          .chipMuted { fill: #94a3b8; font: 600 15px Inter, system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+          .section { fill: #94a3b8; font: 700 15px Inter, system-ui, sans-serif; letter-spacing: 0.18em; text-transform: uppercase; }
+          .slotTitle { fill: #f8fafc; font: 700 16px Inter, system-ui, sans-serif; }
+          .slotMeta { fill: #94a3b8; font: 600 12px Inter, system-ui, sans-serif; }
+          .slotBody { fill: #cbd5e1; font: 500 11px Inter, system-ui, sans-serif; }
+          .slotEyebrow { fill: #64748b; font: 700 10px Inter, system-ui, sans-serif; letter-spacing: 0.18em; text-transform: uppercase; }
+          .statLabel { fill: #94a3b8; font: 600 13px Inter, system-ui, sans-serif; letter-spacing: 0.05em; text-transform: uppercase; }
+          .statValue { fill: #f8fafc; font: 800 24px Inter, system-ui, sans-serif; }
+          .damageLabel { fill: #cbd5e1; font: 600 16px Inter, system-ui, sans-serif; }
+          .damageValue { fill: #f8fafc; font: 700 18px Inter, system-ui, sans-serif; }
+          .footer { fill: #64748b; font: 500 13px Inter, system-ui, sans-serif; }
+        </style>
+      </defs>
+    `;
+
+    const statBlocks = summaryStats
+        .map(([label, value], index) => {
+            const col = index % 4;
+            const x = 72 + col * 322;
+            const y = statGridY + Math.floor(index / 4) * 108;
+            return `
+              <g transform="translate(${x}, ${y})">
+                <rect width="290" height="86" rx="18" fill="#08101f" fill-opacity="0.82" stroke="#334155" stroke-opacity="0.7" />
+                <text x="18" y="30" class="statLabel">${escapeSvgText(label)}</text>
+                <text x="18" y="62" class="statValue">${escapeSvgText(value)}</text>
+              </g>
+            `;
+        })
+        .join("");
+
+    const damageBlocks = damageRows
+        .map(([key, value], index) => {
+            const y = damageMixTopY + 24 + index * 46;
+            const pct = stats && stats.totalDamage > 0 ? `${fmt((value / stats.totalDamage) * 100, 1)}%` : "0%";
+            return `
+              <g transform="translate(72, ${y})">
+                <rect width="576" height="34" rx="17" fill="#08101f" fill-opacity="0.75" />
+                <text x="18" y="23" class="damageLabel">${escapeSvgText(key.charAt(0).toUpperCase() + key.slice(1))}</text>
+                <text x="432" y="23" text-anchor="end" class="damageLabel">${escapeSvgText(pct)}</text>
+                <text x="558" y="23" text-anchor="end" class="damageValue">${escapeSvgText(fmt(value, 1))}</text>
+              </g>
+            `;
+        })
+        .join("");
+    const specialCardWidth = 428;
+    const exilusBlock = `
+      <g transform="translate(${isMelee ? leftPanelX + specialCardWidth + slotGap : rightRailX}, ${exilusY})">
+        <rect width="${isMelee ? specialCardWidth : rightRailWidth}" height="${exilusHeight}" rx="22" fill="#091120" fill-opacity="0.76" stroke="${payload.build.exilus.mod ? "#f59e0b" : "#475569"}" stroke-opacity="0.35" />
+        <text x="26" y="26" class="slotEyebrow">Exilus</text>
+        ${svgPolarityIconMarkup(payload.build.exilus.slotPolarity, (isMelee ? specialCardWidth : rightRailWidth) - 34, 18, 18)}
+        ${renderSvgParagraph(exilusTitleLines, 26, 54, 18, "slotTitle")}
+        <text x="26" y="${78 + Math.max(0, exilusTitleLines.length - 1) * 18}" class="slotMeta">${escapeSvgText(
+            payload.build.exilus.mod ? `Exilus • Rank ${payload.build.exilus.rank}` : "Exilus slot",
+        )}</text>
+        ${renderSvgParagraph(exilusBodyLines, 26, 102 + Math.max(0, exilusTitleLines.length - 1) * 18, 17, "slotBody")}
+      </g>
+    `;
+    const stanceBlock = isMelee ? `
+      <g transform="translate(72, ${exilusY})">
+        <rect width="${specialCardWidth}" height="${stanceHeight}" rx="22" fill="#091120" fill-opacity="0.76" stroke="${payload.build.stance.mod ? "#f472b6" : "#475569"}" stroke-opacity="0.35" />
+        <text x="26" y="26" class="slotEyebrow">Stance</text>
+        ${svgPolarityIconMarkup(payload.build.stance.slotPolarity, specialCardWidth - 34, 18, 18)}
+        ${renderSvgParagraph(stanceTitleLines, 26, 54, 18, "slotTitle")}
+        <text x="26" y="${78 + Math.max(0, stanceTitleLines.length - 1) * 18}" class="slotMeta">${escapeSvgText(
+            payload.build.stance.mod ? `Stance • Rank ${payload.build.stance.rank}` : "Stance slot",
+        )}</text>
+        ${renderSvgParagraph(stanceBodyLines, 26, 102 + Math.max(0, stanceTitleLines.length - 1) * 18, 17, "slotBody")}
+      </g>
+    ` : "";
+    const arcaneBlock = `
+      <g transform="translate(${rightRailX}, ${arcaneY})">
+        <rect width="${rightRailWidth}" height="${arcaneHeight}" rx="22" fill="#091120" fill-opacity="0.76" stroke="${payload.build.arcane.mod ? "#c084fc" : "#475569"}" stroke-opacity="0.35" />
+        <text x="26" y="26" class="slotEyebrow">Arcane</text>
+        ${renderSvgParagraph(arcaneTitleLines, 26, 54, 18, "slotTitle")}
+        <text x="26" y="${78 + Math.max(0, arcaneTitleLines.length - 1) * 18}" class="slotMeta">${escapeSvgText(
+            payload.build.arcane.mod ? `Arcane • Rank ${payload.build.arcane.rank}` : "Arcane slot",
+        )}</text>
+        ${renderSvgParagraph(arcaneBodyLines, 26, 102 + Math.max(0, arcaneTitleLines.length - 1) * 18, 17, "slotBody")}
+      </g>
+    `;
+    const bottomPanelHeight = 540;
+    const footerY = Math.max(bottomSectionY + bottomPanelHeight + 26, damageMixTopY + 24 + damageRows.length * 46 + 54, 1088);
+    const height = footerY + 40;
+    const titleChipStartX = Math.min(760, 92 + payload.weapon.name.length * 26);
+    const titleChipY = 110;
+
+    return `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+        ${defs}
+        <rect width="${width}" height="${height}" fill="url(#bg)" />
+        <circle cx="1200" cy="120" r="240" fill="#0ea5e9" fill-opacity="0.08" />
+        <circle cx="180" cy="980" r="220" fill="#f97316" fill-opacity="0.10" />
+        <rect x="38" y="38" width="${width - 76}" height="${height - 76}" rx="34" fill="url(#panel)" stroke="#334155" stroke-opacity="0.85" filter="url(#shadow)" />
+        <rect x="56" y="56" width="${width - 112}" height="156" rx="28" fill="url(#hero)" />
+        <rect x="56" y="${bottomSectionY - 20}" width="${width - 112}" height="${footerY - (bottomSectionY - 20) - 26}" rx="28" fill="#0a1324" fill-opacity="0.72" stroke="#1e293b" stroke-opacity="0.55" />
+
+        <text x="84" y="100" class="eyebrow">Arsenal Modding</text>
+        <text x="84" y="150" class="title">${escapeSvgText(payload.weapon.name)}</text>
+        <text x="84" y="184" class="subtitle">${escapeSvgText(weaponSubtitle)}</text>
+        <g transform="translate(${titleChipStartX}, ${titleChipY})">
+          <rect width="126" height="34" rx="17" fill="#0f172a" fill-opacity="0.78" stroke="#475569" stroke-opacity="0.65" />
+          <text x="63" y="22" text-anchor="middle" class="chip">${escapeSvgText(`${payload.assumptions.formaCount} Forma`)}</text>
+        </g>
+        ${
+            payload.assumptions.hasCatalyst
+                ? `<g transform="translate(${titleChipStartX + 138}, ${titleChipY})">
+          <rect width="128" height="34" rx="17" fill="#451a03" fill-opacity="0.35" stroke="#f59e0b" stroke-opacity="0.6" />
+          <text x="64" y="22" text-anchor="middle" class="chip">Catalyst</text>
+        </g>`
+                : ""
+        }
+
+        <g transform="translate(920, 94)">
+          <rect width="170" height="40" rx="20" fill="#0f172a" fill-opacity="0.78" stroke="#fb923c" stroke-opacity="0.45" />
+          <text x="85" y="26" text-anchor="middle" class="chip">${escapeSvgText(goalLabel)}</text>
+        </g>
+        <g transform="translate(1106, 94)">
+          <rect width="214" height="40" rx="20" fill="#0f172a" fill-opacity="0.78" stroke="#60a5fa" stroke-opacity="0.45" />
+          <text x="107" y="18" text-anchor="middle" class="chipMuted">Target</text>
+          <text x="107" y="32" text-anchor="middle" class="chip">${escapeSvgText(factionLabel)}</text>
+        </g>
+
+        <text x="72" y="234" class="section">Mods</text>
+        ${slotBlocks}
+        ${stanceBlock}
+        ${exilusBlock}
+        ${arcaneBlock}
+
+        <text x="72" y="${performanceTitleY}" class="section">Performance</text>
+        ${statBlocks}
+
+        <text x="72" y="${damageMixTopY}" class="section">Damage Mix</text>
+        ${damageBlocks || `<text x="72" y="${damageMixTopY + 44}" class="slotBody">No damage data available for this build snapshot.</text>`}
+
+        <text x="72" y="${footerY}" class="footer">Generated by Warframe Progression Tracker • ${escapeSvgText(new Date(payload.exportedAt).toLocaleString("en-US"))}</text>
+      </svg>
+    `.trim();
+}
+
+async function generateBuildShareImage(payload: BuildExportPayload) {
+    const svg = renderBuildShareSvg(payload);
+    const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    try {
+        const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error("Unable to render build share image."));
+            img.src = svgUrl;
+        });
+        const scale = 2;
+        const canvas = document.createElement("canvas");
+        canvas.width = image.width * scale;
+        canvas.height = image.height * scale;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Unable to create image canvas.");
+        ctx.scale(scale, scale);
+        ctx.drawImage(image, 0, 0);
+        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+        if (!blob) throw new Error("Unable to export build image.");
+        return blob;
+    } finally {
+        URL.revokeObjectURL(svgUrl);
+    }
 }
 
 function applyValenceToDamage(
@@ -232,6 +626,13 @@ function sumEffects(effects: (ModEffect | null)[]) {
         acc.coldBonus += effect.coldBonus ?? 0;
         acc.electricityBonus += effect.electricityBonus ?? 0;
         acc.toxinBonus += effect.toxinBonus ?? 0;
+        acc.magneticBonus += effect.magneticBonus ?? 0;
+        acc.radiationBonus += effect.radiationBonus ?? 0;
+        acc.viralBonus += effect.viralBonus ?? 0;
+        acc.corrosiveBonus += effect.corrosiveBonus ?? 0;
+        acc.voidBonus += effect.voidBonus ?? 0;
+        acc.tauBonus += effect.tauBonus ?? 0;
+        acc.trueBonus += effect.trueBonus ?? 0;
         acc.critChanceBonus += effect.critChanceBonus ?? 0;
         acc.critMultBonus += effect.critMultBonus ?? 0;
         acc.statusChanceBonus += effect.statusChanceBonus ?? 0;
@@ -254,6 +655,13 @@ function sumEffects(effects: (ModEffect | null)[]) {
         coldBonus: 0,
         electricityBonus: 0,
         toxinBonus: 0,
+        magneticBonus: 0,
+        radiationBonus: 0,
+        viralBonus: 0,
+        corrosiveBonus: 0,
+        voidBonus: 0,
+        tauBonus: 0,
+        trueBonus: 0,
         critChanceBonus: 0,
         critMultBonus: 0,
         statusChanceBonus: 0,
@@ -303,6 +711,10 @@ function buildMathBreakdown(
         : Math.max(1, Math.round(weapon.magazineSize * (1 + totals.magazineBonus)));
     const displayMagazine = displayMagazineValue(weapon, moddedMagazine);
     const avgCritMultiplier = baseDamage > 0 ? stats.averageShotDamage / Math.max(0.0001, stats.arsenalDamage) : 1;
+    const hasConditionalBonuses = effects.some(effect => (effect?.conditionalEffects?.length ?? 0) > 0);
+    const damageUnit = actionUnitLabel(weapon.category);
+    const avgDamageLabel = averageDamageLabel(weapon.category);
+    const rateLabel = actionRateLabel(weapon.category);
     const sections: BuildMathSection[] = [
         {
             title: "Base Stats",
@@ -311,6 +723,7 @@ function buildMathBreakdown(
                 `Base crit = ${fmt(weapon.critChance * 100, 1)}% × (1 + ${fmt(totals.critChanceBonus * 100, 1)}%) = ${fmt(stats.critChance * 100, 2)}%`,
                 `Base crit mult = ${fmt(weapon.critMultiplier, 2)} × (1 + ${fmt(totals.critMultBonus * 100, 1)}%) = ${fmt(stats.critMultiplier, 3)}`,
                 `Base status = ${fmt(weapon.statusChance * 100, 1)}% × (1 + ${fmt(totals.statusChanceBonus * 100, 1)}%) + ${fmt(totals.finalStatusChanceBonus * 100, 1)}% = ${fmt(stats.statusChance * 100, 2)}%`,
+                ...(hasConditionalBonuses ? ["Displayed final stats include estimated conditional/ramping bonuses beyond the static totals shown above."] : []),
             ],
         },
         {
@@ -319,6 +732,7 @@ function buildMathBreakdown(
                 `Modded base damage = ${fmt(baseDamage, 3)} × (1 + ${fmt(totals.damageBonus * 100, 1)}%) = ${fmt(moddedBaseDamage, 3)}`,
                 `Physical bonuses: Impact ${fmt(totals.impactBonus * 100, 1)}%, Puncture ${fmt(totals.punctureBonus * 100, 1)}%, Slash ${fmt(totals.slashBonus * 100, 1)}%`,
                 `Primary element bonuses: Heat ${fmt(totals.heatBonus * 100, 1)}%, Cold ${fmt(totals.coldBonus * 100, 1)}%, Electric ${fmt(totals.electricityBonus * 100, 1)}%, Toxin ${fmt(totals.toxinBonus * 100, 1)}%`,
+                `Advanced damage bonuses: Magnetic ${fmt(totals.magneticBonus * 100, 1)}%, Radiation ${fmt(totals.radiationBonus * 100, 1)}%, Viral ${fmt(totals.viralBonus * 100, 1)}%, Corrosive ${fmt(totals.corrosiveBonus * 100, 1)}%, Void ${fmt(totals.voidBonus * 100, 1)}%, Tau ${fmt(totals.tauBonus * 100, 1)}%, True ${fmt(totals.trueBonus * 100, 1)}%`,
                 `Final damage breakdown after element ordering and combination = ${Object.entries(stats.damageBreakdown).filter(([, v]) => (v as number) > 0).map(([k, v]) => `${k} ${fmt(v as number, 3)}`).join(", ") || "none"}`,
             ],
         },
@@ -337,9 +751,9 @@ function buildMathBreakdown(
                 `Multishot = ${fmt(weapon.multishot, 2)} × (1 + ${fmt(totals.multishotBonus * 100, 1)}%) = ${fmt(stats.multishot, 3)}`,
                 `Arsenal damage = Quantized direct damage × multishot = ${fmt(stats.totalDamage, 3)} × ${fmt(stats.multishot, 3)} = ${fmt(stats.arsenalDamage, 3)}`,
                 `Average crit multiplier = ${fmt(avgCritMultiplier, 4)}`,
-                `Average shot = Arsenal damage × average crit multiplier = ${fmt(stats.arsenalDamage, 3)} × ${fmt(avgCritMultiplier, 4)} = ${fmt(stats.averageShotDamage, 3)}`,
-                `Fire rate = ${fmt(weapon.fireRate, 3)} × (1 + ${fmt(fireRateBonus * 100, 1)}%) = ${fmt(moddedFireRate, 3)}`,
-                `Burst DPS = Avg Shot × Fire Rate = ${fmt(stats.averageShotDamage, 3)} × ${fmt(stats.fireRate, 3)} = ${fmt(result.burstDPS, 3)}`,
+                `Average ${damageUnit} = Arsenal damage × average crit multiplier = ${fmt(stats.arsenalDamage, 3)} × ${fmt(avgCritMultiplier, 4)} = ${fmt(stats.averageShotDamage, 3)}`,
+                `${rateLabel} = ${fmt(weapon.fireRate, 3)} × (1 + ${fmt(fireRateBonus * 100, 1)}%) = ${fmt(moddedFireRate, 3)}`,
+                `Burst DPS = ${avgDamageLabel} × ${rateLabel} = ${fmt(stats.averageShotDamage, 3)} × ${fmt(stats.fireRate, 3)} = ${fmt(result.burstDPS, 3)}`,
                 ignoresReloadAndMagazine
                     ? `Sustained DPS equals burst DPS for exalted weapons; reload and magazine bonuses are ignored = ${fmt(result.sustainedDPS, 3)}`
                     : `Sustained DPS uses reload uptime with mag ${displayMagazine} and reload ${fmt(moddedReload, 3)}s = ${fmt(result.sustainedDPS, 3)}`,
@@ -348,10 +762,10 @@ function buildMathBreakdown(
         {
             title: "Status and DoT",
             lines: [
-                `Average procs / shot = multishot × status chance + extra procs = ${fmt(stats.multishot, 3)} × ${fmt(stats.statusChance, 4)} + extras = ${fmt(stats.averageProcsPerShot, 3)}`,
+                `Average procs / ${damageUnit} = multishot × status chance + extra procs = ${fmt(stats.multishot, 3)} × ${fmt(stats.statusChance, 4)} + extras = ${fmt(stats.averageProcsPerShot, 3)}`,
                 `Proc weighting by type = ${Object.entries(stats.procChanceByType).map(([k, v]) => `${k} ${fmt((v ?? 0) * 100, 1)}%`).join(", ") || "none"}`,
                 `Expected stacks = ${Object.entries(stats.expectedStacksByType).filter(([, v]) => (v ?? 0) > 0).map(([k, v]) => `${k} ${fmt(v ?? 0, 2)}`).join(", ") || "none"}`,
-                `DoT per shot = ${fmt(stats.dotDamagePerShot, 3)}`,
+                `DoT per ${damageUnit} = ${fmt(stats.dotDamagePerShot, 3)}`,
                 `DoT DPS = ${fmt(stats.dotDps, 3)}`,
                 `Status-derived effects: Viral +${fmt(stats.viralHealthDamageBonus * 100, 1)}% health damage, Corrosive ${fmt(stats.corrosiveArmorStrip * 100, 1)}% armor strip, Magnetic +${fmt(stats.magneticShieldDamageBonus * 100, 1)}% shield damage`,
             ],
@@ -371,6 +785,10 @@ function buildExportPayload(args: {
     slots: (ModEntry | null)[];
     ranks: number[];
     slotPols: string[];
+    stanceMod: ModEntry | null;
+    stanceRank: number;
+    stancePol: string;
+    formaCount: number;
     exilusEnabled: boolean;
     exilusMod: ModEntry | null;
     exilusRank: number;
@@ -380,7 +798,7 @@ function buildExportPayload(args: {
 }): BuildExportPayload | null {
     const {
         weapon, selectedAttackIdx, goal, targetFaction, buildCfg, includeArcaneStats,
-        slots, ranks, slotPols, exilusEnabled, exilusMod, exilusRank, exilusPol, arcane, arcaneRank,
+        slots, ranks, slotPols, stanceMod, stanceRank, stancePol, formaCount, exilusEnabled, exilusMod, exilusRank, exilusPol, arcane, arcaneRank,
     } = args;
     if (!weapon) return null;
 
@@ -423,6 +841,7 @@ function buildExportPayload(args: {
             weaponRank: buildCfg.weaponRank,
             masteryRank: buildCfg.masteryRank,
             hasCatalyst: buildCfg.hasCatalyst,
+            formaCount,
             valenceBonusPct: weapon.isProgenitorWeapon ? buildCfg.valenceBonusPct : undefined,
             valenceElement: weapon.isProgenitorWeapon ? buildCfg.valenceElement : null,
             optimizeValenceElement: weapon.isProgenitorWeapon ? buildCfg.optimizeValenceElement : undefined,
@@ -430,6 +849,13 @@ function buildExportPayload(args: {
             selectedAttackIdx,
         },
         build: {
+            stance: {
+                mod: stanceMod?.name ?? null,
+                uniqueName: stanceMod?.uniqueName ?? null,
+                rank: stanceMod ? stanceRank : 0,
+                slotPolarity: stancePol,
+                statsLabel: stanceMod ? (stanceMod.statsTextByRank[stanceRank] ?? stanceMod.statsLabel) : null,
+            },
             slots: slots.map((m, i) => ({
                 slot: i + 1,
                 mod: m?.name ?? null,
@@ -483,6 +909,11 @@ function makeRivenEntry(
             case "toxinBonus":        effect = { ...effect, toxinBonus:        effect.toxinBonus        + bonus }; break;
             case "magneticBonus":     effect = { ...effect, magneticBonus:     effect.magneticBonus     + bonus }; break;
             case "radiationBonus":    effect = { ...effect, radiationBonus:    effect.radiationBonus    + bonus }; break;
+            case "viralBonus":        effect = { ...effect, viralBonus:        effect.viralBonus        + bonus }; break;
+            case "corrosiveBonus":    effect = { ...effect, corrosiveBonus:    effect.corrosiveBonus    + bonus }; break;
+            case "voidBonus":         effect = { ...effect, voidBonus:         effect.voidBonus         + bonus }; break;
+            case "tauBonus":          effect = { ...effect, tauBonus:          effect.tauBonus          + bonus }; break;
+            case "trueBonus":         effect = { ...effect, trueBonus:         effect.trueBonus         + bonus }; break;
             case "magazineBonus":     effect = { ...effect, magazineBonus:     effect.magazineBonus     + bonus }; break;
             case "reloadSpeedBonus":  effect = { ...effect, reloadSpeedBonus:  effect.reloadSpeedBonus  + bonus }; break;
         }
@@ -531,6 +962,11 @@ const RIVEN_STATS = [
     { key: "toxinBonus",        label: "Toxin" },
     { key: "magneticBonus",     label: "Magnetic" },
     { key: "radiationBonus",    label: "Radiation" },
+    { key: "viralBonus",        label: "Viral" },
+    { key: "corrosiveBonus",    label: "Corrosive" },
+    { key: "voidBonus",         label: "Void" },
+    { key: "tauBonus",          label: "Tau" },
+    { key: "trueBonus",         label: "True" },
     { key: "magazineBonus",     label: "Magazine" },
     { key: "reloadSpeedBonus",  label: "Reload Speed" },
 ] as const;
@@ -923,6 +1359,7 @@ function ArcaneSlot({ label, arcane, rank, onChange, onRankChange, availableArca
 }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
+    const [showDetails, setShowDetails] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
     useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 50); }, [open]);
@@ -952,16 +1389,35 @@ function ArcaneSlot({ label, arcane, rank, onChange, onRankChange, availableArca
                     onClick={() => { setOpen(x => !x); setQuery(""); }}>
                     {arcane ? (
                         <>
-                            <div className="flex-1 min-w-0">
+                            <div
+                                className="relative flex-1 min-w-0"
+                                onMouseEnter={() => setShowDetails(true)}
+                                onMouseLeave={() => setShowDetails(false)}
+                            >
                                 <div className="flex items-center gap-1">
                                     <span className="text-[8px] uppercase tracking-wide text-violet-400/60">{label}</span>
                                     <span className="text-xs font-semibold text-slate-100 truncate">{arcane.name}</span>
                                     <span className="text-[9px] px-1 rounded border border-violet-700/50 bg-violet-950/30 text-violet-400 shrink-0">{arcane.rarity}</span>
                                 </div>
-                                <div className="text-[10px] text-slate-400 mt-0.5 truncate" title={statAtRank ?? ""}>
+                                <div
+                                    className="mt-0.5 text-[10px] leading-tight text-slate-400"
+                                    title={statAtRank ?? ""}
+                                    style={{
+                                        display: "-webkit-box",
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: "vertical",
+                                        overflow: "hidden",
+                                    }}
+                                >
                                     {statAtRank}
                                     {rank < arcane.maxRank && <span className="text-slate-600 ml-1">@{rank}/{arcane.maxRank}</span>}
                                 </div>
+                                {showDetails && (
+                                    <div className="pointer-events-none absolute left-0 top-full z-[70] mt-2 w-64 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 shadow-xl">
+                                        <div className="text-xs font-semibold leading-tight text-slate-100">{arcane.name}</div>
+                                        <div className="mt-1 text-[11px] leading-relaxed text-slate-300">{statAtRank}</div>
+                                    </div>
+                                )}
                             </div>
                             <button className="text-slate-600 hover:text-slate-300 text-xs shrink-0"
                                 onClick={e => { e.stopPropagation(); onChange(null); }}>✕</button>
@@ -1352,17 +1808,20 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
     }
 
     function comparisonRows(stats: ReturnType<typeof calculateBuild>) {
+        const category = weapon?.category ?? "Primary";
+        const avgDamageLabel = averageDamageLabel(category);
+        const rateLabel = actionRateLabel(category);
         const rows: Array<[string, string]> = [
             ["Burst DPS", fmt(stats.burstDPS)],
             ["Sustained DPS", fmt(stats.sustainedDPS)],
-            ["Avg Shot", fmt(stats.modded.averageShotDamage)],
+            [avgDamageLabel, fmt(stats.modded.averageShotDamage)],
             ["Arsenal Dmg", fmt(stats.modded.arsenalDamage)],
             ["Crit Chance", `${fmt(stats.modded.critChance * 100, 1)}%`],
             ["Crit Mult", `${fmt(stats.modded.critMultiplier, 2)}x`],
             ["Crit Tier", `${fmt(stats.modded.averageCritTier, 2)}x`],
             ["Status", `${fmt(stats.modded.statusChance * 100, 1)}%`],
             ["Multishot", fmt(stats.modded.multishot, 2)],
-            ["Fire Rate", fmt(stats.modded.fireRate, 2)],
+            [rateLabel, fmt(stats.modded.fireRate, 2)],
             ["Avg Procs", fmt(stats.modded.averageProcsPerShot, 2)],
             ["DoT DPS", fmt(stats.modded.dotDps)],
         ];
@@ -1711,6 +2170,8 @@ export default function ModBuilder() {
     const [tab, setTab]                = useState<"build"|"saves"|"owned"|"ownedArcanes"|"exclude">("build");
     const [optimizing, setOptimizing]  = useState(false);
     const [copiedExport, setCopiedExport] = useState(false);
+    const [sharingBuildImage, setSharingBuildImage] = useState(false);
+    const [sharedBuildImage, setSharedBuildImage] = useState(false);
 
     useEffect(() => {
         setBuildCfg((prev) => {
@@ -1858,6 +2319,10 @@ export default function ModBuilder() {
         slots,
         ranks,
         slotPols,
+        stanceMod,
+        stanceRank,
+        stancePol,
+        formaCount,
         exilusEnabled: hasExilus,
         exilusMod,
         exilusRank,
@@ -1866,7 +2331,7 @@ export default function ModBuilder() {
         arcaneRank: arcane1Rank,
     }), [
         weapon, selectedAttackIdx, goal, factionOn, faction, buildCfg, includeArcaneStats,
-        slots, ranks, slotPols, hasExilus, exilusMod, exilusRank, exilusPol, arcane1, arcane1Rank,
+        slots, ranks, slotPols, stanceMod, stanceRank, stancePol, formaCount, hasExilus, exilusMod, exilusRank, exilusPol, arcane1, arcane1Rank,
     ]);
 
     const activeCalcWeapon = useMemo(() => {
@@ -1882,6 +2347,46 @@ export default function ModBuilder() {
         await navigator.clipboard.writeText(json);
         setCopiedExport(true);
         setTimeout(() => setCopiedExport(false), 2000);
+    }
+
+    async function handleShareBuildImage() {
+        if (!currentBuildExport || sharingBuildImage) return;
+        setSharingBuildImage(true);
+        try {
+            const blob = await generateBuildShareImage(currentBuildExport);
+            const safeWeapon = currentBuildExport.weapon.name.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+            const safeAttack = (currentBuildExport.weapon.selectedAttack ?? "build")
+                .replace(/[^a-z0-9]+/gi, "-")
+                .replace(/^-+|-+$/g, "")
+                .toLowerCase();
+            const fileName = `${safeWeapon || "weapon"}-${safeAttack || "build"}-build.png`;
+            const file = new File([blob], fileName, { type: "image/png" });
+            const nav = navigator as Navigator & {
+                canShare?: (data?: ShareData) => boolean;
+            };
+
+            if (nav.share && nav.canShare?.({ files: [file] })) {
+                await nav.share({
+                    files: [file],
+                });
+            } else {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
+
+            setSharedBuildImage(true);
+            setTimeout(() => setSharedBuildImage(false), 2200);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setSharingBuildImage(false);
+        }
     }
 
     function handleSlotChange(i: number, mod: ModEntry | null) {
@@ -2345,6 +2850,11 @@ export default function ModBuilder() {
                                                         {formaCount} forma
                                                     </span>
                                                 )}
+                                                {weapon && buildCfg.hasCatalyst && (
+                                                    <span className="rounded-full border border-amber-700/60 bg-amber-950/30 px-2.5 py-1 text-[10px] uppercase tracking-wide text-amber-300">
+                                                        Catalyst
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-2 justify-end">
@@ -2375,6 +2885,13 @@ export default function ModBuilder() {
                                                 className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1.5 text-[11px] text-slate-300 transition-colors hover:border-slate-500 hover:text-slate-100 disabled:opacity-50"
                                             >
                                                 {copiedExport ? "Copied Build JSON" : "Copy Build JSON"}
+                                            </button>
+                                            <button
+                                                onClick={handleShareBuildImage}
+                                                disabled={!currentBuildExport || sharingBuildImage}
+                                                className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1.5 text-[11px] text-slate-300 transition-colors hover:border-slate-500 hover:text-slate-100 disabled:opacity-50"
+                                            >
+                                                {sharingBuildImage ? "Generating Image…" : sharedBuildImage ? "Shared Build Image" : "Share Build Image"}
                                             </button>
                                             <button
                                                 onClick={() => weapon && resetBuildForWeapon(weapon)}
@@ -2499,10 +3016,10 @@ export default function ModBuilder() {
                                                     {factionOn && (
                                                         <div className="flex flex-wrap gap-1.5">
                                                             {FACTIONS.map(f => (
-                                                                <button key={f} onClick={() => setFaction(f)}
+                                                                <button key={f.value} onClick={() => setFaction(f.value)}
                                                                     className={["rounded-full px-2.5 py-1 text-[10px] border transition-colors",
-                                                                        faction === f ? "bg-orange-900/40 border-orange-600/60 text-orange-300" : "border-slate-700 text-slate-400 hover:border-slate-600"].join(" ")}>
-                                                                    {f}
+                                                                        faction === f.value ? "bg-orange-900/40 border-orange-600/60 text-orange-300" : "border-slate-700 text-slate-400 hover:border-slate-600"].join(" ")}>
+                                                                    {f.label}
                                                                 </button>
                                                             ))}
                                                         </div>
@@ -2737,10 +3254,11 @@ export default function ModBuilder() {
 
                                         <div className="space-y-3">
                                             {weapon.category === "Melee" ? (
-                                                <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_320px]">
+                                                <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
                                                     <div className="space-y-3">
-                                                        <div className="grid gap-3 md:grid-cols-2">
-                                                            <div className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-2">
+                                                        <div className="grid grid-cols-2 2xl:grid-cols-4 gap-3">
+                                                            <div className="hidden 2xl:block" />
+                                                            <div className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-2 2xl:col-start-2">
                                                                 <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-wide text-slate-500">
                                                                     <span>Stance</span>
                                                                     <PolarityPicker value={stancePol} onChange={setStancePol} />
@@ -2762,7 +3280,7 @@ export default function ModBuilder() {
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            <div className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-2">
+                                                            <div className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-2 2xl:col-start-3">
                                                                 <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-wide text-slate-500">
                                                                     <span>Exilus</span>
                                                                     <button onClick={() => { setHasExilus(v => !v); if (hasExilus) { setExilusMod(null); setExilusRank(0); } }}
@@ -2788,6 +3306,7 @@ export default function ModBuilder() {
                                                                     </div>
                                                                 )}
                                                             </div>
+                                                            <div className="hidden 2xl:block" />
                                                         </div>
                                                         <div className="grid auto-rows-[minmax(216px,auto)] grid-cols-2 2xl:grid-cols-4 gap-3">
                                                             {slots.map((mod, i) => (
@@ -2826,21 +3345,23 @@ export default function ModBuilder() {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_320px]">
-                                                    <div className="grid auto-rows-[minmax(216px,auto)] grid-cols-2 2xl:grid-cols-4 gap-3">
-                                                        {slots.map((mod, i) => (
-                                                            <ModSlot key={i} index={i} weaponName={weapon.name} mod={mod} rank={ranks[i] ?? 0}
-                                                                slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
-                                                                usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
-                                                                excluded={excluded}
-                                                                onChange={handleSlotChange} onRankChange={handleRankChange}
-                                                                onPolarityChange={handlePolChange}
-                                                                onSelectRiven={handleOpenRivenEditor}
-                                                                onToggleExclude={toggleExclude}
-                                                                effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0} />
-                                                        ))}
-                                                    </div>
+                                                <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
                                                     <div className="space-y-3">
+                                                        <div className="grid auto-rows-[minmax(216px,auto)] grid-cols-2 2xl:grid-cols-4 gap-3">
+                                                            {slots.map((mod, i) => (
+                                                                <ModSlot key={i} index={i} weaponName={weapon.name} mod={mod} rank={ranks[i] ?? 0}
+                                                                    slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
+                                                                    usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                    excluded={excluded}
+                                                                    onChange={handleSlotChange} onRankChange={handleRankChange}
+                                                                    onPolarityChange={handlePolChange}
+                                                                    onSelectRiven={handleOpenRivenEditor}
+                                                                    onToggleExclude={toggleExclude}
+                                                                    effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0} />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex min-h-[435px] flex-col justify-center gap-3">
                                                         <div className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-3">
                                                             <div className="mb-2 flex items-center justify-between">
                                                                 <div className="text-[10px] uppercase tracking-wide text-slate-500">Arcane</div>
@@ -2880,7 +3401,8 @@ export default function ModBuilder() {
                                                                     onRankChange={(_, r) => setExilusRank(r)}
                                                                     onPolarityChange={(_, p) => setExilusPol(p)}
                                                                     onToggleExclude={toggleExclude}
-                                                                    effDrain={exilusMod ? effectiveDrain(exilusMod, exilusPol, exilusRank) : 0} />
+                                                                    effDrain={exilusMod ? effectiveDrain(exilusMod, exilusPol, exilusRank) : 0}
+                                                                    compactEmpty={true} />
                                                             ) : (
                                                                 <div className="rounded-lg border border-dashed border-slate-700 px-3 py-6 text-center text-[11px] text-slate-600">
                                                                     Requires an Exilus Adapter.
@@ -2904,7 +3426,7 @@ export default function ModBuilder() {
                                 )}
                             </div>
 
-                            <div className="grid 2xl:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_320px] gap-4">
+                            <div>
                                 <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
                                     <div className="text-sm font-semibold mb-3">Advanced Analysis</div>
                                     {(() => {
@@ -2956,6 +3478,9 @@ export default function ModBuilder() {
                                     { k: "magnetic",    l: "Mag",      v: d.magnetic },
                                     { k: "viral",       l: "Viral",    v: d.viral },
                                     { k: "corrosive",   l: "Corr",     v: d.corrosive },
+                                    { k: "void",        l: "Void",     v: d.void },
+                                    { k: "tau",         l: "Tau",      v: d.tau },
+                                    { k: "true",        l: "True",     v: d.true },
                                 ].filter(e => e.v > 0);
 
                                 // Render stats for a single attack
@@ -2963,7 +3488,107 @@ export default function ModBuilder() {
                                     const result = calcForAttack(atkIdx);
                                     const stats  = result.modded;
                                     const atk    = weapon.attacks[atkIdx];
+                                    const damageUnit = actionUnitLabel(weapon.category);
+                                    const damageUnitLabel = damageUnit[0].toUpperCase() + damageUnit.slice(1);
+                                    const avgDamageLabel = averageDamageLabel(weapon.category);
+                                    const rateLabel = actionRateLabel(weapon.category);
                                     const dmgSrc = stats.damageBreakdown;
+                                    const procChanceRows = dmgRows(stats.procChanceByType as Record<string, number>);
+                                    const procRateRows = dmgRows(stats.procRatePerSecondByType as Record<string, number>);
+                                    const stackRows = dmgRows(stats.expectedStacksByType as Record<string, number>);
+                                    const dotShotRows = dmgRows(stats.dotDamagePerShotByType as Record<string, number>);
+                                    const dotDpsRows = dmgRows(stats.dotDpsByType as Record<string, number>);
+                                    const extraProcRows = dmgRows(stats.extraProcsPerShot as Record<string, number>);
+                                    const allMetricBadges = [
+                                        { label: "Direct Damage", value: fmt(stats.totalDamage), sub: "post-quantization", tooltip: "Final direct damage after damage construction and Warframe's damage quantization step, before crit and multishot." },
+                                        { label: "Arsenal Damage", value: fmt(stats.arsenalDamage), sub: `per ${damageUnit}, no crit`, tooltip: `Direct damage for one ${damageUnit} after multishot is applied, but before crit weighting.` },
+                                        { label: avgDamageLabel, value: fmt(stats.averageShotDamage), sub: "crit-weighted", tooltip: `Expected damage per ${damageUnit} after weighting in crit chance and crit multiplier.` },
+                                        { label: "Burst DPS", value: fmt(result.burstDPS), sub: "no reload", tooltip: "Damage per second assuming continuous attacking with no reload downtime." },
+                                        { label: "Sustained DPS", value: fmt(result.sustainedDPS), sub: "with reload", tooltip: "Damage per second including reload downtime when applicable." },
+                                        { label: `DoT / ${damageUnitLabel}`, value: fmt(stats.dotDamagePerShot), sub: "expected total", tooltip: `Expected status damage-over-time contributed by one ${damageUnit}.` },
+                                        { label: "DoT DPS", value: fmt(stats.dotDps), sub: "steady-state estimate", tooltip: "Estimated sustained damage per second coming from active status DoTs." },
+                                        {
+                                            label: "Crit Chance",
+                                            value: fmt(stats.critChance * 100, 1) + "%",
+                                            highlight: stats.critChance >= 1,
+                                            sub: stats.critChance > 1 ? (stats.critChance >= 2 ? "orange guaranteed" : "yellow guaranteed") : undefined,
+                                            tooltip:
+                                                stats.critChance >= 2
+                                                    ? `Guaranteed orange crits. ${fmt((stats.critChance - Math.floor(stats.critChance)) * 100, 0)}% chance for red crit per ${damageUnit}.`
+                                                    : stats.critChance >= 1
+                                                        ? `Guaranteed yellow crits. ${fmt((stats.critChance - 1) * 100, 0)}% chance for orange crit per ${damageUnit}.`
+                                                        : undefined,
+                                        },
+                                        { label: "Crit Multiplier", value: stats.critMultiplier.toFixed(2) + "x", sub: "yellow crit", tooltip: "Damage multiplier applied when a standard yellow crit occurs." },
+                                        { label: "Avg Crit Tier", value: stats.averageCritTier.toFixed(2) + "x", sub: "expected crit level", tooltip: "Expected crit level per hit. 0.55x means you average 0.55 crit tiers per hit, such as roughly a 55% chance to land a yellow crit." },
+                                        {
+                                            label: "Status Chance",
+                                            value: fmt(stats.statusChance * 100, 1) + "%",
+                                            tooltip: `Chance per pellet/projectile to trigger a status effect. Over 100% = multiple procs per ${damageUnit}.`,
+                                        },
+                                        {
+                                            label: "Multishot",
+                                            value: stats.multishot.toFixed(2) + "x",
+                                            tooltip: usesHitTerminology(weapon.category) ? "Additional hit instances created by the attack. Each hit rolls status independently." : "Projectiles per trigger pull. Each pellet rolls status independently.",
+                                        },
+                                        {
+                                            label: rateLabel,
+                                            value: stats.fireRate.toFixed(3) + "/s",
+                                            tooltip: atk?.chargeTime != null
+                                                ? `Effective rate = 1 / (${atk.chargeTime.toFixed(2)}s charge + ${(1 / weapon.fireRate).toFixed(2)}s delay). Fire rate mods also speed up charge time.`
+                                                : usesHitTerminology(weapon.category) ? "Attacks per second." : "Shots per second.",
+                                        },
+                                        { label: "Magazine", value: displayMagazineValue(weapon, stats.magazineSize), tooltip: usesHitTerminology(weapon.category) ? "Melee weapons do not use magazines, so this stays at the weapon's effective default value." : "Rounds available before reloading." },
+                                        { label: "Shots / Mag", value: fmt(stats.shotsPerMag, 2), sub: "before reload", tooltip: usesHitTerminology(weapon.category) ? "Effective attack count before any reload-like interruption. For melee this is mostly a placeholder value." : "Number of trigger pulls available before reloading." },
+                                        { label: "Reload", value: stats.reloadTime.toFixed(2) + "s", tooltip: usesHitTerminology(weapon.category) ? "Melee weapons do not reload, so this should normally remain at 0." : "Time needed to refill the magazine." },
+                                        {
+                                            label: `Avg Procs/${damageUnitLabel}`,
+                                            value: fmt(stats.averageProcsPerShot, 2),
+                                            tooltip: `Average number of status procs per ${damageUnit} = Multishot × Status Chance.`,
+                                        },
+                                    ];
+                                    const statusEffectBadges = [
+                                        { label: "Viral Health", value: fmt(stats.viralHealthDamageBonus * 100, 0) + "%", sub: "health damage", tooltip: "Extra damage dealt to health from current Viral stacks." },
+                                        { label: "Heat Armor Strip", value: fmt(stats.heatArmorStrip * 100, 0) + "%", sub: "armor removed", tooltip: "Armor removed by Heat status effects." },
+                                        { label: "Corrosive Strip", value: fmt(stats.corrosiveArmorStrip * 100, 0) + "%", sub: "armor removed", tooltip: "Armor removed by Corrosive status stacks." },
+                                        { label: "Magnetic Shield", value: fmt(stats.magneticShieldDamageBonus * 100, 0) + "%", sub: "shield damage", tooltip: "Extra damage dealt to shields and overguard from Magnetic stacks." },
+                                        { label: "Radiation Ally Dmg", value: fmt(stats.radiationAllyDamageBonus * 100, 0) + "%", sub: "friendly fire bonus", tooltip: "Damage amplification enemies receive from allies while affected by Radiation." },
+                                        { label: "Cold Slow", value: fmt(stats.coldSlow * 100, 0) + "%", sub: "move/attack slow", tooltip: "Movement and attack speed slow applied by Cold stacks." },
+                                        { label: "Cold Crit Damage", value: fmt(stats.coldCritDamageBonus * 100, 0) + "%", sub: "crit damage bonus", tooltip: "Bonus crit damage applied from maxed Cold freeze effects." },
+                                        { label: "Puncture Dmg Down", value: fmt(stats.punctureEnemyDamageReduction * 100, 0) + "%", sub: "enemy damage reduction", tooltip: "How much enemy outgoing damage is reduced by Puncture stacks." },
+                                        { label: "Puncture Crit", value: fmt(stats.punctureCritChanceBonus * 100, 0) + "%", sub: "crit chance bonus", tooltip: "Bonus crit chance threshold granted by Puncture stacks." },
+                                        { label: "Impact Mercy", value: fmt(stats.impactMercyThresholdBonus * 100, 0) + "%", sub: "mercy threshold", tooltip: "Mercy threshold increase contributed by Impact stacks." },
+                                        { label: `Blast / ${damageUnitLabel}`, value: fmt(stats.blastDetonationDamagePerShot), sub: "detonation damage", tooltip: `Expected Blast detonation damage contributed by one ${damageUnit}.` },
+                                        { label: "Gas Radius", value: fmt(stats.gasCloudRadius, 2) + "m", sub: "cloud radius", tooltip: "Effective radius of the Gas cloud from current Gas stacks." },
+                                        { label: "Tau Vulnerability", value: fmt(stats.tauStatusVulnerability * 100, 0) + "%", sub: "status vulnerability", tooltip: "Extra status susceptibility applied by Tau effects." },
+                                    ];
+                                    const renderBadgeSection = (
+                                        title: string,
+                                        items: Array<{ label: string; value: string; sub?: string; tooltip?: string; highlight?: boolean }>,
+                                        subtitle?: string,
+                                    ) => {
+                                        if (!items.length) return null;
+                                        return (
+                                            <div className="pt-2 border-t border-slate-800/50">
+                                                <div className="text-[10px] text-slate-500 uppercase tracking-wide mb-1.5">
+                                                    {title}
+                                                    {subtitle ? <span className="normal-case font-normal text-slate-600 ml-1">{subtitle}</span> : null}
+                                                </div>
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+                                                    {items.map((item) => (
+                                                        <StatBadge
+                                                            key={item.label}
+                                                            label={item.label}
+                                                            value={item.value}
+                                                            sub={item.sub}
+                                                            tooltip={item.tooltip}
+                                                            highlight={item.highlight}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    };
 
                                     return (
                                         <div key={atkIdx} className={weapon.attacks.length > 1 ? "border border-slate-800/60 rounded-xl p-3 space-y-3" : "space-y-3"}>
@@ -2975,67 +3600,10 @@ export default function ModBuilder() {
                                                             {atk.chargeTime.toFixed(1)}s charge
                                                         </span>
                                                     )}
-                                                    {atkIdx === selectedAttackIdx && weapon.attacks.length > 1 && (
-                                                        <span className="text-[9px] px-1.5 py-0.5 rounded border border-green-700/40 bg-green-950/30 text-green-400 ml-auto">
-                                                            ← building for
-                                                        </span>
-                                                    )}
                                                 </div>
                                             )}
 
-                                            {/* Primary stats */}
-                                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
-                                                <StatBadge label="Arsenal Damage" value={fmt(stats.arsenalDamage)}
-                                                    sub="per shot, no crit" />
-                                                <StatBadge label="Avg Shot" value={fmt(stats.averageShotDamage)}
-                                                    sub="crit-weighted" />
-                                                <StatBadge label="Burst DPS" value={fmt(result.burstDPS)}
-                                                    sub="no reload" />
-                                                <StatBadge label="Sustained DPS" value={fmt(result.sustainedDPS)}
-                                                    sub="with reload" />
-                                                <StatBadge label="DoT / Shot" value={fmt(stats.dotDamagePerShot)}
-                                                    sub="expected total" />
-                                                <StatBadge label="DoT DPS" value={fmt(stats.dotDps)}
-                                                    sub="steady-state estimate" />
-                                            </div>
-
-                                            {/* Crit + status */}
-                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                                <StatBadge label="Crit Chance"
-                                                    value={fmt(stats.critChance * 100, 1) + "%"}
-                                                    highlight={stats.critChance >= 1}
-                                                    sub={stats.critChance > 1 ? (stats.critChance >= 2 ? "orange guaranteed" : "yellow guaranteed") : undefined}
-                                                    tooltip={
-                                                        stats.critChance >= 2
-                                                            ? `Guaranteed orange crits. ${fmt((stats.critChance - Math.floor(stats.critChance)) * 100, 0)}% chance for red crit per shot.`
-                                                            : stats.critChance >= 1
-                                                                ? `Guaranteed yellow crits. ${fmt((stats.critChance - 1) * 100, 0)}% chance for orange crit per shot.`
-                                                                : undefined
-                                                    } />
-                                                <StatBadge label="Crit Multiplier"
-                                                    value={stats.critMultiplier.toFixed(2) + "x"}
-                                                    sub="yellow crit" />
-                                                <StatBadge label="Status Chance"
-                                                    value={fmt(stats.statusChance * 100, 1) + "%"}
-                                                    tooltip="Chance per pellet/projectile to trigger a status effect. Over 100% = multiple procs per hit." />
-                                                <StatBadge label="Multishot"
-                                                    value={stats.multishot.toFixed(2) + "x"}
-                                                    tooltip="Projectiles per trigger pull. Each pellet rolls status independently." />
-                                            </div>
-
-                                            {/* Fire rate + magazine */}
-                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                                <StatBadge label="Fire Rate"
-                                                    value={stats.fireRate.toFixed(3) + "/s"}
-                                                    tooltip={atk?.chargeTime != null
-                                                        ? `Effective rate = 1 / (${atk.chargeTime.toFixed(2)}s charge + ${(1/weapon.fireRate).toFixed(2)}s delay). Fire rate mods also speed up charge time.`
-                                                        : "Shots per second."} />
-                                                <StatBadge label="Magazine" value={displayMagazineValue(weapon, stats.magazineSize)} />
-                                                <StatBadge label="Reload" value={stats.reloadTime.toFixed(2) + "s"} />
-                                                <StatBadge label="Avg Procs/Shot"
-                                                    value={fmt(stats.averageProcsPerShot, 2)}
-                                                    tooltip="Average number of status procs per trigger pull = Multishot × Status Chance." />
-                                            </div>
+                                            {renderBadgeSection("All Stats", allMetricBadges)}
 
                                             {/* Damage type breakdown */}
                                             {(() => {
@@ -3063,16 +3631,67 @@ export default function ModBuilder() {
                                                 );
                                             })()}
 
+                                            {renderBadgeSection(
+                                                "Proc Chance By Type",
+                                                procChanceRows.map((row) => ({
+                                                    label: row.l,
+                                                    value: fmt(row.v * 100, 1) + "%",
+                                                    tooltip: STATUS_TIPS[row.k],
+                                                })),
+                                            )}
+
+                                            {renderBadgeSection(
+                                                "Proc Rate By Type",
+                                                procRateRows.map((row) => ({
+                                                    label: row.l,
+                                                    value: fmt(row.v, 2) + "/s",
+                                                    tooltip: STATUS_TIPS[row.k],
+                                                })),
+                                            )}
+
+                                            {renderBadgeSection(
+                                                "Expected Stacks By Type",
+                                                stackRows.map((row) => ({
+                                                    label: row.l,
+                                                    value: fmt(row.v, 2),
+                                                    tooltip: STATUS_TIPS[row.k],
+                                                })),
+                                            )}
+
+                                            {renderBadgeSection(
+                                                "DoT By Type",
+                                                dotDpsRows.map((row) => ({
+                                                    label: row.l,
+                                                    value: fmt(row.v),
+                                                    sub: `${fmt(dotShotRows.find((entry) => entry.k === row.k)?.v ?? 0)} / ${damageUnit}`,
+                                                    tooltip: STATUS_TIPS[row.k],
+                                                })),
+                                                "(value = DPS)",
+                                            )}
+
+                                            {renderBadgeSection(
+                                                "Extra Procs By Type",
+                                                extraProcRows.map((row) => ({
+                                                    label: row.l,
+                                                    value: fmt(row.v, 2),
+                                                    sub: `extra per ${damageUnit}`,
+                                                    tooltip: STATUS_TIPS[row.k],
+                                                })),
+                                            )}
+
+                                            {renderBadgeSection("Status Effects", statusEffectBadges)}
+
                                             {/* Crit tier warning */}
                                             {stats.critChance > 1 && (
                                                 <div className="rounded-lg border border-amber-700/40 bg-amber-950/20 px-3 py-2 text-[11px] text-amber-400/80">
                                                     {stats.critChance >= 2
-                                                        ? `${fmt(stats.critChance * 100, 1)}% crit — guaranteed orange crits (${fmt((stats.critChance - Math.floor(stats.critChance)) * 100, 0)}% red per shot)`
-                                                        : `${fmt(stats.critChance * 100, 1)}% crit — guaranteed yellow crits (${fmt((stats.critChance - 1) * 100, 0)}% orange per shot)`}
+                                                        ? `${fmt(stats.critChance * 100, 1)}% crit — guaranteed orange crits (${fmt((stats.critChance - Math.floor(stats.critChance)) * 100, 0)}% red per ${damageUnit})`
+                                                        : `${fmt(stats.critChance * 100, 1)}% crit — guaranteed yellow crits (${fmt((stats.critChance - 1) * 100, 0)}% orange per ${damageUnit})`}
                                                 </div>
                                             )}
                                             <div className="text-[10px] text-slate-600">
-                                                Average crit tier: <span className="font-mono text-slate-300">{stats.averageCritTier.toFixed(2)}x</span>
+                                                Average crit tier: <span className="font-mono text-slate-300">{stats.averageCritTier.toFixed(2)}x</span>{" "}
+                                                <span className="text-slate-500">expected crit level per {damageUnit}</span>
                                             </div>
                                         </div>
                                     );
@@ -3107,35 +3726,13 @@ export default function ModBuilder() {
                                             )}
                                         </div>
 
-                                        {hasMultipleAttacks ? (
-                                            /* Show stats for every attack */
-                                            <div className="space-y-3">
-                                                {weapon.attacks.map((atk, i) => renderAttackStats(i, atk.name))}
-                                            </div>
-                                        ) : (
-                                            /* Single attack weapon */
-                                            renderAttackStats(0)
+                                        {renderAttackStats(
+                                            hasMultipleAttacks ? selectedAttackIdx : 0,
+                                            hasMultipleAttacks ? weapon.attacks[selectedAttackIdx]?.name : undefined,
                                         )}
                                     </div>
                                 );
                             })()}
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-                                        <div className="text-sm font-semibold mb-3">Build Utilities</div>
-                                        <div className="text-[10px] text-slate-600 mb-3">
-                                            Copy the current build snapshot for comparisons with other tools, or switch tabs to manage owned mods, exclusions, and saved builds.
-                                        </div>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {(["saves","owned","ownedArcanes","exclude"] as const).map(t => (
-                                                <button key={t} onClick={() => setTab(t)}
-                                                    className="rounded-full px-3 py-1 text-xs border border-slate-700 text-slate-300 hover:border-slate-500">
-                                                    {t === "saves" ? "Saved Builds" : t === "owned" ? "Owned Mods" : t === "ownedArcanes" ? "Owned Arcanes" : `Excluded${excluded.size ? ` (${excluded.size})` : ""}`}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 

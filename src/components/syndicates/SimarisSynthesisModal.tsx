@@ -2,7 +2,7 @@
 // Cephalon Simaris synthesis target database — location guide for all synthesis targets.
 
 import { useMemo, useState } from "react";
-import { SYNTHESIS_TARGETS, SYNTHESIS_TIPS, type SynthesisTarget } from "../../data/synthesisTargets";
+import { SYNTHESIS_TARGETS, SYNTHESIS_TIPS, type SynthesisTarget } from "../../../external/steam-guide/synthesisTargets";
 
 // ─── Types & helpers ──────────────────────────────────────────────────────────
 

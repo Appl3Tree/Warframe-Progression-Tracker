@@ -13,7 +13,7 @@
 // when the selected weapon's name matches the compat name.
 
 import ALL_RAW from "../../../external/warframe-items/raw/All.json";
-import MODS_RAW from "../../data/mods.json";
+import MODS_RAW from "../../data/_generated/mods-lean.auto.json";
 import type { ModCompatName, WeaponEntry } from "./weaponCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];
@@ -56,6 +56,9 @@ export interface ModEffect {
     viralBonus: number;
     corrosiveBonus: number;
     radiationBonus: number;
+    voidBonus: number;
+    tauBonus: number;
+    trueBonus: number;
     critChanceBonus: number;
     critMultBonus: number;
     statusChanceBonus: number;
@@ -145,6 +148,9 @@ export interface ConditionalEffect {
         | "gasBonus"
         | "viralBonus"
         | "corrosiveBonus"
+        | "voidBonus"
+        | "tauBonus"
+        | "trueBonus"
         | "ammoEfficiencyBonus"
         | "directDamagePerStatusBonus"
     >>;
@@ -274,6 +280,9 @@ function parseTriggeredStatLine(raw: string): Partial<ModEffect> {
         "coldBonus",
         "toxinBonus",
         "radiationBonus",
+        "voidBonus",
+        "tauBonus",
+        "trueBonus",
         "magneticBonus",
         "gasBonus",
         "viralBonus",
@@ -385,6 +394,9 @@ function parseStatLine(raw: string, options?: { applyStackMultiplier?: boolean }
     if (rest === "viral") return { viralBonus: scaled };
     if (rest === "corrosive") return { corrosiveBonus: scaled };
     if (rest === "radiation") return { radiationBonus: scaled };
+    if (rest === "void") return { voidBonus: scaled };
+    if (rest === "tau") return { tauBonus: scaled };
+    if (rest === "true") return { trueBonus: scaled };
     if (rest === "impact") return { impactBonus: scaled };
     if (rest === "puncture") return { punctureBonus: scaled };
     if (rest === "slash") return { slashBonus: scaled };
@@ -475,6 +487,7 @@ export function emptyEffect(): ModEffect {
         damageBonus: 0, impactBonus: 0, punctureBonus: 0, slashBonus: 0,
         heatBonus: 0, coldBonus: 0, electricityBonus: 0, toxinBonus: 0,
         blastBonus: 0, gasBonus: 0, magneticBonus: 0, viralBonus: 0, corrosiveBonus: 0, radiationBonus: 0,
+        voidBonus: 0, tauBonus: 0, trueBonus: 0,
         critChanceBonus: 0, critMultBonus: 0, statusChanceBonus: 0,
         multishotBonus: 0, fireRateBonus: 0, magazineBonus: 0,
         reloadSpeedBonus: 0, attackSpeedBonus: 0,

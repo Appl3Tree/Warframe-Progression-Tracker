@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
-import MODS_RAW from "../data/mods.json";
+import MODS_RAW from "../data/_generated/mods-lean.auto.json";
 import ALL_RAW from "../../external/warframe-items/raw/All.json";
 
 // Rivens: filter from All.json (replaces rivens.json — more entries)

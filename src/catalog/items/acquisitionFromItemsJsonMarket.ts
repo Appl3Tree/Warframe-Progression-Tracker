@@ -3,7 +3,7 @@
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import type { AcquisitionDef } from "./acquisitionFromSources";
 
-import ITEMS_JSON from "../../data/items.json";
+import ITEMS_JSON from "../../data/_generated/items-lean.auto.json";
 
 /**
  * Market acquisition derived from items.json storeData-like fields.

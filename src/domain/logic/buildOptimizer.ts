@@ -14,7 +14,7 @@ import type { ModEntry, ModEffect } from "../catalog/modCatalog";
 import { emptyEffect, getModsForWeapon } from "../catalog/modCatalog";
 import type { ArcaneEntry } from "../catalog/arcaneCatalog";
 import { getArcanesByWeaponCategory } from "../catalog/arcaneCatalog";
-import { calculateBuild, avgCritMultiplier, estimateConditionalUptime } from "./damageCalc";
+import { calculateBuild, avgCritMultiplier, estimateConditionalStackFactor, estimateConditionalUptime } from "./damageCalc";
 import { computeCapacity, effectiveDrain, type CapacityConfig, type SlotConfig } from "./capacityCalc";
 
 export type OptimizeGoal = "burst" | "scaling" | "crit" | "status";
@@ -133,6 +133,24 @@ const PROC_DAMAGE_KEYS = [
     "impact", "puncture", "slash",
     "heat", "cold", "electricity", "toxin",
     "blast", "radiation", "gas", "magnetic", "viral", "corrosive",
+    "void", "tau", "true",
+] as const;
+
+export const CANONICAL_FACTIONS = [
+    "Grineer",
+    "Kuva Grineer",
+    "Corpus",
+    "Corpus Amalgam",
+    "Infested",
+    "Infested Deimos",
+    "Orokin",
+    "Sentient",
+    "Narmer",
+    "The Murmur",
+    "Zariman",
+    "Scaldra (1999)",
+    "Techrot (1999)",
+    "Anarchs",
 ] as const;
 
 interface TargetProfile {
@@ -144,6 +162,122 @@ interface TargetProfile {
     healthMaterial: "flesh" | "clonedFlesh" | "infestedFlesh" | "machinery" | "robotic";
     armorMaterial: "" | "ferriteArmor" | "alloyArmor";
     shieldMaterial: "" | "shield" | "protoShield";
+}
+
+const FACTION_DAMAGE_MODIFIERS: Partial<Record<string, Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>>>> = {
+    grineer: {
+        corrosive: 0.5,
+        impact: 0.5,
+    },
+    "kuva grineer": {
+        impact: 0.5,
+        corrosive: 0.5,
+        heat: -0.5,
+        magnetic: -0.5,
+        viral: -0.5,
+    },
+    corpus: {
+        magnetic: 0.5,
+        puncture: 0.5,
+        radiation: -0.5,
+    },
+    "corpus amalgam": {
+        magnetic: 0.5,
+        electricity: 0.5,
+        blast: -0.5,
+    },
+    infested: {
+        heat: 0.5,
+        slash: 0.5,
+    },
+    "infested deimos": {
+        corrosive: 0.5,
+        blast: 0.5,
+        gas: 0.5,
+        viral: -0.5,
+    },
+    "deimos infested": {
+        corrosive: 0.5,
+        blast: 0.5,
+        gas: 0.5,
+        viral: -0.5,
+    },
+    orokin: {
+        puncture: 0.5,
+        viral: 0.5,
+        radiation: -0.5,
+    },
+    "the murmur": {
+        radiation: 0.5,
+        electricity: 0.5,
+        viral: -0.5,
+    },
+    zariman: {
+        void: 0.5,
+    },
+    sentient: {
+        radiation: 0.5,
+        cold: 0.5,
+        corrosive: -0.5,
+    },
+    narmer: {
+        slash: 0.5,
+        toxin: 0.5,
+        magnetic: -0.5,
+    },
+    techrot: {
+        electricity: 0.5,
+        magnetic: 0.5,
+        gas: 0.5,
+        cold: -0.5,
+        radiation: -0.5,
+    },
+    "techrot (1999)": {
+        electricity: 0.5,
+        magnetic: 0.5,
+        gas: 0.5,
+        cold: -0.5,
+        radiation: -0.5,
+    },
+    scaldra: {
+        corrosive: 0.5,
+        impact: 0.5,
+        gas: -0.5,
+    },
+    "scaldra (1999)": {
+        corrosive: 0.5,
+        impact: 0.5,
+        gas: -0.5,
+    },
+    anarchs: {
+        impact: 0.5,
+        electricity: 0.5,
+    },
+};
+
+function factionSignature(faction: string): string {
+    const damageMods = FACTION_DAMAGE_MODIFIERS[faction.toLowerCase()] ?? {};
+    return PROC_DAMAGE_KEYS
+        .map((key) => `${key}:${damageMods[key] ?? 0}`)
+        .join("|");
+}
+
+export interface FactionFocusOption {
+    label: string;
+    value: string;
+}
+
+export function getFactionFocusOptions(): FactionFocusOption[] {
+    const grouped = new Map<string, string[]>();
+    for (const faction of CANONICAL_FACTIONS) {
+        const signature = factionSignature(faction);
+        if (!grouped.has(signature)) grouped.set(signature, []);
+        grouped.get(signature)!.push(faction);
+    }
+    return [...grouped.values()].map((group) => ({
+        label: group.join(" / "),
+        value: group[0],
+    }));
 }
 
 function getTargetProfile(targetFaction: string): TargetProfile {
@@ -170,6 +304,17 @@ function getTargetProfile(targetFaction: string): TargetProfile {
                 armorMaterial: "",
                 shieldMaterial: "shield",
             };
+        case "corpus amalgam":
+            return {
+                armor: 450,
+                healthShare: 0.7,
+                shieldShare: 0.3,
+                grouped: false,
+                effectiveHealth: 20000,
+                healthMaterial: "robotic",
+                armorMaterial: "alloyArmor",
+                shieldMaterial: "shield",
+            };
         case "infested":
             return {
                 armor: 0,
@@ -179,6 +324,18 @@ function getTargetProfile(targetFaction: string): TargetProfile {
                 effectiveHealth: 16000,
                 healthMaterial: "infestedFlesh",
                 armorMaterial: "",
+                shieldMaterial: "",
+            };
+        case "infested deimos":
+        case "deimos infested":
+            return {
+                armor: 400,
+                healthShare: 1,
+                shieldShare: 0,
+                grouped: true,
+                effectiveHealth: 18000,
+                healthMaterial: "infestedFlesh",
+                armorMaterial: "ferriteArmor",
                 shieldMaterial: "",
             };
         case "orokin":
@@ -203,6 +360,85 @@ function getTargetProfile(targetFaction: string): TargetProfile {
                 armorMaterial: "alloyArmor",
                 shieldMaterial: "",
             };
+        case "zariman":
+            return {
+                armor: 800,
+                healthShare: 0.8,
+                shieldShare: 0.2,
+                grouped: false,
+                effectiveHealth: 23000,
+                healthMaterial: "flesh",
+                armorMaterial: "alloyArmor",
+                shieldMaterial: "protoShield",
+            };
+        case "kuva grineer":
+            return {
+                armor: 3200,
+                healthShare: 1,
+                shieldShare: 0,
+                grouped: false,
+                effectiveHealth: 28000,
+                healthMaterial: "clonedFlesh",
+                armorMaterial: "ferriteArmor",
+                shieldMaterial: "",
+            };
+        case "sentient":
+            return {
+                armor: 900,
+                healthShare: 0.85,
+                shieldShare: 0.15,
+                grouped: false,
+                effectiveHealth: 24000,
+                healthMaterial: "robotic",
+                armorMaterial: "alloyArmor",
+                shieldMaterial: "protoShield",
+            };
+        case "narmer":
+            return {
+                armor: 700,
+                healthShare: 0.7,
+                shieldShare: 0.3,
+                grouped: false,
+                effectiveHealth: 22000,
+                healthMaterial: "flesh",
+                armorMaterial: "alloyArmor",
+                shieldMaterial: "protoShield",
+            };
+        case "techrot":
+        case "techrot (1999)":
+            return {
+                armor: 0,
+                healthShare: 0.85,
+                shieldShare: 0.15,
+                grouped: true,
+                effectiveHealth: 18500,
+                healthMaterial: "infestedFlesh",
+                armorMaterial: "",
+                shieldMaterial: "shield",
+            };
+        case "scaldra":
+        case "scaldra (1999)":
+            return {
+                armor: 2200,
+                healthShare: 1,
+                shieldShare: 0,
+                grouped: false,
+                effectiveHealth: 24000,
+                healthMaterial: "clonedFlesh",
+                armorMaterial: "ferriteArmor",
+                shieldMaterial: "",
+            };
+        case "anarchs":
+            return {
+                armor: 500,
+                healthShare: 0.85,
+                shieldShare: 0.15,
+                grouped: false,
+                effectiveHealth: 21000,
+                healthMaterial: "flesh",
+                armorMaterial: "alloyArmor",
+                shieldMaterial: "shield",
+            };
         default:
             return {
                 armor: 0,
@@ -217,100 +453,23 @@ function getTargetProfile(targetFaction: string): TargetProfile {
     }
 }
 
-const HEALTH_TYPE_MODIFIERS: Partial<Record<TargetProfile["healthMaterial"], Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>>>> = {
-    flesh: {
-        impact: 0.25,
-        slash: -0.25,
-        toxin: 0.5,
-        viral: 0.5,
-        gas: -0.25,
-    },
-    clonedFlesh: {
-        slash: 0.25,
-        heat: 0.25,
-        viral: 0.75,
-        gas: -0.5,
-    },
-    infestedFlesh: {
-        slash: 0.25,
-        heat: 0.5,
-        gas: 0.75,
-        radiation: -0.5,
-        viral: -0.5,
-    },
-    machinery: {
-        electricity: 0.5,
-        toxin: -0.25,
-        blast: 0.75,
-        viral: -0.25,
-    },
-    robotic: {
-        puncture: 0.25,
-        electricity: 0.5,
-        toxin: -0.25,
-        radiation: 0.25,
-    },
-};
-
-const ARMOR_TYPE_MODIFIERS: Partial<Record<Exclude<TargetProfile["armorMaterial"], "">, Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>>>> = {
-    ferriteArmor: {
-        puncture: 0.5,
-        slash: -0.15,
-        blast: -0.25,
-        corrosive: 0.75,
-    },
-    alloyArmor: {
-        puncture: 0.15,
-        slash: -0.5,
-        cold: 0.25,
-        electricity: -0.5,
-        magnetic: -0.5,
-        radiation: 0.75,
-    },
-};
-
-const SHIELD_TYPE_MODIFIERS: Partial<Record<Exclude<TargetProfile["shieldMaterial"], "">, Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>>>> = {
-    shield: {
-        impact: 0.5,
-        puncture: -0.2,
-        cold: 0.5,
-        magnetic: 0.75,
-        radiation: -0.25,
-    },
-    protoShield: {
-        impact: 0.15,
-        puncture: 0.5,
-        heat: -0.5,
-        corrosive: -0.5,
-        magnetic: 0.75,
-    },
-};
-
-function typeMaterialModifier(
-    damageType: typeof PROC_DAMAGE_KEYS[number],
-    table: Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>> | undefined,
-): number {
-    return 1 + (table?.[damageType] ?? 0);
-}
-
 function directDamageTypeMultiplier(
     damageType: typeof PROC_DAMAGE_KEYS[number],
+    targetFaction: string,
     target: TargetProfile,
     effectiveArmorMultiplier: number,
     viralHealthDamageBonus: number,
     magneticShieldDamageBonus: number,
 ): number {
+    const factionModifier = 1 + (FACTION_DAMAGE_MODIFIERS[targetFaction.toLowerCase()]?.[damageType] ?? 0);
     const healthModifier =
         target.healthShare *
-        typeMaterialModifier(damageType, HEALTH_TYPE_MODIFIERS[target.healthMaterial]) *
-        typeMaterialModifier(damageType, target.armorMaterial ? ARMOR_TYPE_MODIFIERS[target.armorMaterial] : undefined) *
         effectiveArmorMultiplier *
         (1 + viralHealthDamageBonus);
     const shieldModifier =
         target.shieldShare *
-        typeMaterialModifier(damageType, target.shieldMaterial ? SHIELD_TYPE_MODIFIERS[target.shieldMaterial] : undefined) *
         (1 + magneticShieldDamageBonus);
-    return healthModifier + shieldModifier;
+    return factionModifier * (healthModifier + shieldModifier);
 }
 
 function armorDamageMultiplier(armor: number): number {
@@ -350,7 +509,7 @@ function scoreEffects(
         ? { ...emptyEffect(), ...arcaneEffect, conditionalEffects: [...(arcaneEffect.conditionalEffects ?? [])] }
         : null;
     const allEffects = normalizedArcaneEffect ? [...effects, normalizedArcaneEffect] : effects;
-    const { modded, sustainedDPS } = calculateBuild(weapon, allEffects, targetFaction);
+    const { modded, burstDPS, sustainedDPS } = calculateBuild(weapon, allEffects, targetFaction);
     let statusDurationBonus = 0;
     let statusDamageBonus = 0;
     let projectileSpeedBonus = 0;
@@ -400,17 +559,23 @@ function scoreEffects(
     const baselineFireRate = weapon.fireRate * (1 + (weapon.category === "Melee" ? 0 : 0));
     const baselineMagazineSize = Math.max(1, Math.round(weapon.magazineSize));
     for (const conditional of conditionalEffects) {
-        const uptime = estimateConditionalUptime(conditional, baselineFireRate, baselineMagazineSize);
-        ammoEfficiencyBonus += (conditional.stats.ammoEfficiencyBonus ?? 0) * uptime;
-        directDamagePerStatusBonus += (conditional.stats.directDamagePerStatusBonus ?? 0) * uptime;
+        const factor =
+            estimateConditionalUptime(conditional, baselineFireRate, baselineMagazineSize) *
+            estimateConditionalStackFactor(conditional, baselineFireRate, baselineMagazineSize);
+        ammoEfficiencyBonus += (conditional.stats.ammoEfficiencyBonus ?? 0) * factor;
+        directDamagePerStatusBonus += (conditional.stats.directDamagePerStatusBonus ?? 0) * factor;
     }
 
+    const target = getTargetProfile(targetFaction);
+    const magneticUtilityWeight = target.shieldShare > 0
+        ? modded.magneticShieldDamageBonus * (0.08 + target.shieldShare * 0.12)
+        : 0;
     const statusWeight =
         modded.dotDps / Math.max(1, sustainedDPS) +
         modded.viralHealthDamageBonus * 0.3 +
         modded.heatArmorStrip * 0.25 +
         modded.corrosiveArmorStrip * 0.3 +
-        modded.magneticShieldDamageBonus * 0.15 +
+        magneticUtilityWeight +
         modded.coldSlow * 0.08 +
         modded.coldCritDamageBonus * 0.12 +
         modded.punctureEnemyDamageReduction * 0.08 +
@@ -441,19 +606,19 @@ function scoreEffects(
         ammoEfficiencyBonus * 0.12 +
         finalStatusChanceBonus * 0.2;
     const utilityWeight = sharedUtility + (weapon.category === "Melee" ? meleeUtility : rangedUtility);
-    const estimatedStatusTypes =
-        PROC_DAMAGE_KEYS.reduce((count, key) => count + ((modded.procChanceByType[key] ?? 0) > 0.02 ? 1 : 0), 0) +
-        Object.values(modded.extraProcsPerShot).reduce((count, value) => count + ((value ?? 0) > 0.01 ? 1 : 0), 0);
-    const directDamagePerStatusWeight = directDamagePerStatusBonus * Math.max(1, Math.min(6, estimatedStatusTypes));
-    const target = getTargetProfile(targetFaction);
     const combinedArmorStrip = 1 - ((1 - modded.heatArmorStrip) * (1 - modded.corrosiveArmorStrip));
     const strippedArmor = target.armor * Math.max(0, 1 - combinedArmorStrip);
     const effectiveArmorMultiplier = armorDamageMultiplier(strippedArmor);
-    const activeStatusTypes = Math.max(
+    const effectiveStatusTypes = Math.max(
         1,
-        Object.entries(modded.expectedStacksByType).reduce((count, [, value]) => count + ((value ?? 0) >= 0.25 ? 1 : 0), 0),
+        Object.entries(modded.expectedStacksByType).reduce((count, [key, value]) => {
+            if ((value ?? 0) < 0.25) return count;
+            if (key === "magnetic" && target.shieldShare <= 0) return count;
+            return count + 1;
+        }, 0),
     );
-    const directDamagePerStatusMultiplier = 1 + directDamagePerStatusBonus * activeStatusTypes;
+    const directDamagePerStatusWeight = directDamagePerStatusBonus * effectiveStatusTypes;
+    const directDamagePerStatusMultiplier = 1 + directDamagePerStatusBonus * effectiveStatusTypes;
     const directTypeWeightTotal = PROC_DAMAGE_KEYS.reduce(
         (sum, key) => sum + (modded.damageBreakdown[key] ?? 0),
         0,
@@ -464,6 +629,7 @@ function scoreEffects(
             if (share <= 0) return sum;
             let typeMultiplier = directDamageTypeMultiplier(
                 key,
+                targetFaction,
                 target,
                 effectiveArmorMultiplier,
                 modded.viralHealthDamageBonus,
@@ -476,6 +642,9 @@ function scoreEffects(
             return sum + share * typeMultiplier;
         }, 0)
         : 1;
+    const adjustedBurstDirectDps = burstDPS *
+        Math.max(0.1, targetAdjustedDirectMultiplier) *
+        directDamagePerStatusMultiplier;
     const adjustedDirectDps = sustainedDPS *
         Math.max(0.1, targetAdjustedDirectMultiplier) *
         directDamagePerStatusMultiplier;
@@ -510,21 +679,25 @@ function scoreEffects(
         : 1;
     const punctureCritGain = avgCritMultiplier(modded.critChance + modded.punctureCritChanceBonus, modded.critMultiplier) /
         Math.max(1, avgCritMultiplier(modded.critChance, modded.critMultiplier));
-    const targetAdjustedDamageScore =
-        ((adjustedDirectDps * coldCritMultiplierGain * punctureCritGain) + adjustedDotDps + blastUtilityDps) *
-        (1 + gasUtility);
+    const burstDamageScore =
+        (
+            adjustedBurstDirectDps * coldCritMultiplierGain * punctureCritGain +
+            adjustedDotDps * 0.08 +
+            blastUtilityDps * 0.45
+        ) *
+        (1 + gasUtility * 0.18);
 
     const burstScore =
-        targetAdjustedDamageScore *
-        (1 + directDamagePerStatusWeight * 0.35 + utilityWeight * 0.25);
+        burstDamageScore *
+        (1 + directDamagePerStatusWeight * 0.05 + utilityWeight * 0.08 + modded.averageProcsPerShot * 0.02);
     const scalingScore =
         (
-            adjustedDirectDps * (1 + directDamagePerStatusWeight * 0.45) +
+            adjustedDirectDps * (1 + directDamagePerStatusWeight * 0.12) +
             adjustedDotDps * 1.35 +
             blastUtilityDps * 0.85
         ) *
         (1 + statusWeight * 0.9 + finalStatusChanceBonus * 0.45 + utilityWeight * 0.22) *
-        (1 + modded.averageProcsPerShot * 0.28 + statusDamageBonus * 0.35 + statusDurationBonus * 0.18);
+        (1 + modded.averageProcsPerShot * 0.2 + statusDamageBonus * 0.35 + statusDurationBonus * 0.18 + directDamagePerStatusWeight * 0.05);
 
     switch (goal) {
         case "burst":    return burstScore;

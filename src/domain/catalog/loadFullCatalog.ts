@@ -2,9 +2,9 @@
 // src/domain/catalog/loadFullCatalog.ts
 
 import wfcdItemsJson from "../../data/_generated/wfcd-items.byCatalogId.auto.json";
-import lotusItemsJson from "../../data/items.json";
+import lotusItemsJson from "../../data/_generated/items-lean.auto.json";
 
-import modsJson from "../../data/mods.json";
+import modsJson from "../../data/_generated/mods-lean.auto.json";
 
 // External raw sources replacing former src/data/ files
 import WARFRAMES_RAW from "../../../external/warframe-items/raw/Warframes.json";

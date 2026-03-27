@@ -11,6 +11,7 @@
     "deploy": "gh-pages -d dist",
     "predeploy": "npm run build",
     "validate:sources": "tsx ./scripts/validateSources.cli.ts",
+    "generate:data": "tsx scripts/generate/generateLeanItems.ts && tsx scripts/generate/generateLeanMods.ts && tsx scripts/generate/generateWfcdItems.ts && tsx scripts/generate/generateWfcdRequirements.ts && tsx scripts/generate/generateRelicMissionIndex.ts && tsx scripts/generate/generateWfcdAcquisition.ts && tsx scripts/generate/generateSourceLabelMap.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
