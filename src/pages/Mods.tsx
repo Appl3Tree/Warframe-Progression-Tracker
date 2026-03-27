@@ -2,23 +2,16 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
+import { getWeaponCatalog } from "../domain/catalog/weaponCatalog";
+import { CUSTOM_RIVEN_STAT_DEFS, buildCustomRivenEntry, formatRivenStatValue, generateCustomRivenName, getCustomRivenStatDef, getCustomRivenStatDefsForWeapon, normalizeRivenWeaponFamilyKey, type CustomRivenRecord as CustomRivenInventoryRecord, type CustomRivenStatValue } from "../domain/rivens";
 import MODS_RAW from "../data/_generated/mods-lean.auto.json";
 import ALL_RAW from "../../external/warframe-items/raw/All.json";
-
-// Rivens: filter from All.json (replaces rivens.json — more entries)
-const RIVENS_RAW: Record<string, any> = (() => {
-  const out: Record<string, any> = {};
-  for (const item of ALL_RAW as any[]) {
-    if (item.uniqueName && String(item.uniqueName).includes("/Randomized/")) {
-      out[item.uniqueName] = item;
-    }
-  }
-  return out;
-})();
 
 // Mod descriptions: covered by All.json levelStats; legacy file no longer needed
 const MODDESC_RAW: Record<string, any> = {};
 import MOD_LOCATIONS_RAW from "../../external/warframe-drop-data/raw/modLocations.json";
+
+const EMPTY_CUSTOM_RIVENS: CustomRivenInventoryRecord[] = [];
 
 // Build a lookup from All.json keyed by uniqueName — includes Mods + Arcanes
 interface AllModDrop {
@@ -60,6 +53,76 @@ function formatReleaseDate(date: string | undefined): string | undefined {
   if (!date) return undefined;
   if (date <= VANILLA_CUTOFF) return "Vanilla";
   return date;
+}
+
+function getSupplementalRivenWeapons() {
+  const out = new Map<string, ReturnType<typeof getWeaponCatalog>[number]>();
+  for (const raw of ALL_RAW as Array<Record<string, unknown>>) {
+    const name = String(raw.name ?? "");
+    const uniqueName = String(raw.uniqueName ?? "");
+    const disposition = Number(raw.omegaAttenuation ?? 0);
+    const category = String(raw.category ?? "");
+    const type = String(raw.type ?? "");
+    const lowerUniqueName = uniqueName.toLowerCase();
+
+    const looksLikeKitgunChamber =
+      category === "Misc" &&
+      disposition > 0 &&
+      (lowerUniqueName.includes("/barrel/") || lowerUniqueName.includes("/barrels/")) &&
+      (lowerUniqueName.includes("/solarisunited/") || lowerUniqueName.includes("/infested/"));
+
+    if (!looksLikeKitgunChamber || !name) continue;
+
+    const weaponCategory =
+      type.toLowerCase() === "rifle" || type.toLowerCase() === "primary"
+        ? "Primary"
+        : "Secondary";
+
+    out.set(uniqueName, {
+      uniqueName,
+      name,
+      category: weaponCategory,
+      weaponType: weaponCategory === "Primary" ? "Rifle" : "Pistol",
+      modCompat: weaponCategory === "Primary" ? "Rifle" : "Pistol",
+      damage: {
+        total: 0,
+        impact: 0,
+        puncture: 0,
+        slash: 0,
+        heat: 0,
+        cold: 0,
+        electricity: 0,
+        toxin: 0,
+        blast: 0,
+        radiation: 0,
+        gas: 0,
+        magnetic: 0,
+        viral: 0,
+        corrosive: 0,
+        void: 0,
+        tau: 0,
+        true: 0,
+      },
+      critChance: 0,
+      critMultiplier: 1.5,
+      statusChance: 0,
+      fireRate: 1,
+      magazineSize: 1,
+      hasExplicitMagazineSize: false,
+      reloadTime: 0,
+      multishot: 1,
+      trigger: "Auto",
+      chargeTime: null,
+      polarities: [],
+      canOverLevel: false,
+      baseSlotCount: 8,
+      disposition,
+      attacks: [],
+      tags: [],
+      isProgenitorWeapon: false,
+    });
+  }
+  return [...out.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 type ModSortKey = "az" | "release-newest" | "release-oldest" | "rarity-asc" | "rarity-desc" | "rank-asc" | "rank-desc";
@@ -859,13 +922,6 @@ const ARCANE_ENTRIES: ModEntry[] = ALL_ENTRIES.filter(
       e.data?.ItemCompatibility === "/Lotus/Powersuits/Operator/OperatorSuit"),
 );
 
-// Rivens from rivens.json
-const RIVEN_ENTRIES: ModEntry[] = Object.entries(
-  RIVENS_RAW as Record<string, any>,
-)
-  .map(([path, val]) => ({ path, ...val }) as ModEntry)
-  .filter((e) => e.name);
-
 // Arcane total needed per rank: triangular numbers
 // Also the "equivalent rank-0 copy count" for a ranked arcane.
 const ARCANE_TOTAL_PER_RANK: Record<number, number> = {
@@ -943,6 +999,549 @@ function SubPill({
     >
       {label}
     </button>
+  );
+}
+
+function makeRivenId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `riven_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function formatCustomRivenStatsLabel(stats: CustomRivenStatValue[]): string {
+  return stats
+    .filter((stat) => stat.value !== 0)
+    .map((stat) => {
+      const definition = getCustomRivenStatDef(stat.stat);
+      if (!definition) return `${stat.value > 0 ? "+" : ""}${stat.value.toFixed(1)} ${stat.stat}`;
+      return formatRivenStatValue(definition, stat.value);
+    })
+    .join("  ·  ");
+}
+
+function CustomRivenModal({
+  open,
+  initial,
+  onClose,
+  onSave,
+}: {
+  open: boolean;
+  initial: CustomRivenInventoryRecord | null;
+  onClose: () => void;
+  onSave: (record: CustomRivenInventoryRecord) => void;
+}) {
+  const eligibleWeapons = useMemo(
+    () => {
+      const combined = new Map<string, ReturnType<typeof getWeaponCatalog>[number]>();
+      for (const weapon of getWeaponCatalog().filter((entry) => !entry.isExalted && entry.disposition > 0)) {
+        combined.set(weapon.uniqueName, weapon);
+      }
+      for (const weapon of getSupplementalRivenWeapons()) {
+        if (!combined.has(weapon.uniqueName)) combined.set(weapon.uniqueName, weapon);
+      }
+      return [...combined.values()].sort((a, b) => a.name.localeCompare(b.name));
+    },
+    [],
+  );
+  const [weaponUniqueName, setWeaponUniqueName] = useState("");
+  const [weaponQuery, setWeaponQuery] = useState("");
+  const [weaponPickerOpen, setWeaponPickerOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [nameDirty, setNameDirty] = useState(false);
+  const [drain, setDrain] = useState(16);
+  const [polarity, setPolarity] = useState("");
+  const [polarityPickerOpen, setPolarityPickerOpen] = useState(false);
+  const [stats, setStats] = useState<CustomRivenStatValue[]>([
+    { stat: "damage", value: 0 },
+    { stat: "criticalChance", value: 0 },
+  ]);
+  const [statQueries, setStatQueries] = useState(["Damage", "Critical Chance"]);
+  const [openStatPickerIndex, setOpenStatPickerIndex] = useState<number | null>(null);
+  const [statSigns, setStatSigns] = useState<Array<1 | -1>>([1, 1]);
+  const initialId = initial?.id ?? null;
+  const initialUpdatedAtIso = initial?.updatedAtIso ?? null;
+  const defaultWeaponUniqueName = eligibleWeapons[0]?.uniqueName ?? "";
+  const weaponPickerRef = useRef<HTMLDivElement | null>(null);
+  const polarityPickerRef = useRef<HTMLDivElement | null>(null);
+  const statPickerRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (initial) {
+      setWeaponUniqueName(initial.sourceWeaponUniqueName);
+      setWeaponQuery(initial.sourceWeaponName);
+      setWeaponPickerOpen(false);
+      setPolarityPickerOpen(false);
+      setName(initial.name);
+      setNameDirty(true);
+      setDrain(initial.drain);
+      setPolarity(initial.polarity);
+      setStats(
+        initial.stats.length > 0
+          ? initial.stats.map((stat) => ({ ...stat, stat: getCustomRivenStatDef(stat.stat)?.key ?? stat.stat }))
+          : [{ stat: "damage", value: 0 }, { stat: "criticalChance", value: 0 }],
+      );
+      setStatQueries(
+        initial.stats.length > 0
+          ? initial.stats.map((stat) => getCustomRivenStatDef(stat.stat)?.label ?? stat.stat)
+          : ["Damage", "Critical Chance"],
+      );
+      setOpenStatPickerIndex(null);
+      setStatSigns(
+        (initial.stats.length > 0
+          ? initial.stats.map((stat) => (stat.value < 0 ? -1 : 1))
+          : [1, 1]) as Array<1 | -1>,
+      );
+      return;
+    }
+    setWeaponUniqueName(defaultWeaponUniqueName);
+    setWeaponQuery(eligibleWeapons.find((weapon) => weapon.uniqueName === defaultWeaponUniqueName)?.name ?? "");
+    setWeaponPickerOpen(false);
+    setPolarityPickerOpen(false);
+    setNameDirty(false);
+    setName("");
+    setDrain(16);
+    setPolarity("");
+    setStats([
+      { stat: "damage", value: 0 },
+      { stat: "criticalChance", value: 0 },
+    ]);
+    setStatQueries(["Damage", "Critical Chance"]);
+    setOpenStatPickerIndex(null);
+    setStatSigns([1, 1]);
+  }, [open, initialId, initialUpdatedAtIso, defaultWeaponUniqueName, eligibleWeapons]);
+
+  const selectedWeapon = eligibleWeapons.find((weapon) => weapon.uniqueName === weaponUniqueName) ?? null;
+  const filteredWeapons = useMemo(() => {
+    const query = weaponQuery.trim().toLowerCase();
+    if (!query) return eligibleWeapons.slice(0, 40);
+    const direct = eligibleWeapons.filter((weapon) => weapon.name.toLowerCase().includes(query));
+    return direct.slice(0, 40);
+  }, [eligibleWeapons, weaponQuery]);
+  const availableStats = getCustomRivenStatDefsForWeapon(selectedWeapon);
+  const generatedName = useMemo(
+    () => (selectedWeapon ? generateCustomRivenName(selectedWeapon.name, stats) : ""),
+    [selectedWeapon, stats],
+  );
+  const saveDisabled = !selectedWeapon || !name.trim() || stats.filter((stat) => stat.value !== 0).length === 0;
+
+  useEffect(() => {
+    if (!open || !weaponPickerOpen) return;
+    function handlePointerDown(event: MouseEvent) {
+      if (!weaponPickerRef.current?.contains(event.target as Node)) setWeaponPickerOpen(false);
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [open, weaponPickerOpen]);
+
+  useEffect(() => {
+    if (!open || !polarityPickerOpen) return;
+    function handlePointerDown(event: MouseEvent) {
+      if (!polarityPickerRef.current?.contains(event.target as Node)) setPolarityPickerOpen(false);
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [open, polarityPickerOpen]);
+
+  useEffect(() => {
+    if (!open || openStatPickerIndex === null) return;
+    const activeIndex = openStatPickerIndex;
+    function handlePointerDown(event: MouseEvent) {
+      const activeRef = statPickerRefs.current[activeIndex];
+      if (!activeRef?.contains(event.target as Node)) setOpenStatPickerIndex(null);
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [open, openStatPickerIndex]);
+
+  useEffect(() => {
+    if (!open || nameDirty || !generatedName || name === generatedName) return;
+    setName(generatedName);
+  }, [generatedName, name, nameDirty, open]);
+
+  function updateStat(index: number, next: Partial<CustomRivenStatValue>) {
+    setStats((prev) =>
+      prev.map((stat, i) => {
+        if (i !== index) return stat;
+        const updated = { ...stat, ...next };
+        const definition = getCustomRivenStatDef(updated.stat);
+        if (definition && !definition.canBeNegative && updated.value < 0) updated.value = Math.abs(updated.value);
+        return updated;
+      }),
+    );
+  }
+
+  function updateStatQuery(index: number, query: string) {
+    setStatQueries((prev) => prev.map((entry, i) => (i === index ? query : entry)));
+  }
+
+  function updateStatSign(index: number, nextSign: 1 | -1) {
+    setStatSigns((prev) => prev.map((sign, i) => (i === index ? nextSign : sign)));
+    setStats((prev) =>
+      prev.map((stat, i) => {
+        if (i !== index) return stat;
+        const definition = getCustomRivenStatDef(stat.stat);
+        if (!definition || !definition.canBeNegative || definition.unit === "multiplier") return stat;
+        return { ...stat, value: stat.value === 0 ? 0 : Math.abs(stat.value) * nextSign };
+      }),
+    );
+  }
+
+  function addStat() {
+    const used = new Set(stats.map((stat) => getCustomRivenStatDef(stat.stat)?.key ?? stat.stat));
+    const fallback = availableStats.find((definition) => !used.has(definition.key))?.key ?? availableStats[0]?.key ?? CUSTOM_RIVEN_STAT_DEFS[0]?.key ?? "damage";
+    if (stats.length < 4) {
+      setStats((prev) => [...prev, { stat: fallback, value: 0 }]);
+      setStatQueries((prev) => [...prev, getCustomRivenStatDef(fallback)?.label ?? fallback]);
+      setStatSigns((prev) => [...prev, 1]);
+    }
+  }
+
+  function removeStat(index: number) {
+    setStats((prev) => prev.filter((_, i) => i !== index));
+    setStatQueries((prev) => prev.filter((_, i) => i !== index));
+    setStatSigns((prev) => prev.filter((_, i) => i !== index));
+    setOpenStatPickerIndex((prev) => {
+      if (prev === null) return null;
+      if (prev === index) return null;
+      return prev > index ? prev - 1 : prev;
+    });
+  }
+
+  function handleSave() {
+    if (!selectedWeapon || !name.trim()) return;
+    const now = new Date().toISOString();
+    onSave({
+      id: initial?.id ?? makeRivenId(),
+      name: name.trim(),
+      sourceWeaponUniqueName: selectedWeapon.uniqueName,
+      sourceWeaponName: selectedWeapon.name,
+      sourceWeaponDisposition: selectedWeapon.disposition,
+      familyKey: normalizeRivenWeaponFamilyKey(selectedWeapon.name),
+      polarity,
+      drain: Math.max(0, Math.min(18, Math.floor(drain))),
+      stats: stats.filter((stat) => stat.value !== 0),
+      createdAtIso: initial?.createdAtIso ?? now,
+      updatedAtIso: now,
+    });
+  }
+
+  function selectWeapon(nextUniqueName: string) {
+    const nextWeapon = eligibleWeapons.find((weapon) => weapon.uniqueName === nextUniqueName) ?? null;
+    setWeaponUniqueName(nextUniqueName);
+    setWeaponQuery(nextWeapon?.name ?? "");
+    setWeaponPickerOpen(false);
+  }
+
+  const selectedPolarity = POLARITIES.find((entry) => entry.key === polarity) ?? null;
+  const selectedPolarityIcon = selectedPolarity ? polImg(selectedPolarity.ap) : null;
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-5xl rounded-2xl border border-yellow-700/40 bg-slate-950 shadow-2xl shadow-black/60">
+        <div className="border-b border-yellow-800/30 bg-yellow-950/10 px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.22em] text-yellow-400/70">Owned Riven</div>
+              <div className="mt-1 text-lg font-semibold text-slate-100">{initial ? "Edit Riven" : "Add Riven"}</div>
+            </div>
+            <button onClick={onClose} className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-400 hover:text-slate-200">Close</button>
+          </div>
+        </div>
+        <div className="space-y-4 px-4 py-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-[10px] uppercase tracking-wide text-slate-500">Weapon</label>
+              <div ref={weaponPickerRef} className="relative">
+                <input
+                  type="text"
+                  value={weaponQuery}
+                  onChange={(e) => {
+                    setWeaponQuery(e.target.value);
+                    setWeaponPickerOpen(true);
+                  }}
+                  onFocus={() => setWeaponPickerOpen(true)}
+                  placeholder="Search weapon..."
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600"
+                />
+                {weaponPickerOpen && (
+                  <div className="absolute z-10 mt-2 max-h-72 w-full overflow-y-auto rounded-xl border border-slate-700 bg-slate-950/98 p-1 shadow-2xl shadow-black/50">
+                    {filteredWeapons.length > 0 ? (
+                      filteredWeapons.map((weapon) => (
+                        <button
+                          key={weapon.uniqueName}
+                          type="button"
+                          onClick={() => selectWeapon(weapon.uniqueName)}
+                          className={[
+                            "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                            weapon.uniqueName === weaponUniqueName
+                              ? "bg-cyan-950/40 text-cyan-200"
+                              : "text-slate-200 hover:bg-slate-900",
+                          ].join(" ")}
+                        >
+                          <span className="truncate">{weapon.name}</span>
+                          <span className="shrink-0 text-[11px] text-slate-500">{weapon.disposition.toFixed(2)}</span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-3 py-2 text-sm text-slate-500">No matching weapons.</div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {selectedWeapon && (
+                <div className="mt-1 text-[11px] text-slate-500">
+                  Applies to weapon variants that share the {selectedWeapon.name} family. Base disposition: {selectedWeapon.disposition.toFixed(2)}
+                </div>
+              )}
+            </div>
+            <div>
+              <label className="mb-1 block text-[10px] uppercase tracking-wide text-slate-500">Riven Name</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setNameDirty(true);
+                  }}
+                  placeholder={selectedWeapon ? generatedName || `${selectedWeapon.name} Crita-Visiata` : "Weapon Prefix-CoreSuffix"}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setName(generatedName);
+                    setNameDirty(false);
+                  }}
+                  disabled={!generatedName}
+                  className="shrink-0 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-[11px] text-slate-300 hover:text-slate-100 disabled:opacity-40"
+                >
+                  Generate
+                </button>
+              </div>
+              <div className="mt-1 text-[11px] text-slate-500">
+                Generated from the entered riven stats using the weapon prefix/core/suffix naming pattern.
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-[minmax(0,1.4fr)_260px_220px]">
+            <div>
+              <label className="mb-1 block text-[10px] uppercase tracking-wide text-slate-500">Stats</label>
+              <div className="space-y-2">
+                {stats.map((stat, index) => (
+                  <div key={index} className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,190px)_40px] gap-3">
+                    <div ref={(node) => { statPickerRefs.current[index] = node; }} className="relative">
+                      <input
+                        type="text"
+                        value={statQueries[index] ?? (getCustomRivenStatDef(stat.stat)?.label ?? stat.stat)}
+                        onChange={(e) => {
+                          updateStatQuery(index, e.target.value);
+                          setOpenStatPickerIndex(index);
+                        }}
+                        onFocus={() => setOpenStatPickerIndex(index)}
+                        placeholder="Search stat..."
+                        className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-600"
+                      />
+                      {openStatPickerIndex === index && (
+                        <div className="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-700 bg-slate-950/98 p-1 shadow-2xl shadow-black/50">
+                          {availableStats
+                            .filter((definition) => definition.label.toLowerCase().includes((statQueries[index] ?? "").trim().toLowerCase()))
+                            .slice(0, 30)
+                            .map((definition) => (
+                              <button
+                                key={definition.key}
+                                type="button"
+                                onClick={() => {
+                                  updateStat(index, { stat: definition.key });
+                                  updateStatQuery(index, definition.label);
+                                  setOpenStatPickerIndex(null);
+                                }}
+                                className={[
+                                  "flex w-full items-center rounded-lg px-3 py-2 text-left text-xs transition-colors",
+                                  stat.stat === definition.key ? "bg-cyan-950/40 text-cyan-200" : "text-slate-200 hover:bg-slate-900",
+                                ].join(" ")}
+                              >
+                                {definition.label}
+                              </button>
+                            ))}
+                          {availableStats.filter((definition) => definition.label.toLowerCase().includes((statQueries[index] ?? "").trim().toLowerCase())).length === 0 && (
+                            <div className="px-3 py-2 text-xs text-slate-500">No matching stats.</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {(() => {
+                      const definition = getCustomRivenStatDef(stat.stat);
+                      const showSignToggle = Boolean(definition && definition.canBeNegative && definition.unit !== "multiplier");
+                      const sign = statSigns[index] ?? (stat.value < 0 ? -1 : 1);
+                      const isNegative = sign < 0;
+                      return (
+                        <div className="flex gap-2">
+                          {showSignToggle && (
+                            <div className="grid grid-cols-2 overflow-hidden rounded-lg border border-slate-700 bg-slate-900">
+                              <button
+                                type="button"
+                                onClick={() => updateStatSign(index, 1)}
+                                className={[
+                                  "px-2 py-2 text-xs transition-colors",
+                                  !isNegative ? "bg-cyan-950/40 text-cyan-200" : "text-slate-400 hover:bg-slate-800 hover:text-slate-100",
+                                ].join(" ")}
+                                aria-label="Positive stat"
+                              >
+                                +
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => updateStatSign(index, -1)}
+                                className={[
+                                  "border-l border-slate-700 px-2 py-2 text-xs transition-colors",
+                                  isNegative ? "bg-cyan-950/40 text-cyan-200" : "text-slate-400 hover:bg-slate-800 hover:text-slate-100",
+                                ].join(" ")}
+                                aria-label="Negative stat"
+                              >
+                                -
+                              </button>
+                            </div>
+                          )}
+                          <input
+                            type="number"
+                            step={definition?.unit === "multiplier" ? "0.01" : "0.1"}
+                            value={showSignToggle ? Math.abs(stat.value) : stat.value}
+                            onChange={(e) => {
+                              const numericValue = Number(e.target.value) || 0;
+                              updateStat(index, {
+                                value: showSignToggle ? numericValue * sign : numericValue,
+                              });
+                            }}
+                            className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-right text-slate-100"
+                          />
+                        </div>
+                      );
+                    })()}
+                    <button
+                      onClick={() => removeStat(index)}
+                      disabled={stats.length <= 1}
+                      className="rounded-lg border border-slate-700 bg-slate-900 text-slate-400 hover:text-red-300 disabled:opacity-30"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2 text-[11px] text-slate-500">
+                Enter faction stats as multipliers like <span className="font-mono text-slate-300">1.55</span> for <span className="font-mono text-slate-300">x1.55</span>. Other stats use their shown raw values like <span className="font-mono text-slate-300">120</span> for <span className="font-mono text-slate-300">+120%</span>.
+              </div>
+              {stats.length < 4 && (
+                <button onClick={addStat} className="mt-2 text-[11px] text-blue-400 hover:text-blue-300">
+                  + Add stat
+                </button>
+              )}
+            </div>
+            <div>
+              <label className="mb-1 block text-[10px] uppercase tracking-wide text-slate-500">Capacity</label>
+              <input
+                type="number"
+                min={0}
+                max={18}
+                value={drain}
+                onChange={(e) => setDrain(Number(e.target.value) || 0)}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              />
+              <div className="mt-3">
+                <label className="mb-1 block text-[10px] uppercase tracking-wide text-slate-500">Polarity</label>
+                <div ref={polarityPickerRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setPolarityPickerOpen((prev) => !prev)}
+                    className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+                  >
+                    <span className="flex items-center gap-2">
+                      {selectedPolarityIcon ? (
+                        <img src={selectedPolarityIcon} alt={selectedPolarity?.label ?? "Polarity"} className="h-4 w-4 object-contain pol-icon" />
+                      ) : (
+                        <span className="text-slate-500">○</span>
+                      )}
+                      <span>{selectedPolarity?.label ?? "None"}</span>
+                    </span>
+                    <span className="text-slate-400">{polarityPickerOpen ? "▴" : "▾"}</span>
+                  </button>
+                  {polarityPickerOpen && (
+                    <div className="absolute z-10 mt-2 w-full rounded-xl border border-slate-700 bg-slate-950/98 p-1 shadow-2xl shadow-black/50">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPolarity("");
+                          setPolarityPickerOpen(false);
+                        }}
+                        className={[
+                          "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                          polarity === "" ? "bg-cyan-950/40 text-cyan-200" : "text-slate-200 hover:bg-slate-900",
+                        ].join(" ")}
+                      >
+                        <span className="text-slate-500">○</span>
+                        <span>None</span>
+                      </button>
+                      {POLARITIES.map((entry) => {
+                        const icon = polImg(entry.ap);
+                        return (
+                          <button
+                            key={entry.key}
+                            type="button"
+                            onClick={() => {
+                              setPolarity(entry.key);
+                              setPolarityPickerOpen(false);
+                            }}
+                            className={[
+                              "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                              polarity === entry.key ? "bg-cyan-950/40 text-cyan-200" : "text-slate-200 hover:bg-slate-900",
+                            ].join(" ")}
+                          >
+                            {icon ? (
+                              <img src={icon} alt={entry.label} className="h-4 w-4 object-contain pol-icon" />
+                            ) : (
+                              <span className="text-slate-500">○</span>
+                            )}
+                            <span>{entry.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3">
+              <div className="text-[10px] uppercase tracking-wide text-slate-500">Preview</div>
+              <div className="mt-2 text-sm font-semibold text-slate-100">{name.trim() || "Unnamed Riven"}</div>
+              <div className="mt-1 text-[11px] text-slate-500">{selectedWeapon?.name ?? "Select a weapon"}</div>
+              {generatedName && generatedName !== name.trim() && (
+                <div className="mt-1 text-[11px] text-slate-500">Suggested: {generatedName}</div>
+              )}
+              <div className="mt-2 text-[11px] leading-relaxed text-slate-300">
+                {stats.some((stat) => stat.value !== 0) ? formatCustomRivenStatsLabel(stats) : "No stats entered yet."}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-2 border-t border-slate-800 pt-4">
+            <button onClick={onClose} className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200">Cancel</button>
+            <button
+              onClick={handleSave}
+              disabled={saveDisabled}
+              className="rounded-lg border border-yellow-600/50 bg-yellow-700/40 px-3 py-1.5 text-xs font-semibold text-yellow-300 hover:bg-yellow-700/60 disabled:opacity-40"
+            >
+              {initial ? "Save Riven" : "Add Riven"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1618,9 +2217,12 @@ export default function Mods() {
   const counts             = useTrackerStore((s) => s.state.inventory.counts ?? EMPTY_COUNTS);
   const modRanksMap        = useTrackerStore((s) => s.state.inventory.modRanks ?? EMPTY_MOD_RANKS);
   const arcaneRanksMap     = useTrackerStore((s) => s.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
+  const customRivens       = useTrackerStore((s) => s.state.inventory.customRivens ?? EMPTY_CUSTOM_RIVENS);
   const setCount           = useTrackerStore((s) => s.setCount);
   const setModRank         = useTrackerStore((s) => s.setModRank);
   const setArcaneRankCount = useTrackerStore((s) => s.setArcaneRankCount);
+  const upsertCustomRiven  = useTrackerStore((s) => s.upsertCustomRiven);
+  const deleteCustomRiven  = useTrackerStore((s) => s.deleteCustomRiven);
 
   const [section, setSection] = useState<ModSection>("mods");
 
@@ -1632,6 +2234,8 @@ export default function Mods() {
   const [modSort, setModSort] = useState<ModSortKey>("az");
   const [modOwnedFilter, setModOwnedFilter] = useState<OwnedFilter>("all");
   const [selectedMod, setSelectedMod] = useState<ModEntry | null>(null);
+  const [editingRiven, setEditingRiven] = useState<CustomRivenInventoryRecord | null>(null);
+  const [rivenModalOpen, setRivenModalOpen] = useState(false);
 
   // Arcanes state
   const [arcaneCategory, setArcaneCategory] = useState<ArcaneCategory>("all");
@@ -1640,19 +2244,29 @@ export default function Mods() {
   const [arcaneOwnedFilter, setArcaneOwnedFilter] = useState<OwnedFilter>("all");
   const [selectedArcane, setSelectedArcane] = useState<ModEntry | null>(null);
 
+  const filteredCustomRivens = useMemo(() => {
+    const q = normalize(modSearch.trim());
+    let list = [...customRivens];
+    if (q) {
+      list = list.filter((riven) =>
+        normalize(`${riven.name} ${riven.sourceWeaponName} ${formatCustomRivenStatsLabel(riven.stats)}`).includes(q),
+      );
+    }
+    if (modOwnedFilter === "unowned") return [];
+    list.sort((a, b) => a.name.localeCompare(b.name));
+    return list;
+  }, [customRivens, modSearch, modOwnedFilter]);
+
   // ── Mods list ──────────────────────────────────────────────────────────────
 
   const filteredMods = useMemo<ModEntry[]>(() => {
     const q = normalize(modSearch.trim());
 
-    // Rivens are from a separate source
-    if (modCategory === "rivens") {
-      return RIVEN_ENTRIES.filter((e) => !q || normalize(e.name).includes(q));
-    }
+    if (modCategory === "rivens") return [];
 
     let list: ModEntry[];
     if (modCategory === "all") {
-      list = [...MOD_ENTRIES, ...RIVEN_ENTRIES];
+      list = [...MOD_ENTRIES];
     } else {
       list = MOD_ENTRIES.filter((e) => {
         const cats = classifyModCategories(e);
@@ -1841,6 +2455,19 @@ export default function Mods() {
           onClose={() => setSelectedArcane(null)}
         />
       )}
+      <CustomRivenModal
+        open={rivenModalOpen}
+        initial={editingRiven}
+        onClose={() => {
+          setRivenModalOpen(false);
+          setEditingRiven(null);
+        }}
+        onSave={(record) => {
+          upsertCustomRiven(record);
+          setRivenModalOpen(false);
+          setEditingRiven(null);
+        }}
+      />
       <Section title="Mods & Arcanes">
         <div className="text-sm text-slate-400 mb-4">
           Browse mods and arcanes by category. Click any entry for details
@@ -1996,13 +2623,78 @@ export default function Mods() {
                 <option value="rank-asc">Max Rank: Low → High</option>
                 <option value="rank-desc">Max Rank: High → Low</option>
               </select>
+              {modCategory === "rivens" && (
+                <button
+                  onClick={() => {
+                    setEditingRiven(null);
+                    setRivenModalOpen(true);
+                  }}
+                  className="rounded-lg border border-yellow-700/50 bg-yellow-950/20 px-3 py-2 text-sm font-medium text-yellow-300 transition-colors hover:bg-yellow-950/35"
+                >
+                  Add Riven
+                </button>
+              )}
             </div>
 
             {/* Mod list */}
             <div className="text-xs text-slate-500 mb-2">
-              {filteredMods.length} mods
+              {modCategory === "rivens" ? `${filteredCustomRivens.length} rivens` : `${filteredMods.length} mods`}
             </div>
-            {filteredMods.length === 0 ? (
+            {modCategory === "rivens" ? (
+              filteredCustomRivens.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-slate-800 bg-slate-950/30 p-6 text-sm text-slate-400">
+                  No owned rivens yet. Add one here, then the Mod Builder and optimizer will consider it for the matching weapon family.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredCustomRivens.map((riven) => {
+                    const sourceWeapon = getWeaponCatalog().find((weapon) => weapon.uniqueName === riven.sourceWeaponUniqueName) ?? null;
+                    const previewEntry = sourceWeapon ? buildCustomRivenEntry(riven, sourceWeapon) : null;
+                    const rarity = previewEntry?.rarity?.toUpperCase() ?? "LEGENDARY";
+                    const polarityIcon = riven.polarity ? polImg(toAP(riven.polarity)) : null;
+                    return (
+                      <div key={riven.id} className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/40 px-3 py-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="truncate text-sm font-medium text-slate-100">{riven.name}</span>
+                            <span className={["shrink-0 text-[11px] font-medium", rarityColor(rarity)].join(" ")}>Riven</span>
+                            {polarityIcon && (
+                              <img
+                                src={polarityIcon}
+                                alt={riven.polarity}
+                                className="h-4 w-4 shrink-0 object-contain pol-icon opacity-70"
+                              />
+                            )}
+                          </div>
+                          <div className="mt-1 text-[11px] text-slate-500">
+                            {riven.sourceWeaponName} · Disposition {riven.sourceWeaponDisposition.toFixed(2)} · Drain {riven.drain}
+                          </div>
+                          <div className="mt-1 text-[11px] leading-relaxed text-slate-300">
+                            {formatCustomRivenStatsLabel(riven.stats)}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setEditingRiven(riven);
+                            setRivenModalOpen(true);
+                          }}
+                          className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-slate-500"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteCustomRiven(riven.id)}
+                          className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-400 hover:border-red-700/60 hover:text-red-300"
+                        >
+                          Delete
+                        </button>
+                        <WikiLink name={riven.sourceWeaponName} />
+                      </div>
+                    );
+                  })}
+                </div>
+              )
+            ) : filteredMods.length === 0 ? (
               <div className="text-sm text-slate-400 py-4">No mods found.</div>
             ) : (
               <div

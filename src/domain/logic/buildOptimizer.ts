@@ -808,7 +808,6 @@ function buildCandidates(allMods: ModEntry[], opts: OptimizerOptions): Candidate
     const out: Candidate[] = [];
     for (const mod of allMods) {
         if (mod.isAura) continue; // auras go in the aura slot, not regular slots
-        if (mod.compatBucket === "Riven") continue; // custom rivens are user-authored only
         if (excludedModNames?.has(mod.name)) continue;
         if (ownedModNames && !ownedModNames.has(mod.name)) continue;
         if (lockedIncompatibilityGroups?.has(mod.incompatibilityGroup)) continue;

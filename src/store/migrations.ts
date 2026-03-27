@@ -121,7 +121,11 @@ function normalizeInventory(raw: any): any {
         counts[k] = Math.max(0, n);
     }
 
-    return { credits, platinum, counts };
+    const customRivens = Array.isArray((inv as any).customRivens)
+        ? (inv as any).customRivens.filter((entry: unknown) => !!entry && typeof entry === "object")
+        : [];
+
+    return { credits, platinum, counts, customRivens };
 }
 
 function normalizeMastery(raw: any): { xpByItem: Record<string, number>; mastered: Record<string, boolean>; overLevelMastered: Record<string, boolean> } {

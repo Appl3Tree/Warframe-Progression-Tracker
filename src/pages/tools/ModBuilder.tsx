@@ -11,6 +11,7 @@ import { getModsForWeapon, getStancesForWeapon, type ModEntry, type ModEffect, e
 import { getArcanesByWeaponCategory, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
 import { calculateBuild } from "../../domain/logic/damageCalc";
 import { optimizeBuild, explainBuild, debugScoreBuild, getFactionFocusOptions, minimizePolaritiesByCapacity, type OptimizeGoal, type BuildReasoning, type LegacyOptimizeGoal } from "../../domain/logic/buildOptimizer";
+import { buildCustomRivenEntry, customRivenSupportsWeapon, type CustomRivenRecord } from "../../domain/rivens";
 import {
     computeCapacity, effectiveDrain,
     maxWeaponRank, type CapacityConfig,
@@ -114,6 +115,7 @@ const EMPTY_SAVED_BUILDS: SavedBuild[] = [];
 const EMPTY_COUNTS: Record<string, number> = {};
 const EMPTY_MOD_RANKS: Record<string, number> = {};
 const EMPTY_ARCANE_RANKS: Record<string, Record<string, number>> = {};
+const EMPTY_CUSTOM_RIVENS: CustomRivenRecord[] = [];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -920,99 +922,6 @@ function buildExportPayload(args: {
     };
 }
 
-// Build a synthetic ModEntry from riven stat values
-function makeRivenEntry(
-    weaponName: string,
-    stats: RivenStat[],
-    rank: number,
-    polarity: string,
-    drain: number,
-): ModEntry {
-    let effect = emptyEffect();
-    for (const s of stats) {
-        const bonus = s.value / 100;
-        switch (s.stat) {
-            case "critChanceBonus":   effect = { ...effect, critChanceBonus:   effect.critChanceBonus   + bonus }; break;
-            case "critMultBonus":     effect = { ...effect, critMultBonus:     effect.critMultBonus     + bonus }; break;
-            case "damageBonus":       effect = { ...effect, damageBonus:       effect.damageBonus       + bonus }; break;
-            case "statusChanceBonus": effect = { ...effect, statusChanceBonus: effect.statusChanceBonus + bonus }; break;
-            case "multishotBonus":    effect = { ...effect, multishotBonus:    effect.multishotBonus    + bonus }; break;
-            case "fireRateBonus":     effect = { ...effect, fireRateBonus:     effect.fireRateBonus     + bonus }; break;
-            case "heatBonus":         effect = { ...effect, heatBonus:         effect.heatBonus         + bonus }; break;
-            case "coldBonus":         effect = { ...effect, coldBonus:         effect.coldBonus         + bonus }; break;
-            case "electricityBonus":  effect = { ...effect, electricityBonus:  effect.electricityBonus  + bonus }; break;
-            case "toxinBonus":        effect = { ...effect, toxinBonus:        effect.toxinBonus        + bonus }; break;
-            case "magneticBonus":     effect = { ...effect, magneticBonus:     effect.magneticBonus     + bonus }; break;
-            case "radiationBonus":    effect = { ...effect, radiationBonus:    effect.radiationBonus    + bonus }; break;
-            case "viralBonus":        effect = { ...effect, viralBonus:        effect.viralBonus        + bonus }; break;
-            case "corrosiveBonus":    effect = { ...effect, corrosiveBonus:    effect.corrosiveBonus    + bonus }; break;
-            case "voidBonus":         effect = { ...effect, voidBonus:         effect.voidBonus         + bonus }; break;
-            case "tauBonus":          effect = { ...effect, tauBonus:          effect.tauBonus          + bonus }; break;
-            case "trueBonus":         effect = { ...effect, trueBonus:         effect.trueBonus         + bonus }; break;
-            case "magazineBonus":     effect = { ...effect, magazineBonus:     effect.magazineBonus     + bonus }; break;
-            case "reloadSpeedBonus":  effect = { ...effect, reloadSpeedBonus:  effect.reloadSpeedBonus  + bonus }; break;
-        }
-    }
-    const statsLabel = stats
-        .filter(s => s.value !== 0)
-        .map(s => `${s.value > 0 ? "+" : ""}${s.value.toFixed(1)}% ${RIVEN_STAT_LABELS[s.stat] ?? s.stat}`)
-        .join("  ·  ");
-    return {
-        uniqueName: `__riven_${weaponName}`,
-        path: `__riven_${weaponName}`,
-        name: `${weaponName} Riven`,
-        compatBucket: "Riven",
-        rawCompatName: "Riven",
-        polarity,
-        rarity: "Legendary",
-        drain,
-        baseDrain: drain - rank,
-        fusionLimit: rank,
-        statsLabel,
-        statsTextByRank: [statsLabel],
-        effectsByRank: [effect],  // simplified: same effect at all ranks
-        effect,
-        hasDamageEffect: true,
-        isAura: false,
-        isExilus: false,
-        isStance: false,
-        incompatibilityGroup: "__riven__",
-        compatibilityTags: [],
-        incompatibilityTags: [],
-    };
-}
-
-// ── Riven stat definitions ────────────────────────────────────────────────────
-
-const RIVEN_STATS = [
-    { key: "critChanceBonus",   label: "Critical Chance" },
-    { key: "critMultBonus",     label: "Critical Damage" },
-    { key: "damageBonus",       label: "Damage" },
-    { key: "statusChanceBonus", label: "Status Chance" },
-    { key: "multishotBonus",    label: "Multishot" },
-    { key: "fireRateBonus",     label: "Fire Rate" },
-    { key: "heatBonus",         label: "Heat" },
-    { key: "coldBonus",         label: "Cold" },
-    { key: "electricityBonus",  label: "Electricity" },
-    { key: "toxinBonus",        label: "Toxin" },
-    { key: "magneticBonus",     label: "Magnetic" },
-    { key: "radiationBonus",    label: "Radiation" },
-    { key: "viralBonus",        label: "Viral" },
-    { key: "corrosiveBonus",    label: "Corrosive" },
-    { key: "voidBonus",         label: "Void" },
-    { key: "tauBonus",          label: "Tau" },
-    { key: "trueBonus",         label: "True" },
-    { key: "magazineBonus",     label: "Magazine" },
-    { key: "reloadSpeedBonus",  label: "Reload Speed" },
-] as const;
-
-const RIVEN_STAT_LABELS: Record<string, string> = Object.fromEntries(RIVEN_STATS.map(s => [s.key, s.label]));
-
-interface RivenStat {
-    stat: typeof RIVEN_STATS[number]["key"];
-    value: number; // raw number e.g. 120.5 means +120.5%
-}
-
 // ── Polarity picker ───────────────────────────────────────────────────────────
 
 function PolarityPicker({ value, onChange }: { value: string; onChange: (p: string) => void }) {
@@ -1136,8 +1045,6 @@ function CapBar({ used, total, over }: { used: number; total: number; over: bool
 
 interface SlotProps {
     index: number; label?: string;
-    weaponName?: string;
-    activeRivenSlotIdx?: number | null;
     mod: ModEntry | null; rank: number; slotPolarity: string;
     compatMods: ModEntry[]; usedGroups: Set<string>;
     ownedNames: Set<string>; onlyOwned: boolean; isExilusSlot?: boolean;
@@ -1145,7 +1052,6 @@ interface SlotProps {
     onChange: (i: number, m: ModEntry | null) => void;
     onRankChange: (i: number, r: number) => void;
     onPolarityChange: (i: number, p: string) => void;
-    onSelectRiven?: (i: number) => void;
     onToggleExclude: (name: string) => void;
     effDrain: number;
     compactEmpty?: boolean;
@@ -1157,8 +1063,8 @@ interface SlotProps {
     onDropSlot?: () => void;
 }
 
-function ModSlot({ index, label, weaponName, activeRivenSlotIdx, mod, rank, slotPolarity, compatMods, usedGroups,
-    ownedNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onSelectRiven, onToggleExclude, effDrain, compactEmpty,
+function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups,
+    ownedNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onToggleExclude, effDrain, compactEmpty,
     draggable, isDragOver, onDragStartSlot, onDragEndSlot, onDragOverSlot, onDropSlot }: SlotProps) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
@@ -1180,7 +1086,6 @@ function ModSlot({ index, label, weaponName, activeRivenSlotIdx, mod, rank, slot
         const q = query.toLowerCase();
         return compatMods.filter(m => {
             if (isExilusSlot && !m.isExilus) return false;
-            if (m.compatBucket === "Riven") return false;  // rivens go in a dedicated slot
             if (usedGroups.has(m.incompatibilityGroup) && m.incompatibilityGroup !== mod?.incompatibilityGroup) return false;
             if (onlyOwned && ownedNames.size > 0 && !ownedNames.has(m.name)) return false;
             if (q && !m.name.toLowerCase().includes(q) && !m.statsLabel.toLowerCase().includes(q)) return false;
@@ -1340,22 +1245,6 @@ function ModSlot({ index, label, weaponName, activeRivenSlotIdx, mod, rank, slot
                             className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-slate-500" />
                     </div>
                     <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/50">
-                        {!isExilusSlot && weaponName && (activeRivenSlotIdx === null || activeRivenSlotIdx === index || mod?.compatBucket === "Riven") && (
-                            <button
-                                className="w-full px-3 py-2 text-left hover:bg-slate-800/50 transition-colors"
-                                onClick={() => {
-                                    onSelectRiven?.(index);
-                                    setOpen(false);
-                                    setQuery("");
-                                }}
-                            >
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-xs font-medium text-yellow-300 flex-1 truncate">{weaponName} Riven</span>
-                                    <span className="text-[9px] px-1 rounded border border-yellow-700/50 bg-yellow-950/30 text-yellow-400 shrink-0">RIVEN</span>
-                                </div>
-                                <div className="text-[10px] text-slate-500 mt-0.5">Configure custom riven stats for this slot.</div>
-                            </button>
-                        )}
                         {mod && (
                             <button className="w-full px-3 py-2 text-left text-xs text-slate-500 hover:bg-slate-800/50"
                                 onClick={() => { onChange(index, null); setOpen(false); setQuery(""); }}>
@@ -1553,108 +1442,6 @@ function ArcaneSlot({ label, arcane, rank, onChange, onRankChange, availableArca
     );
 }
 
-// ── Riven Modal ───────────────────────────────────────────────────────────────
-
-function RivenModal({ open, weaponName, onClose, onApply }: {
-    open: boolean;
-    weaponName: string;
-    onClose: () => void;
-    onApply: (mod: ModEntry) => void;
-}) {
-    const [stats, setStats] = useState<RivenStat[]>([
-        { stat: "critChanceBonus", value: 0 },
-        { stat: "damageBonus",     value: 0 },
-    ]);
-    const [drain, setDrain] = useState(14);
-    const [polarity, setPolarity] = useState("");
-
-    useEffect(() => {
-        if (!open) return;
-        setStats([
-            { stat: "critChanceBonus", value: 0 },
-            { stat: "damageBonus", value: 0 },
-        ]);
-        setDrain(14);
-        setPolarity("");
-    }, [open]);
-
-    function handleApply() {
-        const mod = makeRivenEntry(weaponName, stats.filter(s => s.value !== 0), 8, polarity, drain);
-        onApply(mod);
-        onClose();
-    }
-
-    function addStat() {
-        if (stats.length < 4) setStats(p => [...p, { stat: "damageBonus", value: 0 }]);
-    }
-    function removeStat(i: number) { setStats(p => p.filter((_, j) => j !== i)); }
-    function updateStat(i: number, field: "stat" | "value", val: string | number) {
-        setStats(p => p.map((s, j) => j === i ? { ...s, [field]: val } : s));
-    }
-
-    if (!open) return null;
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-2xl rounded-2xl border border-yellow-700/40 bg-slate-950 shadow-2xl shadow-black/60 overflow-hidden">
-                <div className="border-b border-yellow-800/30 bg-yellow-950/10 px-4 py-3">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <div className="text-[10px] uppercase tracking-[0.22em] text-yellow-400/70">Riven Configuration</div>
-                            <div className="mt-1 flex items-center gap-2">
-                                <span className="text-lg font-semibold text-slate-100">{weaponName} Riven</span>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded border border-yellow-700/50 bg-yellow-950/30 text-yellow-400">RIVEN</span>
-                            </div>
-                        </div>
-                        <button onClick={onClose} className="rounded-lg border border-slate-700 px-2 py-1 text-xs text-slate-400 hover:text-slate-200">Close</button>
-                    </div>
-                </div>
-                <div className="space-y-3 px-4 py-4">
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wide">Enter riven stats manually</div>
-
-                    {stats.map((s, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                            <select value={s.stat}
-                                onChange={e => updateStat(i, "stat", e.target.value)}
-                                className="flex-1 rounded-lg border border-slate-700 bg-slate-900 px-2 py-2 text-xs text-slate-200 focus:outline-none">
-                                {RIVEN_STATS.map(rs => (
-                                    <option key={rs.key} value={rs.key}>{rs.label}</option>
-                                ))}
-                            </select>
-                            <input type="number" step="0.1" value={s.value}
-                                onChange={e => updateStat(i, "value", parseFloat(e.target.value) || 0)}
-                                className="w-24 rounded-lg border border-slate-700 bg-slate-900 px-2 py-2 text-xs text-slate-200 text-right focus:outline-none" />
-                            <span className="text-[10px] text-slate-500">%</span>
-                            <button onClick={() => removeStat(i)} className="text-slate-600 hover:text-red-400 text-xs">✕</button>
-                        </div>
-                    ))}
-                    {stats.length < 4 && (
-                        <button onClick={addStat} className="text-[10px] text-blue-400 hover:text-blue-300 transition-colors">+ Add stat</button>
-                    )}
-
-                    <div className="flex items-center gap-4 pt-1">
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-slate-500">Drain</span>
-                            <input type="number" min={0} max={20} value={drain}
-                                onChange={e => setDrain(+e.target.value)}
-                                className="w-16 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200 focus:outline-none" />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-slate-500">Polarity</span>
-                            <PolarityPicker value={polarity} onChange={setPolarity} />
-                        </div>
-                        <button onClick={handleApply}
-                            className="ml-auto rounded-lg bg-yellow-700/40 border border-yellow-600/50 px-3 py-1.5 text-xs font-semibold text-yellow-300 hover:bg-yellow-700/60 transition-colors">
-                            Apply Riven
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
 // ── Weapon Selector ───────────────────────────────────────────────────────────
 
 function WeaponSelector({ selected, onSelect }: { selected: WeaponEntry | null; onSelect: (w: WeaponEntry) => void }) {
@@ -1782,9 +1569,10 @@ function ExclusionList({ allMods, excluded, onToggle }: {
 
 // ── Saved Builds ──────────────────────────────────────────────────────────────
 
-function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolarities, currentCfg,
+function SavedBuildsPanel({ weapon, availableMods, currentSlots, currentRanks, currentPolarities, currentCfg,
     stanceMod, stanceRank, stancePol, exilusMod, exilusPol, arcane1, arcane1Rank, hasExilus, onLoad }: {
     weapon: WeaponEntry | null;
+    availableMods: ModEntry[];
     currentSlots: (ModEntry | null)[]; currentRanks: number[]; currentPolarities: string[];
     currentCfg: BuildCfg;
     stanceMod: ModEntry | null; stanceRank: number; stancePol: string;
@@ -1796,7 +1584,7 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
     const savedBuilds  = useTrackerStore(s => s.state.modBuilder?.savedBuilds ?? EMPTY_SAVED_BUILDS);
     const saveModBuild = useTrackerStore(s => s.saveModBuild);
     const deleteBuild  = useTrackerStore(s => s.deleteModBuild);
-    const allMods      = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
+    const allMods      = useMemo(() => availableMods, [availableMods]);
     const panelArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
     const [saveName, setSaveName] = useState("");
     const [saving, setSaving]     = useState(false);
@@ -2022,13 +1810,13 @@ function SavedBuildsPanel({ weapon, currentSlots, currentRanks, currentPolaritie
 
 // ── Owned Mods ────────────────────────────────────────────────────────────────
 
-function OwnedModsPanel({ weapon }: { weapon: WeaponEntry | null }) {
+function OwnedModsPanel({ availableMods }: { availableMods: ModEntry[] }) {
     const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? EMPTY_COUNTS);
     const inventoryModRanks = useTrackerStore(s => s.state.inventory.modRanks ?? EMPTY_MOD_RANKS);
     const setCount = useTrackerStore(s => s.setCount);
     const setModRank = useTrackerStore(s => s.setModRank);
     const [query, setQuery] = useState("");
-    const allMods = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
+    const allMods = useMemo(() => availableMods.filter(m => m.compatBucket !== "Riven"), [availableMods]);
     const ownedCountForMod = (path: string) => inventoryCounts[`mods:${path}`] ?? inventoryCounts[path] ?? 0;
     const filtered = useMemo(() => {
         const q = query.toLowerCase();
@@ -2201,6 +1989,7 @@ export default function ModBuilder() {
     const inventoryArcaneRanks = useTrackerStore(s => s.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
     const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? EMPTY_COUNTS);
     const inventoryModRanks = useTrackerStore(s => s.state.inventory.modRanks ?? EMPTY_MOD_RANKS);
+    const inventoryCustomRivens = useTrackerStore(s => s.state.inventory.customRivens ?? EMPTY_CUSTOM_RIVENS);
 
     const [weapon, setWeapon]          = useState<WeaponEntry | null>(null);
     const [slots, setSlots]            = useState<(ModEntry | null)[]>(Array(SLOT_COUNT).fill(null));
@@ -2214,9 +2003,6 @@ export default function ModBuilder() {
     const [exilusMod, setExilusMod]    = useState<ModEntry | null>(null);
     const [exilusRank, setExilusRank]  = useState(0);
     const [exilusPol, setExilusPol]    = useState("");
-    // Riven
-    const [rivenMod, setRivenMod]      = useState<ModEntry | null>(null);
-    const [rivenSlotIdx, setRivenSlotIdx] = useState<number | null>(null); // which slot holds riven
     // Arcanes — weapons only have 1 arcane slot
     const [arcane1, setArcane1]        = useState<ArcaneEntry | null>(null);
     const [arcane1Rank, setArcane1Rank]= useState(0);
@@ -2249,7 +2035,6 @@ export default function ModBuilder() {
     const [showOptimizeOptions, setShowOptimizeOptions] = useState(false);
     // UI
     const [infoTab, setInfoTab]        = useState<"stats"|"why"|"math">("stats");
-    const [rivenEditorSlot, setRivenEditorSlot] = useState<number | null>(null);
     const [reasoning, setReasoning]    = useState<BuildReasoning | null>(null);
     const [reasoningMath, setReasoningMath] = useState<BuildMathBreakdown | null>(null);
     const [tab, setTab]                = useState<"build"|"saves"|"owned"|"ownedArcanes"|"exclude">("build");
@@ -2281,7 +2066,6 @@ export default function ModBuilder() {
         setSlotPols(pols);
         setStanceMod(null); setStanceRank(0); setStancePol(w.stancePolarity ?? "");
         setExilusMod(null); setExilusRank(0); setExilusPol(""); setHasExilus(false);
-        setRivenMod(null); setRivenSlotIdx(null); setRivenEditorSlot(null);
         setArcane1(null); setArcane1Rank(0);
         setSelectedAttackIdx(0);
         if (opts?.resetConfig) {
@@ -2303,17 +2087,28 @@ export default function ModBuilder() {
         resetBuildForWeapon(w, { resetConfig: true });
     }
 
-    const compatMods   = useMemo(() => weapon ? getModsForWeapon(weapon) : [], [weapon]);
+    const compatMods   = useMemo(() => {
+        if (!weapon) return [];
+        const baseMods = getModsForWeapon(weapon);
+        const customRivens = inventoryCustomRivens
+            .filter((riven: CustomRivenRecord) => customRivenSupportsWeapon(riven, weapon))
+            .map((riven: CustomRivenRecord) => buildCustomRivenEntry(riven, weapon));
+        return [...baseMods, ...customRivens];
+    }, [weapon, inventoryCustomRivens]);
     const stanceMods   = useMemo(() => weapon ? getStancesForWeapon(weapon) : [], [weapon]);
     const weaponArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
     const ownedSet     = useMemo(() => new Set(
         compatMods
-            .filter(mod => Number(inventoryCounts[`mods:${mod.path}`] ?? inventoryCounts[mod.path] ?? 0) > 0)
+            .filter(mod => mod.compatBucket === "Riven" || Number(inventoryCounts[`mods:${mod.path}`] ?? inventoryCounts[mod.path] ?? 0) > 0)
             .map(mod => mod.name)
     ), [compatMods, inventoryCounts]);
     const ownedModMaxRankByName = useMemo(() => {
         const out: Record<string, number> = {};
         for (const mod of compatMods) {
+            if (mod.compatBucket === "Riven") {
+                out[mod.name] = mod.fusionLimit;
+                continue;
+            }
             if (Number(inventoryCounts[`mods:${mod.path}`] ?? inventoryCounts[mod.path] ?? 0) <= 0) continue;
             out[mod.name] = getOwnedModRank(mod.path, mod.fusionLimit, inventoryCounts, inventoryModRanks);
         }
@@ -2344,9 +2139,8 @@ export default function ModBuilder() {
         const s = new Set(slots.filter(Boolean).map(m => m!.incompatibilityGroup));
         if (stanceMod) s.add(stanceMod.incompatibilityGroup);
         if (exilusMod) s.add(exilusMod.incompatibilityGroup);
-        if (rivenMod)  s.add(rivenMod.incompatibilityGroup);
         return s;
-    }, [slots, stanceMod, exilusMod, rivenMod]);
+    }, [slots, stanceMod, exilusMod]);
     const maxOptimizerForma = useMemo(() => maxOptimizerFormaForWeapon(weapon), [weapon]);
 
     // Forma count: count slots whose current polarity differs from weapon default
@@ -2455,14 +2249,6 @@ export default function ModBuilder() {
     function handleSlotChange(i: number, mod: ModEntry | null) {
         setSlots(p => { const n = [...p]; n[i] = mod; return n; });
         setRanks(p => { const n = [...p]; n[i] = mod ? mod.fusionLimit : 0; return n; });
-        if (!mod && rivenSlotIdx === i) {
-            setRivenMod(null);
-            setRivenSlotIdx(null);
-        }
-        if (mod && mod.compatBucket !== "Riven" && rivenSlotIdx === i) {
-            setRivenMod(null);
-            setRivenSlotIdx(null);
-        }
         setReasoning(null);
         setReasoningMath(null);
     }
@@ -2527,8 +2313,6 @@ export default function ModBuilder() {
                 next[target.index] = sourceMod ? sourceRank : 0;
                 return next;
             });
-            if (rivenSlotIdx === source.index) setRivenSlotIdx(target.index);
-            else if (rivenSlotIdx === target.index) setRivenSlotIdx(source.index);
         } else if (source.kind === "main" && target.kind === "exilus") {
             setSlots((prev) => {
                 const next = [...prev];
@@ -2567,31 +2351,6 @@ export default function ModBuilder() {
     }
     function toggleExclude(name: string) { setExcluded(p => { const n = new Set(p); n.has(name) ? n.delete(name) : n.add(name); return n; }); }
 
-    function handleOpenRivenEditor(i: number) {
-        if (rivenSlotIdx !== null && rivenSlotIdx !== i) return;
-        setRivenEditorSlot(i);
-    }
-
-    function handleRivenUpdate(mod: ModEntry) {
-        if (rivenEditorSlot === null) return;
-        setRivenMod(mod);
-        setSlots(p => {
-            const n = [...p];
-            if (rivenSlotIdx !== null && rivenSlotIdx !== rivenEditorSlot) n[rivenSlotIdx] = null;
-            n[rivenEditorSlot] = mod;
-            return n;
-        });
-        setRanks(p => {
-            const n = [...p];
-            if (rivenSlotIdx !== null && rivenSlotIdx !== rivenEditorSlot) n[rivenSlotIdx] = 0;
-            n[rivenEditorSlot] = mod.fusionLimit;
-            return n;
-        });
-        setRivenSlotIdx(rivenEditorSlot);
-        setRivenEditorSlot(null);
-        setReasoning(null);
-        setReasoningMath(null);
-    }
     const capacityCfg: CapacityConfig = {
         weaponRank: buildCfg.weaponRank, hasCatalyst: buildCfg.hasCatalyst,
         masteryRank: buildCfg.masteryRank, canOverLevel: weapon?.canOverLevel ?? false,
@@ -2728,7 +2487,7 @@ export default function ModBuilder() {
                         : capacityCfg
                 ) : undefined;
 
-                const result = optimizeBuild(weaponForOpt, null, goal, SLOT_COUNT, {
+                const result = optimizeBuild(weaponForOpt, compatMods, goal, SLOT_COUNT, {
                     ownedModNames:    onlyOwned ? ownedSet : undefined,
                     ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
                     ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
@@ -2789,7 +2548,7 @@ export default function ModBuilder() {
                             );
 
                             if (catalyzedFit.overCapacity && allowForma) {
-                                appliedResult = optimizeBuild(weaponForOpt, null, goal, SLOT_COUNT, {
+                                appliedResult = optimizeBuild(weaponForOpt, compatMods, goal, SLOT_COUNT, {
                                     ownedModNames:    onlyOwned ? ownedSet : undefined,
                                     ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
                                     ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
@@ -2817,7 +2576,7 @@ export default function ModBuilder() {
                                 });
                             }
                         } else if (allowForma) {
-                            appliedResult = optimizeBuild(weaponForOpt, null, goal, SLOT_COUNT, {
+                            appliedResult = optimizeBuild(weaponForOpt, compatMods, goal, SLOT_COUNT, {
                                 ownedModNames:    onlyOwned ? ownedSet : undefined,
                                 ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
                                 ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
@@ -2968,14 +2727,6 @@ export default function ModBuilder() {
                 : [...appliedResult.slotRanks]) as number[];
             setSlots(nextSlots);
             setRanks(nextRanks);
-            const nextRivenIdx = nextSlots.findIndex((mod) => mod?.compatBucket === "Riven");
-            if (nextRivenIdx >= 0) {
-                setRivenMod(nextSlots[nextRivenIdx] as ModEntry);
-                setRivenSlotIdx(nextRivenIdx);
-            } else {
-                setRivenMod(null);
-                setRivenSlotIdx(null);
-            }
 
             // Apply polarity changes from forma optimizer
             if (allowForma) {
@@ -3064,9 +2815,9 @@ export default function ModBuilder() {
                 ))}
             </div>
 
-            {weapon && tab === "owned"   && <OwnedModsPanel weapon={weapon} />}
+            {weapon && tab === "owned"   && <OwnedModsPanel availableMods={compatMods} />}
             {weapon && tab === "ownedArcanes" && <OwnedArcanesPanel weapon={weapon} />}
-            {weapon && tab === "saves"   && <SavedBuildsPanel weapon={weapon} currentSlots={slots} currentRanks={ranks}
+            {weapon && tab === "saves"   && <SavedBuildsPanel weapon={weapon} availableMods={compatMods} currentSlots={slots} currentRanks={ranks}
                 currentPolarities={slotPols} currentCfg={buildCfg}
                 stanceMod={stanceMod} stanceRank={stanceRank} stancePol={stancePol}
                 exilusMod={exilusMod} exilusPol={exilusPol}
@@ -3540,7 +3291,7 @@ export default function ModBuilder() {
                                                                     <PolarityPicker value={stancePol} onChange={setStancePol} />
                                                                 </div>
                                                                 {stanceMods.length > 0 ? (
-                                                                    <ModSlot index={0} label="Stance" weaponName={weapon.name} mod={stanceMod} rank={stanceRank}
+                                                                    <ModSlot index={0} label="Stance" mod={stanceMod} rank={stanceRank}
                                                                         slotPolarity={stancePol} compatMods={stanceMods}
                                                                         usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
                                                                         excluded={excluded}
@@ -3565,7 +3316,7 @@ export default function ModBuilder() {
                                                                     </button>
                                                                 </div>
                                                                 {hasExilus ? (
-                                                                    <ModSlot index={0} label="Exilus" weaponName={weapon.name} mod={exilusMod} rank={exilusRank}
+                                                                    <ModSlot index={0} label="Exilus" mod={exilusMod} rank={exilusRank}
                                                                         slotPolarity={exilusPol} compatMods={compatMods}
                                                                         usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
                                                                         isExilusSlot={true}
@@ -3592,13 +3343,12 @@ export default function ModBuilder() {
                                                         </div>
                                                         <div className="grid auto-rows-[minmax(216px,auto)] grid-cols-2 2xl:grid-cols-4 gap-3">
                                                             {slots.map((mod, i) => (
-                                                                <ModSlot key={i} index={i} weaponName={weapon.name} activeRivenSlotIdx={rivenSlotIdx} mod={mod} rank={ranks[i] ?? 0}
+                                                                <ModSlot key={i} index={i} mod={mod} rank={ranks[i] ?? 0}
                                                                     slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
                                                                     usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
                                                                     excluded={excluded}
                                                                     onChange={handleSlotChange} onRankChange={handleRankChange}
                                                                     onPolarityChange={handlePolChange}
-                                                                    onSelectRiven={handleOpenRivenEditor}
                                                                     onToggleExclude={toggleExclude}
                                                                     effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0}
                                                                     draggable={!!mod}
@@ -3637,13 +3387,12 @@ export default function ModBuilder() {
                                                     <div className="space-y-3">
                                                         <div className="grid auto-rows-[minmax(216px,auto)] grid-cols-2 2xl:grid-cols-4 gap-3">
                                                             {slots.map((mod, i) => (
-                                                                <ModSlot key={i} index={i} weaponName={weapon.name} activeRivenSlotIdx={rivenSlotIdx} mod={mod} rank={ranks[i] ?? 0}
+                                                                <ModSlot key={i} index={i} mod={mod} rank={ranks[i] ?? 0}
                                                                     slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
                                                                     usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
                                                                     excluded={excluded}
                                                                     onChange={handleSlotChange} onRankChange={handleRankChange}
                                                                     onPolarityChange={handlePolChange}
-                                                                    onSelectRiven={handleOpenRivenEditor}
                                                                     onToggleExclude={toggleExclude}
                                                                     effDrain={mod ? effectiveDrain(mod, slotPols[i] ?? "", ranks[i]) : 0}
                                                                     draggable={!!mod}
@@ -3686,7 +3435,7 @@ export default function ModBuilder() {
                                                                 </button>
                                                             </div>
                                                             {hasExilus ? (
-                                                                <ModSlot index={0} label="Exilus" weaponName={weapon.name} mod={exilusMod} rank={exilusRank}
+                                                                <ModSlot index={0} label="Exilus" mod={exilusMod} rank={exilusRank}
                                                                     slotPolarity={exilusPol} compatMods={compatMods}
                                                                     usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
                                                                     isExilusSlot={true}
@@ -4037,15 +3786,6 @@ export default function ModBuilder() {
                             </div>
 
                 </>
-            )}
-
-            {weapon && (
-                <RivenModal
-                    open={rivenEditorSlot !== null}
-                    weaponName={weapon.name}
-                    onClose={() => setRivenEditorSlot(null)}
-                    onApply={handleRivenUpdate}
-                />
             )}
         </div>
     );

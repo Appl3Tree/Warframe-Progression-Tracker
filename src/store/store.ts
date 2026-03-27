@@ -11,6 +11,7 @@ import { immer } from "zustand/middleware/immer";
 import { persist } from "zustand/middleware";
 import { toYMD } from "../domain/ymd";
 import type {
+    CustomRivenRecord,
     DailyTask,
     ResetChecklistBucket,
     ResetDisplayMode,
@@ -63,6 +64,8 @@ export interface TrackerStore {
     setCount: (key: string, count: number) => void;
     setModRank: (path: string, rank: number) => void;
     setArcaneRankCount: (path: string, rank: number, count: number) => void;
+    upsertCustomRiven: (riven: CustomRivenRecord) => void;
+    deleteCustomRiven: (id: string) => void;
     setMastered: (key: string, val: boolean) => void;
     setOverLevelMastered: (key: string, val: boolean) => void;
 
@@ -295,6 +298,24 @@ export const useTrackerStore = create<TrackerStore>()(
                     if (!s.state.inventory.arcaneRanks) s.state.inventory.arcaneRanks = {};
                     if (!s.state.inventory.arcaneRanks[path]) s.state.inventory.arcaneRanks[path] = {};
                     s.state.inventory.arcaneRanks[path][String(rank)] = Math.max(0, Number.isFinite(count) ? Math.floor(count) : 0);
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            upsertCustomRiven: (riven) => {
+                set((s) => {
+                    if (!Array.isArray(s.state.inventory.customRivens)) s.state.inventory.customRivens = [];
+                    const idx = s.state.inventory.customRivens.findIndex((entry) => entry.id === riven.id);
+                    if (idx >= 0) s.state.inventory.customRivens[idx] = riven;
+                    else s.state.inventory.customRivens.push(riven);
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            deleteCustomRiven: (id) => {
+                set((s) => {
+                    if (!Array.isArray(s.state.inventory.customRivens)) return;
+                    s.state.inventory.customRivens = s.state.inventory.customRivens.filter((entry) => entry.id !== id);
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },

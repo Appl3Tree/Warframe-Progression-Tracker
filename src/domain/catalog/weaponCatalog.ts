@@ -87,8 +87,8 @@ export interface WeaponEntry {
 function isOverLevelWeapon(name: string, uniqueName: string): boolean {
     const n = name.toLowerCase();
     const u = uniqueName.toLowerCase();
-    return n.startsWith("kuva ") || n.startsWith("tenet ") || n.startsWith("coda ") ||
-           u.includes("/kuva/") || u.includes("/tenet/") || u.includes("parvos");
+    return n.startsWith("kuva ") || n.startsWith("tenet ") || n.startsWith("coda ") || n.startsWith("dual coda ") ||
+           u.includes("/kuva/") || u.includes("/tenet/") || u.includes("/infestedlich/") || u.includes("parvos");
 }
 
 function isProgenitorWeapon(name: string, uniqueName: string): boolean {

@@ -1,6 +1,25 @@
 // ===== FILE: src/domain/types.ts =====
 export type Id = string;
 
+export interface CustomRivenStatValue {
+    stat: string;
+    value: number;
+}
+
+export interface CustomRivenRecord {
+    id: string;
+    name: string;
+    sourceWeaponUniqueName: string;
+    sourceWeaponName: string;
+    sourceWeaponDisposition: number;
+    familyKey: string;
+    polarity: string;
+    drain: number;
+    stats: CustomRivenStatValue[];
+    createdAtIso: string;
+    updatedAtIso: string;
+}
+
 export interface Inventory {
     /**
      * Credits and Platinum are the only "special" currencies that live outside
@@ -29,6 +48,12 @@ export interface Inventory {
      * Sparse: only present when the user has entered data.
      */
     arcaneRanks?: Record<string, Record<string, number>>;
+
+    /**
+     * User-authored unveiled rivens. These are persisted separately from flat mod counts
+     * because each riven is unique and may scale across weapon variants via disposition.
+     */
+    customRivens?: CustomRivenRecord[];
 }
 
 export interface DailyTask {

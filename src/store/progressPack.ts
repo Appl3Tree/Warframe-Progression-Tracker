@@ -46,7 +46,8 @@ const PlatformSchema = z.enum(["PC", "PlayStation", "Xbox", "Switch", "Mobile"])
 const InventorySchema = z.object({
     credits: z.number().int().min(0),
     platinum: z.number().int().min(0),
-    counts: z.record(z.string(), z.number().nonnegative())
+    counts: z.record(z.string(), z.number().nonnegative()),
+    customRivens: z.array(z.any()).optional(),
 });
 
 export const ProgressPackSchemaV2 = z
@@ -164,7 +165,10 @@ export function mergeProgressPackIntoState(current: UserStateV2, incoming: any):
             counts: {
                 ...next.inventory.counts,
                 ...(incoming.inventory.counts ?? {})
-            }
+            },
+            customRivens: Array.isArray(incoming.inventory.customRivens)
+                ? incoming.inventory.customRivens
+                : next.inventory.customRivens ?? [],
         };
     }
 

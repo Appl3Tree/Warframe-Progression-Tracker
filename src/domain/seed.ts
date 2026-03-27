@@ -4,7 +4,8 @@ import type { Inventory, SyndicateState } from "./types";
 export const SEED_INVENTORY: Inventory = {
     credits: 0,
     platinum: 0,
-    counts: {}
+    counts: {},
+    customRivens: [],
 };
 
 export const SEED_SYNDICATES: SyndicateState[] = [];
