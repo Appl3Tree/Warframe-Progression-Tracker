@@ -2279,37 +2279,6 @@ export default function ModBuilder() {
         }
         return out;
     }, [weaponArcanes, inventoryArcaneRanks, inventoryCounts]);
-    const optimizerDiagnostics = useMemo(() => {
-        if (!weapon) return null;
-        const targetFaction = factionOn ? faction : "";
-        const baseCandidates = compatMods.filter(mod => {
-            if (mod.isAura) return false;
-            if (excluded.has(mod.name)) return false;
-            if (onlyOwned && !ownedSet.has(mod.name)) return false;
-            if (mod.effect.targetFaction && !targetFaction) return false;
-            if (mod.effect.targetFaction && mod.effect.targetFaction.toLowerCase() !== targetFaction.toLowerCase()) return false;
-            return true;
-        });
-        const watchedNames = ["Creeping Bullseye", "Convulsion", "Galvanized Shot", "Primed Target Cracker", "Pistol Gambit"];
-        const watched = watchedNames.map((name) => {
-            const mod = compatMods.find((entry) => entry.name === name) ?? null;
-            const owned = !!mod && ownedSet.has(name);
-            const excludedMod = excluded.has(name);
-            const factionMismatch = !!mod?.effect.targetFaction &&
-                (!targetFaction || mod.effect.targetFaction.toLowerCase() !== targetFaction.toLowerCase());
-            const candidate = !!mod && !excludedMod && (!onlyOwned || owned) && !factionMismatch;
-            return { name, present: !!mod, owned, excluded: excludedMod, candidate, maxRank: mod ? (ownedModMaxRankByName[name] ?? mod.fusionLimit) : null };
-        });
-        return {
-            compatCount: compatMods.length,
-            candidateCount: baseCandidates.length,
-            ownedOnly: onlyOwned,
-            ownedCount: ownedSet.size,
-            excludedCount: excluded.size,
-            targetFaction: targetFaction || "None",
-            watched,
-        };
-    }, [weapon, compatMods, excluded, onlyOwned, ownedSet, factionOn, faction, ownedModMaxRankByName]);
     const usedGroups   = useMemo(() => {
         const s = new Set(slots.filter(Boolean).map(m => m!.incompatibilityGroup));
         if (stanceMod) s.add(stanceMod.incompatibilityGroup);
@@ -3231,38 +3200,6 @@ export default function ModBuilder() {
                                                         ) : (
                                                             <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 px-3 py-3 text-[11px] text-slate-500">
                                                                 Run the optimizer to generate build reasoning.
-                                                            </div>
-                                                        )}
-                                                        {optimizerDiagnostics && (
-                                                            <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 px-3 py-3">
-                                                                <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">Optimizer Inputs</div>
-                                                                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
-                                                                    <div className="text-slate-500">Compatible Mods</div>
-                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.compatCount}</div>
-                                                                    <div className="text-slate-500">Usable Candidates</div>
-                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.candidateCount}</div>
-                                                                    <div className="text-slate-500">Owned Only</div>
-                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.ownedOnly ? "On" : "Off"}</div>
-                                                                    <div className="text-slate-500">Owned Matches</div>
-                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.ownedCount}</div>
-                                                                    <div className="text-slate-500">Excluded Mods</div>
-                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.excludedCount}</div>
-                                                                    <div className="text-slate-500">Target Faction</div>
-                                                                    <div className="font-mono text-right text-slate-300">{optimizerDiagnostics.targetFaction}</div>
-                                                                </div>
-                                                                <div className="mt-3 space-y-1.5">
-                                                                    {optimizerDiagnostics.watched.map((entry) => (
-                                                                        <div key={entry.name} className="flex items-center justify-between gap-3 rounded-md border border-slate-800/60 px-2 py-1 text-[11px]">
-                                                                            <span className="text-slate-300">{entry.name}</span>
-                                                                            <span className="font-mono text-right text-slate-500">
-                                                                                {!entry.present ? "missing" :
-                                                                                    entry.excluded ? "excluded" :
-                                                                                        !entry.owned ? "not-owned" :
-                                                                                            entry.candidate ? "candidate" : "filtered"}
-                                                                            </span>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>

@@ -1671,7 +1671,8 @@ export function explainBuild(
     const finalScore = scoreSlots(scoringWeapon, placed, placedRanks, goal, targetFaction);
     const baseScore  = scoreSlots(scoringWeapon, Array(slotCount).fill(null), Array(slotCount).fill(undefined), goal, targetFaction);
     const totalGain  = baseScore > 0 ? ((finalScore - baseScore) / baseScore) * 100 : 0;
-    const summary    = `${goalLabel(goal)}${targetFaction ? ` vs ${targetFaction}` : ""}. Total gain: +${totalGain.toFixed(1)}% over unmodded weapon.`;
+    const totalMultiplier = baseScore > 0 ? finalScore / baseScore : 0;
+    const summary    = `${goalLabel(goal)}${targetFaction ? ` vs ${targetFaction}` : ""}. Final score: ${totalMultiplier.toFixed(1)}x base${baseScore > 0 ? ` (+${totalGain.toFixed(1)}% vs unmodded)` : ""}.`;
 
     return { goal, targetFaction, steps, summary };
 }
