@@ -306,7 +306,7 @@ function inferStanceClassFallback(item: Record<string, unknown>, isExalted: bool
         ["/hammer/", "Hammers"],
         ["/machete/", "Machetes"],
         ["/whip/", "Whips"],
-        ["/rapier/", "Rapiers"],
+        ["rapier", "Rapiers"],
         ["/polearm/", "Polearms"],
         ["/saw/", "Assault Saw"],
         ["/gunblade/", "Gunblade"],
@@ -326,6 +326,7 @@ function inferStanceClassFallback(item: Record<string, unknown>, isExalted: bool
         if (name.includes("&") || description.includes("two separate weapons")) return "Dual Swords";
         if (description.includes("sai blades") || name.includes("okina")) return "Dual Daggers";
         if (description.includes("great katana") || name.includes("pennant")) return "Two-Handed Nikana";
+        if (description.includes("rapier")) return "Rapiers";
         return "Swords";
     }
 

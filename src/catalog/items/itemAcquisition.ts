@@ -11,6 +11,8 @@ import { deriveWarframeItemsAcquisitionByCatalogId } from "./acquisitionFromWarf
 import { deriveItemsJsonMarketAcquisitionByCatalogId } from "./acquisitionFromItemsJsonMarket";
 import { deriveRecipeBucketAcquisitionByCatalogId } from "./acquisitionFromRecipeBuckets";
 import { deriveClanTechAcquisitionByCatalogId } from "./acquisitionFromClanTech";
+import { deriveComponentCraftabilityAcquisitionByCatalogId } from "./acquisitionFromComponentCraftability";
+import { deriveOverframeResearchAcquisitionByCatalogId } from "./acquisitionFromOverframeResearch";
 
 import { getItemRequirements } from "./itemRequirements";
 
@@ -27,6 +29,8 @@ const WARFRAME_ITEMS_ACQ: Record<string, AcquisitionDef> = deriveWarframeItemsAc
 const ITEMS_JSON_MARKET_ACQ: Record<string, AcquisitionDef> = deriveItemsJsonMarketAcquisitionByCatalogId();
 const RECIPE_BUCKET_ACQ: Record<string, AcquisitionDef> = deriveRecipeBucketAcquisitionByCatalogId();
 const CLAN_TECH_ACQ: Record<string, AcquisitionDef> = deriveClanTechAcquisitionByCatalogId();
+const COMPONENT_CRAFT_ACQ: Record<string, AcquisitionDef> = deriveComponentCraftabilityAcquisitionByCatalogId();
+const OVERFRAME_RESEARCH_ACQ: Record<string, AcquisitionDef> = deriveOverframeResearchAcquisitionByCatalogId();
 
 const RECIPE_CATALOG_ID_PREFIX = "items:/Lotus/Types/Recipes/";
 
@@ -295,6 +299,8 @@ function gatherDirectSources(catalogId: CatalogId): string[] {
     const im = ITEMS_JSON_MARKET_ACQ[key];
     const rb = RECIPE_BUCKET_ACQ[key];
     const ct = CLAN_TECH_ACQ[key];
+    const or = OVERFRAME_RESEARCH_ACQ[key];
+    const cc = COMPONENT_CRAFT_ACQ[key];
 
     return unionSources(
         wfcd?.sources,
@@ -304,7 +310,9 @@ function gatherDirectSources(catalogId: CatalogId): string[] {
         wi?.sources,
         im?.sources,
         rb?.sources,
-        ct?.sources
+        ct?.sources,
+        or?.sources,
+        cc?.sources
     );
 }
 

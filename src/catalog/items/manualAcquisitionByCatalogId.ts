@@ -129,22 +129,31 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     // Pets
     // ----------------------------
     "items:/Lotus/Powersuits/Khora/Kavat/KhoraPrimeKavatPowerSuit": ["data:warframe/khora-prime"], // Venari Prime
-    "items:/Lotus/Types/Game/CatbrowPet/CheshireCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",], // Smeeta Kavat
-    "items:/Lotus/Types/Game/CatbrowPet/MirrorCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",], // Adarza Kavat
-    "items:/Lotus/Types/Game/KubrowPet/AdventurerKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
-    "items:/Lotus/Types/Game/KubrowPet/FurtiveKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
-    "items:/Lotus/Types/Game/KubrowPet/GuardKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
-    "items:/Lotus/Types/Game/KubrowPet/HunterKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
-    "items:/Lotus/Types/Game/KubrowPet/RetrieverKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
-    "items:/Lotus/Types/Game/KubrowPet/ChargerKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
 
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/ArmoredInfestedCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/HornedInfestedCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/VulpineInfestedCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    // Regular Kavats — bred in the Orbiter Incubator using Kavat Genetic Codes
+    "items:/Lotus/Types/Game/CatbrowPet/CheshireCatbrowPetPowerSuit": ["data:pets/kavat"], // Smeeta Kavat
+    "items:/Lotus/Types/Game/CatbrowPet/MirrorCatbrowPetPowerSuit": ["data:pets/kavat"], // Adarza Kavat
+    // Vasca Kavat — contract the Vasca strain by getting bitten on Plains of Eidolon at night
+    "items:/Lotus/Types/Game/CatbrowPet/VampireCatbrowPetPowerSuit": ["data:openworld/cetus/vasca"], // Vasca Kavat
 
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/MedjayPredatorKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/PharaohPredatorKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
-    "items:/Lotus/Types/Friendly/Pets/CreaturePets/VizierPredatorKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son",],
+    // Regular Kubrows — bred in the Orbiter Incubator using a Kubrow Egg (found on Earth)
+    "items:/Lotus/Types/Game/KubrowPet/AdventurerKubrowPetPowerSuit": ["data:pets/kubrow"], // Sahasa Kubrow
+    "items:/Lotus/Types/Game/KubrowPet/FurtiveKubrowPetPowerSuit": ["data:pets/kubrow"], // Huras Kubrow
+    "items:/Lotus/Types/Game/KubrowPet/GuardKubrowPetPowerSuit": ["data:pets/kubrow"], // Raksa Kubrow
+    "items:/Lotus/Types/Game/KubrowPet/HunterKubrowPetPowerSuit": ["data:pets/kubrow"], // Sunika Kubrow
+    "items:/Lotus/Types/Game/KubrowPet/RetrieverKubrowPetPowerSuit": ["data:pets/kubrow"], // Chesa Kubrow
+    // Helminth Charger — incubate a Kubrow Egg while the Helminth cyst is active
+    "items:/Lotus/Types/Game/KubrowPet/ChargerKubrowPetPowerSuit": ["data:pets/helminth-charger"], // Helminth Charger
+
+    // Vulpaphyla (Infested Kavats) — Deimos conservation and Son (Deimos) vendor
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/ArmoredInfestedCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son"], // Panzer Vulpaphyla
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/HornedInfestedCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son"], // Crescent Vulpaphyla
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/VulpineInfestedCatbrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son"], // Sly Vulpaphyla
+
+    // Predasite (Infested Kubrows) — Deimos conservation and Son (Deimos) vendor
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/MedjayPredatorKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son"], // Medjay Predasite
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/PharaohPredatorKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son"], // Pharaoh Predasite
+    "items:/Lotus/Types/Friendly/Pets/CreaturePets/VizierPredatorKubrowPetPowerSuit": ["data:activity/deimos/conservation", "data:vendor/deimos/son"], // Vizier Predasite
 
     // ----------------------------
     // Moa companion weapons / parts (Fortuna)

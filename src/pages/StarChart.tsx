@@ -50,6 +50,9 @@ export default function StarChart() {
     const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
     const [selectedTab, setSelectedTab] = useState<NodeGroupKind>("base");
 
+    // Steel Path tracking toggle — declared early so tabsForPanel can read it.
+    const [steelPathMode, setSteelPathMode] = useState(false);
+
     // ~35% zoom (vb.w=286 → scale=100/286≈0.35), centered on the actual planet
     // cluster centroid rather than the mathematical world center.
     const INITIAL_VB: ViewBox = { x: -100, y: -109, w: 286, h: 286 };
@@ -100,7 +103,7 @@ export default function StarChart() {
 
         // Build the raw tabs first.
         const rawKinds: NodeGroupKind[] = ["all", "base", "mission_rewards", "caches", "extra"];
-        const raw = rawKinds.map((k) => buildTabSpecRaw({ group: selectedGroup, kind: k, sourceToItemsIndex }));
+        const raw = rawKinds.map((k) => buildTabSpecRaw({ group: selectedGroup, kind: k, sourceToItemsIndex, steelPathMode }));
 
         // Keep tabs based on whether they have ANY sources, except All which is always shown.
         const keep = raw.filter((s) => s.kind === "all" || s.dropSources.length > 0);
@@ -119,7 +122,7 @@ export default function StarChart() {
             // (Prevents “Exceptional/Flawless/Radiant” noise even if a relic leaks into Extra/Drops.)
             return { ...t, items: normalizeMissionRewardItemsForDisplay(t.items) };
         });
-    }, [selectedGroup, sourceToItemsIndex]);
+    }, [selectedGroup, sourceToItemsIndex, steelPathMode]);
 
     const activeTab = useMemo(() => {
         if (!selectedGroup) return null;
@@ -171,9 +174,6 @@ export default function StarChart() {
 
     // Which alternate map is displayed (normal = main star chart).
     const [mainMapMode, setMainMapMode] = useState<"normal" | "proxima" | "duviri">("normal");
-
-    // Steel Path tracking toggle.
-    const [steelPathMode, setSteelPathMode] = useState(false);
 
     function resetView() {
         setSelectedGroupKey(null);

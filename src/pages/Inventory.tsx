@@ -14,7 +14,6 @@ import {
 } from "../domain/logic/plannerEngine";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
-import { getItemRequirements } from "../catalog/items/itemRequirements";
 import { uid, nowIso } from "../store/storeUtils";
 import ALL_RAW from "../../external/warframe-items/raw/All.json";
 import missionRewardsJson from "../../external/warframe-drop-data/raw/missionRewards.json";
@@ -434,13 +433,22 @@ function InvDropRow({ d, small = false, worldState = null, steelPath = false }: 
     );
   }
 
+  // Extract ", Rotation X" suffix so it can be shown as a compact badge instead of
+  // being buried in the truncated location string.
+  const rotMatch = d.location.match(/,\s*Rotation\s+([ABC])\s*$/i);
+  const rotLabel = rotMatch ? rotMatch[1].toUpperCase() : null;
+  const locationText = rotMatch ? d.location.slice(0, d.location.length - rotMatch[0].length).trim() : d.location;
+
   return (
     <div className={["flex items-center gap-1.5 rounded px-2 py-1 bg-slate-900/40 border border-slate-800/50", sz].join(" ")}>
-      <span className="flex-1 truncate text-slate-300">{d.location}</span>
+      <span className="flex-1 truncate text-slate-300">{locationText}</span>
+      {rotLabel && (
+        <span className="rounded px-1 py-px bg-slate-700 text-slate-300 font-mono font-bold shrink-0">{rotLabel}</span>
+      )}
       {steelPath && (
         <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1 py-0.5 rounded border border-yellow-700/50 bg-yellow-950/40 text-yellow-400"
-          title="Steel Path drop rate">
-          SP
+          title="This drop rate is from the Steel Path difficulty variant of this mission">
+          Steel Path
         </span>
       )}
       <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
@@ -2646,7 +2654,6 @@ export default function Inventory() {
           const sources: string[] = Array.isArray(acq?.sources)
             ? (acq.sources as string[])
             : [];
-          const recipe = getItemRequirements(selectedDetailId) ?? [];
           const avail = determineItemAvailability(
             selectedDetailId,
             completedPrereqs,
@@ -3132,6 +3139,29 @@ export default function Inventory() {
                       <div className="space-y-1.5">
                         {allE.components.map((comp, i) => {
                           const hasDrops = comp.drops && comp.drops.length > 0;
+                          // Only resolve catalog acquisition for recipe-path components
+                          // (blueprints, parts). Generic resources like Salvage, Neurodes,
+                          // Gallium etc. have incomplete or misleading catalog sources —
+                          // their drop rows (if any) or wiki link are more accurate.
+                          const isRecipeComp = comp.uniqueName
+                            ? /\/Recipes\//.test(comp.uniqueName)
+                            : false;
+                          const compCatalogId = isRecipeComp && comp.uniqueName
+                            ? (`items:${comp.uniqueName}` as import("../domain/catalog/loadFullCatalog").CatalogId)
+                            : null;
+                          const compAcq = compCatalogId
+                            ? getAcquisitionByCatalogId(compCatalogId)
+                            : null;
+                          // Only show "primary" acquisition sources in the header badge.
+                          // Drop-table sources (data:drop:*, data:node/*) are already
+                          // represented by the drop rows below and would show raw IDs here.
+                          // data:crafting is also not useful at the individual component level.
+                          const compSources = (compAcq?.sources ?? []).filter(s =>
+                            s !== "data:crafting" &&
+                            !s.startsWith("data:drop:") &&
+                            !s.startsWith("data:node/")
+                          );
+                          const hasCatalogSources = compSources.length > 0;
                           return (
                             <div
                               key={i}
@@ -3160,7 +3190,23 @@ export default function Inventory() {
                                 ) : (
                                   <WikiLink name={comp.name} />
                                 )}
-                                {!hasDrops && (
+                                {/* Right side: catalog sources if known, else wiki fallback */}
+                                {hasCatalogSources ? (
+                                  <span className="ml-auto flex flex-wrap gap-x-2 gap-y-0.5 justify-end">
+                                    {compSources.slice(0, 3).map((s) => (
+                                      <span key={s} className="text-[10px] text-sky-400">
+                                        {SOURCE_INDEX[s as any]?.label ?? s
+                                          .replace(/^(?:data|src):/, "")
+                                          .replace(/\//g, " › ")
+                                          .replace(/-/g, " ")
+                                          .replace(/\b\w/g, (c) => c.toUpperCase())}
+                                      </span>
+                                    ))}
+                                    {compSources.length > 3 && (
+                                      <span className="text-[10px] text-slate-500">+{compSources.length - 3} more</span>
+                                    )}
+                                  </span>
+                                ) : !hasDrops ? (
                                   <a
                                     href={comp.uniqueName && /\/Recipes\//.test(comp.uniqueName)
                                       ? wikiUrl(name) + "#Acquisition"
@@ -3171,7 +3217,7 @@ export default function Inventory() {
                                   >
                                     Where to farm ↗
                                   </a>
-                                )}
+                                ) : null}
                               </div>
                               {hasDrops && (
                                 <div className="space-y-0.5 max-h-32 overflow-y-auto">
@@ -3279,32 +3325,7 @@ export default function Inventory() {
                     </div>
                   )}
 
-                  {/* Recipe / crafting components from catalog */}
-                  {recipe.length > 0 && (
-                    <div>
-                      <Label>Crafting Recipe</Label>
-                      <ul className="space-y-0.5">
-                        {recipe.map((comp) => {
-                          const compRec: any =
-                            FULL_CATALOG.recordsById[comp.catalogId];
-                          const compName =
-                            compRec?.displayName ?? String(comp.catalogId);
-                          return (
-                            <li
-                              key={String(comp.catalogId)}
-                              className="flex items-center gap-1.5 text-xs text-slate-300"
-                            >
-                              <span className="text-slate-500 font-mono">
-                                ×{comp.count}
-                              </span>
-                              <span>{compName}</span>
-                              <WikiLink name={compName} />
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  )}
+
                 </div>
               </div>
 

@@ -516,8 +516,8 @@ export function normalizeMissionRewardItemsForDisplay(items: ItemRow[]): ItemRow
     return dedupeItemsByName(filtered);
 }
 
-export function buildTabSpecRaw(args: { group: NodeGroup; kind: NodeGroupKind; sourceToItemsIndex: Record<string, ItemRow[]> }): TabSpec {
-    const { group, kind, sourceToItemsIndex } = args;
+export function buildTabSpecRaw(args: { group: NodeGroup; kind: NodeGroupKind; sourceToItemsIndex: Record<string, ItemRow[]>; steelPathMode?: boolean }): TabSpec {
+    const { group, kind, sourceToItemsIndex, steelPathMode = false } = args;
 
     const nodeId = pickNodeIdForTab(group, kind);
 
@@ -527,18 +527,27 @@ export function buildTabSpecRaw(args: { group: NodeGroup; kind: NodeGroupKind; s
               .map((sid) => safeNormalizeSourceId(sid))
               .filter((x): x is string => Boolean(x));
 
-    // For the Mission Rewards tab, also include sources from Steel Path (extra) variants
-    // so Normal and Steel Path drops are shown together with proper labeling.
-    const extraSources: string[] =
-        kind === "mission_rewards"
-            ? (group.kinds["extra"] ?? []).flatMap((extraId) =>
-                  getDropSourcesForStarChartNode(extraId)
-                      .map((sid) => safeNormalizeSourceId(sid))
-                      .filter((x): x is string => Boolean(x))
-              )
-            : [];
+    // For the Mission Rewards tab, switch between Normal and Steel Path sources based on mode.
+    //
+    // - Normal mode: use the base node sources only.
+    // - Steel Path mode WITH an (Extra) variant: use only the extra (Steel Path) sources.
+    // - Steel Path mode WITHOUT an (Extra) variant: fall back to base sources (node has no SP data).
+    let rawSources: string[];
+    if (kind === "mission_rewards") {
+        const extraNodeIds = group.kinds["extra"] ?? [];
+        if (steelPathMode && extraNodeIds.length > 0) {
+            rawSources = extraNodeIds.flatMap((extraId) =>
+                getDropSourcesForStarChartNode(extraId)
+                    .map((sid) => safeNormalizeSourceId(sid))
+                    .filter((x): x is string => Boolean(x))
+            );
+        } else {
+            rawSources = primarySources;
+        }
+    } else {
+        rawSources = primarySources;
+    }
 
-    const rawSources = [...primarySources, ...extraSources];
     const dropSources = filterSourcesForTab(kind, rawSources);
 
     const dropSourceDetails = dropSources.map((sid) => ({

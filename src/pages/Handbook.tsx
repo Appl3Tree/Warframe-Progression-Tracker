@@ -1478,6 +1478,238 @@ const SECTIONS: Section[] = [
             </>
         ),
     },
+    {
+        id: "companions-breeding",
+        title: "Companions & Breeding",
+        summary: "Kavats, Kubrows, Vulpaphyla, Predasites, and Helminth Chargers — prerequisites, breeding steps, and how each type works.",
+        content: (
+            <>
+                <P>
+                    Biological companions — Kavats, Kubrows, and their Infested variants — must be
+                    bred or captured before they can be used. They live in your Orbiter's{" "}
+                    <B>Incubator</B> (bottom-left of the ship). You can only have{" "}
+                    <B>one active companion</B> at a time across all companion types.
+                </P>
+
+                <SectionHeading>Prerequisites (Kavats &amp; Kubrows)</SectionHeading>
+                <P>Before you can breed any biological companion, you need three things:</P>
+                <Bullets items={[
+                    <><B>Complete "Howl of the Kubrow"</B> — this short quest unlocks the Incubator and is available early in the star chart.</>,
+                    <><B>Incubator Upgrade Segment</B> — required to breed Kavats, and cuts incubation time from 48 h to 24 h for all breeds. The blueprint is researched in your Clan Dojo's <B>Tenno Lab</B>, or buy the fully-built segment from the Market for 175 Platinum.</>,
+                    <><B>Incubator Power Core</B> — one is consumed per incubation. Buy from the Market for credits, or craft via the Foundry.</>,
+                    <><B>A free Companion Slot</B> — buy 2 extra slots for 12 Platinum from the Market if you are full.</>,
+                ]} />
+                <Callout color="blue">
+                    DNA Stabilizers and the old Loyalty / Stability degradation system have been{" "}
+                    <B>removed from the game</B> — you no longer need to maintain your companion's
+                    health with consumable items. Mature companions can also be freely{" "}
+                    <B>regressed back to puppy / kitten form</B> at any time via the Incubator
+                    without losing mods or cosmetics.
+                </Callout>
+
+                <SectionHeading>Kavats</SectionHeading>
+                <P>
+                    Kavats are feline companions. The two main variants are <B>Smeeta Kavat</B>{" "}
+                    (its Charm ability randomly triggers double resource or credit pickups, brief
+                    invulnerability, or doubled Affinity gain — exceptional for farming runs) and{" "}
+                    <B>Adarza Kavat</B> (boosts critical chance for nearby allies). Which variant
+                    you hatch is random unless you use imprints.
+                </P>
+                <Steps items={[
+                    <>Go to the <B>Void</B> — Feral Kavats roam Void tilesets. Low-level Survival or Exterminate nodes (Hepit, Oxomoco) give the most time to hunt them. Avoid Capture missions, which spawn very few enemies.</>,
+                    <>Equip a <B>Codex Scanner</B> or <B>Synthesis Scanner</B> in your Gear wheel (Codex Scanner is cheap from the Market). Scan every Feral Kavat you see — each scan has roughly a <B>25% chance</B> to yield a <B>Kavat Genetic Code</B>. You need <B>10 Genetic Codes</B> to incubate.</>,
+                    <>With 10 codes and a Power Core ready, go to the Incubator and select <B>Incubate → Kavat</B>. Incubation takes <B>48 hours</B> (24 hours with the Upgrade Segment installed), or 15 Platinum to rush immediately.</>,
+                    <>When incubation completes, open the Incubator and choose to <B>Mature</B> your companion. Maturation doesn't happen automatically — you must trigger it. Once mature it can be equipped from the Arsenal's Companion tab. You can also <B>Regress</B> a mature companion back to kitten form at any time without losing mods or cosmetics.</>,
+                ]} />
+                <Callout color="amber">
+                    <B>Imprints</B> are genetic snapshots you can take from an existing Kavat (up to{" "}
+                    <B>3 imprints per individual Kavat</B>, each taking 1.5 hours or 10 Platinum to
+                    rush). Breeding with two imprints of the same variant gives a <B>much higher
+                    probability</B> of that variant hatching — but it is not an absolute guarantee.
+                    Imprints are tradeable; check <B>Warframe.market</B> to buy Smeeta imprints
+                    from other players and skip the RNG entirely.
+                </Callout>
+
+                <SectionHeading>Vasca Kavat</SectionHeading>
+                <P>
+                    The Vasca Kavat is a third Kavat variant with life-steal and a passive that
+                    raises its owner from bleedout. It is bred differently — you infect an existing
+                    Kavat with the Vasca Virus and extract imprints from it rather than using
+                    Genetic Codes directly.
+                </P>
+                <Steps items={[
+                    <>Equip any Kavat as your active companion. Travel to the <B>Plains of Eidolon at night</B> — Vasca Kavats only spawn in darkness (watch the day/night timer on the Cetus nav node).</>,
+                    <>Let a wild Vasca Kavat <B>bite your companion</B>. The companion must survive the hit — if it is downed instantly the infection will not transfer. Your Kavat will glow red to confirm infection. You can buy a <B>Vasca Kavat Lure</B> (3,000 Standing) or <B>Pheromone Oota</B> (200 Standing) from <B>Master Teasonai</B> in Cetus to attract Vasca Kavats more reliably.</>,
+                    <>Back in your Orbiter, go to the Incubator and take an <B>imprint</B> from the infected Kavat. The game will warn you this cures the virus — confirm. You now have one Vasca Imprint.</>,
+                    <>You need <B>two Vasca Imprints</B> total. Re-infect the same Kavat (the cure does not prevent re-infection) or a second Kavat, and repeat the imprint step.</>,
+                    <>Start a new Kavat incubation applying both Vasca Imprints. The result will be a Vasca Kavat.</>,
+                ]} />
+
+                <SectionHeading>Kubrows</SectionHeading>
+                <P>Kubrows are canine companions. Variants and their key roles:</P>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[440px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Variant</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Key Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Huras Kubrow",   "Stealth — cloaks itself and you; can extend the cloak to the whole squad"],
+                                ["Raksa Kubrow",   "Defense — howl restores your shields and intimidates nearby enemies"],
+                                ["Chesa Kubrow",   "Utility — disarms enemies and automatically retrieves loot to you"],
+                                ["Sahasa Kubrow",  "Farming — digs up extra resources and ammo from the environment"],
+                                ["Sunika Kubrow",  "Combat — specialises in Mercy kills and attacking downed enemies"],
+                            ].map(([v, r]) => (
+                                <tr key={v} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-slate-100">{v}</td>
+                                    <td className="px-3 py-2 text-slate-300">{r}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+                <Steps items={[
+                    <>Farm a <B>Kubrow Egg</B> on Earth by destroying the dirt burrow mounds found in Earth's forest tilesets (melee attacks break them open). Only one egg can be held at a time.</>,
+                    <>Take the egg to the Incubator with a Power Core and start incubation — <B>48 hours</B> standard (24 hours with the Upgrade Segment), or 15 Platinum to rush.</>,
+                    <>The variant hatched is random. Use two imprints from the same Kubrow breed (up to <B>2 imprints per individual Kubrow</B>) for a much higher chance of that breed — though still not guaranteed.</>,
+                ]} />
+
+                <SectionHeading>Helminth Charger</SectionHeading>
+                <P>
+                    The Helminth Charger is an Infested companion grown from a <B>Helminth Cyst</B>,
+                    a parasitic growth placed on Warframes by the Helminth organism in your Orbiter.
+                    It has crowd-control precepts including <B>Proboscis</B> (harpoon pull) and{" "}
+                    <B>Trample</B> (charging knockdown attack).
+                </P>
+                <Steps items={[
+                    <>Walk into the <B>Helminth room</B> in your Orbiter (the organically-textured door at the back of the ship) while wearing any Warframe. The Helminth will inject a cyst. Alternatively, equip <B>Nidus</B> or <B>Nidus Prime</B> — both start with the cyst already present. The cyst also spreads from infected squadmates in missions or Dojos.</>,
+                    <>After <B>24 hours</B> a pink cyst appears on the Warframe's neck. Let it mature for a further <B>6 days</B> (7 days total from infection) until a small tendril emerges — that indicates full maturity.</>,
+                    <>Go to the Incubator and select <B>Kubrow Breeding → Drain Helminth Cyst</B>. This removes the cyst and starts incubation (48 h / 24 h with Upgrade Segment). The Warframe can be re-infected afterward.</>,
+                ]} />
+                <Callout color="amber">
+                    If <B>Lotus prompts you at mission start</B> to remove a cyst, accepting
+                    permanently prevents <B>that specific Warframe</B> from being re-infected.
+                    Other Warframes (including new ones you acquire later) can still get the cyst
+                    normally. Draining via the Incubator does <B>not</B> block re-infection on that
+                    frame — so always drain rather than letting Lotus remove it if you want to breed
+                    more Chargers from the same Warframe in future.
+                </Callout>
+
+                <SectionHeading>Vulpaphyla (Infested Kavats — Deimos)</SectionHeading>
+                <P>
+                    Vulpaphyla are Infested fox-like companions from the Cambion Drift (Deimos).
+                    Each subspecies has a <B>Devolution precept mod</B> (e.g. Panzer Devolution).
+                    When this mod is equipped and the Vulpaphyla is downed, it enters{" "}
+                    <B>Larval Devolution Form</B> — a floating spore state lasting 30 seconds —
+                    then automatically revives. Without the Devolution mod equipped they are downed
+                    and revived like any other companion. They are <B>not bred in the
+                    Incubator</B>; instead they are assembled from modular components and{" "}
+                    <B>Revivified by Son</B> in the Necralisk.
+                </P>
+                <P>
+                    Each Vulpaphyla is built from three choices: <B>subspecies</B> (determines
+                    abilities), a <B>Mutagen</B> (tail appearance and damage resistances), and an{" "}
+                    <B>Antigen</B> (head appearance and default polarity) — 48 possible combinations
+                    in total. Buy Mutagen and Antigen blueprints from Son with Standing, craft them
+                    in the Foundry, then bring them to Son for Revivification at a cost of{" "}
+                    <B>5,000 Credits</B>.
+                </P>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[480px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Subspecies</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Signature Abilities</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Panzer Vulpaphyla",  "Viral Quills — launches quills inflicting Viral; Symbiotic Bond then spreads those Viral procs to enemies nearby on each status tick"],
+                                ["Sly Vulpaphyla",     "Survival Instinct — creates a decoy that draws enemy fire for 1.5 s when you bullet jump"],
+                                ["Crescent Vulpaphyla","Crescent Charge — lifts enemies and throws them, dealing 20% of their max health + weapon damage in a 5 m radius with 5 Puncture stacks"],
+                            ].map(([v, a]) => (
+                                <tr key={v} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-slate-100">{v}</td>
+                                    <td className="px-3 py-2 text-slate-300">{a}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+                <P>
+                    You can also <B>capture a wild Vulpaphyla</B> in the Cambion Drift as an
+                    alternative: find one already fighting Infested, wait for the orange shimmer that
+                    indicates it is weakened, then tranquilize it with the <B>Tranq Rifle</B> (bought
+                    from Son) and return it to Son. This skips the crafting step but gives less
+                    control over which Mutagen/Antigen combination you end up with.
+                </P>
+                <Callout color="blue">
+                    <B>Gilding</B> is required to name your Vulpaphyla, add or change polarities,
+                    and earn Mastery from it. Level it to <B>Rank 30</B> then spend{" "}
+                    <B>10 Son Tokens + 5,000 Standing</B> at Son to gild — it resets to Rank 0
+                    afterward. As of <B>Update 37.0</B> Vulpaphyla also have their own moddable{" "}
+                    <B>Beast Claws</B> weapon with unique stats per subspecies.
+                </Callout>
+
+                <SectionHeading>Predasites (Infested Kubrows — Deimos)</SectionHeading>
+                <P>
+                    Predasites are the Infested Kubrow equivalents from Deimos. When downed they
+                    become <B>incapacitated for 60 seconds</B> then automatically revive with 5
+                    seconds of invulnerability (or can be manually revived early). They use the same
+                    modular Mutagen/Antigen + Son Revivification system as Vulpaphyla (5,000 Credits
+                    per Revivification) and also require gilding to name, polarize, or earn Mastery.
+                    Wild Predasites can be captured in the Cambion Drift using the same Tranq Rifle
+                    method.
+                </P>
+                <TableWrap>
+                    <table className="w-full text-xs min-w-[480px]">
+                        <thead className="bg-slate-900/60">
+                            <tr>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Subspecies</th>
+                                <th className="text-left px-3 py-2.5 text-slate-300">Signature Abilities</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                ["Medjay Predasite",  "Infectious Bite + Paralytic Spores — infection-based crowd control and damage absorption"],
+                                ["Pharaoh Predasite", "Anabolic Pollination + Endoparasitic Vector — spore clouds that buff allies and restrain enemies with tentacles"],
+                                ["Vizier Predasite",  "Acidic Spittle + Iatric Mycelium — acid attacks and healing spore trails for the player"],
+                            ].map(([v, a]) => (
+                                <tr key={v} className="border-t border-slate-800/60">
+                                    <td className="px-3 py-2 font-semibold text-slate-100">{v}</td>
+                                    <td className="px-3 py-2 text-slate-300">{a}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </TableWrap>
+
+                <SectionHeading>Imprints &amp; Trading (Kavats and Kubrows)</SectionHeading>
+                <P>
+                    Imprints are genetic snapshots taken from an existing companion via the
+                    Incubator menu (1.5 hours each, rushable for 10 Platinum). Kavats allow up
+                    to <B>3 imprints per individual</B>; Kubrows allow up to <B>2</B>. Using two
+                    imprints of the same variant when incubating gives a <B>significantly higher
+                    probability</B> of hatching that variant — but it is not an absolute guarantee.
+                    Imprints are tradeable between players; check <B>Warframe.market</B> for
+                    listings if you want to target a specific variant without grinding RNG.
+                </P>
+                <Callout color="green">
+                    <B>Panzer Vulpaphyla</B> is the current top-tier general companion. Its Viral
+                    Quills passively spread Viral status to nearby enemies, which significantly
+                    amplifies your whole squad's damage output — Viral is one of the strongest
+                    status effects in the game. It is the go-to companion upgrade once you reach
+                    Deimos. For solo farming sessions, <B>Smeeta Kavat</B>'s Charm is hard to
+                    beat: its random doubling of resource and credit pickups, combined with
+                    occasional Affinity boosts and brief invulnerability windows, makes it
+                    exceptional for resource-intensive grind.
+                </Callout>
+            </>
+        ),
+    },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1487,7 +1719,7 @@ const SECTIONS: Section[] = [
 const NAV_GROUPS = [
     { id: "story",    label: "Story",              sectionIds: ["quest-order", "hex-relationships"] },
     { id: "combat",   label: "Combat Systems",      sectionIds: ["lich-sisters", "kuva", "eidolons", "railjack", "necramech"] },
-    { id: "build",    label: "Build & Progression", sectionIds: ["focus", "modding", "steel-path", "farming", "rotations"] },
+    { id: "build",    label: "Build & Progression", sectionIds: ["focus", "modding", "steel-path", "farming", "rotations", "companions-breeding"] },
     { id: "economy",  label: "Economy & Routine",   sectionIds: ["trading", "daily-weekly", "syndicates"] },
 ] as const;
 
