@@ -8501,6 +8501,28 @@
     ],
     "note": "WFCD recipe (Primary.json)"
   },
+  "items:/Lotus/Weapons/Tenno/LongGuns/TnInkRifle/TnInkRifleWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/LongGuns/TnInkRifle/TnInkRifleWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrel",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/EnkausBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiver",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Primary.json)"
+  },
   "items:/Lotus/Weapons/Tenno/Bows/TnChoirBow/TnChoirBow": {
     "outputCatalogId": "items:/Lotus/Weapons/Tenno/Bows/TnChoirBow/TnChoirBow",
     "components": [
@@ -10610,6 +10632,16 @@
     "components": [
       {
         "catalogId": "items:/Lotus/Types/Recipes/Weapons/LawyerWeapons/CrpBEGlaxionBlueprint",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Primary.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEQuanta/CrpBEQuanta": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEQuanta/CrpBEQuanta",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/LawyerWeapons/CrpBEQuantaBlueprint",
         "count": 1
       }
     ],
@@ -23656,6 +23688,32 @@
       },
       {
         "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Warframes.json)"
+  },
+  "items:/Lotus/Powersuits/Inkblot/Inkblot": {
+    "outputCatalogId": "items:/Lotus/Powersuits/Inkblot/Inkblot",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/FollieBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/FollieChassisComponent",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent",
         "count": 1
       }
     ],

@@ -35,8 +35,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mercury / Apollodorus / B",
     "rotation": "B",
     "chance": 7.69
@@ -84,8 +84,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mercury / Apollodorus / C",
     "rotation": "C",
     "chance": 11.06
@@ -133,8 +133,8 @@
     "chance": 9.09
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mercury / Lares / A",
     "rotation": "A",
     "chance": 9.09
@@ -294,8 +294,8 @@
     "chance": 10
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mercury / Odin / A",
     "rotation": "A",
     "chance": 10
@@ -455,8 +455,8 @@
     "chance": 14.29
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mercury / Suisei / B",
     "rotation": "B",
     "chance": 14.29
@@ -504,8 +504,8 @@
     "chance": 4.35
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Bifrost Echo (Caches) / A",
     "rotation": "A",
     "chance": 4.35
@@ -567,8 +567,8 @@
     "chance": 4.35
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Beacon Shield Ring (Caches) / A",
     "rotation": "A",
     "chance": 4.35
@@ -630,8 +630,8 @@
     "chance": 10
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Orvin-Haarc / B",
     "rotation": "B",
     "chance": 10
@@ -679,8 +679,8 @@
     "chance": 4.35
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Orvin-Haarc (Caches) / A",
     "rotation": "A",
     "chance": 4.35
@@ -742,8 +742,8 @@
     "chance": 4.55
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Vesper Strait / B",
     "rotation": "B",
     "chance": 4.55
@@ -791,8 +791,8 @@
     "chance": 4.35
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Vesper Strait (Caches) / A",
     "rotation": "A",
     "chance": 4.35
@@ -854,8 +854,8 @@
     "chance": 5.88
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Luckless Expanse / C",
     "rotation": "C",
     "chance": 6.25
@@ -903,8 +903,8 @@
     "chance": 4.35
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Luckless Expanse (Caches) / A",
     "rotation": "A",
     "chance": 4.35
@@ -966,8 +966,8 @@
     "chance": 5.88
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Falling Glory / C",
     "rotation": "C",
     "chance": 5.26
@@ -1015,8 +1015,8 @@
     "chance": 4.35
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Falling Glory (Caches) / A",
     "rotation": "A",
     "chance": 4.35
@@ -1078,8 +1078,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / V Prime / B",
     "rotation": "B",
     "chance": 7.69
@@ -1127,8 +1127,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / V Prime / C",
     "rotation": "C",
     "chance": 11.06
@@ -1176,8 +1176,8 @@
     "chance": 14.29
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Vesper / B",
     "rotation": "B",
     "chance": 14.29
@@ -1225,8 +1225,8 @@
     "chance": 10
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Cytherean / A",
     "rotation": "A",
     "chance": 10
@@ -1386,8 +1386,8 @@
     "chance": 14.29
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Unda / B",
     "rotation": "B",
     "chance": 14.29
@@ -1435,8 +1435,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Malva / B",
     "rotation": "B",
     "chance": 7.69
@@ -1484,8 +1484,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Malva / C",
     "rotation": "C",
     "chance": 11.06
@@ -1533,8 +1533,8 @@
     "chance": 9.09
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Tessera / A",
     "rotation": "A",
     "chance": 9.09
@@ -1694,8 +1694,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Kiliken / B",
     "rotation": "B",
     "chance": 7.69
@@ -1743,8 +1743,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Kiliken / C",
     "rotation": "C",
     "chance": 11.06
@@ -1792,8 +1792,8 @@
     "chance": 6.9
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Venus / Romula / A",
     "rotation": "A",
     "chance": 6.9
@@ -2002,8 +2002,8 @@
     "chance": 14.29
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Earth / Cambria / B",
     "rotation": "B",
     "chance": 14.29
@@ -2051,8 +2051,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Earth / Everest / B",
     "rotation": "B",
     "chance": 7.69
@@ -2100,8 +2100,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Earth / Everest / C",
     "rotation": "C",
     "chance": 11.06
@@ -2149,8 +2149,8 @@
     "chance": 9.09
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Earth / Lith / A",
     "rotation": "A",
     "chance": 9.09
@@ -2310,8 +2310,8 @@
     "chance": 10
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Earth / Gaia / A",
     "rotation": "A",
     "chance": 10
@@ -2471,8 +2471,8 @@
     "chance": 6.9
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Earth / Coba / A",
     "rotation": "A",
     "chance": 6.9
@@ -2681,8 +2681,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Earth / Tikal / B",
     "rotation": "B",
     "chance": 7.69
@@ -2730,8 +2730,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Earth / Tikal / C",
     "rotation": "C",
     "chance": 11.06
@@ -2779,8 +2779,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mars / Arcadia / B",
     "rotation": "B",
     "chance": 7.69
@@ -2828,8 +2828,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mars / Arcadia / C",
     "rotation": "C",
     "chance": 11.06
@@ -2877,8 +2877,8 @@
     "chance": 14.29
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mars / Olympus / A",
     "rotation": "A",
     "chance": 14.29
@@ -2926,8 +2926,8 @@
     "chance": 14.29
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mars / Olympus / B",
     "rotation": "B",
     "chance": 14.29
@@ -3024,8 +3024,8 @@
     "chance": 9.09
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mars / Spear / A",
     "rotation": "A",
     "chance": 9.09
@@ -3185,8 +3185,8 @@
     "chance": 10
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mars / Alator / A",
     "rotation": "A",
     "chance": 10
@@ -3346,8 +3346,8 @@
     "chance": 14.29
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mars / Arval / B",
     "rotation": "B",
     "chance": 14.29
@@ -3395,8 +3395,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mars / Augustus / B",
     "rotation": "B",
     "chance": 7.69
@@ -3444,8 +3444,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mars / Augustus / C",
     "rotation": "C",
     "chance": 11.06
@@ -3493,8 +3493,8 @@
     "chance": 6.9
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Mars / Kadesh / A",
     "rotation": "A",
     "chance": 6.9
@@ -4071,56 +4071,56 @@
     "relicDisplay": "Meso P17 Relic",
     "pathLabel": "missionRewards / Jupiter / Amalthea / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v12",
     "relicDisplay": "Meso V12 Relic",
     "pathLabel": "missionRewards / Jupiter / Amalthea / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso x1",
     "relicDisplay": "Meso X1 Relic",
     "pathLabel": "missionRewards / Jupiter / Amalthea / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v11",
     "relicDisplay": "Meso V11 Relic",
     "pathLabel": "missionRewards / Jupiter / Amalthea / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v13",
     "relicDisplay": "Meso V13 Relic",
     "pathLabel": "missionRewards / Jupiter / Amalthea / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso y1",
     "relicDisplay": "Meso Y1 Relic",
     "pathLabel": "missionRewards / Jupiter / Amalthea / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso a9",
     "relicDisplay": "Meso A9 Relic",
     "pathLabel": "missionRewards / Jupiter / Amalthea / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v14",
     "relicDisplay": "Meso V14 Relic",
     "pathLabel": "missionRewards / Jupiter / Amalthea / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v11",
@@ -4571,8 +4571,8 @@
     "chance": 6.9
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Jupiter / Sinai / A",
     "rotation": "A",
     "chance": 6.9
@@ -5114,56 +5114,56 @@
     "relicDisplay": "Meso P17 Relic",
     "pathLabel": "missionRewards / Saturn / Dione / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v12",
     "relicDisplay": "Meso V12 Relic",
     "pathLabel": "missionRewards / Saturn / Dione / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso x1",
     "relicDisplay": "Meso X1 Relic",
     "pathLabel": "missionRewards / Saturn / Dione / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v11",
     "relicDisplay": "Meso V11 Relic",
     "pathLabel": "missionRewards / Saturn / Dione / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v13",
     "relicDisplay": "Meso V13 Relic",
     "pathLabel": "missionRewards / Saturn / Dione / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso y1",
     "relicDisplay": "Meso Y1 Relic",
     "pathLabel": "missionRewards / Saturn / Dione / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso a9",
     "relicDisplay": "Meso A9 Relic",
     "pathLabel": "missionRewards / Saturn / Dione / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v14",
     "relicDisplay": "Meso V14 Relic",
     "pathLabel": "missionRewards / Saturn / Dione / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso p17",
@@ -5324,56 +5324,56 @@
     "relicDisplay": "Meso P17 Relic",
     "pathLabel": "missionRewards / Saturn / Aegaeon / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v12",
     "relicDisplay": "Meso V12 Relic",
     "pathLabel": "missionRewards / Saturn / Aegaeon / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso x1",
     "relicDisplay": "Meso X1 Relic",
     "pathLabel": "missionRewards / Saturn / Aegaeon / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v11",
     "relicDisplay": "Meso V11 Relic",
     "pathLabel": "missionRewards / Saturn / Aegaeon / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v13",
     "relicDisplay": "Meso V13 Relic",
     "pathLabel": "missionRewards / Saturn / Aegaeon / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso y1",
     "relicDisplay": "Meso Y1 Relic",
     "pathLabel": "missionRewards / Saturn / Aegaeon / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso a9",
     "relicDisplay": "Meso A9 Relic",
     "pathLabel": "missionRewards / Saturn / Aegaeon / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v14",
     "relicDisplay": "Meso V14 Relic",
     "pathLabel": "missionRewards / Saturn / Aegaeon / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso p17",
@@ -8393,8 +8393,8 @@
     "chance": 6.9
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Pluto / Sechura / A",
     "rotation": "A",
     "chance": 6.9
@@ -9391,56 +9391,56 @@
     "relicDisplay": "Meso P17 Relic",
     "pathLabel": "missionRewards / Ceres / Bode / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v12",
     "relicDisplay": "Meso V12 Relic",
     "pathLabel": "missionRewards / Ceres / Bode / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso x1",
     "relicDisplay": "Meso X1 Relic",
     "pathLabel": "missionRewards / Ceres / Bode / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v11",
     "relicDisplay": "Meso V11 Relic",
     "pathLabel": "missionRewards / Ceres / Bode / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v13",
     "relicDisplay": "Meso V13 Relic",
     "pathLabel": "missionRewards / Ceres / Bode / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso y1",
     "relicDisplay": "Meso Y1 Relic",
     "pathLabel": "missionRewards / Ceres / Bode / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso a9",
     "relicDisplay": "Meso A9 Relic",
     "pathLabel": "missionRewards / Ceres / Bode / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v14",
     "relicDisplay": "Meso V14 Relic",
     "pathLabel": "missionRewards / Ceres / Bode / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "lith k12",
@@ -9478,8 +9478,8 @@
     "chance": 9.09
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Ceres / Varro / A",
     "rotation": "A",
     "chance": 9.09
@@ -9639,8 +9639,8 @@
     "chance": 14.29
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Ceres / Hapke / B",
     "rotation": "B",
     "chance": 14.29
@@ -9688,8 +9688,8 @@
     "chance": 9.09
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Ceres / Casta / A",
     "rotation": "A",
     "chance": 9.09
@@ -9849,8 +9849,8 @@
     "chance": 10
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Ceres / Cinxia / A",
     "rotation": "A",
     "chance": 10
@@ -10010,8 +10010,8 @@
     "chance": 9.09
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Ceres / Egeria / A",
     "rotation": "A",
     "chance": 9.09
@@ -10276,8 +10276,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Ceres / Gabii / B",
     "rotation": "B",
     "chance": 7.69
@@ -10325,8 +10325,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Ceres / Gabii / C",
     "rotation": "C",
     "chance": 11.06
@@ -10374,8 +10374,8 @@
     "chance": 6.9
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Ceres / Seimeni / A",
     "rotation": "A",
     "chance": 6.9
@@ -11449,98 +11449,98 @@
     "relicDisplay": "Neo C7 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / A",
     "rotation": "A",
-    "chance": 10
+    "chance": 7.69
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / A",
     "rotation": "A",
-    "chance": 10
+    "chance": 7.69
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / A",
     "rotation": "A",
-    "chance": 10
+    "chance": 7.69
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / A",
     "rotation": "A",
-    "chance": 10
+    "chance": 7.69
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / A",
     "rotation": "A",
-    "chance": 10
+    "chance": 7.69
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / A",
     "rotation": "A",
-    "chance": 10
+    "chance": 7.69
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / A",
     "rotation": "A",
-    "chance": 10
+    "chance": 7.69
   },
   {
     "relicKey": "axi s18",
     "relicDisplay": "Axi S18 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / B",
     "rotation": "B",
-    "chance": 6.67
+    "chance": 7.69
   },
   {
     "relicKey": "axi p8",
     "relicDisplay": "Axi P8 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / B",
     "rotation": "B",
-    "chance": 6.67
+    "chance": 7.69
   },
   {
     "relicKey": "axi c10",
     "relicDisplay": "Axi C10 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / B",
     "rotation": "B",
-    "chance": 6.67
+    "chance": 7.69
   },
   {
     "relicKey": "axi t13",
     "relicDisplay": "Axi T13 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / B",
     "rotation": "B",
-    "chance": 6.67
+    "chance": 7.69
   },
   {
     "relicKey": "axi y1",
     "relicDisplay": "Axi Y1 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / B",
     "rotation": "B",
-    "chance": 6.67
+    "chance": 7.69
   },
   {
     "relicKey": "axi a20",
     "relicDisplay": "Axi A20 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / B",
     "rotation": "B",
-    "chance": 6.67
+    "chance": 7.69
   },
   {
     "relicKey": "axi n13",
     "relicDisplay": "Axi N13 Relic",
     "pathLabel": "missionRewards / Eris / Oestrus / B",
     "rotation": "B",
-    "chance": 6.67
+    "chance": 7.69
   },
   {
     "relicKey": "neo c7",
@@ -11676,8 +11676,8 @@
     "chance": 6.9
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Eris / Akkad / A",
     "rotation": "A",
     "chance": 6.9
@@ -13328,8 +13328,8 @@
     "chance": 6.9
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Sedna / Sangeru / A",
     "rotation": "A",
     "chance": 6.9
@@ -13871,56 +13871,56 @@
     "relicDisplay": "Meso P17 Relic",
     "pathLabel": "missionRewards / Europa / Valac / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v12",
     "relicDisplay": "Meso V12 Relic",
     "pathLabel": "missionRewards / Europa / Valac / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso x1",
     "relicDisplay": "Meso X1 Relic",
     "pathLabel": "missionRewards / Europa / Valac / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v11",
     "relicDisplay": "Meso V11 Relic",
     "pathLabel": "missionRewards / Europa / Valac / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v13",
     "relicDisplay": "Meso V13 Relic",
     "pathLabel": "missionRewards / Europa / Valac / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso y1",
     "relicDisplay": "Meso Y1 Relic",
     "pathLabel": "missionRewards / Europa / Valac / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso a9",
     "relicDisplay": "Meso A9 Relic",
     "pathLabel": "missionRewards / Europa / Valac / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v14",
     "relicDisplay": "Meso V14 Relic",
     "pathLabel": "missionRewards / Europa / Valac / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 7.74
   },
   {
     "relicKey": "meso v11",
@@ -14217,8 +14217,8 @@
     "chance": 6.9
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Europa / Larzac / A",
     "rotation": "A",
     "chance": 6.9
@@ -14560,15 +14560,15 @@
     "chance": 6.67
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Void / Taranis / A",
     "rotation": "A",
     "chance": 6.67
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Void / Taranis / A",
     "rotation": "A",
     "chance": 6.67
@@ -14616,8 +14616,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Void / Taranis / B",
     "rotation": "B",
     "chance": 11.06
@@ -14735,8 +14735,8 @@
     "chance": 6.25
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Void / Taranis / C",
     "rotation": "C",
     "chance": 6.25
@@ -14840,8 +14840,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Void / Ani / A",
     "rotation": "A",
     "chance": 11.06
@@ -15876,8 +15876,8 @@
     "chance": 14.29
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Grildrig / B",
     "rotation": "B",
     "chance": 14.29
@@ -15925,8 +15925,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Stickney / B",
     "rotation": "B",
     "chance": 7.69
@@ -15974,8 +15974,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Stickney / C",
     "rotation": "C",
     "chance": 11.06
@@ -16023,8 +16023,8 @@
     "chance": 9.09
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Drunlo / A",
     "rotation": "A",
     "chance": 9.09
@@ -16184,8 +16184,8 @@
     "chance": 9.68
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Kepler / C",
     "rotation": "C",
     "chance": 9.68
@@ -16233,8 +16233,8 @@
     "chance": 9.09
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Gulliver / A",
     "rotation": "A",
     "chance": 9.09
@@ -16394,8 +16394,8 @@
     "chance": 14.29
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Shklovsky / B",
     "rotation": "B",
     "chance": 14.29
@@ -16443,8 +16443,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Wendell / B",
     "rotation": "B",
     "chance": 7.69
@@ -16492,8 +16492,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Wendell / C",
     "rotation": "C",
     "chance": 11.06
@@ -16541,8 +16541,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Flimnap / B",
     "rotation": "B",
     "chance": 7.69
@@ -16590,8 +16590,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Flimnap / C",
     "rotation": "C",
     "chance": 11.06
@@ -16639,8 +16639,8 @@
     "chance": 10
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Memphis / B",
     "rotation": "B",
     "chance": 10
@@ -16688,8 +16688,8 @@
     "chance": 10
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Memphis / C",
     "rotation": "C",
     "chance": 10
@@ -16737,8 +16737,8 @@
     "chance": 2.21
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Phobos / Opik / A",
     "rotation": "A",
     "chance": 2.21
@@ -17052,8 +17052,8 @@
     "chance": 11.11
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Deimos / Hyf / A",
     "rotation": "A",
     "chance": 11.11
@@ -17157,8 +17157,8 @@
     "chance": 11.11
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Deimos / Terrorem / A",
     "rotation": "A",
     "chance": 11.11
@@ -18673,1286 +18673,1286 @@
     "relicDisplay": "Lith D7 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.17
+    "chance": 7.14
   },
   {
     "relicKey": "lith e2",
     "relicDisplay": "Lith E2 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.17
+    "chance": 7.14
   },
   {
     "relicKey": "lith k12",
     "relicDisplay": "Lith K12 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.17
+    "chance": 7.14
   },
   {
     "relicKey": "lith n18",
     "relicDisplay": "Lith N18 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.17
+    "chance": 7.14
   },
   {
     "relicKey": "lith g14",
     "relicDisplay": "Lith G14 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.17
+    "chance": 7.14
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.17
+    "chance": 7.14
   },
   {
     "relicKey": "lith q2",
     "relicDisplay": "Lith Q2 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.17
+    "chance": 7.14
   },
   {
     "relicKey": "meso p17",
     "relicDisplay": "Meso P17 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 8.33
+    "chance": 7.14
   },
   {
     "relicKey": "meso v12",
     "relicDisplay": "Meso V12 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 8.33
+    "chance": 7.14
   },
   {
     "relicKey": "meso x1",
     "relicDisplay": "Meso X1 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 8.33
+    "chance": 7.14
   },
   {
     "relicKey": "meso v11",
     "relicDisplay": "Meso V11 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 8.33
+    "chance": 7.14
   },
   {
     "relicKey": "meso v13",
     "relicDisplay": "Meso V13 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 8.33
+    "chance": 7.14
   },
   {
     "relicKey": "meso y1",
     "relicDisplay": "Meso Y1 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 8.33
+    "chance": 7.14
   },
   {
     "relicKey": "meso a9",
     "relicDisplay": "Meso A9 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 8.33
+    "chance": 7.14
   },
   {
     "relicKey": "meso v14",
     "relicDisplay": "Meso V14 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 8.33
+    "chance": 7.14
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 9.09
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 9.09
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 9.09
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 9.09
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 9.09
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 9.09
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
     "pathLabel": "missionRewards / Sanctuary / Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 9.68
+    "chance": 9.09
   },
   {
     "relicKey": "lith d7 relic (radiant)",
     "relicDisplay": "Lith D7 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.48
+    "chance": 7.04
   },
   {
     "relicKey": "lith e2 relic (radiant)",
     "relicDisplay": "Lith E2 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.48
+    "chance": 7.04
   },
   {
     "relicKey": "lith k12 relic (radiant)",
     "relicDisplay": "Lith K12 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.48
+    "chance": 7.04
   },
   {
     "relicKey": "lith n18 relic (radiant)",
     "relicDisplay": "Lith N18 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.48
+    "chance": 7.04
   },
   {
     "relicKey": "lith g14 relic (radiant)",
     "relicDisplay": "Lith G14 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.48
+    "chance": 7.04
   },
   {
-    "relicKey": "lith l6 relic (radiant)",
-    "relicDisplay": "Lith L6 Relic (Radiant)",
+    "relicKey": "lith l7 relic (radiant)",
+    "relicDisplay": "Lith L7 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.48
+    "chance": 7.04
   },
   {
     "relicKey": "lith q2 relic (radiant)",
     "relicDisplay": "Lith Q2 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 9.48
+    "chance": 7.04
   },
   {
     "relicKey": "meso p17 relic (radiant)",
     "relicDisplay": "Meso P17 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 4.42
+    "chance": 7.04
   },
   {
     "relicKey": "meso v12 relic (radiant)",
     "relicDisplay": "Meso V12 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 4.42
+    "chance": 7.04
   },
   {
     "relicKey": "meso x1 relic (radiant)",
     "relicDisplay": "Meso X1 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / A",
     "rotation": "A",
-    "chance": 4.42
+    "chance": 7.04
   },
   {
     "relicKey": "meso v11 relic (radiant)",
     "relicDisplay": "Meso V11 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 12.65
+    "chance": 8.43
   },
   {
     "relicKey": "meso v13 relic (radiant)",
     "relicDisplay": "Meso V13 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 12.65
+    "chance": 8.43
   },
   {
     "relicKey": "meso y1 relic (radiant)",
     "relicDisplay": "Meso Y1 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 12.65
+    "chance": 8.43
   },
   {
     "relicKey": "meso a9 relic (radiant)",
     "relicDisplay": "Meso A9 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 12.65
+    "chance": 8.43
   },
   {
     "relicKey": "neo p9 relic (radiant)",
     "relicDisplay": "Neo P9 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 4.42
+    "chance": 8.43
   },
   {
     "relicKey": "neo c6 relic (radiant)",
     "relicDisplay": "Neo C6 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 4.42
+    "chance": 8.43
   },
   {
     "relicKey": "neo d9 relic (radiant)",
     "relicDisplay": "Neo D9 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / B",
     "rotation": "B",
-    "chance": 4.42
+    "chance": 8.43
   },
   {
     "relicKey": "neo o3 relic (radiant)",
     "relicDisplay": "Neo O3 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 15.18
+    "chance": 6.32
   },
   {
     "relicKey": "neo c7 relic (radiant)",
     "relicDisplay": "Neo C7 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 15.18
+    "chance": 6.32
   },
   {
     "relicKey": "neo k9 relic (radiant)",
     "relicDisplay": "Neo K9 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 15.18
+    "chance": 6.32
   },
   {
     "relicKey": "neo t10 relic (radiant)",
     "relicDisplay": "Neo T10 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 15.18
+    "chance": 6.32
   },
   {
     "relicKey": "axi s18 relic (radiant)",
     "relicDisplay": "Axi S18 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 2.01
+    "chance": 6.32
   },
   {
     "relicKey": "axi p8 relic (radiant)",
     "relicDisplay": "Axi P8 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 2.01
+    "chance": 6.32
   },
   {
     "relicKey": "axi c10 relic (radiant)",
     "relicDisplay": "Axi C10 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 2.01
+    "chance": 6.32
   },
   {
     "relicKey": "axi t13 relic (radiant)",
     "relicDisplay": "Axi T13 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 2.01
+    "chance": 6.32
   },
   {
     "relicKey": "axi y1 relic (radiant)",
     "relicDisplay": "Axi Y1 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 2.01
+    "chance": 6.32
   },
   {
     "relicKey": "axi a20 relic (radiant)",
     "relicDisplay": "Axi A20 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 2.01
+    "chance": 6.32
   },
   {
     "relicKey": "axi n13 relic (radiant)",
     "relicDisplay": "Axi N13 Relic (Radiant)",
     "pathLabel": "missionRewards / Sanctuary / Elite Sanctuary Onslaught / C",
     "rotation": "C",
-    "chance": 2.01
+    "chance": 6.32
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo v9",
     "relicDisplay": "Neo V9 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo v9",
     "relicDisplay": "Neo V9 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / Flexa (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Flexa (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo v9",
     "relicDisplay": "Neo V9 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo v9",
     "relicDisplay": "Neo V9 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / H-2 Cloud (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / H-2 Cloud (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo v9",
     "relicDisplay": "Neo V9 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo v9",
     "relicDisplay": "Neo V9 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / R-9 Cloud (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / R-9 Cloud (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo v9",
     "relicDisplay": "Neo V9 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / A",
     "rotation": "A",
     "chance": 4.8
   },
   {
     "relicKey": "neo v9",
     "relicDisplay": "Neo V9 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / Nsu Grid (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Nsu Grid (Caches) / B",
     "rotation": "B",
     "chance": 6.52
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
-    "pathLabel": "missionRewards / Veil / Calabash (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Calabash (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
-    "pathLabel": "missionRewards / Veil / Calabash (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Calabash (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
-    "pathLabel": "missionRewards / Veil / Calabash (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Calabash (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
-    "pathLabel": "missionRewards / Veil / Calabash (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Calabash (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
-    "pathLabel": "missionRewards / Veil / Calabash (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Calabash (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
-    "pathLabel": "missionRewards / Veil / Calabash (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Calabash (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
-    "pathLabel": "missionRewards / Veil / Calabash (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Calabash (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / Calabash (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Calabash (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / Calabash (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Calabash (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
-    "pathLabel": "missionRewards / Veil / Numina (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Numina (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
-    "pathLabel": "missionRewards / Veil / Numina (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Numina (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
-    "pathLabel": "missionRewards / Veil / Numina (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Numina (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
-    "pathLabel": "missionRewards / Veil / Numina (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Numina (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
-    "pathLabel": "missionRewards / Veil / Numina (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Numina (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
-    "pathLabel": "missionRewards / Veil / Numina (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Numina (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
-    "pathLabel": "missionRewards / Veil / Numina (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Numina (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / Numina (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Numina (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / Numina (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Numina (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "axi s18",
     "relicDisplay": "Axi S18 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver / A",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver / A",
     "rotation": "A",
     "chance": 4.29
   },
   {
     "relicKey": "axi p8",
     "relicDisplay": "Axi P8 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver / A",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver / A",
     "rotation": "A",
     "chance": 4.29
   },
   {
     "relicKey": "axi c10",
     "relicDisplay": "Axi C10 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver / A",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver / A",
     "rotation": "A",
     "chance": 5.71
   },
   {
     "relicKey": "axi t13",
     "relicDisplay": "Axi T13 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver / B",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver / B",
     "rotation": "B",
     "chance": 5.71
   },
   {
     "relicKey": "axi y1",
     "relicDisplay": "Axi Y1 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver / B",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver / B",
     "rotation": "B",
     "chance": 5.71
   },
   {
     "relicKey": "axi a20",
     "relicDisplay": "Axi A20 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver / C",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver / C",
     "rotation": "C",
     "chance": 5.71
   },
   {
     "relicKey": "axi n13",
     "relicDisplay": "Axi N13 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver / C",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver / C",
     "rotation": "C",
     "chance": 5.71
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / Arc Silver (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Arc Silver (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "axi s18",
     "relicDisplay": "Axi S18 Relic",
-    "pathLabel": "missionRewards / Veil / Erato / A",
+    "pathLabel": "missionRewards / Veil Proxima / Erato / A",
     "rotation": "A",
     "chance": 4.76
   },
   {
     "relicKey": "axi p8",
     "relicDisplay": "Axi P8 Relic",
-    "pathLabel": "missionRewards / Veil / Erato / A",
+    "pathLabel": "missionRewards / Veil Proxima / Erato / A",
     "rotation": "A",
     "chance": 4.76
   },
   {
     "relicKey": "axi c10",
     "relicDisplay": "Axi C10 Relic",
-    "pathLabel": "missionRewards / Veil / Erato / A",
+    "pathLabel": "missionRewards / Veil Proxima / Erato / A",
     "rotation": "A",
     "chance": 4.76
   },
   {
     "relicKey": "axi t13",
     "relicDisplay": "Axi T13 Relic",
-    "pathLabel": "missionRewards / Veil / Erato / B",
+    "pathLabel": "missionRewards / Veil Proxima / Erato / B",
     "rotation": "B",
     "chance": 4.55
   },
   {
     "relicKey": "axi y1",
     "relicDisplay": "Axi Y1 Relic",
-    "pathLabel": "missionRewards / Veil / Erato / B",
+    "pathLabel": "missionRewards / Veil Proxima / Erato / B",
     "rotation": "B",
     "chance": 4.55
   },
   {
     "relicKey": "axi a20",
     "relicDisplay": "Axi A20 Relic",
-    "pathLabel": "missionRewards / Veil / Erato / B",
+    "pathLabel": "missionRewards / Veil Proxima / Erato / B",
     "rotation": "B",
     "chance": 4.55
   },
   {
     "relicKey": "axi n13",
     "relicDisplay": "Axi N13 Relic",
-    "pathLabel": "missionRewards / Veil / Erato / B",
+    "pathLabel": "missionRewards / Veil Proxima / Erato / B",
     "rotation": "B",
     "chance": 4.55
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
-    "pathLabel": "missionRewards / Veil / Erato (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Erato (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
-    "pathLabel": "missionRewards / Veil / Erato (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Erato (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
-    "pathLabel": "missionRewards / Veil / Erato (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Erato (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
-    "pathLabel": "missionRewards / Veil / Erato (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Erato (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
-    "pathLabel": "missionRewards / Veil / Erato (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Erato (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
-    "pathLabel": "missionRewards / Veil / Erato (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Erato (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
-    "pathLabel": "missionRewards / Veil / Erato (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Erato (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / Erato (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Erato (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / Erato (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Erato (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "axi s18",
     "relicDisplay": "Axi S18 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan / A",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan / A",
     "rotation": "A",
     "chance": 4.29
   },
   {
     "relicKey": "axi p8",
     "relicDisplay": "Axi P8 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan / A",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan / A",
     "rotation": "A",
     "chance": 4.29
   },
   {
     "relicKey": "axi c10",
     "relicDisplay": "Axi C10 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan / A",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan / A",
     "rotation": "A",
     "chance": 5.71
   },
   {
     "relicKey": "axi t13",
     "relicDisplay": "Axi T13 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan / B",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan / B",
     "rotation": "B",
     "chance": 5.71
   },
   {
     "relicKey": "axi y1",
     "relicDisplay": "Axi Y1 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan / B",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan / B",
     "rotation": "B",
     "chance": 5.71
   },
   {
     "relicKey": "axi a20",
     "relicDisplay": "Axi A20 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan / C",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan / C",
     "rotation": "C",
     "chance": 6.25
   },
   {
     "relicKey": "axi n13",
     "relicDisplay": "Axi N13 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan / C",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan / C",
     "rotation": "C",
     "chance": 6.25
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / Lu-Yan (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Lu-Yan (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "axi s18",
     "relicDisplay": "Axi S18 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud / B",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud / B",
     "rotation": "B",
     "chance": 10
   },
   {
     "relicKey": "axi p8",
     "relicDisplay": "Axi P8 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud / B",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud / B",
     "rotation": "B",
     "chance": 10
   },
   {
     "relicKey": "axi c10",
     "relicDisplay": "Axi C10 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud / B",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud / B",
     "rotation": "B",
     "chance": 10
   },
   {
     "relicKey": "axi t13",
     "relicDisplay": "Axi T13 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud / B",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud / B",
     "rotation": "B",
     "chance": 10
   },
   {
     "relicKey": "axi y1",
     "relicDisplay": "Axi Y1 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud / B",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud / B",
     "rotation": "B",
     "chance": 10
   },
   {
     "relicKey": "axi a20",
     "relicDisplay": "Axi A20 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud / B",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud / B",
     "rotation": "B",
     "chance": 10
   },
   {
     "relicKey": "axi n13",
     "relicDisplay": "Axi N13 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud / B",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud / B",
     "rotation": "B",
     "chance": 10
   },
   {
     "relicKey": "neo c7",
     "relicDisplay": "Neo C7 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo p9",
     "relicDisplay": "Neo P9 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo d9",
     "relicDisplay": "Neo D9 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo c6",
     "relicDisplay": "Neo C6 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo o3",
     "relicDisplay": "Neo O3 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo k9",
     "relicDisplay": "Neo K9 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "neo t10",
     "relicDisplay": "Neo T10 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud (Caches) / A",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud (Caches) / A",
     "rotation": "A",
     "chance": 4.35
   },
   {
     "relicKey": "axi v10",
     "relicDisplay": "Axi V10 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
   {
     "relicKey": "axi s8",
     "relicDisplay": "Axi S8 Relic",
-    "pathLabel": "missionRewards / Veil / Sabmir Cloud (Caches) / B",
+    "pathLabel": "missionRewards / Veil Proxima / Sabmir Cloud (Caches) / B",
     "rotation": "B",
     "chance": 9.09
   },
@@ -20307,8 +20307,8 @@
     "chance": 7.69
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Duviri / The Circuit / B",
     "rotation": "B",
     "chance": 7.69
@@ -20356,8 +20356,8 @@
     "chance": 11.06
   },
   {
-    "relicKey": "lith l6",
-    "relicDisplay": "Lith L6 Relic",
+    "relicKey": "lith l7",
+    "relicDisplay": "Lith L7 Relic",
     "pathLabel": "missionRewards / Duviri / The Circuit / C",
     "rotation": "C",
     "chance": 11.06
@@ -21059,6 +21059,62 @@
     "relicKey": "meso v14",
     "relicDisplay": "Meso V14 Relic",
     "pathLabel": "missionRewards / Dark Refractory, Deimos / Recall: Vanguard / A",
+    "rotation": "A",
+    "chance": 3.65
+  },
+  {
+    "relicKey": "meso p17",
+    "relicDisplay": "Meso P17 Relic",
+    "pathLabel": "missionRewards / Dark Refractory, Deimos / The Guilty / A",
+    "rotation": "A",
+    "chance": 3.65
+  },
+  {
+    "relicKey": "meso v12",
+    "relicDisplay": "Meso V12 Relic",
+    "pathLabel": "missionRewards / Dark Refractory, Deimos / The Guilty / A",
+    "rotation": "A",
+    "chance": 3.65
+  },
+  {
+    "relicKey": "meso x1",
+    "relicDisplay": "Meso X1 Relic",
+    "pathLabel": "missionRewards / Dark Refractory, Deimos / The Guilty / A",
+    "rotation": "A",
+    "chance": 3.65
+  },
+  {
+    "relicKey": "meso v11",
+    "relicDisplay": "Meso V11 Relic",
+    "pathLabel": "missionRewards / Dark Refractory, Deimos / The Guilty / A",
+    "rotation": "A",
+    "chance": 3.65
+  },
+  {
+    "relicKey": "meso v13",
+    "relicDisplay": "Meso V13 Relic",
+    "pathLabel": "missionRewards / Dark Refractory, Deimos / The Guilty / A",
+    "rotation": "A",
+    "chance": 3.65
+  },
+  {
+    "relicKey": "meso y1",
+    "relicDisplay": "Meso Y1 Relic",
+    "pathLabel": "missionRewards / Dark Refractory, Deimos / The Guilty / A",
+    "rotation": "A",
+    "chance": 3.65
+  },
+  {
+    "relicKey": "meso a9",
+    "relicDisplay": "Meso A9 Relic",
+    "pathLabel": "missionRewards / Dark Refractory, Deimos / The Guilty / A",
+    "rotation": "A",
+    "chance": 3.65
+  },
+  {
+    "relicKey": "meso v14",
+    "relicDisplay": "Meso V14 Relic",
+    "pathLabel": "missionRewards / Dark Refractory, Deimos / The Guilty / A",
     "rotation": "A",
     "chance": 3.65
   }

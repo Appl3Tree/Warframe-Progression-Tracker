@@ -11,30 +11,6 @@
     "wfcdFile": "Arcanes.json",
     "source": "wfcd"
   },
-  "items:/Lotus/Upgrades/CosmeticEnhancers/Offensive/AbilityStrengthOnSummonAttackSub": {
-    "name": "Arcane",
-    "category": "Arcanes",
-    "productCategory": null,
-    "type": "Arcane",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": true,
-    "wfcdFile": "Arcanes.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Upgrades/CosmeticEnhancers/Offensive/PermaComboOnFinisherSub": {
-    "name": "Arcane",
-    "category": "Arcanes",
-    "productCategory": null,
-    "type": "Arcane",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": true,
-    "wfcdFile": "Arcanes.json",
-    "source": "wfcd"
-  },
   "items:/Lotus/Upgrades/CosmeticEnhancers/Offensive/LongGunSpeedOnCrit": {
     "name": "Arcane Acceleration",
     "category": "Arcanes",
@@ -336,18 +312,6 @@
     "source": "wfcd"
   },
   "items:/Lotus/Upgrades/CosmeticEnhancers/Offensive/GolemArcaneMeleeDamageOnCrit": {
-    "name": "Arcane Fury",
-    "category": "Arcanes",
-    "productCategory": null,
-    "type": "Warframe Arcane",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": true,
-    "wfcdFile": "Arcanes.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Upgrades/CosmeticEnhancers/Offensive/MeleeDamageOnCrit": {
     "name": "Arcane Fury",
     "category": "Arcanes",
     "productCategory": null,
@@ -13883,6 +13847,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2026CommunityArtShowcaseGlyph": {
+    "name": "[Ph] Tennocon 2026 - Community Art Showcase Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImage13angTV": {
     "name": "13angtv Glyph",
     "category": "Glyphs",
@@ -13909,6 +13885,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImage2020ZerO": {
     "name": "2020zero Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImage4MORI4N": {
+    "name": "4mori4n Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -14195,6 +14183,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAmazingBuriGlyph": {
+    "name": "Amazing Buri Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageAmirAccoladeGlyph": {
     "name": "Amir Accolade Glyph",
     "category": "Glyphs",
@@ -14209,6 +14209,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImagePixelAmir": {
     "name": "Amir Pixel Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAnaviIvy": {
+    "name": "Anavi_ivy Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -14365,6 +14377,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImagePixelArthur": {
     "name": "Arthur Pixel Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageAshAccoladeGlyph": {
+    "name": "Ash Accolade Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -15143,6 +15167,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/LNY2026HorseGlyph": {
+    "name": "Bingwu Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/Events/EventGlyphCaviaBirdThree": {
     "name": "Bird 3 Sketch Glyph",
     "category": "Glyphs",
@@ -15347,8 +15383,32 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageBrighan": {
+    "name": "Brighan Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageBrozime": {
     "name": "Brozime Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageSwitch2Glyph": {
+    "name": "Buddies In Gaming Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -15491,6 +15551,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCalibanAccoladeGlyph": {
+    "name": "Caliban Accolade Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageCalibanAltBright": {
     "name": "Caliban Cranion Glyph - Bright",
     "category": "Glyphs",
@@ -15553,6 +15625,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageCalibanDeluxe": {
     "name": "Caliban Orfeo Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/ImageCalibanDeluxeInAction": {
+    "name": "Caliban Orfeo In Action Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -15709,6 +15793,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageCASTiELiX": {
     "name": "Castielix Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageCautionaryTail": {
+    "name": "Cautionarytail Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -16187,6 +16283,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCommunityBaruuk": {
+    "name": "Community Baruuk Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCommunityCaliban": {
     "name": "Community Caliban Glyph",
     "category": "Glyphs",
@@ -16415,6 +16523,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCommunityFollie": {
+    "name": "Community Follie Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCommunityGaruda": {
     "name": "Community Garuda Glyph",
     "category": "Glyphs",
@@ -16511,8 +16631,32 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCommunityLimbo": {
+    "name": "Community Limbo Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCommunityLittleDuckGraffiti": {
     "name": "Community Little Duck Graffiti Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCommunityMag": {
+    "name": "Community Mag Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -16969,6 +17113,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCommunityWisp": {
     "name": "Community Wisp Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCommunityWukong": {
+    "name": "Community Wukong Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -17437,6 +17593,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageCrusader": {
     "name": "Crusader Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageCyanfacade": {
+    "name": "Cyanfacade Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -18347,8 +18515,32 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageDyanaCsmythe": {
+    "name": "Dyana.Csmythe Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageGooperatives": {
     "name": "Dyllonkg Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageDynoes": {
+    "name": "Dynoes Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -18469,6 +18661,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageElNoraEleo": {
     "name": "Elnoraeleo Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageEmberAccoladeGlyph": {
+    "name": "Ember Accolade Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -18661,6 +18865,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageEndotti": {
     "name": "Endotti_ Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageEndquar": {
+    "name": "Endquar Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -19571,6 +19787,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageFladBox": {
+    "name": "Flad Box Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImagePixelFlare": {
     "name": "Flare Pixel Glyph",
     "category": "Glyphs",
@@ -19609,6 +19837,54 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageFluffyMiracle": {
     "name": "Fluffy Miracle Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageFollieBright": {
+    "name": "Follie Glyph - Bright",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageFollieDark": {
+    "name": "Follie Glyph - Dark",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageFollieAltBright": {
+    "name": "Follie Sfumato Glyph - Bright",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageFollieAltDark": {
+    "name": "Follie Sfumato Glyph - Dark",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -19693,6 +19969,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/Seasonal/Halloween2019FrankenCorpus": {
     "name": "Frankencorpus Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageFreddyCaps": {
+    "name": "Freddycaps Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -20183,6 +20471,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageGaussDeluxeII": {
+    "name": "Gauss Moto Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/Primes/ImageGaussPrimeBright": {
     "name": "Gauss Prime Glyph - Bright",
     "category": "Glyphs",
@@ -20197,6 +20497,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/Primes/ImageGaussPrimeDark": {
     "name": "Gauss Prime Glyph - Dark",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageGaussDeluxeIISupporter": {
+    "name": "Gauss Speedway Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -20533,6 +20845,30 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/Primes/ImageGrendelPrimeDark": {
     "name": "Grendel Prime Glyph - Dark",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageGrendelDeluxeIISupporter": {
+    "name": "Grendel Roll Out Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageGrendelDeluxeII": {
+    "name": "Grendel Turbis Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -21083,6 +21419,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageHjemdgGlyph": {
+    "name": "Hjemdg Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageHokuProps": {
     "name": "Hoku Props Glyph",
     "category": "Glyphs",
@@ -21529,6 +21877,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageIQ": {
     "name": "Iq Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageIrisillych": {
+    "name": "Irisillych Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -21997,6 +22357,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageJustHailey": {
     "name": "Justhailey Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageJustOldPrime": {
+    "name": "Justoldprime Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -23603,6 +23975,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageLuality": {
+    "name": "Luality Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageLucianPlaysAllDay": {
     "name": "Lucianplaysallday Glyph",
     "category": "Glyphs",
@@ -23881,6 +24265,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageMaomix": {
     "name": "Maomix Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageMarcoMeatball": {
+    "name": "Marcomeatball Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -24359,6 +24755,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageMischka": {
+    "name": "Mischka Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageMissFwuffy": {
     "name": "Missfwuffy Glyph",
     "category": "Glyphs",
@@ -24697,6 +25105,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/Factions/GlyphFactionMurmur": {
     "name": "Murmur Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageMuSingTian": {
+    "name": "Musingtian Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -25259,6 +25679,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageNokkoAccoladeGlyph": {
+    "name": "Nokko Accolade Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageNokkoBright": {
     "name": "Nokko Glyph - Bright",
     "category": "Glyphs",
@@ -25705,6 +26137,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageNyxxtv": {
     "name": "Nyxx Tv Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageOberonAccoladeGlyph": {
+    "name": "Oberon Accolade Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -26471,6 +26915,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImagePrideLotusSymbolGlyph": {
+    "name": "Pride Lotus Symbol Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImagePrimedSoonGlyph": {
     "name": "Primed Soon Glyph",
     "category": "Glyphs",
@@ -26569,6 +27025,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageProteaDeluxe": {
     "name": "Protea Caladrius Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/ImageProteaDeluxeInAction": {
+    "name": "Protea Caladrius In Action Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -27419,6 +27887,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageRiesling": {
+    "name": "Riesling Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageRIKENZ": {
     "name": "Rikenz Glyph",
     "category": "Glyphs",
@@ -28235,6 +28715,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageShenpai": {
+    "name": "Shenpai Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageShenzhao": {
     "name": "Shenzhao Glyph",
     "category": "Glyphs",
@@ -28273,6 +28765,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageShulGaming": {
     "name": "Shul Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageShyAnaBanana": {
+    "name": "Shy_anabanana Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -28427,6 +28931,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageSmettbonia": {
+    "name": "Smettbonia Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageSmoodie": {
     "name": "Smoodie Glyph",
     "category": "Glyphs",
@@ -28453,6 +28969,18 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageVGWFR": {
     "name": "Sneewer4 Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageSnootyDeath": {
+    "name": "Snootydeath Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -29579,8 +30107,128 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023BestInShowAwardGlyph": {
+    "name": "Tennocon 2023 - Best In Show Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023CutenessAwardGlyph": {
+    "name": "Tennocon 2023 - Floofy Cuteness Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023BestPetAwardGlyph": {
+    "name": "Tennocon 2023 - Master Teasonai Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023FunniestAwardGlyph": {
+    "name": "Tennocon 2023 - Ordis Punny Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023BestWorkmanshipAwardGlyph": {
+    "name": "Tennocon 2023 - Solaris Workmanship Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023Glyph": {
     "name": "Tennocon 2023 Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2024CutenessAwardGlyph": {
+    "name": "Tennocon 2024 - Floofy Cuteness Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2024BestPetAwardGlyph": {
+    "name": "Tennocon 2024 - Master Teasonai Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2024FunniestAwardGlyph": {
+    "name": "Tennocon 2024 - Ordis Punny Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2024BestInShowAwardGlyph": {
+    "name": "Tennocon 2024 - Orokin Gold Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2024BestWorkmanshipAwardGlyph": {
+    "name": "Tennocon 2024 - Solaris Workmanship Award Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -29603,8 +30251,152 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2025FirstPlaceAwardGlyph": {
+    "name": "Tennocon 2025 - 1st Place Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2025SecondPlaceAwardGlyph": {
+    "name": "Tennocon 2025 - 2nd Place Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2025ThirdPlaceAwardGlyph": {
+    "name": "Tennocon 2025 - 3rd Place Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2025Glyph": {
     "name": "Tennocon 2025 Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2026FirstPlaceAwardGlyph": {
+    "name": "Tennocon 2026 - 1st Place Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2026SecondPlaceAwardGlyph": {
+    "name": "Tennocon 2026 - 2nd Place Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2026ThirdPlaceAwardGlyph": {
+    "name": "Tennocon 2026 - 3rd Place Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2026BombasticAwardGlyph": {
+    "name": "Tennocon 2026 - Bombastic Performance Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2026LotusChoiceAwardGlyph": {
+    "name": "Tennocon 2026 - Lotus' Choice Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2026OrokinGoldAwardGlyph": {
+    "name": "Tennocon 2026 - Orokin Gold Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2026OstronIngenuityAwardGlyph": {
+    "name": "Tennocon 2026 - Ostron Ingenuity Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2026BestWorkmanshipAwardGlyph": {
+    "name": "Tennocon 2026 - Solaris Worksmanship Award Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2026Glyph": {
+    "name": "Tennocon 2026 Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -29688,7 +30480,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageTennoVIP2026Glyph": {
-    "name": "Tennovip Glyph Iii",
+    "name": "Tennovip Glyph 2026",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -30347,6 +31139,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageUpsideDownSmore": {
+    "name": "Upsidedownsmore Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageUreiFen": {
     "name": "Ureifen Glyph",
     "category": "Glyphs",
@@ -30745,6 +31549,30 @@
   },
   "items:/Lotus/Types/StoreItems/AvatarImages/ImageTrapperDark": {
     "name": "Vauban Glyph - Dark",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/HeirloomVaubanGlyph": {
+    "name": "Vauban Heirloom Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/HeirloomVaubanGlyphSumo": {
+    "name": "Vauban Heirloom Tondo Glyph",
     "category": "Glyphs",
     "productCategory": null,
     "type": "Glyph",
@@ -31799,6 +32627,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageWispAccoladeGlyph": {
+    "name": "Wisp Accolade Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/ImageWispAltBright": {
     "name": "Wisp Gaoth Glyph - Bright",
     "category": "Glyphs",
@@ -32471,6 +33311,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/ImageThirteenYearAnniversary": {
+    "name": "Year Thirteen Anniversary Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/ImageTwelveYearAnniversary": {
     "name": "Year Twelve Anniversary Glyph",
     "category": "Glyphs",
@@ -32687,6 +33539,18 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImagezKoichi": {
+    "name": "Zkoichi Glyph",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageZopney": {
     "name": "Zopney Glyph",
     "category": "Glyphs",
@@ -32736,7 +33600,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalBoreal": {
-    "name": "Azure Archon Shard",
+    "name": "<Shard_blue_simple> Azure Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32748,7 +33612,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalBorealMythic": {
-    "name": "Tauforged Azure Archon Shard",
+    "name": "<Shard_blue_simple> Tauforged Azure Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32760,7 +33624,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalGreen": {
-    "name": "Emerald Archon Shard",
+    "name": "<Shard_green_simple> Emerald Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32772,7 +33636,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalGreenMythic": {
-    "name": "Tauforged Emerald Archon Shard",
+    "name": "<Shard_green_simple> Tauforged Emerald Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32784,7 +33648,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalOrangeMythic": {
-    "name": "Tauforged Topaz Archon Shard",
+    "name": "<Shard_orange_simple> Tauforged Topaz Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32796,7 +33660,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalOrange": {
-    "name": "Topaz Archon Shard",
+    "name": "<Shard_orange_simple> Topaz Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32808,7 +33672,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalAmar": {
-    "name": "Crimson Archon Shard",
+    "name": "<Shard_red_simple> Crimson Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32820,7 +33684,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalAmarMythic": {
-    "name": "Tauforged Crimson Archon Shard",
+    "name": "<Shard_red_simple> Tauforged Crimson Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32832,7 +33696,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalVioletMythic": {
-    "name": "Tauforged Violet Archon Shard",
+    "name": "<Shard_violet_simple> Tauforged Violet Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32844,7 +33708,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalViolet": {
-    "name": "Violet Archon Shard",
+    "name": "<Shard_violet_simple> Violet Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32856,7 +33720,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalNira": {
-    "name": "Amber Archon Shard",
+    "name": "<Shard_yellow_simple> Amber Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -32868,7 +33732,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Gameplay/NarmerSorties/ArchonCrystalNiraMythic": {
-    "name": "Tauforged Amber Archon Shard",
+    "name": "<Shard_yellow_simple> Tauforged Amber Archon Shard",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -34583,6 +35447,18 @@
     "wfcdFile": "Misc.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/MiscItems/FoilModUnlocker": {
+    "name": "Chromatic Atramentum",
+    "category": "Misc",
+    "productCategory": null,
+    "type": "Equipment Adapter",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Misc.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Mods/FusionBundles/CircuitRepeatableNormalFusionBundle": {
     "name": "Circuitrepeatablenormalfusionbundle",
     "category": "Misc",
@@ -35845,6 +36721,30 @@
     "wfcdFile": "Misc.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/SongItems/DreadnaughtSongItem": {
+    "name": "Dreadnaught",
+    "category": "Misc",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Misc.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/SongItems/DripSongItem": {
+    "name": "Drip",
+    "category": "Misc",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Misc.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/MiscItems/IncarnonAdapters/Melee/DualIchorIncarnonUnlocker": {
     "name": "Dual Ichor Incarnon Genesis",
     "category": "Misc",
@@ -36294,6 +37194,18 @@
     "category": "Misc",
     "productCategory": null,
     "type": "Ship Segment",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Misc.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/MiscItems/DuviriGuidingHandPuzzleUpgrade": {
+    "name": "Enigma Sense",
+    "category": "Misc",
+    "productCategory": null,
+    "type": "Misc",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -38261,6 +39173,18 @@
     "wfcdFile": "Misc.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/MiscItems/PhotoboothTileMuseHub": {
+    "name": "Haunted Vesper Relay Scene",
+    "category": "Misc",
+    "productCategory": null,
+    "type": "Captura",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Misc.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Weapons/SolarisUnited/Secondary/SUModularSecondarySet1/Handle/SUModularSecondaryHandleCPart": {
     "name": "Haymaker",
     "category": "Misc",
@@ -38898,6 +39822,18 @@
     "masteryReq": 0,
     "masterable": false,
     "tradable": false,
+    "wfcdFile": "Misc.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/MiscItems/PhotoboothTileIronwakeHub": {
+    "name": "Iron Wake Scene",
+    "category": "Misc",
+    "productCategory": null,
+    "type": "Captura",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
     "wfcdFile": "Misc.json",
     "source": "wfcd"
   },
@@ -45012,6 +45948,18 @@
     "wfcdFile": "Misc.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/SongItems/StainedVespersSongItem": {
+    "name": "Stained Vespers",
+    "category": "Misc",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Misc.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/PhotoBooth/JadeShadows/PhotoboothTileStalkerCave": {
     "name": "Stalker's Lair Scene",
     "category": "Misc",
@@ -45597,6 +46545,18 @@
     "masteryReq": null,
     "masterable": false,
     "tradable": true,
+    "wfcdFile": "Misc.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/SongItems/TheAwakeningSongItem": {
+    "name": "The Awakening",
+    "category": "Misc",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
     "wfcdFile": "Misc.json",
     "source": "wfcd"
   },
@@ -48380,18 +49340,6 @@
     "wfcdFile": "Mods.json",
     "source": "wfcd"
   },
-  "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarDropEnergySubMod": {
-    "name": "Archon Flow",
-    "category": "Mods",
-    "productCategory": null,
-    "type": "Warframe Mod",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": true,
-    "wfcdFile": "Mods.json",
-    "source": "wfcd"
-  },
   "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarPowerMaxMod": {
     "name": "Archon Flow",
     "category": "Mods",
@@ -48416,31 +49364,7 @@
     "wfcdFile": "Mods.json",
     "source": "wfcd"
   },
-  "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarAbilityStrengthSubMod": {
-    "name": "Archon Intensify",
-    "category": "Mods",
-    "productCategory": null,
-    "type": "Warframe Mod",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": true,
-    "wfcdFile": "Mods.json",
-    "source": "wfcd"
-  },
   "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarAbilityRangeMod": {
-    "name": "Archon Stretch",
-    "category": "Mods",
-    "productCategory": null,
-    "type": "Warframe Mod",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": true,
-    "wfcdFile": "Mods.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Upgrades/Mods/Warframe/Kahl/KahlAvatarAbilityRangeSubMod": {
     "name": "Archon Stretch",
     "category": "Mods",
     "productCategory": null,
@@ -52520,6 +53444,18 @@
     "wfcdFile": "Mods.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Powersuits/Trapper/LevTrapAugmentCard": {
+    "name": "Enduring Bastille",
+    "category": "Mods",
+    "productCategory": null,
+    "type": "Warframe Mod",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Mods.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Mods/Melee/Channel/ChannelStatusMod": {
     "name": "Enduring Strike",
     "category": "Mods",
@@ -54224,18 +55160,6 @@
     "wfcdFile": "Mods.json",
     "source": "wfcd"
   },
-  "items:/Lotus/Upgrades/Mods/Melee/Expert/WeaponMeleeStatusChanceSPSubMod": {
-    "name": "Galvanized Elementalist",
-    "category": "Mods",
-    "productCategory": null,
-    "type": "Melee Mod",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": true,
-    "wfcdFile": "Mods.json",
-    "source": "wfcd"
-  },
   "items:/Lotus/Upgrades/Mods/Shotgun/WeaponFireIterationsSPMod": {
     "name": "Galvanized Hell",
     "category": "Mods",
@@ -54249,18 +55173,6 @@
     "source": "wfcd"
   },
   "items:/Lotus/Upgrades/Mods/Melee/Expert/WeaponHeavyAttackEfficiencySPMod": {
-    "name": "Galvanized Reflex",
-    "category": "Mods",
-    "productCategory": null,
-    "type": "Melee Mod",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": true,
-    "wfcdFile": "Mods.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Upgrades/Mods/Melee/Expert/WeaponHeavyAttackEfficiencySPSubMod": {
     "name": "Galvanized Reflex",
     "category": "Mods",
     "productCategory": null,
@@ -54309,18 +55221,6 @@
     "source": "wfcd"
   },
   "items:/Lotus/Upgrades/Mods/Melee/Expert/WeaponCritChanceSPMod": {
-    "name": "Galvanized Steel",
-    "category": "Mods",
-    "productCategory": null,
-    "type": "Melee Mod",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": true,
-    "wfcdFile": "Mods.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Upgrades/Mods/Melee/Expert/WeaponCritChanceSPSubMod": {
     "name": "Galvanized Steel",
     "category": "Mods",
     "productCategory": null,
@@ -62372,18 +63272,6 @@
     "wfcdFile": "Mods.json",
     "source": "wfcd"
   },
-  "items:/Lotus/Powersuits/Trapper/LevTrapAugmentCard": {
-    "name": "Repelling Bastille",
-    "category": "Mods",
-    "productCategory": null,
-    "type": "Warframe Mod",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": true,
-    "wfcdFile": "Mods.json",
-    "source": "wfcd"
-  },
   "items:/Lotus/Types/Friendly/Pets/ZanukaPets/ZanukaPetPrecepts/ZanukaPetDisarmPulsePrecept": {
     "name": "Repo Audit",
     "category": "Mods",
@@ -63601,6 +64489,18 @@
     "category": "Mods",
     "productCategory": null,
     "type": "Primary Mod",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Mods.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Mods/Melee/Event/Nightwave/NightwaveVenatoAugmentMod": {
+    "name": "Sentient Incision",
+    "category": "Mods",
+    "productCategory": null,
+    "type": "Melee Mod",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -67076,6 +67976,18 @@
     "wfcdFile": "Mods.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/EmpoweredHeavyMelee/CursedSyndicateEmpoweredHeavyMeleeMod": {
+    "name": "Truth's Flame",
+    "category": "Mods",
+    "productCategory": null,
+    "type": "Melee Mod",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Mods.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Mods/DataSpike/Potency/GainAntivirusAndSpeedOnUseMod": {
     "name": "Turbo Protect",
     "category": "Mods",
@@ -67901,6 +68813,18 @@
     "masteryReq": null,
     "masterable": false,
     "tradable": false,
+    "wfcdFile": "Mods.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Mods/Pistol/Event/Nightwave/NightwaveVeloxAugmentMod": {
+    "name": "Velox Conclusion",
+    "category": "Mods",
+    "productCategory": null,
+    "type": "Secondary Mod",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
     "wfcdFile": "Mods.json",
     "source": "wfcd"
   },
@@ -69790,18 +70714,6 @@
   },
   "items:SolNode746": {
     "name": "Dakata",
-    "category": "Node",
-    "productCategory": null,
-    "type": "Node",
-    "tags": [],
-    "masteryReq": 0,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Node.json",
-    "source": "wfcd"
-  },
-  "items:NokkoColony": {
-    "name": "Deepmines",
     "category": "Node",
     "productCategory": null,
     "type": "Node",
@@ -71936,6 +72848,18 @@
     "wfcdFile": "Node.json",
     "source": "wfcd"
   },
+  "items:SolNode257": {
+    "name": "The Guilty",
+    "category": "Node",
+    "productCategory": null,
+    "type": "Node",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Node.json",
+    "source": "wfcd"
+  },
   "items:SolNode237": {
     "name": "The Lone Story",
     "category": "Node",
@@ -72214,6 +73138,18 @@
   },
   "items:SolNode107": {
     "name": "Venera",
+    "category": "Node",
+    "productCategory": null,
+    "type": "Node",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Node.json",
+    "source": "wfcd"
+  },
+  "items:SolNode239": {
+    "name": "Vesper Relay",
     "category": "Node",
     "productCategory": null,
     "type": "Node",
@@ -73646,6 +74582,20 @@
     "wfcdFile": "Primary.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaBubonico/CodaBubonicoCannon": {
+    "name": "Coda Bubonico",
+    "category": "Primary",
+    "productCategory": "LongGuns",
+    "type": "Rifle",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 17,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Primary.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaHema": {
     "name": "Coda Hema",
     "category": "Primary",
@@ -73840,6 +74790,18 @@
       "Scaldra"
     ],
     "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Primary.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/LongGuns/TnInkRifle/TnInkRifleWeapon": {
+    "name": "Enkaus",
+    "category": "Primary",
+    "productCategory": "LongGuns",
+    "type": "Rifle",
+    "tags": [],
+    "masteryReq": 12,
     "masterable": true,
     "tradable": false,
     "wfcdFile": "Primary.json",
@@ -75485,6 +76447,21 @@
     "wfcdFile": "Primary.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEQuanta/CrpBEQuanta": {
+    "name": "Tenet Quanta",
+    "category": "Primary",
+    "productCategory": "LongGuns",
+    "type": "Rifle",
+    "tags": [
+      "Corpus",
+      "Tenet"
+    ],
+    "masteryReq": 16,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Primary.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBETetra/CrpBETetra": {
     "name": "Tenet Tetra",
     "category": "Primary",
@@ -76003,18 +76980,6 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Keys/InfestedAladVQuest/AssassinateInfestedAladVKey": {
-    "name": "Mutalist Alad V Assassinate",
-    "category": "Quests",
-    "productCategory": null,
-    "type": "Key",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Quests.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Types/Keys/SortieBossKeyInfestedAladV": {
     "name": "Mutalist Alad V Assassinate",
     "category": "Quests",
     "productCategory": null,
@@ -80408,6 +81373,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T4VoidProjectionXakuPrimeCPlatinum": {
     "name": "Axi G14 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionGaussGrendelVaultASilver": {
+    "name": "Axi G15 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionGaussGrendelVaultAGold": {
+    "name": "Axi G15 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionGaussGrendelVaultABronze": {
+    "name": "Axi G15 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionGaussGrendelVaultAPlatinum": {
+    "name": "Axi G15 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -86660,6 +87673,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T1VoidProjectionCalibanPrimeEPlatinum": {
     "name": "Lith A10 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionGaussGrendelVaultASilver": {
+    "name": "Lith A11 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionGaussGrendelVaultAGold": {
+    "name": "Lith A11 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionGaussGrendelVaultABronze": {
+    "name": "Lith A11 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionGaussGrendelVaultAPlatinum": {
+    "name": "Lith A11 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -95658,6 +96719,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultASilver": {
+    "name": "Meso A11 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultAGold": {
+    "name": "Meso A11 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultABronze": {
+    "name": "Meso A11 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultAPlatinum": {
+    "name": "Meso A11 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T2VoidProjectionWukongPrimeASilver": {
     "name": "Meso A2 Exceptional",
     "category": "Relics",
@@ -104118,6 +105227,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultBSilver": {
+    "name": "Meso Z6 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultBGold": {
+    "name": "Meso Z6 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultBBronze": {
+    "name": "Meso Z6 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultBPlatinum": {
+    "name": "Meso Z6 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T3VoidProjectionMSilver": {
     "name": "Neo A1 Exceptional",
     "category": "Relics",
@@ -106470,6 +107627,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionGaussGrendelVaultASilver": {
+    "name": "Neo G10 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionGaussGrendelVaultAGold": {
+    "name": "Neo G10 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionGaussGrendelVaultABronze": {
+    "name": "Neo G10 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionGaussGrendelVaultAPlatinum": {
+    "name": "Neo G10 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T3VoidProjectionIvaraPrimeDSilver": {
     "name": "Neo G2 Exceptional",
     "category": "Relics",
@@ -108044,6 +109249,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T3VoidProjectionProteaPrimeDPlatinum": {
     "name": "Neo M5 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionGaussGrendelVaultBSilver": {
+    "name": "Neo M6 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionGaussGrendelVaultBGold": {
+    "name": "Neo M6 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionGaussGrendelVaultBBronze": {
+    "name": "Neo M6 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionGaussGrendelVaultBPlatinum": {
+    "name": "Neo M6 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -112530,6 +113783,18 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T5VoidProjectionImmortalOmniA": {
+    "name": "Requiem Eterna Relic",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T5VoidProjectionImmortalASilver": {
     "name": "Requiem I Exceptional",
     "category": "Relics",
@@ -112938,6 +114203,18 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T5VoidProjectionImmortalOmni": {
+    "name": "Void Relic",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Gameplay/1999Wf/Resources/HexDogTagQuincy": {
     "name": "35mm Film",
     "category": "Resources",
@@ -113072,6 +114349,18 @@
   },
   "items:/Lotus/Types/Gameplay/Venus/Resources/CorpusWidgetBItem": {
     "name": "Atmo Systems",
+    "category": "Resources",
+    "productCategory": null,
+    "type": "Resource",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Resources.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Gameplay/Shadowgrapher/Resources/ShadowgrapherResource": {
+    "name": "Atramentum",
     "category": "Resources",
     "productCategory": null,
     "type": "Resource",
@@ -114659,6 +115948,18 @@
     "category": "Resources",
     "productCategory": null,
     "type": "Gem",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Resources.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Gameplay/Shadowgrapher/Resources/ShadowgrapherEventResource": {
+    "name": "Nightmare Tatters",
+    "category": "Resources",
+    "productCategory": null,
+    "type": "Resource",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -118560,6 +119861,30 @@
     "wfcdFile": "Sigils.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Sigils/NightwaveCalibanDeluxeSigil": {
+    "name": "Ascrien Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Sigils/EventSigilZorba": {
+    "name": "Aspirant Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Sigils/SyndicateSigilRedVeilK": {
     "name": "Assassin Sigil",
     "category": "Sigils",
@@ -118574,6 +119899,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Sigils/SyndicateSigilCephalonSudaE": {
     "name": "Atomic Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Sigils/EventSigilShadowgrapher": {
+    "name": "Atramentum Sigil",
     "category": "Sigils",
     "productCategory": null,
     "type": "Sigil",
@@ -118730,6 +120067,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Sigils/SyndicateSigilNewLokaJ": {
     "name": "Bounty Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Sigils/Switch2Sigil": {
+    "name": "Broadsword Past/Future Sigil",
     "category": "Sigils",
     "productCategory": null,
     "type": "Sigil",
@@ -120012,6 +121361,18 @@
     "wfcdFile": "Sigils.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Sigils/GaussDeluxeIISigil": {
+    "name": "Kickback Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Sigils/KoumeiSigil": {
     "name": "Koumei Ito Sigil",
     "category": "Sigils",
@@ -120134,6 +121495,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Sigils/LoginSigilF": {
     "name": "Lotus Deliverance Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Sigils/WeGameNewYearHorseSigil": {
+    "name": "Lunar Renewal Horse Sigil",
     "category": "Sigils",
     "productCategory": null,
     "type": "Sigil",
@@ -121080,6 +122453,18 @@
     "wfcdFile": "Sigils.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Sigils/GaussDeluxeIIDamageSigil": {
+    "name": "Road Rash Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Sigils/SyndicateSigilRedVeilG": {
     "name": "Ruin Sigil",
     "category": "Sigils",
@@ -121704,6 +123089,18 @@
     "wfcdFile": "Sigils.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Sigils/TennoCon2026Sigil": {
+    "name": "Tennocon 2026 Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Sigils/Tennogen10YearSigil": {
     "name": "Tennogen Decennial Sigil",
     "category": "Sigils",
@@ -121730,6 +123127,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Sigils/TennoVIP2025Sigil": {
     "name": "Tennovip 2025 Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Sigils/TennoVIP2026Sigil": {
+    "name": "Tennovip 2026 Sigil",
     "category": "Sigils",
     "productCategory": null,
     "type": "Sigil",
@@ -121922,6 +123331,30 @@
   },
   "items:/Lotus/Upgrades/Skins/Sigils/LavosDeluxeSigil": {
     "name": "Vaporis Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Sigils/HeirloomVaubanSigilSumo": {
+    "name": "Vauban Heirloom Schema Sigil",
+    "category": "Sigils",
+    "productCategory": null,
+    "type": "Sigil",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Sigils.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Sigils/HeirloomVaubanSigil": {
+    "name": "Vauban Heirloom Sigil",
     "category": "Sigils",
     "productCategory": null,
     "type": "Sigil",
@@ -122426,6 +123859,18 @@
   },
   "items:/Lotus/Upgrades/Skins/LunarNewYear/Lunar2020AcceltraSkin": {
     "name": "Acceltra Lunaeus Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Runner/AcceltraDeluxe2Skin": {
+    "name": "Acceltra Nitros Skin",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -123278,6 +124723,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Ornate/TekeluAkmagnusSkin": {
     "name": "Akmagnus Tekelu Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Koumei/KoumeiWarfanSkin": {
+    "name": "Akomeogi Warfan Skin",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -124908,6 +126365,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Operator/Accessories/YontaCrownFacialAcc": {
+    "name": "Archimedean Diadem",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Liset/ConquestHoodOrnament": {
     "name": "Archimedean Eye Sumdali",
     "category": "Skins",
@@ -125748,6 +127217,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Scarves/ZorbaScarf": {
+    "name": "Aspirant Syandana",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Effects/JadeLightEphemeraC": {
     "name": "Aspirus Apex Ephemera",
     "category": "Skins",
@@ -126326,6 +127807,18 @@
   },
   "items:/Lotus/Upgrades/Skins/EliteAlerts/EliteAlertAtomos": {
     "name": "Atomos Telos Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Clan/ShadowgrapherEventBadgeItem": {
+    "name": "Atramentum Emblem",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -127129,6 +128622,18 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Items/Events/TennoConRelay2025EarlyAccess": {
+    "name": "Baro's Relay Ticket",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Events/TennoConRelay2026EarlyAccess": {
     "name": "Baro's Relay Ticket",
     "category": "Skins",
     "productCategory": null,
@@ -128004,6 +129509,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/VoidTrader/VTBoarExilis": {
+    "name": "Boar Elixis Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/VoidTrader/VTBoar": {
     "name": "Boar Phosphor Skin",
     "category": "Skins",
@@ -128784,6 +130301,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Operator/EyeBrows/EyeBrowDC": {
+    "name": "Brow 61-T",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Operator/EyeBrows/EyeBrowBB": {
     "name": "Brow 71-J",
     "category": "Skins",
@@ -128798,6 +130327,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Operator/EyeBrows/EyeBrowBF": {
     "name": "Brow 80-N",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/EyeBrows/EyeBrowDA": {
+    "name": "Brow E8-C",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -130488,6 +132029,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Liset/OrfeoHoodOrnament": {
+    "name": "Chivaler Sumdali",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/MeleeDangles/PrimeDangleF": {
     "name": "Cholla Prime Sugatra",
     "category": "Skins",
@@ -131989,7 +133542,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultAlbedoA": {
-    "name": "Complexion C-P4",
+    "name": "Complexion C-24",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -132001,7 +133554,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/AlbedoA": {
-    "name": "Complexion C-P4",
+    "name": "Complexion C-24",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -132061,7 +133614,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultAlbedoD": {
-    "name": "Complexion F-T6",
+    "name": "Complexion F-36",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -132073,7 +133626,7 @@
     "source": "wfcd"
   },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/AlbedoD": {
-    "name": "Complexion F-T6",
+    "name": "Complexion F-36",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -132242,6 +133795,174 @@
   },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultLegacyAlbedo": {
     "name": "Complexion M-3",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultAlbedoK": {
+    "name": "Complexion N-5",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AlbedoK": {
+    "name": "Complexion N-5",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultAlbedoM": {
+    "name": "Complexion O-93",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AlbedoM": {
+    "name": "Complexion O-93",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultAlbedoN": {
+    "name": "Complexion P-9",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AlbedoN": {
+    "name": "Complexion P-9",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultAlbedoQ": {
+    "name": "Complexion Q-40",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AlbedoQ": {
+    "name": "Complexion Q-40",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultAlbedoR": {
+    "name": "Complexion R-10",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AlbedoR": {
+    "name": "Complexion R-10",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultAlbedoS": {
+    "name": "Complexion S-33",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AlbedoS": {
+    "name": "Complexion S-33",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultAlbedoT": {
+    "name": "Complexion T-68",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AlbedoT": {
+    "name": "Complexion T-68",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -132545,6 +134266,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Color Palette",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleFollie": {
+    "name": "Conscience Painter Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -133716,6 +135449,42 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Armor/WarframeDefaults/DagathImmortalArmArmor": {
+    "name": "Dagath Immortal Armor",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Dagath/DagathImmortalHelmet": {
+    "name": "Dagath Immortal Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Dagath/DagathImmortalSkin": {
+    "name": "Dagath Immortal Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Dagath/DagathNobleAnims": {
     "name": "Dagath Noble Animation Set",
     "category": "Skins",
@@ -133766,6 +135535,30 @@
   },
   "items:/Lotus/Upgrades/Skins/Dagath/SWVoiddaxHelmet": {
     "name": "Dagath Voiddax Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Dagath/DagathDeluxeLNYHelmet": {
+    "name": "Dagath Yfari Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Dagath/DagathDeluxeLNYSkin": {
+    "name": "Dagath Yfari Skin",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -134532,6 +136325,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/NewLokaTitle": {
+    "name": "Defender Of The Earth Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/Emotes/DanceBarelyDancingEmote": {
     "name": "Degage Narta",
     "category": "Skins",
@@ -135120,6 +136925,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Crowns/Dex2026LotusHaloCrown": {
+    "name": "Dex Signa",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Scarves/SWDiablilloSyandana": {
     "name": "Diablillo Syandana",
     "category": "Skins",
@@ -135206,6 +137023,30 @@
   },
   "items:/Lotus/Upgrades/Skins/Volt/VoltDeluxeMaceSkin": {
     "name": "Diode Hammer Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/PerrinSequenceTitle": {
+    "name": "Diplomatic Merchant Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Crowns/OrfeoSignaCrown": {
+    "name": "Diraeus Signa",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -136416,6 +138257,66 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Operator/Skirts/SkirtAdultCalDeluxe": {
+    "name": "Drifter Escuchon Apparel",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Leggings/LeggingsAdultCalDeluxe": {
+    "name": "Drifter Escuchon Greaves",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Hoods/HoodAdultCalDeluxe": {
+    "name": "Drifter Escuchon Hood",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Sleeves/SleevesAdultCalDeluxe": {
+    "name": "Drifter Escuchon Pauldrons",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/BodySuits/BodySuitAdultCalDeluxe": {
+    "name": "Drifter Escuchon Suit",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Operator/Skirts/SkirtAdultArabic": {
     "name": "Drifter Feldune Gear",
     "category": "Skins",
@@ -137042,6 +138943,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Promo/Seasonal/TennobaumDualKeresSkin": {
     "name": "Dual Keres Solstice Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/HolsterCustomizations/DualKatanaHips": {
+    "name": "Dual Nikanas Standard Holster",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -138101,6 +140014,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Deluxe/CalibanDeluxeBowSkin": {
+    "name": "Elfame Bow Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -139517,6 +141442,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Themes",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/RedVeilTitle": {
+    "name": "Eradicator Of Corruption Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -141288,6 +143225,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Armor/GaussDeluxeIIArmour/GaussDeluxeIIArmourC": {
+    "name": "Fend-Rx Chest Armor",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/ShipDecos/Plants/Nokko/LisetPropGftSilverLadyFernC": {
     "name": "Fern (Brown)",
     "category": "Skins",
@@ -141576,6 +143525,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Crowns/GrendelDeluxeIICrown": {
+    "name": "Flankon Signa",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/Emotes/LegendaryFlareEmote": {
     "name": "Flare Gemini Emote",
     "category": "Skins",
@@ -141734,6 +143695,126 @@
   },
   "items:/Lotus/Types/Items/ShipDecos/Hollvania/LASxMetalFoldingChairA": {
     "name": "Folding Chair",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Inkblot/InkblotAgileAnims": {
+    "name": "Follie Agile Animation Set",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Inkblot/UnlockInkblotAgile": {
+    "name": "Follie Agile Animation Set",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Inkblot/InkblotHelmet": {
+    "name": "Follie Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Inkblot/InkblotNobleAnims": {
+    "name": "Follie Noble Animation Set",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Inkblot/UnlockInkblotNoble": {
+    "name": "Follie Noble Animation Set",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCardFollie": {
+    "name": "Follie Prex",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Inkblot/InkblotAltHelmet": {
+    "name": "Follie Sfumato Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Inkblot/InkblotSkin": {
+    "name": "Follie Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Props/FollieBalloonShipDeco": {
+    "name": "Follie's Balloon",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Props/ShadowgrapherEaselShipDeco": {
+    "name": "Follie's Shadowgraph",
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
@@ -141914,6 +143995,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Armor/NWIIIBossArmor/NWIIIBossAArmor": {
     "name": "Frakta Shoulder Guard",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Effects/GrendelDeluxeIIFootstepsEphemera": {
+    "name": "Fraktur Ephemera",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -143750,6 +145843,30 @@
   },
   "items:/Lotus/Upgrades/Skins/Runner/RunnerAltHelmet": {
     "name": "Gauss Mag Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Runner/GaussDeluxeIIHelmet": {
+    "name": "Gauss Moto Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Runner/GaussDeluxeIISkin": {
+    "name": "Gauss Moto Skin",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -145692,6 +147809,30 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Devourer/GrendelDeluxeIIHelmet": {
+    "name": "Grendel Turbis Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Devourer/GrendelDeluxeIISkin": {
+    "name": "Grendel Turbis Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Devourer/GrendelVoidshellHelmet": {
     "name": "Grendel Voidshell Helmet",
     "category": "Skins",
@@ -146213,6 +148354,30 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Horse/DagathDeluxeLNYHorseBodySkin": {
+    "name": "Gynfas Kaithe",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Horse/DagathDeluxeLNYHorseTail": {
+    "name": "Gynfas Tail",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -147420,6 +149585,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleQorvex": {
+    "name": "Heart Of Concrete Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Effects/InfestedLichEphemeraC": {
     "name": "Heart-Beat Ephemera",
     "category": "Skins",
@@ -147878,6 +150055,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Hammer/SolsticeHeliocor": {
     "name": "Heliocor Solstice Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Sentinels/Skins/ExilisHelios": {
+    "name": "Helios Elixis Skin",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -148668,6 +150857,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/CodaMasteryTitle": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/Titles/CompleteDescendiaHardcoreTitle": {
     "name": "Honoria",
     "category": "Skins",
@@ -148705,6 +150906,18 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Items/Titles/CompleteDescendiaWispTitle": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/DanteDescendiaTitle": {
     "name": "Honoria",
     "category": "Skins",
     "productCategory": null,
@@ -148860,6 +151073,42 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/FollieHuntCompleteTitle": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/FollieHuntOneTitle": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/FollieHuntTenTitle": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/Titles/HardFragmentedTitle": {
     "name": "Honoria",
     "category": "Skins",
@@ -148933,6 +151182,18 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Items/Titles/KalymosTitle": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/KuvaMasteryTitle": {
     "name": "Honoria",
     "category": "Skins",
     "productCategory": null,
@@ -149028,6 +151289,138 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/MR10Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/MR13Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/MR16Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/MR19Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/MR1Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/MR22Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/MR25Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/MR28Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/MR30Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/MR4Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/MR7Title": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/Titles/NaramonBladeTitle": {
     "name": "Honoria",
     "category": "Skins",
@@ -149065,6 +151458,30 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Items/Titles/OraxiaPreyTitle": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/PeritaHardModeSoloTitle": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/PeritaHardModeTitle": {
     "name": "Honoria",
     "category": "Skins",
     "productCategory": null,
@@ -149136,6 +151553,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/TenetMasteryTitle": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/Titles/TheNewWarTitle": {
     "name": "Honoria",
     "category": "Skins",
@@ -149145,6 +151574,30 @@
     "masteryReq": null,
     "masterable": false,
     "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/TitleGaussPrime": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/TitleGrendelPrime": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
@@ -149185,6 +151638,18 @@
     "source": "wfcd"
   },
   "items:/Lotus/Types/Items/Titles/VazarinStaffTitle": {
+    "name": "Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/VorHardModeTitle": {
     "name": "Honoria",
     "category": "Skins",
     "productCategory": null,
@@ -149762,6 +152227,18 @@
   },
   "items:/Lotus/Types/Items/Emotes/DanceDJRomHype": {
     "name": "Hype Drop",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Emotes",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Emotes/GrendelDeluxeIILetsRollEmote": {
+    "name": "Hyper Juggle Ft. Gauss",
     "category": "Skins",
     "productCategory": null,
     "type": "Emotes",
@@ -150473,6 +152950,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Plushies/PlushyLNYKaithe": {
+    "name": "Indomitable Kaithe Floof",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -151586,6 +154075,30 @@
   },
   "items:/Lotus/Upgrades/Skins/Choir/ChoirHelmet": {
     "name": "Jade Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Choir/JadeImmortalHelmet": {
+    "name": "Jade Immortal Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Choir/JadeImmortalSkin": {
+    "name": "Jade Immortal Skin",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -153264,6 +155777,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Scarves/BaroCape2RazzaExilisScarf": {
+    "name": "Ki'Teer Razza Elixis Syandana",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Scarves/BaroCape2Scarf": {
     "name": "Ki'Teer Razza Syandana",
     "category": "Skins",
@@ -154848,6 +157373,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Emotes/CryForYouEmote": {
+    "name": "Lament",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Emotes",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleLamentus": {
     "name": "Lamenting One Honoria",
     "category": "Skins",
@@ -155904,6 +158441,30 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/SteelMeridianTitle": {
+    "name": "Liberated Grineer Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Effects/InkEphemeraC": {
+    "name": "Liftbalon Ephemera",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/SuitCustomizations/ColourPickerJadeStalker": {
     "name": "Light & Shadow",
     "category": "Skins",
@@ -156677,6 +159238,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Plushies/PlushyLoid": {
+    "name": "Loid Floof",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -157716,6 +160289,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Scarves/GrendelDeluxeIISyandana": {
+    "name": "Lumbox Tactical Syandana",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/SteamWorkshop/Operator/Accessories/SWLumisEarAccessory": {
     "name": "Lumis Earpiece",
     "category": "Skins",
@@ -157838,6 +160423,30 @@
   },
   "items:/Lotus/Types/Items/Emotes/LNY2024DragonEmote": {
     "name": "Lunar Renewal Dragon Flourish",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Emotes",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Clan/Horse2026BadgeItem": {
+    "name": "Lunar Renewal Horse Emblem",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Emotes/LNY2026HorseEmote": {
+    "name": "Lunar Renewal Kaithe Flourish",
     "category": "Skins",
     "productCategory": null,
     "type": "Emotes",
@@ -158066,6 +160675,18 @@
   },
   "items:/Lotus/Types/Items/ShipDecos/CommunityLyonDisplay": {
     "name": "Lyon Allard Community Display",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Plushies/PlushyLyon": {
+    "name": "Lyon Floof",
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
@@ -159084,6 +161705,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Effects/LNYKaitheDagathEphemera": {
+    "name": "Malaen Ephemera",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Operator/Bodies/MaleBody": {
     "name": "Malebody",
     "category": "Skins",
@@ -159576,6 +162209,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleHydroid": {
+    "name": "Marauder Of The Deep Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/PvP/Pistols/PvPMarelok": {
     "name": "Marelok Conclave Skin",
     "category": "Skins",
@@ -159641,6 +162286,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Plushies/PlushyMarie": {
+    "name": "Marie Floof",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -159996,6 +162653,30 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleSaryn": {
+    "name": "Matron Of Malaise Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/SteamWorkshop/Melee/Hammer/SWMaulleusHammerSkin": {
+    "name": "Maulleus Hammer Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Necramech/MechWeapon/MechEventMausolonSkin": {
     "name": "Mausolon Supulchrax Skin",
     "category": "Skins",
@@ -160094,6 +162775,18 @@
   },
   "items:/Lotus/Upgrades/Skins/MeleeDangles/SarynDeluxeMeleeDangle": {
     "name": "Melia Sugatra",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Liset/PeritaHoodOrnament": {
+    "name": "Mentor Ayatan Sumdali",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -160802,6 +163495,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Operator/Hair/Hair1999Saryn": {
     "name": "Minerva's Hairstyle",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Hair/Hair1999SarynNoGlasses": {
+    "name": "Minerva's Hairstyle (No Shades)",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -162948,6 +165653,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/ShipDecos/Plushies/PlushyNecraLoid": {
+    "name": "Necraloid Floof",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/ShipDecos/ThanoMechStatue": {
     "name": "Necramech Statue",
     "category": "Skins",
@@ -164753,6 +167470,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Fur Pattern",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Events/StatueNitokh": {
+    "name": "Nitokh Statue",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -167808,6 +170537,30 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/AntiMatter/SWNetraselleNovaHelmet": {
+    "name": "Nova Netrastelle Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/AntiMatter/SWNetraselleNovaSkin": {
+    "name": "Nova Netrastelle Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/AntiMatter/AntiMatterNobleAnims": {
     "name": "Nova Noble Animation Set",
     "category": "Skins",
@@ -168062,6 +170815,30 @@
   },
   "items:/Lotus/Upgrades/Skins/GrineerUrban/NukorGrineerUrbanCamo": {
     "name": "Nukor Nightwatch Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Scarves/TC2025OrokinScarf": {
+    "name": "Nulwarden Syandana",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Scarves/TC2025EvolvedOrokinScarf": {
+    "name": "Nulwarden Syandana (Void-Swept)",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -168929,6 +171706,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleCyteZeroNine": {
+    "name": "Oblivion's Kiss Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -170040,6 +172829,66 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Operator/Skirts/SkirtOperatorCalDeluxe": {
+    "name": "Operator Escuchon Apparel",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Leggings/LeggingsOperatorCalDeluxe": {
+    "name": "Operator Escuchon Greaves",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Hoods/HoodOperatorCalDeluxe": {
+    "name": "Operator Escuchon Hood",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Sleeves/SleevesOperatorCalDeluxe": {
+    "name": "Operator Escuchon Pauldrons",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/BodySuits/BodySuitOperatorCalDeluxe": {
+    "name": "Operator Escuchon Suit",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Operator/Skirts/SkirtArabic": {
     "name": "Operator Feldune Apparel",
     "category": "Skins",
@@ -170342,6 +173191,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Operator/Accessories/SWOptimaEyeAcc": {
     "name": "Optima Oculus",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Effects/OpulaEphemera": {
+    "name": "Opula Ephemera",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -171816,6 +174677,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Effects/InkEphemeraB": {
+    "name": "Pareidola Ephemera",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Promo/Warframe/PromoParis": {
     "name": "Paris Abra Skin",
     "category": "Skins",
@@ -173004,6 +175877,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Crowns/SWSignaPragmaticaCrown": {
+    "name": "Pragmatica Signa",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Clan/CaliberChicksCorgiEmblemItem": {
     "name": "President King Corgi Emblem",
     "category": "Skins",
@@ -173076,6 +175961,30 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/ShipDecos/Props/Seasonal/Pride2026SquarePictureFrame": {
+    "name": "Pride Frame Display",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Pride2026Poster": {
+    "name": "Pride Mesa Prime And Kaithe Display",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/ShipDecos/HeartOroRainbowDeco": {
     "name": "Pride Oro Decoration",
     "category": "Skins",
@@ -173093,6 +176002,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Effects/InkEphemeraA": {
+    "name": "Primatura Ephemera",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -173534,6 +176455,30 @@
   },
   "items:/Lotus/Upgrades/Skins/Odalisk/OdaliskHelmet": {
     "name": "Protea Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Odalisk/ProteaImmortalHelmet": {
+    "name": "Protea Immortal Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Odalisk/ProteaImmortalSkin": {
+    "name": "Protea Immortal Skin",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -175296,8 +178241,200 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardAngry": {
+    "name": "Rell's Anger Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardNervous": {
+    "name": "Rell's Anxiety Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardBored": {
+    "name": "Rell's Boredom Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardConfused": {
+    "name": "Rell's Confusion Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardDisgusted": {
+    "name": "Rell's Disgust Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/ShipDecos/HarrowQuestKeyOrnament": {
     "name": "Rell's Donda",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardEmbarrassed": {
+    "name": "Rell's Embarrassment Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardExcited": {
+    "name": "Rell's Excitement Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardTired": {
+    "name": "Rell's Fatigue Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardScared": {
+    "name": "Rell's Fear Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardHappy": {
+    "name": "Rell's Happiness Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardHungry": {
+    "name": "Rell's Hunger Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardGrumpy": {
+    "name": "Rell's Petulance Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardProud": {
+    "name": "Rell's Pride Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardSad": {
+    "name": "Rell's Sadness Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardShy": {
+    "name": "Rell's Shyness Emotile",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCard/Emotions/TarotCardSurprised": {
+    "name": "Rell's Surprise Emotile",
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
@@ -175457,6 +178594,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Emotes/GaussDeluxeIILetsRaceEmote": {
+    "name": "Rev-Up Ft. Grendel",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Emotes",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -176652,6 +179801,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/ShipDecos/Plushies/PlushyRoathe": {
+    "name": "Roathe Floof",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/Emotes/LegendaryRoatheEmote": {
     "name": "Roathe Gemini Emote",
     "category": "Skins",
@@ -176798,6 +179959,18 @@
   },
   "items:/Lotus/Types/Items/Emotes/ShrineDiceShakeEmote": {
     "name": "Rolling Fates Emote",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Emotes",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Emotes/NightwaveDanceEmote": {
+    "name": "Rondelet Emote",
     "category": "Skins",
     "productCategory": null,
     "type": "Emotes",
@@ -177173,6 +180346,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleGauss": {
+    "name": "Saint Of Altra Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -178692,6 +181877,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/ArbitersOfHexisTitle": {
+    "name": "Seeker Of Truth Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Scythes/CalibanDlxScytheSkin": {
     "name": "Seighe Scythe Skin",
     "category": "Skins",
@@ -178826,6 +182023,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Scarves/PrimeOctaviaSyandana": {
     "name": "Serenidine Prime Syandana",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Deluxe/MasseterDeluxeGreatswordSkin": {
+    "name": "Serrabilis Heavy Blade Skin",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -179273,6 +182482,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/ShadowgrapherEventVendorTitle": {
+    "name": "Shadow Conservator Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -181212,6 +184433,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/ShipDecos/Tau/LisetPropSomaticBearerFlowerPostQuestItem": {
+    "name": "Somatic Bearer Memorial",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Operator/FacialMarkings/FacialMarkingB": {
     "name": "Somatics Asa-03",
     "category": "Skins",
@@ -182220,6 +185453,42 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/ShipDecos/Props/Seasonal/StarDays2026CirclePictureFrame": {
+    "name": "Star Days Circle Frame Display",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Props/Seasonal/StarDays2026HeartPictureFrame": {
+    "name": "Star Days Heart Frame Display",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Props/Seasonal/StarDays2026SquarePictureFrame": {
+    "name": "Star Days Square Frame Display",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/KubrowPet/Colors/KubrowPetColorMidDiamond": {
     "name": "Star White",
     "category": "Skins",
@@ -182861,6 +186130,30 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Hoplite/SWRaevuzStyanaxHelmet": {
+    "name": "Styanax Raevuz Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Hoplite/SWRaevuzStyanaxSkin": {
+    "name": "Styanax Raevuz Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -183804,6 +187097,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Scarves/GaussDeluxeIISyandana": {
+    "name": "Tailfin Syandana",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/ShipDecos/LisetPropGrineerTaktis": {
     "name": "Taktis Fighter Decoration",
     "category": "Skins",
@@ -183854,6 +187159,18 @@
   },
   "items:/Lotus/Upgrades/Skins/MeleeDangles/Sugotchi1999MeleeDangle": {
     "name": "Tammpet Sugatra",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/MeleeDangles/LNYFireSugatra": {
+    "name": "Tanau Sugatra",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -184320,6 +187637,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Effects/ProteaDeluxeEphemera": {
+    "name": "Tealtrian Ephemera",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/ShipDecos/Plushies/PlushyDJRomInfested": {
     "name": "Technocyte Dj Rom Floof",
     "category": "Skins",
@@ -184466,6 +187795,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Scarves/SyndicateAHScarf": {
     "name": "Telos Syandana",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Amp/InkSiroccoAmpSkin": {
+    "name": "Tempera Amp Skin",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -184949,6 +188290,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/ThousandDaysLoginRewardTitle": {
+    "name": "Tenno Of A Thousand Days Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -185484,66 +188837,6 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023BestInShowAwardGlyph": {
-    "name": "Tennocon 2023 - Best In Show Award",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023CutenessAwardGlyph": {
-    "name": "Tennocon 2023 - Floofy Cuteness Award",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023BestPetAwardGlyph": {
-    "name": "Tennocon 2023 - Master Teasonai Award",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023FunniestAwardGlyph": {
-    "name": "Tennocon 2023 - Ordis Punny Award",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2023BestWorkmanshipAwardGlyph": {
-    "name": "Tennocon 2023 - Solaris Workmanship Award",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
   "items:/Lotus/Upgrades/Skins/Scarves/TennoCon2023Cape": {
     "name": "Tennocon 2023 Syandana",
     "category": "Skins",
@@ -185580,35 +188873,11 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2024CutenessAwardGlyph": {
-    "name": "Tennocon 2024 - Floofy Cuteness Award",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
   "items:/Lotus/Types/Items/ShipDecos/TennoCon2024CosplayBestPetTrophy": {
     "name": "Tennocon 2024 - Master Teasonai Award",
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2024BestPetAwardGlyph": {
-    "name": "Tennocon 2024 - Master Teasonai Award",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -185628,47 +188897,11 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2024FunniestAwardGlyph": {
-    "name": "Tennocon 2024 - Ordis Punny Award",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
   "items:/Lotus/Types/Items/ShipDecos/TennoCon2024CosplayBestInShowTrophy": {
     "name": "Tennocon 2024 - Orokin Gold Award",
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2024BestInShowAwardGlyph": {
-    "name": "Tennocon 2024 - Orokin Gold Award",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2024BestWorkmanshipAwardGlyph": {
-    "name": "Tennocon 2024 - Solaris Workmanship Award",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -185712,18 +188945,6 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2025FirstPlaceAwardGlyph": {
-    "name": "Tennocon 2025 - 1st Place",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
   "items:/Lotus/Types/Items/ShipDecos/TennoCon2025CosplaySecondPlaceTrophy": {
     "name": "Tennocon 2025 - 2nd Place",
     "category": "Skins",
@@ -185736,35 +188957,11 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2025SecondPlaceAwardGlyph": {
-    "name": "Tennocon 2025 - 2nd Place",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
   "items:/Lotus/Types/Items/ShipDecos/TennoCon2025CosplayThirdPlaceTrophy": {
     "name": "Tennocon 2025 - 3rd Place",
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
-    "tags": [],
-    "masteryReq": null,
-    "masterable": false,
-    "tradable": false,
-    "wfcdFile": "Skins.json",
-    "source": "wfcd"
-  },
-  "items:/Lotus/Types/StoreItems/AvatarImages/TennoCon2025ThirdPlaceAwardGlyph": {
-    "name": "Tennocon 2025 - 3rd Place",
-    "category": "Skins",
-    "productCategory": null,
-    "type": "Glyph",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -185834,6 +189031,138 @@
   },
   "items:/Lotus/Types/Items/ShipDecos/Tennocon2025DigitalItemDisplay": {
     "name": "Tennocon 2025 Pin Display",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Emotes/Tennocon2026Emote": {
+    "name": "Tennocon 2026",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Emotes",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TennoCon2026CosplayFirstPlaceTrophy": {
+    "name": "Tennocon 2026 - 1st Place",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TennoCon2026CosplaySecondPlaceTrophy": {
+    "name": "Tennocon 2026 - 2nd Place",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TennoCon2026CosplayThirdPlaceTrophy": {
+    "name": "Tennocon 2026 - 3rd Place",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TennoCon2026CosplayBombasticTrophy": {
+    "name": "Tennocon 2026 - Bombastic Performance Award",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TennoCon2026CosplayLotusChoiceTrophy": {
+    "name": "Tennocon 2026 - Lotus' Choice Award",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TennoCon2026CosplayOrokinGoldTrophy": {
+    "name": "Tennocon 2026 - Orokin Gold Award",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TennoCon2026CosplayOstronIngenuityTrophy": {
+    "name": "Tennocon 2026 - Ostron Ingenuity Award",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TennoCon2026CosplayBestWorkmanshipTrophy": {
+    "name": "Tennocon 2026 - Solaris Worksmanship Award",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TennoCon2026CommunityArtShowcaseTrophy": {
+    "name": "Tennocon 2026 Community Art Showcase Award",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/Tennocon2026Display": {
+    "name": "Tennocon 2026 Display",
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
@@ -186014,6 +189343,18 @@
   },
   "items:/Lotus/Types/Items/ShipDecos/TennoVIP2025Deco": {
     "name": "Tennovip 2025 Decoration",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TennoVIP2026Deco": {
+    "name": "Tennovip 2026 Decoration",
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
@@ -186336,6 +189677,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleCaliban": {
+    "name": "The Heir Of Two Kingdoms Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Mustache/Stache08": {
     "name": "The Illusionist",
     "category": "Skins",
@@ -186552,6 +189905,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleGaruda": {
+    "name": "The Scarlet Queen Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleSalvage": {
     "name": "The Scavenger Honoria",
     "category": "Skins",
@@ -186590,6 +189955,18 @@
   },
   "items:/Lotus/Types/Items/ShipDecos/PlanetTrophies/PlanetTrophyCeresBronze": {
     "name": "The Steel Path - Ceres",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/PlanetTrophies/PlanetTrophyPeritaBronze": {
+    "name": "The Steel Path - Dark Refractory",
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
@@ -186854,6 +190231,18 @@
   },
   "items:/Lotus/Types/Items/Emotes/HardmodeCeresEmote": {
     "name": "The Steel Path: Ceres",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Emotes",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Emotes/HardmodePeritaEmote": {
+    "name": "The Steel Path: Dark Refractory",
     "category": "Skins",
     "productCategory": null,
     "type": "Emotes",
@@ -187188,6 +190577,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleLavos": {
+    "name": "The Warden Of Alchemy Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/ShipDecos/Venus/TNWGlintTeshinDisplay": {
     "name": "The Worm",
     "category": "Skins",
@@ -187229,6 +190630,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/CephalonSudaTitle": {
+    "name": "Thirst For Knowledge Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -187289,6 +190702,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Emotes/ThousandDaysEmote": {
+    "name": "Thousand Days",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Emotes",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -188124,8 +191549,32 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Armor/GrendelDeluxeIIArmour/GrendelDeluxeIIArmourC": {
+    "name": "Torvon Chest Armor",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/TextureOverrides/GrossFlesh": {
     "name": "Tough Vestan Moss",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Deluxe/ProteaDeluxeGlaiveSkin": {
+    "name": "Traciens Glaive Skin",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -190680,6 +194129,90 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/SuitCustomizations/ColourPickerVaubanHeirloom": {
+    "name": "Vauban Heirloom",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Color Palette",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Trapper/VaubanHeirloomHelmet": {
+    "name": "Vauban Heirloom Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Trapper/VaubanHeirloomAux": {
+    "name": "Vauban Heirloom Overcoat",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/ShipDecos/TarotCardVaubanHeirloom": {
+    "name": "Vauban Heirloom Prex",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Crowns/HeirloomVaubanCrown": {
+    "name": "Vauban Heirloom Signa",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Trapper/VaubanHeirloomSkin": {
+    "name": "Vauban Heirloom Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Trapper/VaubanHeirloomAuxSleeveless": {
+    "name": "Vauban Heirloom Sleeveless Overcoat",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Trapper/TrapperDefaultHelmet": {
     "name": "Vauban Helmet",
     "category": "Skins",
@@ -192276,6 +195809,54 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadQRemastered": {
+    "name": "Visage 15",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadQRemastered": {
+    "name": "Visage 15",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadTRemastered": {
+    "name": "Visage 18",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadTRemastered": {
+    "name": "Visage 18",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadGRemastered": {
     "name": "Visage 20",
     "category": "Skins",
@@ -192290,6 +195871,54 @@
   },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadGRemastered": {
     "name": "Visage 20",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadNRemastered": {
+    "name": "Visage 33",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadNRemastered": {
+    "name": "Visage 33",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadKRemastered": {
+    "name": "Visage 39",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadKRemastered": {
+    "name": "Visage 39",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -192348,6 +195977,30 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadSRemastered": {
+    "name": "Visage 44",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadSRemastered": {
+    "name": "Visage 44",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadCRemastered": {
     "name": "Visage 47",
     "category": "Skins",
@@ -192396,6 +196049,30 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadRRemastered": {
+    "name": "Visage 57",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadRRemastered": {
+    "name": "Visage 57",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadFRemastered": {
     "name": "Visage 67",
     "category": "Skins",
@@ -192410,6 +196087,54 @@
   },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadFRemastered": {
     "name": "Visage 67",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadLRemastered": {
+    "name": "Visage 70",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadLRemastered": {
+    "name": "Visage 70",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadMRemastered": {
+    "name": "Visage 73",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadMRemastered": {
+    "name": "Visage 73",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -192458,6 +196183,54 @@
   },
   "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadHRemastered": {
     "name": "Visage 80",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadORemastered": {
+    "name": "Visage 82",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadORemastered": {
+    "name": "Visage 82",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/AdultHeadPRemastered": {
+    "name": "Visage 92",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Operator/Heads/HeadPRemastered": {
+    "name": "Visage 92",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -192701,6 +196474,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Crowns/GaussDeluxeIICrown": {
+    "name": "Vizor Signa",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -194021,6 +197806,18 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/RoatheTitles/TitleGrendel": {
+    "name": "Who Devours All Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -195408,6 +199205,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Weapons/Glaives/XorisExilisSkin": {
+    "name": "Xoris Elixis Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Upgrades/Skins/Armor/SWXulatuChest/SWXulatuChestArmor": {
     "name": "Xulatu Chest Armor",
     "category": "Skins",
@@ -195806,6 +199615,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Scarves/SWZaikhyaScarf": {
     "name": "Zaikhya Syandana",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Crowns/SWZamariuSignaCrown": {
+    "name": "Zamariu Signa",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -198732,6 +202553,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Weapons/Pistols/ZylokExilisSkin": {
+    "name": "Zylok Elixis Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Powersuits/Ninja/Ninja": {
     "name": "Ash",
     "category": "Warframes",
@@ -199010,6 +202843,18 @@
   },
   "items:/Lotus/Powersuits/Excalibur/ExcaliburUmbra": {
     "name": "Excalibur Umbra",
+    "category": "Warframes",
+    "productCategory": "Suits",
+    "type": "Warframe",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Warframes.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Powersuits/Inkblot/Inkblot": {
+    "name": "Follie",
     "category": "Warframes",
     "productCategory": "Suits",
     "type": "Warframe",
