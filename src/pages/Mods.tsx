@@ -698,9 +698,9 @@ function getDisplayModName(entry: ModEntry): string {
 
 function getBrowseCompatKey(entry: ModEntry): string {
   return (
-    entry.data?.ItemCompatibility ??
     ALL_MODS_BY_PATH[entry.path]?.compatName ??
     ALL_MODS_BY_NAME[entry.name]?.compatName ??
+    entry.data?.ItemCompatibility ??
     ""
   );
 }

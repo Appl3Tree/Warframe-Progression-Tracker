@@ -11,7 +11,7 @@ import PRIMARY_RAW from "../../../external/warframe-items/raw/Primary.json";
 import SECONDARY_RAW from "../../../external/warframe-items/raw/Secondary.json";
 import ALL_RAW from "../../../external/warframe-items/raw/All.json";
 
-const OVERLEVEL_NAME_PREFIXES = ["Kuva ", "Tenet ", "Coda ", "Dual Coda "];
+const OVERLEVEL_NAME_PREFIXES = ["Kuva ", "Tenet ", "Coda ", "Dual Coda ", "Dual Tenet ", "Dual Kuva "];
 const OVERLEVEL_EXACT_NAMES = new Set(["Paracesis"]);
 
 const _wfdata = {
