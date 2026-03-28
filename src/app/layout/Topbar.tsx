@@ -868,11 +868,8 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                             <path d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-                    <svg className="h-5 w-5 text-blue-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                        <path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" />
-                        <path d="M12 8v8M8.5 10l3.5 2 3.5-2" />
-                    </svg>
-                    <span className="text-sm font-semibold text-slate-100 tracking-wide hidden sm:inline">Warframe Tracker</span>
+                    <img src={`${import.meta.env.BASE_URL}favicon-rounded-512x512.png`} alt="Tenno Hub" className="h-6 w-6 shrink-0" />
+                    <span className="text-sm font-semibold text-slate-100 tracking-wide hidden sm:inline">Tenno Hub</span>
                 </div>
 
                 {/* Right side: notification bell + profile pill */}
