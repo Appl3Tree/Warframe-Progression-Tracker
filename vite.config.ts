@@ -25,7 +25,7 @@ function injectBuildId(buildId: string): Plugin {
 const buildId = getBuildId();
 
 export default defineConfig({
-    base: "/Warframe-Progression-Tracker/",
+    base: "/Tenno-Hub/",
     plugins: [
         injectBuildId(buildId),
         tailwindcss(),
