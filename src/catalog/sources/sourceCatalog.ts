@@ -143,7 +143,9 @@ function buildMissionNodeSources(): RawSource[] {
 
             const id = dataId(["node", planetName, nodeName]);
             const gameMode = safeString((nodeObj as any)?.gameMode);
-            const label = gameMode ? `${planetName} - ${nodeName} (${gameMode})` : `${planetName} - ${nodeName}`;
+            // (Extra) = Steel Path variant — replace in the display label only; ID stays stable.
+            const nodeNameDisplay = String(nodeName).replace(/\s*\(Extra\)\s*$/i, " (Steel Path)");
+            const label = gameMode ? `${planetName} - ${nodeNameDisplay} (${gameMode})` : `${planetName} - ${nodeNameDisplay}`;
 
             pushUnique(out, seen, id, label, "drop");
         }
@@ -172,7 +174,8 @@ function buildMissionRewardSources(): RawSource[] {
     const mrRoot = (missionRewardsJson as any)?.missionRewards ?? (missionRewardsJson as any);
     if (!mrRoot || typeof mrRoot !== "object" || Array.isArray(mrRoot)) return out;
 
-    const stripNodeSuffix = (s: string): string => s.replace(/\s*\((Caches|Extra)\)\s*$/i, "");
+    // Only strip (Caches) — (Extra) is the Steel Path variant and gets its own source ID + label.
+    const stripNodeSuffix = (s: string): string => s.replace(/\s*\(Caches\)\s*$/i, "");
 
     for (const [planetName, planetObj] of Object.entries(mrRoot as Record<string, any>)) {
         if (!planetObj || typeof planetObj !== "object") continue;
@@ -182,9 +185,16 @@ function buildMissionRewardSources(): RawSource[] {
 
             const nodeNameBase = stripNodeSuffix(String(nodeNameRaw));
 
+            // (Extra) suffix = Steel Path variant. Use it as-is for the ID (tokenizer strips parens),
+            // but replace "(Extra)" with "(Steel Path)" in the human-readable label.
+            const isSteelPath = /\s*\(Extra\)\s*$/i.test(nodeNameBase);
+            const nodeNameDisplay = isSteelPath
+                ? nodeNameBase.replace(/\s*\(Extra\)\s*$/i, " (Steel Path)")
+                : nodeNameBase;
+
             // Canonical ids (match what your jq script expects: data:missionreward/<planet>/<baseNode>)
             const baseId = dataId(["missionreward", String(planetName), nodeNameBase]);
-            const baseLabel = `Mission Reward: ${planetName} / ${nodeNameBase}`;
+            const baseLabel = `Mission Reward: ${planetName} / ${nodeNameDisplay}`;
             pushUnique(out, seen, baseId, baseLabel, "drop");
 
             const rewards = (nodeObj as any)?.rewards;

@@ -1149,11 +1149,17 @@ export default function StarChartMap(props: {
                 });
             }
         }
-        // Sort: rotation A → B → C, then by chance desc within each rotation
+        // Sort: rotation A → B → C, Normal before Steel Path within each rotation,
+        // then by chance desc (Normal and Steel Path rows for the same item stay adjacent).
         items.sort((a, b) => {
             const ro: Record<string, number> = { A: 0, B: 1, C: 2 };
             const rd = (ro[a.meta.rotation] ?? 3) - (ro[b.meta.rotation] ?? 3);
             if (rd !== 0) return rd;
+            // Within the same rotation: group by item name so Normal/SP rows appear together
+            const nameCompare = a.baseName.localeCompare(b.baseName);
+            if (nameCompare !== 0) return nameCompare;
+            // Same item name: Normal first, then Steel Path
+            if (a.meta.steelPath !== b.meta.steelPath) return a.meta.steelPath ? 1 : -1;
             return b.meta.chance - a.meta.chance;
         });
         return items;
@@ -1410,6 +1416,9 @@ export default function StarChartMap(props: {
                                                                             <span className="rounded px-1 py-px bg-slate-700 text-slate-300 font-mono font-bold">{it.meta.rotation}</span>
                                                                             <span className="text-slate-400">{formatChance(it.meta.chance)}</span>
                                                                             <span className={rarityClass(it.meta.rarity)}>{it.meta.rarity}</span>
+                                                                            {it.meta.steelPath && (
+                                                                                <span className="rounded px-1 py-px bg-yellow-900/60 border border-yellow-700/40 text-yellow-300 font-bold text-[10px]">SP</span>
+                                                                            )}
                                                                         </span>
                                                                     </li>
                                                                 );

@@ -5031,6 +5031,24 @@ export const STAR_CHART_NODES: StarChartNode[] = [
         pos: undefined,
         edges: []
     },
+    // Vesper Relay hosts Follie's Hunt since the Warframe: 1999 update.
+    // Separate mission nodes (distinct from the hub) so the drop map resolves sources correctly.
+    {
+        id: "node:mr/venus/vesper-relay",
+        planetId: "planet:venus",
+        name: "Vesper Relay",
+        nodeType: "special",
+        pos: undefined,
+        edges: []
+    },
+    {
+        id: "node:mr/venus/vesper-relay-(extra)",
+        planetId: "planet:venus",
+        name: "Vesper Relay (Steel Path)",
+        nodeType: "special",
+        pos: undefined,
+        edges: []
+    },
 
     // --- Mercury hubs ---
     {

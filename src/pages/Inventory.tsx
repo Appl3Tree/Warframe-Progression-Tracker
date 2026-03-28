@@ -17,6 +17,7 @@ import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { getItemRequirements } from "../catalog/items/itemRequirements";
 import { uid, nowIso } from "../store/storeUtils";
 import ALL_RAW from "../../external/warframe-items/raw/All.json";
+import missionRewardsJson from "../../external/warframe-drop-data/raw/missionRewards.json";
 import { getRelicByKey } from "../domain/catalog/relicCatalog";
 import { getPrimeAvailabilityStatus, getRelicAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";
@@ -26,6 +27,65 @@ const STATUS_IMG_INV: Record<string, string> = {};
 for (const [p, url] of Object.entries(_statusImgs)) {
   const name = p.split("/").pop()!.replace(".png", "").toLowerCase();
   STATUS_IMG_INV[name] = url;
+}
+
+// ── Steel Path drop annotation ────────────────────────────────────────────────
+// Builds a lookup: (planet/baseNode/rotation, roundedChance) → true
+// when that chance value comes from an (Extra) / Steel Path node in missionRewards.json.
+// Used to annotate warframe-items drop location strings that cannot distinguish
+// Normal vs Steel Path on their own.
+const STEEL_PATH_DROP_CHANCES: Map<string, Set<number>> = (() => {
+  const out = new Map<string, Set<number>>();
+  const root: any = (missionRewardsJson as any)?.missionRewards ?? missionRewardsJson;
+  if (!root || typeof root !== "object") return out;
+
+  for (const [planetName, planetObj] of Object.entries(root as Record<string, any>)) {
+    if (!planetObj || typeof planetObj !== "object") continue;
+    for (const [nodeName, nodeObj] of Object.entries(planetObj as Record<string, any>)) {
+      if (!/\(Extra\)\s*$/i.test(String(nodeName))) continue; // only Steel Path nodes
+      const rewards = (nodeObj as any)?.rewards;
+      if (!rewards || typeof rewards !== "object") continue;
+
+      // Strip "(Extra)" to get the base node name for matching against location strings.
+      const baseNode = String(nodeName).replace(/\s*\(Extra\)\s*$/i, "").trim().toLowerCase();
+      const planet = String(planetName).toLowerCase();
+
+      for (const [rotLetter, entries] of Object.entries(rewards as Record<string, any>)) {
+        if (!Array.isArray(entries)) continue;
+        const rotation = String(rotLetter).toLowerCase();
+        const key = `${planet}/${baseNode}/${rotation}`;
+        for (const entry of entries) {
+          const chance = typeof (entry as any).chance === "number" ? (entry as any).chance : 0;
+          if (chance <= 0) continue;
+          // missionRewards chance is in %, multiply by 100 to get same scale as Math.round(wfChance * 10000)
+          const rounded = Math.round(chance * 100);
+          if (!out.has(key)) out.set(key, new Set());
+          out.get(key)!.add(rounded);
+        }
+      }
+    }
+  }
+  return out;
+})();
+
+/** Returns true when a warframe-items drop entry corresponds to a Steel Path node. */
+function isSteelPathDrop(drop: { location: string; chance: number }): boolean {
+  const loc = String(drop.location ?? "");
+  // Parse "Planet/Base Node (GameMode), Rotation X" → just take up to the first "("
+  const beforeParen = loc.split("(")[0].trim();
+  const parts = beforeParen.split("/").map(s => s.trim().toLowerCase()).filter(Boolean);
+  if (parts.length < 2) return false;
+
+  const planet = parts[0];
+  const node = parts.slice(1).join("/");
+
+  const rotMatch = loc.match(/\bRotation\s+([ABC])\b/i);
+  if (!rotMatch) return false;
+  const rotation = rotMatch[1].toLowerCase();
+
+  const key = `${planet}/${node}/${rotation}`;
+  const roundedChance = Math.round(drop.chance * 10000);
+  return STEEL_PATH_DROP_CHANCES.get(key)?.has(roundedChance) ?? false;
 }
 
 type SortKey =
@@ -281,10 +341,11 @@ function classifyDropInv(location: string): "syndicate" | "enemy" | "mission" | 
   return "other";
 }
 
-function InvDropRow({ d, small = false, worldState = null }: {
+function InvDropRow({ d, small = false, worldState = null, steelPath = false }: {
   d: { chance: number; location: string; rarity: string; type?: string };
   small?: boolean;
   worldState?: import("../lib/worldStateCache").WorldStateData | null;
+  steelPath?: boolean;
 }) {
   const kind = classifyDropInv(d.location);
   const sz = small ? "text-[10px]" : "text-xs";
@@ -376,6 +437,12 @@ function InvDropRow({ d, small = false, worldState = null }: {
   return (
     <div className={["flex items-center gap-1.5 rounded px-2 py-1 bg-slate-900/40 border border-slate-800/50", sz].join(" ")}>
       <span className="flex-1 truncate text-slate-300">{d.location}</span>
+      {steelPath && (
+        <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1 py-0.5 rounded border border-yellow-700/50 bg-yellow-950/40 text-yellow-400"
+          title="Steel Path drop rate">
+          SP
+        </span>
+      )}
       <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
       <span className="font-mono text-slate-500 shrink-0">{(d.chance * 100).toFixed(2)}%</span>
     </div>
@@ -3116,7 +3183,7 @@ export default function Inventory() {
                                       return b.chance - a.chance;
                                     })
                                     .slice(0, 8)
-                                    .map((d, j) => <InvDropRow key={j} d={d} small worldState={worldState} />)}
+                                    .map((d, j) => <InvDropRow key={j} d={d} small worldState={worldState} steelPath={isSteelPathDrop(d)} />)}
                                   {comp.drops!.length > 8 && (
                                     <div className="text-[10px] text-slate-600">
                                       +{comp.drops!.length - 8} more locations
@@ -3146,7 +3213,7 @@ export default function Inventory() {
                               return b.chance - a.chance;
                             })
                             .slice(0, 20)
-                            .map((d, i) => <InvDropRow key={i} d={d} worldState={worldState} />)}
+                            .map((d, i) => <InvDropRow key={i} d={d} worldState={worldState} steelPath={isSteelPathDrop(d)} />)}
                           {allE.drops.length > 20 && (
                             <div className="text-xs text-slate-600 px-2">
                               +{allE.drops.length - 20} more

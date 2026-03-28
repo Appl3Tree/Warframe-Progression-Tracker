@@ -3,11 +3,15 @@ import { useMemo, useState } from "react";
 import ModBuilder from "./tools/ModBuilder";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
+import IconCommon from "../assets/rarity/IconCommon.png";
+import IconRare from "../assets/rarity/IconRare.png";
+import IconUncommon from "../assets/rarity/IconUncommon.png";
 import {
     buildRequirementsSnapshot,
     buildFarmingSnapshot,
 } from "../domain/logic/requirementEngine";
 import {
+    expandRelicGoalItemNames,
     scoreRelicsForItems,
     type RelicEntry,
     type ScoredRelic,
@@ -18,13 +22,19 @@ import { useWorldStateData } from "../lib/useWorldStateData";
 // ---- Helpers ----
 
 const RARITY_COLOR: Record<string, string> = {
-    Rare:     "text-amber-400 border-amber-700/50 bg-amber-950/30",
-    Uncommon: "text-slate-300 border-slate-600/50 bg-slate-900/40",
-    Common:   "text-slate-400 border-slate-700/40 bg-slate-950/30",
+    Rare:     "text-amber-100 border-amber-500/50 bg-amber-700/35",
+    Uncommon: "text-slate-100 border-slate-400/50 bg-slate-400/30",
+    Common:   "text-orange-100 border-orange-700/60 bg-orange-900/40",
 };
 
 const RARITY_LABEL: Record<string, string> = {
     Rare: "R", Uncommon: "UC", Common: "C",
+};
+
+const RARITY_ICON: Record<string, string> = {
+    Rare: IconRare,
+    Uncommon: IconUncommon,
+    Common: IconCommon,
 };
 
 const TIER_COLOR: Record<string, string> = {
@@ -55,9 +65,11 @@ function TierBadge({ tier }: { tier: string }) {
 
 function RarityBadge({ rarity }: { rarity: string }) {
     const cls = RARITY_COLOR[rarity] ?? "text-slate-400 border-slate-700 bg-slate-900";
+    const icon = RARITY_ICON[rarity];
     return (
-        <span className={`text-[9px] px-1 py-0.5 rounded border font-semibold shrink-0 ${cls}`}>
-            {RARITY_LABEL[rarity] ?? rarity}
+        <span className={`inline-flex min-w-[3rem] items-center justify-center gap-1.5 px-2 py-0.5 rounded border font-semibold shrink-0 ${cls}`}>
+            {icon ? <img src={icon} alt="" className="h-3.5 w-3.5 shrink-0 drop-shadow-[0_0_2px_rgba(15,23,42,0.9)]" /> : null}
+            <span className="text-[9px] leading-none">{RARITY_LABEL[rarity] ?? rarity}</span>
         </span>
     );
 }
@@ -121,6 +133,8 @@ function RelicCard({
 }) {
     const { relic, matchedItems } = scored;
     const [showAll, setShowAll] = useState(false);
+    const [refinement, setRefinement] = useState<(typeof REFINEMENT_COSTS)[number]["label"]>("Intact");
+    const refinementConfig = REFINEMENT_COSTS.find((r) => r.label === refinement) ?? REFINEMENT_COSTS[0];
 
     // Separate matched rewards (from goals) from the rest
     const allRewards = relic.rewards;
@@ -152,13 +166,33 @@ function RelicCard({
                 </span>
             </div>
 
+            <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                <span className="text-[10px] uppercase tracking-wide text-slate-500">Refinement</span>
+                {REFINEMENT_COSTS.map((lvl) => (
+                    <button
+                        key={lvl.label}
+                        onClick={() => setRefinement(lvl.label)}
+                        className={[
+                            "rounded-full border px-2 py-0.5 text-[10px] transition-colors",
+                            refinement === lvl.label
+                                ? "border-slate-300 bg-slate-100 text-slate-900"
+                                : "border-slate-700 bg-slate-900/50 text-slate-400 hover:bg-slate-900 hover:text-slate-200",
+                        ].join(" ")}
+                    >
+                        {lvl.label}
+                    </button>
+                ))}
+            </div>
+
             {/* Matched items (from goals) */}
             <div className="space-y-1 mb-2">
                 {matchedItems.map((rw) => (
                     <div key={rw.itemName} className="flex items-center gap-1.5 text-xs">
                         <RarityBadge rarity={rw.rarity} />
                         <span className="text-slate-200 font-medium">{rw.itemName}</span>
-                        <span className="ml-auto text-slate-500 text-[10px] font-mono">{rw.chance}%</span>
+                        <span className="ml-auto text-slate-500 text-[10px] font-mono">
+                            {refinementConfig.dropRates[rw.rarity]}%
+                        </span>
                     </div>
                 ))}
             </div>
@@ -178,7 +212,7 @@ function RelicCard({
                                 <div key={rw.itemName} className="flex items-center gap-1.5 text-[10px] text-slate-500">
                                     <RarityBadge rarity={rw.rarity} />
                                     <span>{rw.itemName}</span>
-                                    <span className="ml-auto font-mono">{rw.chance}%</span>
+                                    <span className="ml-auto font-mono">{refinementConfig.dropRates[rw.rarity]}%</span>
                                 </div>
                             ))}
                         </div>
@@ -414,6 +448,8 @@ function RelicFarming() {
     const [tab, setTab] = useState<"goals" | "traces">("goals");
     const [tierFilter, setTierFilter] = useState<string>("all");
     const [showVaulted, setShowVaulted] = useState(false);
+    const [showNeededItems, setShowNeededItems] = useState(true);
+    const [relicSearch, setRelicSearch] = useState("");
 
     // Build farming snapshot for active goals only (no syndicates — syndicate items aren't in relics)
     const farmingItems = useMemo(() => {
@@ -439,7 +475,8 @@ function RelicFarming() {
             itemNames.add(line.name);
         }
 
-        const scored = scoreRelicsForItems(itemNames);
+        const expandedItemNames = expandRelicGoalItemNames(itemNames);
+        const scored = scoreRelicsForItems(expandedItemNames);
 
         // Only include items that actually appear in at least one relic —
         // farmingItems may contain non-relic targets (crafting, vendors, etc.)
@@ -454,13 +491,18 @@ function RelicFarming() {
     }, [farmingItems]);
 
     const filteredRelics = useMemo(() => {
+        const query = relicSearch.trim().toLowerCase();
         return scoredRelics.filter((sr) => {
             const availability = getRelicAvailabilityStatus(sr.relic.key, sr.relic.isActive, worldState);
             if (!showVaulted && availability === "vaulted") return false;
             if (tierFilter !== "all" && sr.relic.tier.toLowerCase() !== tierFilter) return false;
-            return true;
+            if (!query) return true;
+
+            if (sr.relic.displayName.toLowerCase().includes(query)) return true;
+            if (sr.relic.relicName.toLowerCase().includes(query)) return true;
+            return sr.relic.rewards.some((reward) => reward.itemName.toLowerCase().includes(query));
         });
-    }, [scoredRelics, showVaulted, tierFilter, worldState]);
+    }, [relicSearch, scoredRelics, showVaulted, tierFilter, worldState]);
 
     // Items that appear in the currently-visible (filtered) relics
     const filteredGoalItemNames = useMemo(() => {
@@ -572,17 +614,44 @@ function RelicFarming() {
 
                             {/* Goal items needed */}
                             <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-3">
-                                <div className="text-xs text-slate-500 uppercase tracking-wide mb-2">Items needed from relics</div>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {Array.from(filteredGoalItemNames).sort().map((name) => (
-                                        <span
-                                            key={name}
-                                            className="text-xs px-2 py-0.5 rounded-full border border-slate-700 bg-slate-900/50 text-slate-300"
-                                        >
-                                            {name}
-                                        </span>
-                                    ))}
-                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowNeededItems((x) => !x)}
+                                    className="flex w-full items-center justify-between gap-3 text-left"
+                                >
+                                    <div className="text-xs text-slate-500 uppercase tracking-wide">Items needed from relics</div>
+                                    <span className="text-slate-500 text-sm leading-none">{showNeededItems ? "▾" : "▸"}</span>
+                                </button>
+                                {showNeededItems && (
+                                    <div className="mt-2 flex flex-wrap gap-1.5">
+                                        {Array.from(filteredGoalItemNames).sort().map((name) => (
+                                            <span
+                                                key={name}
+                                                className="text-xs px-2 py-0.5 rounded-full border border-slate-700 bg-slate-900/50 text-slate-300"
+                                            >
+                                                {name}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="rounded-2xl border border-slate-800 bg-slate-950/30 p-3">
+                                <label className="text-[11px] uppercase tracking-wide text-slate-500 block mb-2">
+                                    Search Relics
+                                </label>
+                                <input
+                                    type="text"
+                                    value={relicSearch}
+                                    onChange={(e) => setRelicSearch(e.target.value)}
+                                    placeholder="Search relic name or reward item"
+                                    className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-slate-500"
+                                />
+                                {!!relicSearch.trim() && (
+                                    <div className="mt-2 text-[10px] text-slate-500">
+                                        Showing {filteredRelics.length} matching relic{filteredRelics.length === 1 ? "" : "s"} for "{relicSearch.trim()}"
+                                    </div>
+                                )}
                             </div>
 
                             {/* Relic cards */}

@@ -521,12 +521,24 @@ export function buildTabSpecRaw(args: { group: NodeGroup; kind: NodeGroupKind; s
 
     const nodeId = pickNodeIdForTab(group, kind);
 
-    const rawSources = !nodeId
+    const primarySources = !nodeId
         ? []
         : getDropSourcesForStarChartNode(nodeId)
               .map((sid) => safeNormalizeSourceId(sid))
               .filter((x): x is string => Boolean(x));
 
+    // For the Mission Rewards tab, also include sources from Steel Path (extra) variants
+    // so Normal and Steel Path drops are shown together with proper labeling.
+    const extraSources: string[] =
+        kind === "mission_rewards"
+            ? (group.kinds["extra"] ?? []).flatMap((extraId) =>
+                  getDropSourcesForStarChartNode(extraId)
+                      .map((sid) => safeNormalizeSourceId(sid))
+                      .filter((x): x is string => Boolean(x))
+              )
+            : [];
+
+    const rawSources = [...primarySources, ...extraSources];
     const dropSources = filterSourcesForTab(kind, rawSources);
 
     const dropSourceDetails = dropSources.map((sid) => ({

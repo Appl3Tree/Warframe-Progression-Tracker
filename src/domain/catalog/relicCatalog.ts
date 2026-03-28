@@ -50,6 +50,15 @@ const _relicsByItemName = new Map<string, string[]>(); // itemName → relicKeys
 
 const relicsArr: RawRelicEntry[] = (relicsDropRaw as any)?.relics ?? [];
 
+function deriveRelicSlotRarityFromChance(chance: number): RelicRarity {
+    // The source JSON is inconsistent for slot rarity, especially on common slots.
+    // Intact relics always follow the 2 / 11 / 25.33 pattern, so use the slot odds
+    // themselves as the source of truth for rarity buckets.
+    if (chance <= 6) return "Rare";
+    if (chance <= 17) return "Uncommon";
+    return "Common";
+}
+
 // Only index "Intact" state entries for standard tiers
 for (const r of relicsArr) {
     if (!r.relicName || !r.tier) continue;
@@ -62,7 +71,7 @@ for (const r of relicsArr) {
 
     const rewards: RelicReward[] = (r.rewards ?? []).map((rw) => ({
         itemName: rw.itemName ?? "",
-        rarity: (rw.rarity ?? "Common") as RelicRarity,
+        rarity: deriveRelicSlotRarityFromChance(rw.chance ?? 0),
         chance: rw.chance ?? 0,
     })).filter((rw) => rw.itemName);
 
@@ -127,6 +136,43 @@ export function getAllRelics(): RelicEntry[] {
 /** Get relic entries for a specific tier. */
 export function getRelicsByTier(tier: string): RelicEntry[] {
     return getAllRelics().filter((r) => r.tier.toLowerCase() === tier.toLowerCase());
+}
+
+/** Get every unique reward item name that can drop from relics. */
+export function getAllRelicRewardItemNames(): string[] {
+    return Array.from(_relicsByItemName.keys()).sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Expand a goal item name into the full set of relic rewards that can satisfy it.
+ *
+ * Why this exists:
+ * - Some top-level Prime items do not have complete recipe/component data in our
+ *   requirements snapshot, which causes the relic planner to only see the parent
+ *   blueprint line.
+ * - Relic rewards themselves are authoritative for "what can be cracked", so for
+ *   Prime-family goals we expand by reward-name prefix.
+ *
+ * Example:
+ * - "Trinity Prime" ->
+ *   "Trinity Prime Blueprint"
+ *   "Trinity Prime Chassis Blueprint"
+ *   "Trinity Prime Neuroptics Blueprint"
+ *   "Trinity Prime Systems Blueprint"
+ */
+export function expandRelicGoalItemNames(targetItemNames: Set<string>): Set<string> {
+    const expanded = new Set<string>(targetItemNames);
+    const allRewardNames = getAllRelicRewardItemNames();
+
+    for (const name of targetItemNames) {
+        for (const rewardName of allRewardNames) {
+            if (rewardName === name || rewardName.startsWith(`${name} `)) {
+                expanded.add(rewardName);
+            }
+        }
+    }
+
+    return expanded;
 }
 
 /**

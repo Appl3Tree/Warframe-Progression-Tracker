@@ -177,7 +177,6 @@ export function getDropSourcesForStarChartNode(nodeId: string): string[] {
     // 1) Node source is the exact node token (including -caches/-extra)
     out.push(dataNodeId(planetToken, nodeTokenCanonical));
 
-    // 2) Missionreward sources are canonicalized to BASE node (strip -caches/-extra)
     const baseNodeToken = baseNodeTokenFromVariant(nodeTokenCanonical);
 
     // 1b) For caches nodes, also emit the data:caches/<planet>/<baseNode> source.
@@ -186,7 +185,17 @@ export function getDropSourcesForStarChartNode(nodeId: string): string[] {
     if (nodeTokenCanonical.endsWith("-caches")) {
         out.push(`data:caches/${planetToken}/${baseNodeToken}`);
     }
-    out.push(dataMissionRewardId(planetToken, baseNodeToken));
+
+    // 2) Missionreward source and rotation sources.
+    //
+    // For (Extra) / Steel Path nodes: use the node-specific token so the source ID
+    // matches the Steel Path bucket in dropMetaLookup (which no longer strips "(Extra)").
+    //
+    // For all other variants (including (Caches)): canonicalize to the base node token,
+    // because missionRewards.json lists their rewards under the base node name.
+    const mrToken = nodeTokenCanonical.endsWith("-extra") ? nodeTokenCanonical : baseNodeToken;
+
+    out.push(dataMissionRewardId(planetToken, mrToken));
 
     // 3) Rotations depend on missionRewards reward structure for the exact node key if present,
     //    else fall back to base node key.
@@ -195,9 +204,9 @@ export function getDropSourcesForStarChartNode(nodeId: string): string[] {
         MR_INDEX?.[planetToken]?.[baseNodeToken] ??
         null;
 
-    if (info?.hasA) out.push(dataMissionRewardId(planetToken, baseNodeToken, "rotationa"));
-    if (info?.hasB) out.push(dataMissionRewardId(planetToken, baseNodeToken, "rotationb"));
-    if (info?.hasC) out.push(dataMissionRewardId(planetToken, baseNodeToken, "rotationc"));
+    if (info?.hasA) out.push(dataMissionRewardId(planetToken, mrToken, "rotationa"));
+    if (info?.hasB) out.push(dataMissionRewardId(planetToken, mrToken, "rotationb"));
+    if (info?.hasC) out.push(dataMissionRewardId(planetToken, mrToken, "rotationc"));
 
     out.push(...explicit);
 

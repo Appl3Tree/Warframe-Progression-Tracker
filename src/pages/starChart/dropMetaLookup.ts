@@ -17,6 +17,7 @@ export type DropMeta = {
     rarity: string;              // "Common" | "Uncommon" | "Rare" | "Legendary"
     rotation: "A" | "B" | "C";
     displayName: string;         // original item name from missionRewards.json, e.g. "400 Endo"
+    steelPath: boolean;          // true when this entry is from an (Extra) / Steel Path node
 };
 
 /** sourceId → normalized item name → best DropMeta for that (source, item) pair */
@@ -66,7 +67,8 @@ export function buildDropMetaLookup(): DropMetaLookup {
 
         const fullKey = normItemName(itemName);
         if (fullKey) {
-            // Keep the highest-chance entry for duplicate (source, name) pairs
+            // Keep the highest-chance entry for duplicate (source, name, steelPath) pairs.
+            // Each sourceId is already scoped to either Normal or Steel Path — no cross-tier merging.
             const prev = out[sourceId][fullKey];
             if (!prev || meta.chance > prev.chance) {
                 out[sourceId][fullKey] = meta;
@@ -90,8 +92,9 @@ export function buildDropMetaLookup(): DropMetaLookup {
     const root = (missionRewardsJson as any)?.missionRewards ?? (missionRewardsJson as any);
     if (!root || typeof root !== "object" || Array.isArray(root)) return out;
 
-    const stripNodeSuffix = (s: string) =>
-        String(s ?? "").replace(/\s*\((Caches|Extra)\)\s*$/i, "").trim();
+    // Only strip (Caches) — (Extra) is the Steel Path variant and gets its own source ID.
+    const stripCachesSuffix = (s: string) =>
+        String(s ?? "").replace(/\s*\(Caches\)\s*$/i, "").trim();
 
     for (const [planetName, planetObj] of Object.entries(root as Record<string, any>)) {
         if (!planetObj || typeof planetObj !== "object") continue;
@@ -102,7 +105,9 @@ export function buildDropMetaLookup(): DropMetaLookup {
             const rewards = (nodeObj as any)?.rewards;
             if (!rewards || typeof rewards !== "object" || Array.isArray(rewards)) continue;
 
-            const nodeNameBase = stripNodeSuffix(String(nodeNameRaw));
+            const nodeNameBase = stripCachesSuffix(String(nodeNameRaw));
+            // Detect Steel Path: the raw name ends with (Extra) before we stripped anything
+            const steelPath = /\s*\(Extra\)\s*$/i.test(String(nodeNameRaw));
 
             for (const [rotLetter, entries] of Object.entries(rewards as Record<string, any>)) {
                 if (!Array.isArray(entries)) continue;
@@ -144,7 +149,7 @@ export function buildDropMetaLookup(): DropMetaLookup {
                 }
 
                 for (const [itemName, { chance, rarity }] of itemChanceAccum.entries()) {
-                    register(sourceId, itemName, { chance, rarity, rotation: rot, displayName: itemName });
+                    register(sourceId, itemName, { chance, rarity, rotation: rot, displayName: itemName, steelPath });
                 }
             }
         }
