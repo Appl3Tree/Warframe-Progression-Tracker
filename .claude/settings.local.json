@@ -5,7 +5,10 @@
       "Skill(update-config:*)",
       "Bash(npx tsc:*)",
       "WebFetch(domain:warframe.fandom.com)",
-      "WebFetch(domain:wiki.warframe.com)"
+      "WebFetch(domain:wiki.warframe.com)",
+      "WebSearch",
+      "WebFetch(domain:view.genially.com)",
+      "WebFetch(domain:forums.warframe.com)"
     ]
   }
 }

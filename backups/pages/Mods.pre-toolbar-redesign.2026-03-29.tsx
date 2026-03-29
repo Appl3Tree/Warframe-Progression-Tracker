@@ -1363,31 +1363,6 @@ function FilterTagPill({
   );
 }
 
-function ActiveFilterToken({
-  label,
-  tone = "neutral",
-  onRemove,
-}: {
-  label: ReactNode;
-  tone?: "neutral" | "exclude";
-  onRemove: () => void;
-}) {
-  return (
-    <button
-      className={[
-        "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors",
-        tone === "exclude"
-          ? "border-rose-800/70 bg-rose-950/20 text-rose-200 hover:border-rose-700"
-          : "border-slate-700 bg-slate-900/80 text-slate-300 hover:border-slate-500 hover:text-slate-100",
-      ].join(" ")}
-      onClick={onRemove}
-    >
-      <span>{label}</span>
-      <span className="text-[11px] opacity-70">×</span>
-    </button>
-  );
-}
-
 function makeRivenId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
@@ -2911,42 +2886,6 @@ export default function Mods() {
     modGroup !== "parazon";
   const modBrowseGridTemplate = "minmax(260px,1.7fr) 140px 140px 110px 120px 120px 40px";
   const arcaneBrowseGridTemplate = "minmax(260px,1.5fr) 120px 456px 40px";
-  const activeModTokens = useMemo(
-    () => [
-      ...(modGroup !== "all"
-        ? [{ id: "group", label: `Group: ${MOD_GROUPS.find((entry) => entry.key === modGroup)?.label ?? "All"}`, tone: "neutral" as const }]
-        : []),
-      ...includedModSubtypes.map((subtype) => ({ id: `subtype:${subtype}`, label: `Type: ${MOD_SUBTYPE_LABELS[subtype]}`, tone: "neutral" as const })),
-      ...excludedModSubtypes.map((subtype) => ({ id: `subtype:${subtype}`, label: `Exclude: ${MOD_SUBTYPE_LABELS[subtype]}`, tone: "exclude" as const })),
-      ...includedModFlags.map((flag) => ({ id: `flag:${flag}`, label: MOD_SPECIAL_FLAG_LABELS[flag], tone: "neutral" as const })),
-      ...excludedModFlags.map((flag) => ({ id: `flag:${flag}`, label: `Exclude: ${MOD_SPECIAL_FLAG_LABELS[flag]}`, tone: "exclude" as const })),
-      ...includedPolarities.map((polarity) => ({ id: `polarity:${polarity}`, label: `Polarity: ${POLARITIES.find((entry) => entry.key === polarity)?.label ?? polarity}`, tone: "neutral" as const })),
-      ...excludedPolarities.map((polarity) => ({ id: `polarity:${polarity}`, label: `Exclude: ${POLARITIES.find((entry) => entry.key === polarity)?.label ?? polarity}`, tone: "exclude" as const })),
-      ...includedParazonFilters.map((filter) => ({ id: `parazon:${filter}`, label: filter === "requiem" ? "Requiem" : "Antivirus", tone: "neutral" as const })),
-      ...excludedParazonFilters.map((filter) => ({ id: `parazon:${filter}`, label: `Exclude: ${filter === "requiem" ? "Requiem" : "Antivirus"}`, tone: "exclude" as const })),
-      ...(modOwnedFilter ? [{ id: "owned", label: modOwnedFilter === "include" ? "Owned" : "Exclude owned", tone: modOwnedFilter === "include" ? ("neutral" as const) : ("exclude" as const) }] : []),
-    ],
-    [
-      excludedModFlags,
-      excludedModSubtypes,
-      excludedParazonFilters,
-      excludedPolarities,
-      includedModFlags,
-      includedModSubtypes,
-      includedParazonFilters,
-      includedPolarities,
-      modGroup,
-      modOwnedFilter,
-    ],
-  );
-  const activeArcaneTokens = useMemo(
-    () => [
-      ...includedArcaneCategories.map((category) => ({ id: `category:${category}`, label: `Category: ${ARCANE_CATEGORIES.find((entry) => entry.key === category)?.label ?? category}`, tone: "neutral" as const })),
-      ...excludedArcaneCategories.map((category) => ({ id: `category:${category}`, label: `Exclude: ${ARCANE_CATEGORIES.find((entry) => entry.key === category)?.label ?? category}`, tone: "exclude" as const })),
-      ...(arcaneOwnedFilter ? [{ id: "owned", label: arcaneOwnedFilter === "include" ? "Owned" : "Exclude owned", tone: arcaneOwnedFilter === "include" ? ("neutral" as const) : ("exclude" as const) }] : []),
-    ],
-    [arcaneOwnedFilter, excludedArcaneCategories, includedArcaneCategories],
-  );
 
   return (
     <div className="space-y-6">
@@ -3021,13 +2960,27 @@ export default function Mods() {
 
         {/* ── MODS ── */}
         {section === "mods" && (
-          <div className="space-y-4">
-            <div className="rounded-[1.6rem] border border-slate-800 bg-slate-950/70 px-4 py-4 shadow-[0_18px_50px_rgba(2,6,23,0.22)] sm:px-5">
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                      Scope
+          <div className="rounded-[2rem] border border-slate-800/80 bg-[linear-gradient(180deg,rgba(9,15,30,0.96),rgba(2,6,23,0.92))] p-3 shadow-[0_28px_100px_rgba(2,6,23,0.28)] sm:p-4">
+          <div className="space-y-5">
+              <div className="rounded-[1.75rem] border border-slate-800 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.14),transparent_34%),linear-gradient(180deg,rgba(8,15,28,0.98),rgba(3,7,18,0.96))] p-5 shadow-[0_24px_80px_rgba(2,6,23,0.45)]">
+                <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-300/75">
+                    Browse
+                  </div>
+                  <div className="mt-2 text-sm leading-6 text-slate-400">
+                    Use group scope first, then click tags once to include them or twice to exclude them.
+                  </div>
+                </div>
+                  <div className="rounded-2xl border border-slate-800 bg-slate-950/50 px-4 py-3 text-xs text-slate-400">
+                    Include on first click. Exclude on second click.
+                  </div>
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1.15fr)_minmax(260px,0.9fr)]">
+                  <div className="xl:col-start-1 xl:row-span-2">
+                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Group
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {MOD_GROUPS.map((c) => (
@@ -3047,257 +3000,162 @@ export default function Mods() {
                       ))}
                     </div>
                   </div>
-                  <div className="flex min-w-[280px] flex-col gap-2 xl:items-end">
-                    <div className="inline-flex w-fit items-center rounded-full border border-cyan-500/20 bg-cyan-500/5 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">
-                      Include on first click. Exclude on second click.
-                    </div>
-                    <div className="flex w-full flex-wrap items-end gap-2 xl:justify-end">
-                      <input
-                        className="min-w-[220px] flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none xl:max-w-[360px]"
-                        value={modSearch}
-                        onChange={(e) => {
-                          setModSearch(e.target.value);
-                          setSelectedMod(null);
-                        }}
-                        placeholder="Search mods, sets, or weapon families…"
-                      />
-                      <select
-                        className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
-                        value={modSort}
-                        onChange={(e) => setModSort(e.target.value as ModSortKey)}
-                      >
-                        <option value="az">Name A→Z</option>
-                        <option value="release-newest">Release: Newest first</option>
-                        <option value="release-oldest">Release: Oldest first</option>
-                        <option value="rarity-asc">Rarity: Common → Legendary</option>
-                        <option value="rarity-desc">Rarity: Legendary → Common</option>
-                        <option value="rank-asc">Max Rank: Low → High</option>
-                        <option value="rank-desc">Max Rank: High → Low</option>
-                      </select>
-                      {modGroup === "rivens" && (
-                        <button
-                          onClick={() => {
-                            setEditingRiven(null);
-                            setRivenModalOpen(true);
-                          }}
-                          className="rounded-xl border border-yellow-700/50 bg-yellow-950/20 px-3 py-2.5 text-sm font-medium text-yellow-300 transition-colors hover:bg-yellow-950/35"
-                        >
-                          Add Riven
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
 
-                <div className="border-t border-slate-800/80 pt-4">
-                  <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Refine
-                  </div>
-                  <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] xl:items-start">
-                    <div className="min-w-0">
-                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
+                  {availableModSubtypeOptions.length > 0 && (
+                    <div className="xl:col-start-2 xl:row-start-1">
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                         Item Type
                       </div>
-                      {availableModSubtypeOptions.length > 0 ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          <SubPill
-                            label="All"
-                            active={Object.keys(modSubtypeFilters).length === 0}
-                            onClick={() => setModSubtypeFilters({})}
+                      <div className="flex flex-wrap gap-1.5">
+                        <SubPill
+                          label="All"
+                          active={Object.keys(modSubtypeFilters).length === 0}
+                          onClick={() => setModSubtypeFilters({})}
+                        />
+                        {availableModSubtypeOptions.map((subtype) => (
+                          <FilterTagPill
+                            key={subtype}
+                            label={MOD_SUBTYPE_LABELS[subtype]}
+                            state={modSubtypeFilters[subtype]}
+                            onClick={() =>
+                              setModSubtypeFilters((current) => {
+                                const nextState = cycleTagFilterState(current[subtype]);
+                                const next = { ...current };
+                                if (!nextState) delete next[subtype];
+                                else next[subtype] = nextState;
+                                return next;
+                              })
+                            }
                           />
-                          {availableModSubtypeOptions.map((subtype) => (
-                            <FilterTagPill
-                              key={subtype}
-                              label={MOD_SUBTYPE_LABELS[subtype]}
-                              state={modSubtypeFilters[subtype]}
-                              onClick={() =>
-                                setModSubtypeFilters((current) => {
-                                  const nextState = cycleTagFilterState(current[subtype]);
-                                  const next = { ...current };
-                                  if (!nextState) delete next[subtype];
-                                  else next[subtype] = nextState;
-                                  return next;
-                                })
-                              }
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-sm text-slate-500">No narrower item-type split for this group.</div>
-                      )}
-                    </div>
-
-                    <div className="min-w-0">
-                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                        {modGroup === "parazon" ? "Parazon Type" : "Special Slots"}
+                        ))}
                       </div>
-                      {modGroup === "parazon" ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          <SubPill
-                            label="All"
-                            active={Object.keys(parazonFilters).length === 0}
-                            onClick={() => setParazonFilters({})}
-                          />
-                          {(["requiem", "antivirus"] as const).map((f) => (
-                            <FilterTagPill
-                              key={f}
-                              label={f === "requiem" ? "Requiem" : "Antivirus"}
-                              state={parazonFilters[f]}
-                              onClick={() =>
-                                setParazonFilters((current) => {
-                                  const nextState = cycleTagFilterState(current[f]);
-                                  const next = { ...current };
-                                  if (!nextState) delete next[f];
-                                  else next[f] = nextState;
-                                  return next;
-                                })
-                              }
-                            />
-                          ))}
-                        </div>
-                      ) : availableModSpecialFlags.length > 0 ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          <SubPill
-                            label="All"
-                            active={Object.keys(modSpecialFlagFilters).length === 0}
-                            onClick={() => setModSpecialFlagFilters({})}
-                          />
-                          {availableModSpecialFlags.map((flag) => (
-                            <FilterTagPill
-                              key={flag}
-                              label={MOD_SPECIAL_FLAG_LABELS[flag]}
-                              state={modSpecialFlagFilters[flag]}
-                              onClick={() =>
-                                setModSpecialFlagFilters((current) => {
-                                  const nextState = cycleTagFilterState(current[flag]);
-                                  const next = { ...current };
-                                  if (!nextState) delete next[flag];
-                                  else next[flag] = nextState;
-                                  return next;
-                                })
-                              }
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-sm text-slate-500">No slot-specific filter for this scope.</div>
-                      )}
                     </div>
-
-                    <div className="min-w-0">
-                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                        Polarity
-                      </div>
-                      {showPolarityFilter ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          <SubPill
-                            label="All"
-                            active={Object.keys(modPolarityFilters).length === 0}
-                            onClick={() => setModPolarityFilters({})}
-                          />
-                          {POLARITIES.map((p) => {
-                            const img = polImg(p.ap);
-                            return (
-                              <FilterTagPill
-                                key={p.key}
-                                title={p.label}
-                                state={modPolarityFilters[p.key]}
-                                onClick={() =>
-                                  setModPolarityFilters((current) => {
-                                    const nextState = cycleTagFilterState(current[p.key]);
-                                    const next = { ...current };
-                                    if (!nextState) delete next[p.key];
-                                    else next[p.key] = nextState;
-                                    return next;
-                                  })
-                                }
-                                label={img ? <img src={img} alt={p.label} className="h-4 w-4 object-contain pol-icon" /> : <span>{p.label}</span>}
-                              />
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="text-sm text-slate-500">Polarity only appears when this scope supports it.</div>
-                      )}
+                  )}
+                  {availableModSubtypeOptions.length === 0 && modGroup !== "all" && modGroup !== "rivens" && (
+                    <div className="rounded-2xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-xs text-slate-500 xl:col-start-2 xl:row-start-1">
+                      This group does not have a narrower item-type split.
                     </div>
+                  )}
 
-                    <div className="min-w-[120px]">
-                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                        State
+                  {availableModSpecialFlags.length > 0 && (
+                    <div className="xl:col-start-3 xl:row-start-1">
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Special Slots
                       </div>
                       <div className="flex flex-wrap gap-1.5">
-                        <FilterTagPill
-                          label="Owned"
-                          state={modOwnedFilter}
-                          onClick={() => setModOwnedFilter((current) => cycleTagFilterState(current))}
+                        <SubPill
+                          label="All"
+                          active={Object.keys(modSpecialFlagFilters).length === 0}
+                          onClick={() => setModSpecialFlagFilters({})}
                         />
+                        {availableModSpecialFlags.map((flag) => (
+                          <FilterTagPill
+                            key={flag}
+                            label={MOD_SPECIAL_FLAG_LABELS[flag]}
+                            state={modSpecialFlagFilters[flag]}
+                            onClick={() =>
+                              setModSpecialFlagFilters((current) => {
+                                const nextState = cycleTagFilterState(current[flag]);
+                                const next = { ...current };
+                                if (!nextState) delete next[flag];
+                                else next[flag] = nextState;
+                                return next;
+                              })
+                            }
+                          />
+                        ))}
                       </div>
+                    </div>
+                  )}
+
+                  {showPolarityFilter && (
+                    <div className="xl:col-start-1 xl:row-start-3">
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Polarity
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        <SubPill
+                          label="All"
+                          active={Object.keys(modPolarityFilters).length === 0}
+                          onClick={() => setModPolarityFilters({})}
+                        />
+                        {POLARITIES.map((p) => {
+                          const img = polImg(p.ap);
+                          return (
+                            <FilterTagPill
+                              key={p.key}
+                              title={p.label}
+                              state={modPolarityFilters[p.key]}
+                              onClick={() =>
+                                setModPolarityFilters((current) => {
+                                  const nextState = cycleTagFilterState(current[p.key]);
+                                  const next = { ...current };
+                                  if (!nextState) delete next[p.key];
+                                  else next[p.key] = nextState;
+                                  return next;
+                                })
+                              }
+                              label={img ? (
+                                <img
+                                  src={img}
+                                  alt={p.label}
+                                  className="h-4 w-4 object-contain pol-icon"
+                                />
+                              ) : (
+                                <span>{p.label}</span>
+                              )}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {modGroup === "parazon" && (
+                    <div className="xl:col-start-3 xl:row-start-1">
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Parazon Type
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        <SubPill
+                          label="All"
+                          active={Object.keys(parazonFilters).length === 0}
+                          onClick={() => setParazonFilters({})}
+                        />
+                        {(["requiem", "antivirus"] as const).map((f) => (
+                          <FilterTagPill
+                            key={f}
+                            label={f === "requiem" ? "Requiem" : "Antivirus"}
+                            state={parazonFilters[f]}
+                            onClick={() =>
+                              setParazonFilters((current) => {
+                                const nextState = cycleTagFilterState(current[f]);
+                                const next = { ...current };
+                                if (!nextState) delete next[f];
+                                else next[f] = nextState;
+                                return next;
+                              })
+                            }
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="xl:col-start-2 xl:row-start-3">
+                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Ownership
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      <FilterTagPill
+                        label="Owned"
+                        state={modOwnedFilter}
+                        onClick={() => setModOwnedFilter((current) => cycleTagFilterState(current))}
+                      />
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {activeModTokens.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {activeModTokens.map((token) => (
-                  <ActiveFilterToken
-                    key={token.id}
-                    label={token.label}
-                    tone={token.tone}
-                    onRemove={() => {
-                      if (token.id === "group") {
-                        setModGroup("all");
-                        setModSubtypeFilters({});
-                        setModSpecialFlagFilters({});
-                        setModPolarityFilters({});
-                        setParazonFilters({});
-                        return;
-                      }
-                      if (token.id === "owned") {
-                        setModOwnedFilter(undefined);
-                        return;
-                      }
-                      if (token.id.startsWith("subtype:")) {
-                        const subtype = token.id.slice("subtype:".length) as Exclude<ModSubtype, "all">;
-                        setModSubtypeFilters((current) => {
-                          const next = { ...current };
-                          delete next[subtype];
-                          return next;
-                        });
-                        return;
-                      }
-                      if (token.id.startsWith("flag:")) {
-                        const flag = token.id.slice("flag:".length) as ModSpecialFlag;
-                        setModSpecialFlagFilters((current) => {
-                          const next = { ...current };
-                          delete next[flag];
-                          return next;
-                        });
-                        return;
-                      }
-                      if (token.id.startsWith("polarity:")) {
-                        const polarity = token.id.slice("polarity:".length) as Polarity;
-                        setModPolarityFilters((current) => {
-                          const next = { ...current };
-                          delete next[polarity];
-                          return next;
-                        });
-                        return;
-                      }
-                      if (token.id.startsWith("parazon:")) {
-                        const filter = token.id.slice("parazon:".length) as ParazonFilter;
-                        setParazonFilters((current) => {
-                          const next = { ...current };
-                          delete next[filter];
-                          return next;
-                        });
-                      }
-                    }}
-                  />
-                ))}
-              </div>
-            )}
 
             <div className="min-w-0 space-y-5">
               <div className="rounded-[1.75rem] border border-slate-800 bg-[linear-gradient(180deg,rgba(11,16,32,0.96),rgba(3,7,18,0.9))] p-5 shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
@@ -3329,8 +3187,40 @@ export default function Mods() {
                   </div>
                 </div>
 
-                <div className="text-sm text-slate-500">
-                  Search and sorting now live in the toolbar so the table stays visually tied to the scope you are browsing.
+                <div className="flex flex-wrap items-end gap-2">
+                  <input
+                    className="min-w-[220px] flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
+                    value={modSearch}
+                    onChange={(e) => {
+                      setModSearch(e.target.value);
+                      setSelectedMod(null);
+                    }}
+                    placeholder="Search mods, sets, or weapon families…"
+                  />
+                  <select
+                    className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+                    value={modSort}
+                    onChange={(e) => setModSort(e.target.value as ModSortKey)}
+                  >
+                    <option value="az">Name A→Z</option>
+                    <option value="release-newest">Release: Newest first</option>
+                    <option value="release-oldest">Release: Oldest first</option>
+                    <option value="rarity-asc">Rarity: Common → Legendary</option>
+                    <option value="rarity-desc">Rarity: Legendary → Common</option>
+                    <option value="rank-asc">Max Rank: Low → High</option>
+                    <option value="rank-desc">Max Rank: High → Low</option>
+                  </select>
+                  {modGroup === "rivens" && (
+                    <button
+                      onClick={() => {
+                        setEditingRiven(null);
+                        setRivenModalOpen(true);
+                      }}
+                      className="rounded-xl border border-yellow-700/50 bg-yellow-950/20 px-3 py-2.5 text-sm font-medium text-yellow-300 transition-colors hover:bg-yellow-950/35"
+                    >
+                      Add Riven
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -3509,17 +3399,32 @@ export default function Mods() {
 	            )}
 	          </div>
 	        </div>
-	      )}
+          </div>
+	        )}
 
         {/* ── ARCANES ── */}
         {section === "arcanes" && (
-          <div className="space-y-4">
-            <div className="rounded-[1.6rem] border border-slate-800 bg-slate-950/70 px-4 py-4 shadow-[0_18px_50px_rgba(2,6,23,0.22)] sm:px-5">
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                      Scope
+          <div className="rounded-[2rem] border border-slate-800/80 bg-[linear-gradient(180deg,rgba(17,10,30,0.96),rgba(2,6,23,0.92))] p-3 shadow-[0_28px_100px_rgba(2,6,23,0.28)] sm:p-4">
+          <div className="space-y-5">
+              <div className="rounded-[1.75rem] border border-slate-800 bg-[radial-gradient(circle_at_top,rgba(167,139,250,0.16),transparent_34%),linear-gradient(180deg,rgba(17,12,31,0.98),rgba(3,7,18,0.96))] p-5 shadow-[0_24px_80px_rgba(2,6,23,0.45)]">
+                <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-300/80">
+                    Arcane Library
+                  </div>
+                  <div className="mt-2 text-sm leading-6 text-slate-400">
+                    Filter by slot family from the top of the page, with the same include and exclude behavior as Inventory.
+                  </div>
+                </div>
+                  <div className="rounded-2xl border border-slate-800 bg-slate-950/50 px-4 py-3 text-xs text-slate-400">
+                    Include on first click. Exclude on second click.
+                  </div>
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.9fr)]">
+                  <div>
+                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Category
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       <SubPill
@@ -3547,41 +3452,10 @@ export default function Mods() {
                       ))}
                     </div>
                   </div>
-                  <div className="flex min-w-[280px] flex-col gap-2 xl:items-end">
-                    <div className="inline-flex w-fit items-center rounded-full border border-violet-500/20 bg-violet-500/5 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-violet-300/80">
-                      Include on first click. Exclude on second click.
-                    </div>
-                    <div className="flex w-full flex-wrap items-end gap-2 xl:justify-end">
-                      <input
-                        className="min-w-[220px] flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none xl:max-w-[360px]"
-                        value={arcaneSearch}
-                        onChange={(e) => {
-                          setArcaneSearch(e.target.value);
-                          setSelectedArcane(null);
-                        }}
-                        placeholder="Search arcanes…"
-                      />
-                      <select
-                        className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
-                        value={arcaneSort}
-                        onChange={(e) => setArcaneSort(e.target.value as ModSortKey)}
-                      >
-                        <option value="az">Name A→Z</option>
-                        <option value="release-newest">Release: Newest first</option>
-                        <option value="release-oldest">Release: Oldest first</option>
-                        <option value="rarity-asc">Rarity: Common → Legendary</option>
-                        <option value="rarity-desc">Rarity: Legendary → Common</option>
-                        <option value="rank-asc">Max Rank: Low → High</option>
-                        <option value="rank-desc">Max Rank: High → Low</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="grid gap-3 border-t border-slate-800/80 pt-4 lg:grid-cols-[auto_1fr] lg:items-start">
                   <div>
-                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                      State
+                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Ownership
                     </div>
                     <div className="flex gap-1.5">
                       <FilterTagPill
@@ -3591,8 +3465,9 @@ export default function Mods() {
                       />
                     </div>
                   </div>
-                  <div>
-                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
+
+                  <div className="rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3">
+                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                       Rank Guide
                     </div>
                     <div className="flex flex-wrap gap-3 text-xs text-slate-400">
@@ -3605,33 +3480,6 @@ export default function Mods() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {activeArcaneTokens.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {activeArcaneTokens.map((token) => (
-                  <ActiveFilterToken
-                    key={token.id}
-                    label={token.label}
-                    tone={token.tone}
-                    onRemove={() => {
-                      if (token.id === "owned") {
-                        setArcaneOwnedFilter(undefined);
-                        return;
-                      }
-                      if (token.id.startsWith("category:")) {
-                        const category = token.id.slice("category:".length) as ArcaneFilterCategory;
-                        setArcaneCategoryFilters((current) => {
-                          const next = { ...current };
-                          delete next[category];
-                          return next;
-                        });
-                      }
-                    }}
-                  />
-                ))}
-              </div>
-            )}
 
             <div className="min-w-0 space-y-5">
               <div className="rounded-[1.75rem] border border-slate-800 bg-[linear-gradient(180deg,rgba(17,12,31,0.96),rgba(3,7,18,0.9))] p-5 shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
@@ -3658,8 +3506,29 @@ export default function Mods() {
                   </div>
                 </div>
 
-                <div className="text-sm text-slate-500">
-                  Search and sorting now sit in the toolbar so the results area stays focused on the table itself.
+                <div className="flex flex-wrap items-end gap-2">
+                  <input
+                    className="min-w-[220px] flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
+                    value={arcaneSearch}
+                    onChange={(e) => {
+                      setArcaneSearch(e.target.value);
+                      setSelectedArcane(null);
+                    }}
+                    placeholder="Search arcanes…"
+                  />
+                  <select
+                    className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+                    value={arcaneSort}
+                    onChange={(e) => setArcaneSort(e.target.value as ModSortKey)}
+                  >
+                    <option value="az">Name A→Z</option>
+                    <option value="release-newest">Release: Newest first</option>
+                    <option value="release-oldest">Release: Oldest first</option>
+                    <option value="rarity-asc">Rarity: Common → Legendary</option>
+                    <option value="rarity-desc">Rarity: Legendary → Common</option>
+                    <option value="rank-asc">Max Rank: Low → High</option>
+                    <option value="rank-desc">Max Rank: High → Low</option>
+                  </select>
                 </div>
               </div>
 
@@ -3749,6 +3618,7 @@ export default function Mods() {
               </div>
             )}
             </div>
+          </div>
           </div>
         )}
       </Section>
