@@ -23,6 +23,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
 
 const INPUT  = path.join(ROOT, "external/overframe-gg/items.json");
+const ALL_INPUT = path.join(ROOT, "external/warframe-items/raw/All.json");
 const OUTPUT = path.join(ROOT, "src/data/_generated/items-lean.auto.json");
 
 const DATA_FIELDS: ReadonlySet<string> = new Set([
@@ -37,9 +38,113 @@ const DATA_FIELDS: ReadonlySet<string> = new Set([
     "type",
 ]);
 
+const GENERIC_COMPONENT_SLOT_NAMES = new Set([
+    "barrel",
+    "receiver",
+    "stock",
+    "chassis",
+    "neuroptics",
+    "systems",
+    "harness",
+    "wings",
+    "blade",
+    "hilt",
+    "gauntlet",
+    "handle",
+    "grip",
+    "string",
+    "upper limb",
+    "lower limb",
+    "link",
+    "disc",
+    "core",
+    "cerebrum",
+    "carapace",
+    "head",
+    "blueprint",
+]);
+
+function safeString(v: unknown): string | null {
+    return typeof v === "string" && v.trim().length > 0 ? v.trim() : null;
+}
+
+function buildSyntheticComponentName(parentName: string, componentName: string): string {
+    const slotNorm = componentName.trim().toLowerCase();
+    if (slotNorm === "blueprint") return `${parentName} Blueprint`;
+    if (GENERIC_COMPONENT_SLOT_NAMES.has(slotNorm)) return `${parentName} ${componentName}`;
+    return componentName;
+}
+
+function buildSyntheticStoreItemType(pathKey: string): string {
+    return pathKey.startsWith("/Lotus/")
+        ? `/Lotus/StoreItems/Types${pathKey}`
+        : pathKey;
+}
+
+function synthesizeMissingComponentEntries(
+    out: Record<string, unknown>,
+    allItems: unknown[],
+): number {
+    let added = 0;
+
+    for (const rawItem of allItems) {
+        if (!rawItem || typeof rawItem !== "object" || Array.isArray(rawItem)) continue;
+        const item = rawItem as Record<string, unknown>;
+
+        const parentName = safeString(item.name);
+        const parentCategory = safeString(item.category);
+        const parentProductCategory = safeString(item.productCategory);
+        const parentUniqueName = safeString(item.uniqueName);
+        const components = Array.isArray(item.components) ? item.components : [];
+
+        if (!parentName || components.length === 0) continue;
+
+        for (const rawComponent of components) {
+            if (!rawComponent || typeof rawComponent !== "object" || Array.isArray(rawComponent)) continue;
+            const component = rawComponent as Record<string, unknown>;
+
+            const componentPath = safeString(component.uniqueName);
+            const componentName = safeString(component.name);
+            if (!componentPath || !componentName) continue;
+            if (componentPath in out) continue;
+
+            const isBlueprint = componentName.trim().toLowerCase() === "blueprint";
+            const syntheticName = buildSyntheticComponentName(parentName, componentName);
+
+            const lean: Record<string, unknown> = {
+                name: syntheticName,
+                path: componentPath,
+                categories: [isBlueprint ? "blueprint" : "component"],
+                parent: isBlueprint ? "/Lotus/Types/Game/RecipeItem" : "/Lotus/Types/Items/MiscItems/MiscItemBase",
+                storeItemType: buildSyntheticStoreItemType(componentPath),
+            };
+
+            if (parentCategory) lean.category = parentCategory;
+            if (parentUniqueName && isBlueprint) {
+                lean.data = {
+                    ProductCategory: "Recipes",
+                    resultItemType: parentUniqueName,
+                    type: parentCategory ?? null,
+                };
+            } else {
+                lean.data = {
+                    ProductCategory: parentProductCategory ?? "MiscItems",
+                    type: isBlueprint ? (parentCategory ?? null) : "Component",
+                };
+            }
+
+            out[componentPath] = lean;
+            added++;
+        }
+    }
+
+    return added;
+}
+
 async function main(): Promise<void> {
     console.log("Reading", INPUT);
     const raw: Record<string, unknown> = JSON.parse(await readFile(INPUT, "utf-8"));
+    const allItems: unknown[] = JSON.parse(await readFile(ALL_INPUT, "utf-8"));
 
     const out: Record<string, unknown> = {};
 
@@ -66,12 +171,14 @@ async function main(): Promise<void> {
         out[lotusPath] = lean;
     }
 
+    const syntheticCount = synthesizeMissingComponentEntries(out, allItems);
+
     const json = JSON.stringify(out, null, 2);
     await writeFile(OUTPUT, json, "utf-8");
 
     const inKB  = Math.round((await readFile(INPUT)).length / 1024);
     const outKB = Math.round(Buffer.byteLength(json) / 1024);
-    console.log(`Done: ${Object.keys(out).length} entries, ${inKB} KB → ${outKB} KB`);
+    console.log(`Done: ${Object.keys(out).length} entries (${syntheticCount} synthesized), ${inKB} KB → ${outKB} KB`);
     console.log("Written to", OUTPUT);
 }
 

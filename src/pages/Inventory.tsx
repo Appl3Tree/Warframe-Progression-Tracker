@@ -19,6 +19,7 @@ import missionRewardsJson from "../../external/warframe-drop-data/raw/missionRew
 import { getRelicByKey } from "../domain/catalog/relicCatalog";
 import { getPrimeAvailabilityStatus, getRelicAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";
+import { WorkspaceAction, WorkspaceFilterBar, WorkspaceFilterGroup, WorkspaceHero, WorkspacePillButton, WorkspaceSection, WorkspaceSegmented, WorkspaceSegmentedButton, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
 
 const _statusImgs = import.meta.glob<string>("../assets/statuses/*.png", { eager: true, import: "default" });
 const STATUS_IMG_INV: Record<string, string> = {};
@@ -631,12 +632,7 @@ function safeInt(v: unknown, fallback = 0): number {
 }
 
 function Section(props: { title: string; children: ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-      <div className="text-lg font-semibold">{props.title}</div>
-      <div className="mt-3">{props.children}</div>
-    </div>
-  );
+  return <WorkspaceSection title={props.title}>{props.children}</WorkspaceSection>;
 }
 
 function TabButton(props: {
@@ -645,17 +641,9 @@ function TabButton(props: {
   onClick: () => void;
 }) {
   return (
-    <button
-      className={[
-        "px-3 py-2 text-sm border-b-2",
-        props.active
-          ? "border-slate-100 text-slate-100"
-          : "border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700",
-      ].join(" ")}
-      onClick={props.onClick}
-    >
+    <WorkspaceSegmentedButton active={props.active} onClick={props.onClick} className="px-3 py-2 text-sm">
       {props.label}
-    </button>
+    </WorkspaceSegmentedButton>
   );
 }
 
@@ -664,19 +652,7 @@ function SubTabButton(props: {
   active: boolean;
   onClick: () => void;
 }) {
-  return (
-    <button
-      className={[
-        "rounded-lg px-3 py-1.5 text-sm border",
-        props.active
-          ? "bg-slate-100 text-slate-900 border-slate-100"
-          : "bg-slate-950/40 text-slate-200 border-slate-700 hover:bg-slate-900",
-      ].join(" ")}
-      onClick={props.onClick}
-    >
-      {props.label}
-    </button>
-  );
+  return <WorkspaceSegmentedButton active={props.active} onClick={props.onClick} className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm">{props.label}</WorkspaceSegmentedButton>;
 }
 
 function PillButton(props: {
@@ -684,19 +660,7 @@ function PillButton(props: {
   active: boolean;
   onClick: () => void;
 }) {
-  return (
-    <button
-      className={[
-        "rounded-full px-3 py-1 text-sm border",
-        props.active
-          ? "bg-slate-100 text-slate-900 border-slate-100"
-          : "bg-slate-950/40 text-slate-200 border-slate-700 hover:bg-slate-900",
-      ].join(" ")}
-      onClick={props.onClick}
-    >
-      {props.label}
-    </button>
-  );
+  return <WorkspacePillButton label={props.label} active={props.active} onClick={props.onClick} />;
 }
 
 function FilterTagButton(props: {
@@ -2164,9 +2128,35 @@ export default function Inventory() {
   const overLevelClassGroups = classOrder
     .filter((wc) => overLevelByClass[wc]?.length)
     .map((wc) => ({ label: wc, rows: overLevelByClass[wc] }));
+  const activeGoalCount = goals.filter((goal) => goal.isActive).length;
+  const ownedItemCount = rows.filter((row) => row.value > 0).length;
+  const masteredCount = rows.filter((row) =>
+    checkMastered(mastered, overLevelMastered, String(row.id), row.path),
+  ).length;
 
   return (
     <div className="space-y-6">
+      <WorkspaceHero
+        eyebrow="Collection Workspace"
+        title="Inventory"
+        description="Search the full catalog, update ownership, and connect items directly to mastery and goal planning without leaving the collection view."
+        actions={<WorkspaceAction onClick={() => setSelectedDetailId(null)}>Clear Detail</WorkspaceAction>}
+        stats={
+          <>
+            <WorkspaceStat label="Catalog rows" value={rows.length.toLocaleString()} hint="Displayable collection records in the current catalog." />
+            <WorkspaceStat label="Owned items" value={ownedItemCount.toLocaleString()} hint="Items with a stored count greater than zero." />
+            <WorkspaceStat label="Filtered view" value={filtered.length.toLocaleString()} hint="Rows visible after the current query and filters." />
+            <WorkspaceStat label="Mastered" value={masteredCount.toLocaleString()} hint="Mastery-tracked rows marked complete in your profile." />
+            <WorkspaceStat
+              label="Planning context"
+              value={`${activeGoalCount.toLocaleString()} active`}
+              hint={masteryRank == null ? "No mastery rank set yet." : `Profile is currently at MR ${masteryRank}.`}
+              className="col-span-2 xl:col-span-1"
+            />
+          </>
+        }
+      />
+
       {/* ── Overlevel Weapons Mastery (collapsible) ── */}
       <div className="rounded-2xl border border-slate-800 bg-slate-950/40">
         <button
@@ -2299,7 +2289,7 @@ export default function Inventory() {
               Search and edit item counts here. Credits and Platinum live in the profile header, and Goal Target lets you pin farming objectives directly from the list.
             </div>
 
-            <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
+            <WorkspaceFilterBar className="mt-4 items-end">
               <label className="flex flex-col gap-1">
                 <span className="text-xs uppercase tracking-wider text-slate-500">Search</span>
                 <input
@@ -2310,7 +2300,7 @@ export default function Inventory() {
                 />
               </label>
 
-              <div className="flex flex-col gap-2">
+              <WorkspaceFilterGroup className="flex-col gap-2">
                 <label className="flex flex-col gap-1">
                   <span className="text-xs uppercase tracking-wider text-slate-500">Sort by</span>
                   <select
@@ -2341,11 +2331,11 @@ export default function Inventory() {
                   />
                   Hide zero-count rows
                 </label>
-              </div>
-            </div>
+              </WorkspaceFilterGroup>
+            </WorkspaceFilterBar>
 
             <div className="mt-4 space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
+              <WorkspaceFilterGroup>
                 <span className="text-xs uppercase tracking-wider text-slate-500">Ownership</span>
                 {(["all", "owned", "unowned"] as const).map((f) => (
                   <PillButton
@@ -2355,9 +2345,9 @@ export default function Inventory() {
                     onClick={() => setOwnershipFilter(f)}
                   />
                 ))}
-              </div>
+              </WorkspaceFilterGroup>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <WorkspaceFilterGroup>
                 <span className="text-xs uppercase tracking-wider text-slate-500">Status</span>
                 <PillButton
                   label="Mastered"
@@ -2379,13 +2369,13 @@ export default function Inventory() {
                   active={showAvailableOnly}
                   onClick={() => setShowAvailableOnly(!showAvailableOnly)}
                 />
-              </div>
+              </WorkspaceFilterGroup>
             </div>
           </div>
         </div>
 
         <div className="mt-4 overflow-hidden rounded-[1.6rem] border border-slate-800 bg-[linear-gradient(180deg,rgba(8,14,28,0.96),rgba(3,7,18,0.92))] shadow-[0_24px_80px_rgba(2,6,23,0.32)]">
-          <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 px-3 py-2">
+          <WorkspaceSegmented className="w-full flex-wrap rounded-none border-0 border-b border-slate-800 bg-transparent p-0 shadow-none px-3 py-2">
             <TabButton
               label="All"
               active={primaryTab === "all"}
@@ -2421,14 +2411,14 @@ export default function Inventory() {
               active={primaryTab === "railjack"}
               onClick={() => selectPrimaryTab("railjack")}
             />
-          </div>
+          </WorkspaceSegmented>
 
           {primaryTab === "warframesVehicles" && (
             <div className="px-3 py-3 border-b border-slate-800">
               <div className="text-xs text-slate-400">
                 Refine Warframes & Vehicles
               </div>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <WorkspaceSegmented className="mt-2 flex-wrap bg-transparent border-slate-800 shadow-none">
                 <SubTabButton
                   label="All"
                   active={wfVehTab === "all"}
@@ -2449,14 +2439,14 @@ export default function Inventory() {
                   active={wfVehTab === "necramechs"}
                   onClick={() => setWfVehTab("necramechs")}
                 />
-              </div>
+              </WorkspaceSegmented>
             </div>
           )}
 
           {primaryTab === "companions" && (
             <div className="px-3 py-3 border-b border-slate-800">
               <div className="text-xs text-slate-400">Refine Companions</div>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <WorkspaceSegmented className="mt-2 flex-wrap bg-transparent border-slate-800 shadow-none">
                 <SubTabButton
                   label="All"
                   active={companionsTab === "all"}
@@ -2497,14 +2487,14 @@ export default function Inventory() {
                   active={companionsTab === "sentinel"}
                   onClick={() => setCompanionsTab("sentinel")}
                 />
-              </div>
+              </WorkspaceSegmented>
             </div>
           )}
 
           {primaryTab === "weapons" && (
             <div className="px-3 py-3 border-b border-slate-800">
               <div className="text-xs text-slate-400">Weapon Class</div>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <WorkspaceSegmented className="mt-2 flex-wrap bg-transparent border-slate-800 shadow-none">
                 <SubTabButton
                   label="All"
                   active={weaponClassTab === "all"}
@@ -2530,7 +2520,7 @@ export default function Inventory() {
                   active={weaponClassTab === "companion"}
                   onClick={() => selectWeaponClass("companion")}
                 />
-              </div>
+              </WorkspaceSegmented>
 
               {weaponClassTab !== "companion" && weaponClassTab !== "all" && (
                 <>
@@ -2600,27 +2590,27 @@ export default function Inventory() {
                 Filter directly from the visible columns. Hidden columns keep their filters cleared.
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+            <WorkspaceFilterGroup className="text-xs text-slate-400">
               <span className="rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1.5">
                 Rows: {finalFiltered.length}
               </span>
               <span className="rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1.5">
                 Filters: {activeColumnFilterCount}
               </span>
-              <button
-                className="rounded-full border border-slate-700 px-3 py-1.5 font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+              <WorkspaceAction
+                className="rounded-full border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-500 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={activeColumnFilterCount === 0}
                 onClick={resetColumnFilters}
               >
                 Clear column filters
-              </button>
+              </WorkspaceAction>
               <div className="relative">
-                <button
-                  className="rounded-full border border-slate-700 px-3 py-1.5 font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-slate-100"
+                <WorkspaceAction
+                  className="rounded-full border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-500 hover:text-slate-100"
                   onClick={() => setColumnMenuOpen((open) => !open)}
                 >
                   Customize Columns
-                </button>
+                </WorkspaceAction>
                 {columnMenuOpen && (
                   <div className="absolute right-0 top-[calc(100%+0.5rem)] z-20 w-56 rounded-2xl border border-slate-800 bg-slate-950/95 p-3 shadow-[0_18px_60px_rgba(2,6,23,0.45)] backdrop-blur">
                     <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
@@ -2642,7 +2632,7 @@ export default function Inventory() {
                   </div>
                 )}
               </div>
-            </div>
+            </WorkspaceFilterGroup>
           </div>
 
           <div

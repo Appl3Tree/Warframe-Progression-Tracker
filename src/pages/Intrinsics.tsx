@@ -1,5 +1,6 @@
 // ===== FILE: src/pages/Intrinsics.tsx =====
 import { useTrackerStore } from "../store/store";
+import { WorkspacePanel } from "../components/workspace/WorkspaceChrome";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -164,7 +165,7 @@ export default function Intrinsics() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+            <WorkspacePanel className="p-4">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div>
                         <h2 className="text-lg font-semibold text-slate-100">Intrinsics</h2>
@@ -192,10 +193,10 @@ export default function Intrinsics() {
                         Intrinsics are read from the <span className="font-mono text-slate-300 text-xs">PlayerSkills</span> field in your profile data.
                     </div>
                 )}
-            </div>
+            </WorkspacePanel>
 
             {/* Railjack */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+            <WorkspacePanel className="p-4">
                 <div className="flex items-center gap-3 mb-4">
                     <div>
                         <h3 className="text-base font-semibold text-slate-100">Railjack Intrinsics</h3>
@@ -223,10 +224,10 @@ export default function Intrinsics() {
                         />
                     ))}
                 </div>
-            </div>
+            </WorkspacePanel>
 
             {/* Duviri */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+            <WorkspacePanel className="p-4">
                 <div className="flex items-center gap-3 mb-4">
                     <div>
                         <h3 className="text-base font-semibold text-slate-100">Duviri Intrinsics</h3>
@@ -254,7 +255,7 @@ export default function Intrinsics() {
                         />
                     ))}
                 </div>
-            </div>
+            </WorkspacePanel>
         </div>
     );
 }

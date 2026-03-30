@@ -18,6 +18,7 @@ import {
 } from "../../domain/logic/capacityCalc";
 import { useTrackerStore } from "../../store/store";
 import type { SavedBuild } from "../../domain/models/userState";
+import { WorkspacePanel, WorkspaceSegmented, WorkspaceSegmentedButton } from "../../components/workspace/WorkspaceChrome";
 
 // ── Polarity icons ────────────────────────────────────────────────────────────
 
@@ -1525,7 +1526,7 @@ function ExclusionList({ allMods, excluded, onToggle }: {
     }, [allMods, query]);
 
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 space-y-3">
+        <WorkspacePanel className="space-y-3 p-4">
             <div className="flex items-center justify-between">
                 <div className="text-sm font-semibold">Excluded Mods</div>
                 <span className="text-[10px] text-slate-600">{excluded.size} excluded · Excluded mods are never used by the optimizer</span>
@@ -1563,7 +1564,7 @@ function ExclusionList({ allMods, excluded, onToggle }: {
             {!query && excluded.size === 0 && (
                 <div className="text-[11px] text-slate-600 text-center py-1">Search above to exclude mods from the optimizer.</div>
             )}
-        </div>
+        </WorkspacePanel>
     );
 }
 
@@ -1691,7 +1692,7 @@ function SavedBuildsPanel({ weapon, availableMods, currentSlots, currentRanks, c
     }
 
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 space-y-3">
+        <WorkspacePanel className="space-y-3 p-4">
             <div className="flex items-center justify-between">
                 <div className="text-sm font-semibold">Saved Builds</div>
                 {weapon && <button onClick={() => setSaving(v => !v)} className="text-xs text-blue-400 hover:text-blue-300 transition-colors">{saving ? "Cancel" : "+ Save current"}</button>}
@@ -1804,7 +1805,7 @@ function SavedBuildsPanel({ weapon, availableMods, currentSlots, currentRanks, c
                     ))}
                 </div>
             )}
-        </div>
+        </WorkspacePanel>
     );
 }
 
@@ -2803,17 +2804,18 @@ export default function ModBuilder() {
     return (
         <div className="space-y-4">
             {/* Tabs */}
-            <div className="flex gap-1 flex-wrap">
+            <WorkspaceSegmented className="flex-wrap">
                 {(["build","saves","owned","ownedArcanes","exclude"] as const).map(t => (
-                    <button key={t} onClick={() => (weapon || t === "build") && setTab(t)}
+                    <WorkspaceSegmentedButton key={t} onClick={() => (weapon || t === "build") && setTab(t)}
+                        active={tab === t}
                         disabled={!weapon && t !== "build"}
                         className={["rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors",
-                            tab === t ? "bg-slate-100 text-slate-900 border-slate-100" : "bg-slate-950/40 text-slate-400 border-slate-700 hover:bg-slate-900",
+                            tab === t ? "border-slate-100 bg-slate-100 text-slate-900" : "border-slate-700 bg-slate-950/40 text-slate-400 hover:bg-slate-900",
                             !weapon && t !== "build" ? "opacity-40 cursor-not-allowed" : ""].join(" ")}>
                         {t === "build" ? "Build" : t === "saves" ? "Saved Builds" : t === "owned" ? "Owned Mods" : t === "ownedArcanes" ? "Owned Arcanes" : `Excluded${excluded.size ? ` (${excluded.size})` : ""}`}
-                    </button>
+                    </WorkspaceSegmentedButton>
                 ))}
-            </div>
+            </WorkspaceSegmented>
 
             {weapon && tab === "owned"   && <OwnedModsPanel availableMods={compatMods} />}
             {weapon && tab === "ownedArcanes" && <OwnedArcanesPanel weapon={weapon} />}

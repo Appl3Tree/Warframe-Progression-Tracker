@@ -2437,6 +2437,5626 @@
     ],
     "note": "WFCD recipe (Gear.json)"
   },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerTylAxeAndBoar/RegorAxeShield": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrineerTylAxeAndBoar/RegorAxeShield",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Chemical/RegorAxeShieldBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Cryotic",
+        "count": 3300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/ChemComponent",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 7500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/Naginata/ShrineMaidenNaginataWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Polearms/Naginata/ShrineMaidenNaginataWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NaginataBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/NaginataBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ShrineFragment",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NaginataHandle",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/GrnStaff": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Staff/GrnStaff",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrnStaffBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Neurode",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/ParisScythe/ParisScythe": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Scythe/ParisScythe/ParisScythe",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/ParisScytheBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 800
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/Gauntlet": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/Gauntlet",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 450
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GauntletBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 900
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 900
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/PrimeAnkyros/PrimeAnkyros": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/PrimeAnkyros/PrimeAnkyros",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AnkyrosPrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/AnkyrosPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/AnkyrosPrimeGauntlet",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Hammer/CorpusHammerWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/Hammer/CorpusHammerWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CorpusHammerWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 2150
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 6
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/DaxDuviriMaceShieldWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/DaxDuviriMaceShieldWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriRockItem",
+        "count": 150
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DaxDuviriMaceShieldBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemA",
+        "count": 40
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriFractalItem",
+        "count": 30
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemE",
+        "count": 20
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/InfWarfan/InfWarfanWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/InfWarfan/InfWarfanWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/InfWarFanBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Deimos/DeimosEidolonGemBCutItem",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/InfWarFanGuard",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/InfWarFanRivet",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Deimos/DeimosEidolonGemACutItem",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerWhip/GrineerWhip": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrineerWhip/GrineerWhip",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrineerWhipBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 1500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/DaxDuviriTwoHandedKatana/DaxDuviriTwoHandedKatanaWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/DaxDuviriTwoHandedKatana/DaxDuviriTwoHandedKatanaWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DaxDuviriTwoHandedKatanaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/Fish/GenericDuviriFishPartCItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriFractalItem",
+        "count": 30
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriProcessedItem",
+        "count": 100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemD",
+        "count": 40
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipOne": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipOne",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipOneBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 15
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonGemACutAItem",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/Staff": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Staff/Staff",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 150
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/StaffBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 900
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/PrimeBo/PrimeBoWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Staff/PrimeBo/PrimeBoWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PrimeBoBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBoHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeBoOrnament",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Tonfa/Boltonfa/Boltonfa": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Tonfa/Boltonfa/Boltonfa",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/BoltonfaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Rifle/BoltoRifle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinner/TennoTonfa",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnQueenSceptre/GrnQueenSceptreWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnQueenSceptre/GrnQueenSceptreWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/BrokenScepterBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Kuva",
+        "count": 5000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 2500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerTwo/StalkerTwoSmallSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerTwo/StalkerTwoSmallSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/BrokenWarBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Alertium",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WarBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WarHilt",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/SingleStaff": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Staff/SingleStaff",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SingleStaffBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Staff/Staff",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 1600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NeuralSensor",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 3000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/TnHalberdPolearm/TnHalberdPolearmWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Polearms/TnHalberdPolearm/TnHalberdPolearmWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnHalberdPolearmWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 150
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 1000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 5700
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/InfEmbolistScythe/InfestedScythe": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/InfEmbolistScythe/InfestedScythe",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Bio/EmbolistScytheBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 15000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/BioComponent",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Alertium",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 4000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Dagger/CeramicDagger": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Dagger/CeramicDagger",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CeramicDaggerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 600
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Glaives/PunctureGlaive/PunctureGlaiveWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/Glaives/PunctureGlaive/PunctureGlaiveWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Bio/PunctureGlaiveWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Cryotic",
+        "count": 2500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/BioComponent",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/OperationsLacera": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/OperationsLacera",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/OperationsLaceraBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 15
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 400
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 5950
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 8150
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PacifistShieldAndSword/PacifistShieldSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PacifistShieldAndSword/PacifistShieldSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PacifistShieldSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 18750
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 875
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 4000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PrimeCobraAndCrane/PrimeCobraAndCraneWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PrimeCobraAndCrane/PrimeCobraAndCraneWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CobraCranePrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CobraCranePrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CobraCranePrimeGuard",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CobraCranePrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Archwing/Melee/ExaltedArchScythe/ExaltedAWScytheWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Archwing/Melee/ExaltedArchScythe/ExaltedAWScytheWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GunScytheBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GunScytheBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GunScytheHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GunScytheReceiver",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/CronusSword/CronusLongSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/CronusSword/CronusLongSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/CronusBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 75
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipFour": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipFour",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipFourBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Eidolonium",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 55
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonGemACutAItem",
+        "count": 6
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/CronusSword/PrimeCronusLongSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/CronusSword/PrimeCronusLongSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCronusLongSwordBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PrimeCronusLongSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeCronusLongSwordHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Dagger/DarkDagger": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Dagger/DarkDagger",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DarkDaggerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Neurode",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 300
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/DarkSword/DarkSwordDaggerHybridWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/DarkSword/DarkSwordDaggerHybridWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DarkSwordDaggerHybridBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualShortSword",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/BioComponent",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/DarkSword/DarkLongSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/DarkSword/DarkLongSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/DarkSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Neurode",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 75
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipFive": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipFive",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipFiveBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 40
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 45
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/EidolonFruitItem",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonGemACutAItem",
+        "count": 8
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TnoRapier/TnoRapier": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/TnoRapier/TnoRapier",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 10000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnoRapierBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Alertium",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1700
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PRapier/DestrezaPrime": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PRapier/DestrezaPrime",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DestrezaPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DestrezaPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DestrezaPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipEleven": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipEleven",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipElevenBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 45
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonGemACutAItem",
+        "count": 7
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 25
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 60
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TnDagathBladeWhip/TnDagathBladeWhip": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/TnDagathBladeWhip/TnDagathBladeWhip",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnDagathBladeWhipBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnDagathBladeWhipBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnDagathBladeWhipHilt",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnDagathBladeWhipHook",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnDagathBladeWhipString",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/LowKatana": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/LowKatana",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/ConvertKatanaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 75
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/DualCleaverWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/DualCleaverWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 1200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualCleaversBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 1000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualEtherSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualEtherSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualEtherSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 850
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 900
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualHeatSwords": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualHeatSwords",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualHeatSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 1000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 700
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 900
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/DualInfestedAxesWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Axe/DualInfestedAxesWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Bio/InfestedDualAxesBioWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 1200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/BioComponent",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 15000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualKamas/DualKamas": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/DualKamas/DualKamas",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualKamasBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/DualKamas/SingleKama",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/DualKamas/SingleKama",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeDualKamas/PrimeDualKamas": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/PrimeDualKamas/PrimeDualKamas",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDualKamasBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PrimeDualKamasBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDualKamasHandle",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/QuillSword/QuillDualSwords": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/QuillSword/QuillDualSwords",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/QuillDualSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 230
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 13250
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Tellurium",
+        "count": 3
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeDualKeres/PrimeDualKeresWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeDualKeres/PrimeDualKeresWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DualKeresPrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualKeresPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DualKeresPrimeHandle",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Soma/SomaDualKamas": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Soma/SomaDualKamas",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualRazaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Cryotic",
+        "count": 200
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/DualKamas/DualKamas",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualShortSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualShortSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualSkanaSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 850
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 300
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Lasria/LasGooSickle/LasGooSicklePlayerWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Lasria/LasGooSickle/LasGooSicklePlayerWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LasGooSicklesPlayerWeaponBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/LasGooSicklesPlayerWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/LasGooSicklesPlayerWeaponHilt",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/DualAxeWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Axe/DualAxeWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualAxeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 1100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 900
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/PrimeZoren/PrimeZorenAxeWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Axe/PrimeZoren/PrimeZorenAxeWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DualZorenPrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualZorenPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DualZorenPrimeHandle",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/DaxDuviriPolearm/DaxDuviriPolearmWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Polearms/DaxDuviriPolearm/DaxDuviriPolearmWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DaxDuviriPolearmBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemC",
+        "count": 40
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/Fish/GenericDuviriFishPartAItem",
+        "count": 50
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriFractalItem",
+        "count": 30
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriMushroomItem",
+        "count": 30
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Thanotech/EntSphereHammer/EntSphereHammer": {
+    "outputCatalogId": "items:/Lotus/Weapons/Thanotech/EntSphereHammer/EntSphereHammer",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/EntSphereHammerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Zariman/Resources/ZarimanMiscItemB",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/EntratiLab/Resources/EntratiLabMiscItemA",
+        "count": 2400
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/EntratiLab/Resources/EntratiLabMiscItemB",
+        "count": 75
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/EntratiLab/Resources/EntratiLabDogTagCommon",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIStatusII": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIStatusII",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIStatusIIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/EidolonFruitItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayUncommonFishBPartItem",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIStatusII": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIStatusII",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIStatusIIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/EidolonFruitItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayUncommonFishAPartItem",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIStatusI": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIStatusI",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIStatusIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/BothCommonFishBPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 30
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIIStatusI": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIIStatusI",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/RareOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIIStatusIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Eidolonium",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/CetusWispItem",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIStatusI": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIStatusI",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIStatusIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/BothCommonFishAPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 30
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIIStatusI": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIIStatusI",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/RareOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIIStatusIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Eidolonium",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/CetusWispItem",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/ThreeLeaf/ThreeLeaf": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/ThreeLeaf/ThreeLeaf",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 12000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/ThreeLeafBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualDagger/DualEtherDagger": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/DualDagger/DualEtherDagger",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualEtherDaggerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 1200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 600
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/EtherScytheWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Scythe/EtherScytheWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/EtherScytheBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 1000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 1000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 1000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/LongSword/EtherSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/LongSword/EtherSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 700
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/EtherSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 900
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 700
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Glaive/CrpGlaive/CrpGlaive": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/Glaive/CrpGlaive/CrpGlaive",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 8500
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Energy/CrpGlaiveBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 1650
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/EnergyComponent",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualDagger/DualDagger": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/DualDagger/DualDagger",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualDaggerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 900
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 600
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualDagger/FangPrimeDagger": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/DualDagger/FangPrimeDagger",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeFangBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/FangPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeFangHandle",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Hammer/HammerWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Hammer/HammerWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 80
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/HammerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeFragor/PrimeFragor": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/PrimeFragor/PrimeFragor",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/FragorPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/FragorPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/FragorPrimeHead",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Fist/Fist": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Fist/Fist",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/FuraxBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 1000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 900
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Fist/FuraxWraith": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Fist/FuraxWraith",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/FuraxWraithBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/FuraxWraithLeftGauntlet",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/FuraxWraithRightGauntlet",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/Scythe/GrnDrillScythe/GrnDrillScythe": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/Scythe/GrnDrillScythe/GrnDrillScythe",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GalariakPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GalariakPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GalariakPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/GreatSword/TennoGreatSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/GreatSword/TennoGreatSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TennoGreatSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeGalatine/PrimeGalatine": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeGalatine/PrimeGalatine",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeGalatineBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PrimeGalatineBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeGalatineHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Whips/CrpShockGrip/CrpShockGripWhipWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/Whips/CrpShockGrip/CrpShockGripWhipWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Venus/Resources/CorpusWidgetBItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CrpShockGripWhipBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 1000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 3600
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PersianMachete/DjinnMachete": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/PersianMachete/DjinnMachete",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 1900
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DjinnMacheteBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1400
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 2600
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnGhoulSaw/GrnGhoulSawPlayer": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnGhoulSaw/GrnGhoulSawPlayer",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrnGhoulSawBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrnGhoulSawBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrnGhoulSawChassis",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrnGhoulSawEngine",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrnGhoulSawHandle",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Glaives/LightGlaive/LightGlaiveWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Glaives/LightGlaive/LightGlaiveWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GlaiveBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 5000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 6000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 4500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Glaives/PrimeGlaive/PrimeGlaiveWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Glaives/PrimeGlaive/PrimeGlaiveWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GlaivePrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GlaivePrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GlaivePrimeDisc",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/GreatSword/GreatSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/GreatSword/GreatSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 80
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GreatSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeGram/PrimeGram": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeGram/PrimeGram",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GramPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GramPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GramPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/TnGuandaoPolearm/TnGuandaoPolearmWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Polearms/TnGuandaoPolearm/TnGuandaoPolearmWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnGuandaoPolearmBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 2500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 65
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/PrimeGuandao/PrimeGuandaoWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Polearms/PrimeGuandao/PrimeGuandaoWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GuandaoPrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GuandaoPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GuandaoPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Warfan/WarfanWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Warfan/WarfanWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WarfanBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 19750
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1150
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Tellurium",
+        "count": 3
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Warfan/PrimeGunsen/PrimeGunsenWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Warfan/PrimeGunsen/PrimeGunsenWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GunsenPrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GunsenPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GunsenPrimeHandle",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnBoomerang/GrnBoomerang": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnBoomerang/GrnBoomerang",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrnBoomerangBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 4800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 5000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/TnChoirScythe/TnChoirScythe": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Scythe/TnChoirScythe/TnChoirScythe",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 5000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnChoirScytheBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 18
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/StalkerScytheWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Scythe/StalkerScytheWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/StalkerReaperBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 5000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 6000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 4500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Dagger/Dagger": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Dagger/Dagger",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/HeatDaggerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 150
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NeuralSensor",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 75
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/HeatSword/HeatLongSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/HeatSword/HeatLongSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/HeatSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Neurode",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 300
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Cephalon/Melee/Hammer/CephHammerWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Cephalon/Melee/Hammer/CephHammerWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CephHammerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Syndicates/CephalonSuda/Pistols/CSDroidArray",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 700
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/HeavyScythe/DuviriScythe/DuviriHeavyScytheWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/HeavyScythe/DuviriScythe/DuviriHeavyScytheWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DuviriHeavyScytheBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DuviriHeavyScytheBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/DuviriHeavyScytheHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Zariman/Resources/VoidWraithItem",
+        "count": 50
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/InfWFAccompanyingSparring/InfestedKogake": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/InfWFAccompanyingSparring/InfestedKogake",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/InfestedKogakeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/BrassKnuckles/BrassKnuckles",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 4600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Alertium",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1100
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Zariman/Melee/Dagger/ZarimanDaggerWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Zariman/Melee/Dagger/ZarimanDaggerWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/Evolving/ZarimanDaggerWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Zariman/Resources/ZarimanMiscItemB",
+        "count": 15
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Zariman/Resources/VoidWraithItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Zariman/Resources/VoidAngelItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Zariman/Resources/ZarimanDogTagBounty",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedI": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedI",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayCommonFishBPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 20
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedII": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedII",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayCommonFishCPartItem",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerJetPoweredPolearm/GrineerJetPolearm": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrineerJetPoweredPolearm/GrineerJetPolearm",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrineerJetPolearmBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/ChemComponent",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 5000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnKusarigama/GrnKusarigamaWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnKusarigama/GrnKusarigamaWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Chemical/GrnKusarigamaWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/ChemComponent",
+        "count": 7
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 2000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 7500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/JawSword/JawLongSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/JawSword/JawLongSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/JawBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 75
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 300
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleFive": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleFive",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleFiveBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 40
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishOilItem",
+        "count": 50
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/EidolonFruitItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 600
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualKamas/SingleKama": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/DualKamas/SingleKama",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SingleKamaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 900
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 1200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NeuralSensor",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/KrisDagger/KrisDagger": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/KrisDagger/KrisDagger",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TennoKrisBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 1500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeKaryst/PrimeKrisDagger": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeKaryst/PrimeKrisDagger",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KarystPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/KarystPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KarystPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/InfTransformClaw/InfTransformClawsWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/InfTransformClaw/InfTransformClawsWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/InfTransformClawsWeaponBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/InfTransformClawsBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/InfTransformClawsWeaponGlove",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerHalberd/GrnHalberd": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrineerHalberd/GrnHalberd",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 8000
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Chemical/GrnHalberdBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/ChemComponent",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 6000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Kuva",
+        "count": 1400
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Glaives/Boomerang/BoomerangWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Glaives/Boomerang/BoomerangWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/BoomerangBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 4800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 8
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 5000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 4000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Glaives/PrimeKestrel/PrimeKestrel": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Glaives/PrimeKestrel/PrimeKestrel",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KestrelPrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/KestrelPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KestrelPrimeGrip",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/BrassKnuckles/BrassKnuckles": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/BrassKnuckles/BrassKnuckles",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/KogakeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 1200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 400
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeKogake/KogakePrimeKnuckles": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/PrimeKogake/KogakePrimeKnuckles",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/KogakePrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KogakePrimeBoot",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KogakePrimeGauntlet",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Handle/HandleNine": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Handle/HandleNine",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Handle/HandleNineBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishOilItem",
+        "count": 50
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/IraditeItem",
+        "count": 25
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 650
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnSparring/GrnSpiderSparring/GrnSpiderSparring": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnSparring/GrnSpiderSparring/GrnSpiderSparring",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/RareOreAAlloyAItem",
+        "count": 25
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrnSpiderSparringBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Eidolonium",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonGemBCutAItem",
+        "count": 15
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayCommonFishAPartItem",
+        "count": 20
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Archon/Melee/Trident/ArchonTridentPlayerWep": {
+    "outputCatalogId": "items:/Lotus/Weapons/Archon/Melee/Trident/ArchonTridentPlayerWep",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/NewWar/ArchonTridentBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NarmerBountyResource",
+        "count": 16
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Solaris/SolarisEidolonGemACutItem",
+        "count": 6
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 3200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/CrpVenusHatchet/CrpVenusHatchet": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/CrpVenusHatchet/CrpVenusHatchet",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CrpVenusHatchetBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/EnergyComponent",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Solaris/FishParts/SolarisFishLatheCoogulantItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Venus/Resources/FungusHeartItem",
+        "count": 40
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Solaris/SolarisRareGemACutItem",
+        "count": 25
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnEgyptSwd/GrnEgyptSwdWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnEgyptSwd/GrnEgyptSwdWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 4375
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Chemical/GrnEgyptSwdBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 8
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 125
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Tellurium",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinner/TennoTonfa": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinner/TennoTonfa",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TennoTonfaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 1500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 2000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinnerPrime/TonfaContestWinnerPrimeWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinnerPrime/TonfaContestWinnerPrimeWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KronenPrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/KronenPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/KronenPrimeHandle",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipSix": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipSix",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipSixBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonGemBCutAItem",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 45
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/GrokdrulItem",
+        "count": 20
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleSix": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleSix",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleSixBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Eidolonium",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishOilItem",
+        "count": 50
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/KuvaLich/Melee/Ghoulsaw/KuvaGhoulSaw": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/KuvaLich/Melee/Ghoulsaw/KuvaGhoulSaw",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/KuvaWeapons/KuvaGhoulSawBlueprint",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnKuvaLichScythe/GrnKuvaLichScytheWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnKuvaLichScythe/GrnKuvaLichScytheWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/KuvaWeapons/GrnKuvaLichScytheBlueprint",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleThree": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleThree",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleThreeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/CetusWispItem",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishOilItem",
+        "count": 50
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 700
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/StalkerMios": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/StalkerMios",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/StalkerMiosBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 4200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleTwo": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleTwo",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleTwoBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Cryotic",
+        "count": 750
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishOilItem",
+        "count": 50
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 20
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Whip/CorpusWhipWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/Whip/CorpusWhipWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CorpusWhipBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 1000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NeuralSensor",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 900
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/TipedoStaff/InfTipedoStaff": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/TipedoStaff/InfTipedoStaff",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/InfTipedoBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 2300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Neurode",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1400
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Staff/MonkSpade/TnoMonkStaff",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 900
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/MacheteBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Maces/PaladinMace/PaladinMaceWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Maces/PaladinMace/PaladinMaceWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 80
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PaladinMaceBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 750
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 300
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TnChiselKanabo/TnChiselKanabo": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/TnChiselKanabo/TnChiselKanabo",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnChiselKanaboBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Cryotic",
+        "count": 650
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 225
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 8600
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeMasseter/PrimeMasseter": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeMasseter/PrimeMasseter",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MasseterPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/MasseterPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MasseterPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipThree": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipThree",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipThreeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/CetusWispItem",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 55
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonGemACutAItem",
+        "count": 6
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Swords/Mios/Mios": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/Swords/Mios/Mios",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Bio/MiosBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/BioComponent",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 15000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Swords/Mire/MireSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/Swords/Mire/MireSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 2000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/MireSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 1000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 1500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NeuralSensor",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/CutlassAndPoignard/CutlassPoignardSwords": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/CutlassAndPoignard/CutlassPoignardSwords",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CutlassPoignardBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Neurode",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeNamiSkyla/PrimeNamiSkyla": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeNamiSkyla/PrimeNamiSkyla",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeNamiSkylaBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PrimeNamiSkylaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeNamiSkylaHandle",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/CutlassAndPoignard/TennoCutlass": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/CutlassAndPoignard/TennoCutlass",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TennoCutlassBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 1500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Archon/Melee/DualDaggers/ArchonDualDaggersPlayerWep": {
+    "outputCatalogId": "items:/Lotus/Weapons/Archon/Melee/DualDaggers/ArchonDualDaggersPlayerWep",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/NewWar/ArchonDualDaggersBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 80
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NarmerBountyResource",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Alertium",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Solaris/FishParts/OrokinFishEntroplasmaItem",
+        "count": 6
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/KatanaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 75
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeKatana/PrimeNikana": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeKatana/PrimeNikana",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeNikanaBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PrimeNikanaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeNikanaHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Nunchaku/Nunchaku/Nunchaku": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Nunchaku/Nunchaku/Nunchaku",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/NunchakuBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 4000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeNinkondi/PrimeNikondi": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/PrimeNinkondi/PrimeNikondi",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/NinkondiPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NinkondiPrimeChain",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/NinkondiPrimeHandle",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/KickAndPunch/KickPunchWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/KickAndPunch/KickPunchWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/KickPunchWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 650
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 700
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 900
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpTonfa": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpTonfa",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CrpTonfaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 15000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Alertium",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1400
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TennoSai/TennoSais": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/TennoSai/TennoSais",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 4200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TennoSaisBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 1800
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 3400
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Tellurium",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeOkina/PrimeOkina": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeOkina/PrimeOkina",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/OkinaPrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/OkinaPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/OkinaPrimeHandle",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipTwo": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipTwo",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipTwoBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/IraditeItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonGemACutAItem",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/PolearmWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Polearms/PolearmWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 700
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PolearmBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 850
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 500
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/PrimePolearmWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Polearms/PrimePolearmWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimePolearmBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PolearmPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimePolearmHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Glaives/TeshinGlaive/TnTeshinGlaiveWep": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Glaives/TeshinGlaive/TnTeshinGlaiveWep",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TeshinGlaiveBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TeshinGlaiveBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TeshinGlaiveDisc",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Kuva",
+        "count": 4000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimePangolinSword/PrimePangolinSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimePangolinSword/PrimePangolinSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PangolinPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PangolinPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PangolinPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PangolinSword/PangolinLongSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PangolinSword/PangolinLongSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 80
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PangolinSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ControlModule",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Orokin/BallasSword/BallasSwordWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Orokin/BallasSword/BallasSwordWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/BallasSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/SentientShards/SentientShardCommonItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/GreatSword/TennoGreatSword",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PrimeBucks",
+        "count": 1000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/InfBoomerang/InfBoomerangWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/InfBoomerang/InfBoomerangWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/InfBoomerangBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/InfBoomerangBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Neurode",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/InfBoomerangDisc",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TnRailjackGreatKatana/TnRailJackGreatKatanaWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/TnRailjackGreatKatana/TnRailJackGreatKatanaWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnRailjackGreatKatanaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 5300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 1550
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 2100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Tellurium",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleOne": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleOne",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 850
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleOneBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishOilItem",
+        "count": 50
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/IraditeItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 60
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Handles/InfestedHandleOne": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Handles/InfestedHandleOne",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Handles/InfestedHandleOneBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 15
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/IraditeItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 30
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Handles/InfestedHandleTwo": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Handles/InfestedHandleTwo",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Handles/InfestedHandleTwoBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
+        "count": 30
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 15
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/GrokdrulItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1100
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/InfestedTipTwo": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/InfestedTipTwo",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/InfestedTipTwoBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonGemBCutAItem",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 1600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 700
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/InfestedTipOne": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/InfestedTipOne",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/InfestedTipOneBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 1600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 700
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonGemACutAItem",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PlasmaSword/PlasmaLongSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PlasmaSword/PlasmaLongSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PlasmaSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 50
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 450
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Zariman/Melee/Tonfas/ZarimanTonfaWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Zariman/Melee/Tonfas/ZarimanTonfaWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/Evolving/ZarimanTonfaWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 8000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Zariman/Resources/VoidWraithItem",
+        "count": 100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Zariman/Resources/VoidAngelItem",
+        "count": 15
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Zariman/Resources/ZarimanDogTagBounty",
+        "count": 30
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/ClanTech/Energy/ElectroProd": {
+    "outputCatalogId": "items:/Lotus/Weapons/ClanTech/Energy/ElectroProd",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 300
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Energy/ElectroProdBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/EnergyComponent",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 1000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Nunchaku/InfNunchuck/InfNunchuck": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/Nunchaku/InfNunchuck/InfNunchuck",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/InfNunchuckBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Deimos/DeimosUncommonOreAAlloyItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 24000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Deimos/FishParts/DeimosInfestedFishGPartItem",
+        "count": 24
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Staff/InfStaff/InfStaff": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/Staff/InfStaff/InfStaff",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Bio/InfStaffWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/BioComponent",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 2250
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 8750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Warfan/TnBrokenFrameWarfan/TnBrokenFrameWarfanWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Warfan/TnBrokenFrameWarfan/TnBrokenFrameWarfanWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnBrokenWarfanBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Deimos/DeimosUncommonOreAAlloyItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/EntratiWispItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Deimos/SeriglassShard",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Deimos/FishParts/DeimosOrokinFishBPartItem",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Warfan/PrimeQuassus/PrimeQuassusWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Warfan/PrimeQuassus/PrimeQuassusWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/QuassusPrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/QuassusPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/QuassusPrimeHandle",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipTen": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipTen",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipTenBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonGemBCutAItem",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 50
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/GrokdrulItem",
+        "count": 35
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/ReaperWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Scythe/ReaperWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeScytheBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PrimeScytheBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeScytheHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gunblade/TnoGunblade": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Gunblade/TnoGunblade",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TennoGunbladeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualShortSword",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Pistol/RevolverPistol",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gunblade/RedeemerPrime/RedeemerPrimeWep": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Gunblade/RedeemerPrime/RedeemerPrimeWep",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/RedeemerPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/RedeemerPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/RedeemerPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerClaws/GrnClaws": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrineerClaws/GrnClaws",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/Gauntlet",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrnClawsBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/DualCleaverWeapon",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Tellurium",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageI": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageI",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/ForestRodentPartItem",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayCommonFishAPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 20
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageII": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageII",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/ForestRodentPartItem",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayCommonFishCPartItem",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Thanotech/EntFistIncarnon/EntFistIncarnon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Thanotech/EntFistIncarnon/EntFistIncarnon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EntFistIncarnonBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/EntFistIncarnonBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EntFistIncarnonGlove",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Hammer/DaxDuviriHammer/DaxDuviriHammerWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Hammer/DaxDuviriHammer/DaxDuviriHammerWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriRockItem",
+        "count": 150
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DaxDuviriHammerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemA",
+        "count": 40
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriFractalItem",
+        "count": 30
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemE",
+        "count": 20
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/WolfFrameAxeWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Axe/WolfFrameAxeWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WolfFrameAxeWeaponBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WolfFrameAxeWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WolfFrameAxeWeaponHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Zariman/Resources/EclipseVoidWraithItem",
+        "count": 50
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gunblade/GunbladeAutomatic/TnoGunbladeAutomatic": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Gunblade/GunbladeAutomatic/TnoGunbladeAutomatic",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Pistols/TennoUzi/TennoUzi",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnoGunbladeAutomaticBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ControlModule",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Cryotic",
+        "count": 3300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/AxeWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Axe/AxeWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/AxeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/PrimeScindo/PrimeScindoWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Axe/PrimeScindo/PrimeScindoWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeScindoBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PrimeScindoBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeScindoHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Whip/InfestedWhip/InfestedWhipWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Infested/Melee/Whip/InfestedWhip/InfestedWhipWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Bio/InfestedWhipWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/BioComponent",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 15000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleFour": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleFour",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleFourBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishOilItem",
+        "count": 50
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/GrokdrulItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 900
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipNine": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipNine",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipNineBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem",
+        "count": 15
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 55
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonGemACutAItem",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Polearm/CorpusPolearm01/CorpusPolearmWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/Polearm/CorpusPolearm01/CorpusPolearmWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Energy/CorpusPolearmWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 400
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/EnergyComponent",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NeuralSensor",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 1000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Nunchaku/TnoNunchaku/TnoNunchaku": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Nunchaku/TnoNunchaku/TnoNunchaku",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnoNunchakuBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Nunchaku/Nunchaku/Nunchaku",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 1100
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerCombatKnife/GrineerCombatKnife": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrineerCombatKnife/GrineerCombatKnife",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrineerCombatKnifeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrineerCombatKnifeSortieBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrineerCombatKnifeHeatsink",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrineerCombatKnifeHilt",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Handle/HandleTen": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Handle/HandleTen",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Handle/HandleTenBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 850
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
+        "count": 55
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/GrokdrulItem",
+        "count": 25
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreAAlloyAItem",
+        "count": 60
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Hammer/IceHammer/IceHammer": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Hammer/IceHammer/IceHammer",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 50000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/IceHammerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Cryotic",
+        "count": 30000
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Maces/PaladinMace/PaladinMaceWeapon",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/SundialSwordBoard/SundialBoardSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/SundialSwordBoard/SundialBoardSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SundialSwordBoardBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 450
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 2750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/MeleeContestWinnerOne/TennoSwordShield": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/MeleeContestWinnerOne/TennoSwordShield",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TennoSwordShieldBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 1200
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 3
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeSilvaAegis/PrimeSilvaAegis": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/PrimeSilvaAegis/PrimeSilvaAegis",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SilvaAegisPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SilvaAegisPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SilvaAegisPrimeGuard",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SilvaAegisPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/LongSword/LongSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/LongSword/LongSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 1100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SkanaSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 3
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/UmbraKatana/UmbraKatana": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/UmbraKatana/UmbraKatana",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 3250
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/UmbraKatanaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 75
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 100
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnSharbola/GrnSharbolaWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnSharbola/GrnSharbolaWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 13000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrnSharbolaWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Kuva",
+        "count": 2600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 6300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Tellurium",
+        "count": 8
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Whips/SpiderWhip/SpiderWhipWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Whips/SpiderWhip/SpiderWhipWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SpinnerexBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SpinnerexBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SpinnerexHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SpinnerexString",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Gunblade/CrpGunBlade/CrpGunbladeWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/Gunblade/CrpGunBlade/CrpGunbladeWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGunbladeBarrel",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGunbladeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CrpGunBladeWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGunbladeReceiver",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGunbladeStock",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Types/Friendly/PlayerControllable/Weapons/DuviriDualSwordsWeapon": {
+    "outputCatalogId": "items:/Lotus/Types/Friendly/PlayerControllable/Weapons/DuviriDualSwordsWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DuviriDualSwordsBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemA",
+        "count": 100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriEnemyDropItem",
+        "count": 40
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriFractalItem",
+        "count": 35
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemE",
+        "count": 45
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/DaxDuviriKatana/DaxDuviriKatanaWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/DaxDuviriKatana/DaxDuviriKatanaWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DaxDuviriKatanaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemF",
+        "count": 30
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemB",
+        "count": 30
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/Fish/GenericDuviriFishPartCItem",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriFractalItem",
+        "count": 30
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnTrident/GrnTridentWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnTrident/GrnTridentWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Staff/GrnStaff",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Chemical/GrnTridentWeaponBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 1100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/ChemComponent",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 4000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/MortiforShieldAndSword/MortiforShieldAndSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/MortiforShieldAndSword/MortiforShieldAndSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MortiforShieldAndSwordBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/MortiforShieldAndSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MortiforShieldAndSwordGuard",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/MortiforShieldAndSwordHandle",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TnTwoHandedKatana/TnTwoHandedKatana": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/TnTwoHandedKatana/TnTwoHandedKatana",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/RareOreAAlloyAItem",
+        "count": 100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnTwoHandedKatanaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Solaris/SolarisRareOreAAlloyItem",
+        "count": 100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Kuva",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeTatsu/PrimeTatsuWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeTatsu/PrimeTatsuWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TatsuPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TatsuPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TatsuPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/BrawlerKnuckles/BrawlerKnuckles": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/BrawlerKnuckles/BrawlerKnuckles",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/Gauntlet",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/BrawlerKnucklesBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 3300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 700
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeTekko/PrimeTekko": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/PrimeTekko/PrimeTekko",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TekkoPrimeBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TekkoPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TekkoPrimeGauntlet",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/ShieldAndSword/CrpHammerShield/CrpHammerShield": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/ShieldAndSword/CrpHammerShield/CrpHammerShield",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CrpHammerShieldBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/CrpBigSlash/CrpBigSlash": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/CrpBigSlash/CrpBigSlash",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CrpBigSlashBlueprint",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/CrpBriefcaseScythe/CrpBriefcaseScythe": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/CrpBriefcaseScythe/CrpBriefcaseScythe",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/LawyerWeapons/CrpBriefcaseScytheBlueprint",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/CrpBriefcase2HKatana/CrpBriefcase2HKatana": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/CrpBriefcase2HKatana/CrpBriefcase2HKatana",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CrpBriefcase2HKatanaBlueprint",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Zariman/Melee/HeavyScythe/ZarimanHeavyScythe/ZarimanHeavyScytheWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Zariman/Melee/HeavyScythe/ZarimanHeavyScythe/ZarimanHeavyScytheWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/ZarimanHeavyScytheIncarnonBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/EntratiLab/Resources/EntratiLabMiscItemA",
+        "count": 1500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriFractalItem",
+        "count": 150
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Duviri/Resource/DuviriPlantItemE",
+        "count": 180
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/DuviriMITW/Resources/DuviriMurmurItemA",
+        "count": 100
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/MonkSpade/TnoMonkStaff": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Staff/MonkSpade/TnoMonkStaff",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnoMonkStaffBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Staff/Staff",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/ThrowingWeapons/Kunai",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NeuralSensor",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 1600
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/TipedoPrime/TipedoPrimeWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Staff/TipedoPrime/TipedoPrimeWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TipedoPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TipedoPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TipedoPrimeOrnament",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/FlowerPowerPolearm/FlowerPowerPolearmWep": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Polearms/FlowerPowerPolearm/FlowerPowerPolearmWep",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/FlowerPowerPolearmBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ControlModule",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
+        "count": 2000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 100
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 800
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/Tonfa/GrnChainSawTonfa/GrnChainSawTonfaWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/Tonfa/GrnChainSawTonfa/GrnChainSawTonfaWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrnChainSawTonfaBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrnChainSawTonfaBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/GrnChainSawTonfaHandle",
+        "count": 2
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnDualFireAxe/GrnDualFireAxe": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnDualFireAxe/GrnDualFireAxe",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Grineer/Pistols/HeatGun/GrnHeatGun",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrnDualFireAxeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ControlModule",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Axe/DualAxeWeapon",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnEgyptSwd/DualGrnEgyptSwdWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnEgyptSwd/DualGrnEgyptSwdWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/ClanTech/Chemical/DualGrnEgyptSwdBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Research/ChemComponent",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnEgyptSwd/GrnEgyptSwdWeapon",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Grineer/Melee/GrnEgyptSwd/GrnEgyptSwdWeapon",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedICritII": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedICritII",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedICritIIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/ForestRodentPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/EidolonFruitItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayUncommonFishBPartItem",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageICritII": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageICritII",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageICritIIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/UncommonOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/ForestRodentPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/EidolonFruitItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayUncommonFishAPartItem",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedICritI": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedICritI",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedICritIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/BothCommonFishBPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/ForestRodentPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 30
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIICritI": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIICritI",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/RareOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIICritIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Eidolonium",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/CetusWispItem",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/ForestRodentPartItem",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageICritI": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageICritI",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageICritIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/BothCommonFishAPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/ForestRodentPartItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/NistlebrushItem",
+        "count": 30
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIICritI": {
+    "outputCatalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIICritI",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Eidolon/RareOreAAlloyAItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIICritIBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Eidolonium",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/CetusWispItem",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/ForestRodentPartItem",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Sentients/SentJointedScythe/SentJointedScytheWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Sentients/SentJointedScythe/SentJointedScytheWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/SentientFragmentLootItem",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/NewWar/SentJointedScytheBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/QuillsUncommonDogTag",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/IraditeItem",
+        "count": 60
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NarmerBountyResource",
+        "count": 16
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/PrimeVento/PrimeVentoScythe": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Scythe/PrimeVento/PrimeVentoScythe",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VentoPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/VentoPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VentoPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Claws/TennoClaws": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Claws/TennoClaws",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TennoClawsBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Forma",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 1000
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeVenKa/PrimeVenkaClaws": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/PrimeVenKa/PrimeVenkaClaws",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeVenkaClawsBlade",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PrimeVenkaClawsBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeVenkaClawsGauntlet",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Archon/Melee/Whip/ArchonWhipPlayerWep": {
+    "outputCatalogId": "items:/Lotus/Weapons/Archon/Melee/Whip/ArchonWhipPlayerWep",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/NewWar/ArchonWhipBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Gameplay/Eidolon/Resources/QuillsDogTag",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Fish/Eidolon/FishParts/DayUncommonFishBPartItem",
+        "count": 20
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/NarmerBountyResource",
+        "count": 12
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Solaris/SolarisRareGemACutItem",
+        "count": 6
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/NWIIIOrokinSword/NWOrokinSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/NWIIIOrokinSword/NWOrokinSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/NWOrokinSwordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 925
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Deimos/DeimosUncommonGemACutItem",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/Gems/Deimos/DeimosCommonOreBAlloyItem",
+        "count": 60
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Hammer/GlassHammer/GlassHammer": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Hammer/GlassHammer/GlassHammer",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
+        "count": 11000
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GlassHammerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Cryotic",
+        "count": 875
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
+        "count": 225
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeVolnus/VolnusPrimeWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/PrimeVolnus/VolnusPrimeWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/VolnusPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VolnusPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/VolnusPrimeHead",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerTwo/StalkerTwoGreatSword": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerTwo/StalkerTwoGreatSword",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/StalkerTwoGreatswordBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerTwo/StalkerTwoSmallSword",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Alertium",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 2300
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 1400
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Hammer/ThrowingHammer": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Hammer/ThrowingHammer",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/ThrowingHammerBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ThrowingHammerHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ThrowingHammerHead",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ThrowingHammerMotor",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Alertium",
+        "count": 5
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Glaive/CrpGhostCatcherGlaive/CrpGhostCatcherGlaive": {
+    "outputCatalogId": "items:/Lotus/Weapons/Corpus/Melee/Glaive/CrpGhostCatcherGlaive/CrpGhostCatcherGlaive",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGhostCatcherGlaivePartBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CrpGhostCatcherGlaiveBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGhostCatcherGlaivePartCore",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGhostCatcherGlaivePartHandle",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SunDialAxe/SundialAxeWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/SunDialAxe/SundialAxeWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SundialAxeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
+        "count": 450
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
+        "count": 4
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
+        "count": 500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
+        "count": 2750
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
   "items:/Lotus/Weapons/Sentients/OperatorAmplifiers/Set2/Grip/SentAmpSet2GripPartA": {
     "outputCatalogId": "items:/Lotus/Weapons/Sentients/OperatorAmplifiers/Set2/Grip/SentAmpSet2GripPartA",
     "components": [

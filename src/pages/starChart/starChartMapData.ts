@@ -453,21 +453,11 @@ function isMissionRewardSourceId(sid: string): boolean {
     return sid.startsWith("data:missionreward/");
 }
 
-/**
- * Source filtering is ONLY for missionreward separation:
- * - Mission Rewards tab: missionreward/*
- * - All other tabs: exclude missionreward/*
- *
- * USER REQUESTED CHANGE:
- * Combine "Mission Rewards" + what used to be "Extra" into the Mission Rewards pill.
- * That means Mission Rewards shows ALL sources (missionreward/* + non-missionreward/*),
- * and the Extra pill should be effectively empty/hidden.
- */
 export function filterSourcesForTab(kind: NodeGroupKind, sids: string[]): string[] {
-    if (kind === "mission_rewards") return sids; // <-- combined (Mission Rewards + Extra)
-    if (kind === "caches") return sids; // Include missionreward rotation sources so all cache items resolve
+    if (kind === "mission_rewards") return sids.filter((s) => isMissionRewardSourceId(s));
+    if (kind === "caches") return sids;
     if (kind === "all") return sids;
-    if (kind === "extra") return []; // <-- effectively removed
+    if (kind === "extra") return sids;
     return sids.filter((s) => !isMissionRewardSourceId(s));
 }
 
@@ -520,6 +510,7 @@ export function buildTabSpecRaw(args: { group: NodeGroup; kind: NodeGroupKind; s
     const { group, kind, sourceToItemsIndex, steelPathMode = false } = args;
 
     const nodeId = pickNodeIdForTab(group, kind);
+    const extraNodeIds = group.kinds["extra"] ?? [];
 
     const primarySources = !nodeId
         ? []
@@ -527,14 +518,8 @@ export function buildTabSpecRaw(args: { group: NodeGroup; kind: NodeGroupKind; s
               .map((sid) => safeNormalizeSourceId(sid))
               .filter((x): x is string => Boolean(x));
 
-    // For the Mission Rewards tab, switch between Normal and Steel Path sources based on mode.
-    //
-    // - Normal mode: use the base node sources only.
-    // - Steel Path mode WITH an (Extra) variant: use only the extra (Steel Path) sources.
-    // - Steel Path mode WITHOUT an (Extra) variant: fall back to base sources (node has no SP data).
     let rawSources: string[];
     if (kind === "mission_rewards") {
-        const extraNodeIds = group.kinds["extra"] ?? [];
         if (steelPathMode && extraNodeIds.length > 0) {
             rawSources = extraNodeIds.flatMap((extraId) =>
                 getDropSourcesForStarChartNode(extraId)
@@ -544,6 +529,15 @@ export function buildTabSpecRaw(args: { group: NodeGroup; kind: NodeGroupKind; s
         } else {
             rawSources = primarySources;
         }
+    } else if (kind === "all" && steelPathMode && extraNodeIds.length > 0) {
+        const steelPathMissionRewardSources = extraNodeIds.flatMap((extraId) =>
+            getDropSourcesForStarChartNode(extraId)
+                .map((sid) => safeNormalizeSourceId(sid))
+                .filter((x): x is string => Boolean(x))
+                .filter((sid) => isMissionRewardSourceId(sid))
+        );
+        const nonMissionRewardSources = primarySources.filter((sid) => !isMissionRewardSourceId(sid));
+        rawSources = [...nonMissionRewardSources, ...steelPathMissionRewardSources];
     } else {
         rawSources = primarySources;
     }
@@ -567,42 +561,27 @@ export function buildTabSpecRaw(args: { group: NodeGroup; kind: NodeGroupKind; s
     };
 }
 
-/**
- * Enforce "respective pill only" behavior:
- * - Items should appear in exactly one of: Mission Rewards, Caches, Extra, Drops.
- * - Priority order: mission_rewards -> caches -> extra -> base.
- * - All tab is a union of the full set (no exclusivity).
- *
- * NOTE: Exclusivity is enforced by *normalized display name* (not catalogId) so you don't
- * see the "same item" repeated across pills.
- *
- * USER REQUESTED CHANGE:
- * Extra is removed (its content is now in Mission Rewards). So we should NOT reserve items
- * for Extra anymore. Treat Extra as empty.
- */
 export function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
     const byKind = new Map<NodeGroupKind, TabSpec>();
     for (const s of specs) byKind.set(s.kind, s);
 
     const mr = byKind.get("mission_rewards") ?? null;
     const caches = byKind.get("caches") ?? null;
+    const extra = byKind.get("extra") ?? null;
     const base = byKind.get("base") ?? null;
     const all = byKind.get("all") ?? null;
 
     const mrSetRaw = new Set<string>((mr?.items ?? []).map((x) => itemNameKey(x.name)));
     const cachesSetRaw = new Set<string>((caches?.items ?? []).map((x) => itemNameKey(x.name)));
+    const extraSetRaw = new Set<string>((extra?.items ?? []).map((x) => itemNameKey(x.name)));
     const baseSetRaw = new Set<string>((base?.items ?? []).map((x) => itemNameKey(x.name)));
 
-    // Priority: caches → mission_rewards → base.
-    // Caches wins first so that nodes whose *only* drop table is a (Caches) variant
-    // (e.g. Kuva Fortress / Dakata) show their rewards in the Caches pill, not MR.
     const cachesSet = new Set<string>();
     for (const k of cachesSetRaw) {
         if (!k) continue;
         cachesSet.add(k);
     }
 
-    // MR loses items already claimed by Caches.
     const mrSet = new Set<string>();
     for (const k of mrSetRaw) {
         if (!k) continue;
@@ -610,11 +589,20 @@ export function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
         mrSet.add(k);
     }
 
+    const extraSet = new Set<string>();
+    for (const k of extraSetRaw) {
+        if (!k) continue;
+        if (mrSet.has(k)) continue;
+        if (cachesSet.has(k)) continue;
+        extraSet.add(k);
+    }
+
     const baseSet = new Set<string>();
     for (const k of baseSetRaw) {
         if (!k) continue;
         if (mrSet.has(k)) continue;
         if (cachesSet.has(k)) continue;
+        if (extraSet.has(k)) continue;
         baseSet.add(k);
     }
 
@@ -635,7 +623,7 @@ export function applyExclusiveAssignment(specs: TabSpec[]): TabSpec[] {
             continue;
         }
         if (s.kind === "extra") {
-            outSpecs.push({ ...s, items: [] });
+            outSpecs.push({ ...s, items: filterItems(s.items, extraSet) });
             continue;
         }
         if (s.kind === "base") {

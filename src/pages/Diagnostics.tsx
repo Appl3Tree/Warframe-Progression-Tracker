@@ -13,15 +13,10 @@ import { getDefectSummary, getReleaseBlockingDefects } from "../domain/logic/def
 import { STAR_CHART_DATA } from "../domain/catalog/starChart";
 import { getDropSourcesForStarChartNode } from "../domain/catalog/starChart/nodeDropSourceMap";
 import { getLootForStarChartNode } from "../domain/logic/nodeLootIndex";
+import { WorkspaceSection } from "../components/workspace/WorkspaceChrome";
 
 function Section(props: { title: string; subtitle?: string; children: React.ReactNode }) {
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-            <div className="text-lg font-semibold">{props.title}</div>
-            {props.subtitle && <div className="text-sm text-slate-400 mt-1">{props.subtitle}</div>}
-            <div className="mt-4">{props.children}</div>
-        </div>
-    );
+    return <WorkspaceSection title={props.title} subtitle={props.subtitle}>{props.children}</WorkspaceSection>;
 }
 
 function StatCard(props: { label: string; value: string }) {

@@ -9,6 +9,7 @@ import { getRegionResourcesForPlanet } from "../../domain/catalog/starChart/regi
 import { PREREQ_REGISTRY } from "../../catalog/prereqs/prereqRegistry";
 import { PR } from "../../domain/ids/prereqIds";
 import { useTrackerStore } from "../../store/store";
+import { getDropSourcesForStarChartNode } from "../../domain/catalog/starChart/nodeDropSourceMap";
 import {
     EMPTY_NODE_COMPLETED,
     VORS_PRIZE_IMPLIES_COMPLETED,
@@ -38,7 +39,7 @@ import {
     groupPlanetNodesForDisplay,
 } from "./starChartMapData";
 import type { ItemRow } from "./starChartUtils";
-import { dedupeItemsByName } from "./starChartUtils";
+import { dedupeItemsByName, itemNameKey } from "./starChartUtils";
 import type { DropMeta, DropMetaLookup } from "./dropMetaLookup";
 import type {
     ViewBox,
@@ -1089,17 +1090,54 @@ export default function StarChartMap(props: {
         return getRegionResourcesForPlanet(selectedPlanetId, selectedPlanetName);
     }, [selectedPlanetId, selectedPlanetName]);
 
+    const missionRewardNameKeys = useMemo(() => {
+        const keys = new Set<string>();
+        const missionRewardsTab = tabsForPanel.find((tab) => tab.kind === "mission_rewards") ?? null;
+        const missionRewardSources = new Set<string>();
+
+        if (missionRewardsTab) {
+            for (const item of missionRewardsTab.items) {
+                keys.add(itemNameKey(item.name));
+            }
+            for (const sid of missionRewardsTab.dropSources) {
+                missionRewardSources.add(sid);
+            }
+        }
+
+        if (selectedGroupBaseNodeId) {
+            for (const sid of getDropSourcesForStarChartNode(selectedGroupBaseNodeId)) {
+                if (/^data:missionreward\//.test(sid)) missionRewardSources.add(sid);
+            }
+        }
+
+        const rotSources = [...missionRewardSources].filter((s) => /\/rotation[abc]$/.test(s));
+        for (const sid of rotSources) {
+            const entries = dropMetaLookup[sid];
+            if (!entries) continue;
+            for (const [normKey, meta] of Object.entries(entries)) {
+                const normDisplay = normItemKey(meta.displayName);
+                if (normDisplay !== normKey) continue;
+                keys.add(itemNameKey(stripQtyPrefix(meta.displayName)));
+            }
+        }
+
+        return keys;
+    }, [tabsForPanel, dropMetaLookup, selectedGroupBaseNodeId]);
+
     const mergedActiveItems = useMemo(() => {
         if (!activeTab) return [];
-        if (activeTab.kind !== "base") return activeTab.items;
+        if (activeTab.kind !== "base" && activeTab.kind !== "all") return activeTab.items;
 
         const rrRows: ItemRow[] = regionResources.map((r) => ({
             catalogId: `region_resource:${String(selectedPlanetId)}:${r.name}`,
             name: r.name
         }));
 
-        return dedupeItemsByName([...rrRows, ...activeTab.items]);
-    }, [activeTab, regionResources, selectedPlanetId]);
+        const merged = dedupeItemsByName([...rrRows, ...activeTab.items]);
+        return activeTab.kind === "base"
+            ? merged.filter((item) => !missionRewardNameKeys.has(itemNameKey(item.name)))
+            : merged;
+    }, [activeTab, regionResources, selectedPlanetId, missionRewardNameKeys]);
 
     const filteredActiveItems = useMemo(() => {
         const q = itemFilter.trim().toLowerCase();
@@ -1167,6 +1205,44 @@ export default function StarChartMap(props: {
     }, [rotationItems, rotationFilter, itemFilter]);
 
     const useRotationView = rotationItems.length > 0;
+
+    const tabVisibleCounts = useMemo(() => {
+        const counts = new Map<NodeGroupKind, number>();
+
+        for (const tab of tabsForPanel) {
+            if (tab.kind === "base") {
+                const rrRows: ItemRow[] = regionResources.map((r) => ({
+                    catalogId: `region_resource:${String(selectedPlanetId)}:${r.name}`,
+                    name: r.name,
+                }));
+                counts.set(
+                    tab.kind,
+                    dedupeItemsByName([...rrRows, ...tab.items]).filter((item) => !missionRewardNameKeys.has(itemNameKey(item.name))).length,
+                );
+                continue;
+            }
+
+            const rotSources = tab.dropSources.filter((s) => /\/rotation[abc]$/.test(s));
+            if (rotSources.length > 0) {
+                const seen = new Set<string>();
+                for (const sid of rotSources) {
+                    const entries = dropMetaLookup[sid];
+                    if (!entries) continue;
+                    for (const [normKey, meta] of Object.entries(entries)) {
+                        const normDisplay = normItemKey(meta.displayName);
+                        if (normDisplay !== normKey) continue;
+                        seen.add(`${sid}:${normKey}`);
+                    }
+                }
+                counts.set(tab.kind, seen.size);
+                continue;
+            }
+
+            counts.set(tab.kind, tab.items.length);
+        }
+
+        return counts;
+    }, [tabsForPanel, regionResources, selectedPlanetId, dropMetaLookup, missionRewardNameKeys]);
 
     return (
         <div className={["relative w-full", isInModal ? "h-full" : "h-[72vh] min-h-[560px]"].join(" ")}>
@@ -1288,17 +1364,7 @@ export default function StarChartMap(props: {
                                         <div className="mt-3 flex flex-wrap items-center gap-2">
                                             {tabsForPanel.map((t) => {
                                                 const active = t.kind === selectedTab;
-
-                                                const count =
-                                                    t.kind === "base"
-                                                        ? dedupeItemsByName([
-                                                              ...t.items,
-                                                              ...regionResources.map((r) => ({
-                                                                  catalogId: `region_resource:${String(selectedPlanetId)}:${r.name}`,
-                                                                  name: r.name
-                                                              }))
-                                                          ]).length
-                                                        : t.items.length;
+                                                const count = tabVisibleCounts.get(t.kind) ?? 0;
 
                                                 return (
                                                     <button

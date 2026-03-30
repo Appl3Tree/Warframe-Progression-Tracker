@@ -24,44 +24,22 @@ import {
 import type { CurrencyRequirementLine } from "../domain/logic/requirementEngine";
 import { getPrimeAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";
+import { WorkspaceAction, WorkspaceFilterBar, WorkspaceFilterGroup, WorkspaceHero, WorkspacePillButton, WorkspaceSection, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
 
 function normalize(s: string): string {
     return s.trim().toLowerCase();
 }
 
 function Section(props: { title: string; subtitle?: string; children: ReactNode }) {
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-            <div className="text-lg font-semibold">{props.title}</div>
-            {props.subtitle && <div className="text-sm text-slate-400 mt-1">{props.subtitle}</div>}
-            <div className="mt-4">{props.children}</div>
-        </div>
-    );
+    return <WorkspaceSection title={props.title} subtitle={props.subtitle}>{props.children}</WorkspaceSection>;
 }
 
 function PillButton(props: { label: string; active: boolean; onClick: () => void }) {
-    return (
-        <button
-            className={[
-                "rounded-full px-3 py-1 text-sm border",
-                props.active
-                    ? "bg-slate-100 text-slate-900 border-slate-100"
-                    : "bg-slate-950/40 text-slate-200 border-slate-700 hover:bg-slate-900"
-            ].join(" ")}
-            onClick={props.onClick}
-        >
-            {props.label}
-        </button>
-    );
+    return <WorkspacePillButton label={props.label} active={props.active} onClick={props.onClick} />;
 }
 
 function MiniStat(props: { label: string; value: string }) {
-    return (
-        <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-            <div className="text-[11px] uppercase tracking-wide text-slate-400">{props.label}</div>
-            <div className="mt-0.5 font-mono text-sm text-slate-100">{props.value}</div>
-        </div>
-    );
+    return <WorkspaceStat label={props.label} value={props.value} className="p-3 [&>div:nth-child(2)]:mt-0.5 [&>div:nth-child(2)]:text-sm" />;
 }
 
 const HIDDEN_REASON_LABEL: Record<string, string> = {
@@ -250,15 +228,45 @@ export default function Requirements() {
         });
     }, [farming.hidden, query, showHidden]);
 
+    const activeGoals = goals.filter((goal) => goal.isActive).length;
+    const platinumLine = requirements.currencyLines.find((cl) => cl.key === "platinum");
+
     return (
         <div className="space-y-6">
+            <WorkspaceHero
+                eyebrow="Planning Workspace"
+                title="Farming Planner"
+                description="Convert goals and rank-up needs into an actionable farming route. Use targeted mode when you need a specific item and overlap mode when efficiency matters more."
+                actions={
+                    <>
+                        <WorkspaceAction onClick={() => setActivePage("goals")}>Open Goals</WorkspaceAction>
+                        <WorkspaceAction onClick={() => setActivePage("starchart")}>Open Star Chart</WorkspaceAction>
+                        <WorkspaceAction onClick={() => setActivePage("relic_planner")}>Open Relic Planner</WorkspaceAction>
+                    </>
+                }
+                stats={
+                    <>
+                        <MiniStat label="Active goals" value={activeGoals.toLocaleString()} />
+                        <MiniStat label="Items needed" value={requirements.stats.actionableItemCount.toLocaleString()} />
+                        <MiniStat label="Targeted sources" value={farming.targeted.length.toLocaleString()} />
+                        <MiniStat label="Overlap sources" value={farming.overlap.length.toLocaleString()} />
+                        <MiniStat
+                            label="Plat gap"
+                            value={platinumLine && (platinumLine.remaining ?? platinumLine.totalNeed) > 0
+                                ? `${(platinumLine.remaining ?? platinumLine.totalNeed).toLocaleString()} ◈`
+                                : "Covered"}
+                        />
+                    </>
+                }
+            />
+
             <Section
                 title="Farming"
                 subtitle="Targeted shows actionable sources for each needed item. Overlap groups items by a shared acquisition source."
             >
                 {/* Mode + expand toggles */}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap items-center gap-2">
+                <WorkspaceFilterBar>
+                    <WorkspaceFilterGroup>
                         <PillButton
                             label="Targeted Farming"
                             active={mode === "targeted"}
@@ -282,39 +290,29 @@ export default function Requirements() {
                             active={expandMode === "recursive"}
                             onClick={() => setExpandMode("recursive")}
                         />
-                    </div>
+                    </WorkspaceFilterGroup>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                        <button
-                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-sm font-semibold hover:bg-slate-900/40"
+                    <WorkspaceFilterGroup>
+                        <WorkspaceAction
+                            className="rounded-lg border-slate-700 bg-slate-950/20 text-slate-100 hover:bg-slate-900/40"
                             onClick={() => setActivePage("goals")}
                         >
                             Open Goals
-                        </button>
-                        <button
-                            className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-slate-100 text-sm font-semibold hover:bg-slate-900/40"
+                        </WorkspaceAction>
+                        <WorkspaceAction
+                            className="rounded-lg border-slate-700 bg-slate-950/20 text-slate-100 hover:bg-slate-900/40"
                             onClick={() => setActivePage("inventory")}
                         >
                             Open Inventory
-                        </button>
-                    </div>
-                </div>
+                        </WorkspaceAction>
+                    </WorkspaceFilterGroup>
+                </WorkspaceFilterBar>
 
-                {/* Stats row */}
                 <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <MiniStat label="Items needed" value={requirements.stats.actionableItemCount.toLocaleString()} />
-                    <MiniStat
-                        label="Targeted sources"
-                        value={farming.targeted.length.toLocaleString()}
-                    />
-                    <MiniStat
-                        label="Overlap sources"
-                        value={farming.overlap.length.toLocaleString()}
-                    />
-                    <MiniStat
-                        label="Hidden items"
-                        value={farming.hidden.length.toLocaleString()}
-                    />
+                    <MiniStat label="Targeted sources" value={farming.targeted.length.toLocaleString()} />
+                    <MiniStat label="Overlap sources" value={farming.overlap.length.toLocaleString()} />
+                    <MiniStat label="Hidden items" value={farming.hidden.length.toLocaleString()} />
                 </div>
 
                 {/* Credit costs — always shown when non-zero (not platinum) */}
@@ -339,7 +337,7 @@ export default function Requirements() {
                     />
                 </div>
 
-                <div className="mt-3 flex items-center gap-2 flex-wrap">
+                <WorkspaceFilterGroup className="mt-3">
                     <PillButton
                         label={showHidden ? "Hide hidden items" : `Show hidden items (${farming.hidden.length})`}
                         active={showHidden}
@@ -355,7 +353,7 @@ export default function Requirements() {
                         active={platView === "platinum"}
                         onClick={() => setPlatView("platinum")}
                     />
-                </div>
+                </WorkspaceFilterGroup>
             </Section>
 
             {/* Platinum view */}

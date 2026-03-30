@@ -1,12 +1,16 @@
-// ===== FILE: src/app/layout/Sidebar.tsx =====
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTrackerStore } from "../../store/store";
-import { NAV_ROUTES } from "../routes";
+import {
+    NAV_ROUTES,
+    WORK_MODE_META,
+    WORK_MODE_ORDER,
+    getRouteByKey,
+    type WorkModeKey,
+} from "../routes";
 import { getStoredTheme, applyTheme, type AppTheme } from "../../pages/Settings";
 
 const SIDEBAR_COLLAPSED_KEY = "wft_sidebar_collapsed";
 
-// Page icons — simple SVG paths, one per route key
 const PAGE_ICONS: Record<string, React.ReactNode> = {
     dashboard: (
         <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -107,6 +111,17 @@ const PAGE_ICONS: Record<string, React.ReactNode> = {
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
         </svg>
     ),
+    relic_planner: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+    ),
+    build_planner: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 5h16v14H4z" />
+            <path d="M8 9h8M8 13h3M14 13h2" />
+        </svg>
+    ),
     world_state: (
         <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
@@ -114,16 +129,136 @@ const PAGE_ICONS: Record<string, React.ReactNode> = {
             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
         </svg>
     ),
-
 };
+
+const WORK_MODE_ICONS: Record<WorkModeKey, React.ReactNode> = {
+    command: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-4z" />
+            <path d="M9 12l2 2 4-4" />
+        </svg>
+    ),
+    progression: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 18h18" />
+            <path d="M7 14l3-3 3 2 4-5" />
+        </svg>
+    ),
+    collection: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 7h16" />
+            <path d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+            <path d="M9 11h6M9 15h4" />
+        </svg>
+    ),
+    planning: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 3" />
+        </svg>
+    ),
+    system: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+    ),
+};
+
+function ModeButton({
+    mode,
+    active,
+    collapsed,
+    onClick,
+}: {
+    mode: WorkModeKey;
+    active: boolean;
+    collapsed: boolean;
+    onClick: () => void;
+}) {
+    const meta = WORK_MODE_META[mode];
+    return (
+        <button
+            onClick={onClick}
+            className={[
+                "group relative flex items-center rounded-xl border px-2.5 py-2 text-left transition-all",
+                collapsed ? "justify-center" : "gap-2.5",
+                active
+                    ? "border-[color:var(--wf-border-accent)] bg-[color:var(--wf-surface-strong)] text-[color:var(--wf-text-strong)] shadow-[0_0_0_1px_rgba(140,123,255,0.16)]"
+                    : "border-transparent text-[color:var(--wf-text-muted)] hover:border-[color:var(--wf-border-subtle)] hover:bg-[color:var(--wf-surface-soft)] hover:text-[color:var(--wf-text)]",
+            ].join(" ")}
+            title={meta.desc}
+        >
+            <span className={active ? "text-[color:var(--wf-accent-primary)]" : "text-[color:var(--wf-text-muted)] group-hover:text-[color:var(--wf-text)]"}>
+                {WORK_MODE_ICONS[mode]}
+            </span>
+            {!collapsed && (
+                <span className="min-w-0">
+                    <span className="block text-sm font-medium leading-none">{meta.label}</span>
+                    <span className="mt-1 block text-[11px] leading-tight text-[color:var(--wf-text-dim)]">{meta.desc}</span>
+                </span>
+            )}
+        </button>
+    );
+}
+
+function RouteButton({
+    route,
+    active,
+    collapsed,
+    onClick,
+}: {
+    route: (typeof NAV_ROUTES)[number];
+    active: boolean;
+    collapsed: boolean;
+    onClick: () => void;
+}) {
+    return (
+        <button
+            key={route.key}
+            onClick={onClick}
+            className={[
+                "group relative flex items-center rounded-xl px-2.5 py-2.5 text-left transition-colors",
+                collapsed ? "justify-center" : "gap-2.5",
+                active
+                    ? "bg-[color:var(--wf-surface-strong)] text-[color:var(--wf-text-strong)]"
+                    : "text-[color:var(--wf-text-muted)] hover:bg-[color:var(--wf-surface-soft)] hover:text-[color:var(--wf-text)]",
+            ].join(" ")}
+            title={route.desc}
+        >
+            <span
+                className={[
+                    "absolute left-1.5 h-4 w-0.5 rounded-full transition-all",
+                    active ? "bg-[color:var(--wf-accent-primary)] opacity-100" : "opacity-0",
+                ].join(" ")}
+            />
+            <span className={active ? "text-[color:var(--wf-text-strong)]" : "text-[color:var(--wf-text-dim)] group-hover:text-[color:var(--wf-text)]"}>
+                {PAGE_ICONS[route.key]}
+            </span>
+            {!collapsed && (
+                <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium leading-none">{route.label}</span>
+                    <span className="mt-1 block truncate text-[11px] text-[color:var(--wf-text-dim)]">{route.desc}</span>
+                </span>
+            )}
+        </button>
+    );
+}
 
 export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; onClose: () => void }) {
     const activePage = useTrackerStore((s) => s.state.ui.activePage);
     const setActivePage = useTrackerStore((s) => s.setActivePage);
     const [theme, setTheme] = useState<AppTheme>(getStoredTheme);
     const [collapsed, setCollapsed] = useState<boolean>(() => localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "1");
+    const [activeMode, setActiveMode] = useState<WorkModeKey>(() => getRouteByKey(activePage).mode);
 
     useEffect(() => { applyTheme(getStoredTheme()); }, []);
+    useEffect(() => { setActiveMode(getRouteByKey(activePage).mode); }, [activePage]);
+
+    const modeRoutes = useMemo(
+        () => NAV_ROUTES.filter((route) => route.mode === activeMode),
+        [activeMode]
+    );
 
     function toggleTheme() {
         const next: AppTheme = theme === "dark" ? "light" : "dark";
@@ -139,51 +274,61 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
         });
     }
 
-    const nav = (
-        <nav className="flex flex-col gap-0.5 p-2 py-3 flex-1">
-            {NAV_ROUTES.map((n) => {
-                const active = n.key === activePage;
-                return (
-                    <button
-                        key={n.key}
-                        onClick={() => { setActivePage(n.key); onClose(); }}
-                        className={[
-                            "group relative flex items-center rounded-lg px-2.5 py-2.5 text-left transition-colors",
-                            collapsed ? "justify-center" : "gap-2.5",
-                            active
-                                ? "bg-slate-800 text-slate-100"
-                                : "text-slate-400 hover:bg-slate-900 hover:text-slate-200"
-                        ].join(" ")}
-                        title={n.desc}
-                    >
-                        {/* Active indicator bar */}
-                        <span className={[
-                            "absolute left-2 h-4 w-0.5 rounded-full transition-all",
-                            active ? "bg-blue-400 opacity-100" : "opacity-0"
-                        ].join(" ")} />
+    function renderNavContent(isMobile = false) {
+        return (
+            <>
+                <div className="border-b border-[color:var(--wf-border-subtle)] px-2 py-3">
+                    {!collapsed || isMobile ? (
+                        <div className="mb-2 px-2">
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--wf-text-dim)]">Workspaces</div>
+                        </div>
+                    ) : null}
+                    <div className="flex flex-col gap-2">
+                        {WORK_MODE_ORDER.map((mode) => (
+                            <ModeButton
+                                key={mode}
+                                mode={mode}
+                                active={mode === activeMode}
+                                collapsed={collapsed && !isMobile}
+                                onClick={() => setActiveMode(mode)}
+                            />
+                        ))}
+                    </div>
+                </div>
 
-                        <span className={active ? "text-slate-100" : "text-slate-500 group-hover:text-slate-300"}>
-                            {PAGE_ICONS[n.key]}
-                        </span>
-                        {!collapsed && (
-                            <span className="text-sm font-medium leading-none">
-                                {n.label}
-                            </span>
-                        )}
-                    </button>
-                );
-            })}
-        </nav>
-    );
+                <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-2 py-3">
+                    {!collapsed || isMobile ? (
+                        <div className="mb-2 px-2">
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--wf-text-dim)]">
+                                {WORK_MODE_META[activeMode].label}
+                            </div>
+                        </div>
+                    ) : null}
+                    {modeRoutes.map((route) => (
+                        <RouteButton
+                            key={route.key}
+                            route={route}
+                            active={route.key === activePage || (activePage === "relics" && route.key === "relic_planner")}
+                            collapsed={collapsed && !isMobile}
+                            onClick={() => {
+                                setActivePage(route.key);
+                                onClose();
+                            }}
+                        />
+                    ))}
+                </nav>
+            </>
+        );
+    }
 
     const footer = (
-        <div className="p-2 border-t border-slate-800/60 space-y-1 shrink-0">
-            {/* Theme toggle */}
+        <div className="border-t border-[color:var(--wf-border-subtle)] p-2 space-y-1 shrink-0">
             <button
                 onClick={toggleTheme}
                 className={[
-                    "w-full flex items-center rounded-lg px-2.5 py-2 text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-colors",
+                    "w-full flex items-center rounded-xl px-2.5 py-2 text-left transition-colors",
                     collapsed ? "justify-center" : "gap-2.5",
+                    "text-[color:var(--wf-text-muted)] hover:bg-[color:var(--wf-surface-soft)] hover:text-[color:var(--wf-text)]",
                 ].join(" ")}
                 title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             >
@@ -199,14 +344,14 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
                 )}
             </button>
 
-            {/* Ko-fi link */}
             <a
                 href="https://ko-fi.com/appl3tree"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={[
-                    "w-full flex items-center rounded-lg px-2.5 py-2 text-left text-amber-500/80 hover:bg-amber-950/20 hover:text-amber-400 transition-colors",
+                    "w-full flex items-center rounded-xl px-2.5 py-2 text-left transition-colors",
                     collapsed ? "justify-center" : "gap-2.5",
+                    "text-[color:var(--wf-accent-gold)] hover:bg-[color:var(--wf-surface-soft)] hover:text-[color:var(--wf-text-strong)]",
                 ].join(" ")}
                 title="Support on Ko-fi"
                 onClick={onClose}
@@ -219,15 +364,16 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
 
     return (
         <>
-            {/* Desktop sidebar — always visible on md+ */}
-            <aside className={[
-                "hidden md:flex flex-col shrink-0 border-r border-slate-800 bg-slate-950/60 overflow-y-auto transition-[width] duration-200",
-                collapsed ? "w-[72px]" : "w-48",
-            ].join(" ")}>
-                <div className={["flex items-center border-b border-slate-800/60 p-2", collapsed ? "justify-center" : "justify-end"].join(" ")}>
+            <aside
+                className={[
+                    "wf-rail hidden md:flex shrink-0 flex-col overflow-hidden border-r transition-[width] duration-200",
+                    collapsed ? "w-[92px]" : "w-[320px]",
+                ].join(" ")}
+            >
+                <div className={["flex items-center border-b border-[color:var(--wf-border-subtle)] p-2", collapsed ? "justify-center" : "justify-end"].join(" ")}>
                     <button
                         onClick={toggleCollapsed}
-                        className="rounded-lg border border-slate-800 bg-slate-900/70 p-2 text-slate-400 transition-colors hover:border-slate-600 hover:text-slate-200"
+                        className="rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] p-2 text-[color:var(--wf-text-muted)] transition-colors hover:border-[color:var(--wf-border-strong)] hover:text-[color:var(--wf-text)]"
                         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                     >
@@ -246,21 +392,21 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
                         </svg>
                     </button>
                 </div>
-                {nav}
+                {renderNavContent(false)}
                 {footer}
             </aside>
 
-            {/* Mobile drawer — slides in from left as a fixed overlay */}
-            <aside className={[
-                "fixed inset-y-0 left-0 z-40 flex flex-col w-56 border-r border-slate-800 bg-slate-950 overflow-y-auto transition-transform duration-200 md:hidden",
-                mobileOpen ? "translate-x-0" : "-translate-x-full",
-            ].join(" ")}>
-                {/* Drawer header with close button */}
-                <div className="flex items-center justify-between px-4 h-12 border-b border-slate-800 shrink-0">
-                    <span className="text-sm font-semibold text-slate-200">Navigation</span>
+            <aside
+                className={[
+                    "wf-rail fixed inset-y-0 left-0 z-40 flex w-72 flex-col overflow-hidden border-r transition-transform duration-200 md:hidden",
+                    mobileOpen ? "translate-x-0" : "-translate-x-full",
+                ].join(" ")}
+            >
+                <div className="flex items-center justify-between px-4 h-12 border-b border-[color:var(--wf-border-subtle)] shrink-0">
+                    <span className="text-sm font-semibold text-[color:var(--wf-text)]">Workspaces</span>
                     <button
                         onClick={onClose}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors"
+                        className="rounded-lg p-1.5 text-[color:var(--wf-text-muted)] transition-colors hover:bg-[color:var(--wf-surface-soft)] hover:text-[color:var(--wf-text)]"
                         aria-label="Close navigation"
                     >
                         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -268,7 +414,7 @@ export default function Sidebar({ mobileOpen, onClose }: { mobileOpen: boolean; 
                         </svg>
                     </button>
                 </div>
-                {nav}
+                {renderNavContent(true)}
                 {footer}
             </aside>
         </>

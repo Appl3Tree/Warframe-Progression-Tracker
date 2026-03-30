@@ -21,6 +21,7 @@ import { PR } from "../domain/ids/prereqIds";
 import { SY } from "../domain/ids/syndicateIds";
 import type { SyndicateState } from "../domain/types";
 import { fetchWorldState, getCachedWorldState, type CalendarEvent, type WorldStateData } from "../lib/worldStateCache";
+import { WorkspacePanel, WorkspaceSegmented, WorkspaceSegmentedButton } from "./workspace/WorkspaceChrome";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -1717,7 +1718,7 @@ export default function WarframeResetTracker() {
     const hideAll = useCallback(() => setRc((p) => ({ ...p, hiddenTaskIds: eligibleTasks.map((t) => t.id) })), [eligibleTasks]);
 
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 flex flex-col gap-4">
+        <WorkspacePanel className="flex flex-col gap-4 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <div className="text-lg font-semibold">Reset Tracker</div>
@@ -1749,10 +1750,10 @@ export default function WarframeResetTracker() {
                     >
                         ?
                     </button>
-                    <div className="flex rounded-lg border border-slate-700 overflow-hidden text-xs">
-                        <button className={`px-3 py-1.5 font-medium transition-colors ${rc.timeMode === "utc" ? "bg-slate-700 text-slate-100" : "text-slate-400 hover:text-slate-200"}`} onClick={() => setMode("utc")}>UTC</button>
-                        <button className={`px-3 py-1.5 font-medium transition-colors ${rc.timeMode === "local" ? "bg-slate-700 text-slate-100" : "text-slate-400 hover:text-slate-200"}`} onClick={() => setMode("local")}>Local</button>
-                    </div>
+                    <WorkspaceSegmented className="text-xs">
+                        <WorkspaceSegmentedButton active={rc.timeMode === "utc"} onClick={() => setMode("utc")} className="px-3 py-1.5 font-medium">UTC</WorkspaceSegmentedButton>
+                        <WorkspaceSegmentedButton active={rc.timeMode === "local"} onClick={() => setMode("local")} className="px-3 py-1.5 font-medium">Local</WorkspaceSegmentedButton>
+                    </WorkspaceSegmented>
                 </div>
             </div>
 
@@ -1902,6 +1903,6 @@ export default function WarframeResetTracker() {
                 />
             )}
 
-        </div>
+        </WorkspacePanel>
     );
 }

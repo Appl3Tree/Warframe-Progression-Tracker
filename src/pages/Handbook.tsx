@@ -11,25 +11,28 @@ import { useState } from "react";
 
 function Card({ title, summary, children }: { title: string; summary: string; children: React.ReactNode }) {
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 sm:p-6">
-            <div className="text-lg font-semibold text-slate-100">{title}</div>
-            <div className="mt-1 text-sm text-slate-400">{summary}</div>
-            <div className="mt-5 space-y-5 text-sm text-slate-300 leading-relaxed">{children}</div>
-        </div>
+        <article className="rounded-[28px] border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-1)] p-5 shadow-[var(--wf-shadow-panel)] sm:p-7">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--wf-accent-primary)]">
+                Handbook Entry
+            </div>
+            <div className="mt-2 text-2xl font-semibold text-[color:var(--wf-text-strong)]">{title}</div>
+            <div className="mt-2 max-w-3xl text-sm text-[color:var(--wf-text-muted)]">{summary}</div>
+            <div className="mt-6 space-y-5 text-sm leading-relaxed text-[color:var(--wf-text)]">{children}</div>
+        </article>
     );
 }
 
 function P({ children }: { children: React.ReactNode }) {
-    return <p className="leading-relaxed">{children}</p>;
+    return <p className="leading-7 text-[color:var(--wf-text)]">{children}</p>;
 }
 
 function B({ children }: { children: React.ReactNode }) {
-    return <span className="font-semibold text-slate-100">{children}</span>;
+    return <span className="font-semibold text-[color:var(--wf-text-strong)]">{children}</span>;
 }
 
 function Tag({ children }: { children: React.ReactNode }) {
     return (
-        <span className="inline-block rounded px-1.5 py-0.5 text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700 whitespace-nowrap">
+        <span className="inline-block whitespace-nowrap rounded-full border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-2 py-1 text-xs font-mono text-[color:var(--wf-text-muted)]">
             {children}
         </span>
     );
@@ -37,7 +40,7 @@ function Tag({ children }: { children: React.ReactNode }) {
 
 function Steps({ items }: { items: React.ReactNode[] }) {
     return (
-        <ol className="ml-5 space-y-2.5 list-decimal marker:text-slate-500">
+        <ol className="ml-5 space-y-2.5 list-decimal marker:text-[color:var(--wf-text-dim)]">
             {items.map((item, i) => (
                 <li key={i} className="leading-relaxed pl-1">{item}</li>
             ))}
@@ -47,7 +50,7 @@ function Steps({ items }: { items: React.ReactNode[] }) {
 
 function Bullets({ items }: { items: React.ReactNode[] }) {
     return (
-        <ul className="ml-5 space-y-2.5 list-disc marker:text-slate-500">
+        <ul className="ml-5 space-y-2.5 list-disc marker:text-[color:var(--wf-text-dim)]">
             {items.map((item, i) => (
                 <li key={i} className="leading-relaxed pl-1">{item}</li>
             ))}
@@ -56,15 +59,15 @@ function Bullets({ items }: { items: React.ReactNode[] }) {
 }
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-    return <p className="font-semibold text-slate-100 text-sm pt-1">{children}</p>;
+    return <p className="pt-1 text-sm font-semibold text-[color:var(--wf-text-strong)]">{children}</p>;
 }
 
 function Callout({ children, color = "blue" }: { children: React.ReactNode; color?: "blue" | "amber" | "green" | "red" }) {
     const classes: Record<string, string> = {
-        blue: "border-blue-900/50 bg-blue-950/30 text-blue-200",
-        amber: "border-amber-900/50 bg-amber-950/30 text-amber-200",
-        green: "border-green-900/50 bg-green-950/30 text-green-200",
-        red: "border-red-900/50 bg-red-950/30 text-red-200",
+        blue: "border-cyan-900/40 bg-cyan-950/20 text-cyan-100",
+        amber: "border-amber-900/40 bg-amber-950/20 text-amber-100",
+        green: "border-emerald-900/40 bg-emerald-950/20 text-emerald-100",
+        red: "border-rose-900/40 bg-rose-950/20 text-rose-100",
     };
     return (
         <div className={`rounded-lg border px-4 py-3 text-sm leading-relaxed ${classes[color]}`}>
@@ -74,7 +77,7 @@ function Callout({ children, color = "blue" }: { children: React.ReactNode; colo
 }
 
 function TableWrap({ children }: { children: React.ReactNode }) {
-    return <div className="overflow-x-auto rounded-lg border border-slate-800">{children}</div>;
+    return <div className="overflow-x-auto rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)]">{children}</div>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1759,28 +1762,79 @@ export default function Handbook() {
 
     const groupTabCls = (gid: NavGroupId) =>
         gid === activeGroup.id
-            ? "shrink-0 rounded-lg border border-slate-400 bg-slate-700 px-3.5 py-2 text-sm font-semibold text-slate-100 transition-colors"
-            : "shrink-0 rounded-lg border border-slate-700 bg-slate-900/50 px-3.5 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors";
+            ? "shrink-0 rounded-2xl border border-[color:var(--wf-border-strong)] bg-[color:var(--wf-surface-strong)] px-3.5 py-2 text-sm font-semibold text-[color:var(--wf-text-strong)] transition-colors"
+            : "shrink-0 rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3.5 py-2 text-sm font-medium text-[color:var(--wf-text-muted)] hover:bg-[color:var(--wf-surface-strong)] hover:text-[color:var(--wf-text)] transition-colors";
 
     const sectionTabCls = (id: string) =>
         id === activeId
-            ? "shrink-0 rounded border border-blue-700/60 bg-blue-900/30 px-2.5 py-1 text-xs font-semibold text-blue-200 transition-colors"
-            : "shrink-0 rounded border border-slate-700/40 bg-transparent px-2.5 py-1 text-xs font-medium text-slate-500 hover:bg-slate-800 hover:text-slate-300 transition-colors";
+            ? "shrink-0 rounded-full border border-[color:var(--wf-border-strong)] bg-[color:var(--wf-surface-strong)] px-3 py-1.5 text-xs font-semibold text-[color:var(--wf-text-strong)] transition-colors"
+            : "shrink-0 rounded-full border border-[color:var(--wf-border-subtle)] bg-transparent px-3 py-1.5 text-xs font-medium text-[color:var(--wf-text-dim)] hover:bg-[color:var(--wf-surface-soft)] hover:text-[color:var(--wf-text)] transition-colors";
+
+    const totalSections = SECTIONS.length;
+    const totalGroups = NAV_GROUPS.length;
+    const currentGroupCount = activeGroup.sectionIds.length;
 
     return (
-        <div className="space-y-3 sm:space-y-4">
-            {/* ── Header + nav ── */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 sm:p-5">
-                <div className="text-xl font-semibold text-slate-100">Tenno's Handbook</div>
-                <div className="mt-1 text-sm text-slate-400">
-                    Explanations of game mechanics that commonly gate progression or cause confusion.
+        <div className="flex flex-col gap-4">
+            <section className="rounded-[28px] border border-[color:var(--wf-border-subtle)] bg-[linear-gradient(180deg,rgba(18,28,39,0.96),rgba(11,17,24,0.96))] px-5 py-5 shadow-[var(--wf-shadow-panel)]">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="max-w-3xl">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--wf-accent-primary)]">
+                            Editorial Workspace
+                        </div>
+                        <h1 className="mt-1 text-3xl font-semibold text-[color:var(--wf-text-strong)]">Tenno&apos;s Handbook</h1>
+                        <p className="mt-2 text-sm leading-6 text-[color:var(--wf-text-muted)]">
+                            A field manual for progression gates, systems, and the mechanics that matter when Warframe stops explaining itself clearly.
+                        </p>
+                    </div>
+                    <div className="max-w-sm rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Reading focus</div>
+                        <div className="mt-1 text-sm font-medium text-[color:var(--wf-text-strong)]">{activeSection.title}</div>
+                        <div className="mt-1 text-xs leading-5 text-[color:var(--wf-text-muted)]">{activeSection.summary}</div>
+                    </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Topics</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{totalSections}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">Reference entries curated for progression and systems.</div>
+                    </div>
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Sections</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{totalGroups}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">Story, combat, progression, and routine reading tracks.</div>
+                    </div>
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Current track</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{activeGroup.label}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">{currentGroupCount} entries are grouped under this reading track.</div>
+                    </div>
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Search</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{isSearching ? searchResults.length : "Ready"}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">
+                            {isSearching ? "Matching entries for the current query." : "Search by topic, system, or unlock path."}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="rounded-[24px] border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-1)] p-4 shadow-[var(--wf-shadow-panel)] sm:p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <div className="text-lg font-semibold text-[color:var(--wf-text-strong)]">Reading Index</div>
+                        <div className="mt-1 text-sm text-[color:var(--wf-text-muted)]">
+                            Browse by discipline, then drill into the exact guide you need.
+                        </div>
+                    </div>
                 </div>
 
                 {/* Search */}
                 <div className="mt-4 relative">
                     <input
                         type="text"
-                        className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
+                        className="w-full rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-2.5 text-sm text-[color:var(--wf-text-strong)] placeholder:text-[color:var(--wf-text-dim)] focus:outline-none focus:border-[color:var(--wf-border-strong)]"
                         placeholder="Search topics… (e.g. relics, endo, focus)"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -1788,7 +1842,7 @@ export default function Handbook() {
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery("")}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 px-1"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 px-1 text-[color:var(--wf-text-dim)] hover:text-[color:var(--wf-text)]"
                             aria-label="Clear search"
                         >
                             ✕
@@ -1798,19 +1852,19 @@ export default function Handbook() {
 
                 {/* Search results */}
                 {isSearching && (
-                    <div className="mt-3 border-t border-slate-800/60 pt-3">
+                    <div className="mt-3 border-t border-[color:var(--wf-border-subtle)] pt-3">
                         {searchResults.length === 0 ? (
-                            <div className="text-xs text-slate-500 italic">No sections match "{normalizedQuery}"</div>
+                            <div className="text-xs italic text-[color:var(--wf-text-dim)]">No sections match &quot;{normalizedQuery}&quot;</div>
                         ) : (
                             <div className="space-y-1">
                                 {searchResults.map((s) => (
                                     <button
                                         key={s.id}
                                         onClick={() => selectSection(s.id)}
-                                        className="w-full text-left rounded-lg border border-slate-700/40 bg-slate-900/50 px-3 py-2 hover:bg-slate-800 transition-colors"
+                                        className="w-full rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-3 text-left transition-colors hover:bg-[color:var(--wf-surface-strong)]"
                                     >
-                                        <div className="text-sm font-semibold text-slate-100">{s.title}</div>
-                                        <div className="text-xs text-slate-400 mt-0.5">{s.summary}</div>
+                                        <div className="text-sm font-semibold text-[color:var(--wf-text-strong)]">{s.title}</div>
+                                        <div className="mt-0.5 text-xs text-[color:var(--wf-text-muted)]">{s.summary}</div>
                                     </button>
                                 ))}
                             </div>
@@ -1821,7 +1875,7 @@ export default function Handbook() {
                 {/* Row 1: group tabs — hidden while searching */}
                 {!isSearching && (
                     <div className="mt-4">
-                        <div className="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-1.5">Category</div>
+                        <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--wf-text-dim)]">Category</div>
                         <div className="flex flex-wrap gap-2">
                             {NAV_GROUPS.map((g) => (
                                 <button key={g.id} onClick={() => selectGroup(g.id)} className={groupTabCls(g.id)}>
@@ -1834,8 +1888,8 @@ export default function Handbook() {
 
                 {/* Row 2: section tabs for active group — only shown when group has >1 section and not searching */}
                 {!isSearching && activeGroup.sectionIds.length > 1 && (
-                    <div className="mt-3 border-t border-slate-800/60 pt-3">
-                        <div className="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-1.5">Section</div>
+                    <div className="mt-3 border-t border-[color:var(--wf-border-subtle)] pt-3">
+                        <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--wf-text-dim)]">Section</div>
                         <div className="flex flex-wrap gap-1.5">
                             {activeGroup.sectionIds.map((id) => {
                                 const s = SECTIONS.find((x) => x.id === id)!;
@@ -1848,7 +1902,7 @@ export default function Handbook() {
                         </div>
                     </div>
                 )}
-            </div>
+            </section>
 
             {/* ── Content — hidden while searching ── */}
             {!isSearching && (

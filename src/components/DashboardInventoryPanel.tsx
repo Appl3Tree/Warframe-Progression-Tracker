@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { useTrackerStore } from "../store/store";
 import { canAccessCatalogItem } from "../domain/logic/plannerEngine";
 import { FULL_CATALOG, type CatalogId } from "../domain/catalog/loadFullCatalog";
+import { WorkspaceAction, WorkspacePanel } from "./workspace/WorkspaceChrome";
 
 type NeedLine = {
     catalogId: CatalogId;
@@ -72,7 +73,7 @@ export default function DashboardInventoryPanel() {
     }, [syndicates, completedPrereqs, counts]);
 
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+        <WorkspacePanel className="p-4">
             <div className="flex items-start justify-between gap-3">
                 <div>
                     <div className="text-lg font-semibold">Inventory (Work on Next)</div>
@@ -80,12 +81,12 @@ export default function DashboardInventoryPanel() {
                         Items still needed for accessible syndicate rank-ups, sorted by remaining quantity.
                     </div>
                 </div>
-                <button
-                    className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-1.5 text-slate-100 text-sm font-semibold hover:bg-slate-900/40 shrink-0"
+                <WorkspaceAction
+                    className="shrink-0 rounded-lg border-slate-700 bg-slate-950/20 px-3 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-900/40"
                     onClick={() => setActivePage("inventory")}
                 >
                     Full Inventory
-                </button>
+                </WorkspaceAction>
             </div>
 
             <div className="mt-4 flex flex-col gap-2">
@@ -127,6 +128,6 @@ export default function DashboardInventoryPanel() {
                     })
                 )}
             </div>
-        </div>
+        </WorkspacePanel>
     );
 }

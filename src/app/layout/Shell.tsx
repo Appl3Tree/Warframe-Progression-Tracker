@@ -4,6 +4,7 @@ import { useTrackerStore } from "../../store/store";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import { applyTheme, getStoredTheme } from "../../pages/Settings";
+import { getRouteByKey } from "../routes";
 
 const NEW_PLAYER_DISMISSED_KEY = "wft_newplayer_v1_dismissed";
 
@@ -83,19 +84,16 @@ export default function Shell(props: { children: React.ReactNode }) {
         dismissNewPlayer();
     }
 
-    const isToolsWorkspace = activePage === "relics";
+    const activeRoute = getRouteByKey(activePage);
+    const wideWorkspace = activeRoute.mode === "planning" || activeRoute.mode === "collection";
 
     return (
-        // Full viewport, no overflow — nothing scrolls at this level
-        <div className="h-screen flex flex-col overflow-hidden bg-slate-950 text-slate-100">
+        <div className="wf-app-shell h-screen flex flex-col overflow-hidden text-slate-100">
 
-            {/* ── Slim fixed top bar ── */}
             <Topbar onMenuToggle={() => setMobileNavOpen((v) => !v)} />
 
-            {/* ── Body: sidebar + content ── */}
             <div className="flex flex-1 min-h-0 overflow-hidden relative">
 
-                {/* ── Mobile overlay backdrop ── */}
                 {mobileNavOpen && (
                     <div
                         className="fixed inset-0 z-30 bg-black/60 md:hidden"
@@ -103,24 +101,20 @@ export default function Shell(props: { children: React.ReactNode }) {
                     />
                 )}
 
-                {/* ── Sidebar nav rail ── */}
                 <Sidebar mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
 
-                {/* ── Main content — only this area scrolls ── */}
-                <main className="flex-1 min-w-0 overflow-y-auto">
-                    {/* Inner wrapper: lg:h-full lets Dashboard fill the viewport via h-full
-                        propagation. Pages with more content than the viewport overflow visibly
-                        (overflow: visible default) and <main> scrolls normally. */}
+                <main className="flex-1 min-w-0 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(140,123,255,0.08),transparent_28%),radial-gradient(circle_at_right_top,rgba(73,198,193,0.06),transparent_24%)]">
                     <div className={[
-                        "py-4 lg:h-full",
-                        isToolsWorkspace ? "px-3 md:px-5 xl:px-6" : "mx-auto max-w-7xl px-4",
+                        "min-h-full py-4 lg:h-full",
+                        wideWorkspace
+                            ? "px-3 md:px-5 xl:px-7"
+                            : "mx-auto max-w-[1600px] px-4 md:px-5 xl:px-6",
                     ].join(" ")}>
                         {props.children}
                     </div>
                 </main>
             </div>
 
-            {/* ── First-visit new player modal ── */}
             {showNewPlayer && (
                 <NewPlayerModal onDismiss={dismissNewPlayer} onGo={goToHandbook} />
             )}

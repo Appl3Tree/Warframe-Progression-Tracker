@@ -1,5 +1,51 @@
 @import "tailwindcss";
 
+:root {
+    --wf-bg-app: #05080d;
+    --wf-bg-canvas: #0a1017;
+    --wf-surface-1: rgba(17, 26, 36, 0.9);
+    --wf-surface-2: rgba(24, 36, 51, 0.84);
+    --wf-surface-soft: rgba(255, 255, 255, 0.03);
+    --wf-surface-strong: rgba(255, 255, 255, 0.06);
+    --wf-border-subtle: rgba(255, 255, 255, 0.08);
+    --wf-border-strong: rgba(255, 255, 255, 0.16);
+    --wf-border-accent: rgba(140, 123, 255, 0.42);
+    --wf-text-strong: #f3f7fb;
+    --wf-text: #c5d1de;
+    --wf-text-muted: #8da0b5;
+    --wf-text-dim: #66778a;
+    --wf-accent-primary: #8c7bff;
+    --wf-accent-gold: #c9a86a;
+    --wf-accent-teal: #49c6c1;
+    --wf-shadow-panel: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+html,
+body,
+#root {
+    background: var(--wf-bg-app);
+    color: var(--wf-text);
+}
+
+.wf-app-shell {
+    background:
+        radial-gradient(circle at top, rgba(140, 123, 255, 0.08), transparent 22%),
+        linear-gradient(180deg, var(--wf-bg-canvas) 0%, var(--wf-bg-app) 100%);
+}
+
+.wf-rail {
+    background:
+        linear-gradient(180deg, rgba(11, 17, 25, 0.98) 0%, rgba(8, 12, 19, 0.96) 100%);
+    border-color: var(--wf-border-subtle);
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.02);
+}
+
+.wf-topbar {
+    background:
+        linear-gradient(180deg, rgba(10, 16, 23, 0.92) 0%, rgba(10, 16, 23, 0.78) 100%);
+    border-color: var(--wf-border-subtle);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    THEME SYSTEM
    The app adds .theme-dark or .theme-light to <html>.
@@ -38,6 +84,19 @@
        on syndicate cards (canon.fg) must be able to override it. */
     background-color: #f0f4f8 !important;
     color: #0d1421;
+    --wf-bg-app: #eef3f8;
+    --wf-bg-canvas: #f4f7fb;
+    --wf-surface-1: rgba(255, 255, 255, 0.92);
+    --wf-surface-2: rgba(244, 246, 250, 0.95);
+    --wf-surface-soft: rgba(13, 20, 33, 0.04);
+    --wf-surface-strong: rgba(13, 20, 33, 0.08);
+    --wf-border-subtle: rgba(99, 125, 147, 0.18);
+    --wf-border-strong: rgba(99, 125, 147, 0.3);
+    --wf-border-accent: rgba(37, 99, 235, 0.28);
+    --wf-text-strong: #0d1421;
+    --wf-text: #1e3045;
+    --wf-text-muted: #4e6880;
+    --wf-text-dim: #637d93;
 }
 
 .theme-light body,

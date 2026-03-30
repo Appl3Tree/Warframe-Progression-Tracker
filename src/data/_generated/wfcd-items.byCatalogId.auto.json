@@ -33587,6 +33587,3652 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerTylAxeAndBoar/RegorAxeShield": {
+    "name": "Ack & Brunt",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/Naginata/ShrineMaidenNaginataWeapon": {
+    "name": "Amanata",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 2,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/GrnStaff": {
+    "name": "Amphis",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/ParisScythe/ParisScythe": {
+    "name": "Anku",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/Gauntlet": {
+    "name": "Ankyros",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 2,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/PrimeAnkyros/PrimeAnkyros": {
+    "name": "Ankyros Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Hammer/CorpusHammerWeapon": {
+    "name": "Arca Titron",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/DaxDuviriMaceShieldWeapon": {
+    "name": "Argo & Vel",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Duviri"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/InfWarfan/InfWarfanWeapon": {
+    "name": "Arum Spinosa",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 11,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerWhip/GrineerWhip": {
+    "name": "Atterax",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/DaxDuviriTwoHandedKatana/DaxDuviriTwoHandedKatanaWeapon": {
+    "name": "Azothane",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Duviri"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/PvPVariantTipOne": {
+    "name": "Balla",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipOne": {
+    "name": "Balla",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/Staff": {
+    "name": "Bo",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/PrimeBo/PrimeBoWeapon": {
+    "name": "Bo Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Tonfa/Boltonfa/Boltonfa": {
+    "name": "Boltace",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 4,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnQueenSceptre/GrnQueenSceptreWeapon": {
+    "name": "Broken Scepter",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerTwo/StalkerTwoSmallSword": {
+    "name": "Broken War",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Sentient"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/SingleStaff": {
+    "name": "Cadus",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 4,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/TnHalberdPolearm/TnHalberdPolearmWeapon": {
+    "name": "Cassowar",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/InfEmbolistScythe/InfestedScythe": {
+    "name": "Caustacyst",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Dagger/CeramicDagger": {
+    "name": "Ceramic Dagger",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Glaives/PunctureGlaive/PunctureGlaiveWeapon": {
+    "name": "Cerata",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/OperationsLacera": {
+    "name": "Ceti Lacera",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PacifistShieldAndSword/PacifistShieldSword": {
+    "name": "Cobra & Crane",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/PrimeCobraAndCrane/PrimeCobraAndCraneWeapon": {
+    "name": "Cobra & Crane Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/InfestedLich/Melee/CodaCaustacyst/CodaCaustacyst": {
+    "name": "Coda Caustacyst",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 17,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/InfestedLich/Melee/CodaHirudo": {
+    "name": "Coda Hirudo",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 17,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/InfestedLich/Melee/CodaMire": {
+    "name": "Coda Mire",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested",
+      "Technocyte Coda"
+    ],
+    "masteryReq": 17,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/InfestedLich/Melee/InfestedHammer/InfLichHammerWeapon": {
+    "name": "Coda Motovore",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 17,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/InfestedLich/Melee/CodaPathocyst/CodaPathocyst": {
+    "name": "Coda Pathocyst",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 17,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Archwing/Melee/ExaltedArchScythe/ExaltedAWScytheWeapon": {
+    "name": "Corufell",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/CronusSword/CronusLongSword": {
+    "name": "Cronus",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno",
+      "Grineer"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/PvPVariantTipFour": {
+    "name": "Cyath",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipFour": {
+    "name": "Cyath",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/CronusSword/PrimeCronusLongSword": {
+    "name": "Dakra Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Dagger/DarkDagger": {
+    "name": "Dark Dagger",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 2,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/DarkSword/DarkSwordDaggerHybridWeapon": {
+    "name": "Dark Split-Sword",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/DarkSword/DarkLongSword": {
+    "name": "Dark Sword",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/PvPVariantTipFive": {
+    "name": "Dehtat",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipFive": {
+    "name": "Dehtat",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TnoRapier/TnoRapier": {
+    "name": "Destreza",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PRapier/DestrezaPrime": {
+    "name": "Destreza Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/DexTheSecond/DexTheSecond": {
+    "name": "Dex Dakra",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Dex2023Nikana/Dex2023Nikana": {
+    "name": "Dex Nikana",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipEleven": {
+    "name": "Dokrahm",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TnDagathBladeWhip/TnDagathBladeWhip": {
+    "name": "Dorrclave",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Dagath",
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/LowKatana": {
+    "name": "Dragon Nikana",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/DualCleaverWeapon": {
+    "name": "Dual Cleavers",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualEtherSword": {
+    "name": "Dual Ether",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualHeatSwords": {
+    "name": "Dual Heat Swords",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/DualInfestedAxesWeapon": {
+    "name": "Dual Ichor",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualKamas/DualKamas": {
+    "name": "Dual Kamas",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 1,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeDualKamas/PrimeDualKamas": {
+    "name": "Dual Kamas Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/QuillSword/QuillDualSwords": {
+    "name": "Dual Keres",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeDualKeres/PrimeDualKeresWeapon": {
+    "name": "Dual Keres Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Soma/SomaDualKamas": {
+    "name": "Dual Raza",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualShortSword/DualShortSword": {
+    "name": "Dual Skana",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Lasria/LasGooSickle/LasGooSicklePlayerWeapon": {
+    "name": "Dual Viciss",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Rifle",
+    "tags": [
+      "Scaldra"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/DualAxeWeapon": {
+    "name": "Dual Zoren",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 2,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/PrimeZoren/PrimeZorenAxeWeapon": {
+    "name": "Dual Zoren Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/DaxDuviriPolearm/DaxDuviriPolearmWeapon": {
+    "name": "Edun",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Duviri"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Thanotech/EntSphereHammer/EntSphereHammer": {
+    "name": "Ekhein",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Rifle",
+    "tags": [
+      "Entrati"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIStatusII": {
+    "name": "Ekwana Ii Jai",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIStatusII": {
+    "name": "Ekwana Ii Ruhang",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIStatusI": {
+    "name": "Ekwana Jai",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIIStatusI": {
+    "name": "Ekwana Jai Ii",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIStatusI": {
+    "name": "Ekwana Ruhang",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIIStatusI": {
+    "name": "Ekwana Ruhang Ii",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/ThreeLeaf/ThreeLeaf": {
+    "name": "Endura",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualDagger/DualEtherDagger": {
+    "name": "Ether Daggers",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/EtherScytheWeapon": {
+    "name": "Ether Reaper",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 4,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/LongSword/EtherSword": {
+    "name": "Ether Sword",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Glaive/CrpGlaive/CrpGlaive": {
+    "name": "Falcor",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualDagger/DualDagger": {
+    "name": "Fang",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualDagger/FangPrimeDagger": {
+    "name": "Fang Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Never Vaulted"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Hammer/HammerWeapon": {
+    "name": "Fragor",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 2,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeFragor/PrimeFragor": {
+    "name": "Fragor Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Fist/Fist": {
+    "name": "Furax",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Fist/FuraxWraith": {
+    "name": "Furax Wraith",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/Scythe/GrnDrillScythe/GrnDrillScythe": {
+    "name": "Galariak Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/GreatSword/TennoGreatSword": {
+    "name": "Galatine",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeGalatine/PrimeGalatine": {
+    "name": "Galatine Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Whips/CrpShockGrip/CrpShockGripWhipWeapon": {
+    "name": "Galvacord",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PersianMachete/DjinnMachete": {
+    "name": "Gazal Machete",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnGhoulSaw/GrnGhoulSawPlayer": {
+    "name": "Ghoulsaw",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Glaives/LightGlaive/LightGlaiveWeapon": {
+    "name": "Glaive",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 1,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Glaives/PrimeGlaive/PrimeGlaiveWeapon": {
+    "name": "Glaive Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/GreatSword/GreatSword": {
+    "name": "Gram",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 2,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeGram/PrimeGram": {
+    "name": "Gram Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/TnGuandaoPolearm/TnGuandaoPolearmWeapon": {
+    "name": "Guandao",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 4,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/PrimeGuandao/PrimeGuandaoWeapon": {
+    "name": "Guandao Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Warfan/WarfanWeapon": {
+    "name": "Gunsen",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Warfan/PrimeGunsen/PrimeGunsenWeapon": {
+    "name": "Gunsen Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno",
+      "Prime"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnBoomerang/GrnBoomerang": {
+    "name": "Halikar",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnBoomerang/HalikarWraithWeapon": {
+    "name": "Halikar Wraith",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer",
+      "Wraith",
+      "Baro"
+    ],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/TnChoirScythe/TnChoirScythe": {
+    "name": "Harmony",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/StalkerScytheWeapon": {
+    "name": "Hate",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Stalker"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Dagger/Dagger": {
+    "name": "Heat Dagger",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/HeatSword/HeatLongSword": {
+    "name": "Heat Sword",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Cephalon/Melee/Hammer/CephHammerWeapon": {
+    "name": "Heliocor",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Cephalon Simaris"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/HeavyScythe/DuviriScythe/DuviriHeavyScytheWeapon": {
+    "name": "Hespar",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Duviri"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/InfWFAccompanyingSparring/InfestedKogake": {
+    "name": "Hirudo",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Zariman/Melee/Dagger/ZarimanDaggerWeapon": {
+    "name": "Innodem",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Zariman",
+      "Incarnon"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedI": {
+    "name": "Jai",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedII": {
+    "name": "Jai Ii",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerJetPoweredPolearm/GrineerJetPolearm": {
+    "name": "Jat Kittag",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnKusarigama/GrnKusarigamaWeapon": {
+    "name": "Jat Kusar",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 11,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/JawSword/JawLongSword": {
+    "name": "Jaw Sword",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleFive": {
+    "name": "Jayap",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/DualKamas/SingleKama": {
+    "name": "Kama",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 1,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/KrisDagger/KrisDagger": {
+    "name": "Karyst",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeKaryst/PrimeKrisDagger": {
+    "name": "Karyst Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/InfTransformClaw/InfTransformClawsWeapon": {
+    "name": "Keratinos",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerHalberd/GrnHalberd": {
+    "name": "Kesheg",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Glaives/Boomerang/BoomerangWeapon": {
+    "name": "Kestrel",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Glaives/PrimeKestrel/PrimeKestrel": {
+    "name": "Kestrel Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno",
+      "Prime"
+    ],
+    "masteryReq": 11,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/BrassKnuckles/BrassKnuckles": {
+    "name": "Kogake",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 2,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeKogake/KogakePrimeKnuckles": {
+    "name": "Kogake Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Handle/HandleNine": {
+    "name": "Korb",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnSparring/GrnSpiderSparring/GrnSpiderSparring": {
+    "name": "Korrudo",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Archon/Melee/Trident/ArchonTridentPlayerWep": {
+    "name": "Korumm",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Sentient"
+    ],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/CrpVenusHatchet/CrpVenusHatchet": {
+    "name": "Kreska",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnEgyptSwd/GrnEgyptSwdWeapon": {
+    "name": "Krohkur",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinner/TennoTonfa": {
+    "name": "Kronen",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Tonfa/TonfaContestWinnerPrime/TonfaContestWinnerPrimeWeapon": {
+    "name": "Kronen Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/PvPVariantTipSix": {
+    "name": "Kronsh",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipSix": {
+    "name": "Kronsh",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleSix": {
+    "name": "Kroostra",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/KuvaLich/Melee/Ghoulsaw/KuvaGhoulSaw": {
+    "name": "Kuva Ghoulsaw",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnKuvaLichScythe/GrnKuvaLichScytheWeapon": {
+    "name": "Kuva Shildeg",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer",
+      "Kuva Lich"
+    ],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleThree": {
+    "name": "Kwath",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerMios/StalkerMios": {
+    "name": "Lacera",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleTwo": {
+    "name": "Laka",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Whip/CorpusWhipWeapon": {
+    "name": "Lecta",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/TipedoStaff/InfTipedoStaff": {
+    "name": "Lesion",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/Machete": {
+    "name": "Machete",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 1,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/WraithMacheteWeapon": {
+    "name": "Machete Wraith",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Wraith",
+      "Grineer"
+    ],
+    "masteryReq": 11,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Maces/PaladinMace/PaladinMaceWeapon": {
+    "name": "Magistar",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 1,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TnChiselKanabo/TnChiselKanabo": {
+    "name": "Masseter",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeMasseter/PrimeMasseter": {
+    "name": "Masseter Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Tenno"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/PvPVariantTipThree": {
+    "name": "Mewan",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipThree": {
+    "name": "Mewan",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Swords/Mios/Mios": {
+    "name": "Mios",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Swords/Mire/MireSword": {
+    "name": "Mire",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/MK1Series/MK1Bo": {
+    "name": "Mk1-Bo",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Rifle",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/MK1Series/MK1Furax": {
+    "name": "Mk1-Furax",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Rifle",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/CutlassAndPoignard/CutlassPoignardSwords": {
+    "name": "Nami Skyla",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 2,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeNamiSkyla/PrimeNamiSkyla": {
+    "name": "Nami Skyla Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 11,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/CutlassAndPoignard/TennoCutlass": {
+    "name": "Nami Solo",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Archon/Melee/DualDaggers/ArchonDualDaggersPlayerWep": {
+    "name": "Nepheri",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Sentient"
+    ],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/KatanaAndWakizashi/Katana": {
+    "name": "Nikana",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 4,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeKatana/PrimeNikana": {
+    "name": "Nikana Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Nunchaku/Nunchaku/Nunchaku": {
+    "name": "Ninkondi",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeNinkondi/PrimeNikondi": {
+    "name": "Ninkondi Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno",
+      "Prime"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/KickAndPunch/KickPunchWeapon": {
+    "name": "Obex",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus"
+    ],
+    "masteryReq": 4,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpTonfa": {
+    "name": "Ohma",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TennoSai/TennoSais": {
+    "name": "Okina",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeOkina/PrimeOkina": {
+    "name": "Okina Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/PvPVariantTipTwo": {
+    "name": "Ooltha",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Tip/TipTwo": {
+    "name": "Ooltha",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/PolearmWeapon": {
+    "name": "Orthos",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 2,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/PrimePolearmWeapon": {
+    "name": "Orthos Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Never Vaulted"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Glaives/TeshinGlaive/TnTeshinGlaiveWep": {
+    "name": "Orvius",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimePangolinSword/PrimePangolinSword": {
+    "name": "Pangolin Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Tenno"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PangolinSword/PangolinLongSword": {
+    "name": "Pangolin Sword",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Orokin/BallasSword/BallasSwordWeapon": {
+    "name": "Paracesis",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Rifle",
+    "tags": [
+      "Orokin"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/InfBoomerang/InfBoomerangWeapon": {
+    "name": "Pathocyst",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TnRailjackGreatKatana/TnRailJackGreatKatanaWeapon": {
+    "name": "Pennant",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleOne": {
+    "name": "Peye",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Handles/InfestedHandleOne": {
+    "name": "Plague Akwin",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Handles/InfestedHandleTwo": {
+    "name": "Plague Bokwin",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/InfestedTipTwo": {
+    "name": "Plague Keewar",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/PvPVariantInfestedTipTwo": {
+    "name": "Plague Keewar",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/InfestedTipOne": {
+    "name": "Plague Kripath",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMeleeInfested/Tips/PvPVariantInfestedTipOne": {
+    "name": "Plague Kripath",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PlasmaSword/PlasmaLongSword": {
+    "name": "Plasma Sword",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 4,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Zariman/Melee/Tonfas/ZarimanTonfaWeapon": {
+    "name": "Praedos",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Zariman",
+      "Incarnon"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/PrismaDualCleavers": {
+    "name": "Prisma Dual Cleavers",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prisma",
+      "Baro"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerMachetteAndCleaver/PrismaMachete": {
+    "name": "Prisma Machete",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/KickAndPunch/PrismaObex": {
+    "name": "Prisma Obex",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prisma",
+      "Baro"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/CrpTonfa/CrpPrismaTonfa": {
+    "name": "Prisma Ohma",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prisma",
+      "Baro"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/VoidTrader/PrismaSkana": {
+    "name": "Prisma Skana",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Rifle",
+    "tags": [
+      "Prisma",
+      "Baro"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/ClanTech/Energy/ElectroProd": {
+    "name": "Prova",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Rifle",
+    "tags": [
+      "Corpus"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/ClanTech/Energy/VandalElectroProd": {
+    "name": "Prova Vandal",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Rifle",
+    "tags": [
+      "Corpus",
+      "Vandal"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Nunchaku/InfNunchuck/InfNunchuck": {
+    "name": "Pulmonars",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 11,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Staff/InfStaff/InfStaff": {
+    "name": "Pupacyst",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Warfan/TnBrokenFrameWarfan/TnBrokenFrameWarfanWeapon": {
+    "name": "Quassus",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Warfan/PrimeQuassus/PrimeQuassusWeapon": {
+    "name": "Quassus Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipTen": {
+    "name": "Rabvee",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Syndicates/RedVeil/Melee/RVDarkDagger": {
+    "name": "Rakta Dark Dagger",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Syndicate",
+      "Red Veil"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/ReaperWeapon": {
+    "name": "Reaper Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gunblade/TnoGunblade": {
+    "name": "Redeemer",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 4,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gunblade/RedeemerPrime/RedeemerPrimeWep": {
+    "name": "Redeemer Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerClaws/GrnClaws": {
+    "name": "Ripkas",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageI": {
+    "name": "Ruhang",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageII": {
+    "name": "Ruhang Ii",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Operator/Melee/DrifterTazer/DrifterTazerPlayerWep": {
+    "name": "Rumblejack",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Thanotech/EntFistIncarnon/EntFistIncarnon": {
+    "name": "Ruvox",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Rifle",
+    "tags": [
+      "Incarnon"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Hammer/DaxDuviriHammer/DaxDuviriHammerWeapon": {
+    "name": "Sampotes",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Duviri"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Syndicates/NewLoka/Melee/NLMagistar": {
+    "name": "Sancti Magistar",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "New Loka",
+      "Syndicate"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/WolfFrameAxeWeapon": {
+    "name": "Sarofang",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gunblade/GunbladeAutomatic/TnoGunbladeAutomatic": {
+    "name": "Sarpa",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/AxeWeapon": {
+    "name": "Scindo",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 2,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/PrimeScindo/PrimeScindoWeapon": {
+    "name": "Scindo Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Never Vaulted"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Infested/Melee/Whip/InfestedWhip/InfestedWhipWeapon": {
+    "name": "Scoliac",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Infested"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Syndicates/PerrinSequence/Melee/PSLecta": {
+    "name": "Secura Lecta",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Syndicate",
+      "Perrin Sequence"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleFour": {
+    "name": "Seekalla",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Tip/TipNine": {
+    "name": "Sepfahn",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Polearm/CorpusPolearm01/CorpusPolearmWeapon": {
+    "name": "Serro",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Nunchaku/TnoNunchaku/TnoNunchaku": {
+    "name": "Shaku",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrineerCombatKnife/GrineerCombatKnife": {
+    "name": "Sheev",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee02/Handle/HandleTen": {
+    "name": "Shtung",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Hammer/IceHammer/IceHammer": {
+    "name": "Sibear",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/SundialSwordBoard/SundialBoardSword": {
+    "name": "Sigma & Octantis",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/MeleeContestWinnerOne/TennoSwordShield": {
+    "name": "Silva & Aegis",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeSilvaAegis/PrimeSilvaAegis": {
+    "name": "Silva & Aegis Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/LongSword/LongSword": {
+    "name": "Skana",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/LongSword/SkanaPrime": {
+    "name": "Skana Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted",
+      "Founder"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/UmbraKatana/UmbraKatana": {
+    "name": "Skiajati",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 11,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnSharbola/GrnSharbolaWeapon": {
+    "name": "Slaytra",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Whips/SpiderWhip/SpiderWhipWeapon": {
+    "name": "Spinnerex",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Gunblade/CrpGunBlade/CrpGunbladeWeapon": {
+    "name": "Stropha",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Friendly/PlayerControllable/Weapons/DuviriDualSwordsWeapon": {
+    "name": "Sun & Moon",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Dax"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/DaxDuviriKatana/DaxDuviriKatanaWeapon": {
+    "name": "Syam",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Duviri"
+    ],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnTrident/GrnTridentWeapon": {
+    "name": "Sydon",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 5,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Syndicates/CephalonSuda/Melee/CSHeliocor": {
+    "name": "Synoid Heliocor",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Syndicate",
+      "Cephalon Suda"
+    ],
+    "masteryReq": 11,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SwordsAndBoards/MortiforShieldAndSword/MortiforShieldAndSword": {
+    "name": "Tak & Lug",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/TnTwoHandedKatana/TnTwoHandedKatana": {
+    "name": "Tatsu",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/PrimeTatsu/PrimeTatsuWeapon": {
+    "name": "Tatsu Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Gauntlet/BrawlerKnuckles/BrawlerKnuckles": {
+    "name": "Tekko",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeTekko/PrimeTekko": {
+    "name": "Tekko Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Syndicates/ArbitersOfHexis/Melee/AHBoltace": {
+    "name": "Telos Boltace",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Syndicate",
+      "Arbiters of Hexis"
+    ],
+    "masteryReq": 11,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/ShieldAndSword/CrpHammerShield/CrpHammerShield": {
+    "name": "Tenet Agendus",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus",
+      "Tenet"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/CrpBigSlash/CrpBigSlash": {
+    "name": "Tenet Exec",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus",
+      "Tenet"
+    ],
+    "masteryReq": 16,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/CrpBriefcaseScythe/CrpBriefcaseScythe": {
+    "name": "Tenet Grigori",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus",
+      "Tenet"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/CrpBriefcase2HKatana/CrpBriefcase2HKatana": {
+    "name": "Tenet Livia",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus",
+      "Tenet"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Zariman/Melee/HeavyScythe/ZarimanHeavyScythe/ZarimanHeavyScytheWeapon": {
+    "name": "Thalys",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Duviri",
+      "Incarnon"
+    ],
+    "masteryReq": 12,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/MonkSpade/TnoMonkStaff": {
+    "name": "Tipedo",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Staff/TipedoPrime/TipedoPrimeWeapon": {
+    "name": "Tipedo Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Vaulted"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Polearms/FlowerPowerPolearm/FlowerPowerPolearmWep": {
+    "name": "Tonbo",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 3,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/Tonfa/GrnChainSawTonfa/GrnChainSawTonfaWeapon": {
+    "name": "Tonkkatt",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnDualFireAxe/GrnDualFireAxe": {
+    "name": "Twin Basolk",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GrnEgyptSwd/DualGrnEgyptSwdWeapon": {
+    "name": "Twin Krohkur",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedICritII": {
+    "name": "Vargeet Ii Jai",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageICritII": {
+    "name": "Vargeet Ii Ruhang",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedICritI": {
+    "name": "Vargeet Jai",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceSpeedIICritI": {
+    "name": "Vargeet Jai Ii",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageICritI": {
+    "name": "Vargeet Ruhang",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Ostron/Melee/ModularMelee01/Balance/BalanceDamageIICritI": {
+    "name": "Vargeet Ruhang Ii",
+    "category": "Melee",
+    "productCategory": "Pistols",
+    "type": "Zaw Component",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Grineer/Melee/GunBlade/GrnGunBlade/GrnGunblade": {
+    "name": "Vastilok",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Grineer"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Syndicates/SteelMeridian/Melee/SMSydon": {
+    "name": "Vaykor Sydon",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Syndicate",
+      "Steel Meridian"
+    ],
+    "masteryReq": 11,
+    "masterable": true,
+    "tradable": true,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Sentients/SentJointedScythe/SentJointedScytheWeapon": {
+    "name": "Venato",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Rifle",
+    "tags": [
+      "Tenno",
+      "Sentient"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Scythe/PrimeVento/PrimeVentoScythe": {
+    "name": "Venato Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno",
+      "Sentient",
+      "Prime"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Claws/TennoClaws": {
+    "name": "Venka",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 4,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeVenKa/PrimeVenkaClaws": {
+    "name": "Venka Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime",
+      "Never Vaulted"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Archon/Melee/Whip/ArchonWhipPlayerWep": {
+    "name": "Verdilac",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Sentient"
+    ],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Warfan/TnMoonWarfan/MoonWarfanWeapon": {
+    "name": "Vericres",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/NWIIIOrokinSword/NWOrokinSword": {
+    "name": "Vitrica",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Orokin"
+    ],
+    "masteryReq": 13,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Hammer/GlassHammer/GlassHammer": {
+    "name": "Volnus",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 9,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/PrimeVolnus/VolnusPrimeWeapon": {
+    "name": "Volnus Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Prime"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Swords/StalkerTwo/StalkerTwoGreatSword": {
+    "name": "War",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Sentient"
+    ],
+    "masteryReq": 10,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Hammer/ThrowingHammer": {
+    "name": "Wolf Sledge",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [],
+    "masteryReq": 7,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Corpus/Melee/Glaive/CrpGhostCatcherGlaive/CrpGhostCatcherGlaive": {
+    "name": "Xoris",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Corpus"
+    ],
+    "masteryReq": 4,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/SunDialAxe/SundialAxeWeapon": {
+    "name": "Zenistar",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 6,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Gameplay/1999Wf/Gifts/VideoCassette": {
     "name": "\"Circle Of Comrades\" Series On Vhs",
     "category": "Misc",

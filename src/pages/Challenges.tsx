@@ -69,6 +69,7 @@ function isChallengeComplete(
 type FilterMode = "all" | "completed" | "incomplete";
 
 export default function Challenges() {
+    const setActivePage = useTrackerStore((s) => s.setActivePage);
     const challengeProgress = useTrackerStore(s => s.state.challenges?.progress ?? EMPTY_PROGRESS);
     const challengeCompleted = useTrackerStore(s => s.state.challenges?.completed ?? EMPTY_COMPLETED);
     const [search, setSearch] = useState("");
@@ -96,17 +97,63 @@ export default function Challenges() {
 
     return (
         <div className="space-y-5">
-            {/* Header */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+            <section className="rounded-[24px] border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-1)] px-5 py-4 shadow-[var(--wf-shadow-panel)]">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                    <div className="max-w-3xl">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--wf-accent-primary)]">
+                            Progression Workspace
+                        </div>
+                        <h2 className="mt-1 text-2xl font-semibold text-[color:var(--wf-text-strong)]">Challenges</h2>
+                        <p className="mt-1 text-sm text-[color:var(--wf-text-muted)]">
+                            Track account challenges as a long-tail progression layer. Search them quickly, see completion velocity, and surface what remains once a profile import is available.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            className="rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-2 text-sm font-medium text-[color:var(--wf-text)] transition-colors hover:bg-[color:var(--wf-surface-strong)]"
+                            onClick={() => setActivePage("imports")}
+                        >
+                            Open Import
+                        </button>
+                    </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Challenge pool</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{ALL_CHALLENGES.length.toLocaleString()}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">Visible account challenges in the current dataset.</div>
+                    </div>
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Completed</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{completedCount.toLocaleString()}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">Imported or inferred completions on the current profile.</div>
+                    </div>
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Remaining</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{(ALL_CHALLENGES.length - completedCount).toLocaleString()}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">Challenges not yet completed on imported data.</div>
+                    </div>
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Completion</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">
+                            {hasImportedData ? `${Math.round((completedCount / ALL_CHALLENGES.length) * 100)}%` : "No import"}
+                        </div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">Requires imported challenge data to become meaningful.</div>
+                    </div>
+                </div>
+            </section>
+
+            <div className="rounded-[24px] border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-1)] p-4 shadow-[var(--wf-shadow-panel)]">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div>
-                        <h2 className="text-lg font-semibold text-slate-100">Challenges</h2>
-                        <p className="text-sm text-slate-400 mt-0.5">
+                        <h3 className="text-lg font-semibold text-[color:var(--wf-text-strong)]">Registry View</h3>
+                        <p className="text-sm text-[color:var(--wf-text-muted)] mt-0.5">
                             {ALL_CHALLENGES.length} total
                             {hasImportedData && (
-                                <span className="ml-2 text-slate-300">
+                                <span className="ml-2 text-[color:var(--wf-text)]">
                                     — <span className="text-green-400 font-medium">{completedCount}</span> completed
-                                    <span className="text-slate-500 mx-1">·</span>
+                                    <span className="text-[color:var(--wf-text-dim)] mx-1">·</span>
                                     <span className="font-medium">{ALL_CHALLENGES.length - completedCount}</span> remaining
                                 </span>
                             )}
@@ -114,10 +161,10 @@ export default function Challenges() {
                     </div>
                     {hasImportedData && (
                         <div className="text-right">
-                            <div className="text-2xl font-bold text-slate-100">
+                            <div className="text-2xl font-bold text-[color:var(--wf-text-strong)]">
                                 {Math.round((completedCount / ALL_CHALLENGES.length) * 100)}%
                             </div>
-                            <div className="text-xs text-slate-500">completion</div>
+                            <div className="text-xs text-[color:var(--wf-text-dim)]">completion</div>
                         </div>
                     )}
                 </div>

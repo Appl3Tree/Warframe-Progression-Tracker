@@ -13,6 +13,7 @@ import {
     getLastSyncLink,
     wasConnected,
 } from "../lib/googleDrive";
+import { WorkspacePanel } from "./workspace/WorkspaceChrome";
 
 function downloadText(filename: string, text: string, mimeType = "application/json;charset=utf-8"): void {
     const blob = new Blob([text], { type: mimeType });
@@ -118,7 +119,7 @@ function GoogleDriveSection({ exportJson }: { exportJson: () => string }) {
     }
 
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 space-y-4">
+        <WorkspacePanel className="space-y-4 p-4">
             {/* Header */}
             <div>
                 <div className="flex items-center gap-2">
@@ -267,7 +268,7 @@ function GoogleDriveSection({ exportJson }: { exportJson: () => string }) {
                     {driveStatus.ok ? "✓" : "✗"} {driveStatus.msg}
                 </p>
             )}
-        </div>
+        </WorkspacePanel>
     );
 }
 

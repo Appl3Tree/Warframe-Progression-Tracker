@@ -4,6 +4,7 @@ import { computePrereqStatuses, buildPrereqIndex } from "../domain/logic/prereqE
 import { computeUnlockGraphSnapshot } from "../domain/logic/unlockGraph";
 import { deriveCompletedMap, isValidatedBySyndicate } from "../domain/logic/syndicatePrereqs";
 import { useTrackerStore } from "../store/store";
+import { WorkspaceAction, WorkspaceFilterBar, WorkspaceFilterGroup, WorkspaceHero, WorkspaceSection, WorkspaceSegmented, WorkspaceSegmentedButton, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
 
 type StatusFilter = "all" | "incomplete" | "complete";
 
@@ -39,6 +40,7 @@ function ProgressBar({ done, total, className = "" }: { done: number; total: num
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Prerequisites() {
+    const setActivePage        = useTrackerStore((s) => s.setActivePage);
     const completedMap       = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
     const setPrereqCompleted = useTrackerStore((s) => s.setPrereqCompleted);
     const syndicates         = useTrackerStore((s) => s.state.syndicates ?? []);
@@ -124,53 +126,69 @@ export default function Prerequisites() {
     }
 
     const categories = Object.keys(grouped);
+    const actionableCount = snap.actionable.length;
+    const lockedCount = Math.max(0, totals.total - totals.done - actionableCount);
 
     return (
         <div className="flex flex-col gap-4">
+            <WorkspaceHero
+                eyebrow="Progression Workspace"
+                title="Prerequisites"
+                description="Track unlock gates across quests and systems, surface what is immediately actionable, and see which blocks still stand between you and the next progression jump."
+                actions={
+                    <>
+                        <WorkspaceAction onClick={() => setActivePage("syndicates")}>Open Syndicates</WorkspaceAction>
+                        <WorkspaceAction onClick={() => setActivePage("goals")}>Open Goals</WorkspaceAction>
+                    </>
+                }
+                stats={
+                    <>
+                        <WorkspaceStat label="Completed" value={totals.done.toLocaleString()} hint="Requirements currently marked complete." />
+                        <WorkspaceStat label="Actionable" value={actionableCount.toLocaleString()} hint="Unlock steps that can be worked on right now." />
+                        <WorkspaceStat label="Locked" value={lockedCount.toLocaleString()} hint="Requirements still blocked by earlier progression work." />
+                        <WorkspaceStat label="Categories" value={Object.keys(categoryTotals).length.toLocaleString()} hint="Grouped progression tracks represented in the registry." />
+                    </>
+                }
+            />
 
             {/* ── Header ─────────────────────────────────────────────────────── */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                        <div className="text-lg font-semibold">Prerequisites</div>
-                        <div className="text-sm text-slate-400 mt-1">
-                            Syndicate rank prerequisites are tracked automatically from the Syndicates page.
-                        </div>
+            <WorkspaceSection
+                title="Registry View"
+                subtitle="Syndicate rank prerequisites are tracked automatically from the Syndicates page."
+                actions={
+                    <div className="shrink-0 text-right">
+                        <div className="text-sm font-semibold text-[color:var(--wf-text-strong)]">{totals.done}/{totals.total}</div>
+                        <div className="text-xs text-[color:var(--wf-text-dim)]">completed</div>
                     </div>
-                    <div className="text-right shrink-0">
-                        <div className="text-sm font-semibold text-slate-200">{totals.done}/{totals.total}</div>
-                        <div className="text-xs text-slate-500">completed</div>
-                    </div>
-                </div>
+                }
+            >
 
                 <ProgressBar done={totals.done} total={totals.total} className="mt-3" />
 
                 {/* Search + status filter */}
-                <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                <WorkspaceFilterBar className="mt-3 sm:flex-nowrap">
                     <input
                         className="flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-600"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search prerequisites…"
                     />
-                    <div className="flex gap-1 rounded-lg border border-slate-700 bg-slate-900 p-1 shrink-0">
-                        {(["all", "incomplete", "complete"] as StatusFilter[]).map((s) => (
-                            <button
-                                key={s}
-                                onClick={() => setStatusFilter(s)}
-                                className={[
-                                    "rounded-md px-3 py-1 text-xs font-medium capitalize transition-colors",
-                                    statusFilter === s
-                                        ? "bg-slate-700 text-slate-100"
-                                        : "text-slate-400 hover:text-slate-200",
-                                ].join(" ")}
-                            >
-                                {s}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
+                    <WorkspaceFilterGroup className="shrink-0">
+                        <WorkspaceSegmented>
+                            {(["all", "incomplete", "complete"] as StatusFilter[]).map((s) => (
+                                <WorkspaceSegmentedButton
+                                    key={s}
+                                    onClick={() => setStatusFilter(s)}
+                                    active={statusFilter === s}
+                                    className="capitalize"
+                                >
+                                    {s}
+                                </WorkspaceSegmentedButton>
+                            ))}
+                        </WorkspaceSegmented>
+                    </WorkspaceFilterGroup>
+                </WorkspaceFilterBar>
+            </WorkspaceSection>
 
             {/* ── Empty state ─────────────────────────────────────────────────── */}
             {categories.length === 0 && (

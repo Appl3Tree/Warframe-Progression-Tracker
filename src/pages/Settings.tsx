@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
+import { WorkspacePanel, WorkspaceSegmented, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
 
@@ -177,10 +178,10 @@ export default function Settings() {
     return (
         <div className="space-y-4">
             {/* Header */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+            <WorkspacePanel className="p-4">
                 <div className="text-lg font-semibold">Settings</div>
                 <div className="text-sm text-slate-400 mt-1">Customize your Warframe Tracker experience.</div>
-            </div>
+            </WorkspacePanel>
 
             {/* Responsive 2-column grid at lg */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
@@ -194,11 +195,12 @@ export default function Settings() {
                             {/* Theme toggle */}
                             <div>
                                 <div className="text-xs text-slate-400 mb-2">Theme</div>
-                                <div className="flex gap-2">
+                                <WorkspaceSegmented className="gap-2 bg-transparent border-transparent shadow-none p-0">
                                     {(["dark", "light"] as AppTheme[]).map(t => (
-                                        <button
+                                        <WorkspaceSegmentedButton
                                             key={t}
                                             onClick={() => handleTheme(t)}
+                                            active={theme === t}
                                             className={[
                                                 "flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors",
                                                 theme === t
@@ -212,9 +214,9 @@ export default function Settings() {
                                             }
                                             {t.charAt(0).toUpperCase() + t.slice(1)}
                                             {theme === t && <svg className="w-3.5 h-3.5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}
-                                        </button>
+                                        </WorkspaceSegmentedButton>
                                     ))}
-                                </div>
+                                </WorkspaceSegmented>
                             </div>
 
                             {/* Compact list rows toggle + live preview */}

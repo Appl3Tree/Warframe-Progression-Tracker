@@ -12,7 +12,9 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import type { PlanetId, StarChartNode, StarChartPlanet } from "../domain/models/starChart";
 import { STAR_CHART_DATA } from "../domain/catalog/starChart";
+import { useTrackerStore } from "../store/store";
 import {
+    EMPTY_NODE_COMPLETED,
     viewBoxToScale,
     buildTabSpecRaw,
     applyExclusiveAssignment,
@@ -29,23 +31,15 @@ import { StarChartListView } from "./starChart/StarChartListView";
 import { StarChartProximaView } from "./starChart/StarChartProximaView";
 import { StarChartDuviriView } from "./starChart/StarChartDuviriView";
 import { StarChartModalStyles, StarChartModal } from "./starChart/StarChartModal";
+import { WorkspaceAction, WorkspaceSection, WorkspaceSegmented, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
 
 function Section(props: { title: string; subtitle?: string; children: ReactNode; actions?: ReactNode }) {
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <div className="text-lg font-semibold">{props.title}</div>
-                    {props.subtitle && <div className="mt-1 text-sm text-slate-400">{props.subtitle}</div>}
-                </div>
-                {props.actions && <div className="flex items-center gap-2">{props.actions}</div>}
-            </div>
-            <div className="mt-4">{props.children}</div>
-        </div>
-    );
+    return <WorkspaceSection title={props.title} subtitle={props.subtitle} actions={props.actions}>{props.children}</WorkspaceSection>;
 }
 
 export default function StarChart() {
+    const nodeCompleted = useTrackerStore((s) => s.state.missions?.nodeCompleted ?? EMPTY_NODE_COMPLETED);
+    const steelPathNodeCompleted = useTrackerStore((s) => s.state.missions?.steelPathNodeCompleted ?? EMPTY_NODE_COMPLETED);
     const [selectedPlanetId, setSelectedPlanetId] = useState<PlanetId | null>(null);
     const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
     const [selectedTab, setSelectedTab] = useState<NodeGroupKind>("base");
@@ -102,7 +96,7 @@ export default function StarChart() {
         if (!selectedGroup) return [] as TabSpec[];
 
         // Build the raw tabs first.
-        const rawKinds: NodeGroupKind[] = ["all", "base", "mission_rewards", "caches", "extra"];
+        const rawKinds: NodeGroupKind[] = ["all", "base", "mission_rewards", "caches"];
         const raw = rawKinds.map((k) => buildTabSpecRaw({ group: selectedGroup, kind: k, sourceToItemsIndex, steelPathMode }));
 
         // Keep tabs based on whether they have ANY sources, except All which is always shown.
@@ -117,11 +111,11 @@ export default function StarChart() {
         // UI-only rule:
         // - Mission Rewards: collapse relic quality variants and drop generic era rows ("Lith", "Lith Relic", etc.)
         // - All: apply the SAME display normalization so you don't see "Lith" there either.
-        return finalTabs.map((t) => {
-            // UI-only: collapse relic refinement variants anywhere they appear in node tabs.
-            // (Prevents “Exceptional/Flawless/Radiant” noise even if a relic leaks into Extra/Drops.)
-            return { ...t, items: normalizeMissionRewardItemsForDisplay(t.items) };
-        });
+        return finalTabs.map((t) => (
+            t.kind === "mission_rewards"
+                ? { ...t, items: normalizeMissionRewardItemsForDisplay(t.items) }
+                : t
+        ));
     }, [selectedGroup, sourceToItemsIndex, steelPathMode]);
 
     const activeTab = useMemo(() => {
@@ -231,9 +225,73 @@ export default function StarChart() {
             ? "The Duviri Paradox."
             : "Drag to pan. Wheel to zoom. Click a planet to expand it. Click a node to view obtainable items.";
 
+    const completedNodeCount = Object.values(steelPathMode ? steelPathNodeCompleted : nodeCompleted).filter(Boolean).length;
+    const totalNodeCount = STAR_CHART_DATA.nodes.length;
+    const selectedNodeCount = selectedGroup
+        ? Object.values(selectedGroup.kinds).reduce((sum, ids) => sum + (ids?.length ?? 0), 0)
+        : 0;
+
     return (
         <div className="space-y-6">
             <StarChartModalStyles />
+
+            <section className="rounded-[24px] border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-1)] px-5 py-4 shadow-[var(--wf-shadow-panel)]">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="max-w-3xl">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--wf-accent-primary)]">
+                            Collection Workspace
+                        </div>
+                        <h1 className="mt-1 text-2xl font-semibold text-[color:var(--wf-text-strong)]">Star Chart</h1>
+                        <p className="mt-1 text-sm text-[color:var(--wf-text-muted)]">
+                            Explore mission nodes as a research surface, switch between maps and list mode, and inspect which planets and nodes matter to your current acquisition path.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <button
+                            className="rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-2 text-sm font-medium text-[color:var(--wf-text)] transition-colors hover:bg-[color:var(--wf-surface-strong)]"
+                            onClick={() => setViewMode("map")}
+                        >
+                            Map View
+                        </button>
+                        <button
+                            className="rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-2 text-sm font-medium text-[color:var(--wf-text)] transition-colors hover:bg-[color:var(--wf-surface-strong)]"
+                            onClick={() => setViewMode("list")}
+                        >
+                            List View
+                        </button>
+                    </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-5">
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Display mode</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{viewMode === "map" ? "Map" : "List"}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">
+                            {mainMapMode === "normal" ? "Main chart" : mainMapMode === "proxima" ? "Proxima regions" : "Duviri map"}
+                        </div>
+                    </div>
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Planets</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{STAR_CHART_DATA.planets.length.toLocaleString()}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">Mapped planetary regions in the current chart dataset.</div>
+                    </div>
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Tracked nodes</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{completedNodeCount.toLocaleString()}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">{steelPathMode ? "Steel Path" : "Normal"} completion marks currently stored.</div>
+                    </div>
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Node catalog</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{totalNodeCount.toLocaleString()}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">Total nodes in the star chart dataset.</div>
+                    </div>
+                    <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
+                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">Selected cluster</div>
+                        <div className="mt-1 font-mono text-lg text-[color:var(--wf-text-strong)]">{selectedNodeCount.toLocaleString()}</div>
+                        <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">{selectedGroup ? selectedGroup.displayName : "No node group selected."}</div>
+                    </div>
+                </div>
+            </section>
 
             <Section
                 title="Star Chart"
@@ -241,26 +299,28 @@ export default function StarChart() {
                 actions={
                     <>
                         {/* Map / List toggle */}
-                        <div className="flex rounded-lg border border-slate-700 overflow-hidden text-sm font-semibold">
-                            <button
-                                className={["px-3 py-2 transition-colors", viewMode === "map" ? "bg-slate-700 text-slate-100" : "bg-slate-950/20 text-slate-400 hover:bg-slate-900/40"].join(" ")}
+                        <WorkspaceSegmented>
+                            <WorkspaceSegmentedButton
+                                active={viewMode === "map"}
                                 onClick={() => setViewMode("map")}
+                                className="px-3 py-2 text-sm font-semibold"
                             >
                                 Map
-                            </button>
-                            <button
-                                className={["px-3 py-2 transition-colors border-l border-slate-700", viewMode === "list" ? "bg-slate-700 text-slate-100" : "bg-slate-950/20 text-slate-400 hover:bg-slate-900/40"].join(" ")}
+                            </WorkspaceSegmentedButton>
+                            <WorkspaceSegmentedButton
+                                active={viewMode === "list"}
                                 onClick={() => setViewMode("list")}
+                                className="px-3 py-2 text-sm font-semibold"
                             >
                                 List
-                            </button>
-                        </div>
+                            </WorkspaceSegmentedButton>
+                        </WorkspaceSegmented>
 
                         {/* Steel Path toggle — visible in normal map and list modes */}
                         {(viewMode === "list" || mainMapMode === "normal") && (
-                            <button
+                            <WorkspaceAction
                                 className={[
-                                    "rounded-lg border px-3 py-2 text-sm font-semibold transition-colors",
+                                    "rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
                                     steelPathMode
                                         ? "border-amber-500/70 bg-amber-950/60 text-amber-300 hover:bg-amber-900/80"
                                         : "border-slate-700 bg-slate-950/20 text-slate-400 hover:bg-slate-900/40 hover:text-slate-200"
@@ -269,23 +329,23 @@ export default function StarChart() {
                                 onClick={() => setSteelPathMode((v) => !v)}
                             >
                                 {steelPathMode ? "Steel Path" : "Normal"}
-                            </button>
+                            </WorkspaceAction>
                         )}
 
                         {viewMode === "map" && mainMapMode === "normal" && (
                             <>
-                                <button
-                                    className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900/40"
+                                <WorkspaceAction
+                                    className="rounded-lg border-slate-700 bg-slate-950/20 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900/40"
                                     onClick={() => setIsOpen(true)}
                                 >
                                     Open Map
-                                </button>
-                                <button
-                                    className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900/40"
+                                </WorkspaceAction>
+                                <WorkspaceAction
+                                    className="rounded-lg border-slate-700 bg-slate-950/20 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900/40"
                                     onClick={resetView}
                                 >
                                     Reset View
-                                </button>
+                                </WorkspaceAction>
                             </>
                         )}
                     </>

@@ -22,6 +22,8 @@ export type PageKey =
     | "mods"
     | "challenges"
     | "intrinsics"
+    | "build_planner"
+    | "relic_planner"
     | "relics";
 
 export interface UserMetaV2 {

@@ -19,7 +19,8 @@ import Diagnostics from "../pages/Diagnostics";
 import Mods from "../pages/Mods";
 import Challenges from "../pages/Challenges";
 import Intrinsics from "../pages/Intrinsics";
-import Tools from "../pages/Relics";
+import RelicPlanner from "../pages/Relics";
+import BuildPlanner from "../pages/BuildPlanner";
 
 const PAGE_COMPONENTS: Record<PageKey, React.ReactNode> = {
     dashboard:   <Dashboard />,
@@ -37,7 +38,9 @@ const PAGE_COMPONENTS: Record<PageKey, React.ReactNode> = {
     mods: <Mods />,
     challenges: <Challenges />,
     intrinsics: <Intrinsics />,
-    relics: <Tools />,
+    build_planner: <BuildPlanner />,
+    relic_planner: <RelicPlanner />,
+    relics: <RelicPlanner />,
 
 };
 

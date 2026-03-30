@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTrackerStore } from "../store/store";
+import { WorkspacePanel } from "./workspace/WorkspaceChrome";
 
 /**
  * Legacy panel kept for convenience; the primary inventory experience is the
@@ -16,7 +17,7 @@ export default function InventoryPanel() {
     }, [inventory.counts]);
 
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+        <WorkspacePanel className="p-4">
             <div className="flex items-start justify-between gap-3">
                 <div>
                     <div className="text-lg font-semibold">Inventory (Quick View)</div>
@@ -46,7 +47,7 @@ export default function InventoryPanel() {
                     </div>
                 )}
             </div>
-        </div>
+        </WorkspacePanel>
     );
 }
 

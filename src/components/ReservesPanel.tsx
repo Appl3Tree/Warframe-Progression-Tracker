@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
+import { WorkspacePanel } from "./workspace/WorkspaceChrome";
 
 function labelForKey(key: string): string {
     if (key === "credits") return "Credits";
@@ -37,7 +38,7 @@ export default function ReservesPanel() {
     }, [isBelowReserve, spendKey, spendAmount]);
 
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+        <WorkspacePanel className="p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <div className="text-lg font-semibold">Reserves</div>
@@ -151,6 +152,6 @@ export default function ReservesPanel() {
                     </div>
                 )}
             </div>
-        </div>
+        </WorkspacePanel>
     );
 }

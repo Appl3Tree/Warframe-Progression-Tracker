@@ -6,6 +6,7 @@ import { getWeaponCatalog } from "../domain/catalog/weaponCatalog";
 import { CUSTOM_RIVEN_STAT_DEFS, buildCustomRivenEntry, formatRivenStatValue, generateCustomRivenName, getCustomRivenStatDef, getCustomRivenStatDefsForWeapon, normalizeRivenWeaponFamilyKey, type CustomRivenRecord as CustomRivenInventoryRecord, type CustomRivenStatValue } from "../domain/rivens";
 import MODS_RAW from "../data/_generated/mods-lean.auto.json";
 import ALL_RAW from "../../external/warframe-items/raw/All.json";
+import { WorkspaceAction, WorkspaceFilterBar, WorkspaceFilterGroup, WorkspaceHero, WorkspaceSection, WorkspaceSegmented, WorkspaceSegmentedButton, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
 
 // Mod descriptions: covered by All.json levelStats; legacy file no longer needed
 const MODDESC_RAW: Record<string, any> = {};
@@ -1260,12 +1261,7 @@ function arcaneTotal(rankCounts: Record<string, number>): number {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
-      <div className="text-lg font-semibold">{title}</div>
-      <div className="mt-3">{children}</div>
-    </div>
-  );
+  return <WorkspaceSection title={title}>{children}</WorkspaceSection>;
 }
 
 function CategoryPill({
@@ -2947,9 +2943,48 @@ export default function Mods() {
     ],
     [arcaneOwnedFilter, excludedArcaneCategories, includedArcaneCategories],
   );
+  const ownedModEntries = useMemo(
+    () => MOD_ENTRIES.filter((entry) => (counts[modKey(entry.path)] ?? 0) > 0).length,
+    [counts],
+  );
+  const ownedArcaneEntries = useMemo(
+    () =>
+      ARCANE_ENTRIES.filter((entry) => {
+        const legacyCount = counts[modKey(entry.path)] ?? 0;
+        const rankedCount = arcaneTotal(arcaneRanksMap[entry.path] ?? {});
+        return legacyCount > 0 || rankedCount > 0;
+      }).length,
+    [arcaneRanksMap, counts],
+  );
 
   return (
     <div className="space-y-6">
+      <WorkspaceHero
+        eyebrow="Collection Workspace"
+        title="Mods & Arcanes"
+        description="Browse upgrade inventory with fast filters, ownership state, rank tracking, and direct inspection of effect details for planning work."
+        actions={
+          <>
+            <WorkspaceAction onClick={() => setSection("mods")}>Mods</WorkspaceAction>
+            <WorkspaceAction onClick={() => setSection("arcanes")}>Arcanes</WorkspaceAction>
+          </>
+        }
+        stats={
+          <>
+            <WorkspaceStat label="Visible section" value={section === "mods" ? "Mods" : "Arcanes"} hint="Current upgrade browse surface." />
+            <WorkspaceStat label="Mod catalog" value={MOD_ENTRIES.length.toLocaleString()} hint={`${ownedModEntries.toLocaleString()} with owned copies recorded.`} />
+            <WorkspaceStat label="Arcane catalog" value={ARCANE_ENTRIES.length.toLocaleString()} hint={`${ownedArcaneEntries.toLocaleString()} with owned copies or rank state.`} />
+            <WorkspaceStat label="Visible mods" value={filteredMods.length.toLocaleString()} hint="Results after mod filters and search." />
+            <WorkspaceStat
+              label="Visible arcanes"
+              value={filteredArcanes.length.toLocaleString()}
+              hint="Results after arcane filters and search."
+              className="col-span-2 xl:col-span-1"
+            />
+          </>
+        }
+      />
+
       {/* ── Mod modal ── */}
       {selectedMod && (
         <ModModal
@@ -3002,22 +3037,18 @@ export default function Mods() {
         </div>
 
         {/* Primary tabs */}
-        <div className="mb-5 inline-flex rounded-2xl border border-slate-800 bg-slate-950/70 p-1">
+        <WorkspaceSegmented className="mb-5">
           {(["mods", "arcanes"] as const).map((s) => (
-            <button
+            <WorkspaceSegmentedButton
               key={s}
-              className={[
-                "rounded-xl px-4 py-2.5 text-sm font-medium transition-colors",
-                section === s
-                  ? "bg-slate-100 text-slate-950"
-                  : "text-slate-400 hover:text-slate-200",
-              ].join(" ")}
+              active={section === s}
+              className="rounded-xl px-4 py-2.5 text-sm font-medium"
               onClick={() => setSection(s)}
             >
               {s === "mods" ? "Mods" : "Arcanes"}
-            </button>
+            </WorkspaceSegmentedButton>
           ))}
-        </div>
+        </WorkspaceSegmented>
 
         {/* ── MODS ── */}
         {section === "mods" && (
@@ -3051,7 +3082,7 @@ export default function Mods() {
                     <div className="inline-flex w-fit items-center rounded-full border border-cyan-500/20 bg-cyan-500/5 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-cyan-300/80">
                       Include on first click. Exclude on second click.
                     </div>
-                    <div className="flex w-full flex-wrap items-end gap-2 xl:justify-end">
+                    <WorkspaceFilterBar className="w-full items-end xl:justify-end">
                       <input
                         className="min-w-[220px] flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none xl:max-w-[360px]"
                         value={modSearch}
@@ -3075,17 +3106,17 @@ export default function Mods() {
                         <option value="rank-desc">Max Rank: High → Low</option>
                       </select>
                       {modGroup === "rivens" && (
-                        <button
+                        <WorkspaceAction
                           onClick={() => {
                             setEditingRiven(null);
                             setRivenModalOpen(true);
                           }}
-                          className="rounded-xl border border-yellow-700/50 bg-yellow-950/20 px-3 py-2.5 text-sm font-medium text-yellow-300 transition-colors hover:bg-yellow-950/35"
+                          className="rounded-xl border-yellow-700/50 bg-yellow-950/20 px-3 py-2.5 text-sm font-medium text-yellow-300 transition-colors hover:bg-yellow-950/35"
                         >
                           Add Riven
-                        </button>
+                        </WorkspaceAction>
                       )}
-                    </div>
+                    </WorkspaceFilterBar>
                   </div>
                 </div>
 
@@ -3301,7 +3332,7 @@ export default function Mods() {
 
             <div className="min-w-0 space-y-5">
               <div className="rounded-[1.75rem] border border-slate-800 bg-[linear-gradient(180deg,rgba(11,16,32,0.96),rgba(3,7,18,0.9))] p-5 shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <WorkspaceFilterBar className="mb-3">
                   <div>
                     <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                       Results
@@ -3312,7 +3343,7 @@ export default function Mods() {
                         : `${filteredMods.length} matching mods`}
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2 text-xs text-slate-400">
+                  <WorkspaceFilterGroup className="text-xs text-slate-400">
                     <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1.5">
                       Group: {MOD_GROUPS.find((entry) => entry.key === modGroup)?.label ?? "All"}
                     </span>
@@ -3326,8 +3357,8 @@ export default function Mods() {
                         Exclusions active
                       </span>
                     )}
-                  </div>
-                </div>
+                  </WorkspaceFilterGroup>
+                </WorkspaceFilterBar>
 
                 <div className="text-sm text-slate-500">
                   Search and sorting now live in the toolbar so the table stays visually tied to the scope you are browsing.
@@ -3551,7 +3582,7 @@ export default function Mods() {
                     <div className="inline-flex w-fit items-center rounded-full border border-violet-500/20 bg-violet-500/5 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-violet-300/80">
                       Include on first click. Exclude on second click.
                     </div>
-                    <div className="flex w-full flex-wrap items-end gap-2 xl:justify-end">
+                    <WorkspaceFilterBar className="w-full items-end xl:justify-end">
                       <input
                         className="min-w-[220px] flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none xl:max-w-[360px]"
                         value={arcaneSearch}
@@ -3574,7 +3605,7 @@ export default function Mods() {
                         <option value="rank-asc">Max Rank: Low → High</option>
                         <option value="rank-desc">Max Rank: High → Low</option>
                       </select>
-                    </div>
+                    </WorkspaceFilterBar>
                   </div>
                 </div>
 
@@ -3635,7 +3666,7 @@ export default function Mods() {
 
             <div className="min-w-0 space-y-5">
               <div className="rounded-[1.75rem] border border-slate-800 bg-[linear-gradient(180deg,rgba(17,12,31,0.96),rgba(3,7,18,0.9))] p-5 shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <WorkspaceFilterBar className="mb-3">
                   <div>
                     <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                       Results
@@ -3644,7 +3675,7 @@ export default function Mods() {
                       {filteredArcanes.length} matching arcanes
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2 text-xs text-slate-400">
+                  <WorkspaceFilterGroup className="text-xs text-slate-400">
                     {includedArcaneCategories.length > 0 && (
                       <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1.5">
                         Categories: {includedArcaneCategories.length}
@@ -3655,8 +3686,8 @@ export default function Mods() {
                         Exclusions active
                       </span>
                     )}
-                  </div>
-                </div>
+                  </WorkspaceFilterGroup>
+                </WorkspaceFilterBar>
 
                 <div className="text-sm text-slate-500">
                   Search and sorting now sit in the toolbar so the results area stays focused on the table itself.

@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTrackerStore } from "../store/store";
+import { WorkspaceAction, WorkspaceHero, WorkspaceSegmented, WorkspaceSegmentedButton, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
 import {
     fetchWorldState,
     processInvasions,
@@ -1793,36 +1794,61 @@ export default function WorldState() {
         return () => { clearInterval(id); abortRef.current?.abort(); };
     }, [refresh]);
 
+    const activeFissures = data?.fissures.filter((f) => !f.expired && !f.isHard).length ?? 0;
+    const activeAlerts = (data?.events.length ?? 0) + (data?.nightwave?.activeChallenges.length ?? 0);
+    const traderInventory = data?.voidTrader?.active ? data.voidTrader.inventory.length : 0;
+
     return (
-        <div className="flex flex-col gap-3 pb-4">
-            {/* Header */}
-            <div className="flex flex-wrap items-center justify-between gap-3 px-1">
-                <div>
-                    <div className="text-lg font-semibold">World State</div>
-                    <div className="text-sm text-slate-400">
-                        Live cycles, missions, fissures, and events from warframestat.us
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    {fetchedAt && (
-                        <span className="text-[11px] text-slate-500">updated {fetchedAt.toLocaleTimeString()}</span>
-                    )}
-                    <button
-                        onClick={() => refresh(true)}
-                        disabled={loadState === "loading"}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800 transition-colors disabled:opacity-40"
-                    >
-                        <svg
-                            className={["w-3.5 h-3.5", loadState === "loading" ? "animate-spin" : ""].join(" ")}
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                            strokeLinecap="round" strokeLinejoin="round"
+        <div className="flex flex-col gap-4 pb-4">
+            <WorkspaceHero
+                eyebrow="Command Workspace"
+                title="World State"
+                description="Live cycles, missions, fissures, and events from warframestat.us, organized so you can scan the state of the game before deciding what to do next."
+                actions={
+                    <>
+                        {fetchedAt && (
+                            <span className="text-[11px] text-[color:var(--wf-text-dim)]">updated {fetchedAt.toLocaleTimeString()}</span>
+                        )}
+                        <WorkspaceAction
+                            onClick={() => refresh(true)}
+                            className="inline-flex items-center gap-1.5 text-xs disabled:opacity-40"
                         >
-                            <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 .49-4" />
-                        </svg>
-                        {loadState === "loading" ? "Loading…" : "Refresh"}
-                    </button>
-                </div>
-            </div>
+                            <svg
+                                className={["h-3.5 w-3.5", loadState === "loading" ? "animate-spin" : ""].join(" ")}
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                strokeLinecap="round" strokeLinejoin="round"
+                            >
+                                <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 .49-4" />
+                            </svg>
+                            {loadState === "loading" ? "Loading…" : "Refresh"}
+                        </WorkspaceAction>
+                    </>
+                }
+                stats={
+                    <>
+                        <WorkspaceStat
+                            label="Intel status"
+                            value={loadState === "ok" ? "Live" : loadState === "loading" ? "Syncing" : "Retrying"}
+                            hint="Five-minute refresh cadence with manual refresh support."
+                        />
+                        <WorkspaceStat
+                            label="Active fissures"
+                            value={activeFissures}
+                            hint="Standard fissures currently available for relic cracking."
+                        />
+                        <WorkspaceStat
+                            label="Activities"
+                            value={activeAlerts}
+                            hint="Events and Nightwave acts competing for attention."
+                        />
+                        <WorkspaceStat
+                            label="Trader stock"
+                            value={traderInventory}
+                            hint="Void Trader inventory lines if Baro is currently present."
+                        />
+                    </>
+                }
+            />
 
             {/* Loading (first load) */}
             {loadState === "loading" && !data && (
@@ -1853,17 +1879,12 @@ export default function WorldState() {
             {data && (
                 <>
                     {/* Tabs */}
-                    <div className="flex gap-0.5 rounded-xl border border-slate-800 bg-slate-900/40 p-1 w-fit">
+                    <WorkspaceSegmented>
                         {TABS.map((tab) => (
-                            <button
+                            <WorkspaceSegmentedButton
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab.key)}
-                                className={[
-                                    "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-                                    activeTab === tab.key
-                                        ? "bg-slate-800 text-slate-100"
-                                        : "text-slate-400 hover:text-slate-200",
-                                ].join(" ")}
+                                active={activeTab === tab.key}
                             >
                                 {tab.label}
                                 {tab.key === "fissures" && (
@@ -1881,9 +1902,9 @@ export default function WorldState() {
                                         {data.voidTrader.inventory.length}
                                     </span>
                                 )}
-                            </button>
+                            </WorkspaceSegmentedButton>
                         ))}
-                    </div>
+                    </WorkspaceSegmented>
 
                     {/* Tab content */}
                     <div>

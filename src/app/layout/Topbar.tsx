@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTrackerStore } from "../../store/store";
 import { fetchWorldState, getCachedWorldState, processInvasions, type WorldStateData } from "../../lib/worldStateCache";
+import { getRouteByKey, WORK_MODE_META } from "../routes";
 
 type PlatformKey = "pc" | "ps" | "xb" | "swi" | "mob";
 
@@ -721,6 +722,7 @@ function NotificationBell({ onNavigateWorldState }: { onNavigateWorldState: () =
 // ── Topbar ────────────────────────────────────────────────────────────────────
 
 export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
+    const activePage    = useTrackerStore((s) => s.state.ui.activePage);
     const masteryRank   = useTrackerStore((s) => s.state.player.masteryRank);
     const displayName   = useTrackerStore((s) => s.state.player.displayName);
     const clanName      = useTrackerStore((s) => s.state.player.clanName);
@@ -786,6 +788,9 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
     }, [platformOpen]);
 
     // ── Per-field activate / commit / cancel ──
+
+    const activeRoute = getRouteByKey(activePage);
+    const activeMode = WORK_MODE_META[activeRoute.mode];
 
     function activate(field: ActiveField) {
         switch (field) {
@@ -855,7 +860,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
         <div className="relative z-50" ref={panelRef}>
 
             {/* ── Slim bar ── */}
-            <div className="h-12 flex items-center justify-between px-4 border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+            <div className="wf-topbar h-12 flex items-center justify-between gap-3 px-4 border-b backdrop-blur-sm">
 
                 <div className="flex items-center gap-2">
                     {/* Hamburger — mobile only */}
@@ -870,6 +875,16 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                     </button>
                     <img src={`${import.meta.env.BASE_URL}favicon-rounded-512x512.png`} alt="Tenno Hub" className="h-6 w-6 shrink-0" />
                     <span className="text-sm font-semibold text-slate-100 tracking-wide hidden sm:inline">Tenno Hub</span>
+                </div>
+
+                <div className="hidden min-w-0 flex-1 items-center justify-center lg:flex">
+                    <div className="flex min-w-0 items-center gap-2 rounded-full border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-1">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--wf-text-dim)]">
+                            {activeMode.label}
+                        </span>
+                        <span className="text-[color:var(--wf-text-dim)]">/</span>
+                        <span className="truncate text-xs text-[color:var(--wf-text)]">{activeRoute.label}</span>
+                    </div>
                 </div>
 
                 {/* Right side: notification bell + profile pill */}

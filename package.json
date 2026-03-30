@@ -11,7 +11,12 @@
     "deploy": "gh-pages -d dist",
     "predeploy": "npm run build",
     "validate:sources": "tsx ./scripts/validateSources.cli.ts",
+    "update:data": "node --import tsx/esm scripts/updateExternalRawData.ts all",
+    "update:data:check": "node --import tsx/esm scripts/updateExternalRawData.ts all --dry-run",
+    "update:data:warframe-items": "node --import tsx/esm scripts/updateExternalRawData.ts warframe-items",
+    "update:data:drop-data": "node --import tsx/esm scripts/updateExternalRawData.ts warframe-drop-data",
     "generate:data": "tsx scripts/generate/generateLeanItems.ts && tsx scripts/generate/generateLeanMods.ts && tsx scripts/generate/generateWfcdItems.ts && tsx scripts/generate/generateWfcdRequirements.ts && tsx scripts/generate/generateRelicMissionIndex.ts && tsx scripts/generate/generateWfcdAcquisition.ts && tsx scripts/generate/generateSourceLabelMap.ts",
+    "refresh:data": "npm run update:data && npm run generate:data",
     "test": "vitest run",
     "test:watch": "vitest"
   },

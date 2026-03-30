@@ -3,18 +3,22 @@ import { useMemo } from "react";
 import WarframeResetTracker from "../components/WarframeResetTracker";
 import ProgressionNextStepsPanel from "../components/ProgressionNextStepsPanel";
 import DailyChecklist from "../components/DailyChecklist";
+import DashboardWorldState from "../components/DashboardWorldState";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
 import { buildProgressionPlan } from "../domain/logic/plannerEngine";
 import { deriveCompletedMap } from "../domain/logic/syndicatePrereqs";
+import { WorkspaceAction, WorkspaceHero, WorkspacePanel, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
 
 export default function Dashboard() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
-    const { completedMap, syndicates, masteryRank } = useTrackerStore(
+    const { completedMap, syndicates, masteryRank, goals, dailyTasks } = useTrackerStore(
         useShallow((s) => ({
             completedMap:  s.state.prereqs?.completed ?? {},
             syndicates:    s.state.syndicates ?? [],
             masteryRank:   s.state.player?.masteryRank,
+            goals:         s.state.goals ?? [],
+            dailyTasks:    s.state.dailyTasks ?? [],
         }))
     );
 
@@ -32,37 +36,52 @@ export default function Dashboard() {
 
     // Show the Handbook card when the player hasn't imported any data yet.
     const isNewPlayer = masteryRank == null && syndicates.length === 0 && Object.keys(completedMap).length === 0;
+    const activeGoals = goals.filter((goal) => goal.isActive).length;
+    const todayTaskCount = dailyTasks.length;
+    const completedTasks = dailyTasks.filter((task) => task.isDone).length;
 
     return (
-        <div className="flex flex-col gap-3 pb-4">
+        <div className="flex flex-col gap-4 pb-4">
+            <WorkspaceHero
+                eyebrow="Command Workspace"
+                title="Dashboard"
+                description="See what matters now: daily resets, live opportunities, active progression goals, and the next best actions to keep momentum."
+                actions={
+                    <>
+                        <WorkspaceAction onClick={() => setActivePage("world_state")}>Open World State</WorkspaceAction>
+                        <WorkspaceAction onClick={() => setActivePage("requirements")}>Open Farming</WorkspaceAction>
+                        <WorkspaceAction onClick={() => setActivePage("build_planner")}>Open Build Planner</WorkspaceAction>
+                    </>
+                }
+                stats={
+                    <>
+                        <WorkspaceStat
+                            label="Progression"
+                            value={hasProgressionSteps ? "Actionable" : "Stable"}
+                            hint={hasProgressionSteps ? "You have recommended next steps queued." : "No immediate progression blockers detected."}
+                        />
+                        <WorkspaceStat
+                            label="Active goals"
+                            value={activeGoals.toLocaleString()}
+                            hint="Pinned goals should drive farming and planner decisions."
+                        />
+                        <WorkspaceStat
+                            label="Today"
+                            value={`${completedTasks}/${todayTaskCount}`}
+                            hint="Personal checklist completion for the current reset."
+                        />
+                        <WorkspaceStat
+                            label="Profile"
+                            value={masteryRank == null ? "New / Unknown" : `MR ${masteryRank}`}
+                            hint={isNewPlayer ? "A good time to start with the Handbook." : "Imported profile context is available to the app."}
+                        />
+                    </>
+                }
+                className="py-5"
+            />
 
-            {/* ── Header ── */}
-            <div className="flex flex-wrap items-center justify-between gap-3 px-1">
-                <div>
-                    <div className="text-lg font-semibold">Dashboard</div>
-                    <div className="text-sm text-slate-400">
-                        Track resets, work through progression goals, and manage your personal tasks.
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <button
-                        className="rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-1.5 text-slate-200 text-sm font-medium hover:bg-slate-800 transition-colors"
-                        onClick={() => setActivePage("world_state")}
-                    >
-                        World State →
-                    </button>
-                    <button
-                        className="rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-1.5 text-slate-200 text-sm font-medium hover:bg-slate-800 transition-colors"
-                        onClick={() => setActivePage("goals")}
-                    >
-                        Goals →
-                    </button>
-                </div>
-            </div>
-
-            {/* ── Handbook callout for new players ── */}
             {isNewPlayer && (
-                <div className="flex items-center justify-between gap-4 rounded-2xl border border-cyan-900/50 bg-cyan-950/20 px-4 py-3">
+                <div className="flex items-center justify-between gap-4 rounded-[22px] border border-cyan-900/50 bg-cyan-950/20 px-4 py-3">
                     <div className="flex items-center gap-3 min-w-0">
                         <span className="text-2xl shrink-0" aria-hidden>📖</span>
                         <div className="min-w-0">
@@ -81,23 +100,35 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* ── Top row: progression + checklist ── */}
-            <div className={[
-                "grid gap-3",
-                hasProgressionSteps ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1",
-            ].join(" ")}>
-                {hasProgressionSteps && (
-                    <div className="h-[340px]">
-                        <ProgressionNextStepsPanel />
+            <div className="grid gap-4 xl:grid-cols-[1.3fr_0.9fr]">
+                <WorkspacePanel className="min-h-[420px] p-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                            <div className="text-base font-semibold text-[color:var(--wf-text-strong)]">Live Intel</div>
+                            <div className="text-sm text-[color:var(--wf-text-muted)]">
+                                Upcoming cycles, active opportunities, and world-state signals that can affect today&apos;s plan.
+                            </div>
+                        </div>
+                        <WorkspaceAction onClick={() => setActivePage("world_state")}>Full View</WorkspaceAction>
                     </div>
-                )}
-                <div className="h-[340px]">
-                    <DailyChecklist expanded={!hasProgressionSteps} />
+                    <DashboardWorldState />
+                </WorkspacePanel>
+
+                <div className="grid gap-4">
+                    {hasProgressionSteps && (
+                        <WorkspacePanel className="min-h-[340px] p-1">
+                            <ProgressionNextStepsPanel />
+                        </WorkspacePanel>
+                    )}
+                    <WorkspacePanel className="min-h-[340px] p-1">
+                        <DailyChecklist expanded={!hasProgressionSteps} />
+                    </WorkspacePanel>
                 </div>
             </div>
 
-            {/* ── Reset tracker ── */}
-            <WarframeResetTracker />
+            <WorkspacePanel className="p-1">
+                <WarframeResetTracker />
+            </WorkspacePanel>
         </div>
     );
 }

@@ -1,6 +1,5 @@
-// src/pages/Relics.tsx  (now serves as the Tools page — Relic Farming + Mod Builder)
+// src/pages/Relics.tsx
 import { useMemo, useState } from "react";
-import ModBuilder from "./tools/ModBuilder";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
 import IconCommon from "../assets/rarity/IconCommon.png";
@@ -18,6 +17,7 @@ import {
 } from "../domain/catalog/relicCatalog";
 import { getRelicAvailabilityStatus, type PrimeAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";
+import { WorkspacePanel, WorkspaceSegmented, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
 
 // ---- Helpers ----
 
@@ -242,7 +242,7 @@ function VoidTraceCalc() {
 
     return (
         <div className="space-y-4">
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+            <WorkspacePanel className="p-4">
                 <div className="text-lg font-semibold mb-1">Void Trace Budget</div>
                 <p className="text-sm text-slate-400 mb-4">
                     Refining relics improves drop rates. Each refinement consumes void traces. See how many refinements you can afford.
@@ -263,22 +263,18 @@ function VoidTraceCalc() {
                     </div>
                     <div>
                         <label className="text-xs text-slate-400 mb-1 block">Target refinement</label>
-                        <div className="flex gap-1.5">
+                        <WorkspaceSegmented className="w-full gap-1.5 border-slate-700 bg-slate-900/40 shadow-none">
                             {(["Exceptional", "Flawless", "Radiant"] as const).map((lvl) => (
-                                <button
+                                <WorkspaceSegmentedButton
                                     key={lvl}
                                     onClick={() => setTarget(lvl)}
-                                    className={[
-                                        "flex-1 rounded-lg px-2 py-2 text-xs border transition-colors",
-                                        target === lvl
-                                            ? "bg-slate-100 text-slate-900 border-slate-100"
-                                            : "bg-slate-950/40 text-slate-300 border-slate-700 hover:bg-slate-900"
-                                    ].join(" ")}
+                                    active={target === lvl}
+                                    className="flex-1 rounded-lg border border-slate-700 px-2 py-2 text-xs"
                                 >
                                     {lvl}
-                                </button>
+                                </WorkspaceSegmentedButton>
                             ))}
-                        </div>
+                        </WorkspaceSegmented>
                     </div>
                 </div>
 
@@ -298,10 +294,10 @@ function VoidTraceCalc() {
                         </div>
                     )}
                 </div>
-            </div>
+            </WorkspacePanel>
 
             {/* Drop rate comparison table */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+            <WorkspacePanel className="p-4">
                 <div className="text-lg font-semibold mb-1">Drop Rate Comparison</div>
                 <p className="text-sm text-slate-400 mb-4">
                     How refinement improves your odds. Each relic has 3 common, 2 uncommon, and 1 rare slot.
@@ -354,10 +350,10 @@ function VoidTraceCalc() {
                 <p className="text-[11px] text-slate-600 mt-3">
                     Percentages are per-slot. Each slot is rolled independently. With 4 players each picking a reward, the effective rare chance per run is roughly 4× the per-slot rate when running Radiant relics cooperatively.
                 </p>
-            </div>
+            </WorkspacePanel>
 
             {/* Runs calculator */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+            <WorkspacePanel className="p-4">
                 <div className="text-lg font-semibold mb-1">Runs → Traces Earned</div>
                 <p className="text-sm text-slate-400 mb-4">
                     Estimate how many traces you'll earn from cracking relics. Opening a relic rewards traces based on how rare your chosen reward was.
@@ -381,61 +377,12 @@ function VoidTraceCalc() {
                         <div className="text-[10px] text-slate-500 mt-1">~6 traces/run average (varies by rarity picked)</div>
                     </div>
                 </div>
-            </div>
+            </WorkspacePanel>
         </div>
     );
 }
 
-// ---- Tools Page wrapper ----
-
-type ToolsTab = "relics" | "modbuilder";
-
-const TOOLS_TABS: { key: ToolsTab; label: string; desc: string }[] = [
-    { key: "relics",     label: "Relic Farming",  desc: "Find which relics contain your goal items and plan void fissure runs." },
-    { key: "modbuilder", label: "Mod Builder",     desc: "Build and optimize weapon loadouts using the wiki damage formula." },
-];
-
-export default function Tools() {
-    const [toolsTab, setToolsTab] = useState<ToolsTab>("relics");
-
-    return (
-        <div className={[
-            "space-y-4",
-            toolsTab === "modbuilder" ? "px-1 md:px-2" : "p-4 md:p-6 max-w-4xl mx-auto",
-        ].join(" ")}>
-            {/* Page header */}
-            <div>
-                <h1 className="text-2xl font-bold">Tools</h1>
-                <p className="text-sm text-slate-400 mt-1">{TOOLS_TABS.find(t => t.key === toolsTab)?.desc}</p>
-            </div>
-
-            {/* Top-level tab bar */}
-            <div className="flex gap-1.5">
-                {TOOLS_TABS.map(t => (
-                    <button
-                        key={t.key}
-                        onClick={() => setToolsTab(t.key)}
-                        className={[
-                            "rounded-full px-4 py-1.5 text-sm border transition-colors",
-                            toolsTab === t.key
-                                ? "bg-slate-100 text-slate-900 border-slate-100"
-                                : "bg-slate-950/40 text-slate-200 border-slate-700 hover:bg-slate-900",
-                        ].join(" ")}
-                    >
-                        {t.label}
-                    </button>
-                ))}
-            </div>
-
-            {toolsTab === "modbuilder" && <ModBuilder />}
-            {toolsTab === "relics" && <RelicFarming />}
-        </div>
-    );
-}
-
-// ---- Relic Farming (previously the entire page) ----
-
-function RelicFarming() {
+export default function RelicPlanner() {
     const worldState = useWorldStateData();
     const { goals, completedPrereqs, inventory } = useTrackerStore(
         useShallow((s) => ({
@@ -519,27 +466,56 @@ function RelicFarming() {
     const hasRelicItems = scoredRelics.length > 0;
 
     return (
-        <div className="space-y-4">
+        <div className="mx-auto max-w-[1500px] space-y-5 px-1 md:px-2">
+            <section className="rounded-[24px] border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-1)] px-5 py-4 shadow-[var(--wf-shadow-panel)]">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--wf-accent-primary)]">
+                            Planning Workspace
+                        </div>
+                        <h1 className="mt-1 text-2xl font-semibold text-[color:var(--wf-text-strong)]">Relic Planner</h1>
+                        <p className="mt-1 max-w-3xl text-sm text-[color:var(--wf-text-muted)]">
+                            Rank relic opportunities against your active goals, keep vaulted noise under control, and plan trace spend before you crack.
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                        <div className="rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-2">
+                            <div className="text-[10px] uppercase tracking-wide text-[color:var(--wf-text-dim)]">Active goals</div>
+                            <div className="mt-1 font-mono text-[color:var(--wf-text-strong)]">{goals.filter((g) => g.isActive).length}</div>
+                        </div>
+                        <div className="rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-2">
+                            <div className="text-[10px] uppercase tracking-wide text-[color:var(--wf-text-dim)]">Target parts</div>
+                            <div className="mt-1 font-mono text-[color:var(--wf-text-strong)]">{goalItemNames.size}</div>
+                        </div>
+                        <div className="rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-2">
+                            <div className="text-[10px] uppercase tracking-wide text-[color:var(--wf-text-dim)]">Relevant relics</div>
+                            <div className="mt-1 font-mono text-[color:var(--wf-text-strong)]">{scoredRelics.length}</div>
+                        </div>
+                        <div className="rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-2">
+                            <div className="text-[10px] uppercase tracking-wide text-[color:var(--wf-text-dim)]">Visible now</div>
+                            <div className="mt-1 font-mono text-[color:var(--wf-text-strong)]">{filteredRelics.length}</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div className="space-y-4">
             {/* Tab bar */}
-            <div className="flex gap-1.5">
+            <WorkspaceSegmented className="gap-1.5 bg-transparent border-slate-800 shadow-none">
                 {([
                     { key: "goals", label: "Goal Tracker" },
                     { key: "traces", label: "Void Trace Calc" },
                 ] as const).map((t) => (
-                    <button
+                    <WorkspaceSegmentedButton
                         key={t.key}
                         onClick={() => setTab(t.key)}
-                        className={[
-                            "rounded-full px-4 py-1.5 text-sm border transition-colors",
-                            tab === t.key
-                                ? "bg-slate-100 text-slate-900 border-slate-100"
-                                : "bg-slate-950/40 text-slate-200 border-slate-700 hover:bg-slate-900"
-                        ].join(" ")}
+                        active={tab === t.key}
+                        className="rounded-full border border-slate-700 px-4 py-1.5 text-sm"
                     >
                         {t.label}
-                    </button>
+                    </WorkspaceSegmentedButton>
                 ))}
-            </div>
+            </WorkspaceSegmented>
 
             {/* Goal Tracker tab */}
             {tab === "goals" && (
@@ -691,6 +667,7 @@ function RelicFarming() {
 
             {/* Void Trace Calc tab */}
             {tab === "traces" && <VoidTraceCalc />}
+        </div>
         </div>
     );
 }
