@@ -1,155 +1,84 @@
 // ===== FILE: src/pages/Intrinsics.tsx =====
 import { useTrackerStore } from "../store/store";
 import { WorkspacePanel } from "../components/workspace/WorkspaceChrome";
-
-// ── Data ──────────────────────────────────────────────────────────────────────
-
-const RAILJACK_INTRINSICS = [
-    {
-        key: "LPS_PILOTING",
-        label: "Piloting",
-        description: "Controls the Railjack's speed, dodge, and maneuverability in combat.",
-        color: "blue"
-    },
-    {
-        key: "LPS_GUNNERY",
-        label: "Gunnery",
-        description: "Improves the Railjack's turret damage, range, and aim assistance.",
-        color: "red"
-    },
-    {
-        key: "LPS_ENGINEERING",
-        label: "Engineering",
-        description: "Enhances damage control, forge efficiency, and critical systems.",
-        color: "yellow"
-    },
-    {
-        key: "LPS_TACTICAL",
-        label: "Tactical",
-        description: "Unlocks tactical menu abilities and reduces their cooldowns.",
-        color: "purple"
-    },
-    {
-        key: "LPS_COMMAND",
-        label: "Command",
-        description: "Allows additional crew slots and improves NPC crew competence.",
-        color: "green"
-    },
-] as const;
-
-const DUVIRI_INTRINSICS = [
-    {
-        key: "LPS_DRIFT_RIDING",
-        label: "Agility",
-        description: "Improves Kaithe traversal, aerial combat, and sprint speed.",
-        color: "cyan"
-    },
-    {
-        key: "LPS_DRIFT_ENDURANCE",
-        label: "Endurance",
-        description: "Increases Drifter health, armor, and resilience in the Duviri Paradox.",
-        color: "orange"
-    },
-    {
-        key: "LPS_DRIFT_OPPORTUNITY",
-        label: "Opportunity",
-        description: "Increases decrees offered per pick and reward quality.",
-        color: "amber"
-    },
-    {
-        key: "LPS_DRIFT_COMBAT",
-        label: "Might",
-        description: "Boosts Drifter weapon damage and melee combat effectiveness.",
-        color: "rose"
-    },
-    {
-        key: "LPS_DRIFT_AGILITY",
-        label: "Wits",
-        description: "Improves puzzle solving and decree interactions in the Duviri Paradox.",
-        color: "indigo"
-    },
-] as const;
-
-const MAX_RANK = 10;
-
-// ── Color map ─────────────────────────────────────────────────────────────────
-
-const COLOR_MAP: Record<string, { bar: string; pip: string; text: string }> = {
-    blue:   { bar: "bg-blue-500",   pip: "bg-blue-400",   text: "text-blue-300" },
-    red:    { bar: "bg-red-500",    pip: "bg-red-400",    text: "text-red-300" },
-    yellow: { bar: "bg-yellow-500", pip: "bg-yellow-400", text: "text-yellow-300" },
-    purple: { bar: "bg-purple-500", pip: "bg-purple-400", text: "text-purple-300" },
-    green:  { bar: "bg-green-500",  pip: "bg-green-400",  text: "text-green-300" },
-    cyan:   { bar: "bg-cyan-500",   pip: "bg-cyan-400",   text: "text-cyan-300" },
-    orange: { bar: "bg-orange-500", pip: "bg-orange-400", text: "text-orange-300" },
-    amber:  { bar: "bg-amber-500",  pip: "bg-amber-400",  text: "text-amber-300" },
-    rose:   { bar: "bg-rose-500",   pip: "bg-rose-400",   text: "text-rose-300" },
-    indigo: { bar: "bg-indigo-500", pip: "bg-indigo-400", text: "text-indigo-300" },
-};
-
-// ── Components ────────────────────────────────────────────────────────────────
-
-function IntrinsicCard(props: {
-    label: string;
-    description: string;
-    rank: number;
-    color: string;
-}) {
-    const { label, description, rank, color } = props;
-    const c = COLOR_MAP[color] ?? COLOR_MAP.blue;
-    const pct = Math.min(100, (rank / MAX_RANK) * 100);
-    const maxed = rank >= MAX_RANK;
-
-    return (
-        <div className={[
-            "rounded-xl border p-4 transition-colors",
-            maxed ? "border-slate-600 bg-slate-900/60" : "border-slate-800 bg-slate-950/40"
-        ].join(" ")}>
-            <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                        <span className={["text-sm font-semibold", maxed ? c.text : "text-slate-200"].join(" ")}>
-                            {label}
-                        </span>
-                        {maxed && (
-                            <span className={["text-[10px] font-bold rounded px-1.5 py-0.5 border", c.text, "border-current opacity-80"].join(" ")}>
-                                MAX
-                            </span>
-                        )}
-                    </div>
-                    <p className="mt-0.5 text-xs text-slate-400 leading-relaxed">{description}</p>
-                </div>
-                <div className={["text-2xl font-bold font-mono shrink-0", maxed ? c.text : "text-slate-100"].join(" ")}>
-                    {rank}
-                    <span className="text-sm text-slate-600 font-normal">/{MAX_RANK}</span>
-                </div>
-            </div>
-
-            {/* Pip bar */}
-            <div className="mt-3 flex gap-1">
-                {Array.from({ length: MAX_RANK }).map((_, i) => (
-                    <div
-                        key={i}
-                        className={[
-                            "flex-1 h-2 rounded-full transition-all",
-                            i < rank ? c.pip : "bg-slate-800"
-                        ].join(" ")}
-                    />
-                ))}
-            </div>
-
-            {/* Progress label */}
-            <div className="mt-1.5 flex justify-between text-[11px] text-slate-500">
-                <span>{pct.toFixed(0)}%</span>
-                {!maxed && <span>{MAX_RANK - rank} rank{MAX_RANK - rank !== 1 ? "s" : ""} to max</span>}
-            </div>
-        </div>
-    );
-}
+import {
+    IntrinsicsDetails,
+    getIntrinsicModeData,
+    getCumulativeCost,
+    getTotalCost,
+} from "../components/intrinsics/IntrinsicsDetails";
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 const EMPTY_INTRINSICS: Record<string, number> = {};
+
+function IntrinsicsSection(props: {
+    title: string;
+    eyebrow: string;
+    accentClassName: string;
+    accentGlowClassName: string;
+    total: number;
+    max: number;
+    costTotal: number;
+    costMax: number;
+    description: string;
+    mode: "proxima" | "duviri";
+}) {
+    const { title, eyebrow, accentClassName, accentGlowClassName, total, max, costTotal, costMax, description, mode } = props;
+    const rankPct = max > 0 ? (total / max) * 100 : 0;
+    const costPct = costMax > 0 ? (costTotal / costMax) * 100 : 0;
+
+    return (
+        <WorkspacePanel className="relative overflow-hidden border border-slate-800/80 bg-slate-950/70 p-0">
+            <div className={["absolute inset-x-0 top-0 h-px opacity-80", accentGlowClassName].join(" ")} />
+            <div className="relative p-5 sm:p-6">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="max-w-2xl">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                            {eyebrow}
+                        </div>
+                        <h3 className="mt-2 text-xl font-semibold text-slate-100">
+                            {title}
+                        </h3>
+                        <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
+                            {description}
+                        </p>
+                    </div>
+                    <div className="min-w-[220px] lg:text-right">
+                        <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Overall Progress</div>
+                        <div className="mt-3 space-y-2">
+                            <div>
+                                <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-slate-500 lg:justify-end lg:gap-4">
+                                    <span>Rank</span>
+                                    <span>{total} / {max}</span>
+                                </div>
+                                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-900">
+                                    <div className={["h-full rounded-full", accentClassName].join(" ")} style={{ width: `${rankPct}%` }} />
+                                </div>
+                            </div>
+                            <div>
+                                <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-slate-500 lg:justify-end lg:gap-4">
+                                    <span>Cost</span>
+                                    <span>{costTotal.toLocaleString()} / {costMax.toLocaleString()}</span>
+                                </div>
+                                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-900">
+                                    <div className={["h-full rounded-full", accentClassName].join(" ")} style={{ width: `${costPct}%` }} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-2 text-xs text-slate-500">
+                            {rankPct.toFixed(0)}% ranks · {costPct.toFixed(0)}% cost invested
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-6 border-t border-slate-800/80 pt-5">
+                    <IntrinsicsDetails mode={mode} />
+                </div>
+            </div>
+        </WorkspacePanel>
+    );
+}
 
 export default function Intrinsics() {
     const railjack = useTrackerStore(s => s.state.intrinsics?.railjack ?? EMPTY_INTRINSICS);
@@ -157,105 +86,87 @@ export default function Intrinsics() {
 
     const hasData = Object.keys(railjack).length > 0 || Object.keys(duviri).length > 0;
 
-    const railjackTotal = RAILJACK_INTRINSICS.reduce((sum, sk) => sum + (railjack[sk.key] ?? 0), 0);
-    const railjackMax   = RAILJACK_INTRINSICS.length * MAX_RANK;
-    const duviriTotal   = DUVIRI_INTRINSICS.reduce((sum, sk) => sum + (duviri[sk.key] ?? 0), 0);
-    const duviriMax     = DUVIRI_INTRINSICS.length * MAX_RANK;
+    const railjackMeta = getIntrinsicModeData("proxima");
+    const duviriMeta = getIntrinsicModeData("duviri");
+    const railjackTotal = railjackMeta.skills.reduce((sum, sk) => sum + (railjack[sk.key] ?? 0), 0);
+    const railjackMax = railjackMeta.skills.length * 10;
+    const duviriTotal = duviriMeta.skills.reduce((sum, sk) => sum + (duviri[sk.key] ?? 0), 0);
+    const duviriMax = duviriMeta.skills.length * 10;
+    const railjackCostPerSkillMax = getTotalCost(railjackMeta.costPerRank);
+    const duviriCostPerSkillMax = getTotalCost(duviriMeta.costPerRank);
+    const railjackCostTotal = railjackMeta.skills.reduce(
+        (sum, sk) => sum + getCumulativeCost(railjackMeta.costPerRank, Math.min(railjack[sk.key] ?? 0, 10)),
+        0,
+    );
+    const duviriCostTotal = duviriMeta.skills.reduce(
+        (sum, sk) => sum + getCumulativeCost(duviriMeta.costPerRank, Math.min(duviri[sk.key] ?? 0, 10)),
+        0,
+    );
+    const railjackCostMax = railjackMeta.skills.length * railjackCostPerSkillMax;
+    const duviriCostMax = duviriMeta.skills.length * duviriCostPerSkillMax;
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <WorkspacePanel className="p-4">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
+            <WorkspacePanel className="overflow-hidden border border-slate-800/80 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.14),transparent_28%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.14),transparent_32%),linear-gradient(180deg,rgba(2,6,23,0.96),rgba(2,6,23,0.82))] p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-6 flex-wrap">
                     <div>
-                        <h2 className="text-lg font-semibold text-slate-100">Intrinsics</h2>
-                        <p className="text-sm text-slate-400 mt-0.5">
-                            Railjack and Duviri skill ranks imported from your profile.
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+                            Profile Systems
+                        </div>
+                        <h2 className="mt-2 text-2xl font-semibold text-slate-100">Intrinsics</h2>
+                        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+                            Review your Railjack and Duviri progression in one place, with the same rank-by-rank upgrade data shown from the Star Chart intrinsic panels.
                         </p>
                     </div>
                     {hasData && (
-                        <div className="flex gap-4 text-right">
+                        <div className="flex gap-6 text-right">
                             <div>
-                                <div className="text-lg font-bold text-slate-100 font-mono">{railjackTotal}<span className="text-sm text-slate-600">/{railjackMax}</span></div>
-                                <div className="text-xs text-slate-500">Railjack points</div>
+                                <div className="text-2xl font-semibold text-slate-100 font-mono">{railjackTotal}<span className="text-sm text-slate-600">/{railjackMax}</span></div>
+                                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Railjack</div>
+                                <div className="text-[11px] text-slate-600">{railjackCostTotal.toLocaleString()} / {railjackCostMax.toLocaleString()} cost</div>
                             </div>
                             <div>
-                                <div className="text-lg font-bold text-slate-100 font-mono">{duviriTotal}<span className="text-sm text-slate-600">/{duviriMax}</span></div>
-                                <div className="text-xs text-slate-500">Duviri points</div>
+                                <div className="text-2xl font-semibold text-slate-100 font-mono">{duviriTotal}<span className="text-sm text-slate-600">/{duviriMax}</span></div>
+                                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Duviri</div>
+                                <div className="text-[11px] text-slate-600">{duviriCostTotal.toLocaleString()} / {duviriCostMax.toLocaleString()} cost</div>
                             </div>
                         </div>
                     )}
                 </div>
 
                 {!hasData && (
-                    <div className="mt-3 rounded-lg bg-slate-900/60 border border-slate-700/60 px-3 py-2.5 text-sm text-slate-400">
+                    <div className="mt-4 rounded-xl border border-slate-700/60 bg-slate-900/60 px-4 py-3 text-sm text-slate-400">
                         Import your profile on the <span className="text-slate-200 font-medium">Import / Export</span> page to view your intrinsic ranks.
                         Intrinsics are read from the <span className="font-mono text-slate-300 text-xs">PlayerSkills</span> field in your profile data.
                     </div>
                 )}
             </WorkspacePanel>
 
-            {/* Railjack */}
-            <WorkspacePanel className="p-4">
-                <div className="flex items-center gap-3 mb-4">
-                    <div>
-                        <h3 className="text-base font-semibold text-slate-100">Railjack Intrinsics</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                            Earned by completing Railjack missions in the Proxima regions.
-                        </p>
-                    </div>
-                    {hasData && (
-                        <div className="ml-auto shrink-0">
-                            <div className="w-20 h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                                <div className="h-full rounded-full bg-blue-500" style={{ width: `${(railjackTotal / railjackMax) * 100}%` }} />
-                            </div>
-                            <div className="text-[11px] text-slate-500 mt-1 text-right">{railjackTotal}/{railjackMax}</div>
-                        </div>
-                    )}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {RAILJACK_INTRINSICS.map(sk => (
-                        <IntrinsicCard
-                            key={sk.key}
-                            label={sk.label}
-                            description={sk.description}
-                            rank={railjack[sk.key] ?? 0}
-                            color={sk.color}
-                        />
-                    ))}
-                </div>
-            </WorkspacePanel>
+            <IntrinsicsSection
+                title="Railjack Intrinsics"
+                eyebrow="Empyrean"
+                accentClassName="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500"
+                accentGlowClassName="bg-gradient-to-r from-transparent via-blue-400/80 to-transparent"
+                total={railjackTotal}
+                max={railjackMax}
+                costTotal={railjackCostTotal}
+                costMax={railjackCostMax}
+                description="Earned by completing Railjack missions in the Proxima regions. Expand any intrinsic below to review its exact in-game upgrades and the Gunnery Reflex Aim caution."
+                mode="proxima"
+            />
 
-            {/* Duviri */}
-            <WorkspacePanel className="p-4">
-                <div className="flex items-center gap-3 mb-4">
-                    <div>
-                        <h3 className="text-base font-semibold text-slate-100">Duviri Intrinsics</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                            Earned by completing Duviri Paradox content.
-                        </p>
-                    </div>
-                    {hasData && (
-                        <div className="ml-auto shrink-0">
-                            <div className="w-20 h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                                <div className="h-full rounded-full bg-cyan-500" style={{ width: `${(duviriTotal / duviriMax) * 100}%` }} />
-                            </div>
-                            <div className="text-[11px] text-slate-500 mt-1 text-right">{duviriTotal}/{duviriMax}</div>
-                        </div>
-                    )}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {DUVIRI_INTRINSICS.map(sk => (
-                        <IntrinsicCard
-                            key={sk.key}
-                            label={sk.label}
-                            description={sk.description}
-                            rank={duviri[sk.key] ?? 0}
-                            color={sk.color}
-                        />
-                    ))}
-                </div>
-            </WorkspacePanel>
+            <IntrinsicsSection
+                title="Duviri Intrinsics"
+                eyebrow="Paradox"
+                accentClassName="bg-gradient-to-r from-violet-400 via-fuchsia-300 to-amber-300"
+                accentGlowClassName="bg-gradient-to-r from-transparent via-fuchsia-400/80 to-transparent"
+                total={duviriTotal}
+                max={duviriMax}
+                costTotal={duviriCostTotal}
+                costMax={duviriCostMax}
+                description="Earned through Duviri Paradox progression. The sections below match the Duviri intrinsic data shown from the Star Chart and keep every rank unlock in one place."
+                mode="duviri"
+            />
         </div>
     );
 }

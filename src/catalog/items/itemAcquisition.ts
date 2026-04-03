@@ -7,6 +7,11 @@ export type AcquisitionDef = {
     sources: string[];
 };
 
+type CompactAcquisitionJson = {
+    sourcePool?: unknown;
+    byCatalogId?: unknown;
+};
+
 function normalizeSources(rawSources: unknown): string[] {
     const sources = Array.isArray(rawSources) ? rawSources : [];
     const normalized = sources
@@ -17,15 +22,29 @@ function normalizeSources(rawSources: unknown): string[] {
 }
 
 const ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = (() => {
-    const raw =
+    const root =
         ACQUISITION_JSON && typeof ACQUISITION_JSON === "object" && !Array.isArray(ACQUISITION_JSON)
-            ? (ACQUISITION_JSON as Record<string, unknown>)
+            ? (ACQUISITION_JSON as CompactAcquisitionJson)
+            : {};
+
+    const sourcePool = Array.isArray(root.sourcePool)
+        ? root.sourcePool.filter((value): value is string => typeof value === "string")
+        : [];
+
+    const rawByCatalogId =
+        root.byCatalogId && typeof root.byCatalogId === "object" && !Array.isArray(root.byCatalogId)
+            ? (root.byCatalogId as Record<string, unknown>)
             : {};
 
     const out: Record<string, AcquisitionDef> = Object.create(null);
 
-    for (const [catalogId, rec] of Object.entries(raw)) {
-        const sources = normalizeSources((rec as any)?.sources);
+    for (const [catalogId, rawIndices] of Object.entries(rawByCatalogId)) {
+        const indices = Array.isArray(rawIndices) ? rawIndices : [];
+        const sources = normalizeSources(
+            indices
+                .map((value) => (typeof value === "number" ? sourcePool[value] : null))
+                .filter((value): value is string => typeof value === "string"),
+        );
         if (sources.length === 0) continue;
         out[catalogId] = { sources };
     }

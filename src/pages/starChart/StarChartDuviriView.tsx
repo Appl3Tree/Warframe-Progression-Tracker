@@ -131,6 +131,8 @@ const DUVIRI_EXPERIENCES = [
         <br />
         <br />
         Just the Spiral's story. Duviri devoid of all side objectives.
+        <br />
+        <br />
       </>
     ),
     color: {

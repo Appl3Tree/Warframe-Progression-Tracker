@@ -1,5 +1,5 @@
 // ===== FILE: src/pages/Requirements.tsx =====
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
@@ -36,6 +36,73 @@ function Section(props: { title: string; subtitle?: string; children: ReactNode 
 
 function PillButton(props: { label: string; active: boolean; onClick: () => void }) {
     return <WorkspacePillButton label={props.label} active={props.active} onClick={props.onClick} />;
+}
+
+const FARMING_SOURCE_FILTER_STORAGE_KEY = "tnh.requirements.hiddenSourceFilters";
+const FARMING_SOURCE_FILTER_GRANULARITY_STORAGE_KEY = "tnh.requirements.sourceFilterGranularity";
+
+type SourceFilterGranularity = "category" | "source";
+type SourceFilterOption = {
+    key: string;
+    label: string;
+    count: number;
+};
+
+function loadHiddenSourceFilters(): Set<string> {
+    if (typeof window === "undefined") return new Set();
+    try {
+        const raw = window.localStorage.getItem(FARMING_SOURCE_FILTER_STORAGE_KEY);
+        if (!raw) return new Set();
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return new Set();
+        return new Set(parsed.filter((value): value is string => typeof value === "string" && value.length > 0));
+    } catch {
+        return new Set();
+    }
+}
+
+function loadSourceFilterGranularity(): SourceFilterGranularity {
+    if (typeof window === "undefined") return "category";
+    const raw = window.localStorage.getItem(FARMING_SOURCE_FILTER_GRANULARITY_STORAGE_KEY);
+    return raw === "source" ? "source" : "category";
+}
+
+function getSourceCategory(sourceId: string, sourceLabel: string): string {
+    const normalized = String(sourceId ?? "").toLowerCase();
+    const label = String(sourceLabel ?? "").toLowerCase();
+
+    if (normalized.startsWith("data:conclave") || label.includes("conclave")) return "Conclave";
+    if (normalized.includes("cache") || label.includes("cache")) return "Caches";
+    if (normalized.includes("bounty") || label.includes("bounty")) return "Bounties";
+    if (normalized.includes("syndicate") || label.includes("syndicate") || label.includes("new loka") || label.includes("steel meridian") || label.includes("red veil") || label.includes("cephalon suda") || label.includes("arbiters of hexis") || label.includes("perrin")) return "Syndicates";
+    if (normalized.includes("relic") || label.includes("relic")) return "Relics";
+    if (normalized.includes("sortie") || label.includes("sortie")) return "Sorties";
+    if (normalized.includes("invasion") || label.includes("invasion")) return "Invasions";
+    if (normalized.includes("circuit") || label.includes("circuit")) return "Circuit";
+    if (normalized.includes("duviri") || label.includes("duviri")) return "Duviri";
+    if (normalized.includes("railjack") || normalized.includes("proxima") || label.includes("railjack") || label.includes("proxima")) return "Railjack";
+    if (normalized.includes("crafting") || label.includes("foundry")) return "Crafting";
+    if (normalized.includes("missionreward") || normalized.includes("drop:node") || normalized.includes("node/")) return "Missions";
+    return "Other";
+}
+
+function getSourceFilterKey(sourceId: string, sourceLabel: string, granularity: SourceFilterGranularity): string {
+    if (granularity === "category") {
+        return `category:${getSourceCategory(sourceId, sourceLabel)}`;
+    }
+    return `source:${String(sourceId)}`;
+}
+
+function getSourceFilterLabel(sourceId: string, sourceLabel: string, granularity: SourceFilterGranularity): string {
+    if (granularity === "category") return getSourceCategory(sourceId, sourceLabel);
+    return sourceLabel || formatRawSourceId(String(sourceId));
+}
+
+function sourceMatchesHiddenFilter(sourceId: string, sourceLabel: string, hiddenFilters: Set<string>): boolean {
+    return (
+        hiddenFilters.has(getSourceFilterKey(sourceId, sourceLabel, "category")) ||
+        hiddenFilters.has(getSourceFilterKey(sourceId, sourceLabel, "source"))
+    );
 }
 
 function MiniStat(props: { label: string; value: string }) {
@@ -157,9 +224,28 @@ export default function Requirements() {
     const [query, setQuery] = useState("");
     const [showHidden, setShowHidden] = useState(false);
     const worldState = useWorldStateData();
+    const [hiddenSourceFilters, setHiddenSourceFilters] = useState<Set<string>>(() => loadHiddenSourceFilters());
+    const [sourceMenuOpen, setSourceMenuOpen] = useState(false);
+    const [sourceFilterGranularity, setSourceFilterGranularity] = useState<SourceFilterGranularity>(() => loadSourceFilterGranularity());
     // "farming" = default farming view (platinum excluded from overlap/targeted display)
     // "platinum" = platinum cost summary view
     const [platView, setPlatView] = useState<"farming" | "platinum">("farming");
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        window.localStorage.setItem(
+            FARMING_SOURCE_FILTER_STORAGE_KEY,
+            JSON.stringify(Array.from(hiddenSourceFilters)),
+        );
+    }, [hiddenSourceFilters]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        window.localStorage.setItem(
+            FARMING_SOURCE_FILTER_GRANULARITY_STORAGE_KEY,
+            sourceFilterGranularity,
+        );
+    }, [sourceFilterGranularity]);
 
     const requirements = useMemo(() => {
         return buildRequirementsSnapshot({
@@ -181,6 +267,70 @@ export default function Requirements() {
         });
     }, [requirements, completedPrereqs]);
 
+    const sourceOptions = useMemo(() => {
+        const seen = new Map<string, SourceFilterOption>();
+
+        for (const line of farming.targeted) {
+            for (const source of line.sources ?? []) {
+                const sourceId = String(source.sourceId);
+                const key = getSourceFilterKey(sourceId, source.sourceLabel, sourceFilterGranularity);
+                const existing = seen.get(key);
+                if (existing) {
+                    existing.count += 1;
+                    continue;
+                }
+                seen.set(key, {
+                    key,
+                    label: getSourceFilterLabel(sourceId, source.sourceLabel, sourceFilterGranularity),
+                    count: 1,
+                });
+            }
+        }
+
+        return Array.from(seen.values()).sort((a, b) => a.label.localeCompare(b.label));
+    }, [farming.targeted, sourceFilterGranularity]);
+
+    const allValidSourceFilterKeys = useMemo(() => {
+        const keys = new Set<string>();
+        for (const line of farming.targeted) {
+            for (const source of line.sources ?? []) {
+                const sourceId = String(source.sourceId);
+                keys.add(getSourceFilterKey(sourceId, source.sourceLabel, "category"));
+                keys.add(getSourceFilterKey(sourceId, source.sourceLabel, "source"));
+            }
+        }
+        return keys;
+    }, [farming.targeted]);
+
+    useEffect(() => {
+        setHiddenSourceFilters((current) => {
+            let changed = false;
+            const next = new Set<string>();
+            for (const key of current) {
+                if (allValidSourceFilterKeys.has(key)) next.add(key);
+                else changed = true;
+            }
+            return changed ? next : current;
+        });
+    }, [allValidSourceFilterKeys]);
+
+    const sourceFilteredTargeted = useMemo(() => {
+        return farming.targeted
+            .map((line) => ({
+                ...line,
+                sources: (line.sources ?? []).filter(
+                    (source) => !sourceMatchesHiddenFilter(String(source.sourceId), source.sourceLabel, hiddenSourceFilters),
+                ),
+            }))
+            .filter((line) => line.sources.length > 0);
+    }, [farming.targeted, hiddenSourceFilters]);
+
+    const sourceFilteredOverlap = useMemo(() => {
+        return farming.overlap.filter(
+            (group) => !sourceMatchesHiddenFilter(String(group.sourceId), group.sourceLabel, hiddenSourceFilters),
+        );
+    }, [farming.overlap, hiddenSourceFilters]);
+
     // Build a lookup map from requirements so targeted cards can show have/totalNeed.
     const reqLineByKey = useMemo(() => {
         const m = new Map<string, { have: number; totalNeed: number; catalogId?: string }>();
@@ -192,9 +342,9 @@ export default function Requirements() {
 
     const filteredTargeted = useMemo(() => {
         const q = normalize(query);
-        if (!q) return farming.targeted;
+        if (!q) return sourceFilteredTargeted;
 
-        return farming.targeted.filter((l) => {
+        return sourceFilteredTargeted.filter((l) => {
             if (normalize(l.name).includes(q)) return true;
             if (normalize(String(l.key)).includes(q)) return true;
 
@@ -202,19 +352,19 @@ export default function Requirements() {
                 (s) => normalize(s.sourceLabel).includes(q) || normalize(String(s.sourceId)).includes(q)
             );
         });
-    }, [farming.targeted, query]);
+    }, [sourceFilteredTargeted, query]);
 
     const filteredOverlap = useMemo(() => {
         const q = normalize(query);
-        if (!q) return farming.overlap;
+        if (!q) return sourceFilteredOverlap;
 
-        return farming.overlap.filter((g) => {
+        return sourceFilteredOverlap.filter((g) => {
             if (normalize(g.sourceLabel).includes(q)) return true;
             if (normalize(String(g.sourceId)).includes(q)) return true;
 
             return (g.items ?? []).some((it) => normalize(it.name).includes(q) || normalize(String(it.key)).includes(q));
         });
-    }, [farming.overlap, query]);
+    }, [sourceFilteredOverlap, query]);
 
     const filteredHidden = useMemo(() => {
         if (!showHidden) return [];
@@ -248,8 +398,8 @@ export default function Requirements() {
                     <>
                         <MiniStat label="Active goals" value={activeGoals.toLocaleString()} />
                         <MiniStat label="Items needed" value={requirements.stats.actionableItemCount.toLocaleString()} />
-                        <MiniStat label="Targeted sources" value={farming.targeted.length.toLocaleString()} />
-                        <MiniStat label="Overlap sources" value={farming.overlap.length.toLocaleString()} />
+                        <MiniStat label="Targeted sources" value={sourceFilteredTargeted.length.toLocaleString()} />
+                        <MiniStat label="Overlap sources" value={sourceFilteredOverlap.length.toLocaleString()} />
                         <MiniStat
                             label="Plat gap"
                             value={platinumLine && (platinumLine.remaining ?? platinumLine.totalNeed) > 0
@@ -305,13 +455,92 @@ export default function Requirements() {
                         >
                             Open Inventory
                         </WorkspaceAction>
+                        <div className="relative">
+                            <WorkspaceAction
+                                className="rounded-lg border-slate-700 bg-slate-950/20 text-slate-100 hover:bg-slate-900/40"
+                                onClick={() => setSourceMenuOpen((open) => !open)}
+                            >
+                                {hiddenSourceFilters.size > 0
+                                    ? `Customize Sources (${hiddenSourceFilters.size} hidden)`
+                                    : "Customize Sources"}
+                            </WorkspaceAction>
+                            {sourceMenuOpen && (
+                                <div className="absolute right-0 top-[calc(100%+0.5rem)] z-20 w-72 rounded-2xl border border-slate-800 bg-slate-950/95 p-3 shadow-[0_18px_60px_rgba(2,6,23,0.45)] backdrop-blur">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                                            Source Filters
+                                        </div>
+                                        <button
+                                            className="text-xs text-slate-300 underline hover:text-slate-100 disabled:no-underline disabled:opacity-40"
+                                            disabled={hiddenSourceFilters.size === 0}
+                                            onClick={() => setHiddenSourceFilters(new Set())}
+                                        >
+                                            Show all
+                                        </button>
+                                    </div>
+                                    <div className="mt-3 flex gap-1 rounded-xl border border-slate-800 bg-slate-900/70 p-1">
+                                        <button
+                                            className={[
+                                                "flex-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                                                sourceFilterGranularity === "category"
+                                                    ? "bg-slate-100 text-slate-900"
+                                                    : "text-slate-300 hover:text-slate-100",
+                                            ].join(" ")}
+                                            onClick={() => setSourceFilterGranularity("category")}
+                                        >
+                                            Categories
+                                        </button>
+                                        <button
+                                            className={[
+                                                "flex-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                                                sourceFilterGranularity === "source"
+                                                    ? "bg-slate-100 text-slate-900"
+                                                    : "text-slate-300 hover:text-slate-100",
+                                            ].join(" ")}
+                                            onClick={() => setSourceFilterGranularity("source")}
+                                        >
+                                            Individual
+                                        </button>
+                                    </div>
+                                    <div className="mt-3 max-h-80 space-y-2 overflow-auto pr-1">
+                                        {sourceOptions.length === 0 ? (
+                                            <div className="text-sm text-slate-400">No actionable farming sources yet.</div>
+                                        ) : (
+                                            sourceOptions.map((option) => {
+                                                const visible = !hiddenSourceFilters.has(option.key);
+                                                return (
+                                                    <label key={option.key} className="flex items-start gap-2 text-sm text-slate-300">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={visible}
+                                                            onChange={(e) => {
+                                                                setHiddenSourceFilters((current) => {
+                                                                    const next = new Set(current);
+                                                                    if (e.target.checked) next.delete(option.key);
+                                                                    else next.add(option.key);
+                                                                    return next;
+                                                                });
+                                                            }}
+                                                        />
+                                                        <span className="flex-1">
+                                                            {option.label}
+                                                            <span className="ml-2 text-xs text-slate-500">{option.count}</span>
+                                                        </span>
+                                                    </label>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </WorkspaceFilterGroup>
                 </WorkspaceFilterBar>
 
                 <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <MiniStat label="Items needed" value={requirements.stats.actionableItemCount.toLocaleString()} />
-                    <MiniStat label="Targeted sources" value={farming.targeted.length.toLocaleString()} />
-                    <MiniStat label="Overlap sources" value={farming.overlap.length.toLocaleString()} />
+                    <MiniStat label="Targeted sources" value={sourceFilteredTargeted.length.toLocaleString()} />
+                    <MiniStat label="Overlap sources" value={sourceFilteredOverlap.length.toLocaleString()} />
                     <MiniStat label="Hidden items" value={farming.hidden.length.toLocaleString()} />
                 </div>
 

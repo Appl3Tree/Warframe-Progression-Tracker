@@ -6,10 +6,6 @@ import IconCommon from "../assets/rarity/IconCommon.png";
 import IconRare from "../assets/rarity/IconRare.png";
 import IconUncommon from "../assets/rarity/IconUncommon.png";
 import {
-    buildRequirementsSnapshot,
-    buildFarmingSnapshot,
-} from "../domain/logic/requirementEngine";
-import {
     expandRelicGoalItemNames,
     scoreRelicsForItems,
     type RelicEntry,
@@ -18,6 +14,7 @@ import {
 import { getRelicAvailabilityStatus, type PrimeAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";
 import { WorkspacePanel, WorkspaceSegmented, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
+import { buildRelicGoalItemNames } from "../domain/logic/relicGoalExpansion";
 
 // ---- Helpers ----
 
@@ -384,10 +381,9 @@ function VoidTraceCalc() {
 
 export default function RelicPlanner() {
     const worldState = useWorldStateData();
-    const { goals, completedPrereqs, inventory } = useTrackerStore(
+    const { goals, inventory } = useTrackerStore(
         useShallow((s) => ({
             goals: s.state.goals ?? [],
-            completedPrereqs: s.state.prereqs?.completed ?? {},
             inventory: s.state.inventory,
         }))
     );
@@ -398,29 +394,12 @@ export default function RelicPlanner() {
     const [showNeededItems, setShowNeededItems] = useState(true);
     const [relicSearch, setRelicSearch] = useState("");
 
-    // Build farming snapshot for active goals only (no syndicates — syndicate items aren't in relics)
-    const farmingItems = useMemo(() => {
-        const requirements = buildRequirementsSnapshot({
-            syndicates: [],
-            goals: goals.filter((g) => g.isActive),
-            completedPrereqs,
-            inventory,
-            // Relic farming needs the full prime part tree, not just the top-level
-            // output or its immediate blueprint, so prime frame/weapon goals surface
-            // all relevant relic rewards.
-            expandMode: "recursive",
-            syndicateScope: "nextOnly",
-        });
-        const farming = buildFarmingSnapshot({ requirements, completedPrereqs });
-        return farming.targeted;
-    }, [goals, completedPrereqs, inventory]);
-
     // Find all relic-sourced items and map to relic catalog entries
     const { scoredRelics, goalItemNames } = useMemo(() => {
-        const itemNames = new Set<string>();
-        for (const line of farmingItems) {
-            itemNames.add(line.name);
-        }
+        const itemNames = buildRelicGoalItemNames({
+            goals: goals.filter((g) => g.isActive),
+            inventory,
+        });
 
         const expandedItemNames = expandRelicGoalItemNames(itemNames);
         const scored = scoreRelicsForItems(expandedItemNames);
@@ -435,7 +414,7 @@ export default function RelicPlanner() {
         }
 
         return { scoredRelics: scored, goalItemNames };
-    }, [farmingItems]);
+    }, [goals, inventory]);
 
     const filteredRelics = useMemo(() => {
         const query = relicSearch.trim().toLowerCase();

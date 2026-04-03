@@ -1,7 +1,7 @@
 // src/domain/catalog/relicCatalog.ts
 // Indexes all relic data: contents (rewards) and mission farming locations.
 
-import relicsDropRaw from "../../../external/warframe-drop-data/raw/relics.json";
+import relicsDropRaw from "../../data/_generated/relics-lean.auto.json";
 import missionIndexRaw from "../../data/_generated/relic-missionRewards-index.auto.json";
 
 export type RelicTier = "Lith" | "Meso" | "Neo" | "Axi";

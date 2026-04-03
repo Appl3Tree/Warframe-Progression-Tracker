@@ -4,10 +4,10 @@
 // Clicking the profile area drops down the full edit panel (replaces old always-visible card).
 // The bar itself is always exactly h-12 (48px). The dropdown is absolutely positioned.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTrackerStore } from "../../store/store";
 import { fetchWorldState, getCachedWorldState, processInvasions, type WorldStateData } from "../../lib/worldStateCache";
-import { getRouteByKey, WORK_MODE_META } from "../routes";
+import { NAV_ROUTES, WORK_MODE_META, type NavRoute } from "../routes";
 
 type PlatformKey = "pc" | "ps" | "xb" | "swi" | "mob";
 
@@ -24,6 +24,178 @@ const PLATFORM_OPTIONS: PlatformOption[] = [
     { key: "swi", label: "Switch",      baseUrl: "https://content-swi.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
     { key: "mob", label: "Mobile",      baseUrl: "https://content-mob.warframe.com/dynamic/getProfileViewingData.php?playerId=" },
 ];
+
+function SearchIcon({ className = "h-4 w-4" }: { className?: string }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+        </svg>
+    );
+}
+
+function PageSearch({
+    activePage,
+    onSelect,
+}: {
+    activePage: string;
+    onSelect: (route: NavRoute) => void;
+}) {
+    const [query, setQuery] = useState("");
+    const [open, setOpen] = useState(false);
+    const [highlightedIndex, setHighlightedIndex] = useState(0);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    const pageResults = useMemo(() => {
+        const normalized = query.trim().toLowerCase();
+        const scored = NAV_ROUTES.map((route) => {
+            const modeLabel = WORK_MODE_META[route.mode].label;
+            const haystack = [
+                route.label,
+                route.shortLabel ?? "",
+                route.desc,
+                modeLabel,
+            ].join(" ").toLowerCase();
+
+            let score = route.key === activePage ? 20 : 0;
+            if (!normalized) {
+                score += route.key === activePage ? 100 : 0;
+                return { route, score };
+            }
+            if (route.label.toLowerCase() === normalized) score += 150;
+            else if (route.label.toLowerCase().startsWith(normalized)) score += 110;
+            else if ((route.shortLabel ?? "").toLowerCase().startsWith(normalized)) score += 90;
+            else if (haystack.includes(normalized)) score += 50;
+            else score = -1;
+            return { route, score };
+        })
+            .filter((entry) => entry.score >= 0)
+            .sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.route.label.localeCompare(b.route.label);
+            });
+
+        return scored.map((entry) => entry.route);
+    }, [activePage, query]);
+
+    useEffect(() => {
+        setHighlightedIndex(0);
+    }, [query, open]);
+
+    useEffect(() => {
+        if (!open) return;
+        function onMouseDown(event: MouseEvent) {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", onMouseDown);
+        return () => document.removeEventListener("mousedown", onMouseDown);
+    }, [open]);
+
+    useEffect(() => {
+        setQuery("");
+        setOpen(false);
+    }, [activePage]);
+
+    const activeRoute = NAV_ROUTES.find((route) => route.key === activePage) ?? NAV_ROUTES[0];
+    const selectedRoute = pageResults[highlightedIndex] ?? pageResults[0] ?? null;
+
+    function choose(route: NavRoute) {
+        onSelect(route);
+        setQuery("");
+        setOpen(false);
+    }
+
+    return (
+        <div className="relative w-full max-w-xl" ref={containerRef}>
+            <div className="flex h-10 items-center gap-2 rounded-full border border-slate-700/80 bg-slate-950 px-3 shadow-lg shadow-black/30 transition-colors focus-within:border-slate-500 focus-within:bg-slate-950">
+                <SearchIcon className="h-4 w-4 shrink-0 text-[color:var(--wf-text-dim)]" />
+                <input
+                    type="search"
+                    value={query}
+                    placeholder={`Jump to a page… (${activeRoute.label})`}
+                    aria-label="Global page search"
+                    className="w-full bg-transparent text-sm text-[color:var(--wf-text)] placeholder:text-[color:var(--wf-text-dim)] focus:outline-none"
+                    onFocus={() => setOpen(true)}
+                    onChange={(event) => {
+                        setQuery(event.target.value);
+                        setOpen(true);
+                    }}
+                    onKeyDown={(event) => {
+                        if (event.key === "ArrowDown") {
+                            event.preventDefault();
+                            setOpen(true);
+                            setHighlightedIndex((current) => Math.min(current + 1, Math.max(pageResults.length - 1, 0)));
+                        } else if (event.key === "ArrowUp") {
+                            event.preventDefault();
+                            setHighlightedIndex((current) => Math.max(current - 1, 0));
+                        } else if (event.key === "Enter" && selectedRoute) {
+                            event.preventDefault();
+                            choose(selectedRoute);
+                        } else if (event.key === "Escape") {
+                            setOpen(false);
+                        }
+                    }}
+                />
+                <span className="hidden rounded-md border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)] xl:inline">
+                    Pages
+                </span>
+            </div>
+
+            {open && (
+                <div className="absolute left-0 right-0 top-full mt-2 overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950 shadow-2xl shadow-black/50 backdrop-blur-xl">
+                    <div className="border-b border-slate-800 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--wf-text-dim)]">
+                        Global Search
+                    </div>
+                    <div className="max-h-[360px] overflow-y-auto p-2">
+                        {pageResults.length === 0 ? (
+                            <div className="rounded-xl px-3 py-6 text-center text-sm text-[color:var(--wf-text-muted)]">
+                                No pages match that search.
+                            </div>
+                        ) : (
+                            pageResults.map((route, index) => {
+                                const mode = WORK_MODE_META[route.mode];
+                                const isActive = route.key === activePage;
+                                const isHighlighted = index === highlightedIndex;
+                                return (
+                                    <button
+                                        key={route.key}
+                                        type="button"
+                                        className={[
+                                            "flex w-full items-start justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition-colors",
+                                            isHighlighted
+                                                ? "bg-slate-800 text-[color:var(--wf-text-strong)]"
+                                                : "text-[color:var(--wf-text)] hover:bg-slate-900",
+                                        ].join(" ")}
+                                        onMouseEnter={() => setHighlightedIndex(index)}
+                                        onMouseDown={(event) => event.preventDefault()}
+                                        onClick={() => choose(route)}
+                                    >
+                                        <span className="min-w-0">
+                                            <span className="block truncate text-sm font-medium">{route.label}</span>
+                                            <span className="mt-1 block truncate text-xs text-[color:var(--wf-text-dim)]">{route.desc}</span>
+                                        </span>
+                                        <span className="shrink-0 text-right">
+                                            <span className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">
+                                                {mode.label}
+                                            </span>
+                                            {isActive ? (
+                                                <span className="mt-1 inline-flex rounded-full border border-[color:var(--wf-accent-primary)]/30 bg-[color:var(--wf-accent-primary)]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--wf-accent-primary)]">
+                                                    Current
+                                                </span>
+                                            ) : null}
+                                        </span>
+                                    </button>
+                                );
+                            })
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
 
 function clampInt(value: unknown, fallback: number): number {
     const n = typeof value === "number" ? value : Number(value);
@@ -756,6 +928,15 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
         () => localStorage.getItem("wft_last_profile_import") ?? null
     );
     const [pendingImport, setPendingImport] = useState<{ label: string; execute: () => Promise<void> } | null>(null);
+    const selectedPlatformOption = useMemo(
+        () => PLATFORM_OPTIONS.find((opt) => opt.key === platform) ?? PLATFORM_OPTIONS[0],
+        [platform]
+    );
+    const profileViewingDataUrl = useMemo(() => {
+        const id = String(accountId ?? "").trim();
+        if (!id) return "";
+        return `${selectedPlatformOption.baseUrl}${encodeURIComponent(id)}`;
+    }, [accountId, selectedPlatformOption]);
 
     const fileRef         = useRef<HTMLInputElement | null>(null);
     const panelRef        = useRef<HTMLDivElement | null>(null);
@@ -788,9 +969,6 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
     }, [platformOpen]);
 
     // ── Per-field activate / commit / cancel ──
-
-    const activeRoute = getRouteByKey(activePage);
-    const activeMode = WORK_MODE_META[activeRoute.mode];
 
     function activate(field: ActiveField) {
         switch (field) {
@@ -859,6 +1037,16 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
         setProfileStatus("");
     }
 
+    function handleOpenProfileViewingDataPage() {
+        if (!profileViewingDataUrl) {
+            setProfileStatus("Enter your Profile ID above before opening the profile data page.");
+            activate("accountId");
+            return;
+        }
+        window.open(profileViewingDataUrl, "_blank", "noopener,noreferrer");
+        setProfileStatus("");
+    }
+
     return (
         <div className="relative z-50" ref={panelRef}>
 
@@ -881,13 +1069,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                 </div>
 
                 <div className="hidden min-w-0 flex-1 items-center justify-center lg:flex">
-                    <div className="flex min-w-0 items-center gap-2 rounded-full border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-1">
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--wf-text-dim)]">
-                            {activeMode.label}
-                        </span>
-                        <span className="text-[color:var(--wf-text-dim)]">/</span>
-                        <span className="truncate text-xs text-[color:var(--wf-text)]">{activeRoute.label}</span>
-                    </div>
+                    <PageSearch activePage={activePage} onSelect={(route) => setActivePage(route.key)} />
                 </div>
 
                 {/* Right side: notification bell + profile pill */}
@@ -1180,10 +1362,17 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                                 <div>
                                     <span className="text-slate-300 font-medium">Console / manual: </span>
                                     Use <span className="text-slate-300">Paste JSON</span> or{" "}
-                                    <span className="text-slate-300">Import File</span> with data from{" "}
-                                    <code className="rounded bg-slate-800 px-1 py-0.5 font-mono text-slate-300">
-                                        content.warframe.com/dynamic/getProfileViewingData.php?playerId=…
-                                    </code>
+                                    <span className="text-slate-300">Import File</span> with data from the official profile data page.
+                                </div>
+                                <div className="pt-1">
+                                    <button
+                                        type="button"
+                                        className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-100 transition-colors hover:bg-slate-800"
+                                        onClick={handleOpenProfileViewingDataPage}
+                                        title={profileViewingDataUrl || "Enter your Profile ID above first"}
+                                    >
+                                        Open profile data page in new tab
+                                    </button>
                                 </div>
                             </div>
                             <div className="text-[10px] text-slate-600 pt-0.5">

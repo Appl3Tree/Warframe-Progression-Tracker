@@ -3,6 +3,7 @@ import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
 
 import wfcdReqJson from "../../data/_generated/wfcd-requirements.byCatalogId.auto.json";
+import allItemsLeanJson from "../../data/_generated/warframe-items-all-lean.auto.json";
 import { getWikiBlueprintRequirements } from "./wikiBlueprintRequirements";
 
 export type ItemRequirement = {
@@ -33,6 +34,18 @@ export type ItemRequirementResolution = {
     terminalReason: ItemRequirementTerminalReason | null;
 };
 
+type AllComponentLike = {
+    name?: string;
+    uniqueName?: string;
+    itemCount?: number;
+    count?: number;
+};
+
+type AllLeanItemLike = {
+    uniqueName?: string;
+    components?: AllComponentLike[];
+};
+
 function parseMap(raw: unknown): Record<string, any> {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
     return raw as Record<string, any>;
@@ -46,6 +59,13 @@ function safeCount(v: unknown): number {
 
 function safeString(v: unknown): string | null {
     return typeof v === "string" && v.trim().length > 0 ? v.trim() : null;
+}
+
+const ALL_ITEMS_BY_UNIQUE = new Map<string, AllLeanItemLike>();
+for (const raw of allItemsLeanJson as AllLeanItemLike[]) {
+    const uniqueName = safeString(raw?.uniqueName);
+    if (!uniqueName || ALL_ITEMS_BY_UNIQUE.has(uniqueName)) continue;
+    ALL_ITEMS_BY_UNIQUE.set(uniqueName, raw);
 }
 
 function isRecipeLike(rec: any): boolean {
@@ -209,6 +229,76 @@ function safeLotusPathToItemsCatalogId(path: string): CatalogId | null {
     if (!FULL_CATALOG.recordsById[cid]) return null;
 
     return cid;
+}
+
+function getAllEntryForCatalogId(catalogId: CatalogId): AllLeanItemLike | null {
+    const path = catalogIdToLotusPath(catalogId);
+    if (!path) return null;
+    return ALL_ITEMS_BY_UNIQUE.get(path) ?? null;
+}
+
+function isBlueprintLikeAllComponent(component: AllComponentLike): boolean {
+    const name = safeString(component?.name)?.toLowerCase() ?? "";
+    const uniqueName = safeString(component?.uniqueName)?.toLowerCase() ?? "";
+    return name === "blueprint" || name.endsWith(" blueprint") || uniqueName.includes("blueprint");
+}
+
+function requirementsFromAllOutputEntry(outputCatalogId: CatalogId, options?: { excludeBlueprint?: boolean }): ItemRequirement[] {
+    const entry = getAllEntryForCatalogId(outputCatalogId);
+    const components = Array.isArray(entry?.components) ? entry.components : [];
+    if (components.length === 0) return [];
+
+    const out: ItemRequirement[] = [];
+    for (const component of components) {
+        if (options?.excludeBlueprint && isBlueprintLikeAllComponent(component)) continue;
+
+        const uniqueName = safeString(component?.uniqueName);
+        if (!uniqueName) continue;
+
+        const cid = safeLotusPathToItemsCatalogId(uniqueName);
+        if (!cid) continue;
+
+        const count =
+            safeCount(component?.itemCount ?? 0)
+            || safeCount(component?.count ?? 0)
+            || 1;
+        if (count <= 0) continue;
+
+        out.push({
+            catalogId: canonicalizeComponentCatalogId(cid),
+            count
+        });
+    }
+
+    return normalizeAndFilterSelfEdges(outputCatalogId, out);
+}
+
+function getAllBlueprintCatalogIdForOutput(outputCatalogId: CatalogId): CatalogId | null {
+    const entry = getAllEntryForCatalogId(outputCatalogId);
+    const components = Array.isArray(entry?.components) ? entry.components : [];
+
+    const blueprintCandidates = components
+        .filter(isBlueprintLikeAllComponent)
+        .map((component) => safeString(component?.uniqueName))
+        .filter((value): value is string => Boolean(value))
+        .map((uniqueName) => safeLotusPathToItemsCatalogId(uniqueName))
+        .filter((value): value is CatalogId => Boolean(value));
+
+    if (blueprintCandidates.length !== 1) return null;
+    return blueprintCandidates[0];
+}
+
+function getAllRequirementsForRecipeItem(recipeCatalogId: CatalogId): ItemRequirement[] {
+    const merged = getMergedRecordForCatalogId(recipeCatalogId);
+    if (!merged || !isRecipeLike(merged)) return [];
+
+    const resultPath = getResultItemTypePath(merged);
+    if (!resultPath) return [];
+
+    const outputCatalogId = safeLotusPathToItemsCatalogId(resultPath);
+    if (!outputCatalogId) return [];
+
+    return requirementsFromAllOutputEntry(outputCatalogId, { excludeBlueprint: true });
 }
 
 function extractLotusIngredientsFromMergedRecipe(merged: any): LotusIngredientRow[] {
@@ -466,6 +556,7 @@ function recipeItemHasMeaningfulRequirements(recipeCatalogId: CatalogId, reqMap:
 
     if (getLotusRecipeRequirementsForRecipeItem(recipeCatalogId).length > 0) return true;
     if (getWikiRecipeRequirements(recipeCatalogId).length > 0) return true;
+    if (getAllRequirementsForRecipeItem(recipeCatalogId).length > 0) return true;
 
     return false;
 }
@@ -482,6 +573,11 @@ export function getCraftingBlueprintCatalogIdForOutput(outputCatalogId: CatalogI
     const uniqueBlueprint = findUniqueBlueprintRecipeCatalogIdProducingOutput(outputCatalogId);
     if (uniqueBlueprint) {
         candidates.add(uniqueBlueprint);
+    }
+
+    const allBlueprint = getAllBlueprintCatalogIdForOutput(outputCatalogId);
+    if (allBlueprint) {
+        candidates.add(allBlueprint);
     }
 
     for (const candidate of candidates) {
@@ -508,6 +604,15 @@ function getCraftingBlueprintEdgeForOutput(outputCatalogId: CatalogId): ItemRequ
     if (uniqueBlueprint && recipeItemHasMeaningfulRequirements(uniqueBlueprint, raw)) {
         return {
             catalogId: uniqueBlueprint,
+            count: 1,
+            provenance: "derived-output-blueprint"
+        };
+    }
+
+    const allBlueprint = getAllBlueprintCatalogIdForOutput(outputCatalogId);
+    if (allBlueprint && recipeItemHasMeaningfulRequirements(allBlueprint, raw)) {
+        return {
+            catalogId: allBlueprint,
             count: 1,
             provenance: "derived-output-blueprint"
         };
@@ -587,6 +692,15 @@ export function resolveItemRequirementGraph(outputCatalogId: CatalogId): ItemReq
             return {
                 outputCatalogId,
                 edges: toRequirementEdges(outputCatalogId, wikiFallback, "wiki-blueprint"),
+                terminalReason: null
+            };
+        }
+
+        const allFallback = getAllRequirementsForRecipeItem(outputCatalogId);
+        if (allFallback.length > 0) {
+            return {
+                outputCatalogId,
+                edges: toRequirementEdges(outputCatalogId, allFallback, "derived-output-blueprint"),
                 terminalReason: null
             };
         }

@@ -123,10 +123,13 @@ function pruneAttack(attack: unknown): Record<string, unknown> | null {
     "damage",
     "critChance",
     "criticalChance",
+    "crit_chance",
     "critMultiplier",
     "criticalMultiplier",
+    "crit_mult",
     "procChance",
     "statusChance",
+    "status_chance",
     "speed",
     "charge_time",
   ]) {

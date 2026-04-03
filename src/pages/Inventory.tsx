@@ -1447,6 +1447,8 @@ type Row = {
   itemType: string;
   releaseDate?: string;
   masteryReq: number;
+  isPrime: boolean;
+  isVaulted: boolean;
 };
 
 type VirtualWindow = {
@@ -1468,6 +1470,7 @@ type AccessFilter = "all" | "available" | "partial" | "blocked";
 type MrColumnFilterMode = "all" | "exists" | "equals" | "lte" | "gte";
 type MasteredColumnFilter = "all" | "mastered" | "unmastered" | "na";
 type ReleaseColumnFilterMode = "all" | "exists" | "before" | "after";
+type VariantFilter = "prime" | "vaulted";
 
 export default function Inventory() {
   const worldState = useWorldStateData();
@@ -1507,7 +1510,6 @@ export default function Inventory() {
   }, [goals]);
 
   const [query, setQuery] = useState("");
-  const [hideZero, setHideZero] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("az");
 
   // 5.2: Additional filter state
@@ -1515,6 +1517,7 @@ export default function Inventory() {
     useState<OwnershipFilter>("all");
   const [showAvailableNow, setShowAvailableNow] = useState(false);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+  const [variantFilters, setVariantFilters] = useState<Partial<Record<VariantFilter, TagFilterState>>>({});
   const [tableTypeFilter, setTableTypeFilter] = useState("all");
   const [tableAccessFilter, setTableAccessFilter] = useState<AccessFilter>("all");
   const [tableMrFilterMode, setTableMrFilterMode] = useState<MrColumnFilterMode>("all");
@@ -1644,6 +1647,12 @@ export default function Inventory() {
         if (!rec?.displayName) return null;
         const rawPath = resolveRecordPath(rec);
         const allEntry = getAllEntry(rawPath, rec.displayName);
+        const isPrime =
+          allEntry?.isPrime === true ||
+          /\bprime\b/i.test(rec.displayName ?? "") ||
+          /\bprime\b/i.test(rawPath);
+        const primeAvailability = getPrimeAvailabilityStatus(String(id), worldState);
+        const isVaulted = primeAvailability === "vaulted";
 
         const categories = rec.categories ?? [];
         const cls = classifyFromRecord(String(id), rec);
@@ -1692,6 +1701,8 @@ export default function Inventory() {
             rec?.raw?.rawWfcd?.masteryReq ??
             rec?.raw?.rawLotus?.masteryReq ??
             0,
+          isPrime,
+          isVaulted,
         } as Row;
       })
       .filter((r): r is Row => !!r)
@@ -1724,10 +1735,6 @@ export default function Inventory() {
         }
 
         return false;
-      })
-      .filter((r) => {
-        if (!hideZero) return true;
-        return r.value > 0;
       });
 
     base.sort((a, b) => {
@@ -1839,6 +1846,8 @@ export default function Inventory() {
         itemType: "Plexus",
         releaseDate: undefined,
         masteryReq: 0,
+        isPrime: false,
+        isVaulted: false,
       });
     }
 
@@ -1854,7 +1863,7 @@ export default function Inventory() {
     }
 
     return Array.from(dedupedByLabel.values());
-  }, [counts, inventoryCatalogIds, mastered, overLevelMastered, query, hideZero, sortKey]);
+  }, [counts, inventoryCatalogIds, mastered, overLevelMastered, query, sortKey, worldState]);
 
   const availableCompanionTabs = useMemo(() => {
     const available = new Set<CompanionsTab>(["all"]);
@@ -2022,6 +2031,17 @@ export default function Inventory() {
       });
     }
 
+    if (Object.keys(variantFilters).length > 0) {
+      const { included, excluded } = splitTagFilterState(variantFilters);
+      result = result.filter((r) => {
+        if (included.includes("prime") && !r.isPrime) return false;
+        if (included.includes("vaulted") && !r.isVaulted) return false;
+        if (excluded.includes("prime") && r.isPrime) return false;
+        if (excluded.includes("vaulted") && r.isVaulted) return false;
+        return true;
+      });
+    }
+
     if (tableTypeFilter !== "all") {
       result = result.filter((r) => r.itemType === tableTypeFilter);
     }
@@ -2076,6 +2096,7 @@ export default function Inventory() {
     ownershipFilter,
     showAvailableNow,
     showAvailableOnly,
+    variantFilters,
     counts,
     mastered,
     overLevelMastered,
@@ -2125,8 +2146,10 @@ export default function Inventory() {
     if (tableMrFilterMode !== "all") total += 1;
     if (tableMasteredFilter !== "all") total += 1;
     if (tableReleaseFilterMode !== "all") total += 1;
+    total += Object.keys(variantFilters).length;
     return total;
   }, [
+    variantFilters,
     tableTypeFilter,
     tableAccessFilter,
     tableMrFilterMode,
@@ -2142,6 +2165,17 @@ export default function Inventory() {
     setTableMasteredFilter("all");
     setTableReleaseFilterMode("all");
     setTableReleaseFilterValue("");
+    setVariantFilters({});
+  }
+
+  function toggleVariantFilter(filter: VariantFilter) {
+    setVariantFilters((current) => {
+      const next = { ...current };
+      const nextState = cycleTagFilterState(current[filter]);
+      if (!nextState) delete next[filter];
+      else next[filter] = nextState;
+      return next;
+    });
   }
 
   const displayedRowIdSet = useMemo(
@@ -2216,6 +2250,13 @@ export default function Inventory() {
     });
   }
 
+  function applySelectedGoalRemove() {
+    applyToSelectedRows((row) => {
+      const goal = goalByCatalogId.get(String(row.id));
+      if (goal) removeGoal(goal.id);
+    });
+  }
+
   function applySelectedMastery(marked: boolean) {
     applyToSelectedRows((row) => {
       if (!row.isMasterable) return;
@@ -2271,10 +2312,10 @@ export default function Inventory() {
     weaponClassTab,
     weaponTypeFilters,
     query,
-    hideZero,
     ownershipFilter,
     showAvailableNow,
     showAvailableOnly,
+    variantFilters,
     tableTypeFilter,
     tableAccessFilter,
     tableMrFilterMode,
@@ -2311,6 +2352,7 @@ export default function Inventory() {
       >
         <div className={COLLECTION_LEDGER_SHELL_CLASS}>
           <CollectionUtilityBand
+            columnsClassName="grid-cols-1"
             primary={
               <CollectionUtilityPanel>
                 <label className="block">
@@ -2365,54 +2407,40 @@ export default function Inventory() {
                       onClick={() => setShowAvailableOnly(!showAvailableOnly)}
                     />
                   </WorkspaceFilterGroup>
-                </div>
-              </CollectionUtilityPanel>
-            }
-            secondary={
-              <CollectionUtilityPanel className="grid gap-3">
-                <label className="block">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                    Sort Rows
-                  </span>
-                  <select
-                    className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
-                    value={sortKey}
-                    onChange={(e) => setSortKey(e.target.value as SortKey)}
-                  >
-                    <option value="az">Name A→Z</option>
-                    <option value="za">Name Z→A</option>
-                    <option value="type-asc">Type A→Z</option>
-                    <option value="type-desc">Type Z→A</option>
-                    <option value="count-desc">Count: High→Low</option>
-                    <option value="count-asc">Count: Low→High</option>
-                    <option value="owned-first">Owned first</option>
-                    <option value="unowned-first">Unowned first</option>
-                    <option value="mastered-last">Unmastered first</option>
-                    <option value="release-newest">Release: Newest first</option>
-                    <option value="release-oldest">Release: Oldest first</option>
-                    <option value="mr-asc">MR Req: Low → High</option>
-                    <option value="mr-desc">MR Req: High → Low</option>
-                  </select>
-                </label>
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <label className="flex items-center gap-2 text-sm text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={hideZero}
-                      onChange={(e) => setHideZero(e.target.checked)}
+                  <div className="pt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Variant
+                  </div>
+                  <WorkspaceFilterGroup className="gap-2">
+                    <FilterTagButton
+                      label="Prime"
+                      state={variantFilters.prime}
+                      title={
+                        variantFilters.prime === "include"
+                          ? "Showing Prime items only. Click again to exclude them."
+                          : variantFilters.prime === "exclude"
+                            ? "Prime items are excluded. Click again to clear."
+                            : "Click to show Prime items only."
+                      }
+                      onClick={() => toggleVariantFilter("prime")}
                     />
-                    Hide zero-count rows
-                  </label>
-                  <WorkspaceAction
-                    className="rounded-full border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-500 hover:text-slate-100"
-                    onClick={() => setSelectedDetailId(null)}
-                  >
-                    Clear Detail
-                  </WorkspaceAction>
+                    <FilterTagButton
+                      label="Vaulted"
+                      state={variantFilters.vaulted}
+                      title={
+                        variantFilters.vaulted === "include"
+                          ? "Showing vaulted items only. Click again to exclude them."
+                          : variantFilters.vaulted === "exclude"
+                            ? "Vaulted items are excluded. Click again to clear."
+                            : "Click to show vaulted items only."
+                      }
+                      onClick={() => toggleVariantFilter("vaulted")}
+                    />
+                  </WorkspaceFilterGroup>
                 </div>
               </CollectionUtilityPanel>
             }
+            secondary={null}
           />
 
           <div className="flex min-h-0 flex-1 flex-col">
@@ -2617,7 +2645,7 @@ export default function Inventory() {
                   disabled={activeColumnFilterCount === 0}
                   onClick={resetColumnFilters}
                 >
-                  Clear column filters
+                  Clear active filters
                 </WorkspaceAction>
                 <div className="relative">
                   <WorkspaceAction
@@ -2761,6 +2789,7 @@ export default function Inventory() {
                         {actionsMenuOpen && selectedDisplayedCount > 0 && (
                           <div className="absolute left-0 top-[calc(100%+0.5rem)] z-20 w-56 rounded-2xl border border-slate-800 bg-slate-950/95 p-2 shadow-[0_18px_60px_rgba(2,6,23,0.45)] backdrop-blur">
                             <button className="flex w-full rounded-xl px-3 py-2 text-left text-sm text-slate-200 hover:bg-slate-900" onClick={applySelectedGoalAdd}>Add to Goals</button>
+                            <button className="flex w-full rounded-xl px-3 py-2 text-left text-sm text-slate-200 hover:bg-slate-900" onClick={applySelectedGoalRemove}>Remove from Goals</button>
                             <button className="flex w-full rounded-xl px-3 py-2 text-left text-sm text-slate-200 hover:bg-slate-900" onClick={applySelectedCountUpdate}>Update Count</button>
                             <button className="flex w-full rounded-xl px-3 py-2 text-left text-sm text-slate-200 hover:bg-slate-900" onClick={() => applySelectedMastery(true)}>Mark Mastery</button>
                             <button className="flex w-full rounded-xl px-3 py-2 text-left text-sm text-slate-200 hover:bg-slate-900" onClick={() => applySelectedMastery(false)}>Unmark Mastery</button>
