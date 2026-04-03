@@ -9,7 +9,7 @@ import { canonicalizeWfItemsLocation } from "../sources/wfItemsLocCanonical";
 // warframe-items raw datasets (targeted)
 import RESOURCES from "../../../external/warframe-items/raw/Resources.json";
 import MISC from "../../../external/warframe-items/raw/Misc.json";
-import ALL from "../../../external/warframe-items/raw/All.json";
+import ALL from "../../data/_generated/warframe-items-all-lean.auto.json";
 
 type WarframeItemsRow = {
     name?: string | null;

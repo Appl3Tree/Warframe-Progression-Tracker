@@ -8,7 +8,7 @@
 // in warframe-items. This adapter bridges that gap so the planner treats them as craftable
 // rather than "Blocked".
 
-import ALL from "../../../external/warframe-items/raw/All.json";
+import ALL from "../../data/_generated/warframe-items-all-lean.auto.json";
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import type { AcquisitionDef } from "./acquisitionFromSources";
 

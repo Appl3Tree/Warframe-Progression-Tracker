@@ -3,7 +3,7 @@
 
 import type { CatalogId } from "../catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../catalog/loadFullCatalog";
-import { getItemRequirements } from "../../catalog/items/itemRequirements";
+import { getItemRequirements, resolveItemRequirementGraph } from "../../catalog/items/itemRequirements";
 import {
     countUniqueSources,
     overlapSourceKey,
@@ -20,19 +20,28 @@ import type { PrereqId } from "../ids/prereqIds";
 import { PROGRESSION_ITEM_IDS } from "../../catalog/items/itemsIndex";
 import { SYNDICATE_VENDOR_CATALOG } from "../catalog/syndicates/syndicateVendorCatalog";
 import { getSyndicateDisplayName } from "../ids/syndicateIds";
-import ALL_RAW from "../../../external/warframe-items/raw/All.json";
 
 const PROGRESSION_ITEM_ID_SET = new Set<CatalogId>(PROGRESSION_ITEM_IDS);
 
-const PLATINUM_BY_PATH: Record<string, number> = (() => {
-    const out: Record<string, number> = {};
-    for (const item of ALL_RAW as any[]) {
-        if (item.uniqueName && typeof item.marketCost === "number") {
-            out[item.uniqueName] = item.marketCost;
-        }
+function getRecordPlatinumPrice(rec: any): number | null {
+    const raw: any = rec?.raw as any;
+    const rawLotus = raw?.rawLotus ?? null;
+    const storeData = rawLotus?.storeData ?? null;
+    const data = rawLotus?.data ?? raw?.data ?? null;
+
+    const candidates = [
+        storeData?.PremiumPrice,
+        data?.PremiumPrice,
+        raw?.marketCost,
+    ];
+
+    for (const candidate of candidates) {
+        const value = Number(candidate ?? 0);
+        if (Number.isFinite(value) && value > 0) return value;
     }
-    return out;
-})();
+
+    return null;
+}
 
 function getPlatinumCost(catalogId: CatalogId): number | null {
     const rec = FULL_CATALOG.recordsById[catalogId];
@@ -40,8 +49,7 @@ function getPlatinumCost(catalogId: CatalogId): number | null {
     // Prime items cannot be purchased from the market with platinum.
     const name = (rec.displayName ?? "").toLowerCase();
     if (name.endsWith(" prime") || name.includes(" prime ")) return null;
-    const cost = PLATINUM_BY_PATH[rec.path];
-    return typeof cost === "number" && cost > 0 ? cost : null;
+    return getRecordPlatinumPrice(rec);
 }
 
 export type RequirementViewMode = "targeted" | "overlap";
@@ -145,16 +153,15 @@ function isExplicitBlueprintItem(catalogId: CatalogId, name: string): boolean {
     return false;
 }
 
-function getSiblingBlueprintCatalogIdForOutput(outputCatalogId: CatalogId): CatalogId | null {
-    const key = String(outputCatalogId);
+function isDirectMarketPurchasableOutput(catalogId: CatalogId): boolean {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    const raw: any = rec?.raw as any;
+    const data = raw?.rawLotus?.data ?? raw?.data ?? null;
+    if (!data || typeof data !== "object") return false;
 
-    // Common WFCD/Lotus convention: outputId + "Blueprint"
-    const bpCandidate = `${key}Blueprint` as CatalogId;
-    if (FULL_CATALOG.recordsById[bpCandidate]) {
-        return bpCandidate;
-    }
-
-    return null;
+    const regularPrice = Number((data as any).RegularPrice ?? 0);
+    const premiumPrice = Number((data as any).PremiumPrice ?? 0);
+    return (Number.isFinite(regularPrice) && regularPrice > 0) || (Number.isFinite(premiumPrice) && premiumPrice > 0);
 }
 
 type RequirementComponent = {
@@ -165,19 +172,23 @@ type RequirementComponent = {
 function getDirectRequirementsForExpansion(catalogId: CatalogId): RequirementComponent[] {
     const rec = FULL_CATALOG.recordsById[catalogId];
     const name = rec?.displayName ?? String(catalogId);
+    const resolution = resolveItemRequirementGraph(catalogId);
 
     // Critical fix:
     // If this is a craftable OUTPUT that has a sibling Blueprint record,
     // treat the OUTPUT as requiring the Blueprint (qty 1) and DO NOT also
     // treat the OUTPUT as directly requiring the Blueprint's ingredients.
     if (!isExplicitBlueprintItem(catalogId, name)) {
-        const bp = getSiblingBlueprintCatalogIdForOutput(catalogId);
-        if (bp) {
-            return [{ catalogId: bp, count: 1 }];
+        const blueprintEdge = resolution.edges.find((edge) =>
+            edge.provenance === "wfcd-output-blueprint" || edge.provenance === "derived-output-blueprint",
+        );
+        if (isDirectMarketPurchasableOutput(catalogId) && !blueprintEdge) return [];
+        if (blueprintEdge) {
+            return [{ catalogId: blueprintEdge.catalogId, count: blueprintEdge.count }];
         }
     }
 
-    const comps = getItemRequirements(catalogId);
+    const comps = resolution.edges;
     if (!Array.isArray(comps) || comps.length === 0) return [];
 
     const out: RequirementComponent[] = [];

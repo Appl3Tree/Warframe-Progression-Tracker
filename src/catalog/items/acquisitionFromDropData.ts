@@ -27,7 +27,7 @@ import enemyBlueprintTablesJson from "../../../external/warframe-drop-data/raw/e
 import { MANUAL_ACQUISITION_BY_CATALOG_ID } from "./manualAcquisitionByCatalogId";
 
 // warframe-items raw (name aliasing to avoid generic “Barrels/Blades” displayName collisions)
-import WARFRAME_ITEMS_ALL from "../../../external/warframe-items/raw/All.json";
+import WARFRAME_ITEMS_ALL from "../../data/_generated/warframe-items-all-lean.auto.json";
 
 export type AcquisitionDef = {
     sources: string[];

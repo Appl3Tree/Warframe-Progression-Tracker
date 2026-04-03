@@ -91028,6 +91028,21 @@
       "type": "Component"
     }
   },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrelBlueprint": {
+    "name": "Enkaus Barrel Blueprint",
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrelBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrelBlueprint",
+    "category": "Primary",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrel",
+      "type": "Primary"
+    }
+  },
   "/Lotus/Types/Recipes/Weapons/EnkausBlueprint": {
     "name": "Enkaus Blueprint",
     "path": "/Lotus/Types/Recipes/Weapons/EnkausBlueprint",
@@ -91057,6 +91072,21 @@
       "type": "Component"
     }
   },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiverBlueprint": {
+    "name": "Enkaus Receiver Blueprint",
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiverBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiverBlueprint",
+    "category": "Primary",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiver",
+      "type": "Primary"
+    }
+  },
   "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock": {
     "name": "Enkaus Stock",
     "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock",
@@ -91069,6 +91099,21 @@
     "data": {
       "ProductCategory": "LongGuns",
       "type": "Component"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStockBlueprint": {
+    "name": "Enkaus Stock Blueprint",
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStockBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStockBlueprint",
+    "category": "Primary",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock",
+      "type": "Primary"
     }
   },
   "/Lotus/Types/Recipes/ArmourAttachments/EosChestPlateBlueprint": {
@@ -91528,6 +91573,21 @@
       "type": "Component"
     }
   },
+  "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisBlueprint": {
+    "name": "Follie Chassis Blueprint",
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/FollieChassisBlueprint",
+    "category": "Warframes",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisComponent",
+      "type": "Warframes"
+    }
+  },
   "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent": {
     "name": "Follie Neuroptics",
     "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent",
@@ -91542,6 +91602,21 @@
       "type": "Component"
     }
   },
+  "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetBlueprint": {
+    "name": "Follie Neuroptics Blueprint",
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetBlueprint",
+    "category": "Warframes",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent",
+      "type": "Warframes"
+    }
+  },
   "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent": {
     "name": "Follie Systems",
     "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent",
@@ -91554,6 +91629,21 @@
     "data": {
       "ProductCategory": "Suits",
       "type": "Component"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsBlueprint": {
+    "name": "Follie Systems Blueprint",
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsBlueprint",
+    "category": "Warframes",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent",
+      "type": "Warframes"
     }
   },
   "/Lotus/Types/StoreItems/Consumables/Restoratives/FomorianNegatorBlueprint": {

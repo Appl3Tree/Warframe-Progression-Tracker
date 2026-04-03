@@ -755,7 +755,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
     const [lastImportedAt, setLastImportedAt] = useState<string | null>(
         () => localStorage.getItem("wft_last_profile_import") ?? null
     );
-    const [pendingImport, setPendingImport] = useState<{ label: string; execute: () => void } | null>(null);
+    const [pendingImport, setPendingImport] = useState<{ label: string; execute: () => Promise<void> } | null>(null);
 
     const fileRef         = useRef<HTMLInputElement | null>(null);
     const panelRef        = useRef<HTMLDivElement | null>(null);
@@ -837,7 +837,10 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
         }
     }
 
-    function handleImportResult(res: { ok: boolean; error?: string }) {
+    async function handleImportResult(
+        result: Promise<{ ok: boolean; error?: string }> | { ok: boolean; error?: string }
+    ) {
+        const res = await result;
         if (!res.ok) {
             setProfileStatus(res.error ?? "Import failed.");
         } else {
@@ -1125,7 +1128,10 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                                 <div className="flex gap-2">
                                     <button
                                         className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs text-white font-semibold hover:bg-amber-500 transition-colors"
-                                        onClick={() => { pendingImport.execute(); setPendingImport(null); }}
+                                        onClick={async () => {
+                                            await pendingImport.execute();
+                                            setPendingImport(null);
+                                        }}
                                     >
                                         Confirm Import
                                     </button>

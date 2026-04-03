@@ -81,6 +81,13 @@ function buildSyntheticStoreItemType(pathKey: string): string {
         : pathKey;
 }
 
+function inferSyntheticBlueprintPath(componentPath: string): string {
+    if (/Component$/i.test(componentPath)) {
+        return componentPath.replace(/Component$/i, "Blueprint");
+    }
+    return `${componentPath}Blueprint`;
+}
+
 function synthesizeMissingComponentEntries(
     out: Record<string, unknown>,
     allItems: unknown[],
@@ -135,6 +142,33 @@ function synthesizeMissingComponentEntries(
 
             out[componentPath] = lean;
             added++;
+
+            if (!isBlueprint) {
+                const drops = Array.isArray(component.drops) ? component.drops : [];
+                const blueprintDropType = drops
+                    .map((drop) => (drop && typeof drop === "object" && !Array.isArray(drop)) ? safeString((drop as Record<string, unknown>).type) : null)
+                    .find((name) => !!name && /\bblueprint\b/i.test(name));
+
+                if (blueprintDropType) {
+                    const blueprintPath = inferSyntheticBlueprintPath(componentPath);
+                    if (!(blueprintPath in out)) {
+                        out[blueprintPath] = {
+                            name: blueprintDropType,
+                            path: blueprintPath,
+                            categories: ["blueprint"],
+                            parent: "/Lotus/Types/Game/RecipeItem",
+                            storeItemType: buildSyntheticStoreItemType(blueprintPath),
+                            ...(parentCategory ? { category: parentCategory } : {}),
+                            data: {
+                                ProductCategory: "Recipes",
+                                resultItemType: componentPath,
+                                type: parentCategory ?? null,
+                            },
+                        };
+                        added++;
+                    }
+                }
+            }
         }
     }
 

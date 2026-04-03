@@ -1,7 +1,7 @@
 // src/domain/catalog/weaponCatalog.ts
 // Weapon data catalog built from All.json for the mod builder.
 
-import ALL_RAW from "../../../external/warframe-items/raw/All.json";
+import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
 import { ITEMS_CATALOG } from "./itemsCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];

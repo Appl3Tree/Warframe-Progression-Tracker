@@ -20,6 +20,7 @@ export type PageKey =
     | "inventory"
     | "starchart"
     | "mods"
+    | "arcanes"
     | "challenges"
     | "intrinsics"
     | "build_planner"

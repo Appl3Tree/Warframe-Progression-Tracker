@@ -14,12 +14,24 @@ import {
 } from "../domain/logic/plannerEngine";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
-import ALL_RAW from "../../external/warframe-items/raw/All.json";
+import ALL_RAW from "../data/_generated/warframe-items-all-lean.auto.json";
 import missionRewardsJson from "../../external/warframe-drop-data/raw/missionRewards.json";
 import { getRelicByKey } from "../domain/catalog/relicCatalog";
 import { getPrimeAvailabilityStatus, getRelicAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";
-import { WorkspaceAction, WorkspaceFilterBar, WorkspaceFilterGroup, WorkspaceHero, WorkspacePillButton, WorkspaceSection, WorkspaceSegmented, WorkspaceSegmentedButton, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
+import { WorkspaceAction, WorkspaceFilterGroup, WorkspacePillButton, WorkspaceSection, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
+import {
+  COLLECTION_LEDGER_SHELL_CLASS,
+  CollectionChipRail,
+  CollectionModeBand,
+  CollectionModeButton,
+  CollectionRefineBand,
+  CollectionRefineGroup,
+  CollectionResultsBand,
+  CollectionUtilityBand,
+  CollectionUtilityPanel,
+} from "../components/collection/CollectionLedgerShell";
+import { getAllWikiBlueprintReferencedCatalogIds } from "../catalog/items/wikiBlueprintRequirements";
 
 const _statusImgs = import.meta.glob<string>("../assets/statuses/*.png", { eager: true, import: "default" });
 const STATUS_IMG_INV: Record<string, string> = {};
@@ -85,6 +97,14 @@ function isSteelPathDrop(drop: { location: string; chance: number }): boolean {
   const key = `${planet}/${node}/${rotation}`;
   const roundedChance = Math.round(drop.chance * 10000);
   return STEEL_PATH_DROP_CHANCES.get(key)?.has(roundedChance) ?? false;
+}
+
+function isStarChartCollectionSource(sourceId: string): boolean {
+  return (
+    sourceId.startsWith("data:drop:node:") ||
+    sourceId.startsWith("data:missionreward/") ||
+    sourceId.startsWith("data:cache:")
+  );
 }
 
 type SortKey =
@@ -167,6 +187,74 @@ function titleCase(s: string): string {
     .join(" ");
 }
 
+function prettifyPathTail(path: string): string {
+  const tail = String(path ?? "").split("/").filter(Boolean).pop() ?? "";
+  if (!tail) return "";
+  return tail
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .trim();
+}
+
+function getInventoryItemTypeLabel(args: {
+  rawType: string;
+  cls: Classification;
+  label: string;
+  path: string;
+}): string {
+  const rawType = String(args.rawType ?? "").trim();
+  const label = String(args.label ?? "").trim();
+  const path = String(args.path ?? "").trim();
+
+  if (rawType && !rawType.startsWith("/Lotus/")) {
+    return rawType;
+  }
+
+  if (label.toLowerCase().endsWith(" blueprint")) return "Blueprint";
+
+  if (args.cls.groups.has("components")) {
+    if (path.includes("/Weapons/WeaponParts/")) return "Weapon Part";
+    if (path.includes("/WarframeRecipes/")) return "Warframe Part";
+    if (path.includes("/MoaPetParts/")) return "Moa Part";
+    if (path.includes("/CreaturePetParts/")) return "Pet Part";
+    if (path.includes("/SentinelParts/")) return "Sentinel Part";
+    if (path.includes("/Recipes/")) return "Component";
+    return "Part";
+  }
+
+  if (args.cls.groups.has("resources")) return "Resource";
+  if (args.cls.groups.has("railjack")) return "Railjack";
+
+  if (args.cls.groups.has("companions")) {
+    if (args.cls.companionsSub.has("hound")) return "Hound";
+    if (args.cls.companionsSub.has("kavat")) return "Kavat";
+    if (args.cls.companionsSub.has("kubrow")) return "Kubrow";
+    if (args.cls.companionsSub.has("moa")) return "Moa";
+    if (args.cls.companionsSub.has("predasite")) return "Predasite";
+    if (args.cls.companionsSub.has("sentinel")) return "Sentinel";
+    if (args.cls.companionsSub.has("vulpaphyla")) return "Vulpaphyla";
+    return "Companion";
+  }
+
+  if (args.cls.groups.has("warframesVehicles")) {
+    if (args.cls.warframesVehiclesSub.has("archwings")) return "Archwing";
+    if (args.cls.warframesVehiclesSub.has("necramechs")) return "Necramech";
+    if (args.cls.warframesVehiclesSub.has("warframes")) return "Warframe";
+  }
+
+  const firstWeaponClass = (["primary", "secondary", "melee", "companion"] as const).find((wc) =>
+    args.cls.weaponClasses.has(wc),
+  );
+  if (firstWeaponClass) {
+    const firstWeaponType = Array.from(args.cls.weaponTypesByClass[firstWeaponClass] ?? [])[0];
+    if (firstWeaponType) return titleCase(firstWeaponType);
+    return titleCase(firstWeaponClass);
+  }
+
+  return prettifyPathTail(path) || "Item";
+}
+
 function cycleTagFilterState(current?: TagFilterState): TagFilterState | undefined {
   if (current === "include") return "exclude";
   if (current === "exclude") return undefined;
@@ -206,6 +294,33 @@ function resolveRecordPath(rec: any): string {
       rec?.raw?.rawLotus?.uniqueName ??
       rec?.raw?.rawWfcd?.uniqueName ??
       "",
+  );
+}
+
+function isModularAssemblyPartCatalogId(id: CatalogId): boolean {
+  const rec: any = FULL_CATALOG.recordsById[id];
+  if (!rec) return false;
+
+  const path = resolveRecordPath(rec);
+  if (!path) return false;
+
+  return (
+    path.includes("/Weapons/Ostron/Melee/ModularMelee") ||
+    path.includes("/Weapons/Sentients/OperatorAmplifiers/") ||
+    path.includes("/Weapons/SolarisUnited/Primary/SUModularPrimary") ||
+    path.includes("/Weapons/SolarisUnited/Secondary/SUModularSecondary") ||
+    path.includes("/Types/Friendly/Pets/MoaPets/MoaPetParts/") ||
+    path.includes("/Types/Friendly/Pets/CreaturePets/CreaturePetParts/")
+  );
+}
+
+function isModularMasteryDriverPath(path: string): boolean {
+  return (
+    path.includes("/Types/Friendly/Pets/MoaPets/MoaPetParts/MoaPetHead") ||
+    path.includes("/Weapons/Ostron/Melee/ModularMelee/") ||
+    path.includes("/Weapons/Sentients/OperatorAmplifiers/") ||
+    path.includes("/Weapons/SolarisUnited/Primary/SUModularPrimary") ||
+    path.includes("/Weapons/SolarisUnited/Secondary/SUModularSecondary")
   );
 }
 
@@ -631,8 +746,8 @@ function safeInt(v: unknown, fallback = 0): number {
   return Math.max(0, Math.floor(n));
 }
 
-function Section(props: { title: string; children: ReactNode }) {
-  return <WorkspaceSection title={props.title}>{props.children}</WorkspaceSection>;
+function Section(props: { title: string; children: ReactNode; className?: string; bodyClassName?: string }) {
+  return <WorkspaceSection title={props.title} className={props.className} bodyClassName={props.bodyClassName}>{props.children}</WorkspaceSection>;
 }
 
 function TabButton(props: {
@@ -641,9 +756,9 @@ function TabButton(props: {
   onClick: () => void;
 }) {
   return (
-    <WorkspaceSegmentedButton active={props.active} onClick={props.onClick} className="px-3 py-2 text-sm">
+    <CollectionModeButton active={props.active} onClick={props.onClick}>
       {props.label}
-    </WorkspaceSegmentedButton>
+    </CollectionModeButton>
   );
 }
 
@@ -785,7 +900,7 @@ function classifyFromCategories(categories: string[]): Classification {
 
   // Companions
   for (const m of metas) {
-    if (m.main === "pet" && m.sub) {
+    if ((m.main === "pet" || m.main === "pets") && m.sub) {
       const first = normalize(m.sub).split("-")[0];
       if (first === "kavat") {
         cls.groups.add("companions");
@@ -1173,6 +1288,7 @@ function classifyFromRecord(catalogId: string, rec: any): Classification {
     ? (rec.categories as string[])
     : [];
   const cls = classifyFromCategories(categories);
+  const pathLower = normalize(String(rec?.path ?? catalogId));
 
   // Companion weapons (sentinel, beast, robot) get their own "companion" weapon class tab.
   // IMPORTANT: clear all other weapon classes so they don't bleed into Primary/Secondary/Melee.
@@ -1195,6 +1311,14 @@ function classifyFromRecord(catalogId: string, rec: any): Classification {
   if (rawType === "resource") {
     cls.groups.add("resources");
     cls.isResource = true;
+  }
+
+  if (
+    pathLower.includes("/railjackmiscitems/") ||
+    pathLower.includes("/crewship/railjack/") ||
+    pathLower.includes("/railjackresourcerecipes/")
+  ) {
+    cls.groups.add("railjack");
   }
 
   if (
@@ -1242,12 +1366,53 @@ function classifyFromRecord(catalogId: string, rec: any): Classification {
 }
 
 /** Items that contribute to mastery rank when leveled */
-function isMasterableItem(cls: Classification): boolean {
+function isMasterableItem(cls: Classification, path?: string): boolean {
+  if (path && isModularAssemblyPartCatalogId(`items:${path}` as CatalogId)) {
+    return isModularMasteryDriverPath(path);
+  }
   return (
     cls.groups.has("warframesVehicles") ||
     cls.groups.has("weapons") ||
     cls.groups.has("companions")
   );
+}
+
+function inventorySearchAliases(row: Pick<Row, "label" | "cls">): string[] {
+  const aliases: string[] = [];
+
+  if (row.cls.isComponent && !/\sblueprint$/i.test(row.label)) {
+    aliases.push(`${row.label} Blueprint`);
+  }
+
+  return aliases;
+}
+
+function inventoryRowDuplicatePenalty(row: Pick<Row, "path" | "label">): number {
+  const path = row.path.toLowerCase();
+  let penalty = 0;
+
+  if (path.includes("pvpvariant")) penalty += 1000;
+  if (path.includes("/storeitems/")) penalty += 700;
+  if (path.includes("starterpack")) penalty += 500;
+  if (path.includes("tutorial")) penalty += 500;
+  if (path.includes("junctionreward")) penalty += 500;
+  if (path.includes("rewarditem")) penalty += 450;
+  if (path.includes("bundle")) penalty += 400;
+  if (path.includes("consumable")) penalty += 300;
+  if (path.includes("wounded")) penalty += 300;
+  if (path.includes("/base")) penalty += 250;
+  if (path.includes("free")) penalty += 150;
+  if (path.includes("fixed")) penalty += 150;
+
+  return penalty;
+}
+
+function preferInventoryRow(a: Row, b: Row): Row {
+  const penaltyA = inventoryRowDuplicatePenalty(a);
+  const penaltyB = inventoryRowDuplicatePenalty(b);
+  if (penaltyA !== penaltyB) return penaltyA < penaltyB ? a : b;
+  if (a.path.length !== b.path.length) return a.path.length < b.path.length ? a : b;
+  return String(a.id).localeCompare(String(b.id)) <= 0 ? a : b;
 }
 
 /** Resolve mastery status supporting both catalog ID keys and legacy Lotus path keys */
@@ -1363,12 +1528,6 @@ export default function Inventory() {
     null,
   );
 
-  // Overlevel weapons panel state
-  const [overLevelOpen, setOverLevelOpen] = useState(false);
-  const [overLevelTab, setOverLevelTab] = useState<"kuva" | "tenet" | "coda">(
-    "kuva",
-  );
-
   const [primaryTab, setPrimaryTab] = useState<PrimaryTab>("all");
 
   const [wfVehTab, setWfVehTab] = useState<WarframesVehiclesTab>("all");
@@ -1434,12 +1593,52 @@ export default function Inventory() {
     });
   }
 
+  const inventoryCatalogIds = useMemo(() => {
+    const seen = new Set<string>(FULL_CATALOG.displayableInventoryItemIds as CatalogId[]);
+    const supplemental: CatalogId[] = [];
+
+    for (const id of FULL_CATALOG.displayableItemIds as CatalogId[]) {
+      if (seen.has(id)) continue;
+      const rec: any = FULL_CATALOG.recordsById[id];
+      if (!rec?.displayName) continue;
+
+      const cls = classifyFromRecord(String(id), rec);
+      const collectionRelevant =
+        cls.groups.has("warframesVehicles") ||
+        cls.groups.has("companions") ||
+        cls.groups.has("weapons") ||
+        cls.groups.has("resources") ||
+        cls.groups.has("components");
+
+      if (!collectionRelevant) continue;
+
+      const acq = getAcquisitionByCatalogId(id);
+      const sources = Array.isArray(acq?.sources) ? acq.sources : [];
+      if (!sources.some(isStarChartCollectionSource)) continue;
+
+      seen.add(id);
+      supplemental.push(id);
+    }
+
+    for (const id of getAllWikiBlueprintReferencedCatalogIds()) {
+      if (seen.has(id)) continue;
+      const rec: any = FULL_CATALOG.recordsById[id];
+      if (!rec?.displayName) continue;
+
+      seen.add(id);
+      supplemental.push(id);
+    }
+
+    return [
+      ...(FULL_CATALOG.displayableInventoryItemIds as CatalogId[]),
+      ...supplemental,
+    ];
+  }, []);
+
   const rows = useMemo<Row[]>(() => {
     const q = normalize(query);
 
-    const base: Row[] = (
-      FULL_CATALOG.displayableInventoryItemIds as CatalogId[]
-    )
+    const base: Row[] = inventoryCatalogIds
       .map((id) => {
         const rec: any = FULL_CATALOG.recordsById[id];
         if (!rec?.displayName) return null;
@@ -1471,15 +1670,20 @@ export default function Inventory() {
           categories,
           cls,
           path: rawPath,
-          isMasterable: isMasterableItem(cls),
+          isMasterable: isMasterableItem(cls, rawPath),
           isOverLevel: isOverLevelWeaponPath(rawPath),
-          itemType:
-            allEntry?.type ??
-            rec.type ??
-            rec?.raw?.type ??
-            rec?.raw?.rawWfcd?.type ??
-            rec?.raw?.rawLotus?.type ??
-            "",
+          itemType: getInventoryItemTypeLabel({
+            rawType:
+              allEntry?.type ??
+              rec.type ??
+              rec?.raw?.type ??
+              rec?.raw?.rawWfcd?.type ??
+              rec?.raw?.rawLotus?.type ??
+              "",
+            cls,
+            label: rec.displayName,
+            path: rawPath,
+          }),
           releaseDate: allEntry?.releaseDate,
           masteryReq:
             allEntry?.masteryReq ??
@@ -1496,9 +1700,11 @@ export default function Inventory() {
 
         const label = normalize(r.label);
         const id = normalize(String(r.id));
+        const aliases = inventorySearchAliases(r).map(normalize).join(" | ");
 
         // Base searchable fields
         if (label.includes(q) || id.includes(q)) return true;
+        if (aliases.includes(q)) return true;
 
         // Also search categories (helps a lot for non-obvious items)
         const cats = Array.isArray(r.categories)
@@ -1607,7 +1813,7 @@ export default function Inventory() {
     const PLEXUS_PATH = "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness";
     const PLEXUS_ID = `items:${PLEXUS_PATH}` as CatalogId;
     const plexusCls: Classification = {
-      groups: new Set(["warframesVehicles"]),
+      groups: new Set(["warframesVehicles", "railjack"]),
       warframesVehiclesSub: new Set(["warframes"]),
       weaponClasses: new Set(),
       weaponTypesByClass: {},
@@ -1636,47 +1842,37 @@ export default function Inventory() {
       });
     }
 
-    return base;
-  }, [counts, mastered, overLevelMastered, query, hideZero, sortKey]);
+    const dedupedByLabel = new Map<string, Row>();
+    for (const row of base) {
+      const key = normalize(row.label);
+      const existing = dedupedByLabel.get(key);
+      if (!existing) {
+        dedupedByLabel.set(key, row);
+        continue;
+      }
+      dedupedByLabel.set(key, preferInventoryRow(existing, row));
+    }
 
-  // Overlevel weapons: all Kuva/Tenet/Coda/Paracesis weapons from the catalog
-  const overLevelRows = useMemo(() => {
-    function getOverLevelFamily(label: string): "kuva" | "tenet" | "coda" {
-      if (label.startsWith("Coda ") || label.startsWith("Dual Coda "))
-        return "coda";
-      if (label.startsWith("Tenet ")) return "tenet";
-      return "kuva"; // Kuva weapons + Paracesis
+    return Array.from(dedupedByLabel.values());
+  }, [counts, inventoryCatalogIds, mastered, overLevelMastered, query, hideZero, sortKey]);
+
+  const availableCompanionTabs = useMemo(() => {
+    const available = new Set<CompanionsTab>(["all"]);
+    for (const row of rows) {
+      if (!row.cls.groups.has("companions")) continue;
+      if (row.cls.groups.has("components")) continue;
+      for (const sub of row.cls.companionsSub) {
+        available.add(sub);
+      }
     }
-    function weaponClassOrder(wc: string): number {
-      const w = wc.toLowerCase();
-      if (w === "primary") return 0;
-      if (w === "secondary") return 1;
-      if (w === "melee") return 2;
-      return 3;
+    return available;
+  }, [rows]);
+
+  useEffect(() => {
+    if (companionsTab !== "all" && !availableCompanionTabs.has(companionsTab)) {
+      setCompanionsTab("all");
     }
-    return (FULL_CATALOG.displayableInventoryItemIds as CatalogId[])
-      .map((id) => {
-        const rec: any = FULL_CATALOG.recordsById[id];
-        if (!rec?.displayName) return null;
-        const path = String((rec as any).path ?? "");
-        if (!isOverLevelWeaponPath(path)) return null;
-        const isMastered =
-          overLevelMastered[String(id)] === true ||
-          overLevelMastered[path] === true;
-        const wfcdRaw = (rec as any).raw?.rawWfcd ?? null;
-        const weaponClass = wfcdRaw?.category ?? "Weapon";
-        const label = rec.displayName;
-        const family = getOverLevelFamily(label);
-        return { id, label, path, isMastered, weaponClass, family };
-      })
-      .filter((r): r is NonNullable<typeof r> => !!r)
-      .sort((a, b) => {
-        const co =
-          weaponClassOrder(a.weaponClass) - weaponClassOrder(b.weaponClass);
-        if (co !== 0) return co;
-        return a.label.localeCompare(b.label);
-      });
-  }, [overLevelMastered]);
+  }, [companionsTab, availableCompanionTabs]);
 
   // 5.2: Ownership + availability filter applied after category filtering
   // (computationally expensive filters run only on already-filtered set)
@@ -1701,11 +1897,9 @@ export default function Inventory() {
   }, [rows, weaponClassTab]);
 
   const filtered = useMemo(() => {
-    // Railjack tab — shows Plexus (which is in the warframesVehicles group)
+    // Railjack tab — Plexus plus Railjack resources/items.
     if (primaryTab === "railjack") {
-      return rows.filter(
-        (r) => r.path === "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness",
-      );
+      return rows.filter((r) => r.cls.groups.has("railjack"));
     }
 
     // "All" tab — show warframes, weapons, companions including Plexus synthetic row
@@ -1743,7 +1937,7 @@ export default function Inventory() {
       // Resources: raw farming materials (Circuits, Plastids, Ferrite, etc.)
       // Some resources also carry the "components" classification in WFCD data;
       // show them here anyway — the Resources tab is their primary home.
-      return rows.filter((r) => r.cls.groups.has("resources"));
+      return rows.filter((r) => r.cls.groups.has("resources") && !r.cls.groups.has("railjack"));
     }
 
     if (primaryTab === "components") {
@@ -2108,203 +2302,80 @@ export default function Inventory() {
   const slice = finalFiltered.slice(vw.start, vw.end);
   const translateY = vw.start * ROW_H;
 
-  const overLevelTabRows = overLevelRows.filter(
-    (r) => r.family === overLevelTab,
-  );
-  const overLevelMasteredCount = overLevelRows.filter(
-    (r) => r.isMastered,
-  ).length;
-
-  // Group overLevelTabRows by weapon class for display headers
-  const overLevelByClass = overLevelTabRows.reduce<
-    Record<string, typeof overLevelTabRows>
-  >((acc, r) => {
-    const wc = r.weaponClass;
-    if (!acc[wc]) acc[wc] = [];
-    acc[wc].push(r);
-    return acc;
-  }, {});
-  const classOrder = ["Primary", "Secondary", "Melee"];
-  const overLevelClassGroups = classOrder
-    .filter((wc) => overLevelByClass[wc]?.length)
-    .map((wc) => ({ label: wc, rows: overLevelByClass[wc] }));
-  const activeGoalCount = goals.filter((goal) => goal.isActive).length;
-  const ownedItemCount = rows.filter((row) => row.value > 0).length;
-  const masteredCount = rows.filter((row) =>
-    checkMastered(mastered, overLevelMastered, String(row.id), row.path),
-  ).length;
-
   return (
-    <div className="space-y-6">
-      <WorkspaceHero
-        eyebrow="Collection Workspace"
+    <div className="flex h-full min-h-0 flex-col">
+      <Section
         title="Inventory"
-        description="Search the full catalog, update ownership, and connect items directly to mastery and goal planning without leaving the collection view."
-        actions={<WorkspaceAction onClick={() => setSelectedDetailId(null)}>Clear Detail</WorkspaceAction>}
-        stats={
-          <>
-            <WorkspaceStat label="Catalog rows" value={rows.length.toLocaleString()} hint="Displayable collection records in the current catalog." />
-            <WorkspaceStat label="Owned items" value={ownedItemCount.toLocaleString()} hint="Items with a stored count greater than zero." />
-            <WorkspaceStat label="Filtered view" value={filtered.length.toLocaleString()} hint="Rows visible after the current query and filters." />
-            <WorkspaceStat label="Mastered" value={masteredCount.toLocaleString()} hint="Mastery-tracked rows marked complete in your profile." />
-            <WorkspaceStat
-              label="Planning context"
-              value={`${activeGoalCount.toLocaleString()} active`}
-              hint={masteryRank == null ? "No mastery rank set yet." : `Profile is currently at MR ${masteryRank}.`}
-              className="col-span-2 xl:col-span-1"
-            />
-          </>
-        }
-      />
+        className="flex h-full min-h-0 flex-col md:min-h-[42rem]"
+        bodyClassName="flex min-h-0 flex-1 flex-col"
+      >
+        <div className={COLLECTION_LEDGER_SHELL_CLASS}>
+          <CollectionUtilityBand
+            primary={
+              <CollectionUtilityPanel>
+                <label className="block">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Search Catalog
+                  </span>
+                  <input
+                    className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-2.5 text-base text-slate-100 placeholder:text-slate-500"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search items, blueprints, resources..."
+                  />
+                </label>
 
-      {/* ── Overlevel Weapons Mastery (collapsible) ── */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-950/40">
-        <button
-          className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
-          onClick={() => setOverLevelOpen((v) => !v)}
-          aria-expanded={overLevelOpen}
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-slate-100">
-              Overlevel Weapons Mastery
-            </span>
-            <span className="text-xs text-slate-500">
-              {overLevelMasteredCount}/{overLevelRows.length} confirmed
-            </span>
-          </div>
-          <svg
-            className={[
-              "w-4 h-4 text-slate-400 transition-transform",
-              overLevelOpen ? "rotate-180" : "",
-            ].join(" ")}
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-
-        {overLevelOpen && (
-          <div className="px-4 pb-4">
-            <p className="text-xs text-slate-400 mb-3">
-              Kuva Lich, Tenet, Technocyte Coda, and Paracesis weapons require{" "}
-              <strong className="text-slate-200">Rank 40</strong> to count as
-              mastered. They are not auto-detected via profile import (XP across
-              Forma cycles is variable). Toggle each weapon once you have
-              reached Rank 40.
-            </p>
-
-            {/* Family tabs */}
-            <div className="flex gap-2 mb-4 border-b border-slate-800 pb-2">
-              {(["kuva", "tenet", "coda"] as const).map((tab) => {
-                const count = overLevelRows.filter(
-                  (r) => r.family === tab,
-                ).length;
-                const mastered = overLevelRows.filter(
-                  (r) => r.family === tab && r.isMastered,
-                ).length;
-                return (
-                  <button
-                    key={tab}
-                    className={[
-                      "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors",
-                      overLevelTab === tab
-                        ? "bg-slate-100 text-slate-900 border-slate-100"
-                        : "bg-slate-950/40 text-slate-300 border-slate-700 hover:bg-slate-800",
-                    ].join(" ")}
-                    onClick={() => setOverLevelTab(tab)}
-                  >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                    <span className="ml-1.5 opacity-60">
-                      {mastered}/{count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Weapon groups by class */}
-            {overLevelClassGroups.length === 0 && (
-              <div className="text-xs text-slate-500">
-                No weapons in this category.
-              </div>
-            )}
-            {overLevelClassGroups.map(
-              ({ label: classLabel, rows: classRows }) => (
-                <div key={classLabel} className="mb-4 last:mb-0">
-                  <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                    {classLabel}
+                <div className="mt-3 grid gap-2 lg:grid-cols-[auto_1fr] lg:items-start">
+                  <div className="pt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Ownership
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
-                    {classRows.map((r) => (
-                      <button
-                        key={String(r.id)}
-                        className={[
-                          "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
-                          r.isMastered
-                            ? "border-cyan-700 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-950/50"
-                            : "border-slate-700 bg-slate-900/40 text-slate-300 hover:bg-slate-800",
-                        ].join(" ")}
-                        onClick={() =>
-                          setOverLevelMastered(String(r.id), !r.isMastered)
-                        }
-                        title={
-                          r.isMastered
-                            ? "Click to mark as not mastered"
-                            : "Click to mark as mastered (Rank 40)"
-                        }
-                      >
-                        <span
-                          className={[
-                            "shrink-0 w-4 h-4 rounded border flex items-center justify-center text-xs font-bold",
-                            r.isMastered
-                              ? "border-cyan-500 bg-cyan-900/60 text-cyan-300"
-                              : "border-slate-600 bg-slate-800 text-slate-500",
-                          ].join(" ")}
-                        >
-                          {r.isMastered ? "✓" : ""}
-                        </span>
-                        <span className="truncate flex-1">{r.label}</span>
-                      </button>
+                  <WorkspaceFilterGroup className="gap-2">
+                    {(["all", "owned", "unowned"] as const).map((f) => (
+                      <PillButton
+                        key={f}
+                        label={f === "all" ? "All" : f === "owned" ? "Owned" : "Unowned"}
+                        active={ownershipFilter === f}
+                        onClick={() => setOwnershipFilter(f)}
+                      />
                     ))}
+                  </WorkspaceFilterGroup>
+
+                  <div className="pt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Status
                   </div>
+                  <WorkspaceFilterGroup className="gap-2">
+                    <PillButton
+                      label="Mastered"
+                      active={ownershipFilter === "mastered"}
+                      onClick={() =>
+                        setOwnershipFilter(ownershipFilter === "mastered" ? "all" : "mastered")
+                      }
+                    />
+                    <PillButton
+                      label={masteryRank === null ? "Within current MR" : `Within current MR (${masteryRank})`}
+                      active={showAvailableNow}
+                      onClick={() => {
+                        if (masteryRank === null) return;
+                        setShowAvailableNow(!showAvailableNow);
+                      }}
+                    />
+                    <PillButton
+                      label="Accessible sources"
+                      active={showAvailableOnly}
+                      onClick={() => setShowAvailableOnly(!showAvailableOnly)}
+                    />
+                  </WorkspaceFilterGroup>
                 </div>
-              ),
-            )}
-          </div>
-        )}
-      </div>
-
-      <Section title="Inventory">
-        <div className="mb-4">
-          <div className="rounded-[1.4rem] border border-slate-800 bg-[linear-gradient(180deg,rgba(10,18,34,0.92),rgba(3,7,18,0.92))] p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300/80">
-              Inventory Workspace
-            </div>
-            <div className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-              Search and edit item counts here. Credits and Platinum live in the profile header, and Goal Target lets you pin farming objectives directly from the list.
-            </div>
-
-            <WorkspaceFilterBar className="mt-4 items-end">
-              <label className="flex flex-col gap-1">
-                <span className="text-xs uppercase tracking-wider text-slate-500">Search</span>
-                <input
-                  className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-slate-100"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search items, blueprints, resources..."
-                />
-              </label>
-
-              <WorkspaceFilterGroup className="flex-col gap-2">
-                <label className="flex flex-col gap-1">
-                  <span className="text-xs uppercase tracking-wider text-slate-500">Sort by</span>
+              </CollectionUtilityPanel>
+            }
+            secondary={
+              <CollectionUtilityPanel className="grid gap-3">
+                <label className="block">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Sort Rows
+                  </span>
                   <select
-                    className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+                    className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
                     value={sortKey}
                     onChange={(e) => setSortKey(e.target.value as SortKey)}
                   >
@@ -2323,59 +2394,29 @@ export default function Inventory() {
                     <option value="mr-desc">MR Req: High → Low</option>
                   </select>
                 </label>
-                <label className="flex items-center gap-2 text-sm text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={hideZero}
-                    onChange={(e) => setHideZero(e.target.checked)}
-                  />
-                  Hide zero-count rows
-                </label>
-              </WorkspaceFilterGroup>
-            </WorkspaceFilterBar>
 
-            <div className="mt-4 space-y-3">
-              <WorkspaceFilterGroup>
-                <span className="text-xs uppercase tracking-wider text-slate-500">Ownership</span>
-                {(["all", "owned", "unowned"] as const).map((f) => (
-                  <PillButton
-                    key={f}
-                    label={f === "all" ? "All" : f === "owned" ? "Owned" : "Unowned"}
-                    active={ownershipFilter === f}
-                    onClick={() => setOwnershipFilter(f)}
-                  />
-                ))}
-              </WorkspaceFilterGroup>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <label className="flex items-center gap-2 text-sm text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={hideZero}
+                      onChange={(e) => setHideZero(e.target.checked)}
+                    />
+                    Hide zero-count rows
+                  </label>
+                  <WorkspaceAction
+                    className="rounded-full border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-500 hover:text-slate-100"
+                    onClick={() => setSelectedDetailId(null)}
+                  >
+                    Clear Detail
+                  </WorkspaceAction>
+                </div>
+              </CollectionUtilityPanel>
+            }
+          />
 
-              <WorkspaceFilterGroup>
-                <span className="text-xs uppercase tracking-wider text-slate-500">Status</span>
-                <PillButton
-                  label="Mastered"
-                  active={ownershipFilter === "mastered"}
-                  onClick={() =>
-                    setOwnershipFilter(ownershipFilter === "mastered" ? "all" : "mastered")
-                  }
-                />
-                <PillButton
-                  label={masteryRank === null ? "Within current MR (set MR first)" : `Within current MR (${masteryRank})`}
-                  active={showAvailableNow}
-                  onClick={() => {
-                    if (masteryRank === null) return;
-                    setShowAvailableNow(!showAvailableNow);
-                  }}
-                />
-                <PillButton
-                  label="Accessible sources"
-                  active={showAvailableOnly}
-                  onClick={() => setShowAvailableOnly(!showAvailableOnly)}
-                />
-              </WorkspaceFilterGroup>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 overflow-hidden rounded-[1.6rem] border border-slate-800 bg-[linear-gradient(180deg,rgba(8,14,28,0.96),rgba(3,7,18,0.92))] shadow-[0_24px_80px_rgba(2,6,23,0.32)]">
-          <WorkspaceSegmented className="w-full flex-wrap rounded-none border-0 border-b border-slate-800 bg-transparent p-0 shadow-none px-3 py-2">
+          <div className="flex min-h-0 flex-1 flex-col">
+          <CollectionModeBand>
             <TabButton
               label="All"
               active={primaryTab === "all"}
@@ -2411,14 +2452,87 @@ export default function Inventory() {
               active={primaryTab === "railjack"}
               onClick={() => selectPrimaryTab("railjack")}
             />
-          </WorkspaceSegmented>
+          </CollectionModeBand>
 
-          {primaryTab === "warframesVehicles" && (
-            <div className="px-3 py-3 border-b border-slate-800">
-              <div className="text-xs text-slate-400">
-                Refine Warframes & Vehicles
-              </div>
-              <WorkspaceSegmented className="mt-2 flex-wrap bg-transparent border-slate-800 shadow-none">
+          {primaryTab === "weapons" ? (
+            <CollectionRefineBand title="Refine Weapons" className="gap-y-1.5">
+              <CollectionChipRail>
+                <SubTabButton
+                  label="All"
+                  active={weaponClassTab === "all"}
+                  onClick={() => selectWeaponClass("all")}
+                />
+                <SubTabButton
+                  label="Primary"
+                  active={weaponClassTab === "primary"}
+                  onClick={() => selectWeaponClass("primary")}
+                />
+                <SubTabButton
+                  label="Secondary"
+                  active={weaponClassTab === "secondary"}
+                  onClick={() => selectWeaponClass("secondary")}
+                />
+                <SubTabButton
+                  label="Melee"
+                  active={weaponClassTab === "melee"}
+                  onClick={() => selectWeaponClass("melee")}
+                />
+                <SubTabButton
+                  label="Companion"
+                  active={weaponClassTab === "companion"}
+                  onClick={() => selectWeaponClass("companion")}
+                />
+              </CollectionChipRail>
+              {weaponClassTab !== "companion" &&
+              weaponClassTab !== "all" &&
+              weaponTypeOptions.length > 0 ? (
+                <CollectionRefineGroup
+                  label="Weapon Type"
+                  action={
+                    Object.keys(weaponTypeFilters).length > 0 ? (
+                      <button
+                        className="text-xs text-slate-300 underline hover:text-slate-100"
+                        onClick={() => setWeaponTypeFilters({})}
+                      >
+                        Clear type filters
+                      </button>
+                    ) : null
+                  }
+                >
+                  <CollectionChipRail>
+                    {weaponTypeOptions.map((t) => {
+                      const state = weaponTypeFilters[t];
+                      return (
+                        <FilterTagButton
+                          key={t}
+                          label={titleCase(t)}
+                          state={state}
+                          title={
+                            state === "include"
+                              ? `Including ${titleCase(t)}. Click again to exclude it.`
+                              : state === "exclude"
+                                ? `Excluding ${titleCase(t)}. Click again to clear it.`
+                                : `Click to include ${titleCase(t)}.`
+                          }
+                          onClick={() => {
+                            setWeaponTypeFilters((prev) => {
+                              const nextState = cycleTagFilterState(prev[t]);
+                              const next = { ...prev };
+                              if (!nextState) delete next[t];
+                              else next[t] = nextState;
+                              return next;
+                            });
+                          }}
+                        />
+                      );
+                    })}
+                  </CollectionChipRail>
+                </CollectionRefineGroup>
+              ) : null}
+            </CollectionRefineBand>
+          ) : primaryTab === "warframesVehicles" ? (
+            <CollectionRefineBand title="Refine Warframes & Vehicles" className="gap-y-1.5">
+              <CollectionChipRail>
                 <SubTabButton
                   label="All"
                   active={wfVehTab === "all"}
@@ -2439,14 +2553,11 @@ export default function Inventory() {
                   active={wfVehTab === "necramechs"}
                   onClick={() => setWfVehTab("necramechs")}
                 />
-              </WorkspaceSegmented>
-            </div>
-          )}
-
-          {primaryTab === "companions" && (
-            <div className="px-3 py-3 border-b border-slate-800">
-              <div className="text-xs text-slate-400">Refine Companions</div>
-              <WorkspaceSegmented className="mt-2 flex-wrap bg-transparent border-slate-800 shadow-none">
+              </CollectionChipRail>
+            </CollectionRefineBand>
+          ) : primaryTab === "companions" ? (
+            <CollectionRefineBand title="Refine Companions" className="gap-y-1.5">
+              <CollectionChipRail>
                 <SubTabButton
                   label="All"
                   active={companionsTab === "all"}
@@ -2487,159 +2598,60 @@ export default function Inventory() {
                   active={companionsTab === "sentinel"}
                   onClick={() => setCompanionsTab("sentinel")}
                 />
-              </WorkspaceSegmented>
-            </div>
-          )}
-
-          {primaryTab === "weapons" && (
-            <div className="px-3 py-3 border-b border-slate-800">
-              <div className="text-xs text-slate-400">Weapon Class</div>
-              <WorkspaceSegmented className="mt-2 flex-wrap bg-transparent border-slate-800 shadow-none">
-                <SubTabButton
-                  label="All"
-                  active={weaponClassTab === "all"}
-                  onClick={() => selectWeaponClass("all")}
-                />
-                <SubTabButton
-                  label="Primary"
-                  active={weaponClassTab === "primary"}
-                  onClick={() => selectWeaponClass("primary")}
-                />
-                <SubTabButton
-                  label="Secondary"
-                  active={weaponClassTab === "secondary"}
-                  onClick={() => selectWeaponClass("secondary")}
-                />
-                <SubTabButton
-                  label="Melee"
-                  active={weaponClassTab === "melee"}
-                  onClick={() => selectWeaponClass("melee")}
-                />
-                <SubTabButton
-                  label="Companion"
-                  active={weaponClassTab === "companion"}
-                  onClick={() => selectWeaponClass("companion")}
-                />
-              </WorkspaceSegmented>
-
-              {weaponClassTab !== "companion" && weaponClassTab !== "all" && (
-                <>
-                  <div className="mt-3 text-xs text-slate-400">Type</div>
-                  {weaponTypeOptions.length === 0 ? (
-                    <div className="mt-2 text-sm text-slate-500">
-                      No weapon types found for this class.
-                    </div>
-                  ) : (
-                    <>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {weaponTypeOptions.map((t) => {
-                          const state = weaponTypeFilters[t];
-                          return (
-                            <FilterTagButton
-                              key={t}
-                              label={titleCase(t)}
-                              state={state}
-                              title={
-                                state === "include"
-                                  ? `Including ${titleCase(t)}. Click again to exclude it.`
-                                  : state === "exclude"
-                                    ? `Excluding ${titleCase(t)}. Click again to clear it.`
-                                    : `Click to include ${titleCase(t)}.`
-                              }
-                              onClick={() => {
-                                setWeaponTypeFilters((prev) => {
-                                  const nextState = cycleTagFilterState(prev[t]);
-                                  const next = { ...prev };
-                                  if (!nextState) delete next[t];
-                                  else next[t] = nextState;
-                                  return next;
-                                });
-                              }}
-                            />
-                          );
-                        })}
-                      </div>
-                      {Object.keys(weaponTypeFilters).length > 0 && (
-                        <div className="mt-2 flex items-center justify-between gap-3">
-                          <div className="text-xs text-slate-500">
-                            Click once to include. Click twice to exclude.
-                          </div>
-                          <button
-                            className="text-xs text-slate-300 hover:text-slate-100 underline"
-                            onClick={() => setWeaponTypeFilters({})}
-                          >
-                            Clear type filters
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </>
-              )}
-
-            </div>
-          )}
+              </CollectionChipRail>
+            </CollectionRefineBand>
+          ) : null}
 
           {/* Virtualized list */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 bg-slate-950/80 px-4 py-3">
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Table Filters
-              </div>
-              <div className="mt-1 text-sm text-slate-400">
-                Filter directly from the visible columns. Hidden columns keep their filters cleared.
-              </div>
-            </div>
-            <WorkspaceFilterGroup className="text-xs text-slate-400">
-              <span className="rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1.5">
-                Rows: {finalFiltered.length}
-              </span>
-              <span className="rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1.5">
-                Filters: {activeColumnFilterCount}
-              </span>
-              <WorkspaceAction
-                className="rounded-full border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-500 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
-                disabled={activeColumnFilterCount === 0}
-                onClick={resetColumnFilters}
-              >
-                Clear column filters
-              </WorkspaceAction>
-              <div className="relative">
+          <CollectionResultsBand
+            actions={
+              <WorkspaceFilterGroup className="text-xs text-slate-400">
+                <span className="rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1.5">
+                  Rows: {finalFiltered.length}
+                </span>
+                <span className="rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1.5">
+                  Filters: {activeColumnFilterCount}
+                </span>
                 <WorkspaceAction
-                  className="rounded-full border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-500 hover:text-slate-100"
-                  onClick={() => setColumnMenuOpen((open) => !open)}
+                  className="rounded-full border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-500 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  disabled={activeColumnFilterCount === 0}
+                  onClick={resetColumnFilters}
                 >
-                  Customize Columns
+                  Clear column filters
                 </WorkspaceAction>
-                {columnMenuOpen && (
-                  <div className="absolute right-0 top-[calc(100%+0.5rem)] z-20 w-56 rounded-2xl border border-slate-800 bg-slate-950/95 p-3 shadow-[0_18px_60px_rgba(2,6,23,0.45)] backdrop-blur">
-                    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Visible Columns
+                <div className="relative">
+                  <WorkspaceAction
+                    className="rounded-full border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-500 hover:text-slate-100"
+                    onClick={() => setColumnMenuOpen((open) => !open)}
+                  >
+                    Customize Columns
+                  </WorkspaceAction>
+                  {columnMenuOpen && (
+                    <div className="absolute right-0 top-[calc(100%+0.5rem)] z-20 w-56 rounded-2xl border border-slate-800 bg-slate-950/95 p-3 shadow-[0_18px_60px_rgba(2,6,23,0.45)] backdrop-blur">
+                      <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Visible Columns
+                      </div>
+                      <div className="space-y-2">
+                        {DEFAULT_INVENTORY_COLUMNS.map((column) => (
+                          <label key={column} className="flex items-center gap-2 text-sm text-slate-300">
+                            <input
+                              type="checkbox"
+                              checked={visibleTableColumns.includes(column)}
+                              disabled={column === "item"}
+                              onChange={() => toggleColumn(column)}
+                            />
+                            <span>{columnMeta[column].label}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      {DEFAULT_INVENTORY_COLUMNS.map((column) => (
-                        <label key={column} className="flex items-center gap-2 text-sm text-slate-300">
-                          <input
-                            type="checkbox"
-                            checked={visibleTableColumns.includes(column)}
-                            disabled={column === "item"}
-                            onChange={() => toggleColumn(column)}
-                          />
-                          <span>{columnMeta[column].label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </WorkspaceFilterGroup>
-          </div>
+                  )}
+                </div>
+              </WorkspaceFilterGroup>
+            }
+          />
 
-          <div
-            ref={listRef}
-            className="max-h-[65vh] overflow-auto"
-            onScroll={() => recomputeWindow()}
-          >
+          <div ref={listRef} className="min-h-0 flex-1 overflow-auto" onScroll={() => recomputeWindow()}>
             <div className="min-w-max">
             {/* Header */}
             <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
@@ -3121,6 +3133,7 @@ export default function Inventory() {
             )}
           </div>
         </div>
+      </div>
       </Section>
 
       {selectedDetailId &&

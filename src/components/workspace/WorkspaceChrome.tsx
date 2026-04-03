@@ -97,6 +97,7 @@ export function WorkspaceSection(props: {
     actions?: ReactNode;
     children: ReactNode;
     className?: string;
+    bodyClassName?: string;
 }) {
     return (
         <WorkspacePanel className={joinClasses("p-4", props.className)}>
@@ -107,7 +108,7 @@ export function WorkspaceSection(props: {
                 </div>
                 {props.actions ? <div className="flex items-center gap-2">{props.actions}</div> : null}
             </div>
-            <div className="mt-4">{props.children}</div>
+            <div className={joinClasses("mt-4", props.bodyClassName)}>{props.children}</div>
         </WorkspacePanel>
     );
 }

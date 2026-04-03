@@ -2,7 +2,7 @@
 // Shared prime availability helpers that combine static vaulted flags with
 // live Varzia / Prime Resurgence world state.
 
-import ALL_RAW from "../../../external/warframe-items/raw/All.json";
+import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
 import RELICS_RAW from "../../../external/warframe-drop-data/raw/relics.json";
 import missionIndexRaw from "../../data/_generated/relic-missionRewards-index.auto.json";
 import { resolvePrimeResurgenceRelicKey } from "./primeResurgence";

@@ -10,6 +10,7 @@ import modsJson from "../../data/_generated/mods-lean.auto.json";
 import WARFRAMES_RAW from "../../../external/warframe-items/raw/Warframes.json";
 import PRIMARY_RAW from "../../../external/warframe-items/raw/Primary.json";
 import SECONDARY_RAW from "../../../external/warframe-items/raw/Secondary.json";
+import MELEE_RAW from "../../../external/warframe-items/raw/Melee.json";
 import ARCHWING_RAW from "../../../external/warframe-items/raw/Archwing.json";
 import ARCH_GUN_RAW from "../../../external/warframe-items/raw/Arch-Gun.json";
 import ARCH_MELEE_RAW from "../../../external/warframe-items/raw/Arch-Melee.json";
@@ -21,7 +22,6 @@ import MISC_RAW from "../../../external/warframe-items/raw/Misc.json";
 import GEAR_RAW from "../../../external/warframe-items/raw/Gear.json";
 import RAILJACK_RAW from "../../../external/warframe-items/raw/Railjack.json";
 import MODS_EXT_RAW from "../../../external/warframe-items/raw/Mods.json";
-import ALL_EXT_RAW from "../../../external/warframe-items/raw/All.json";
 
 export type CatalogSource =
     | "items"
@@ -76,12 +76,11 @@ export interface FullCatalog {
 
 /** Build the wfdata-shaped object from external category files (replaces wfdata.json). */
 function buildWfdataFromExternal(): any {
-    const melee = (ALL_EXT_RAW as any[]).filter((i: any) => i.category === "Melee");
     return {
         warframes:     { items: WARFRAMES_RAW },
         primary:       { items: PRIMARY_RAW },
         secondary:     { items: SECONDARY_RAW },
-        melee:         { items: melee },
+        melee:         { items: MELEE_RAW },
         archwing:      { items: [...(ARCHWING_RAW as any[]), ...(ARCH_GUN_RAW as any[]), ...(ARCH_MELEE_RAW as any[])] },
         companions:    { items: [...(SENTINELS_RAW as any[]), ...(SENTINEL_WEAPONS_RAW as any[]), ...(PETS_RAW as any[])] },
         resources:     { items: RESOURCES_RAW },
@@ -106,7 +105,7 @@ function buildModsetsFromExternal(): Record<string, any> {
 /** Convert external All.json array → path-keyed object for riven mods (replaces rivens.json). */
 function buildRivensFromExternal(): Record<string, any> {
     const out: Record<string, any> = {};
-    for (const item of ALL_EXT_RAW as any[]) {
+    for (const item of MODS_EXT_RAW as any[]) {
         if (!item.uniqueName || !String(item.uniqueName).includes("/Randomized/")) continue;
         out[item.uniqueName] = { name: item.name, category: item.category, ...item };
     }
@@ -149,9 +148,24 @@ function safeString(v: unknown): string | null {
     return typeof v === "string" && v.trim().length > 0 ? v.trim() : null;
 }
 
+function sanitizeDisplayName(name: string): string {
+    let out = String(name ?? "").trim();
+    if (!out) return out;
+
+    out = out.replace(/^<[^>]+>\s*/g, "");
+    out = out.replace(/<[^>]+>/g, "");
+    out = out.replace(/"([^"]+)"/g, "$1");
+    out = out.replace(/\s+/g, " ").trim();
+    out = out.replace(/\bVhs\b/g, "VHS");
+    out = out.replace(/\bOf\b/g, "of");
+    out = out.replace(/\bOn\b/g, "on");
+
+    return out;
+}
+
 function getDisplayName(pathKey: string, rec: any): string {
     const n = safeString(rec?.name);
-    return n ?? pathKey;
+    return n ? sanitizeDisplayName(n) : pathKey;
 }
 
 function uniqueStable(list: string[]): string[] {

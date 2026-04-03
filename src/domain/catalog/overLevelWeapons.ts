@@ -9,7 +9,7 @@
 
 import PRIMARY_RAW from "../../../external/warframe-items/raw/Primary.json";
 import SECONDARY_RAW from "../../../external/warframe-items/raw/Secondary.json";
-import ALL_RAW from "../../../external/warframe-items/raw/All.json";
+import MELEE_RAW from "../../../external/warframe-items/raw/Melee.json";
 
 const OVERLEVEL_NAME_PREFIXES = ["Kuva ", "Tenet ", "Coda ", "Dual Coda ", "Dual Tenet ", "Dual Kuva "];
 const OVERLEVEL_EXACT_NAMES = new Set(["Paracesis"]);
@@ -17,7 +17,7 @@ const OVERLEVEL_EXACT_NAMES = new Set(["Paracesis"]);
 const _wfdata = {
     primary:   { items: PRIMARY_RAW as any[] },
     secondary: { items: SECONDARY_RAW as any[] },
-    melee:     { items: (ALL_RAW as any[]).filter((i: any) => i.category === "Melee") },
+    melee:     { items: MELEE_RAW as any[] },
 };
 
 function buildOverLevelWeaponPaths(): Set<string> {

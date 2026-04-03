@@ -7,7 +7,7 @@ import {
     getRouteByKey,
     type WorkModeKey,
 } from "../routes";
-import { getStoredTheme, applyTheme, type AppTheme } from "../../pages/Settings";
+import { getStoredTheme, applyTheme, type AppTheme } from "../../lib/settingsPreferences";
 
 const SIDEBAR_COLLAPSED_KEY = "wft_sidebar_collapsed";
 
@@ -93,6 +93,12 @@ const PAGE_ICONS: Record<string, React.ReactNode> = {
             <circle cx="13" cy="5" r="1" fill="currentColor" stroke="none" />
             <circle cx="13" cy="12" r="1" fill="currentColor" stroke="none" />
             <circle cx="13" cy="19" r="1" fill="currentColor" stroke="none" />
+        </svg>
+    ),
+    arcanes: (
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3l2.7 5.48 6.05.88-4.38 4.27 1.04 6.04L12 16.93l-5.41 2.84 1.04-6.04L3.25 9.36l6.05-.88L12 3z" />
+            <circle cx="12" cy="12" r="2.2" />
         </svg>
     ),
     challenges: (

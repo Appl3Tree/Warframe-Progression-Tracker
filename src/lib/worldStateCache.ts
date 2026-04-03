@@ -3,8 +3,6 @@
 // Used by both the WorldState page and the Topbar notification bell
 // so both components see the same data without double-fetching.
 
-import { resolvePrimeResurgenceRelicDisplay } from "../domain/catalog/primeResurgence";
-
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type WsCycle = {
@@ -526,12 +524,18 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 let _cache: { data: WorldStateData; fetchedAt: number } | null = null;
 let _inflight: Promise<WorldStateData> | null = null;
 
-function normalizeVaultTraderItem(rawItem: any, rawUniqueName?: any): { item: string; uniqueName?: string } {
+type PrimeResurgenceRelicDisplayResolver = (input: string) => string | null;
+
+function normalizeVaultTraderItem(
+    rawItem: any,
+    rawUniqueName?: any,
+    resolvePrimeResurgenceRelicDisplay?: PrimeResurgenceRelicDisplayResolver | null
+): { item: string; uniqueName?: string } {
     const sourceUniqueName = String(rawUniqueName ?? "").trim();
     const sourceItem = String(rawItem ?? "").trim();
     const lookup = sourceUniqueName || sourceItem;
     if (!lookup) return { item: "" };
-    const resolvedRelic = resolvePrimeResurgenceRelicDisplay(lookup);
+    const resolvedRelic = resolvePrimeResurgenceRelicDisplay?.(lookup) ?? null;
     if (resolvedRelic) {
         return {
             item: resolvedRelic,
@@ -564,6 +568,10 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
             });
             if (!res.ok) throw new Error(`World state API returned ${res.status}`);
             const j = await res.json();
+            const resolvePrimeResurgenceRelicDisplay =
+                j.vaultTrader?.inventory?.length
+                    ? (await import("../domain/catalog/primeResurgence")).resolvePrimeResurgenceRelicDisplay
+                    : null;
 
             const data: WorldStateData = {
                 cetusCycle:   j.cetusCycle   ?? null,
@@ -678,7 +686,11 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                         location:   j.vaultTrader.location   ?? "",
                         inventory:  Array.isArray(j.vaultTrader.inventory)
                             ? (j.vaultTrader.inventory as any[]).map((it): VaultTraderItem => {
-                                const normalized = normalizeVaultTraderItem(it?.item, it?.uniqueName);
+                                const normalized = normalizeVaultTraderItem(
+                                    it?.item,
+                                    it?.uniqueName,
+                                    resolvePrimeResurgenceRelicDisplay
+                                );
                                 return {
                                     item: normalized.item,
                                     uniqueName: normalized.uniqueName,

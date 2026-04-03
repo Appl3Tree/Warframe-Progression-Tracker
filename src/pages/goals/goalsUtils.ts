@@ -3,7 +3,7 @@
 
 import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
-import { getItemRequirements } from "../../catalog/items/itemRequirements";
+import { getItemRequirements, resolveItemRequirementGraph } from "../../catalog/items/itemRequirements";
 import type React from "react";
 
 export type GoalsTab = "personal" | "requirements" | "total";
@@ -58,11 +58,15 @@ export function isExplicitBlueprintItem(catalogId: CatalogId, name: string): boo
     return false;
 }
 
-export function getSiblingBlueprintCatalogIdForOutput(outputCatalogId: CatalogId): CatalogId | null {
-    const key = String(outputCatalogId);
-    const bpCandidate = `${key}Blueprint` as CatalogId;
-    if (FULL_CATALOG.recordsById[bpCandidate]) return bpCandidate;
-    return null;
+function isDirectMarketPurchasableOutput(catalogId: CatalogId): boolean {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    const raw: any = rec?.raw as any;
+    const data = raw?.rawLotus?.data ?? raw?.data ?? null;
+    if (!data || typeof data !== "object") return false;
+
+    const regularPrice = Number((data as any).RegularPrice ?? 0);
+    const premiumPrice = Number((data as any).PremiumPrice ?? 0);
+    return (Number.isFinite(regularPrice) && regularPrice > 0) || (Number.isFinite(premiumPrice) && premiumPrice > 0);
 }
 
 export type ReqChild = {
@@ -73,16 +77,20 @@ export type ReqChild = {
 export function getDirectRequirementsForExpansion(catalogId: CatalogId): ReqChild[] {
     const rec = FULL_CATALOG.recordsById[catalogId];
     const name = rec?.displayName ?? String(catalogId);
+    const resolution = resolveItemRequirementGraph(catalogId);
 
     // Craftable OUTPUT => show Blueprint only (qty 1) and let Blueprint expand to ingredients.
     if (!isExplicitBlueprintItem(catalogId, name)) {
-        const bp = getSiblingBlueprintCatalogIdForOutput(catalogId);
-        if (bp) {
-            return [{ catalogId: bp, count: 1 }];
+        const blueprintEdge = resolution.edges.find((edge) =>
+            edge.provenance === "wfcd-output-blueprint" || edge.provenance === "derived-output-blueprint",
+        );
+        if (isDirectMarketPurchasableOutput(catalogId) && !blueprintEdge) return [];
+        if (blueprintEdge) {
+            return [{ catalogId: blueprintEdge.catalogId, count: blueprintEdge.count }];
         }
     }
 
-    const raw = getItemRequirements(catalogId);
+    const raw = resolution.edges;
     if (!Array.isArray(raw) || raw.length === 0) return [];
 
     const agg = new Map<string, ReqChild>();

@@ -3,10 +3,34 @@ import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
 
 import wfcdReqJson from "../../data/_generated/wfcd-requirements.byCatalogId.auto.json";
+import { getWikiBlueprintRequirements } from "./wikiBlueprintRequirements";
 
 export type ItemRequirement = {
     catalogId: CatalogId;
     count: number;
+};
+
+export type ItemRequirementEdgeProvenance =
+    | "wfcd"
+    | "lotus-recipe"
+    | "wiki-blueprint"
+    | "wfcd-output-blueprint"
+    | "derived-output-blueprint";
+
+export type ItemRequirementTerminalReason =
+    | "market"
+    | "vendor"
+    | "unresolved"
+    | "no-recipe-required";
+
+export type ItemRequirementEdge = ItemRequirement & {
+    provenance: ItemRequirementEdgeProvenance;
+};
+
+export type ItemRequirementResolution = {
+    outputCatalogId: CatalogId;
+    edges: ItemRequirementEdge[];
+    terminalReason: ItemRequirementTerminalReason | null;
 };
 
 function parseMap(raw: unknown): Record<string, any> {
@@ -263,6 +287,23 @@ function getMergedRecordForCatalogId(catalogId: CatalogId): any | null {
     return lotus ?? wfcd ?? raw ?? null;
 }
 
+function isDirectMarketPurchasableOutput(catalogId: CatalogId): boolean {
+    const rec = FULL_CATALOG.recordsById[catalogId];
+    if (!rec) return false;
+
+    const raw: any = rec.raw as any;
+    const data =
+        raw?.rawLotus?.data
+        ?? raw?.data
+        ?? null;
+
+    if (!data || typeof data !== "object") return false;
+
+    const regularPrice = Number((data as any).RegularPrice ?? 0);
+    const premiumPrice = Number((data as any).PremiumPrice ?? 0);
+    return (Number.isFinite(regularPrice) && regularPrice > 0) || (Number.isFinite(premiumPrice) && premiumPrice > 0);
+}
+
 /**
  * Find the unique "blueprint-ish" RecipeItem CatalogId that produces the given output lotus path.
  * Fail-closed: if 0 or >1 candidates, return null.
@@ -395,8 +436,88 @@ function getLotusRecipeRequirementsForRecipeItem(recipeCatalogId: CatalogId): It
     return out;
 }
 
+function getWikiRecipeRequirements(recipeCatalogId: CatalogId): ItemRequirement[] {
+    return getWikiBlueprintRequirements(recipeCatalogId);
+}
+
+function getWikiRequirementsForOutputItem(outputCatalogId: CatalogId): ItemRequirement[] {
+    return getWikiBlueprintRequirements(outputCatalogId);
+}
+
+function toRequirementEdges(
+    outputCatalogId: CatalogId,
+    reqs: ItemRequirement[],
+    provenance: ItemRequirementEdgeProvenance,
+): ItemRequirementEdge[] {
+    return normalizeAndFilterSelfEdges(outputCatalogId, reqs).map((req) => ({
+        ...req,
+        provenance
+    }));
+}
+
+function recipeItemHasMeaningfulRequirements(recipeCatalogId: CatalogId, reqMap: Record<string, any>): boolean {
+    const def = reqMap[String(recipeCatalogId)];
+    if (def && typeof def === "object") {
+        const comps = Array.isArray((def as any).components) ? (def as any).components : [];
+        if (comps.some((c: any) => typeof c?.catalogId === "string" && safeCount(c?.count ?? 0) > 0)) {
+            return true;
+        }
+    }
+
+    if (getLotusRecipeRequirementsForRecipeItem(recipeCatalogId).length > 0) return true;
+    if (getWikiRecipeRequirements(recipeCatalogId).length > 0) return true;
+
+    return false;
+}
+
+export function getCraftingBlueprintCatalogIdForOutput(outputCatalogId: CatalogId): CatalogId | null {
+    const reqMap = parseMap(wfcdReqJson);
+    const candidates = new Set<CatalogId>();
+
+    const siblingBlueprint = `${String(outputCatalogId)}Blueprint` as CatalogId;
+    if (FULL_CATALOG.recordsById[siblingBlueprint]) {
+        candidates.add(siblingBlueprint);
+    }
+
+    const uniqueBlueprint = findUniqueBlueprintRecipeCatalogIdProducingOutput(outputCatalogId);
+    if (uniqueBlueprint) {
+        candidates.add(uniqueBlueprint);
+    }
+
+    for (const candidate of candidates) {
+        if (recipeItemHasMeaningfulRequirements(candidate, reqMap)) {
+            return candidate;
+        }
+    }
+
+    return null;
+}
+
+function getCraftingBlueprintEdgeForOutput(outputCatalogId: CatalogId): ItemRequirementEdge | null {
+    const raw = parseMap(wfcdReqJson);
+    const siblingBlueprint = `${String(outputCatalogId)}Blueprint` as CatalogId;
+    if (FULL_CATALOG.recordsById[siblingBlueprint] && recipeItemHasMeaningfulRequirements(siblingBlueprint, raw)) {
+        return {
+            catalogId: siblingBlueprint,
+            count: 1,
+            provenance: "derived-output-blueprint"
+        };
+    }
+
+    const uniqueBlueprint = findUniqueBlueprintRecipeCatalogIdProducingOutput(outputCatalogId);
+    if (uniqueBlueprint && recipeItemHasMeaningfulRequirements(uniqueBlueprint, raw)) {
+        return {
+            catalogId: uniqueBlueprint,
+            count: 1,
+            provenance: "derived-output-blueprint"
+        };
+    }
+
+    return null;
+}
+
 function getLotusRecipeRequirementsForOutputItem(outputCatalogId: CatalogId): ItemRequirement[] {
-    const recipeCid = findUniqueBlueprintRecipeCatalogIdProducingOutput(outputCatalogId);
+    const recipeCid = getCraftingBlueprintCatalogIdForOutput(outputCatalogId);
     if (!recipeCid) return [];
 
     // IMPORTANT SEMANTICS:
@@ -410,11 +531,14 @@ function getLotusRecipeRequirementsForOutputItem(outputCatalogId: CatalogId): It
     ];
 }
 
-export function getItemRequirements(outputCatalogId: CatalogId): ItemRequirement[] {
+export function resolveItemRequirementGraph(outputCatalogId: CatalogId): ItemRequirementResolution {
     const raw = parseMap(wfcdReqJson);
 
     const mergedOutput = getMergedRecordForCatalogId(outputCatalogId);
     const outputIsRecipe = Boolean(mergedOutput && isRecipeLike(mergedOutput));
+    const directMarketPurchasable = isDirectMarketPurchasableOutput(outputCatalogId);
+    const craftingBlueprintCatalogId = getCraftingBlueprintCatalogIdForOutput(outputCatalogId);
+    const craftingBlueprintEdge = getCraftingBlueprintEdgeForOutput(outputCatalogId);
 
     // =========================
     // Case 1: Output is itself a recipe item (Blueprint, component recipe, etc.)
@@ -441,16 +565,50 @@ export function getItemRequirements(outputCatalogId: CatalogId): ItemRequirement
                 });
             }
 
-            return normalizeAndFilterSelfEdges(outputCatalogId, out);
+            return {
+                outputCatalogId,
+                edges: toRequirementEdges(outputCatalogId, out, "wfcd"),
+                terminalReason: null
+            };
         }
 
         // Otherwise, lotus fallback for the recipe item itself.
-        return normalizeAndFilterSelfEdges(outputCatalogId, getLotusRecipeRequirementsForRecipeItem(outputCatalogId));
+        const lotusFallback = getLotusRecipeRequirementsForRecipeItem(outputCatalogId);
+        if (lotusFallback.length > 0) {
+            return {
+                outputCatalogId,
+                edges: toRequirementEdges(outputCatalogId, lotusFallback, "lotus-recipe"),
+                terminalReason: null
+            };
+        }
+
+        const wikiFallback = getWikiRecipeRequirements(outputCatalogId);
+        if (wikiFallback.length > 0) {
+            return {
+                outputCatalogId,
+                edges: toRequirementEdges(outputCatalogId, wikiFallback, "wiki-blueprint"),
+                terminalReason: null
+            };
+        }
+
+        return {
+            outputCatalogId,
+            edges: [],
+            terminalReason: "unresolved"
+        };
     }
 
     // =========================
     // Case 2: Output is a non-recipe item (weapon, resource, etc.)
     // =========================
+
+    if (directMarketPurchasable && !craftingBlueprintCatalogId) {
+        return {
+            outputCatalogId,
+            edges: [],
+            terminalReason: "market"
+        };
+    }
 
     // Primary: WFCD requirements keyed by the output item itself.
     let def = raw[String(outputCatalogId)];
@@ -467,7 +625,11 @@ export function getItemRequirements(outputCatalogId: CatalogId): ItemRequirement
     if (def && typeof def === "object") {
         const blueprintOnly = extractBlueprintComponentOnlyForOutput(outputCatalogId, def);
         if (blueprintOnly) {
-            return normalizeAndFilterSelfEdges(outputCatalogId, blueprintOnly);
+            return {
+                outputCatalogId,
+                edges: toRequirementEdges(outputCatalogId, blueprintOnly, "wfcd-output-blueprint"),
+                terminalReason: null
+            };
         }
 
         // Otherwise, accept the WFCD component list (but still fail-closed on self-edges).
@@ -489,11 +651,53 @@ export function getItemRequirements(outputCatalogId: CatalogId): ItemRequirement
             });
         }
 
-        return normalizeAndFilterSelfEdges(outputCatalogId, out);
+        return {
+            outputCatalogId,
+            edges: toRequirementEdges(outputCatalogId, out, "wfcd"),
+            terminalReason: null
+        };
     }
 
-    // Final fallback: if the item has a unique blueprint-ish producing recipe, REQUIRE ONLY THAT BLUEPRINT.
-    // If not, it is drop-only (terminal) and returns [].
-    return normalizeAndFilterSelfEdges(outputCatalogId, getLotusRecipeRequirementsForOutputItem(outputCatalogId));
+    // Final fallback order:
+    // 1) lotus-derived blueprint/output recipe structure
+    // 2) wiki blueprint data
+    // If neither exists, the item is treated as terminal here.
+    if (craftingBlueprintEdge) {
+        return {
+            outputCatalogId,
+            edges: [craftingBlueprintEdge],
+            terminalReason: null
+        };
+    }
+
+    const lotusOutputFallback = getLotusRecipeRequirementsForOutputItem(outputCatalogId);
+    if (lotusOutputFallback.length > 0) {
+        return {
+            outputCatalogId,
+            edges: toRequirementEdges(outputCatalogId, lotusOutputFallback, "derived-output-blueprint"),
+            terminalReason: null
+        };
+    }
+
+    const wikiOutputFallback = getWikiRequirementsForOutputItem(outputCatalogId);
+    if (wikiOutputFallback.length > 0) {
+        return {
+            outputCatalogId,
+            edges: toRequirementEdges(outputCatalogId, wikiOutputFallback, "wiki-blueprint"),
+            terminalReason: null
+        };
+    }
+
+    return {
+        outputCatalogId,
+        edges: [],
+        terminalReason: "unresolved"
+    };
 }
 
+export function getItemRequirements(outputCatalogId: CatalogId): ItemRequirement[] {
+    return resolveItemRequirementGraph(outputCatalogId).edges.map(({ catalogId, count }) => ({
+        catalogId,
+        count
+    }));
+}

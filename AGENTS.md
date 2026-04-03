@@ -250,6 +250,9 @@ Tasks are organized by priority. Update this list as work progresses.
 ## Working Conventions
 
 - Run `tsc -b` before committing to catch type errors
+- Data refresh and generation workflow lives in `DATA_WORKFLOW.md`
+- Use `npm run update:data:check` before overwriting WFCD raw source files
+- Use `npm run generate:wiki-blueprints` after replacing `external/wiki/blueprintsDatabase.txt`
 - Logic engines in `src/domain/logic/` are pure functions — keep them that way
 - Canonical IDs live in `src/domain/ids/` — use enums, never raw strings
 - State mutations go through Zustand + Immer in `src/store/store.ts`

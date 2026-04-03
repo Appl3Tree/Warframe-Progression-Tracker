@@ -27,7 +27,7 @@ import resourceByAvatarJson from "../../../external/warframe-drop-data/raw/resou
 import additionalItemByAvatarJson from "../../../external/warframe-drop-data/raw/additionalItemByAvatar.json";
 
 // warframe-items/raw (for wfitems:loc sources)
-import WARFRAME_ITEMS_ALL from "../../../external/warframe-items/raw/All.json";
+import WARFRAME_ITEMS_ALL from "../../data/_generated/warframe-items-all-lean.auto.json";
 
 export type Source = {
     id: SourceId;

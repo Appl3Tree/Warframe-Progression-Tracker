@@ -58,9 +58,6 @@ function TargetCard({ target, expanded, onToggle }: {
                             text={target.faction}
                             className={factionColor}
                         />
-                        <span className="text-[11px] text-slate-500">
-                            {target.scansRequired} scan{target.scansRequired !== 1 ? "s" : ""}
-                        </span>
                         <span className="text-[11px] text-slate-600">
                             {target.locations.length} location{target.locations.length !== 1 ? "s" : ""}
                         </span>
@@ -99,7 +96,9 @@ function TargetCard({ target, expanded, onToggle }: {
                                 {target.endoRewards.map((r, i) => (
                                     <div key={i} className="rounded-lg border border-slate-700 bg-slate-800/50 px-2.5 py-1.5 text-center">
                                         <div className="text-[10px] text-slate-500">{r.qty}x targets</div>
-                                        <div className="text-sm font-mono font-semibold text-amber-300">{r.endo.toLocaleString()} Endo</div>
+                                        <div className="text-sm font-mono font-semibold text-amber-300">
+                                            {typeof r.endo === "number" ? `${r.endo.toLocaleString()} Endo` : "?"}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -109,66 +108,37 @@ function TargetCard({ target, expanded, onToggle }: {
                     {/* Location table */}
                     <div>
                         <div className="text-[11px] uppercase tracking-wide text-slate-500 font-semibold mb-1.5">Locations</div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-xs">
-                                <thead>
-                                    <tr className="border-b border-slate-800">
-                                        <th className="text-left pb-1.5 pr-3 text-slate-500 font-semibold">Planet</th>
-                                        <th className="text-left pb-1.5 pr-3 text-slate-500 font-semibold">Mission</th>
-                                        <th className="text-left pb-1.5 pr-3 text-slate-500 font-semibold">Type</th>
-                                        <th className="text-left pb-1.5 pr-3 text-slate-500 font-semibold">Faction</th>
-                                        <th className="text-left pb-1.5 pr-3 text-slate-500 font-semibold">Level</th>
-                                        <th className="text-left pb-1.5 text-slate-500 font-semibold">Spawn</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {target.locations.map((loc, i) => (
-                                        <tr key={i} className={["border-b border-slate-800/50", i % 2 === 0 ? "" : "bg-slate-900/30"].join(" ")}>
-                                            <td className="py-1.5 pr-3 font-semibold text-slate-200">{loc.planet}</td>
-                                            <td className="py-1.5 pr-3 text-slate-300">
-                                                {loc.mission}
-                                                {loc.steelPath && (
-                                                    <span className="ml-1.5 text-[9px] px-1 py-0.5 rounded bg-amber-950/40 border border-amber-700/40 text-amber-400 font-semibold">SP</span>
-                                                )}
-                                            </td>
-                                            <td className="py-1.5 pr-3 text-slate-400">{loc.missionType}</td>
-                                            <td className="py-1.5 pr-3 text-slate-400">{loc.faction}</td>
-                                            <td className="py-1.5 pr-3 text-slate-400 font-mono">{loc.level}</td>
-                                            <td className="py-1.5">
-                                                <span className={[
-                                                    "font-semibold",
-                                                    loc.spawnRate === "100%" ? "text-green-400" :
-                                                    loc.spawnRate?.startsWith("~8") || loc.spawnRate?.startsWith("~9") ? "text-emerald-400" :
-                                                    loc.spawnRate?.startsWith("~6") || loc.spawnRate?.startsWith("~7") ? "text-amber-400" :
-                                                    "text-slate-400"
-                                                ].join(" ")}>
-                                                    {loc.spawnRate}
-                                                </span>
-                                                {loc.note && <span className="ml-1 text-slate-600 text-[10px]">({loc.note})</span>}
-                                            </td>
+                        {target.locations.length === 0 ? (
+                            <div className="rounded-lg border border-slate-800 bg-slate-900/30 px-3 py-2 text-xs text-slate-500">
+                                No locations are currently listed for this target.
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-xs">
+                                    <thead>
+                                        <tr className="border-b border-slate-800">
+                                            <th className="text-left pb-1.5 pr-3 text-slate-500 font-semibold">Planet</th>
+                                            <th className="text-left pb-1.5 pr-3 text-slate-500 font-semibold">Node</th>
+                                            <th className="text-left pb-1.5 pr-3 text-slate-500 font-semibold">Type</th>
+                                            <th className="text-left pb-1.5 pr-3 text-slate-500 font-semibold">Faction</th>
+                                            <th className="text-left pb-1.5 text-slate-500 font-semibold">Level</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {target.locations.map((loc, i) => (
+                                            <tr key={i} className={["border-b border-slate-800/50", i % 2 === 0 ? "" : "bg-slate-900/30"].join(" ")}>
+                                                <td className="py-1.5 pr-3 font-semibold text-slate-200">{loc.planet}</td>
+                                                <td className="py-1.5 pr-3 text-slate-300">{loc.mission}</td>
+                                                <td className="py-1.5 pr-3 text-slate-400">{loc.missionType}</td>
+                                                <td className="py-1.5 pr-3 text-slate-400">{loc.faction}</td>
+                                                <td className="py-1.5 text-slate-400 font-mono">{loc.level}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
-
-                    {/* Wiki link */}
-                    {target.wikiUrl && (
-                        <a
-                            href={target.wikiUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
-                        >
-                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                <polyline points="15 3 21 3 21 9" />
-                                <line x1="10" y1="14" x2="21" y2="3" />
-                            </svg>
-                            Wiki
-                        </a>
-                    )}
                 </div>
             )}
         </div>
@@ -216,7 +186,7 @@ export default function SimarisSynthesisModal({ open, onClose }: {
                     <div>
                         <div className="text-base font-semibold text-slate-100">Cephalon Simaris — Synthesis Targets</div>
                         <div className="text-xs text-slate-400 mt-0.5">
-                            Equip Synthesis Scanner in gear wheel · Targets only spawn for the mission host · Solo recommended
+                            Synthesis target locations by node, faction, and level
                         </div>
                     </div>
                     <button
@@ -288,12 +258,6 @@ export default function SimarisSynthesisModal({ open, onClose }: {
                                 <span className="text-xs text-slate-600">{filtered.length} shown</span>
                             </div>
 
-                            {/* SP legend */}
-                            <div className="flex items-center gap-3 text-[11px] text-slate-600">
-                                <span><span className="text-amber-400 font-semibold">SP</span> = Steel Path</span>
-                                <span>Spawn rate: <span className="text-green-400">100%</span> / <span className="text-emerald-400">~80%+</span> / <span className="text-amber-400">~60-79%</span></span>
-                            </div>
-
                             {/* Target list */}
                             {filtered.length === 0 ? (
                                 <div className="py-8 text-center text-sm text-slate-500">No targets match your search.</div>
@@ -316,8 +280,7 @@ export default function SimarisSynthesisModal({ open, onClose }: {
                     {activeTab === "tips" && (
                         <div className="p-4 space-y-4">
                             <p className="text-sm text-slate-400">
-                                These Warframe abilities can slow or immobilize synthesis targets, making them much easier to scan.
-                                Stealth scanning also multiplies the standing gained.
+                                These Warframe abilities can help slow or immobilize synthesis targets and make them easier to scan.
                             </p>
                             <div className="rounded-xl border border-slate-800 overflow-hidden">
                                 <table className="w-full text-sm">
@@ -341,7 +304,7 @@ export default function SimarisSynthesisModal({ open, onClose }: {
                             </div>
                             <div className="rounded-xl border border-slate-800 bg-slate-900/30 p-4 space-y-2 text-sm text-slate-400">
                                 <div className="text-slate-200 font-semibold text-xs uppercase tracking-wide mb-2">Kinetic Siphon Traps</div>
-                                <p>Can be thrown near a target to freeze it for ~4 seconds. Available from Cephalon Simaris' shop. Use Warframe abilities instead when possible — they last longer and don't consume gear slots.</p>
+                                <p>Can be thrown near a target to suspend it briefly.</p>
                             </div>
                         </div>
                     )}
@@ -353,31 +316,31 @@ export default function SimarisSynthesisModal({ open, onClose }: {
                                 {[
                                     {
                                         n: "1", title: "Get a daily task",
-                                        body: "Visit Cephalon Simaris in any Relay and ask \"Do you have any targets?\". This assigns you a synthesis target to scan a set number of times. Resets at 00:00 GMT daily."
+                                        body: "Visit Cephalon Simaris in a Relay and ask for a target. Daily tasks reset at 00:00 GMT."
                                     },
                                     {
                                         n: "2", title: "Equip Synthesis Scanner",
-                                        body: "You MUST have at least 1 Synthesis Scanner in your gear wheel before starting the mission. Codex Scanners do not work for synthesis and will not spawn the target."
+                                        body: "Bring at least one Synthesis Scanner in your gear wheel before starting the mission. Codex Scanners do not count for synthesis."
                                     },
                                     {
-                                        n: "3", title: "Host the mission solo",
-                                        body: "Synthesis Targets only spawn for the host. Run solo to guarantee a spawn attempt. In a squad, only one player's target spawns — whoever loaded in first. Each run is independent — if the target doesn't spawn, retry."
+                                        n: "3", title: "Use the listed nodes",
+                                        body: "Use the listed nodes as your starting point. Invasions can temporarily change a node's faction and block a listed spawn."
                                     },
                                     {
                                         n: "4", title: "Find the target",
-                                        body: "Simaris will announce when a target is present. Equip your Synthesis Scanner, zoom in (RMB), and follow the orange trail. The target will be marked with a unique waypoint once spotted."
+                                        body: "When a target is present, Simaris will announce it. Use the Synthesis Scanner, zoom in, and follow the trail until the target is marked."
                                     },
                                     {
-                                        n: "5", title: "Scan all 4 nodes",
-                                        body: "Hold LMB on each of the 4 glowing scan points on the target's body. Use slow/immobilize abilities to hold it still. Don't kill it — Simaris will scold you and the standing is lost for that target."
+                                        n: "5", title: "Scan the target nodes",
+                                        body: "Scan each highlighted node until the target dematerializes. Do not kill it before the scan completes."
                                     },
                                     {
                                         n: "6", title: "Collect standing",
-                                        body: "Standing scales with enemy level — Steel Path targets give significantly more."
+                                        body: "Successful synthesis awards Simaris standing, and higher-level targets award more."
                                     },
                                     {
                                         n: "7", title: "Claim reward",
-                                        body: "Return to Simaris and say \"I have completed the synthesis\" to receive endo and standing rewards. The daily task can be completed once per day."
+                                        body: "Return to Simaris after finishing the task to claim the daily reward."
                                     },
                                 ].map(s => (
                                     <div key={s.n} className="flex gap-3">
@@ -393,13 +356,13 @@ export default function SimarisSynthesisModal({ open, onClose }: {
                             </div>
 
                             <div className="rounded-xl border border-blue-800/30 bg-blue-950/20 p-4 text-xs text-blue-300">
-                                <div className="font-semibold mb-1">Free standing from others' targets</div>
-                                You can gain standing from another player's synthesis target without scanning it yourself. Stay within 50m of the target as it dematerializes (you must still have a Synthesis Scanner equipped).
+                                <div className="font-semibold mb-1">Disputed squad behavior omitted</div>
+                                Squad-sharing rules, host-only spawn rules, and exact standing-sharing range are intentionally not hardcoded here because they are easy to misstate and the target dataset in this modal is focused on confirmed node data.
                             </div>
 
                             <div className="rounded-xl border border-slate-800 bg-slate-900/30 p-4 text-xs text-slate-400">
                                 <div className="font-semibold text-slate-300 mb-1">Invasion note</div>
-                                Invasions can temporarily change mission factions. If a Grineer target location is currently occupied by Corpus due to an Invasion, the target won't spawn until the mission returns to normal (usually 24h).
+                                Invasions can temporarily change mission factions. If a location is occupied by the wrong faction, the listed target will not spawn there until the mission returns to its regular faction.
                             </div>
                         </div>
                     )}

@@ -4,7 +4,7 @@
 //   storeUtils.ts       — nowIso, uid, date key functions
 //   resetChecklist.ts   — reset checklist state helpers
 //   progressPack.ts     — default state, schemas, mergeProgressPackIntoState
-//   syndicateSlice.ts   — reserve computation, syndicate helpers
+//   syndicateSlice.ts   — syndicate patching and pledge helpers
 
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
@@ -19,9 +19,8 @@ import type {
 } from "../domain/types";
 import type { PageKey, UserGoalV1, UserStateV2 } from "../domain/models/userState";
 import { migrateToUserStateV2 } from "./migrations";
-import { parseProfileViewingData, parseWarframeStatApiProfile, type ProfileImportResult } from "../utils/profileImport";
+import type { ProfileImportResult } from "../utils/profileImport";
 import { SY } from "../domain/ids/syndicateIds";
-import { validateDataOrThrow } from "../domain/logic/startupValidation";
 import { PERSIST_KEY, PERSIST_VERSION } from "./persistence";
 import {
     nowIso, uid,
@@ -43,15 +42,11 @@ import {
     mergeProgressPackIntoState,
 } from "./progressPack";
 import {
-    type DerivedReserveLine,
-    computeDerivedReservesFromSyndicates,
     normalizeSyndicatePatch,
     upsertSyndicateIntoList,
     isPrimaryFactionId,
     countPrimaryPledges,
 } from "./syndicateSlice";
-
-validateDataOrThrow();
 
 export interface TrackerStore {
     state: UserStateV2;
@@ -76,8 +71,8 @@ export interface TrackerStore {
     setAccountId: (accountId: string) => void;
     setPlatform: (platform: "PC" | "PlayStation" | "Xbox" | "Switch" | "Mobile") => void;
 
-    importProfileViewingDataJson: (text: string) => { ok: boolean; error?: string };
-    importProfileFromWarframeStatApi: (json: unknown) => { ok: boolean; error?: string };
+    importProfileViewingDataJson: (text: string) => Promise<{ ok: boolean; error?: string }>;
+    importProfileFromWarframeStatApi: (json: unknown) => Promise<{ ok: boolean; error?: string }>;
 
     upsertDailyTask: (dateYmd: string, label: string, syndicate?: string, details?: string) => void;
     toggleDailyTask: (taskId: string) => void;
@@ -101,9 +96,6 @@ export interface TrackerStore {
     resetAllLocalData: () => void;
 
     getTodayTasks: () => DailyTask[];
-
-    getDerivedReserves: () => DerivedReserveLine[];
-    isBelowReserve: (key: string, spendAmount: number) => { blocked: boolean; reasons: string[] };
 
     addGoalItem: (catalogId: string, qty?: number) => void;
     removeGoal: (goalId: string) => void;
@@ -386,8 +378,9 @@ export const useTrackerStore = create<TrackerStore>()(
                 });
             },
 
-            importProfileViewingDataJson: (text) => {
+            importProfileViewingDataJson: async (text) => {
                 try {
+                    const { parseProfileViewingData } = await import("../utils/profileImport");
                     const parsed = parseProfileViewingData(text);
                     set((s) => { applyParsedProfile(s.state, parsed); });
                     return { ok: true };
@@ -397,8 +390,9 @@ export const useTrackerStore = create<TrackerStore>()(
                 }
             },
 
-            importProfileFromWarframeStatApi: (json) => {
+            importProfileFromWarframeStatApi: async (json) => {
                 try {
+                    const { parseWarframeStatApiProfile } = await import("../utils/profileImport");
                     const parsed = parseWarframeStatApiProfile(json);
                     set((s) => { applyParsedProfile(s.state, parsed); });
                     return { ok: true };
@@ -653,56 +647,6 @@ export const useTrackerStore = create<TrackerStore>()(
             getTodayTasks: () => {
                 const today = toYMD(new Date());
                 return get().state.dailyTasks.filter((t) => t.dateYmd === today);
-            },
-
-            getDerivedReserves: () => {
-                const syndicates = get().state.syndicates ?? [];
-                const completed = get().state.prereqs?.completed ?? {};
-                const mr = get().state.player?.masteryRank ?? null;
-                return computeDerivedReservesFromSyndicates(syndicates as any[], completed, mr);
-            },
-
-            isBelowReserve: (key, spendAmount) => {
-                const { inventory } = get().state;
-
-                const completed = get().state.prereqs?.completed ?? {};
-                const mr = get().state.player?.masteryRank ?? null;
-                const derived = computeDerivedReservesFromSyndicates((get().state.syndicates ?? []) as any[], completed, mr);
-
-                const rule = derived.find((r) => r.key === key);
-                if (!rule) {
-                    return { blocked: false, reasons: [] };
-                }
-
-                const current =
-                    key === "credits"
-                        ? (inventory.credits ?? 0)
-                        : key === "platinum"
-                            ? (inventory.platinum ?? 0)
-                            : (inventory.counts?.[key] ?? 0);
-
-                const spend = Number.isFinite(spendAmount) ? spendAmount : 0;
-                const afterSpend = current - spend;
-
-                if (afterSpend >= rule.minKeep) {
-                    return { blocked: false, reasons: [] };
-                }
-
-                const reasons: string[] = [];
-                const topSources = [...(rule.sources ?? [])];
-                topSources.sort((a, b) => (b.amount ?? 0) - (a.amount ?? 0));
-
-                reasons.push(`Keep at least ${rule.minKeep.toLocaleString()} (would drop to ${afterSpend.toLocaleString()}).`);
-
-                for (const s0 of topSources.slice(0, 10)) {
-                    reasons.push(`${s0.syndicateName}: requires ${s0.amount.toLocaleString()}${s0.label ? ` (${s0.label})` : ""}`);
-                }
-
-                if (topSources.length > 10) {
-                    reasons.push(`…and ${topSources.length - 10} more sources.`);
-                }
-
-                return { blocked: true, reasons };
             },
 
             addGoalItem: (catalogId, qty) => {

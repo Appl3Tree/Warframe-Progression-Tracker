@@ -12,7 +12,7 @@
 // Additionally, weapon-specific augments (e.g. compatName "Hek") are surfaced
 // when the selected weapon's name matches the compat name.
 
-import ALL_RAW from "../../../external/warframe-items/raw/All.json";
+import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
 import MODS_RAW from "../../data/_generated/mods-lean.auto.json";
 import type { ModCompatName, WeaponEntry } from "./weaponCatalog";
 

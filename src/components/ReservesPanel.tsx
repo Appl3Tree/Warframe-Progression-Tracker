@@ -2,6 +2,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
+import {
+    checkSpendAgainstDerivedReserves,
+    computeDerivedReservesFromSyndicates,
+} from "../domain/logic/derivedReserves";
 import { WorkspacePanel } from "./workspace/WorkspaceChrome";
 
 function labelForKey(key: string): string {
@@ -14,10 +18,14 @@ function labelForKey(key: string): string {
 
 export default function ReservesPanel() {
     const inventory = useTrackerStore((s) => s.state.inventory) ?? { credits: 0, platinum: 0, counts: {} };
-    const getDerivedReserves = useTrackerStore((s) => s.getDerivedReserves);
-    const isBelowReserve     = useTrackerStore((s) => s.isBelowReserve);
+    const syndicates = useTrackerStore((s) => s.state.syndicates ?? []);
+    const completedPrereqs = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
+    const masteryRank = useTrackerStore((s) => s.state.player?.masteryRank ?? null);
 
-    const derived = useMemo(() => getDerivedReserves(), [getDerivedReserves]);
+    const derived = useMemo(
+        () => computeDerivedReservesFromSyndicates(syndicates as any[], completedPrereqs, masteryRank),
+        [completedPrereqs, masteryRank, syndicates],
+    );
     const keys    = useMemo(() => {
         const out = derived.map((d) => d.key);
         out.sort((a, b) => a.localeCompare(b));
@@ -34,8 +42,15 @@ export default function ReservesPanel() {
 
     const check = useMemo(() => {
         if (!spendKey) return { blocked: false, reasons: [] as string[] };
-        return isBelowReserve(spendKey, spendAmount);
-    }, [isBelowReserve, spendKey, spendAmount]);
+        return checkSpendAgainstDerivedReserves({
+            key: spendKey,
+            spendAmount,
+            currentCredits: inventory.credits ?? 0,
+            currentPlatinum: inventory.platinum ?? 0,
+            currentCounts: inventory.counts ?? {},
+            derived,
+        });
+    }, [derived, inventory.counts, inventory.credits, inventory.platinum, spendAmount, spendKey]);
 
     return (
         <WorkspacePanel className="p-4">

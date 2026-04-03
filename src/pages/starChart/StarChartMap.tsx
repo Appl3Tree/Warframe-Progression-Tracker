@@ -8,6 +8,7 @@ import type { NodeId, PlanetId, StarChartNode, StarChartPlanet } from "../../dom
 import { getRegionResourcesForPlanet } from "../../domain/catalog/starChart/regionResources";
 import { PREREQ_REGISTRY } from "../../catalog/prereqs/prereqRegistry";
 import { PR } from "../../domain/ids/prereqIds";
+import { FULL_CATALOG, type CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { useTrackerStore } from "../../store/store";
 import { getDropSourcesForStarChartNode } from "../../domain/catalog/starChart/nodeDropSourceMap";
 import {
@@ -61,12 +62,31 @@ type RotationItem = {
     key: string;
     displayName: string;
     baseName: string;
-    catalogId: string | null;
+    catalogId: CatalogId | null;
     meta: DropMeta;
 };
 
 function normItemKey(s: string): string {
     return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function findCatalogIdForRewardName(name: string, catalogNameMap: Map<string, string>): CatalogId | null {
+    const trimmed = String(name ?? "").trim();
+    if (!trimmed) return null;
+
+    const normalized = normItemKey(trimmed);
+    const withoutBlueprint = normalized.replace(/\s+blueprint$/, "").trim();
+    const candidates = [normalized, withoutBlueprint].filter(Boolean);
+
+    for (const candidate of candidates) {
+        const direct = catalogNameMap.get(candidate);
+        if (direct) return direct as CatalogId;
+
+        const hits = (FULL_CATALOG.nameIndex[candidate] ?? []).filter((id) => String(id).startsWith("items:"));
+        if (hits.length === 1) return hits[0] as CatalogId;
+    }
+
+    return null;
 }
 
 function resolveDropMeta(it: ItemRow, dropSources: string[], lookup: DropMetaLookup): DropMeta | null {
@@ -174,6 +194,7 @@ export default function StarChartMap(props: {
 
     // Inventory ownership — used to decorate loot panel items
     const inventoryCounts = useTrackerStore((s) => s.state.inventory?.counts ?? EMPTY_NODE_COMPLETED);
+    const setCount = useTrackerStore((s) => s.setCount);
 
     // 4.4: Per-node completion tracking
     const setNodeCompleted        = useTrackerStore((s) => s.setNodeCompleted);
@@ -1177,7 +1198,7 @@ export default function StarChartMap(props: {
                 if (normDisplay !== normKey) continue;
 
                 const baseName = stripQtyPrefix(meta.displayName);
-                const catalogId = catalogNameMap.get(baseName.toLowerCase()) ?? null;
+                const catalogId = findCatalogIdForRewardName(baseName, catalogNameMap);
                 items.push({
                     key: `${sid}:${normKey}`,
                     displayName: meta.displayName,
@@ -1477,6 +1498,21 @@ export default function StarChartMap(props: {
                                                                             <span className="text-slate-400">{formatChance(it.meta.chance)}</span>
                                                                             <span className={rarityClass(it.meta.rarity)}>{it.meta.rarity}</span>
                                                                         </span>
+                                                                        {it.catalogId && (
+                                                                            <button
+                                                                                type="button"
+                                                                                className={[
+                                                                                    "ml-auto rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors",
+                                                                                    owned
+                                                                                        ? "border-emerald-700/70 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40"
+                                                                                        : "border-slate-700 bg-slate-900/40 text-slate-300 hover:border-slate-500 hover:text-slate-100",
+                                                                                ].join(" ")}
+                                                                                onClick={() => setCount(it.catalogId as CatalogId, owned ? 0 : 1)}
+                                                                                title={owned ? "Mark as unowned" : "Mark as owned in Inventory"}
+                                                                            >
+                                                                                {owned ? "Owned" : "Mark owned"}
+                                                                            </button>
+                                                                        )}
                                                                     </li>
                                                                 );
                                                             })}
@@ -1504,6 +1540,21 @@ export default function StarChartMap(props: {
                                                                             <span className="text-slate-400">{formatChance(dropMeta.chance)}</span>
                                                                             <span className={rarityClass(dropMeta.rarity)}>{dropMeta.rarity}</span>
                                                                         </span>
+                                                                    )}
+                                                                    {!String(it.catalogId).startsWith("region_resource:") && (
+                                                                        <button
+                                                                            type="button"
+                                                                            className={[
+                                                                                "ml-auto rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors",
+                                                                                owned
+                                                                                    ? "border-emerald-700/70 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40"
+                                                                                    : "border-slate-700 bg-slate-900/40 text-slate-300 hover:border-slate-500 hover:text-slate-100",
+                                                                            ].join(" ")}
+                                                                            onClick={() => setCount(it.catalogId as CatalogId, owned ? 0 : 1)}
+                                                                            title={owned ? "Mark as unowned" : "Mark as owned in Inventory"}
+                                                                        >
+                                                                            {owned ? "Owned" : "Mark owned"}
+                                                                        </button>
                                                                     )}
                                                                 </li>
                                                             );

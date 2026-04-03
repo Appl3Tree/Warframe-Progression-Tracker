@@ -3,52 +3,15 @@ import { useEffect, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
 import { WorkspacePanel, WorkspaceSegmented, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
-
-// ── Theme ─────────────────────────────────────────────────────────────────────
-
-const THEME_KEY = "wft_theme_v1";
-export type AppTheme = "dark" | "light";
-
-export function getStoredTheme(): AppTheme {
-    return localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark";
-}
-
-export function applyTheme(theme: AppTheme) {
-    const root = document.documentElement;
-    if (theme === "light") {
-        root.classList.add("theme-light");
-        root.classList.remove("theme-dark");
-    } else {
-        root.classList.add("theme-dark");
-        root.classList.remove("theme-light");
-    }
-    localStorage.setItem(THEME_KEY, theme);
-}
-
-// ── Compact rows ──────────────────────────────────────────────────────────────
-
-const COMPACT_KEY = "wft_compact_lists_v1";
-
-export function getCompactRows(): boolean {
-    return localStorage.getItem(COMPACT_KEY) === "1";
-}
-
-export function setCompactRows(v: boolean) {
-    localStorage.setItem(COMPACT_KEY, v ? "1" : "0");
-    document.documentElement.setAttribute("data-compact", v ? "1" : "0");
-}
-
-// ── Timezone ──────────────────────────────────────────────────────────────────
-
-const TZ_KEY = "wft_timezone_v1";
-
-export function getStoredTimezone(): string {
-    return localStorage.getItem(TZ_KEY) || "UTC";
-}
-
-export function setStoredTimezone(tz: string) {
-    localStorage.setItem(TZ_KEY, tz);
-}
+import {
+    applyTheme,
+    getCompactRows,
+    getStoredTheme,
+    getStoredTimezone,
+    setCompactRows,
+    setStoredTimezone,
+    type AppTheme,
+} from "../lib/settingsPreferences";
 
 // Common timezone options
 const TIMEZONE_OPTIONS = [

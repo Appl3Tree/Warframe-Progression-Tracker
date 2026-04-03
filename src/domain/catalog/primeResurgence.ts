@@ -1,4 +1,4 @@
-import ALL_RAW from "../../../external/warframe-items/raw/All.json";
+import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
 
 interface AllEntry {
     uniqueName?: string;

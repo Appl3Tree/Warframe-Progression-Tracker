@@ -1,9 +1,9 @@
 // ===== FILE: src/app/layout/Shell.tsx =====
 import { useEffect, useState } from "react";
 import { useTrackerStore } from "../../store/store";
+import { applyTheme, getStoredTheme } from "../../lib/settingsPreferences";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
-import { applyTheme, getStoredTheme } from "../../pages/Settings";
 import { getRouteByKey } from "../routes";
 
 const NEW_PLAYER_DISMISSED_KEY = "wft_newplayer_v1_dismissed";

@@ -4,11 +4,11 @@
 import { useEffect, useRef, useState, memo, useCallback, useMemo } from "react";
 import type { ReactNode } from "react";
 import { FULL_CATALOG, type CatalogId } from "../../domain/catalog/loadFullCatalog";
+import { resolveItemRequirementGraph } from "../../catalog/items/itemRequirements";
 import {
     type ZoomState,
     safeInt, fmtI, clamp,
     isExplicitBlueprintItem,
-    getDirectRequirementsForExpansion,
 } from "./goalsUtils";
 
 export function ZoomableTreeViewport(props: { children: ReactNode }) {
@@ -464,34 +464,84 @@ export function TreeStyles() {
 .wf-tree-node {
     position: relative;
     border: 1px solid rgba(30, 41, 59, 0.85);
-    background: rgba(2, 6, 23, 0.55);
-    border-radius: 14px;
-    padding: 10px 12px;
-    min-width: 220px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(2, 6, 23, 0.82));
+    border-radius: 16px;
+    padding: 12px 14px;
+    min-width: 260px;
     max-width: min(360px, 78vw);
     display: grid;
-    grid-template-columns: 28px 1fr auto;
-    gap: 10px;
-    align-items: center;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
     user-select: none;
+    box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08);
 }
 .wf-tree-node-title {
     font-size: 13px;
     font-weight: 700;
     color: rgba(226, 232, 240, 1);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.3;
+}
+.wf-tree-node-main {
+    min-width: 0;
+}
+.wf-tree-node-subtitle {
+    margin-top: 4px;
+    font-size: 11px;
+    color: rgba(148, 163, 184, 0.95);
 }
 .wf-tree-node-metrics {
-    font-size: 11px;
-    color: rgba(203, 213, 225, 1);
-    line-height: 1.25;
-    text-align: right;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+.wf-tree-node-stat {
+    min-width: 72px;
+    border-radius: 12px;
+    border: 1px solid rgba(51, 65, 85, 0.9);
+    background: rgba(15, 23, 42, 0.72);
+    padding: 8px 10px;
+}
+.wf-tree-node-stat-label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(148, 163, 184, 0.92);
+}
+.wf-tree-node-stat-value {
+    display: block;
+    margin-top: 4px;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    color: rgba(241, 245, 249, 1);
+}
+.wf-tree-node-stat-need {
+    border-color: rgba(71, 85, 105, 0.95);
+}
+.wf-tree-node-stat-have {
+    border-color: rgba(16, 185, 129, 0.28);
+    background: rgba(6, 78, 59, 0.18);
+}
+.wf-tree-node-stat-rem {
+    border-color: rgba(245, 158, 11, 0.3);
+    background: rgba(120, 53, 15, 0.18);
+}
+.wf-tree-node-stat-rem.is-clear {
+    border-color: rgba(16, 185, 129, 0.34);
+    background: rgba(6, 78, 59, 0.2);
+}
+.wf-tree-node-stat-rem .wf-tree-node-stat-value {
+    color: rgba(253, 224, 71, 1);
+}
+.wf-tree-node-stat-rem.is-clear .wf-tree-node-stat-value {
+    color: rgba(110, 231, 183, 1);
 }
 .wf-tree-node-btn {
-    height: 28px;
-    width: 28px;
+    height: 32px;
+    width: 32px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -508,14 +558,9 @@ export function TreeStyles() {
 /* On very small screens, shrink nodes a bit */
 @media (max-width: 520px) {
     .wf-tree-node {
-        min-width: 180px;
+        min-width: 200px;
         max-width: 86vw;
-        grid-template-columns: 28px 1fr;
-        grid-template-rows: auto auto;
-    }
-    .wf-tree-node-metrics {
-        grid-column: 1 / -1;
-        text-align: left;
+        grid-template-columns: 32px minmax(0, 1fr);
     }
 }
         `}</style>
@@ -542,11 +587,13 @@ export const TreeNode = memo(function TreeNode(props: TreeNodeProps) {
     const have = safeInt(inventoryCounts?.[String(nodeCatalogId)] ?? 0, 0);
     const remaining = Math.max(0, Math.floor(nodeNeed) - have);
 
-    const directChildren = useMemo(() => getDirectRequirementsForExpansion(nodeCatalogId), [nodeCatalogId]);
+    const resolution = useMemo(() => resolveItemRequirementGraph(nodeCatalogId), [nodeCatalogId]);
+    const directChildren = resolution.edges;
 
     const canExpand = depth < maxDepth && directChildren.length > 0;
     const isExpanded = Boolean(expandedEdges[edgeId]);
     const hasOpenChildren = canExpand && isExpanded;
+    const isComplete = remaining <= 0;
 
     return (
         <li className={["wf-tree-li", hasOpenChildren ? "wf-tree-li-has-children" : ""].join(" ")}>
@@ -564,15 +611,24 @@ export const TreeNode = memo(function TreeNode(props: TreeNodeProps) {
                     <div className="h-7 w-7" />
                 )}
 
-                <div className="min-w-0">
+                <div className="wf-tree-node-main">
                     <div className="wf-tree-node-title">{name}</div>
-                </div>
-
-                <div className="wf-tree-node-metrics">
-                    <div>Need {fmtI(nodeNeed)}</div>
-                    <div>Have {fmtI(have)}</div>
-                    <div>
-                        Rem <span className="font-semibold">{fmtI(remaining)}</span>
+                    <div className="wf-tree-node-subtitle">
+                        {canExpand ? "Expandable crafting branch" : "Leaf requirement"}
+                    </div>
+                    <div className="wf-tree-node-metrics">
+                        <div className="wf-tree-node-stat wf-tree-node-stat-need">
+                            <span className="wf-tree-node-stat-label">Need</span>
+                            <span className="wf-tree-node-stat-value">{fmtI(nodeNeed)}</span>
+                        </div>
+                        <div className="wf-tree-node-stat wf-tree-node-stat-have">
+                            <span className="wf-tree-node-stat-label">Have</span>
+                            <span className="wf-tree-node-stat-value">{fmtI(have)}</span>
+                        </div>
+                        <div className={`wf-tree-node-stat wf-tree-node-stat-rem ${isComplete ? "is-clear" : ""}`}>
+                            <span className="wf-tree-node-stat-label">Remaining</span>
+                            <span className="wf-tree-node-stat-value">{fmtI(remaining)}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -606,20 +662,22 @@ export const ChildrenList = memo(function ChildrenList(props: ChildrenListProps)
     const { parentCatalogId, parentNeed, inventoryCounts, depth, expandedEdges, onToggleEdge, maxDepth } = props;
 
     const children = useMemo(() => {
-        const direct = getDirectRequirementsForExpansion(parentCatalogId);
+        const direct = resolveItemRequirementGraph(parentCatalogId).edges;
 
         // Multiply per-parent need, and aggregate identical child ids *for this parent*
-        const agg = new Map<string, number>();
+        const agg = new Map<string, { need: number }>();
         for (const c of direct) {
             const childId = String(c.catalogId);
             const childNeed =
                 Math.max(1, Math.floor(Number(c.count) || 1)) * Math.max(1, Math.floor(Number(parentNeed) || 1));
-            agg.set(childId, (agg.get(childId) ?? 0) + childNeed);
+            const existing = agg.get(childId) ?? { need: 0 };
+            existing.need += childNeed;
+            agg.set(childId, existing);
         }
 
         const out = Array.from(agg.entries()).map(([cid, need]) => ({
             catalogId: cid as CatalogId,
-            need
+            need: need.need,
         }));
 
         // Stable ordering: highest need first, then name
@@ -645,19 +703,21 @@ export const ChildrenList = memo(function ChildrenList(props: ChildrenListProps)
         if (!isExplicitBlueprintItem(only.catalogId, nm)) return children;
 
         // Expand the blueprint and multiply by the blueprint quantity (need)
-        const bpChildren = getDirectRequirementsForExpansion(only.catalogId);
+        const bpChildren = resolveItemRequirementGraph(only.catalogId).edges;
         if (!bpChildren || bpChildren.length === 0) return children;
 
-        const agg = new Map<string, number>();
+        const agg = new Map<string, { need: number }>();
         for (const bc of bpChildren) {
             const cid = String(bc.catalogId);
             const need = Math.max(1, Math.floor(Number(bc.count) || 1)) * Math.max(1, Math.floor(Number(only.need) || 1));
-            agg.set(cid, (agg.get(cid) ?? 0) + need);
+            const existing = agg.get(cid) ?? { need: 0 };
+            existing.need += need;
+            agg.set(cid, existing);
         }
 
-        const flattened = Array.from(agg.entries()).map(([cid, need]) => ({
+        const flattened = Array.from(agg.entries()).map(([cid, value]) => ({
             catalogId: cid as CatalogId,
-            need
+            need: value.need,
         }));
 
         flattened.sort((a, b) => {

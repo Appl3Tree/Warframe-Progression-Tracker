@@ -23,7 +23,8 @@ export const NAV_ROUTES: NavRoute[] = [
     { key: "handbook", label: "Tenno's Handbook", shortLabel: "Handbook", desc: "Quest order, game mechanics, and farming guides for new players.", mode: "progression" },
 
     { key: "inventory", label: "Inventory", desc: "Full catalog by category with filters.", mode: "collection" },
-    { key: "mods", label: "Mods & Arcanes", shortLabel: "Mods", desc: "Browse mods and arcanes with drop locations.", mode: "collection" },
+    { key: "mods", label: "Mods", shortLabel: "Mods", desc: "Browse mods, rivens, and drop locations.", mode: "collection" },
+    { key: "arcanes", label: "Arcanes", shortLabel: "Arcanes", desc: "Track arcane ownership, ranks, and acquisition.", mode: "collection" },
     { key: "starchart", label: "Star Chart", shortLabel: "Chart", desc: "Click planet → node to see rewards and item sources.", mode: "collection" },
 
     { key: "requirements", label: "Farming", desc: "Targeted vs Overlap across goals + syndicates.", mode: "planning" },
