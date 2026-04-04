@@ -142,6 +142,15 @@ type WorldStateData = {
 
 const API = "https://api.warframestat.us/pc";
 
+function normalizeWorldStateLabel(label: string): string {
+    return label
+        .replace(/_/g, " ")
+        .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+        .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+        .trim()
+        .replace(/\s+/g, " ");
+}
+
 async function fetchWorldState(): Promise<WorldStateData> {
     const res = await fetch(`${API}?language=en`);
     if (!res.ok) throw new Error(`World state API returned ${res.status}`);
@@ -160,7 +169,9 @@ async function fetchWorldState(): Promise<WorldStateData> {
                     ? j.duviriCycle.choices.map((g: any) => ({
                         category:    g.category    ?? "",
                         categoryKey: g.categoryKey ?? "",
-                        choices:     Array.isArray(g.choices) ? g.choices : [],
+                        choices:     Array.isArray(g.choices)
+                            ? g.choices.map((choice: unknown) => normalizeWorldStateLabel(String(choice ?? "")))
+                            : [],
                     }))
                     : [],
             }

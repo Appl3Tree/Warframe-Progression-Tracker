@@ -14,12 +14,20 @@ import {
 } from "../domain/logic/plannerEngine";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
+import { formatSourceDisplayLabel } from "../utils/sourceLabels";
 import ALL_RAW from "../data/_generated/warframe-items-all-lean.auto.json";
 import missionRewardsJson from "../../external/warframe-drop-data/raw/missionRewards.json";
 import { getRelicByKey } from "../domain/catalog/relicCatalog";
 import { getPrimeAvailabilityStatus, getRelicAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";
 import { WorkspaceAction, WorkspaceFilterGroup, WorkspacePillButton, WorkspaceSection, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
+import {
+  SAFE_TO_SELL_PROTECTION_META,
+  buildWeaponIngredientIndex,
+  getSafeToSellProtectionKeys,
+  type SafeToSellProtectionKey,
+  type WeaponIngredientUse,
+} from "../domain/logic/safeToSell";
 import {
   COLLECTION_LEDGER_SHELL_CLASS,
   CollectionChipRail,
@@ -31,7 +39,8 @@ import {
   CollectionUtilityBand,
   CollectionUtilityPanel,
 } from "../components/collection/CollectionLedgerShell";
-import { getAllWikiBlueprintReferencedCatalogIds } from "../catalog/items/wikiBlueprintRequirements";
+import { getAllWikiBlueprintReferencedCatalogIds, getWikiBlueprintRequirements } from "../catalog/items/wikiBlueprintRequirements";
+import { getEntityImageUrl } from "../utils/entityImage";
 
 const _statusImgs = import.meta.glob<string>("../assets/statuses/*.png", { eager: true, import: "default" });
 const STATUS_IMG_INV: Record<string, string> = {};
@@ -157,6 +166,7 @@ type PrimaryTab =
   | "warframesVehicles"
   | "weapons"
   | "companions"
+  | "safeToSell"
   | "components"
   | "resources"
   | "railjack";
@@ -776,6 +786,102 @@ function PillButton(props: {
   onClick: () => void;
 }) {
   return <WorkspacePillButton label={props.label} active={props.active} onClick={props.onClick} />;
+}
+
+function SafeToSellModeButton(props: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={props.onClick}
+      className={[
+        "group flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left transition-all duration-200",
+        props.active
+          ? "border-cyan-700/60 bg-cyan-950/24 text-cyan-100 shadow-[0_0_0_1px_rgba(8,145,178,0.16)]"
+          : "border-slate-800/80 bg-slate-950/18 text-slate-300 hover:border-slate-700 hover:bg-slate-900/55",
+      ].join(" ")}
+    >
+      <span className="text-sm font-semibold">{props.label}</span>
+      <span
+        className={[
+          "h-2.5 w-2.5 rounded-full transition-all duration-200",
+          props.active
+            ? "bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,0.45)]"
+            : "bg-slate-700 group-hover:bg-slate-500",
+        ].join(" ")}
+      />
+    </button>
+  );
+}
+
+function SafeToSellRuleChip(props: {
+  label: string;
+  description: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      title={props.description}
+      onClick={props.onClick}
+      className={[
+        "group flex min-w-0 items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all duration-200",
+        props.active
+          ? "border-amber-700/45 bg-amber-950/18 text-amber-100 shadow-[0_0_0_1px_rgba(180,83,9,0.12)]"
+          : "border-slate-800/80 bg-slate-950/16 text-slate-300 hover:border-slate-700 hover:bg-slate-900/55",
+      ].join(" ")}
+    >
+      <span
+        className={[
+          "h-2.5 w-2.5 shrink-0 rounded-full transition-colors",
+          props.active ? "bg-amber-300 shadow-[0_0_10px_rgba(252,211,77,0.45)]" : "bg-slate-700 group-hover:bg-slate-500",
+        ].join(" ")}
+      />
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold leading-tight">{props.label}</span>
+      </span>
+      <span className={["shrink-0 text-[11px] font-medium uppercase tracking-[0.14em]", props.active ? "text-amber-200/80" : "text-slate-500 group-hover:text-slate-400"].join(" ")}>
+        {props.active ? "Keep" : "Allow"}
+      </span>
+    </button>
+  );
+}
+
+function SafeToSellStatusPill(props: {
+  tone: "safe" | "protected" | "neutral";
+  children: ReactNode;
+}) {
+  const toneClass =
+    props.tone === "safe"
+      ? "border-emerald-800/40 bg-emerald-950/20 text-emerald-200"
+      : props.tone === "protected"
+        ? "border-amber-800/40 bg-amber-950/20 text-amber-200"
+        : "border-slate-800 bg-slate-900/70 text-slate-300";
+  return <span className={["rounded-full border px-3 py-1.5 text-xs", toneClass].join(" ")}>{props.children}</span>;
+}
+
+function InventoryWorkspaceToggle(props: {
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={props.onClick}
+      className={[
+        "group inline-flex items-center gap-3 rounded-full border px-3 py-2 transition-all duration-200",
+        props.active
+          ? "border-cyan-700/60 bg-cyan-950/24 text-cyan-100 shadow-[0_0_0_1px_rgba(8,145,178,0.18)]"
+          : "border-slate-800 bg-slate-950/30 text-slate-200 hover:border-slate-700 hover:bg-slate-900/70",
+      ].join(" ")}
+      title="Open the Safe to Sell workspace"
+    >
+      <span className={["h-2.5 w-2.5 rounded-full transition-colors", props.active ? "bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,0.45)]" : "bg-slate-600"].join(" ")} />
+      <span className="text-sm font-semibold">{props.active ? "Safe to Sell" : "Open Safe to Sell"}</span>
+      {props.active ? <span className="text-[11px] text-cyan-200/80">Active</span> : null}
+    </button>
+  );
 }
 
 function FilterTagButton(props: {
@@ -1407,7 +1513,29 @@ function inventoryRowDuplicatePenalty(row: Pick<Row, "path" | "label">): number 
   return penalty;
 }
 
+function inventoryRowSourceSpecificityScore(row: Pick<Row, "id">): number {
+  const acquisition = getAcquisitionByCatalogId(row.id);
+  const sources = acquisition?.sources ?? [];
+  let score = 0;
+
+  for (const source of sources) {
+    if (source.startsWith("data:quest/")) score += 100;
+    else if (source.startsWith("data:events/")) score += 60;
+    else if (source.startsWith("data:dojo/") || source.startsWith("data:clan/")) score += 50;
+    else if (source.startsWith("data:vendor/")) score += 40;
+    else if (source === "data:crafting") score -= 5;
+    else if (source === "data:market/platinum") score -= 3;
+    else score += 1;
+  }
+
+  return score;
+}
+
 function preferInventoryRow(a: Row, b: Row): Row {
+  const specificityA = inventoryRowSourceSpecificityScore(a);
+  const specificityB = inventoryRowSourceSpecificityScore(b);
+  if (specificityA !== specificityB) return specificityA > specificityB ? a : b;
+
   const penaltyA = inventoryRowDuplicatePenalty(a);
   const penaltyB = inventoryRowDuplicatePenalty(b);
   if (penaltyA !== penaltyB) return penaltyA < penaltyB ? a : b;
@@ -1435,6 +1563,41 @@ function isOverLevelWeaponPath(path: string): boolean {
   return OVERLEVEL_WEAPON_PATHS.has(path);
 }
 
+function isIncarnonCatalogRecord(rec: any): boolean {
+  const rawPath = resolveRecordPath(rec).toLowerCase();
+  const displayName = String(rec?.displayName ?? rec?.name ?? "").trim().toLowerCase();
+  const tagSets = [
+    rec?.tags,
+    rec?.raw?.tags,
+    rec?.raw?.rawWfcd?.tags,
+    rec?.raw?.rawLotus?.tags,
+  ];
+
+  const hasIncarnonTag = tagSets.some((tags) =>
+    Array.isArray(tags) && tags.some((tag) => String(tag).trim().toLowerCase() === "incarnon"),
+  );
+
+  if (hasIncarnonTag) return true;
+  if (rawPath.includes("/incarnonadapters/")) return true;
+  if (displayName.includes("incarnon genesis")) return true;
+
+  return false;
+}
+
+function getSiblingBlueprintCatalogId(catalogId: CatalogId): CatalogId | null {
+  const candidate = `${String(catalogId)}Blueprint` as CatalogId;
+  if (FULL_CATALOG.recordsById[candidate]) return candidate;
+
+  const rec: any = FULL_CATALOG.recordsById[catalogId];
+  const displayName = String(rec?.displayName ?? "").trim();
+  if (!displayName) return null;
+
+  const blueprintName = normalize(`${displayName} Blueprint`);
+  const hits = (FULL_CATALOG.nameIndex?.[blueprintName] ?? []) as CatalogId[];
+  const itemHit = hits.find((id) => String(id).startsWith("items:"));
+  return itemHit ?? hits[0] ?? null;
+}
+
 type Row = {
   id: CatalogId;
   label: string;
@@ -1450,6 +1613,23 @@ type Row = {
   isPrime: boolean;
   isVaulted: boolean;
 };
+
+type SellSafetyInfo = {
+  protectionKeys: SafeToSellProtectionKey[];
+  weaponRecipeUses: WeaponIngredientUse[];
+};
+
+function isSafeToSellSlotBearingRow(row: Row): boolean {
+  if (row.cls.groups.has("components")) return false;
+  if (row.cls.groups.has("resources")) return false;
+  if (row.cls.groups.has("railjack")) return false;
+
+  return (
+    row.cls.groups.has("warframesVehicles") ||
+    row.cls.groups.has("weapons") ||
+    row.cls.groups.has("companions")
+  );
+}
 
 type VirtualWindow = {
   start: number;
@@ -1471,6 +1651,20 @@ type MrColumnFilterMode = "all" | "exists" | "equals" | "lte" | "gte";
 type MasteredColumnFilter = "all" | "mastered" | "unmastered" | "na";
 type ReleaseColumnFilterMode = "all" | "exists" | "before" | "after";
 type VariantFilter = "prime" | "vaulted";
+type SafeToSellViewMode = "all" | "safe" | "protected";
+
+const DEFAULT_SAFE_TO_SELL_PROTECTIONS: Record<SafeToSellProtectionKey, boolean> = {
+  eventItems: true,
+  invasionRewards: true,
+  questRewards: true,
+  incarnonItems: true,
+  stalkerAssassinDrops: true,
+  progenitorWeapons: true,
+  factionPurchases: true,
+  dojoResearch: true,
+  nightwaveOfferings: true,
+  weaponIngredients: true,
+};
 
 export default function Inventory() {
   const worldState = useWorldStateData();
@@ -1538,6 +1732,11 @@ export default function Inventory() {
 
   const [weaponClassTab, setWeaponClassTab] = useState<WeaponClassTab>("all");
   const [weaponTypeFilters, setWeaponTypeFilters] = useState<Partial<Record<string, TagFilterState>>>({});
+  const [safeToSellProtections, setSafeToSellProtections] = useState<Record<SafeToSellProtectionKey, boolean>>(
+    DEFAULT_SAFE_TO_SELL_PROTECTIONS,
+  );
+  const [safeToSellViewMode, setSafeToSellViewMode] = useState<SafeToSellViewMode>("all");
+  const [safeToSellOwnedOnly, setSafeToSellOwnedOnly] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<InventoryColumnKey[]>(() =>
     loadVisibleInventoryColumns(),
   );
@@ -1865,6 +2064,155 @@ export default function Inventory() {
     return Array.from(dedupedByLabel.values());
   }, [counts, inventoryCatalogIds, mastered, overLevelMastered, query, sortKey, worldState]);
 
+  const weaponIngredientIndex = useMemo(() => {
+    return buildWeaponIngredientIndex({
+      outputCatalogIds: inventoryCatalogIds.map((id) => String(id)),
+      getRequirements: (outputCatalogId) => {
+        const outputId = outputCatalogId as CatalogId;
+        const requirementCatalogId = getSiblingBlueprintCatalogId(outputId) ?? outputId;
+        return getWikiBlueprintRequirements(requirementCatalogId).map((requirement) => ({
+          catalogId: String(requirement.catalogId),
+          count: requirement.count,
+        }));
+      },
+      isWeaponCatalogId: (catalogId) => {
+        const rec: any = FULL_CATALOG.recordsById[catalogId as CatalogId];
+        if (!rec) return false;
+        const cls = classifyFromRecord(catalogId, rec);
+        return cls.groups.has("weapons") && !cls.groups.has("components");
+      },
+      getDisplayName: (catalogId) => FULL_CATALOG.recordsById[catalogId as CatalogId]?.displayName ?? null,
+    });
+  }, [inventoryCatalogIds]);
+
+  const sellSafetyById = useMemo(() => {
+    const map = new Map<string, SellSafetyInfo>();
+    const protectionMemo = new Map<string, SafeToSellProtectionKey[]>();
+
+    const collectProtectionKeys = (catalogId: CatalogId, seen = new Set<string>()): SafeToSellProtectionKey[] => {
+      const key = String(catalogId);
+      if (protectionMemo.has(key)) return protectionMemo.get(key)!;
+      if (seen.has(key)) return [];
+
+      const rec: any = FULL_CATALOG.recordsById[catalogId];
+      if (!rec) return [];
+
+      const nextSeen = new Set(seen);
+      nextSeen.add(key);
+
+      const cls = classifyFromRecord(key, rec);
+      const siblingBlueprintCatalogId = getSiblingBlueprintCatalogId(catalogId);
+      const ownProtections = getSafeToSellProtectionKeys({
+        acquisitionSources: getAcquisitionByCatalogId(catalogId)?.sources ?? [],
+        isIncarnonItem: isIncarnonCatalogRecord(rec),
+        isProgenitorWeapon: isOverLevelWeaponPath(resolveRecordPath(rec)),
+        hasWeaponRecipeConsumers: (weaponIngredientIndex.get(key)?.length ?? 0) > 0,
+        rawPath: resolveRecordPath(rec),
+        displayName: String(rec?.displayName ?? ""),
+      });
+      const blueprintProtections =
+        siblingBlueprintCatalogId && String(siblingBlueprintCatalogId) !== key
+          ? collectProtectionKeys(siblingBlueprintCatalogId, nextSeen)
+          : [];
+
+      const requirementCatalogId = siblingBlueprintCatalogId ?? catalogId;
+      const inheritedProtections = getWikiBlueprintRequirements(requirementCatalogId).flatMap((requirement) => {
+        const requirementRec: any = FULL_CATALOG.recordsById[requirement.catalogId];
+        if (!requirementRec) return [];
+
+        const requirementCls = classifyFromRecord(String(requirement.catalogId), requirementRec);
+        if (requirementCls.groups.has("resources")) return [];
+
+        return collectProtectionKeys(requirement.catalogId, nextSeen);
+      });
+
+      const combined = Array.from(new Set([...ownProtections, ...blueprintProtections, ...inheritedProtections])).sort((a, b) =>
+        a.localeCompare(b),
+      );
+
+      // Components should keep their own result, but fully craftable outputs should inherit
+      // any sell-safety concerns from the blueprint and recipe tree.
+      if (!cls.groups.has("resources")) {
+        protectionMemo.set(key, combined);
+      }
+
+      return combined;
+    };
+
+    for (const row of rows) {
+      const weaponRecipeUses = weaponIngredientIndex.get(String(row.id)) ?? [];
+      const protectionKeys = collectProtectionKeys(row.id);
+
+      map.set(String(row.id), {
+        protectionKeys,
+        weaponRecipeUses,
+      });
+    }
+
+    return map;
+  }, [rows, weaponIngredientIndex]);
+
+  const safeToSellCandidateRows = useMemo(() => {
+    return rows.filter(isSafeToSellSlotBearingRow);
+  }, [rows]);
+
+  const safeToSellRows = useMemo(() => {
+    return safeToSellCandidateRows.filter((row) => {
+      const info = sellSafetyById.get(String(row.id));
+      const matchedProtections = info?.protectionKeys ?? [];
+      return !matchedProtections.some((key) => safeToSellProtections[key]);
+    });
+  }, [safeToSellCandidateRows, safeToSellProtections, sellSafetyById]);
+
+  const protectedFromSellRows = useMemo(() => {
+    return safeToSellCandidateRows.filter((row) => {
+      const info = sellSafetyById.get(String(row.id));
+      const matchedProtections = info?.protectionKeys ?? [];
+      return matchedProtections.some((key) => safeToSellProtections[key]);
+    });
+  }, [safeToSellCandidateRows, safeToSellProtections, sellSafetyById]);
+
+  const safeToSellDisplayRows = useMemo(() => {
+    let rowsForDisplay = safeToSellCandidateRows;
+
+    if (safeToSellOwnedOnly) {
+      rowsForDisplay = rowsForDisplay.filter((row) => safeInt(counts[String(row.id)] ?? 0, 0) > 0);
+    }
+
+    const allowedIds = new Set(rowsForDisplay.map((row) => String(row.id)));
+
+    if (safeToSellViewMode === "safe") {
+      return safeToSellRows.filter((row) => allowedIds.has(String(row.id)));
+    }
+    if (safeToSellViewMode === "protected") {
+      return protectedFromSellRows.filter((row) => allowedIds.has(String(row.id)));
+    }
+    return rowsForDisplay;
+  }, [
+    counts,
+    protectedFromSellRows,
+    safeToSellCandidateRows,
+    safeToSellOwnedOnly,
+    safeToSellRows,
+    safeToSellViewMode,
+  ]);
+
+  const safeToSellSafeCount = useMemo(() => {
+    if (!safeToSellOwnedOnly) return safeToSellRows.length;
+    return safeToSellRows.filter((row) => safeInt(counts[String(row.id)] ?? 0, 0) > 0).length;
+  }, [counts, safeToSellOwnedOnly, safeToSellRows]);
+
+  const safeToSellProtectedCount = useMemo(() => {
+    if (!safeToSellOwnedOnly) return protectedFromSellRows.length;
+    return protectedFromSellRows.filter((row) => safeInt(counts[String(row.id)] ?? 0, 0) > 0).length;
+  }, [counts, protectedFromSellRows, safeToSellOwnedOnly]);
+
+  const activeSafeToSellProtectionCount = useMemo(
+    () =>
+      (Object.keys(safeToSellProtections) as SafeToSellProtectionKey[]).filter((key) => safeToSellProtections[key]).length,
+    [safeToSellProtections],
+  );
+
   const availableCompanionTabs = useMemo(() => {
     const available = new Set<CompanionsTab>(["all"]);
     for (const row of rows) {
@@ -1909,6 +2257,10 @@ export default function Inventory() {
     // Railjack tab — Plexus plus Railjack resources/items.
     if (primaryTab === "railjack") {
       return rows.filter((r) => r.cls.groups.has("railjack"));
+    }
+
+    if (primaryTab === "safeToSell") {
+      return safeToSellDisplayRows;
     }
 
     // "All" tab — show warframes, weapons, companions including Plexus synthetic row
@@ -1988,6 +2340,7 @@ export default function Inventory() {
     });
   }, [
     rows,
+    safeToSellDisplayRows,
     primaryTab,
     wfVehTab,
     companionsTab,
@@ -1999,36 +2352,38 @@ export default function Inventory() {
   const finalFiltered = useMemo(() => {
     let result = filtered;
 
-    // Ownership / mastery filter
-    if (ownershipFilter === "owned") {
-      result = result.filter((r) => safeInt(counts[String(r.id)] ?? 0, 0) > 0);
-    } else if (ownershipFilter === "unowned") {
-      result = result.filter(
-        (r) => safeInt(counts[String(r.id)] ?? 0, 0) === 0,
-      );
-    } else if (ownershipFilter === "mastered") {
-      result = result.filter((r) =>
-        checkMastered(mastered, overLevelMastered, String(r.id), r.path),
-      );
-    }
-
-    if (showAvailableNow) {
-      result = result.filter((r) => {
-        const requirement = r.masteryReq ?? 0;
-        return requirement <= (masteryRank ?? 0);
-      });
-    }
-
-    // Available only: at least one acquisition source is accessible
-    if (showAvailableOnly) {
-      result = result.filter((r) => {
-        const avail = determineItemAvailability(
-          r.id,
-          completedPrereqs,
-          masteryRank,
+    if (primaryTab !== "safeToSell") {
+      // Ownership / mastery filter
+      if (ownershipFilter === "owned") {
+        result = result.filter((r) => safeInt(counts[String(r.id)] ?? 0, 0) > 0);
+      } else if (ownershipFilter === "unowned") {
+        result = result.filter(
+          (r) => safeInt(counts[String(r.id)] ?? 0, 0) === 0,
         );
-        return avail === "available" || avail === "partial";
-      });
+      } else if (ownershipFilter === "mastered") {
+        result = result.filter((r) =>
+          checkMastered(mastered, overLevelMastered, String(r.id), r.path),
+        );
+      }
+
+      if (showAvailableNow) {
+        result = result.filter((r) => {
+          const requirement = r.masteryReq ?? 0;
+          return requirement <= (masteryRank ?? 0);
+        });
+      }
+
+      // Available only: at least one acquisition source is accessible
+      if (showAvailableOnly) {
+        result = result.filter((r) => {
+          const avail = determineItemAvailability(
+            r.id,
+            completedPrereqs,
+            masteryRank,
+          );
+          return avail === "available" || avail === "partial";
+        });
+      }
     }
 
     if (Object.keys(variantFilters).length > 0) {
@@ -2093,6 +2448,7 @@ export default function Inventory() {
     return result;
   }, [
     filtered,
+    primaryTab,
     ownershipFilter,
     showAvailableNow,
     showAvailableOnly,
@@ -2176,6 +2532,13 @@ export default function Inventory() {
       else next[filter] = nextState;
       return next;
     });
+  }
+
+  function toggleSafeToSellProtection(filter: SafeToSellProtectionKey) {
+    setSafeToSellProtections((current) => ({
+      ...current,
+      [filter]: !current[filter],
+    }));
   }
 
   const displayedRowIdSet = useMemo(
@@ -2311,6 +2674,9 @@ export default function Inventory() {
     companionsTab,
     weaponClassTab,
     weaponTypeFilters,
+    safeToSellProtections,
+    safeToSellViewMode,
+    safeToSellOwnedOnly,
     query,
     ownershipFilter,
     showAvailableNow,
@@ -2355,63 +2721,77 @@ export default function Inventory() {
             columnsClassName="grid-cols-1"
             primary={
               <CollectionUtilityPanel>
-                <label className="block">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                    Search Catalog
-                  </span>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                      Search Catalog
+                    </div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      {primaryTab === "safeToSell" ? "Sell-safety review" : "Inventory lookup"}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <InventoryWorkspaceToggle
+                      active={primaryTab === "safeToSell"}
+                      onClick={() => selectPrimaryTab(primaryTab === "safeToSell" ? "all" : "safeToSell")}
+                    />
+                  </div>
+                </div>
+
+                <label className="mt-3 block">
                   <input
-                    className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-2.5 text-base text-slate-100 placeholder:text-slate-500"
+                    className="w-full rounded-[1.6rem] border border-slate-700 bg-slate-950/80 px-4 py-3 text-base text-slate-100 placeholder:text-slate-500"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search items, blueprints, resources..."
                   />
                 </label>
 
-                <div className="mt-3 grid gap-2 lg:grid-cols-[auto_1fr] lg:items-start">
-                  <div className="pt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                    Ownership
-                  </div>
-                  <WorkspaceFilterGroup className="gap-2">
-                    {(["all", "owned", "unowned"] as const).map((f) => (
-                      <PillButton
-                        key={f}
-                        label={f === "all" ? "All" : f === "owned" ? "Owned" : "Unowned"}
-                        active={ownershipFilter === f}
-                        onClick={() => setOwnershipFilter(f)}
-                      />
-                    ))}
-                  </WorkspaceFilterGroup>
+                <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
+                  {primaryTab !== "safeToSell" ? (
+                    <>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Ownership</span>
+                        {(["all", "owned", "unowned"] as const).map((f) => (
+                          <PillButton
+                            key={f}
+                            label={f === "all" ? "All" : f === "owned" ? "Owned" : "Unowned"}
+                            active={ownershipFilter === f}
+                            onClick={() => setOwnershipFilter(f)}
+                          />
+                        ))}
+                      </div>
 
-                  <div className="pt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                    Status
-                  </div>
-                  <WorkspaceFilterGroup className="gap-2">
-                    <PillButton
-                      label="Mastered"
-                      active={ownershipFilter === "mastered"}
-                      onClick={() =>
-                        setOwnershipFilter(ownershipFilter === "mastered" ? "all" : "mastered")
-                      }
-                    />
-                    <PillButton
-                      label={masteryRank === null ? "Within current MR" : `Within current MR (${masteryRank})`}
-                      active={showAvailableNow}
-                      onClick={() => {
-                        if (masteryRank === null) return;
-                        setShowAvailableNow(!showAvailableNow);
-                      }}
-                    />
-                    <PillButton
-                      label="Accessible sources"
-                      active={showAvailableOnly}
-                      onClick={() => setShowAvailableOnly(!showAvailableOnly)}
-                    />
-                  </WorkspaceFilterGroup>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Status</span>
+                        <PillButton
+                          label="Mastered"
+                          active={ownershipFilter === "mastered"}
+                          onClick={() =>
+                            setOwnershipFilter(ownershipFilter === "mastered" ? "all" : "mastered")
+                          }
+                        />
+                        <PillButton
+                          label={masteryRank === null ? "Within current MR" : `Within current MR (${masteryRank})`}
+                          active={showAvailableNow}
+                          onClick={() => {
+                            if (masteryRank === null) return;
+                            setShowAvailableNow(!showAvailableNow);
+                          }}
+                        />
+                        <PillButton
+                          label="Accessible sources"
+                          active={showAvailableOnly}
+                          onClick={() => setShowAvailableOnly(!showAvailableOnly)}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-sm text-slate-400">Catalog review shaped by your sell rules.</div>
+                  )}
 
-                  <div className="pt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                    Variant
-                  </div>
-                  <WorkspaceFilterGroup className="gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Variant</span>
                     <FilterTagButton
                       label="Prime"
                       state={variantFilters.prime}
@@ -2436,7 +2816,7 @@ export default function Inventory() {
                       }
                       onClick={() => toggleVariantFilter("vaulted")}
                     />
-                  </WorkspaceFilterGroup>
+                  </div>
                 </div>
               </CollectionUtilityPanel>
             }
@@ -2444,43 +2824,45 @@ export default function Inventory() {
           />
 
           <div className="flex min-h-0 flex-1 flex-col">
-          <CollectionModeBand>
-            <TabButton
-              label="All"
-              active={primaryTab === "all"}
-              onClick={() => selectPrimaryTab("all")}
-            />
-            <TabButton
-              label="Warframes & Vehicles"
-              active={primaryTab === "warframesVehicles"}
-              onClick={() => selectPrimaryTab("warframesVehicles")}
-            />
-            <TabButton
-              label="Weapons"
-              active={primaryTab === "weapons"}
-              onClick={() => selectPrimaryTab("weapons")}
-            />
-            <TabButton
-              label="Companions"
-              active={primaryTab === "companions"}
-              onClick={() => selectPrimaryTab("companions")}
-            />
-            <TabButton
-              label="Blueprints & Parts"
-              active={primaryTab === "components"}
-              onClick={() => selectPrimaryTab("components")}
-            />
-            <TabButton
-              label="Resources"
-              active={primaryTab === "resources"}
-              onClick={() => selectPrimaryTab("resources")}
-            />
-            <TabButton
-              label="Railjack"
-              active={primaryTab === "railjack"}
-              onClick={() => selectPrimaryTab("railjack")}
-            />
-          </CollectionModeBand>
+          {primaryTab !== "safeToSell" ? (
+            <CollectionModeBand>
+              <TabButton
+                label="All"
+                active={primaryTab === "all"}
+                onClick={() => selectPrimaryTab("all")}
+              />
+              <TabButton
+                label="Warframes & Vehicles"
+                active={primaryTab === "warframesVehicles"}
+                onClick={() => selectPrimaryTab("warframesVehicles")}
+              />
+              <TabButton
+                label="Weapons"
+                active={primaryTab === "weapons"}
+                onClick={() => selectPrimaryTab("weapons")}
+              />
+              <TabButton
+                label="Companions"
+                active={primaryTab === "companions"}
+                onClick={() => selectPrimaryTab("companions")}
+              />
+              <TabButton
+                label="Blueprints & Parts"
+                active={primaryTab === "components"}
+                onClick={() => selectPrimaryTab("components")}
+              />
+              <TabButton
+                label="Resources"
+                active={primaryTab === "resources"}
+                onClick={() => selectPrimaryTab("resources")}
+              />
+              <TabButton
+                label="Railjack"
+                active={primaryTab === "railjack"}
+                onClick={() => selectPrimaryTab("railjack")}
+              />
+            </CollectionModeBand>
+          ) : null}
 
           {primaryTab === "weapons" ? (
             <CollectionRefineBand title="Refine Weapons" className="gap-y-1.5">
@@ -2628,7 +3010,89 @@ export default function Inventory() {
                 />
               </CollectionChipRail>
             </CollectionRefineBand>
+          ) : primaryTab === "safeToSell" ? (
+            <CollectionRefineBand title="Sell Rules" className="gap-y-4">
+              <div className="grid gap-6 xl:grid-cols-[18.5rem_minmax(0,1fr)] xl:gap-8">
+                <div className="space-y-5 xl:border-r xl:border-slate-800/60 xl:pr-8">
+                  <div className="space-y-2">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">View</div>
+                    <div className="space-y-2">
+                      <SafeToSellModeButton
+                        label="All Items"
+                        active={safeToSellViewMode === "all"}
+                        onClick={() => setSafeToSellViewMode("all")}
+                      />
+                      <SafeToSellModeButton
+                        label="Safe Only"
+                        active={safeToSellViewMode === "safe"}
+                        onClick={() => setSafeToSellViewMode("safe")}
+                      />
+                      <SafeToSellModeButton
+                        label="Protected Only"
+                        active={safeToSellViewMode === "protected"}
+                        onClick={() => setSafeToSellViewMode("protected")}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-800/60 pt-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Catalog Scope</div>
+                    <button
+                      className={[
+                        "mt-2 flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left transition-all duration-200",
+                        safeToSellOwnedOnly
+                          ? "border-cyan-700/60 bg-cyan-950/24 text-cyan-100 shadow-[0_0_0_1px_rgba(8,145,178,0.16)]"
+                          : "border-slate-800/80 bg-slate-950/18 text-slate-300 hover:border-slate-700 hover:bg-slate-900/55",
+                      ].join(" ")}
+                      onClick={() => setSafeToSellOwnedOnly((value) => !value)}
+                    >
+                      <span>
+                        <span className="block text-sm font-semibold">{safeToSellOwnedOnly ? "Owned inventory only" : "Full catalog"}</span>
+                        <span className="mt-0.5 block text-[11px] text-slate-500">
+                          {safeToSellOwnedOnly ? "Only rows you currently own" : "Show owned and unowned slots"}
+                        </span>
+                      </span>
+                      <span className={["text-[11px] font-medium uppercase tracking-[0.14em]", safeToSellOwnedOnly ? "text-cyan-200/80" : "text-slate-500"].join(" ")}>
+                        {safeToSellOwnedOnly ? "Owned" : "All"}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-0.5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Protected Sources</div>
+                      <div className="h-px w-10 bg-slate-800/70" />
+                    </div>
+                    <SafeToSellStatusPill tone="neutral">
+                      {activeSafeToSellProtectionCount} active rule{activeSafeToSellProtectionCount === 1 ? "" : "s"}
+                    </SafeToSellStatusPill>
+                  </div>
+
+                  <div className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-3">
+                    {(Object.keys(SAFE_TO_SELL_PROTECTION_META) as SafeToSellProtectionKey[]).map((key) => (
+                      <SafeToSellRuleChip
+                        key={key}
+                        label={SAFE_TO_SELL_PROTECTION_META[key].label}
+                        description={SAFE_TO_SELL_PROTECTION_META[key].description}
+                        active={safeToSellProtections[key]}
+                        onClick={() => toggleSafeToSellProtection(key)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CollectionRefineBand>
           ) : null}
+
+          {primaryTab === "safeToSell" && (
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+              <SafeToSellStatusPill tone="safe">Safe now: {safeToSellSafeCount}</SafeToSellStatusPill>
+              <SafeToSellStatusPill tone="protected">Protected: {safeToSellProtectedCount}</SafeToSellStatusPill>
+              <SafeToSellStatusPill tone="neutral">Search below to check any item</SafeToSellStatusPill>
+            </div>
+          )}
 
           {/* Virtualized list */}
           <CollectionResultsBand
@@ -2923,6 +3387,10 @@ export default function Inventory() {
                 {slice.map((r) => {
                   const goal = goalByCatalogId.get(String(r.id));
                   const goalTarget = goal ? safeInt(goal.qty ?? 1, 1) : 0;
+                  const sellSafety = sellSafetyById.get(String(r.id));
+                  const weaponRecipeUses = sellSafety?.weaponRecipeUses ?? [];
+                  const activeSellProtections = (sellSafety?.protectionKeys ?? []).filter((key) => safeToSellProtections[key]);
+                  const isSafeToSell = primaryTab === "safeToSell" ? activeSellProtections.length === 0 : false;
                   const isSelected = selectedDetailId === r.id;
                   const isChecked = selectedRowIds.has(String(r.id));
                   const isOwned = r.value > 0;
@@ -3019,7 +3487,47 @@ export default function Inventory() {
                                       VAULTED PARTS
                                     </span>
                                   )}
+                                  {weaponRecipeUses.length > 0 && (
+                                    <span
+                                      className="shrink-0 rounded border border-amber-700/50 bg-amber-950/40 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300"
+                                      title={`Used to craft ${weaponRecipeUses.map((use) => use.outputName).join(", ")}`}
+                                    >
+                                      WEAPON INGREDIENT
+                                    </span>
+                                  )}
+                                  {primaryTab === "safeToSell" && (
+                                    <span
+                                      className={[
+                                        "shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-semibold",
+                                        isSafeToSell
+                                          ? "border-emerald-700/50 bg-emerald-950/40 text-emerald-300"
+                                          : "border-slate-700/60 bg-slate-900 text-slate-200",
+                                      ].join(" ")}
+                                      title={
+                                        isSafeToSell
+                                          ? "Safe to sell under the current rules."
+                                          : `Protected by ${activeSellProtections.map((key) => SAFE_TO_SELL_PROTECTION_META[key].label).join(", ")}`
+                                      }
+                                    >
+                                      {isSafeToSell ? "SAFE" : "PROTECTED"}
+                                    </span>
+                                  )}
                                 </div>
+                                {primaryTab === "safeToSell" && activeSellProtections.length > 0 && (
+                                  <div className="mt-1 flex flex-wrap gap-1">
+                                    {activeSellProtections.slice(0, 3).map((key) => (
+                                      <span
+                                        key={key}
+                                        className="rounded-full border border-amber-800/40 bg-amber-950/20 px-1.5 py-0.5 text-[10px] text-amber-200"
+                                      >
+                                        {SAFE_TO_SELL_PROTECTION_META[key].label}
+                                      </span>
+                                    ))}
+                                    {activeSellProtections.length > 3 && (
+                                      <span className="text-[10px] text-slate-500">+{activeSellProtections.length - 3} more</span>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           );
@@ -3161,6 +3669,7 @@ export default function Inventory() {
               </div>
             )}
           </div>
+
         </div>
       </div>
       </Section>
@@ -3171,6 +3680,10 @@ export default function Inventory() {
           const name = rec?.displayName ?? String(selectedDetailId);
           const uniqueName = String(selectedDetailId).replace(/^[^:]+:/, "");
           const allE = getAllEntry(uniqueName, name);
+          const imageUrl = getEntityImageUrl(allE);
+          const sellSafety = sellSafetyById.get(String(selectedDetailId));
+          const weaponRecipeUses = sellSafety?.weaponRecipeUses ?? [];
+          const matchedSellProtections = sellSafety?.protectionKeys ?? [];
 
           const acq = getAcquisitionByCatalogId(selectedDetailId);
           const sources: string[] = Array.isArray(acq?.sources)
@@ -3190,7 +3703,12 @@ export default function Inventory() {
                 )
               : [];
           const isOwned = safeInt(counts[String(selectedDetailId)] ?? 0, 0) > 0;
-          const isMastered = mastered[String(selectedDetailId)] === true;
+          const isMastered = checkMastered(
+            mastered,
+            overLevelMastered,
+            String(selectedDetailId),
+            resolveRecordPath(rec),
+          );
           const availColor =
             avail === "available"
               ? "text-emerald-400"
@@ -3274,7 +3792,21 @@ export default function Inventory() {
                 {/* Modal body */}
                 <div className="overflow-y-auto flex-1 p-5">
               {/* ── Header row ── */}
-              <div className="flex items-start gap-3 mb-4">
+              <div className="grid grid-cols-1 gap-4 mb-4 lg:grid-cols-[minmax(240px,0.8fr)_minmax(0,1.2fr)]">
+                <div className="overflow-hidden rounded-[24px] border border-slate-800 bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.12),transparent_55%),linear-gradient(180deg,rgba(30,41,59,0.58),rgba(15,23,42,0.72))]">
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt={name}
+                      className="h-full min-h-[260px] w-full object-contain p-6"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex min-h-[260px] items-center justify-center px-6 text-center text-sm text-slate-500">
+                      No artwork available for this item.
+                    </div>
+                  )}
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     {allE?.isPrime && (
@@ -3305,6 +3837,14 @@ export default function Inventory() {
                     {isMastered && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded border border-cyan-700 bg-cyan-950/30 text-cyan-300">
                         Mastered
+                      </span>
+                    )}
+                    {weaponRecipeUses.length > 0 && (
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded border border-amber-700 bg-amber-950/30 text-amber-300"
+                        title={`Used to craft ${weaponRecipeUses.map((use) => use.outputName).join(", ")}`}
+                      >
+                        Weapon Ingredient
                       </span>
                     )}
                     <span
@@ -3628,6 +4168,32 @@ export default function Inventory() {
 
                 {/* ── RIGHT COLUMN ── */}
                 <div className="space-y-4">
+                  {(matchedSellProtections.length > 0 || weaponRecipeUses.length > 0) && (
+                    <div>
+                      <Label>Sell Safety</Label>
+                      <div className="space-y-2">
+                        {matchedSellProtections.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {matchedSellProtections.map((key) => (
+                              <span
+                                key={key}
+                                className="rounded-full border border-amber-800/50 bg-amber-950/30 px-2.5 py-1 text-xs text-amber-200"
+                                title={SAFE_TO_SELL_PROTECTION_META[key].description}
+                              >
+                                {SAFE_TO_SELL_PROTECTION_META[key].label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {weaponRecipeUses.length > 0 && (
+                          <div className="rounded-xl border border-amber-800/40 bg-amber-950/20 px-3 py-2 text-xs text-amber-100/90">
+                            This weapon is used to craft: {weaponRecipeUses.map((use) => `${use.outputName}${use.count > 1 ? ` x${use.count}` : ""}`).join(", ")}.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Build info */}
                   {(allE?.buildPrice || allE?.buildTime || allE?.bpCost) && (
                     <div>
@@ -3730,11 +4296,7 @@ export default function Inventory() {
                                   <span className="ml-auto flex flex-wrap gap-x-2 gap-y-0.5 justify-end">
                                     {compSources.slice(0, 3).map((s) => (
                                       <span key={s} className="text-[10px] text-sky-400">
-                                        {SOURCE_INDEX[s as any]?.label ?? s
-                                          .replace(/^(?:data|src):/, "")
-                                          .replace(/\//g, " › ")
-                                          .replace(/-/g, " ")
-                                          .replace(/\b\w/g, (c) => c.toUpperCase())}
+                                        {formatSourceDisplayLabel(SOURCE_INDEX[s as any]?.label ?? s)}
                                       </span>
                                     ))}
                                     {compSources.length > 3 && (
@@ -3844,11 +4406,7 @@ export default function Inventory() {
                       <ul className="space-y-0.5 max-h-32 overflow-auto">
                         {sources.slice(0, 15).map((s) => (
                           <li key={s} className="text-xs text-slate-300">
-                            {SOURCE_INDEX[s as any]?.label ?? s
-                                .replace(/^(?:data|src):/, "")
-                                .replace(/\//g, " › ")
-                                .replace(/-/g, " ")
-                                .replace(/\b\w/g, (c) => c.toUpperCase())}
+                            {formatSourceDisplayLabel(SOURCE_INDEX[s as any]?.label ?? s)}
                           </li>
                         ))}
                         {sources.length > 15 && (

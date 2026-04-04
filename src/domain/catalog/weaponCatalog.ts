@@ -6,8 +6,8 @@ import { ITEMS_CATALOG } from "./itemsCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];
 
-export type WeaponCategory = "Primary" | "Secondary" | "Melee";
-export type ModCompatName = "Rifle" | "Sniper" | "Shotgun" | "Pistol" | "Bow" | "Melee";
+export type WeaponCategory = "Primary" | "Secondary" | "Melee" | "Arch-Gun" | "Arch-Melee" | "Companion";
+export type ModCompatName = "Rifle" | "Sniper" | "Shotgun" | "Pistol" | "Bow" | "Melee" | "Archgun" | "Archmelee";
 
 export interface WeaponDamage {
     total: number;
@@ -83,6 +83,18 @@ export interface WeaponEntry {
     isProgenitorWeapon?: boolean;
 }
 
+export function isGroundMeleeCategory(category: WeaponCategory): boolean {
+    return category === "Melee";
+}
+
+export function usesMeleeDamageModel(category: WeaponCategory): boolean {
+    return category === "Melee" || category === "Arch-Melee";
+}
+
+export function supportsStanceMods(category: WeaponCategory): boolean {
+    return category === "Melee";
+}
+
 /** Kuva/Tenet/Coda weapons can rank to 40 */
 function isOverLevelWeapon(name: string, uniqueName: string): boolean {
     const n = name.toLowerCase();
@@ -122,14 +134,67 @@ function resolveChargeTime(trigger: string, attacks: unknown[]): number | null {
     return Math.min(...withCT);
 }
 
-function resolveModCompat(category: string, weaponType: string): ModCompatName {
-    if (category === "Secondary") return "Pistol";
-    if (category === "Melee") return "Melee";
+function inferCompanionWeaponFamily(item: Record<string, unknown>): { weaponType: string; modCompat: ModCompatName } {
+    const name = String(item.name ?? "").toLowerCase();
+    const uniqueName = String(item.uniqueName ?? "").toLowerCase();
+    const description = String(item.description ?? "").toLowerCase();
+
+    if (uniqueName.includes("glaive") || description.includes("glaive")) {
+        return { weaponType: "Melee", modCompat: "Melee" };
+    }
+    if (uniqueName.includes("shotgun") || description.includes("shotgun")) {
+        return { weaponType: "Shotgun", modCompat: "Shotgun" };
+    }
+    if (uniqueName.includes("railgun") || description.includes("sniper")) {
+        return { weaponType: "Sniper", modCompat: "Sniper" };
+    }
+    if (
+        uniqueName.includes("pistol") ||
+        description.includes("pistol") ||
+        name.includes("burst laser")
+    ) {
+        return { weaponType: "Pistol", modCompat: "Pistol" };
+    }
+    if (description.includes("bow")) {
+        return { weaponType: "Bow", modCompat: "Bow" };
+    }
+    return { weaponType: "Rifle", modCompat: "Rifle" };
+}
+
+function resolveCategory(item: Record<string, unknown>, exaltedCategory?: WeaponCategory | null): WeaponCategory | null {
+    if (exaltedCategory) return exaltedCategory;
+    const rawCategory = String(item.category ?? "");
+    const rawType = String(item.type ?? "");
+    const productCategory = String(item.productCategory ?? "");
+    const uniqueName = String(item.uniqueName ?? "").toLowerCase();
+
+    if (rawType === "Companion Weapon" || productCategory === "SentinelWeapons" || uniqueName.includes("/sentinelweapons/")) {
+        return "Companion";
+    }
+    if (
+        rawCategory === "Primary" ||
+        rawCategory === "Secondary" ||
+        rawCategory === "Melee" ||
+        rawCategory === "Arch-Gun" ||
+        rawCategory === "Arch-Melee"
+    ) {
+        return rawCategory as WeaponCategory;
+    }
+    return null;
+}
+
+function resolveWeaponFamily(category: WeaponCategory, item: Record<string, unknown>): { weaponType: string; modCompat: ModCompatName } {
+    if (category === "Companion") return inferCompanionWeaponFamily(item);
+    const weaponType = String(item.type ?? "");
+    if (category === "Arch-Gun") return { weaponType: weaponType || "Arch-Gun", modCompat: "Archgun" };
+    if (category === "Arch-Melee") return { weaponType: weaponType || "Arch-Melee", modCompat: "Archmelee" };
+    if (category === "Secondary") return { weaponType: weaponType || "Pistol", modCompat: "Pistol" };
+    if (category === "Melee") return { weaponType: weaponType || "Melee", modCompat: "Melee" };
     const t = (weaponType ?? "").toLowerCase();
-    if (t === "shotgun") return "Shotgun";
-    if (t === "bow") return "Bow";
-    if (t === "sniper") return "Sniper";
-    return "Rifle";
+    if (t === "shotgun") return { weaponType: "Shotgun", modCompat: "Shotgun" };
+    if (t === "bow") return { weaponType: "Bow", modCompat: "Bow" };
+    if (t === "sniper") return { weaponType: "Sniper", modCompat: "Sniper" };
+    return { weaponType: weaponType || "Rifle", modCompat: "Rifle" };
 }
 
 function classifyExaltedWeapon(item: Record<string, unknown>): {
@@ -152,15 +217,15 @@ function classifyExaltedWeapon(item: Record<string, unknown>): {
         "regulators":            { category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
         "regulators prime":      { category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
         "glory":                 { category: "Secondary", weaponType: "Pistol",   modCompat: "Pistol" },
-        "arquebex":              { category: "Primary",   weaponType: "Launcher", modCompat: "Rifle" },
-        "ironbride":             { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "arquebex":              { category: "Arch-Gun",  weaponType: "Arch-Gun",  modCompat: "Archgun" },
+        "ironbride":             { category: "Arch-Melee", weaponType: "Arch-Melee", modCompat: "Archmelee" },
         "exalted blade":         { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
         "exalted prime blade":   { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
         "exalted umbra blade":   { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
         "desert wind":           { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
         "desert wind prime":     { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
-        "diwata":                { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
-        "diwata prime":          { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
+        "diwata":                { category: "Arch-Melee", weaponType: "Arch-Melee", modCompat: "Archmelee" },
+        "diwata prime":          { category: "Arch-Melee", weaponType: "Arch-Melee", modCompat: "Archmelee" },
         "iron staff":            { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
         "iron staff prime":      { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
         "garuda talons":         { category: "Melee",     weaponType: "Melee",    modCompat: "Melee" },
@@ -248,6 +313,7 @@ const STANCE_TAG_MAP: Record<string, string> = {
     STAFF_STANCE: "Staves",
     SWORDS_STANCE: "Swords",
     SWORD_AND_SHIELD_STANCE: "Sword And Shield",
+    TONFA_STANCE: "Tonfas",
     TONFAS_STANCE: "Tonfas",
     TWO_HANDED_NIKANA_STANCE: "Two-Handed Nikana",
     WARFANS_STANCE: "Warfans",
@@ -279,6 +345,38 @@ function inferStanceClassesFromItems(uniqueName: string): string[] {
     return [...classes];
 }
 
+function mapArtifactSlotToPolarity(slot: unknown): string {
+    switch (String(slot ?? "").trim()) {
+        case "AP_ATTACK":
+            return "madurai";
+        case "AP_DEFENSE":
+            return "vazarin";
+        case "AP_TACTIC":
+            return "naramon";
+        case "AP_POWER":
+            return "zenurik";
+        default:
+            return "";
+    }
+}
+
+function inferMainPolaritiesFromItems(uniqueName: string): string[] {
+    const raw = ITEMS_CATALOG.byKey[uniqueName]?.raw as
+        | {
+            data?: {
+                ArtifactSlots?: unknown[];
+            };
+        }
+        | undefined;
+    const artifactSlots = Array.isArray(raw?.data?.ArtifactSlots) ? raw.data.ArtifactSlots : [];
+    if (artifactSlots.length === 0) return [];
+
+    return artifactSlots
+        .slice(0, 8)
+        .map(mapArtifactSlotToPolarity)
+        .filter((polarity): polarity is string => polarity.length > 0);
+}
+
 function inferStanceClassFallback(item: Record<string, unknown>, isExalted: boolean): string | undefined {
     if (isExalted || typeof item.stancePolarity !== "string") return undefined;
     const uniqueName = String(item.uniqueName ?? "").toLowerCase();
@@ -308,6 +406,7 @@ function inferStanceClassFallback(item: Record<string, unknown>, isExalted: bool
         ["/whip/", "Whips"],
         ["rapier", "Rapiers"],
         ["/polearm/", "Polearms"],
+        ["/polearms/", "Polearms"],
         ["/saw/", "Assault Saw"],
         ["/gunblade/", "Gunblade"],
         ["/nunchaku/", "Nunchaku"],
@@ -373,16 +472,16 @@ export function getWeaponCatalog(): WeaponEntry[] {
     const entries: WeaponEntry[] = [];
 
     for (const item of ALL) {
-        const rawCategory = item.category as string;
         const exaltedType = String(item.type ?? "") === "Exalted Weapon";
         const exaltedClass = exaltedType ? classifyExaltedWeapon(item) : null;
-        const cat = exaltedClass?.category ?? rawCategory;
-        if (cat !== "Primary" && cat !== "Secondary" && cat !== "Melee") continue;
+        const cat = resolveCategory(item, exaltedClass?.category ?? null);
+        if (!cat) continue;
         if (!item.name) continue;
         // Must have some damage or be masterable to count as a real weapon
         if (!item.masterable && !item.wikiaUrl) continue;
 
-        const weaponType = exaltedClass?.weaponType ?? String(item.type ?? "");
+        const family = exaltedClass ?? resolveWeaponFamily(cat, item);
+        const weaponType = family.weaponType;
         const trigger    = String(item.trigger ?? "Auto");
         const rawAttacks = Array.isArray(item.attacks) ? item.attacks as Record<string, unknown>[] : [];
 
@@ -410,15 +509,15 @@ export function getWeaponCatalog(): WeaponEntry[] {
         const hasExplicitMagazineSize = Object.prototype.hasOwnProperty.call(item, "magazineSize");
         const rawPolarities = Array.isArray(item.polarities)
             ? (item.polarities as unknown[]).map(p => String(p))
-            : [];
+            : inferMainPolaritiesFromItems(uniqueName);
 
         const stanceClasses = inferStanceClasses(item, exaltedType);
         entries.push({
             uniqueName,
             name,
-            category: cat as WeaponCategory,
+            category: cat,
             weaponType,
-            modCompat: exaltedClass?.modCompat ?? resolveModCompat(cat, weaponType),
+            modCompat: family.modCompat,
             damage: dmg,
             critChance:    n(item.criticalChance),
             critMultiplier: n(item.criticalMultiplier) || 1.5,

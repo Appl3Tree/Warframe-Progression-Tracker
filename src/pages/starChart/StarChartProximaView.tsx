@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { STAR_CHART_DATA } from "../../domain/catalog/starChart";
 import type { PlanetId, StarChartNode, StarChartPlanet } from "../../domain/models/starChart";
 import {
+    DEFAULT_NODE_GROUP_TAB,
     groupPlanetNodesForDisplay,
     buildTabSpecRaw,
     applyExclusiveAssignment,
@@ -32,7 +33,7 @@ function isProximaPlanet(p: StarChartPlanet): boolean {
 function StarChartProximaView({ onBack }: { onBack: () => void }) {
     const [selectedPlanetId, setSelectedPlanetId] = useState<PlanetId | null>(null);
     const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
-    const [selectedTab, setSelectedTab] = useState<NodeGroupKind>("base");
+    const [selectedTab, setSelectedTab] = useState<NodeGroupKind>(DEFAULT_NODE_GROUP_TAB);
     const [vb, setVb] = useState<ViewBox>(PROXIMA_INITIAL_VB);
     const [showIntrinsics, setShowIntrinsics] = useState(false);
     // Railjack/Proxima has no Steel Path variant — always use normal mode.
@@ -84,7 +85,7 @@ function StarChartProximaView({ onBack }: { onBack: () => void }) {
         if (!selectedGroupKey) return;
         const allowed = new Set(tabsForPanel.map((t) => t.kind));
         if (allowed.size === 0) return;
-        if (!allowed.has(selectedTab)) setSelectedTab(tabsForPanel[0]?.kind ?? "base");
+        if (!allowed.has(selectedTab)) setSelectedTab(tabsForPanel[0]?.kind ?? DEFAULT_NODE_GROUP_TAB);
     }, [selectedGroupKey, tabsForPanel, selectedTab]);
 
     const scale = useMemo(() => viewBoxToScale(vb), [vb]);
@@ -127,7 +128,7 @@ function StarChartProximaView({ onBack }: { onBack: () => void }) {
                 </button>
                 <button
                     className="rounded-lg border border-slate-700 bg-slate-950/20 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
-                    onClick={() => { setSelectedGroupKey(null); setSelectedTab("base"); setSelectedPlanetId(null); setVb(PROXIMA_INITIAL_VB); }}
+                    onClick={() => { setSelectedGroupKey(null); setSelectedTab(DEFAULT_NODE_GROUP_TAB); setSelectedPlanetId(null); setVb(PROXIMA_INITIAL_VB); }}
                 >Reset View</button>
             </div>
             <div className="flex-1 min-h-0">

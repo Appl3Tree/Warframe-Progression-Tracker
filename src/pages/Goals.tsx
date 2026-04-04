@@ -16,6 +16,7 @@ import { EMPTY_OBJ, EMPTY_ARR, type GoalRow, type GoalsTab, safeInt } from "./go
 import { GoalCard } from "./goals/GoalCard";
 import { TreeStyles } from "./goals/GoalsTreeView";
 import { WorkspaceAction, WorkspaceFilterBar, WorkspaceFilterGroup, WorkspacePillButton, WorkspaceSection, WorkspaceSegmented, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
+import { getOwnedCountForCatalogId } from "../domain/goals/catalogGoals";
 
 function Section(props: { title: string; subtitle?: string; children: ReactNode }) {
     return <WorkspaceSection title={props.title} subtitle={props.subtitle}>{props.children}</WorkspaceSection>;
@@ -185,12 +186,12 @@ export default function Goals() {
         if (!Array.isArray(goals)) return { sortedGoalIds: [] as string[], totalGoalCount: 0 };
 
         const raw = (goals as any[])
-            .filter((g) => g && g.type === "item")
+            .filter((g) => g && (g.type === "item" || g.type === "mod" || g.type === "arcane"))
             .map((g) => {
                 const cid = String(g.catalogId) as CatalogId;
                 const name = FULL_CATALOG.recordsById[cid]?.displayName ?? cid;
                 const qty = Math.max(1, safeInt(g.qty ?? 1, 1));
-                const have = safeInt(inventory?.counts?.[cid] ?? 0, 0);
+                const have = getOwnedCountForCatalogId(cid, inventory);
                 const remaining = Math.max(0, qty - have);
                 return { id: String(g.id), isActive: g.isActive !== false, remaining, have, qty, name };
             });
@@ -245,8 +246,6 @@ export default function Goals() {
 
         for (const g of goals ?? []) {
             if (!g || g.isActive === false) continue;
-            if (g.type !== "item") continue;
-
             const cid = String(g.catalogId) as CatalogId;
             const qty = Math.max(1, safeInt(g.qty ?? 1, 1));
 
@@ -293,12 +292,12 @@ export default function Goals() {
         return filtered;
     }, [goals, requirementsOnly.itemLines, inventory]);
 
-    const activeGoalCount = goals.filter((goal: any) => goal?.type === "item" && goal.isActive !== false).length;
+    const activeGoalCount = goals.filter((goal: any) => goal && goal.isActive !== false).length;
     const completedGoalCount = (goals ?? []).filter((goal: any) => {
-        if (!goal || goal.type !== "item") return false;
+        if (!goal) return false;
         const cid = String(goal.catalogId) as CatalogId;
         const qty = Math.max(1, safeInt(goal.qty ?? 1, 1));
-        const have = safeInt(inventory?.counts?.[cid] ?? 0, 0);
+        const have = getOwnedCountForCatalogId(cid, inventory);
         return have >= qty;
     }).length;
     const totalRemaining = totalLines.reduce((sum, line) => sum + line.remaining, 0);

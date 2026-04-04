@@ -59,4 +59,14 @@ describe("weapon arcane compatibility", () => {
         expect(names.has("Pax Bolt")).toBe(false);
         expect(names.has("Residual Shock")).toBe(false);
     });
+
+    it("does not expose standard weapon arcanes to unsupported categories", () => {
+        const mausolon = getWeaponCatalog().find((weapon) => weapon.name === "Mausolon");
+        const verglas = getWeaponCatalog().find((weapon) => weapon.name === "Verglas");
+
+        expect(mausolon).toBeTruthy();
+        expect(verglas).toBeTruthy();
+        expect(getArcanesForWeapon(mausolon!)).toEqual([]);
+        expect(getArcanesForWeapon(verglas!)).toEqual([]);
+    });
 });

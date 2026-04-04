@@ -8123,8 +8123,7 @@
     "name": "Burst Laser"
   },
   "/Lotus/Types/Sentinels/SentinelWeapons/PrimeBurstLaserPistol": {
-    "name": "Burst Laser Prime",
-    "isPrime": true
+    "name": "Burst Laser Prime"
   },
   "/Lotus/Upgrades/Mods/Rifle/Event/Arbitration/InfCrpShockSwarmRifleArbitrationMod": {
     "name": "Bursting Mass"
@@ -11844,7 +11843,6 @@
   },
   "/Lotus/Weapons/Tenno/Bows/PrimeDaikyu/PrimeDaikyuBow": {
     "name": "Daikyu Prime",
-    "isPrime": true,
     "components": [
       "/Lotus/Types/Recipes/Weapons/PrimeDaikyuBlueprint",
       "/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeDaikyuGrip",
@@ -13910,7 +13908,6 @@
   },
   "/Lotus/Weapons/Tenno/Melee/Axe/PrimeZoren/PrimeZorenAxeWeapon": {
     "name": "Dual Zoren Prime",
-    "isPrime": true,
     "components": [
       "/Lotus/Types/Recipes/Weapons/WeaponParts/DualZorenPrimeBlade",
       "/Lotus/Types/Recipes/Weapons/DualZorenPrimeBlueprint",
@@ -15208,7 +15205,6 @@
   },
   "/Lotus/Weapons/Tenno/Pistols/PrimeEpitaph/PrimeEpitaphSidearmWeapon": {
     "name": "Epitaph Prime",
-    "isPrime": true,
     "components": [
       "/Lotus/Types/Recipes/Weapons/WeaponParts/EpitaphPrimeBarrel",
       "/Lotus/Types/Recipes/Weapons/EpitaphPrimeBlueprint",
@@ -24493,7 +24489,6 @@
   },
   "/Lotus/Weapons/Tenno/Pistols/PrimeKompressa/PrimeKompressa": {
     "name": "Kompressa Prime",
-    "isPrime": true,
     "components": [
       "/Lotus/Types/Recipes/Weapons/WeaponParts/KompressaPrimeBarrel",
       "/Lotus/Types/Recipes/Weapons/KompressaPrimeBlueprint",
@@ -25507,7 +25502,6 @@
   "/Lotus/Weapons/Tenno/Archwing/Primary/PrimeLarkspur/PrimeLarkspurWeapon": {
     "name": "Larkspur Prime",
     "vaulted": true,
-    "isPrime": true,
     "components": [
       "/Lotus/Types/Recipes/Weapons/WeaponParts/LarkspurPrimeBarrel",
       "/Lotus/Types/Recipes/Weapons/LarkspurPrimeBlueprint",
@@ -41881,7 +41875,6 @@
   },
   "/Lotus/Weapons/Tenno/Melee/Swords/PrimeOkina/PrimeOkina": {
     "name": "Okina Prime",
-    "isPrime": true,
     "components": [
       "/Lotus/Types/Recipes/Weapons/WeaponParts/OkinaPrimeBlade",
       "/Lotus/Types/Recipes/Weapons/OkinaPrimeBlueprint",
@@ -56194,7 +56187,6 @@
   },
   "/Lotus/Weapons/Tenno/LongGuns/PrimeLightningGun/PrimeLightningGun": {
     "name": "Vadarya Prime",
-    "isPrime": true,
     "components": [
       "/Lotus/Types/Recipes/Weapons/WeaponParts/PrimeLightningGunBarrel",
       "/Lotus/Types/Recipes/Weapons/PrimeLightningGunBlueprint",
@@ -57211,7 +57203,6 @@
   },
   "/Lotus/Weapons/Tenno/Pistols/PrimeVelox/PrimeVeloxPistol": {
     "name": "Velox Prime",
-    "isPrime": true,
     "components": [
       "/Lotus/Types/Recipes/Weapons/WeaponParts/VeloxPrimeBarrel",
       "/Lotus/Types/Recipes/Weapons/VeloxPrimeBlueprint",

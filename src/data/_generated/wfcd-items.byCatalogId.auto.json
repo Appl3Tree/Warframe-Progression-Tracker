@@ -42111,7 +42111,7 @@
     "tags": [
       "Prime"
     ],
-    "masteryReq": 1,
+    "masteryReq": 0,
     "masterable": false,
     "tradable": false,
     "wfcdFile": "Misc.json",
@@ -42125,7 +42125,7 @@
     "tags": [
       "Tenno"
     ],
-    "masteryReq": 1,
+    "masteryReq": 0,
     "masterable": false,
     "tradable": false,
     "wfcdFile": "Misc.json",

@@ -9,7 +9,7 @@
 // Phase 3 — Post-check: if the assigned build is still over capacity, drop the
 //            most expensive mod one at a time until it fits.
 
-import type { WeaponEntry, WeaponAttack } from "../catalog/weaponCatalog";
+import { usesMeleeDamageModel, type WeaponEntry, type WeaponAttack } from "../catalog/weaponCatalog";
 import type { ModEntry, ModEffect } from "../catalog/modCatalog";
 import { emptyEffect, getModsForWeapon } from "../catalog/modCatalog";
 import type { ArcaneEntry } from "../catalog/arcaneCatalog";
@@ -588,7 +588,7 @@ function scoreEffects(
         finalStatusChanceBonus += effect.finalStatusChanceBonus ?? 0;
     }
 
-    const baselineFireRate = weapon.fireRate * (1 + (weapon.category === "Melee" ? 0 : 0));
+    const baselineFireRate = weapon.fireRate * (1 + (usesMeleeDamageModel(weapon.category) ? 0 : 0));
     const baselineMagazineSize = Math.max(1, Math.round(weapon.magazineSize));
     for (const conditional of conditionalEffects) {
         if (conditional.requiredStatusType && (modded.expectedStacksByType[conditional.requiredStatusType] ?? 0) < 0.25) {
@@ -646,7 +646,7 @@ function scoreEffects(
         lifeStealBonus * 0.04 +
         ammoEfficiencyBonus * 0.12 +
         finalStatusChanceBonus * 0.2;
-    const utilityWeight = sharedUtility + (weapon.category === "Melee" ? meleeUtility : rangedUtility);
+    const utilityWeight = sharedUtility + (usesMeleeDamageModel(weapon.category) ? meleeUtility : rangedUtility);
     const combinedArmorStrip = 1 - ((1 - modded.heatArmorStrip) * (1 - modded.corrosiveArmorStrip));
     const strippedArmor = target.armor * Math.max(0, 1 - combinedArmorStrip);
     const effectiveArmorMultiplier = armorDamageMultiplier(strippedArmor);
@@ -1437,7 +1437,7 @@ function scoreExilusUtilityFallback(
 
     let score = 0;
 
-    score += Math.max(0, e.reloadSpeedBonus ?? 0) * (weapon.category === "Melee" ? 0.02 : 0.22);
+    score += Math.max(0, e.reloadSpeedBonus ?? 0) * (usesMeleeDamageModel(weapon.category) ? 0.02 : 0.22);
     score += Math.max(0, e.projectileSpeedBonus ?? 0) * 0.12;
     score += Math.max(0, e.accuracyBonus ?? 0) * 0.08;
     score += Math.max(0, e.blastRadiusBonus ?? 0) * 0.25;
@@ -1451,12 +1451,12 @@ function scoreExilusUtilityFallback(
     score += Math.max(0, e.weakPointDamageBonus ?? 0) * 0.08;
     score += Math.max(0, e.weakPointCritChanceBonus ?? 0) * 0.08;
 
-    if (weapon.category !== "Melee" && /holstered/.test(text) && /reload/.test(text)) score += 0.16;
+    if (!usesMeleeDamageModel(weapon.category) && /holstered/.test(text) && /reload/.test(text)) score += 0.16;
     if (/reload/.test(text) && !/holstered/.test(text)) score += 0.06;
     if (/accuracy/.test(text) && !(e.accuracyBonus ?? 0)) score += 0.05;
     if (/recoil/.test(text)) score += 0.05;
     if (/ammo/.test(text)) score += 0.04;
-    if (/stagger/.test(text) && weapon.category !== "Melee") score += 0.06;
+    if (/stagger/.test(text) && !usesMeleeDamageModel(weapon.category)) score += 0.06;
     if (/projectile speed/.test(text) && !(e.projectileSpeedBonus ?? 0)) score += 0.04;
     if (/beam range/.test(text) && !(e.beamRangeBonus ?? 0)) score += 0.05;
     if (/punch through/.test(text) && !(e.punchThrough ?? 0)) score += 0.05;

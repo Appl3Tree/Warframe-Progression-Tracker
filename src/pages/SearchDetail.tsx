@@ -5,7 +5,9 @@ import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { resolveItemRequirementGraph, type ItemRequirementEdge } from "../catalog/items/itemRequirements";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
+import { getWeaponCatalog, type WeaponAttack, type WeaponDamage, type WeaponEntry } from "../domain/catalog/weaponCatalog";
 import { useTrackerStore } from "../store/store";
+import { formatSourceDisplayLabel } from "../utils/sourceLabels";
 import {
     buildSearchDetailHash,
     getCatalogIdForPath,
@@ -28,6 +30,12 @@ type DropEntry = {
 type DetailMetaStat = {
     label: string;
     value: string;
+};
+
+type WeaponStatRow = {
+    label: string;
+    value: string;
+    hint?: string;
 };
 
 type CraftingNode = {
@@ -107,6 +115,14 @@ function formatNumber(value: number | null | undefined): string {
     return value.toLocaleString();
 }
 
+function formatDecimal(value: number | null | undefined, digits = 2): string {
+    if (value == null || !Number.isFinite(value)) return "—";
+    return value.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: digits,
+    });
+}
+
 function formatBool(value: boolean | null | undefined): string {
     if (value == null) return "—";
     return value ? "Yes" : "No";
@@ -120,8 +136,17 @@ function formatPercent(value: number): string {
     return `${(value * 100).toFixed(2)}%`;
 }
 
+function formatCompactPercent(value: number | null | undefined, digits = 1): string {
+    if (value == null || !Number.isFinite(value)) return "—";
+    return `${(value * 100).toFixed(digits)}%`;
+}
+
 function formatPolarity(value: unknown): string {
     return typeof value === "string" && value.trim() ? titleCase(value) : "—";
+}
+
+function displayMagazineValue(weapon: WeaponEntry, magazineSize: number): string {
+    return weapon.hasExplicitMagazineSize ? formatDecimal(magazineSize, 0) : "∞";
 }
 
 function cleanCatalogSubtitle(value: string): string {
@@ -190,15 +215,6 @@ function renderCodexText(text: string): ReactNode {
     return <>{nodes}</>;
 }
 
-function cleanSourceLabel(label: string): string {
-    return compactLabel(
-        label
-            .replace(/^WFItems Location:\s*/i, "")
-            .replace(/^Mission Reward:\s*/i, "")
-            .replace(/\s+\(([^)]+)\)\s*$/i, " ($1)"),
-    );
-}
-
 function getSourceGroup(label: string): string {
     const normalized = label.toLowerCase();
     if (normalized.includes("rotation")) return "Drop Rotation";
@@ -237,6 +253,75 @@ function statLinesFor(entry: SearchEntityRecord | null): string[] {
     const stats = (lastRank as { stats?: unknown }).stats;
     if (!Array.isArray(stats)) return [];
     return stats.filter((line): line is string => typeof line === "string" && line.trim().length > 0).slice(0, 10);
+}
+
+const DAMAGE_TYPE_ORDER: Array<keyof WeaponDamage> = [
+    "impact",
+    "puncture",
+    "slash",
+    "heat",
+    "cold",
+    "electricity",
+    "toxin",
+    "blast",
+    "radiation",
+    "gas",
+    "magnetic",
+    "viral",
+    "corrosive",
+    "void",
+    "tau",
+    "true",
+];
+
+function getWeaponStatRows(weapon: WeaponEntry): WeaponStatRow[] {
+    return [
+        { label: "Category", value: weapon.category },
+        { label: "Weapon Type", value: weapon.weaponType || "—" },
+        { label: "Mod Family", value: weapon.modCompat },
+        { label: "Trigger", value: weapon.trigger || "—" },
+        { label: weapon.category === "Melee" || weapon.category === "Arch-Melee" ? "Attack Speed" : "Fire Rate", value: `${formatDecimal(weapon.fireRate)}/s` },
+        { label: "Crit Chance", value: formatCompactPercent(weapon.critChance) },
+        { label: "Crit Multiplier", value: `${formatDecimal(weapon.critMultiplier)}x` },
+        { label: "Status Chance", value: formatCompactPercent(weapon.statusChance) },
+        { label: "Multishot", value: `${formatDecimal(weapon.multishot)}x` },
+        { label: "Magazine", value: displayMagazineValue(weapon, weapon.magazineSize) },
+        { label: "Reload", value: `${formatDecimal(weapon.reloadTime)}s` },
+        { label: "Charge Time", value: weapon.chargeTime != null ? `${formatDecimal(weapon.chargeTime)}s` : "—" },
+        { label: "Disposition", value: formatDecimal(weapon.disposition, 2) },
+        { label: "Polarities", value: weapon.polarities.length > 0 ? weapon.polarities.map(titleCase).join(" · ") : "—" },
+        { label: "Stance Family", value: weapon.stanceClasses?.length ? weapon.stanceClasses.join(" · ") : weapon.stanceClass ?? "—" },
+        { label: "Overlevel", value: formatBool(weapon.canOverLevel) },
+        { label: "Progenitor", value: formatBool(weapon.isProgenitorWeapon) },
+        { label: "Attack Profiles", value: formatNumber(weapon.attacks.length) },
+    ].filter((row) => row.value !== "—" || row.label === "Charge Time" || row.label === "Stance Family");
+}
+
+function getWeaponDamageRows(damage: WeaponDamage): Array<{ label: string; value: number; share: number }> {
+    const total = damage.total > 0 ? damage.total : DAMAGE_TYPE_ORDER.reduce((sum, key) => sum + Number(damage[key] ?? 0), 0);
+    return DAMAGE_TYPE_ORDER
+        .map((key) => {
+            const value = Number(damage[key] ?? 0);
+            if (value <= 0) return null;
+            return {
+                label: key === "true" ? "True" : titleCase(key),
+                value,
+                share: total > 0 ? value / total : 0,
+            };
+        })
+        .filter((row): row is { label: string; value: number; share: number } => row !== null)
+        .sort((a, b) => b.value - a.value);
+}
+
+function getAttackStatRows(attack: WeaponAttack): WeaponStatRow[] {
+    return [
+        { label: "Speed", value: `${formatDecimal(attack.speed)}/s` },
+        { label: "Crit Chance", value: formatCompactPercent(attack.critChance) },
+        { label: "Crit Multiplier", value: `${formatDecimal(attack.critMultiplier)}x` },
+        { label: "Status Chance", value: formatCompactPercent(attack.statusChance) },
+        { label: "Charge Time", value: attack.chargeTime != null ? `${formatDecimal(attack.chargeTime)}s` : "—" },
+        { label: "Damage", value: formatDecimal(attack.damageTotal, 2) },
+    ].filter((row) => row.value !== "—" || row.label === "Charge Time");
 }
 
 function buildOverviewStats(args: {
@@ -434,7 +519,7 @@ export default function SearchDetail(props: {
     mode?: "page" | "panel";
 }) {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
-    const addGoalItem = useTrackerStore((s) => s.addGoalItem);
+    const addGoalCatalog = useTrackerStore((s) => s.addGoalCatalog);
     const setCount = useTrackerStore((s) => s.setCount);
     const setModRank = useTrackerStore((s) => s.setModRank);
     const setArcaneRankCount = useTrackerStore((s) => s.setArcaneRankCount);
@@ -447,6 +532,10 @@ export default function SearchDetail(props: {
 
     const entity = useMemo(() => (detailRef ? getSearchEntity(detailRef) : null), [detailRef]);
     const entry = useMemo(() => (detailRef ? getSearchEntityData(detailRef) : null), [detailRef]);
+    const weapon = useMemo(() => {
+        if (!detailRef || detailRef.kind !== "item") return null;
+        return getWeaponCatalog().find((candidate) => candidate.uniqueName === detailRef.id) ?? null;
+    }, [detailRef]);
     const catalogId = useMemo(() => (detailRef ? getCatalogIdForPath(detailRef.id) : null), [detailRef]);
     const acquisition = useMemo(() => (catalogId ? getAcquisitionByCatalogId(catalogId) : null), [catalogId]);
     const acquisitionSources = useMemo(() => {
@@ -454,7 +543,7 @@ export default function SearchDetail(props: {
         const seen = new Set<string>();
         return acquisition.sources
             .slice(0, 16)
-            .map((sourceId) => cleanSourceLabel(SOURCE_INDEX[sourceId as keyof typeof SOURCE_INDEX]?.label ?? sourceId))
+            .map((sourceId) => formatSourceDisplayLabel(SOURCE_INDEX[sourceId as keyof typeof SOURCE_INDEX]?.label ?? sourceId))
             .filter((label) => {
                 if (!label || seen.has(label)) return false;
                 seen.add(label);
@@ -468,6 +557,8 @@ export default function SearchDetail(props: {
     }, [acquisition]);
     const drops = useMemo(() => asDrops(entry?.drops), [entry]);
     const stats = useMemo(() => statLinesFor(entry), [entry]);
+    const weaponStats = useMemo(() => (weapon ? getWeaponStatRows(weapon) : []), [weapon]);
+    const weaponDamageRows = useMemo(() => (weapon ? getWeaponDamageRows(weapon.damage) : []), [weapon]);
     const overviewStats = useMemo(
         () => buildOverviewStats({ kind: detailRef?.kind ?? "item", entitySubtitle: entity?.subtitle ?? "", entry: entry ?? {} }),
         [detailRef?.kind, entity?.subtitle, entry],
@@ -568,8 +659,10 @@ export default function SearchDetail(props: {
                 description=""
                 actions={
                     <>
-                        {catalogId && detailRef.kind === "item" ? (
-                            <WorkspaceAction onClick={() => addGoalItem(catalogId, 1)}>Add Goal</WorkspaceAction>
+                        {catalogId ? (
+                            <WorkspaceAction onClick={() => addGoalCatalog(catalogId, 1, detailRef.kind === "item" ? "item" : detailRef.kind)}>
+                                Add Goal
+                            </WorkspaceAction>
                         ) : null}
                         {mode === "panel" && props.canGoBack ? (
                             <WorkspaceAction onClick={props.onBack}>Back</WorkspaceAction>
@@ -714,8 +807,8 @@ export default function SearchDetail(props: {
                         <WorkspaceAction onClick={() => clearDetailAndGo("inventory")} className="justify-start">
                             Open Inventory Workspace
                         </WorkspaceAction>
-                        <WorkspaceAction onClick={() => clearDetailAndGo(detailRef.kind === "arcane" ? "arcanes" : "mods")} className="justify-start">
-                            {detailRef.kind === "arcane" ? "Open Arcanes Workspace" : "Open Mods Workspace"}
+                        <WorkspaceAction onClick={() => clearDetailAndGo(weapon ? "mods" : detailRef.kind === "arcane" ? "arcanes" : "mods")} className="justify-start">
+                            {weapon ? "Open Mod Builder Workspace" : detailRef.kind === "arcane" ? "Open Arcanes Workspace" : "Open Mods Workspace"}
                         </WorkspaceAction>
                         <WorkspaceAction
                             onClick={() => {
@@ -733,7 +826,7 @@ export default function SearchDetail(props: {
             </div>
 
             {stats.length > 0 ? (
-                <WorkspaceSection title="Key Effects" subtitle="Highest-rank effect lines, cleaned up for fast scanning.">
+                <WorkspaceSection title="Key Effects" subtitle="Highest-rank effect lines at a glance.">
                     <div className="grid gap-2 md:grid-cols-2">
                         {stats.map((line) => (
                             <div
@@ -747,8 +840,91 @@ export default function SearchDetail(props: {
                 </WorkspaceSection>
             ) : null}
 
+            {weapon ? (
+                <>
+                    <WorkspaceSection title="Weapon Stats" subtitle="Full base weapon profile from the normalized weapon catalog.">
+                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                            {weaponStats.map((item) => (
+                                <div key={item.label} className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-4">
+                                    <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--wf-text-dim)]">{item.label}</div>
+                                    <div className="mt-2 text-lg font-medium leading-tight text-[color:var(--wf-text-strong)]">{item.value}</div>
+                                    {item.hint ? <div className="mt-1 text-sm text-[color:var(--wf-text-muted)]">{item.hint}</div> : null}
+                                </div>
+                            ))}
+                        </div>
+                    </WorkspaceSection>
+
+                    <WorkspaceSection title="Damage Breakdown" subtitle={`Base damage split across all active types (${formatDecimal(weapon.damage.total, 2)} total).`}>
+                        <div className="space-y-3">
+                            {weaponDamageRows.map((row) => (
+                                <div key={row.label} className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-4">
+                                    <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <div>
+                                            <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--wf-text-dim)]">{row.label}</div>
+                                            <div className="mt-2 text-lg font-medium text-[color:var(--wf-text-strong)]">{formatDecimal(row.value, 2)}</div>
+                                        </div>
+                                        <div className="min-w-[140px] text-right">
+                                            <div className="text-sm font-medium text-[color:var(--wf-text-strong)]">{formatCompactPercent(row.share, 1)}</div>
+                                            <div className="mt-2 h-2 overflow-hidden rounded-full bg-black/20">
+                                                <div
+                                                    className="h-full rounded-full bg-[color:var(--wf-accent-strong)]"
+                                                    style={{ width: `${Math.max(4, Math.min(100, row.share * 100))}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </WorkspaceSection>
+
+                    {weapon.attacks.length > 0 ? (
+                        <WorkspaceSection title="Attack Profiles" subtitle="Named attacks available on this weapon and their individual stats.">
+                            <div className="grid gap-4 xl:grid-cols-2">
+                                {weapon.attacks.map((attack) => {
+                                    const attackDamageRows = getWeaponDamageRows(attack.damage);
+                                    return (
+                                        <div key={attack.name} className="rounded-[28px] border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-5 py-5">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div>
+                                                    <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--wf-text-dim)]">Attack</div>
+                                                    <div className="mt-2 text-xl font-semibold text-[color:var(--wf-text-strong)]">{attack.name}</div>
+                                                </div>
+                                                <div className="rounded-full border border-[color:var(--wf-border-subtle)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--wf-text-dim)]">
+                                                    {formatDecimal(attack.damageTotal, 2)} dmg
+                                                </div>
+                                            </div>
+                                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                                {getAttackStatRows(attack).map((item) => (
+                                                    <div key={`${attack.name}-${item.label}`} className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface)] px-4 py-3">
+                                                        <div className="text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">{item.label}</div>
+                                                        <div className="mt-2 text-base font-medium text-[color:var(--wf-text-strong)]">{item.value}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {attackDamageRows.length > 0 ? (
+                                                <div className="mt-4 space-y-2">
+                                                    {attackDamageRows.map((row) => (
+                                                        <div key={`${attack.name}-${row.label}`} className="flex items-center justify-between gap-4 rounded-2xl border border-[color:var(--wf-border-subtle)] px-4 py-3 text-sm">
+                                                            <div className="text-[color:var(--wf-text-strong)]">{row.label}</div>
+                                                            <div className="text-right text-[color:var(--wf-text-muted)]">
+                                                                {formatDecimal(row.value, 2)} · {formatCompactPercent(row.share, 1)}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </WorkspaceSection>
+                    ) : null}
+                </>
+            ) : null}
+
             {acquisitionSources.length > 0 ? (
-                <WorkspaceSection title="Acquisition" subtitle="Best known ways to get this item, with internal IDs removed.">
+                <WorkspaceSection title="Acquisition" subtitle="Best-known ways to get this item.">
                     <div className="grid gap-2 md:grid-cols-2">
                         {acquisitionSources.map((source) => (
                             <div
@@ -770,7 +946,7 @@ export default function SearchDetail(props: {
             ) : null}
 
             {drops.length > 0 ? (
-                <WorkspaceSection title="Drop Snapshot" subtitle="Most relevant drop entries, shown without raw source keys.">
+                <WorkspaceSection title="Drop Snapshot" subtitle="Most relevant drop entries for this item.">
                     <div className="overflow-hidden rounded-[24px] border border-[color:var(--wf-border-subtle)]">
                         <div className="grid grid-cols-[minmax(0,1fr)_110px_110px] bg-[color:var(--wf-surface-soft)] px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">
                             <div>Location</div>

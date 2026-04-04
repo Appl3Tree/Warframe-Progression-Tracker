@@ -14,7 +14,7 @@
 
 import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
 import MODS_RAW from "../../data/_generated/mods-lean.auto.json";
-import type { ModCompatName, WeaponEntry } from "./weaponCatalog";
+import { supportsStanceMods, type ModCompatName, type WeaponEntry } from "./weaponCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];
 const MODS_META = MODS_RAW as Record<string, {
@@ -39,6 +39,8 @@ const COMPAT_MAP: Record<string, string> = {
     "Sniper Rifle":   "Sniper",
     "PRIMARY":        "Primary", // universal primary mods (Vigilante set, Hunter Munitions…)
     "Melee":          "Melee",
+    "Archgun":        "Archgun",
+    "Archmelee":      "Archmelee",
 };
 
 export interface ModEffect {
@@ -542,7 +544,7 @@ function detectTriggerRestriction(name: string): string | undefined {
 }
 
 interface ModCaches {
-    /** Generic weapon-class mods, keyed by bucket (Rifle, Shotgun, Pistol, Bow, Sniper, Primary, Melee) */
+    /** Generic weapon-class mods, keyed by bucket (Rifle, Shotgun, Pistol, Bow, Sniper, Primary, Melee, Archgun, Archmelee) */
     byBucket: Map<string, ModEntry[]>;
     /**
      * Weapon-specific augments, keyed by the rawCompatName (weapon name).
@@ -688,7 +690,7 @@ function buildCaches(): ModCaches {
         const isWeaponUtility = !!item.isUtility && !isAura &&
             (bucket === "Rifle" || bucket === "Shotgun" || bucket === "Pistol" ||
              bucket === "Bow" || bucket === "Sniper" || bucket === "Primary" ||
-             bucket === "Melee" || bucket === "Augment");
+             bucket === "Melee" || bucket === "Archgun" || bucket === "Archmelee" || bucket === "Augment");
         const isExilus = !!item.isExilus || isWeaponUtility;
 
         // Build effects at every rank 0..fusionLimit
@@ -811,6 +813,8 @@ function bucketsForCompat(compat: ModCompatName): string[] {
         case "Bow":      return ["Bow", "Rifle", "Primary"];
         case "Pistol":   return ["Pistol"];
         case "Melee":    return ["Melee"];
+        case "Archgun":  return ["Archgun"];
+        case "Archmelee":return ["Archmelee"];
     }
 }
 
@@ -871,7 +875,7 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
 }
 
 export function getStancesForWeapon(weapon: WeaponEntry): ModEntry[] {
-    if (weapon.category !== "Melee") return [];
+    if (!supportsStanceMods(weapon.category)) return [];
     const { byStanceCompat } = getCaches();
     const stanceClasses = weapon.stanceClasses?.length
         ? weapon.stanceClasses

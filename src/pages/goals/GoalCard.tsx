@@ -6,8 +6,9 @@ import { createPortal } from "react-dom";
 import { useTrackerStore } from "../../store/store";
 import { useShallow } from "zustand/react/shallow";
 import { FULL_CATALOG, type CatalogId } from "../../domain/catalog/loadFullCatalog";
-import { CARD_STYLE, EMPTY_OBJ, getCachedIngredients, safeInt } from "./goalsUtils";
+import { CARD_STYLE, getCachedIngredients, safeInt } from "./goalsUtils";
 import { TreeModal } from "./GoalsModal";
+import { getGoalCatalogKind, getOwnedCountForGoal } from "../../domain/goals/catalogGoals";
 
 export const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
     const d = useTrackerStore(useShallow((s) => {
@@ -21,13 +22,14 @@ export const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
         if (!g) return null;
 
         const cid = String(g.catalogId) as CatalogId;
-        const counts = (s.state.inventory?.counts ?? EMPTY_OBJ) as Record<string, number>;
-        const have = safeInt(counts[cid] ?? 0, 0);
+        const counts = (s.state.inventory?.counts ?? {}) as Record<string, number>;
+        const have = getOwnedCountForGoal(g, s.state.inventory);
         const qty = Math.max(1, safeInt(g.qty ?? 1, 1));
+        const goalKind = getGoalCatalogKind(g);
 
         // Blueprint sibling: "AcceltraBlueprint" for "Acceltra", etc.
         const bpCid = `${cid}Blueprint` as CatalogId;
-        const hasBp = Boolean(FULL_CATALOG.recordsById[bpCid]);
+        const hasBp = goalKind === "item" && Boolean(FULL_CATALOG.recordsById[bpCid]);
 
         let blueprintObtained = false;
         let resourcesReady = 0;
@@ -47,6 +49,7 @@ export const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
 
         return {
             catalogId: cid,
+            goalKind,
             bpCid: hasBp ? bpCid : null as CatalogId | null,
             qty,
             note: String(g.note ?? ""),
@@ -81,12 +84,13 @@ export const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
 
     if (!d) return null;
 
-    const { catalogId, qty, note, isActive, have, hasBp, blueprintObtained, resourcesReady, resourcesTotal } = d;
+    const { catalogId, goalKind, qty, note, isActive, have, hasBp, blueprintObtained, resourcesReady, resourcesTotal } = d;
     const name = FULL_CATALOG.recordsById[catalogId]?.displayName ?? catalogId;
     const remaining = Math.max(0, qty - have);
     const pct = qty > 0 ? Math.min(100, Math.round((have / qty) * 100)) : 100;
     const done = remaining === 0;
     const nearlyDone = !done && pct >= 90;
+    const kindLabel = goalKind === "arcane" ? "Arcane" : goalKind === "mod" ? "Mod" : "Item";
 
     return (
         <div
@@ -107,6 +111,9 @@ export const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
                         isActive ? "border-emerald-800 text-emerald-300" : "border-slate-700 text-slate-500"
                     ].join(" ")}>
                         {isActive ? "Active" : "Inactive"}
+                    </span>
+                    <span className="text-[10px] rounded-full border border-slate-700 px-1.5 py-0.5 text-slate-400 shrink-0">
+                        {kindLabel}
                     </span>
                 </div>
                 <div className="shrink-0 flex items-center gap-1.5 text-xs">
@@ -200,19 +207,21 @@ export const GoalCard = memo(function GoalCard({ goalId }: { goalId: string }) {
                             />
                         </label>
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <button
-                            className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
-                            onClick={openTree}
-                        >
-                            Open Requirements Tree
-                        </button>
-                        <span className="text-[10px] text-slate-500">Ctrl+wheel / pinch to zoom · drag to pan</span>
-                    </div>
+                    {goalKind === "item" && (
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <button
+                                className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
+                                onClick={openTree}
+                            >
+                                Open Requirements Tree
+                            </button>
+                            <span className="text-[10px] text-slate-500">Ctrl+wheel / pinch to zoom · drag to pan</span>
+                        </div>
+                    )}
                 </div>
             )}
 
-            {isTreeOpen && createPortal(
+            {goalKind === "item" && isTreeOpen && createPortal(
                 <TreeModal
                     isOpen={true}
                     title={name}

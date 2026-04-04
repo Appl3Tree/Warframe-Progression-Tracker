@@ -4,17 +4,7 @@ import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
 import { setPendingStarChartNodeId, sourceIdToStarChartNodeId } from "../store/starChartNav";
-
-/** Format a raw sourceId into a readable fallback label when no sourceLabel is available. */
-function formatRawSourceId(raw: string): string {
-    // Strip the "data:" or "src:" prefix and convert slashes/hyphens to spaces
-    return raw
-        .replace(/^(?:data|src):/, "")
-        .replace(/\//g, " › ")
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase())
-        .trim() || raw;
-}
+import { formatSourceDisplayLabel } from "../utils/sourceLabels";
 import {
     buildRequirementsSnapshot,
     buildFarmingSnapshot,
@@ -25,6 +15,9 @@ import type { CurrencyRequirementLine } from "../domain/logic/requirementEngine"
 import { getPrimeAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";
 import { WorkspaceAction, WorkspaceFilterBar, WorkspaceFilterGroup, WorkspaceHero, WorkspacePillButton, WorkspaceSection, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
+import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
+import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
+import { getGoalCatalogKind, getOwnedCountForGoal } from "../domain/goals/catalogGoals";
 
 function normalize(s: string): string {
     return s.trim().toLowerCase();
@@ -46,6 +39,13 @@ type SourceFilterOption = {
     key: string;
     label: string;
     count: number;
+};
+
+type WantedSideGoal = {
+    key: string;
+    name: string;
+    type: "mod" | "arcane";
+    remaining: number;
 };
 
 function loadHiddenSourceFilters(): Set<string> {
@@ -95,7 +95,7 @@ function getSourceFilterKey(sourceId: string, sourceLabel: string, granularity: 
 
 function getSourceFilterLabel(sourceId: string, sourceLabel: string, granularity: SourceFilterGranularity): string {
     if (granularity === "category") return getSourceCategory(sourceId, sourceLabel);
-    return sourceLabel || formatRawSourceId(String(sourceId));
+    return formatSourceDisplayLabel(sourceLabel || String(sourceId));
 }
 
 function sourceMatchesHiddenFilter(sourceId: string, sourceLabel: string, hiddenFilters: Set<string>): boolean {
@@ -339,6 +339,45 @@ export default function Requirements() {
         }
         return m;
     }, [requirements.itemLines]);
+
+    const wantedSideGoalsBySource = useMemo(() => {
+        const map = new Map<string, WantedSideGoal[]>();
+
+        for (const goal of goals ?? []) {
+            if (!goal || goal.isActive === false) continue;
+            const goalKind = getGoalCatalogKind(goal);
+            if (goalKind === "item") continue;
+
+            const qty = Math.max(1, Number(goal.qty ?? 1) || 1);
+            const have = getOwnedCountForGoal(goal, inventory);
+            const remaining = Math.max(0, qty - have);
+            if (remaining <= 0) continue;
+
+            const cid = String(goal.catalogId);
+            const name = FULL_CATALOG.recordsById[cid as keyof typeof FULL_CATALOG.recordsById]?.displayName ?? cid;
+            const acquisition = getAcquisitionByCatalogId(cid as never);
+            for (const sourceId of acquisition?.sources ?? []) {
+                const key = String(sourceId);
+                const rows = map.get(key) ?? [];
+                rows.push({ key: cid, name, type: goalKind, remaining });
+                map.set(key, rows);
+            }
+        }
+
+        for (const [sourceId, rows] of map.entries()) {
+            const deduped = new Map<string, WantedSideGoal>();
+            for (const row of rows) deduped.set(row.key, row);
+            map.set(
+                sourceId,
+                Array.from(deduped.values()).sort((a, b) => {
+                    if (a.remaining !== b.remaining) return b.remaining - a.remaining;
+                    return a.name.localeCompare(b.name);
+                }),
+            );
+        }
+
+        return map;
+    }, [goals, inventory]);
 
     const filteredTargeted = useMemo(() => {
         const q = normalize(query);
@@ -753,7 +792,7 @@ export default function Requirements() {
                                                                         setActivePage("starchart");
                                                                     }}
                                                                 >
-                                                                    {s.sourceLabel || formatRawSourceId(String(s.sourceId))} ↗
+                                                                    {formatSourceDisplayLabel(s.sourceLabel || String(s.sourceId))} ↗
                                                                 </button>
                                                             );
                                                         }
@@ -762,11 +801,51 @@ export default function Requirements() {
                                                                 key={String(s.sourceId)}
                                                                 className="text-[10px] rounded-full border border-slate-700 bg-slate-900/60 px-2 py-0.5 text-slate-300"
                                                             >
-                                                                {s.sourceLabel || formatRawSourceId(String(s.sourceId))}
+                                                                {formatSourceDisplayLabel(s.sourceLabel || String(s.sourceId))}
                                                             </span>
                                                         );
                                                     })}
                                                 </div>
+                                                {(() => {
+                                                    const seen = new Map<string, WantedSideGoal>();
+                                                    for (const source of l.sources ?? []) {
+                                                        for (const row of wantedSideGoalsBySource.get(String(source.sourceId)) ?? []) {
+                                                            if (row.key === String(l.key)) continue;
+                                                            seen.set(row.key, row);
+                                                        }
+                                                    }
+                                                    const matches = Array.from(seen.values()).sort((a, b) => {
+                                                        if (a.type !== b.type) return a.type.localeCompare(b.type);
+                                                        if (a.remaining !== b.remaining) return b.remaining - a.remaining;
+                                                        return a.name.localeCompare(b.name);
+                                                    });
+                                                    if (matches.length === 0) return null;
+                                                    return (
+                                                        <div className="mt-2">
+                                                            <div className="text-[10px] uppercase tracking-wide text-slate-500">Also wanted here</div>
+                                                            <div className="mt-1 flex flex-wrap gap-1">
+                                                                {matches.slice(0, 6).map((match) => (
+                                                                    <span
+                                                                        key={match.key}
+                                                                        className={[
+                                                                            "text-[10px] rounded-full border px-2 py-0.5",
+                                                                            match.type === "arcane"
+                                                                                ? "border-amber-700/50 bg-amber-950/20 text-amber-300"
+                                                                                : "border-cyan-700/50 bg-cyan-950/20 text-cyan-300",
+                                                                        ].join(" ")}
+                                                                    >
+                                                                        {match.name} · {match.remaining} left
+                                                                    </span>
+                                                                ))}
+                                                                {matches.length > 6 && (
+                                                                    <span className="text-[10px] rounded-full border border-slate-700 bg-slate-900/60 px-2 py-0.5 text-slate-400">
+                                                                        +{matches.length - 6} more
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })()}
                                             </div>
 
                                             <div className="shrink-0 text-right">
@@ -798,7 +877,22 @@ export default function Requirements() {
                             {filteredOverlap.map((g) => (
                                 <div key={g.sourceId} className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                                     <div className="flex items-start justify-between gap-3">
-                                        <div className="text-sm font-semibold">{g.sourceLabel}</div>
+                                        <div>
+                                            <div className="text-sm font-semibold">{g.sourceLabel}</div>
+                                            {(() => {
+                                                const wanted = (wantedSideGoalsBySource.get(String(g.sourceId)) ?? []).filter((row) =>
+                                                    !(g.items ?? []).some((it) => String(it.key) === row.key),
+                                                );
+                                                if (wanted.length === 0) return null;
+                                                const modCount = wanted.filter((row) => row.type === "mod").length;
+                                                const arcaneCount = wanted.filter((row) => row.type === "arcane").length;
+                                                const parts = [
+                                                    modCount > 0 ? `${modCount} wanted mod${modCount === 1 ? "" : "s"}` : "",
+                                                    arcaneCount > 0 ? `${arcaneCount} wanted arcane${arcaneCount === 1 ? "" : "s"}` : "",
+                                                ].filter(Boolean);
+                                                return <div className="mt-1 text-[11px] text-slate-500">Also rewards {parts.join(" and ")}</div>;
+                                            })()}
+                                        </div>
                                         <div className="shrink-0 text-right">
                                             <div className="text-xs font-mono text-slate-400">
                                                 {g.itemCount} item{g.itemCount !== 1 ? "s" : ""}

@@ -6,7 +6,14 @@
 //   build save+compare · build reasoning · status effect tooltips
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getWeaponCatalog, type WeaponCategory, type WeaponEntry } from "../../domain/catalog/weaponCatalog";
+import {
+    getWeaponCatalog,
+    isGroundMeleeCategory,
+    supportsStanceMods,
+    usesMeleeDamageModel,
+    type WeaponCategory,
+    type WeaponEntry,
+} from "../../domain/catalog/weaponCatalog";
 import { getModsForWeapon, getStancesForWeapon, type ModEntry, type ModEffect, emptyEffect } from "../../domain/catalog/modCatalog";
 import { getArcanesForWeapon, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
 import { calculateBuild } from "../../domain/logic/damageCalc";
@@ -50,7 +57,15 @@ function PolarityIcon({ polarity, className = "w-4 h-4" }: { polarity: string; c
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const SLOT_COUNT = 8;
-const CATEGORY_LABELS: WeaponCategory[] = ["Primary", "Secondary", "Melee"];
+const WEAPON_FILTER_OPTIONS: Array<{ value: WeaponCategory | "All"; label: string; compactLabel?: string }> = [
+    { value: "All", label: "All Weapons", compactLabel: "All" },
+    { value: "Primary", label: "Primary" },
+    { value: "Secondary", label: "Secondary" },
+    { value: "Melee", label: "Melee" },
+    { value: "Arch-Gun", label: "Arch Gun" },
+    { value: "Arch-Melee", label: "Arch Melee" },
+    { value: "Companion", label: "Companion" },
+];
 const GOAL_OPTIONS: { key: OptimizeGoal; label: string; desc: string }[] = [
     {
         key: "burst",
@@ -129,7 +144,7 @@ function displayMagazineValue(weapon: WeaponEntry, magazineSize: number) {
 }
 
 function usesHitTerminology(category: WeaponCategory) {
-    return category === "Melee";
+    return usesMeleeDamageModel(category);
 }
 
 function averageDamageLabel(category: WeaponCategory) {
@@ -313,7 +328,7 @@ function renderSvgParagraph(lines: string[], x: number, y: number, lineHeight: n
 
 function renderBuildShareSvg(payload: BuildExportPayload) {
     const width = 1440;
-    const isMelee = payload.weapon.category === "Melee";
+    const isMelee = isGroundMeleeCategory(payload.weapon.category);
     const stats = payload.calculated?.modded ?? null;
     const burstDps = payload.calculated?.burstDPS ?? 0;
     const sustainedDps = payload.calculated?.sustainedDPS ?? 0;
@@ -338,7 +353,7 @@ function renderBuildShareSvg(payload: BuildExportPayload) {
         ["DoT DPS", fmt(stats?.dotDps ?? 0)],
     ];
     const damageRows = stats
-        ? Object.entries(stats.damageBreakdown)
+        ? Object.entries(stats.rawDamageBreakdown)
               .filter(([, value]) => value > 0)
               .sort((a, b) => b[1] - a[1])
               .slice(0, 6)
@@ -739,7 +754,7 @@ function buildMathBreakdown(
     const baseDamageMultiplier = 1 + totals.damageBonus;
     const moddedBaseDamage = baseDamage * baseDamageMultiplier;
     const quantScale = moddedBaseDamage / 32;
-    const fireRateBonus = weapon.category === "Melee" ? totals.attackSpeedBonus : totals.fireRateBonus;
+    const fireRateBonus = usesMeleeDamageModel(weapon.category) ? totals.attackSpeedBonus : totals.fireRateBonus;
     const moddedFireRate = weapon.fireRate * (1 + fireRateBonus);
     const moddedReload = ignoresReloadAndMagazine
         ? weapon.reloadTime
@@ -771,7 +786,7 @@ function buildMathBreakdown(
                 `Physical bonuses: Impact ${fmt(totals.impactBonus * 100, 1)}%, Puncture ${fmt(totals.punctureBonus * 100, 1)}%, Slash ${fmt(totals.slashBonus * 100, 1)}%`,
                 `Primary element bonuses: Heat ${fmt(totals.heatBonus * 100, 1)}%, Cold ${fmt(totals.coldBonus * 100, 1)}%, Electric ${fmt(totals.electricityBonus * 100, 1)}%, Toxin ${fmt(totals.toxinBonus * 100, 1)}%`,
                 `Advanced damage bonuses: Magnetic ${fmt(totals.magneticBonus * 100, 1)}%, Radiation ${fmt(totals.radiationBonus * 100, 1)}%, Viral ${fmt(totals.viralBonus * 100, 1)}%, Corrosive ${fmt(totals.corrosiveBonus * 100, 1)}%, Void ${fmt(totals.voidBonus * 100, 1)}%, Tau ${fmt(totals.tauBonus * 100, 1)}%, True ${fmt(totals.trueBonus * 100, 1)}%`,
-                `Final damage breakdown after element ordering and combination = ${Object.entries(stats.damageBreakdown).filter(([, v]) => (v as number) > 0).map(([k, v]) => `${k} ${fmt(v as number, 3)}`).join(", ") || "none"}`,
+                `Final damage breakdown after element ordering and combination = ${Object.entries(stats.rawDamageBreakdown).filter(([, v]) => (v as number) > 0).map(([k, v]) => `${k} ${fmt(v as number, 3)}`).join(", ") || "none"}`,
             ],
         },
         {
@@ -1461,49 +1476,126 @@ function WeaponSelector({ selected, onSelect }: { selected: WeaponEntry | null; 
     const weapons  = useMemo(() => getWeaponCatalog(), []);
     const filtered = useMemo(() => {
         const q = query.toLowerCase();
-        return weapons.filter(w => (cat === "All" || w.category === cat) && (!q || w.name.toLowerCase().includes(q))).slice(0, 100);
+        const matches = weapons.filter((weapon) => {
+            if (cat !== "All" && weapon.category !== cat) return false;
+            if (!q) return true;
+
+            const haystacks = [
+                weapon.name,
+                weapon.category,
+                weapon.weaponType,
+            ].map((value) => value.toLowerCase());
+            return haystacks.some((value) => value.includes(q));
+        });
+
+        const ranked = matches.sort((a, b) => {
+            if (!q) return a.name.localeCompare(b.name);
+            const aName = a.name.toLowerCase();
+            const bName = b.name.toLowerCase();
+            const aStarts = aName.startsWith(q) ? 1 : 0;
+            const bStarts = bName.startsWith(q) ? 1 : 0;
+            if (aStarts !== bStarts) return bStarts - aStarts;
+
+            const aWord = aName.split(/\s+/).some((part) => part.startsWith(q)) ? 1 : 0;
+            const bWord = bName.split(/\s+/).some((part) => part.startsWith(q)) ? 1 : 0;
+            if (aWord !== bWord) return bWord - aWord;
+
+            const aIdx = aName.indexOf(q);
+            const bIdx = bName.indexOf(q);
+            if (aIdx !== bIdx) return aIdx - bIdx;
+
+            return a.name.localeCompare(b.name);
+        });
+
+        return ranked.slice(0, 120);
     }, [weapons, query, cat]);
+    const activeFilterLabel = WEAPON_FILTER_OPTIONS.find((option) => option.value === cat)?.label ?? "All Weapons";
 
     return (
         <div className="relative" ref={panelRef}>
             <button onClick={() => setOpen(x => !x)}
-                className={["w-full flex items-center gap-2 rounded-xl border px-3 py-2 text-left transition-colors",
-                    selected ? "border-slate-600 bg-slate-900/60 hover:border-slate-500"
-                             : "border-dashed border-slate-700 bg-slate-950/20 hover:border-slate-600"].join(" ")}>
+                className={["w-full rounded-2xl border px-3 py-3 text-left transition-all",
+                    selected
+                        ? "border-slate-600 bg-slate-900/70 shadow-[0_18px_50px_rgba(2,6,23,0.28)] hover:border-slate-500"
+                        : "border-dashed border-slate-700 bg-slate-950/30 hover:border-slate-600 hover:bg-slate-950/40",
+                    open ? "border-slate-500 shadow-[0_22px_60px_rgba(15,23,42,0.42)]" : "",
+                ].join(" ")}>
                 {selected ? (
-                    <><span className="text-sm font-semibold text-slate-100">{selected.name}</span>
-                    <span className="text-[11px] text-slate-500">{selected.category} · {selected.weaponType}</span>
-                    {selected.canOverLevel && <span className="text-[9px] px-1 rounded border border-orange-700/50 bg-orange-950/30 text-orange-400 font-semibold">LVL40</span>}
-                    <span className="ml-auto text-xs text-slate-600">▾</span></>
+                    <div className="flex items-center gap-3">
+                        <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-semibold text-slate-100">{selected.name}</div>
+                            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
+                                <span>{selected.category}</span>
+                                <span className="text-slate-700">/</span>
+                                <span>{selected.weaponType}</span>
+                                {selected.canOverLevel && (
+                                    <span className="rounded-full border border-orange-700/50 bg-orange-950/30 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-orange-300">
+                                        Rank 40
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                        <span className="text-xs text-slate-500 transition-transform">{open ? "▴" : "▾"}</span>
+                    </div>
                 ) : <span className="text-sm text-slate-500">Select a weapon…</span>}
             </button>
             {open && (
-                <div className="absolute z-50 mt-1 w-full rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
-                    <div className="p-2 space-y-2 border-b border-slate-800">
-                        <input ref={inputRef} type="text" placeholder="Search weapons…" value={query}
+                <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-[22px] border border-slate-700/90 bg-slate-950/95 shadow-[0_30px_90px_rgba(2,6,23,0.6)] backdrop-blur-xl">
+                    <div className="border-b border-slate-800/80 bg-[linear-gradient(180deg,rgba(15,23,42,0.92),rgba(2,6,23,0.92))] p-3">
+                        <input ref={inputRef} type="text" placeholder="Search weapons, categories, or weapon types…" value={query}
                             onChange={e => setQuery(e.target.value)}
-                            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-slate-500" />
-                        <div className="flex gap-1">
-                            {(["All", ...CATEGORY_LABELS] as const).map(c => (
-                                <button key={c} onClick={() => setCat(c)}
-                                    className={["rounded-full px-2.5 py-0.5 text-xs border transition-colors",
-                                        cat === c ? "bg-slate-100 text-slate-900 border-slate-100" : "bg-slate-950 text-slate-400 border-slate-700 hover:bg-slate-800"].join(" ")}>{c}</button>
+                            className="w-full rounded-2xl border border-slate-700/90 bg-slate-950/90 px-4 py-3 text-sm font-medium text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/10" />
+                        <div className="-mx-1 mt-3 overflow-x-auto pb-1">
+                            <div className="flex min-w-max gap-2 px-1">
+                            {WEAPON_FILTER_OPTIONS.map((option) => (
+                                <button key={option.value} onClick={() => setCat(option.value)}
+                                    className={[
+                                        "shrink-0 rounded-2xl border px-4 py-2.5 text-center text-[12px] font-semibold leading-none transition-all",
+                                        cat === option.value
+                                            ? "border-slate-100 bg-slate-100 text-slate-950 shadow-[0_10px_24px_rgba(255,255,255,0.08)]"
+                                            : "border-slate-700/80 bg-slate-900/55 text-slate-300 hover:border-slate-500 hover:bg-slate-900",
+                                    ].join(" ")}>
+                                    <span className="block whitespace-nowrap">{option.label}</span>
+                                </button>
                             ))}
                         </div>
+                        </div>
+                        <div className="mt-3 flex items-center justify-between text-[11px] text-slate-500">
+                            <span>{activeFilterLabel}</span>
+                            <span>{filtered.length} match{filtered.length === 1 ? "" : "es"}</span>
+                        </div>
                     </div>
-                    <div className="max-h-72 overflow-y-auto divide-y divide-slate-800/50">
+                    <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/60">
+                        {filtered.length === 0 && (
+                            <div className="px-4 py-8 text-center">
+                                <div className="text-sm font-medium text-slate-300">No weapons matched that search.</div>
+                                <div className="mt-1 text-xs text-slate-500">Try a broader name, change the filter, or search by weapon type.</div>
+                            </div>
+                        )}
                         {filtered.map(w => (
                             <button key={w.uniqueName}
-                                className={["w-full px-3 py-2 text-left hover:bg-slate-800/50 transition-colors",
-                                    w.name === selected?.name ? "bg-slate-800/30" : ""].join(" ")}
+                                className={["w-full px-4 py-3 text-left transition-colors hover:bg-slate-900/80",
+                                    w.name === selected?.name ? "bg-slate-900/70" : ""].join(" ")}
                                 onClick={() => { onSelect(w); setOpen(false); setQuery(""); }}>
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-xs font-semibold text-slate-200">{w.name}</span>
-                                    {w.attacks.length > 1 && <span className="text-[9px] px-1 rounded border border-blue-700/40 bg-blue-950/30 text-blue-400">{w.attacks.length} attacks</span>}
-                                    <span className="text-[10px] text-slate-500 ml-auto">{w.category}</span>
-                                </div>
-                                <div className="text-[10px] text-slate-500 mt-0.5">
-                                    {w.weaponType} · {fmt(w.damage.total)} dmg · {fmt(w.critChance * 100, 1)}% cc · {fmt(w.statusChance * 100, 1)}% sc
+                                <div className="flex items-start gap-3">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="truncate text-sm font-semibold text-slate-100">{w.name}</span>
+                                            {w.attacks.length > 1 && <span className="rounded-full border border-blue-700/40 bg-blue-950/30 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-blue-300">{w.attacks.length} atk</span>}
+                                        </div>
+                                        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
+                                            <span>{w.weaponType}</span>
+                                            <span className="text-slate-700">/</span>
+                                            <span>{fmt(w.damage.total)} dmg</span>
+                                            <span className="text-slate-700">/</span>
+                                            <span>{fmt(w.critChance * 100, 1)}% cc</span>
+                                            <span className="text-slate-700">/</span>
+                                            <span>{fmt(w.statusChance * 100, 1)}% sc</span>
+                                        </div>
+                                    </div>
+                                    <span className="shrink-0 rounded-full border border-slate-700/70 bg-slate-900/80 px-2 py-1 text-[10px] font-medium text-slate-400">
+                                        {w.category}
+                                    </span>
                                 </div>
                             </button>
                         ))}
@@ -1685,7 +1777,7 @@ function SavedBuildsPanel({ weapon, availableMods, currentSlots, currentRanks, c
             ["Avg Procs", fmt(stats.modded.averageProcsPerShot, 2)],
             ["DoT DPS", fmt(stats.modded.dotDps)],
         ];
-        for (const [key, value] of Object.entries(stats.modded.damageBreakdown)) {
+        for (const [key, value] of Object.entries(stats.modded.rawDamageBreakdown)) {
             if ((value ?? 0) > 0) rows.push([key[0].toUpperCase() + key.slice(1), fmt(value ?? 0, 1)]);
         }
         return rows;
@@ -1982,7 +2074,7 @@ interface DragSlotRef {
 
 function maxOptimizerFormaForWeapon(weapon: WeaponEntry | null) {
     if (!weapon) return 9;
-    return weapon.category === "Melee" ? 10 : 9;
+    return supportsStanceMods(weapon.category) ? 10 : 9;
 }
 
 export default function ModBuilder() {
@@ -2098,14 +2190,24 @@ export default function ModBuilder() {
     }, [weapon, inventoryCustomRivens]);
     const stanceMods   = useMemo(() => weapon ? getStancesForWeapon(weapon) : [], [weapon]);
     const weaponArcanes = useMemo(() => weapon ? getArcanesForWeapon(weapon) : [], [weapon]);
+    const trackableMods = useMemo(() => {
+        const seen = new Set<string>();
+        const out: ModEntry[] = [];
+        for (const mod of [...compatMods, ...stanceMods]) {
+            if (seen.has(mod.uniqueName)) continue;
+            seen.add(mod.uniqueName);
+            out.push(mod);
+        }
+        return out;
+    }, [compatMods, stanceMods]);
     const ownedSet     = useMemo(() => new Set(
-        compatMods
+        trackableMods
             .filter(mod => mod.compatBucket === "Riven" || Number(inventoryCounts[`mods:${mod.path}`] ?? inventoryCounts[mod.path] ?? 0) > 0)
             .map(mod => mod.name)
-    ), [compatMods, inventoryCounts]);
+    ), [trackableMods, inventoryCounts]);
     const ownedModMaxRankByName = useMemo(() => {
         const out: Record<string, number> = {};
-        for (const mod of compatMods) {
+        for (const mod of trackableMods) {
             if (mod.compatBucket === "Riven") {
                 out[mod.name] = mod.fusionLimit;
                 continue;
@@ -2114,7 +2216,7 @@ export default function ModBuilder() {
             out[mod.name] = getOwnedModRank(mod.path, mod.fusionLimit, inventoryCounts, inventoryModRanks);
         }
         return out;
-    }, [compatMods, inventoryCounts, inventoryModRanks]);
+    }, [trackableMods, inventoryCounts, inventoryModRanks]);
     const ownedArcaneUniqueNames = useMemo(() => {
         const set = new Set<string>();
         for (const [path, ranks] of Object.entries(inventoryArcaneRanks)) {
@@ -2359,19 +2461,19 @@ export default function ModBuilder() {
 
     const allSlotsForCap = useMemo(() => {
         const s = [...slots];
-        if (weapon?.category === "Melee" && stanceMod) s.unshift(stanceMod);
+        if (weapon && supportsStanceMods(weapon.category) && stanceMod) s.unshift(stanceMod);
         if (hasExilus) s.push(exilusMod);
         return s;
     }, [slots, stanceMod, exilusMod, hasExilus, weapon]);
     const allPolsForCap  = useMemo(() => {
         const p = [...slotPols];
-        if (weapon?.category === "Melee") p.unshift(stancePol);
+        if (weapon && supportsStanceMods(weapon.category) && stanceMod) p.unshift(stancePol);
         if (hasExilus) p.push(exilusPol);
         return p;
-    }, [slotPols, stancePol, exilusPol, hasExilus, weapon]);
+    }, [slotPols, stancePol, exilusPol, hasExilus, weapon, stanceMod]);
     const allRanksForCap = useMemo(() => {
         const r = [...ranks];
-        if (weapon?.category === "Melee" && stanceMod) r.unshift(stanceRank);
+        if (weapon && supportsStanceMods(weapon.category) && stanceMod) r.unshift(stanceRank);
         if (hasExilus) r.push(exilusRank);
         return r;
     }, [ranks, stanceMod, stanceRank, exilusRank, hasExilus, weapon]);
@@ -2441,9 +2543,12 @@ export default function ModBuilder() {
                 : maxFormaAllowed;
             let optimizerStanceMod = stanceMod;
             let optimizerStanceRank = stanceRank;
-            if (weapon.category === "Melee") {
+            if (supportsStanceMods(weapon.category)) {
                 if (!fillMode || !stanceMod) {
-                    const bestStance = stanceMods.reduce<ModEntry | null>((best, current) => {
+                    const candidateStances = onlyOwned
+                        ? stanceMods.filter(mod => ownedSet.has(mod.name))
+                        : stanceMods;
+                    const bestStance = candidateStances.reduce<ModEntry | null>((best, current) => {
                         if (!stancePol) return best;
                         if (!best) return current;
                         const bestDrain = effectiveDrain(best, stancePol, best.fusionLimit);
@@ -2451,7 +2556,9 @@ export default function ModBuilder() {
                         return currentDrain < bestDrain ? current : best;
                     }, null);
                     optimizerStanceMod = bestStance;
-                    optimizerStanceRank = bestStance ? bestStance.fusionLimit : 0;
+                    optimizerStanceRank = bestStance
+                        ? Math.min(bestStance.fusionLimit, ownedModMaxRankByName[bestStance.name] ?? bestStance.fusionLimit)
+                        : 0;
                     setStanceMod(bestStance);
                     setStanceRank(optimizerStanceRank);
                 }
@@ -2506,7 +2613,7 @@ export default function ModBuilder() {
                     exilusPolarity:   exilusPol,
                     optimizeArcane:   optArcane,
                     buildForAttack:   atk,
-                    extraCapacitySlots: weapon.category === "Melee" && optimizerStanceMod
+                    extraCapacitySlots: supportsStanceMods(weapon.category) && optimizerStanceMod
                         ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
                         : undefined,
                     preEquippedEffects: lockedExternalEffects,
@@ -2519,7 +2626,7 @@ export default function ModBuilder() {
 
                 let appliedResult = result;
                 let appliedCatalyst = buildCfg.hasCatalyst;
-                const baseExtraCapacitySlots = weapon.category === "Melee" && optimizerStanceMod
+                const baseExtraCapacitySlots = supportsStanceMods(weapon.category) && optimizerStanceMod
                     ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
                     : undefined;
 
@@ -2692,17 +2799,17 @@ export default function ModBuilder() {
 
             if (allowForma) {
                 const fullDefaultPols = [
-                    ...(weapon.category === "Melee" ? [stancePolToApply] : []),
+                    ...(supportsStanceMods(weapon.category) ? [stancePolToApply] : []),
                     ...defaultMainPols,
                     ...(optExilus ? [exilusPolToApply] : []),
                 ];
                 const fullDefaultSlots = [
-                    ...(weapon.category === "Melee" && optimizerStanceMod ? [optimizerStanceMod] : []),
+                    ...(supportsStanceMods(weapon.category) && optimizerStanceMod ? [optimizerStanceMod] : []),
                     ...appliedResult.slots,
                     ...(optExilus ? [appliedResult.exilusMod] : []),
                 ];
                 const fullDefaultRanks = [
-                    ...(weapon.category === "Melee" && optimizerStanceMod ? [optimizerStanceRank] : []),
+                    ...(supportsStanceMods(weapon.category) && optimizerStanceMod ? [optimizerStanceRank] : []),
                     ...appliedResult.slotRanks,
                     ...(optExilus ? [appliedResult.exilusMod ? appliedResult.exilusRank : 0] : []),
                 ];
@@ -2817,7 +2924,7 @@ export default function ModBuilder() {
                 ))}
             </WorkspaceSegmented>
 
-            {weapon && tab === "owned"   && <OwnedModsPanel availableMods={compatMods} />}
+            {weapon && tab === "owned"   && <OwnedModsPanel availableMods={trackableMods} />}
             {weapon && tab === "ownedArcanes" && <OwnedArcanesPanel weapon={weapon} />}
             {weapon && tab === "saves"   && <SavedBuildsPanel weapon={weapon} availableMods={compatMods} currentSlots={slots} currentRanks={ranks}
                 currentPolarities={slotPols} currentCfg={buildCfg}
@@ -3196,7 +3303,7 @@ export default function ModBuilder() {
                                                                         <span className="font-mono text-right text-yellow-200">{value}</span>
                                                                     </div>
                                                                 ))}
-                                                                {Object.entries(activeMetrics.modded.damageBreakdown)
+                                                                {Object.entries(activeMetrics.modded.rawDamageBreakdown)
                                                                     .filter(([, value]) => value > 0)
                                                                     .sort((a, b) => b[1] - a[1])
                                                                     .map(([type, value]) => (
@@ -3276,13 +3383,17 @@ export default function ModBuilder() {
                                         <div className="flex items-center justify-between mb-3">
                                             <div>
                                                 <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Mod Configuration</div>
-                                                <div className="text-sm text-slate-300">8 standard slots, plus stance/exilus/arcane support.</div>
+                                                <div className="text-sm text-slate-300">
+                                                    {supportsStanceMods(weapon.category)
+                                                        ? "8 standard slots, plus stance/exilus/arcane support."
+                                                        : "8 standard slots, plus exilus/arcane support where the weapon type allows it."}
+                                                </div>
                                             </div>
                                             <div className="text-[10px] text-slate-500">{slots.filter(Boolean).length}/{SLOT_COUNT} slots filled</div>
                                         </div>
 
                                         <div className="space-y-3">
-                                            {weapon.category === "Melee" ? (
+                                            {supportsStanceMods(weapon.category) ? (
                                                 <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
                                                     <div className="space-y-3">
                                                         <div className="grid grid-cols-2 2xl:grid-cols-4 gap-3">
@@ -3543,7 +3654,7 @@ export default function ModBuilder() {
                                     const damageUnitLabel = damageUnit[0].toUpperCase() + damageUnit.slice(1);
                                     const avgDamageLabel = averageDamageLabel(weapon.category);
                                     const rateLabel = actionRateLabel(weapon.category);
-                                    const dmgSrc = stats.damageBreakdown;
+                                    const dmgSrc = stats.rawDamageBreakdown;
                                     const procChanceRows = dmgRows(stats.procChanceByType as Record<string, number>);
                                     const procRateRows = dmgRows(stats.procRatePerSecondByType as Record<string, number>);
                                     const stackRows = dmgRows(stats.expectedStacksByType as Record<string, number>);

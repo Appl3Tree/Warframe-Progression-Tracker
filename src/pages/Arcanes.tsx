@@ -18,6 +18,7 @@ import {
   CollectionUtilityBand,
   CollectionUtilityPanel,
 } from "../components/collection/CollectionLedgerShell";
+import { getEntityImageUrl } from "../utils/entityImage";
 
 type TagFilterState = "include" | "exclude";
 type OwnershipFilter = "all" | "owned" | "unowned";
@@ -56,6 +57,8 @@ interface AllModEntry {
   drops?: AllModDrop[];
   releaseDate?: string;
   description?: string;
+  imageName?: string;
+  wikiaThumbnail?: string;
 }
 
 interface ModUpgrade {
@@ -803,6 +806,7 @@ function LedgerResultsBand({
 function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void }) {
   const arcaneRanks = useTrackerStore((state) => state.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
   const setArcaneRankCount = useTrackerStore((state) => state.setArcaneRankCount);
+  const addGoalCatalog = useTrackerStore((state) => state.addGoalCatalog);
   const rankCounts = arcaneRanks[entry.path] ?? {};
   const data = entry.data;
   const maxRank = decodeMaxRank(data?.FusionLimit);
@@ -818,6 +822,7 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
         rarity: drop.rarity,
         type: entry.name,
       }));
+  const imageUrl = getEntityImageUrl(allEntry);
 
   const modDesc = MODDESC[entry.path];
   const descRanks = modDesc?.Ranks;
@@ -873,6 +878,12 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <span className="text-base font-bold text-slate-100">{entry.name}</span>
             <WikiLink name={entry.name} />
+            <button
+              className="rounded-lg border border-amber-700/50 bg-amber-950/20 px-2.5 py-1 text-[11px] font-semibold text-amber-300 hover:bg-amber-950/35"
+              onClick={() => addGoalCatalog(modKey(entry.path), 1, "arcane")}
+            >
+              Add Goal
+            </button>
             <span className="text-xs text-slate-400">Max Rank: {maxRank}</span>
             {rarityRaw ? (
               <span className={["rounded-full border px-2 py-0.5 text-xs font-semibold", rarityColor(rarity), rarityBg(rarity)].join(" ")}>
@@ -939,7 +950,24 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
             );
           })()}
 
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-[minmax(260px,0.9fr)_minmax(0,1.1fr)]">
+            <div className="space-y-4">
+              <div className="overflow-hidden rounded-[24px] border border-slate-800 bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.12),transparent_55%),linear-gradient(180deg,rgba(30,41,59,0.58),rgba(15,23,42,0.72))]">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={entry.name}
+                    className="h-full min-h-[260px] w-full object-contain p-6"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex min-h-[260px] items-center justify-center px-6 text-center text-sm text-slate-500">
+                    No artwork available for this arcane.
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-3">
               {effectRows.length > 0 ? (
                 <div>
@@ -1011,6 +1039,7 @@ export default function ArcanesPage() {
   const counts = useTrackerStore((state) => state.state.inventory.counts ?? EMPTY_COUNTS);
   const arcaneRanksMap = useTrackerStore((state) => state.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
   const setArcaneRankCount = useTrackerStore((state) => state.setArcaneRankCount);
+  const addGoalCatalog = useTrackerStore((state) => state.addGoalCatalog);
 
   const [categoryFilters, setCategoryFilters] = useState<Partial<Record<ArcaneFilterCategory, TagFilterState>>>({});
   const [query, setQuery] = useState("");
@@ -1198,7 +1227,17 @@ export default function ArcanesPage() {
                                 );
                               })}
                             </div>
-                            <div className="flex justify-center">
+                            <div className="flex justify-center gap-2">
+                              <button
+                                className="rounded-lg border border-amber-700/50 bg-amber-950/20 px-2 py-1 text-[11px] font-semibold text-amber-300 hover:bg-amber-950/35"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  addGoalCatalog(modKey(entry.path), 1, "arcane");
+                                }}
+                                title="Add this arcane to your goals"
+                              >
+                                Goal
+                              </button>
                               <WikiLink name={entry.name} />
                             </div>
                           </div>

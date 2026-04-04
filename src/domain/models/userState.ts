@@ -72,7 +72,7 @@ export interface UserPrereqsV2 {
     completed: Record<string, boolean>;
 }
 
-export type GoalType = "item";
+export type GoalType = "item" | "mod" | "arcane";
 
 export interface UserGoalV1 {
     id: string;

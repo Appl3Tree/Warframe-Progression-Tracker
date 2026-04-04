@@ -11,6 +11,7 @@
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import { WARFRAME_ALL_COMPONENT_FIELDS, WARFRAME_ALL_TOP_LEVEL_FIELDS } from "./leanFieldContracts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
@@ -18,68 +19,7 @@ const ROOT = path.resolve(__dirname, "../..");
 const INPUT = path.join(ROOT, "external/warframe-items/raw/All.json");
 const OUTPUT = path.join(ROOT, "src/data/_generated/warframe-items-all-lean.auto.json");
 
-const TOP_LEVEL_FIELDS: ReadonlySet<string> = new Set([
-  "uniqueName",
-  "name",
-  "category",
-  "type",
-  "compatName",
-  "rarity",
-  "baseDrain",
-  "fusionLimit",
-  "isExilus",
-  "isAugment",
-  "isUtility",
-  "isPrime",
-  "imageName",
-  "introduced",
-  "releaseDate",
-  "tradable",
-  "transmutable",
-  "description",
-  "modSet",
-  "modSetValues",
-  "polarity",
-  "wikiaThumbnail",
-  "wikiaUrl",
-  "masteryReq",
-  "vaulted",
-  "vaultDate",
-  "health",
-  "shield",
-  "armor",
-  "power",
-  "sprintSpeed",
-  "polarities",
-  "aura",
-  "exalted",
-  "damage",
-  "totalDamage",
-  "criticalChance",
-  "criticalMultiplier",
-  "procChance",
-  "statusChance",
-  "fireRate",
-  "magazineSize",
-  "reloadTime",
-  "accuracy",
-  "multishot",
-  "noise",
-  "trigger",
-  "slot",
-  "disposition",
-  "omegaAttenuation",
-  "range",
-  "followThrough",
-  "comboDuration",
-  "heavyAttackDamage",
-  "slamAttack",
-  "slideAttack",
-  "stancePolarity",
-  "stamina",
-  "marketCost",
-  "productCategory",
-]);
+const TOP_LEVEL_FIELDS: ReadonlySet<string> = new Set(WARFRAME_ALL_TOP_LEVEL_FIELDS);
 
 function pruneDrop(drop: unknown): Record<string, unknown> | null {
   if (!drop || typeof drop !== "object" || Array.isArray(drop)) return null;
@@ -96,8 +36,10 @@ function pruneComponent(component: unknown): Record<string, unknown> | null {
   if (!component || typeof component !== "object" || Array.isArray(component)) return null;
   const source = component as Record<string, unknown>;
   const out: Record<string, unknown> = {};
-  if ("uniqueName" in source) out.uniqueName = source.uniqueName;
-  if ("name" in source) out.name = source.name;
+  for (const field of WARFRAME_ALL_COMPONENT_FIELDS) {
+    if (field === "drops") continue;
+    if (field in source) out[field] = source[field];
+  }
   if (Array.isArray(source.drops)) {
     const drops = source.drops.map(pruneDrop).filter(Boolean);
     if (drops.length > 0) out.drops = drops;

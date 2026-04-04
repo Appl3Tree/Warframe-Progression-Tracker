@@ -574,9 +574,15 @@ export function buildCustomRivenEntry(record: CustomRivenRecord, targetWeapon: W
 
 export function getCustomRivenStatDefsForWeapon(weapon: WeaponEntry | null): CustomRivenStatDef[] {
     if (!weapon) return CUSTOM_RIVEN_STAT_DEFS;
+    const compatCategory: WeaponCategory =
+        weapon.modCompat === "Melee" || weapon.modCompat === "Archmelee"
+            ? "Melee"
+            : weapon.modCompat === "Pistol"
+                ? "Secondary"
+                : "Primary";
     return CUSTOM_RIVEN_STAT_DEFS.filter(
         (definition) =>
             definition.compat.includes("Any") ||
-            definition.compat.includes(weapon.category),
+            definition.compat.includes(compatCategory),
     );
 }

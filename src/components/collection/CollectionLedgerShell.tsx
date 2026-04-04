@@ -76,9 +76,14 @@ export function CollectionModeBand({
   segmentedClassName?: string;
 }) {
   return (
-    <div className={joinClasses("overflow-x-auto border-b border-slate-800 bg-transparent px-3 py-1.5", className)}>
+    <div
+      className={joinClasses(
+        "relative z-10 border-b border-slate-800 bg-slate-950/90 px-3 py-2 backdrop-blur",
+        className,
+      )}
+    >
       <WorkspaceSegmented
-        className={joinClasses("w-max min-w-full flex-nowrap rounded-none border-0 bg-transparent p-0 shadow-none", segmentedClassName)}
+        className={joinClasses("flex w-full flex-wrap gap-2 rounded-none border-0 bg-transparent p-0 shadow-none", segmentedClassName)}
       >
         {children}
       </WorkspaceSegmented>
@@ -114,7 +119,7 @@ export function CollectionRefineBand({
   className?: string;
 }) {
   return (
-    <div className="border-b border-slate-800 bg-slate-950/35 px-4 py-2">
+    <div className="relative z-[9] border-b border-slate-800 bg-slate-950/70 px-4 py-2 backdrop-blur">
       <div className={joinClasses("grid gap-3", className)}>
         {title ? (
           <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{title}</div>

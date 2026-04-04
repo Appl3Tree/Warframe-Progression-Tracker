@@ -15,6 +15,7 @@ import { STAR_CHART_DATA } from "../domain/catalog/starChart";
 import { useTrackerStore } from "../store/store";
 import {
     EMPTY_NODE_COMPLETED,
+    DEFAULT_NODE_GROUP_TAB,
     viewBoxToScale,
     buildTabSpecRaw,
     applyExclusiveAssignment,
@@ -42,7 +43,7 @@ export default function StarChart() {
     const steelPathNodeCompleted = useTrackerStore((s) => s.state.missions?.steelPathNodeCompleted ?? EMPTY_NODE_COMPLETED);
     const [selectedPlanetId, setSelectedPlanetId] = useState<PlanetId | null>(null);
     const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
-    const [selectedTab, setSelectedTab] = useState<NodeGroupKind>("base");
+    const [selectedTab, setSelectedTab] = useState<NodeGroupKind>(DEFAULT_NODE_GROUP_TAB);
 
     // Steel Path tracking toggle — declared early so tabsForPanel can read it.
     const [steelPathMode, setSteelPathMode] = useState(false);
@@ -132,7 +133,7 @@ export default function StarChart() {
 
         if (!allowed.has(selectedTab)) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
-            setSelectedTab(tabsForPanel[0]?.kind ?? "base");
+            setSelectedTab(tabsForPanel[0]?.kind ?? DEFAULT_NODE_GROUP_TAB);
         }
     }, [selectedGroupKey, tabsForPanel, selectedTab]);
 
@@ -153,7 +154,7 @@ export default function StarChart() {
 
         setSelectedPlanetId(node.planetId);
         setSelectedGroupKey(group.key);
-        setSelectedTab("base");
+        setSelectedTab(DEFAULT_NODE_GROUP_TAB);
     }, [groupedByPlanet]);
 
     useEffect(() => {
@@ -171,7 +172,7 @@ export default function StarChart() {
 
     function resetView() {
         setSelectedGroupKey(null);
-        setSelectedTab("base");
+        setSelectedTab(DEFAULT_NODE_GROUP_TAB);
         setSelectedPlanetId(null);
         setVb(INITIAL_VB);
     }

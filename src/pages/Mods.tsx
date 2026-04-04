@@ -18,6 +18,7 @@ import {
   CollectionUtilityBand,
   CollectionUtilityPanel,
 } from "../components/collection/CollectionLedgerShell";
+import { getEntityImageUrl } from "../utils/entityImage";
 
 import MOD_LOCATIONS_RAW from "../../external/warframe-drop-data/raw/modLocations.json";
 
@@ -2192,6 +2193,7 @@ function ModModal({
   const modRanks = useTrackerStore((s) => s.state.inventory.modRanks ?? EMPTY_MOD_RANKS);
   const setCount = useTrackerStore((s) => s.setCount);
   const setModRank = useTrackerStore((s) => s.setModRank);
+  const addGoalCatalog = useTrackerStore((s) => s.addGoalCatalog);
   const key = modKey(entry.path);
   const owned = counts[key] ?? 0;
   const data = entry.data;
@@ -2221,6 +2223,7 @@ function ModModal({
     : null;
 
   const rarityLabel = rarityRaw.charAt(0).toUpperCase() + rarityRaw.slice(1).toLowerCase();
+  const imageUrl = getEntityImageUrl(allEntry);
 
   // Determine if this is a warframe augment (compatName is a specific warframe name, not a weapon type)
   const GENERIC_COMPAT = new Set(["WARFRAME","ANY","COMPANION","ROBOTIC","BEAST","PRIMARY","Melee",
@@ -2261,6 +2264,15 @@ function ModModal({
             {allEntry?.transmutable && <span className="text-[10px] px-1.5 py-0.5 rounded border border-slate-600   bg-slate-800    text-slate-400">Transmutable</span>}
           </div>
           <div className="shrink-0 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+            {!isRiven && (
+              <button
+                className="rounded-lg border border-cyan-700/50 bg-cyan-950/20 px-2.5 py-1.5 text-[11px] font-semibold text-cyan-300 hover:bg-cyan-950/35"
+                onClick={() => addGoalCatalog(key, 1, "mod")}
+                title="Add this mod to your goals"
+              >
+                Add Goal
+              </button>
+            )}
             <span className="text-[10px] text-slate-500 mr-1">Owned</span>
             <button
               className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center"
@@ -2309,9 +2321,26 @@ function ModModal({
             {allEntry?.releaseDate && <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5">{formatReleaseDate(allEntry.releaseDate) ?? allEntry.releaseDate}</span>}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(260px,0.9fr)_minmax(0,1.1fr)] gap-5">
 
-            {/* ── LEFT: Effects ── */}
+            <div className="space-y-4">
+              <div className="overflow-hidden rounded-[24px] border border-slate-800 bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.12),transparent_55%),linear-gradient(180deg,rgba(30,41,59,0.58),rgba(15,23,42,0.72))]">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={displayName}
+                    className="h-full min-h-[260px] w-full object-contain p-6"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex min-h-[260px] items-center justify-center px-6 text-center text-sm text-slate-500">
+                    No artwork available for this mod.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ── RIGHT: Effects ── */}
             <div className="space-y-4">
 
               {/* Per-rank effects from levelStats */}
@@ -2470,6 +2499,7 @@ function ModsPage() {
   const [sortKey, setSortKey] = useState<ModSortKey>("az");
   const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>("all");
   const [selectedMod, setSelectedMod] = useState<ModEntry | null>(null);
+  const addGoalCatalog = useTrackerStore((s) => s.addGoalCatalog);
   const [editingRiven, setEditingRiven] = useState<CustomRivenInventoryRecord | null>(null);
   const [rivenModalOpen, setRivenModalOpen] = useState(false);
 
@@ -3033,7 +3063,17 @@ function ModsPage() {
                                 +
                               </button>
                             </div>
-                            <div className="flex justify-center">
+                            <div className="flex justify-center gap-2">
+                              <button
+                                className="rounded-lg border border-cyan-700/50 bg-cyan-950/20 px-2 py-1 text-[11px] font-semibold text-cyan-300 hover:bg-cyan-950/35"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  addGoalCatalog(modKey(entry.path), 1, "mod");
+                                }}
+                                title="Add this mod to your goals"
+                              >
+                                Goal
+                              </button>
                               <WikiLink name={entry.name} />
                             </div>
                           </div>

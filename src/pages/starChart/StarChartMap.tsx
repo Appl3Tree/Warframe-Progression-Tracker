@@ -11,8 +11,11 @@ import { PR } from "../../domain/ids/prereqIds";
 import { FULL_CATALOG, type CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { useTrackerStore } from "../../store/store";
 import { getDropSourcesForStarChartNode } from "../../domain/catalog/starChart/nodeDropSourceMap";
+import { getAcquisitionByCatalogId } from "../../catalog/items/itemAcquisition";
+import { getGoalCatalogKind, getOwnedCountForGoal } from "../../domain/goals/catalogGoals";
 import {
     EMPTY_NODE_COMPLETED,
+    DEFAULT_NODE_GROUP_TAB,
     VORS_PRIZE_IMPLIES_COMPLETED,
     clamp,
     lerp,
@@ -194,6 +197,8 @@ export default function StarChartMap(props: {
 
     // Inventory ownership — used to decorate loot panel items
     const inventoryCounts = useTrackerStore((s) => s.state.inventory?.counts ?? EMPTY_NODE_COMPLETED);
+    const inventory = useTrackerStore((s) => s.state.inventory);
+    const goals = useTrackerStore((s) => s.state.goals ?? []);
     const setCount = useTrackerStore((s) => s.setCount);
 
     // 4.4: Per-node completion tracking
@@ -984,7 +989,7 @@ export default function StarChartMap(props: {
 
         setSelectedPlanetId(pid);
         setSelectedGroupKey(null);
-        setSelectedTab("base");
+        setSelectedTab(DEFAULT_NODE_GROUP_TAB);
         zoomIntoPlanet(pid);
     }
 
@@ -994,18 +999,18 @@ export default function StarChartMap(props: {
         setSelectedPlanetId(pid);
         if (selectedGroupKey === g.key) {
             setSelectedGroupKey(null);
-            setSelectedTab("base");
+            setSelectedTab(DEFAULT_NODE_GROUP_TAB);
             return;
         }
         setSelectedGroupKey(g.key);
-        setSelectedTab("base");
+        setSelectedTab(DEFAULT_NODE_GROUP_TAB);
     }
 
     function onMapBackgroundClick() {
         if (suppressClickRef.current) return;
 
         setSelectedGroupKey(null);
-        setSelectedTab("base");
+        setSelectedTab(DEFAULT_NODE_GROUP_TAB);
     }
 
     // Global orbit rings (world-space radii from MAP_CENTER).
@@ -1168,6 +1173,60 @@ export default function StarChartMap(props: {
         return mergedActiveItems.filter((it) => it.name.toLowerCase().includes(q) || it.catalogId.toLowerCase().includes(q));
     }, [activeTab, itemFilter, mergedActiveItems]);
 
+    const wantedGoalsBySource = useMemo(() => {
+        const map = new Map<string, Array<{ key: string; name: string; type: "mod" | "arcane"; remaining: number }>>();
+
+        for (const goal of goals ?? []) {
+            if (!goal || goal.isActive === false) continue;
+            const goalKind = getGoalCatalogKind(goal);
+            if (goalKind === "item") continue;
+
+            const qty = Math.max(1, Number(goal.qty ?? 1) || 1);
+            const have = getOwnedCountForGoal(goal, inventory);
+            const remaining = Math.max(0, qty - have);
+            if (remaining <= 0) continue;
+
+            const cid = String(goal.catalogId);
+            const name = FULL_CATALOG.recordsById[cid as CatalogId]?.displayName ?? cid;
+            for (const sourceId of getAcquisitionByCatalogId(cid as CatalogId)?.sources ?? []) {
+                const key = String(sourceId);
+                const rows = map.get(key) ?? [];
+                rows.push({ key: cid, name, type: goalKind, remaining });
+                map.set(key, rows);
+            }
+        }
+
+        for (const [sourceId, rows] of map.entries()) {
+            const deduped = new Map<string, { key: string; name: string; type: "mod" | "arcane"; remaining: number }>();
+            for (const row of rows) deduped.set(row.key, row);
+            map.set(
+                sourceId,
+                Array.from(deduped.values()).sort((a, b) => {
+                    if (a.type !== b.type) return a.type.localeCompare(b.type);
+                    if (a.remaining !== b.remaining) return b.remaining - a.remaining;
+                    return a.name.localeCompare(b.name);
+                }),
+            );
+        }
+
+        return map;
+    }, [goals, inventory]);
+
+    const wantedActiveItems = useMemo(() => {
+        if (!activeTab) return [];
+        const seen = new Map<string, { key: string; name: string; type: "mod" | "arcane"; remaining: number }>();
+        for (const sourceId of activeTab.dropSources ?? []) {
+            for (const row of wantedGoalsBySource.get(String(sourceId)) ?? []) {
+                seen.set(row.key, row);
+            }
+        }
+        return Array.from(seen.values()).sort((a, b) => {
+            if (a.type !== b.type) return a.type.localeCompare(b.type);
+            if (a.remaining !== b.remaining) return b.remaining - a.remaining;
+            return a.name.localeCompare(b.name);
+        });
+    }, [activeTab, wantedGoalsBySource]);
+
     /** Catalog name → catalogId for ownership lookup when rendering from drop table */
     const catalogNameMap = useMemo(() => {
         const m = new Map<string, string>();
@@ -1290,7 +1349,7 @@ export default function StarChartMap(props: {
                                         className="rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-900"
                                         onClick={() => {
                                             setSelectedGroupKey(null);
-                                            setSelectedTab("base");
+                                            setSelectedTab(DEFAULT_NODE_GROUP_TAB);
                                             setSelectedPlanetId(null);
                                         }}
                                     >
@@ -1474,6 +1533,31 @@ export default function StarChartMap(props: {
                                         )}
 
                                         <div>
+                                            <div className="mb-3">
+                                                <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-500">Wanted Here</div>
+                                                {!activeTab ? (
+                                                    <div className="text-sm text-slate-400">No tab selected.</div>
+                                                ) : wantedActiveItems.length === 0 ? (
+                                                    <div className="text-sm text-slate-400">No active mod or arcane goals overlap this node.</div>
+                                                ) : (
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {wantedActiveItems.map((goal) => (
+                                                            <span
+                                                                key={goal.key}
+                                                                className={[
+                                                                    "text-[10px] rounded-full border px-2 py-0.5",
+                                                                    goal.type === "arcane"
+                                                                        ? "border-amber-700/50 bg-amber-950/20 text-amber-300"
+                                                                        : "border-cyan-700/50 bg-cyan-950/20 text-cyan-300",
+                                                                ].join(" ")}
+                                                            >
+                                                                {goal.name} · {goal.remaining} left
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
                                             <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-500">Obtainable here</div>
 
                                             {!activeTab ? (

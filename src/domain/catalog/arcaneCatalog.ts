@@ -378,10 +378,12 @@ export function getArcaneCatalog(): ArcaneEntry[] {
 }
 
 export function getArcanesByWeaponCategory(cat: WeaponCategory): ArcaneEntry[] {
-    const map: Record<WeaponCategory, ArcaneWeaponType> = {
+    const map: Partial<Record<WeaponCategory, ArcaneWeaponType>> = {
         Primary: "Primary", Secondary: "Secondary", Melee: "Melee",
     };
-    return getArcaneCatalog().filter(a => a.weaponType === map[cat]);
+    const arcaneType = map[cat];
+    if (!arcaneType) return [];
+    return getArcaneCatalog().filter(a => a.weaponType === arcaneType);
 }
 
 export function getArcanesForWeapon(weapon: WeaponEntry): ArcaneEntry[] {

@@ -15,7 +15,7 @@ Tasks are organized by priority. Update this list as work progresses.
 
 ### Working Queue
 
-- [ ] No queued follow-up tasks right now
+- [x] Expand Build Planner weapon coverage to include archguns, arch-melee, and companion weapons with correct mod/stance/arcane eligibility
 
 ### Intake Rule
 

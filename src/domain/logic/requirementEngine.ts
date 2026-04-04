@@ -20,6 +20,7 @@ import type { PrereqId } from "../ids/prereqIds";
 import { PROGRESSION_ITEM_IDS } from "../../catalog/items/itemsIndex";
 import { SYNDICATE_VENDOR_CATALOG } from "../catalog/syndicates/syndicateVendorCatalog";
 import { getSyndicateDisplayName } from "../ids/syndicateIds";
+import { getOwnedCountForCatalogId } from "../goals/catalogGoals";
 
 const PROGRESSION_ITEM_ID_SET = new Set<CatalogId>(PROGRESSION_ITEM_IDS);
 
@@ -371,7 +372,6 @@ export function buildRequirementsSnapshot(args: {
 
     for (const g of goals ?? []) {
         if (!g || g.isActive === false) continue;
-        if (g.type !== "item") continue;
 
         const cid = String(g.catalogId) as CatalogId;
         const qty = Math.max(1, safeInt(g.qty ?? 1, 1));
@@ -379,29 +379,39 @@ export function buildRequirementsSnapshot(args: {
         const rec = FULL_CATALOG.recordsById[cid];
         const goalName = rec?.displayName || cid;
 
-        addGoalWithRecursiveComponents({
-            goal: g,
-            rootCatalogId: cid,
-            rootQty: qty,
-            rootName: goalName
-        });
+        if (g.type === "item") {
+            addGoalWithRecursiveComponents({
+                goal: g,
+                rootCatalogId: cid,
+                rootQty: qty,
+                rootName: goalName
+            });
 
-        // Add platinum purchase cost if the item can be bought directly on the market.
-        const platCost = getPlatinumCost(cid);
-        if (platCost !== null) {
-            addCurrencyNeed("platinum", platCost * qty, {
+            // Add platinum purchase cost if the item can be bought directly on the market.
+            const platCost = getPlatinumCost(cid);
+            if (platCost !== null) {
+                addCurrencyNeed("platinum", platCost * qty, {
+                    type: "goal",
+                    id: g.id,
+                    name: goalName,
+                    label: "Purchase (Platinum)",
+                    need: platCost * qty
+                });
+            }
+        } else {
+            addItemNeed(cid, qty, {
                 type: "goal",
                 id: g.id,
                 name: goalName,
-                label: "Purchase (Platinum)",
-                need: platCost * qty
+                label: g.type === "arcane" ? "Wanted Arcane" : "Wanted Mod",
+                need: qty
             });
         }
     }
 
     const itemLines: ItemRequirementLine[] = Object.values(itemAgg)
         .map((agg) => {
-            const have = safeInt(inventory?.counts?.[String(agg.key)] ?? 0, 0);
+            const have = getOwnedCountForCatalogId(agg.key, inventory);
             const remaining = Math.max(0, agg.totalNeed - have);
 
             const sources = [...agg.sources];
@@ -537,6 +547,12 @@ export type FarmingSnapshot = {
 function isInProgressionScope(catalogId: CatalogId): boolean {
     if (!String(catalogId).startsWith("items:")) return false;
     return PROGRESSION_ITEM_ID_SET.has(catalogId);
+}
+
+function isDirectGoalFarmScope(catalogId: CatalogId): boolean {
+    const raw = String(catalogId);
+    if (raw.startsWith("mods:")) return true;
+    return isInProgressionScope(catalogId);
 }
 
 function canAccessSource(sourceId: SourceId, completedPrereqs: Record<string, boolean>): boolean {
@@ -717,7 +733,7 @@ function analyzeCatalogIdForFarming(args: {
     // Scope gate:
     // - At depth 0 (the items we show to the user as farm targets), enforce progression scope strictly.
     // - At depth > 0, components are handled by ingredient/blueprint guards and recipe expansion.
-    if (depth === 0 && !isInProgressionScope(catalogId)) {
+    if (depth === 0 && !isDirectGoalFarmScope(catalogId)) {
         return {
             kind: "hidden",
             hidden: { key: catalogId, name, remaining, reason: "out-of-scope" }

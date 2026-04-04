@@ -7,6 +7,7 @@ import { STAR_CHART_DATA } from "../../domain/catalog/starChart";
 import type { NodeId, PlanetId, StarChartNode, StarChartPlanet } from "../../domain/models/starChart";
 import { getDropSourcesForStarChartNode } from "../../domain/catalog/starChart/nodeDropSourceMap";
 import { SOURCE_INDEX } from "../../catalog/sources/sourceCatalog";
+import { formatSourceDisplayLabel } from "../../utils/sourceLabels";
 import type { ItemRow } from "./starChartUtils";
 import { safeNormalizeSourceId, itemNameKey, dedupeItemsByName } from "./starChartUtils";
 
@@ -304,6 +305,7 @@ export function getPlanetRadius(p: StarChartPlanet): number {
 // ── Node grouping ─────────────────────────────────────────────────────────────
 
 export type NodeGroupKind = "all" | "base" | "mission_rewards" | "caches" | "extra" | "other";
+export const DEFAULT_NODE_GROUP_TAB: NodeGroupKind = "all";
 
 export type NodeGroup = {
     key: string;
@@ -546,7 +548,7 @@ export function buildTabSpecRaw(args: { group: NodeGroup; kind: NodeGroupKind; s
 
     const dropSourceDetails = dropSources.map((sid) => ({
         sid,
-        label: SOURCE_INDEX[sid as any]?.label ?? "(missing from SOURCE_INDEX)"
+        label: formatSourceDisplayLabel(SOURCE_INDEX[sid as any]?.label ?? sid)
     }));
 
     const items = computeItemsForSources({ dropSources, sourceToItemsIndex });

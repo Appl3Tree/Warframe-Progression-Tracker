@@ -11744,6 +11744,9 @@
     "items:/Lotus/Types/Recipes/WarframeRecipes/AnimaChassisBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/AnimaChassisComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/AnimaComponent": [
       1411,
       1412,
@@ -11752,14 +11755,23 @@
     "items:/Lotus/Types/Recipes/WarframeRecipes/AnimaHelmetBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/AnimaHelmetComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/AnimaSystemsBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/AnimaSystemsComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/AnimusBlueprint": [
       1294
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/AnimusChassisBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/AnimusChassisComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/AnimusComponent": [
       1411,
@@ -11769,8 +11781,14 @@
     "items:/Lotus/Types/Recipes/WarframeRecipes/AnimusHelmetBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/AnimusHelmetComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/AnimusSystemsBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/AnimusSystemsComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/AshBlueprint": [
       1354
@@ -12137,8 +12155,14 @@
     "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaChassisBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaChassisComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaHelmetBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaHelmetComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaPrimeBlueprint": [
       1456,
@@ -12182,6 +12206,9 @@
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaSystemsBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaSystemsComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/ConcreteFrameBlueprint": [
       1294
@@ -12373,11 +12400,20 @@
     "items:/Lotus/Types/Recipes/WarframeRecipes/FairyChassisBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/FairyChassisComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/FairyHelmetBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/FairyHelmetComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/FairySystemsBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/FairySystemsComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/FrostBlueprint": [
       1354
@@ -12794,11 +12830,20 @@
     "items:/Lotus/Types/Recipes/WarframeRecipes/HarlequinChassisBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/HarlequinChassisComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/HarlequinHelmetBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/HarlequinHelmetComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/HarlequinSystemsBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/HarlequinSystemsComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/HarrowPrimeBlueprint": [
       1681,
@@ -13354,11 +13399,20 @@
     "items:/Lotus/Types/Recipes/WarframeRecipes/MagicianChassisBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/MagicianChassisComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/MagicianHelmetBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/MagicianHelmetComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/MagicianSystemsBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/MagicianSystemsComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/MesaPrimeBlueprint": [
       1563,
@@ -13456,11 +13510,20 @@
     "items:/Lotus/Types/Recipes/WarframeRecipes/MummyChassisBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/MummyChassisComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/MummyHelmetBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/MummyHelmetComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/MummySystemsBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/MummySystemsComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/NecroBlueprint": [
       1354
@@ -13962,11 +14025,20 @@
     "items:/Lotus/Types/Recipes/WarframeRecipes/PacifistChassisBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/PacifistChassisComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/PacifistHelmetBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/PacifistHelmetComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/PacifistSystemsBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/PacifistSystemsComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/PagemasterBlueprint": [
       176,
@@ -14513,11 +14585,20 @@
     "items:/Lotus/Types/Recipes/WarframeRecipes/StyanaxChassisBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/StyanaxChassisComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/StyanaxHelmetBlueprint": [
       1294
     ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/StyanaxHelmetComponent": [
+      0
+    ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/StyanaxSystemsBlueprint": [
       1294
+    ],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/StyanaxSystemsComponent": [
+      0
     ],
     "items:/Lotus/Types/Recipes/WarframeRecipes/TempleBlueprint": [
       2087,

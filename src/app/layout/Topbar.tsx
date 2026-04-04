@@ -905,13 +905,13 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                         </div>
                     </div>
 
-                    <div className="flex flex-1 items-center justify-end gap-2 lg:max-w-[320px]">
+                    <div className="ml-auto flex shrink-0 items-center justify-end gap-2">
                         <NotificationBell onNavigateWorldState={() => setActivePage("world_state")} />
 
                         <button
                             onClick={() => { setOpen((v) => !v); if (open) setActiveField(null); }}
                             className={[
-                                "flex items-center gap-2.5 rounded-lg border px-3 py-1.5 transition-colors",
+                                "flex shrink-0 items-center gap-2.5 rounded-lg border px-3 py-1.5 transition-colors",
                                 open
                                     ? "border-slate-600 bg-slate-800 text-slate-100"
                                     : "border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-700 hover:bg-slate-900",
@@ -934,7 +934,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
                             {displayName && (
                                 <>
                                     <span className="hidden lg:inline text-slate-700">·</span>
-                                    <span className="hidden lg:inline max-w-[120px] truncate text-xs text-slate-300">{displayName}</span>
+                                    <span className="hidden xl:inline max-w-[140px] truncate text-xs text-slate-300">{displayName}</span>
                                 </>
                             )}
                             <svg

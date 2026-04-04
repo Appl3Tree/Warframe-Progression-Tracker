@@ -9,7 +9,8 @@
  *
  * Fields kept from `data.*`:
  *   Icon, MarketMode, RegularPrice, PremiumPrice, ShowInMarket,
- *   ProductCategory, resultItemType, ResultItem, type
+ *   ProductCategory, resultItemType, ResultItem, type,
+ *   CompatibilityTags, WeaponTypes, ArtifactSlots
  *
  * All top-level fields (categories, name, parent, parents, path, storeData,
  * storeItemType, tag, texture, texture_new, ProductCategory, id) are kept as-is.
@@ -18,6 +19,7 @@
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import { ITEMS_LEAN_DATA_FIELDS } from "./leanFieldContracts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
@@ -26,17 +28,7 @@ const INPUT  = path.join(ROOT, "external/overframe-gg/items.json");
 const ALL_INPUT = path.join(ROOT, "external/warframe-items/raw/All.json");
 const OUTPUT = path.join(ROOT, "src/data/_generated/items-lean.auto.json");
 
-const DATA_FIELDS: ReadonlySet<string> = new Set([
-    "Icon",
-    "MarketMode",
-    "RegularPrice",
-    "PremiumPrice",
-    "ShowInMarket",
-    "ProductCategory",
-    "resultItemType",
-    "ResultItem",
-    "type",
-]);
+const DATA_FIELDS: ReadonlySet<string> = new Set(ITEMS_LEAN_DATA_FIELDS);
 
 const GENERIC_COMPONENT_SLOT_NAMES = new Set([
     "barrel",

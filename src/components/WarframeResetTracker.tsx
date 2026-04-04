@@ -807,26 +807,10 @@ function TrackerCalendarModal({ calendar, onClose }: {
 
 function CalendarHint({ calendar }: { calendar: NonNullable<WorldStateData["calendar"]> }) {
     const [open, setOpen] = useState(false);
-    const todayIdx = calendar.currentDay !== undefined ? Number(calendar.currentDay) : -1;
-    const today = todayIdx >= 0 && todayIdx < calendar.days.length ? calendar.days[todayIdx] : null;
-    const todayEvents = today ? today.events : [];
 
     return (
         <>
-            <div className="mt-1.5 flex items-center gap-2 flex-wrap">
-                {todayEvents.length > 0 ? (
-                    todayEvents.map((ev, i) => {
-                        const meta = CAL_EVENT_META[ev.type];
-                        return meta ? (
-                            <div key={i} className="flex items-center gap-1">
-                                <div className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
-                                <span className={`text-[9px] ${meta.textColor}`}>{meta.label}</span>
-                            </div>
-                        ) : null;
-                    })
-                ) : (
-                    <span className="text-[9px] text-slate-600">No events today</span>
-                )}
+            <div className="mt-1.5 flex items-center">
                 <button
                     onClick={(e) => { e.stopPropagation(); setOpen(true); }}
                     className="ml-auto flex items-center gap-1 text-[9px] text-slate-500 hover:text-slate-300 border border-slate-700 hover:border-slate-500 rounded px-1.5 py-0.5 transition-colors"

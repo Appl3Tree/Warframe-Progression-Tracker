@@ -1,7 +1,7 @@
 // src/domain/logic/damageCalc.ts
 // Damage + status calculations for the mod builder / optimizer.
 
-import type { WeaponEntry } from "../catalog/weaponCatalog";
+import { usesMeleeDamageModel, type WeaponEntry } from "../catalog/weaponCatalog";
 import type { ConditionalEffect, ModEffect } from "../catalog/modCatalog";
 
 type DamageKey =
@@ -35,6 +35,7 @@ const COMBINED_ELEMENTS: Record<string, DamageKey> = {
 };
 
 export interface ModdedWeaponStats {
+    rawDamageBreakdown: Record<DamageKey, number>;
     arsenalDamage: number;
     averageShotDamage: number;
     critChance: number;
@@ -360,7 +361,7 @@ export function calculateBuild(
         directBonusBreakdown.true += e.trueBonus ?? 0;
     });
 
-    const baseFireRateBonus = weapon.category === "Melee" ? attackSpeedBonus : fireRateBonus;
+    const baseFireRateBonus = usesMeleeDamageModel(weapon.category) ? attackSpeedBonus : fireRateBonus;
     const baselineRawFireRate = weapon.fireRate * (1 + baseFireRateBonus);
     const baselineMagazineSize = Math.max(1, Math.round(weapon.magazineSize * (1 + magazineBonus)));
     let conditionalDamageBonus = 0;
@@ -481,7 +482,7 @@ export function calculateBuild(
     const averageCritTier = Math.max(0, critChance);
     const statusChance = weapon.statusChance * (1 + statusChanceBonus) + finalStatusChanceBonus;
 
-    const rawFireRate = weapon.fireRate * (1 + (weapon.category === "Melee" ? attackSpeedBonus : fireRateBonus));
+    const rawFireRate = weapon.fireRate * (1 + (usesMeleeDamageModel(weapon.category) ? attackSpeedBonus : fireRateBonus));
     let fireRate = rawFireRate;
     if (weapon.trigger === "Charge" && weapon.chargeTime !== null && weapon.chargeTime > 0) {
         const moddedChargeTime = weapon.chargeTime / (1 + fireRateBonus);
@@ -641,6 +642,7 @@ export function calculateBuild(
     const tauStatusVulnerability = scaleLinearCap(tauStacks, 0.1, 1.0);
 
     const modded: ModdedWeaponStats = {
+        rawDamageBreakdown: rawBreakdown,
         arsenalDamage,
         averageShotDamage,
         critChance,

@@ -285,6 +285,15 @@ export type Calendar = {
     yearIteration?: number;
 };
 
+function normalizeWorldStateLabel(label: string): string {
+    return label
+        .replace(/_/g, " ")
+        .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+        .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+        .trim()
+        .replace(/\s+/g, " ");
+}
+
 // Maps raw API type strings → canonical display types
 // Handles both processed strings from translateCalendarEvent() and raw CET_ values
 const _EV_TYPE_MAP: Record<string, string> = {
@@ -588,7 +597,9 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                             ? j.duviriCycle.choices.map((g: any) => ({
                                 category:    g.category    ?? "",
                                 categoryKey: g.categoryKey ?? "",
-                                choices:     Array.isArray(g.choices) ? g.choices : [],
+                                choices:     Array.isArray(g.choices)
+                                    ? g.choices.map((choice: unknown) => normalizeWorldStateLabel(String(choice ?? "")))
+                                    : [],
                             }))
                             : [],
                     }
@@ -848,8 +859,12 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                     ? (j.archimedeas as any[]).map((a): Archimedea => {
                         const mapModifier = (m: any): ArchimedeaModifier =>
                             typeof m === "string"
-                                ? { tag: m }
-                                : { tag: m.tag ?? m.key ?? m.name ?? "", description: m.description, rarity: m.rarity };
+                                ? { tag: normalizeWorldStateLabel(m) }
+                                : {
+                                    tag: normalizeWorldStateLabel(String(m.tag ?? m.key ?? m.name ?? "")),
+                                    description: m.description,
+                                    rarity: m.rarity,
+                                };
                         // The parser uses `missions` (new) or `variants` (old) — handle both
                         const rawMissions: any[] = Array.isArray(a.missions) ? a.missions
                             : Array.isArray(a.variants) ? a.variants
@@ -859,7 +874,9 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                             type:                v.type                ?? v.missionType   ?? "",
                             faction:             v.faction             ?? v.factionKey    ?? undefined,
                             // New parser shape: deviation is a nested {key,name,description} object
-                            modifier:            v.modifier            ?? v.deviation?.name ?? undefined,
+                            modifier:            v.modifier || v.deviation?.name
+                                ? normalizeWorldStateLabel(String(v.modifier ?? v.deviation?.name ?? ""))
+                                : undefined,
                             modifierDescription: v.modifierDescription ?? v.deviation?.description ?? undefined,
                             // Per-mission risks from new parser shape
                             risks: Array.isArray(v.risks) ? v.risks.map(mapModifier) : undefined,

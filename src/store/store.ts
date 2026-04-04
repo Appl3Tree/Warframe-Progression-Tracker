@@ -97,6 +97,7 @@ export interface TrackerStore {
 
     getTodayTasks: () => DailyTask[];
 
+    addGoalCatalog: (catalogId: string, qty?: number, goalType?: "item" | "mod" | "arcane") => void;
     addGoalItem: (catalogId: string, qty?: number) => void;
     removeGoal: (goalId: string) => void;
     setGoalQty: (goalId: string, qty: number) => void;
@@ -652,7 +653,7 @@ export const useTrackerStore = create<TrackerStore>()(
                 return get().state.dailyTasks.filter((t) => t.dateYmd === today);
             },
 
-            addGoalItem: (catalogId, qty) => {
+            addGoalCatalog: (catalogId, qty, goalType = "item") => {
                 const cid = String(catalogId ?? "").trim();
                 if (!cid) return;
 
@@ -663,7 +664,7 @@ export const useTrackerStore = create<TrackerStore>()(
                     ensureUiExpansion(s.state);
                     ensureResetChecklistState(s.state);
 
-                    const existing = s.state.goals.find((g: any) => g.type === "item" && g.catalogId === cid);
+                    const existing = s.state.goals.find((g: any) => g.type === goalType && g.catalogId === cid);
                     if (existing) {
                         existing.qty = Math.max(1, existing.qty + q);
                         existing.isActive = true;
@@ -672,7 +673,7 @@ export const useTrackerStore = create<TrackerStore>()(
                         const iso = nowIso();
                         const goal: UserGoalV1 = {
                             id: uid("goal"),
-                            type: "item",
+                            type: goalType,
                             catalogId: cid,
                             qty: q,
                             isActive: true,
@@ -683,6 +684,10 @@ export const useTrackerStore = create<TrackerStore>()(
                     }
                     s.state.meta.updatedAtIso = nowIso();
                 });
+            },
+
+            addGoalItem: (catalogId, qty) => {
+                get().addGoalCatalog(catalogId, qty, "item");
             },
 
             removeGoal: (goalId) => {
