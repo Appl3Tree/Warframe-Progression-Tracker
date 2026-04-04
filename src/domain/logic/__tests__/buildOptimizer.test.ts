@@ -187,6 +187,42 @@ describe("build optimizer scoring", () => {
         expect(magneticScore).toBeGreaterThan(radiationScore);
     });
 
+    it("does not award radiation confusion utility against ungrouped corpus targets", () => {
+        const weapon = makeWeapon({
+            damage: {
+                total: 100,
+                impact: 0,
+                puncture: 0,
+                slash: 0,
+                heat: 0,
+                cold: 0,
+                electricity: 0,
+                toxin: 0,
+                blast: 0,
+                radiation: 0,
+                gas: 0,
+                magnetic: 0,
+                viral: 0,
+                corrosive: 0,
+                void: 0,
+                tau: 0,
+                true: 0,
+            },
+            statusChance: 0.8,
+            critChance: 0,
+            critMultiplier: 1,
+            fireRate: 12,
+        });
+
+        const radiationPackage = { ...emptyEffect(), radiationBonus: 1 };
+        const heatPackage = { ...emptyEffect(), heatBonus: 1 };
+
+        const radiationScore = debugScoreBuild(weapon, [radiationPackage], "scaling", "corpus");
+        const heatScore = debugScoreBuild(weapon, [heatPackage], "scaling", "corpus");
+
+        expect(heatScore).toBeGreaterThan(radiationScore);
+    });
+
     it("treats magnetic as resisted and toxin as favored against narmer", () => {
         const weapon = makeWeapon({
             damage: {

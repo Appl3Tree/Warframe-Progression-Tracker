@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" href="/Tenno-Hub/favicon-rounded.ico" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/Tenno-Hub/favicon-rounded-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/Tenno-Hub/favicon-rounded-16x16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/Tenno-Hub/favicon-rounded-180x180.png" />
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        />
+
+        <meta
+            http-equiv="Cache-Control"
+            content="no-cache, no-store, must-revalidate"
+        />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+
+        <meta name="wfpt-build-id" content="8b9e661" />
+
+        <title>Tenno Hub</title>
+
+        <script>
+            (() => {
+                const BUILD_ID = "8b9e661";
+                const url = new URL(window.location.href);
+                const currentVersion = url.searchParams.get("version");
+
+                if (currentVersion !== BUILD_ID) {
+                    url.searchParams.set("version", BUILD_ID);
+                    window.location.replace(url.toString());
+                }
+            })();
+        </script>
+      <script type="module" crossorigin src="/Tenno-Hub/assets/index-vYGcrvRO.js"></script>
+      <link rel="stylesheet" crossorigin href="/Tenno-Hub/assets/index-CHMPayMH.css">
+    </head>
+    <body>
+        <div id="root"></div>
+    </body>
+</html>

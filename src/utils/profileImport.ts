@@ -203,6 +203,19 @@ function addXp(
     xpByItem[key] = typeof prev === "number" ? Math.max(prev, next) : next;
 }
 
+function addXpFromEntries(
+    xpByItem: Record<string, number>,
+    entries: unknown,
+    pathKey: "type" | "uniqueName" | "ItemType" = "type",
+    xpKey: "xp" | "XP" = "xp"
+): void {
+    if (!Array.isArray(entries)) return;
+    for (const entry of entries) {
+        if (!isObject(entry)) continue;
+        addXp(xpByItem, entry[pathKey], entry[xpKey]);
+    }
+}
+
 /**
  * Returns the mastery XP threshold for an item based on its internal path.
  *
@@ -895,6 +908,44 @@ export function parseProfileViewingData(inputText: string): ProfileImportResult 
     };
 }
 
+export function parseProfileImportText(inputText: string): ProfileImportResult {
+    const trimmed = String(inputText ?? "").trim();
+    if (!trimmed) {
+        throw new Error("No profile data provided.");
+    }
+
+    if (trimmed.startsWith("<") || trimmed.toLowerCase().includes("<!doctype")) {
+        return parseProfileViewingData(trimmed);
+    }
+
+    let payload: any;
+    try {
+        payload = JSON.parse(trimmed);
+    } catch {
+        return parseProfileViewingData(trimmed);
+    }
+
+    const looksLikeViewingData = isObject(payload) && (
+        Array.isArray(payload.Results) ||
+        isObject(payload.LoadOutInventory) ||
+        typeof payload.DisplayName === "string" ||
+        typeof payload.PlayerLevel !== "undefined"
+    );
+
+    const looksLikeWsApi = isObject(payload) && (
+        typeof payload.displayName === "string" ||
+        isObject(payload.loadout) ||
+        Array.isArray(payload.xpInfo) ||
+        Array.isArray(payload.syndicates) ||
+        Array.isArray(payload.missions)
+    );
+
+    if (looksLikeViewingData) return parseProfileViewingData(trimmed);
+    if (looksLikeWsApi) return parseWarframeStatApiProfile(payload);
+
+    return parseProfileViewingData(trimmed);
+}
+
 // ---------------------------------------------------------------------------
 // warframestat.us profile API parser
 // Handles the flat JSON returned by https://api.warframestat.us/profile/{id}
@@ -1013,9 +1064,18 @@ export function parseWarframeStatApiProfile(json: any): ProfileImportResult {
     // ── XP / Mastery ────────────────────────────────────────────────────────
     const xpByItem: Record<string, number> = {};
     if (Array.isArray(json.xpInfo)) {
-        for (const entry of json.xpInfo) {
-            if (!isObject(entry)) continue;
-            addXp(xpByItem, entry.type, entry.xp);
+        addXpFromEntries(xpByItem, json.xpInfo, "type", "xp");
+    }
+
+    const loadout = isObject(json.loadout) ? json.loadout : null;
+    if (loadout) {
+        // Newer warframestat.us profile responses expose mastery XP here.
+        addXpFromEntries(xpByItem, loadout.xpInfo, "uniqueName", "xp");
+
+        // Fallback: some payloads only expose XP on the loadout item arrays.
+        for (const value of Object.values(loadout)) {
+            if (!Array.isArray(value)) continue;
+            addXpFromEntries(xpByItem, value, "uniqueName", "xp");
         }
     }
     const mastery = {

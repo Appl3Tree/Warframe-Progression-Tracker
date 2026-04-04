@@ -5,7 +5,7 @@ import type { CatalogId } from "../../domain/catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
 import type { AcquisitionDef } from "./acquisitionFromSources";
 
-import relicsJson from "../../../external/warframe-drop-data/raw/relics.json";
+import relicsJson from "../../data/_generated/relics-lean.auto.json";
 
 function normalizeSpaces(s: string): string {
     return s.replace(/\s+/g, " ").trim();
@@ -60,9 +60,14 @@ function isProjectionRelic(catalogId: CatalogId, rec: any): boolean {
     return /\/Types\/Game\/Projections\//i.test(u);
 }
 
-function getRelicsArray(): any[] {
-    const arr = (relicsJson as any)?.relics ?? (relicsJson as any);
-    return Array.isArray(arr) ? arr : [];
+type LeanRelicEntry = {
+    tier?: string;
+    relicName?: string;
+    locations?: string[];
+};
+
+function getRelicsArray(): LeanRelicEntry[] {
+    return Array.isArray(relicsJson) ? (relicsJson as LeanRelicEntry[]) : [];
 }
 
 function getLocationStrings(relic: any): string[] {
@@ -150,4 +155,3 @@ export function deriveRelicFarmLocationsAcquisitionByCatalogId(): Record<string,
 
     return out;
 }
-

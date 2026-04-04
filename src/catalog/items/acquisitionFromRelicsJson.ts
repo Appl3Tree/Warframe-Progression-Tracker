@@ -6,7 +6,7 @@ import { FULL_CATALOG } from "../../domain/catalog/loadFullCatalog";
 
 import type { AcquisitionDef } from "./acquisitionFromSources";
 
-import relicsJson from "../../../external/warframe-drop-data/raw/relics.json";
+import relicsJson from "../../data/_generated/relics-lean.auto.json";
 
 function normalizeSpaces(s: string): string {
     return s.replace(/\s+/g, " ").trim();
@@ -86,7 +86,7 @@ type RelicsRow = {
 };
 
 function buildRelicsJsonKeyToSourceId(): Map<string, string> {
-    const arr = (relicsJson as any)?.relics ?? (relicsJson as any);
+    const arr = relicsJson as RelicsRow[];
     const map = new Map<string, string>();
 
     if (!Array.isArray(arr)) return map;
@@ -141,4 +141,3 @@ export function deriveRelicsJsonAcquisitionByCatalogId(): Record<string, Acquisi
 
     return out;
 }
-

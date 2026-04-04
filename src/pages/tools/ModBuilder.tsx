@@ -8,7 +8,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getWeaponCatalog, type WeaponCategory, type WeaponEntry } from "../../domain/catalog/weaponCatalog";
 import { getModsForWeapon, getStancesForWeapon, type ModEntry, type ModEffect, emptyEffect } from "../../domain/catalog/modCatalog";
-import { getArcanesByWeaponCategory, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
+import { getArcanesForWeapon, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
 import { calculateBuild } from "../../domain/logic/damageCalc";
 import { optimizeBuild, explainBuild, debugScoreBuild, getFactionFocusOptions, minimizePolaritiesByCapacity, type OptimizeGoal, type BuildReasoning, type LegacyOptimizeGoal } from "../../domain/logic/buildOptimizer";
 import { buildCustomRivenEntry, customRivenSupportsWeapon, type CustomRivenRecord } from "../../domain/rivens";
@@ -1586,7 +1586,7 @@ function SavedBuildsPanel({ weapon, availableMods, currentSlots, currentRanks, c
     const saveModBuild = useTrackerStore(s => s.saveModBuild);
     const deleteBuild  = useTrackerStore(s => s.deleteModBuild);
     const allMods      = useMemo(() => availableMods, [availableMods]);
-    const panelArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
+    const panelArcanes = useMemo(() => weapon ? getArcanesForWeapon(weapon) : [], [weapon]);
     const [saveName, setSaveName] = useState("");
     const [saving, setSaving]     = useState(false);
     const [comparing, setComparing] = useState<Set<string>>(new Set());
@@ -1905,7 +1905,7 @@ function OwnedArcanesPanel({ weapon }: { weapon: WeaponEntry | null }) {
     const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? EMPTY_COUNTS);
     const setArcaneRankCount = useTrackerStore(s => s.setArcaneRankCount);
     const [query, setQuery] = useState("");
-    const allArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
+    const allArcanes = useMemo(() => weapon ? getArcanesForWeapon(weapon) : [], [weapon]);
     const filtered = useMemo(() => {
         const q = query.toLowerCase();
         return allArcanes.filter(a => !q || a.name.toLowerCase().includes(q));
@@ -2097,7 +2097,7 @@ export default function ModBuilder() {
         return [...baseMods, ...customRivens];
     }, [weapon, inventoryCustomRivens]);
     const stanceMods   = useMemo(() => weapon ? getStancesForWeapon(weapon) : [], [weapon]);
-    const weaponArcanes = useMemo(() => weapon ? getArcanesByWeaponCategory(weapon.category) : [], [weapon]);
+    const weaponArcanes = useMemo(() => weapon ? getArcanesForWeapon(weapon) : [], [weapon]);
     const ownedSet     = useMemo(() => new Set(
         compatMods
             .filter(mod => mod.compatBucket === "Riven" || Number(inventoryCounts[`mods:${mod.path}`] ?? inventoryCounts[mod.path] ?? 0) > 0)

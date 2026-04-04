@@ -247,6 +247,9 @@ export const useTrackerStore = create<TrackerStore>()(
             state: makeDefaultState(),
 
             setActivePage: (page) => {
+                if (page !== "search_detail" && typeof window !== "undefined" && window.location.hash.startsWith("#search-detail")) {
+                    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+                }
                 set((s) => {
                     s.state.ui.activePage = page;
                     s.state.meta.updatedAtIso = nowIso();
@@ -380,8 +383,8 @@ export const useTrackerStore = create<TrackerStore>()(
 
             importProfileViewingDataJson: async (text) => {
                 try {
-                    const { parseProfileViewingData } = await import("../utils/profileImport");
-                    const parsed = parseProfileViewingData(text);
+                    const { parseProfileImportText } = await import("../utils/profileImport");
+                    const parsed = parseProfileImportText(text);
                     set((s) => { applyParsedProfile(s.state, parsed); });
                     return { ok: true };
                 } catch (e: any) {

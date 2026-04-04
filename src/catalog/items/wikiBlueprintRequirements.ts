@@ -44,8 +44,30 @@ function safeCount(value: unknown): number {
     return Math.max(0, Math.floor(n));
 }
 
-const WIKI_BLUEPRINTS: Record<string, WikiBlueprintRecord> =
-    ((WIKI_BLUEPRINTS_JSON as any)?.Blueprints ?? {}) as Record<string, WikiBlueprintRecord>;
+function looksLikeWikiBlueprintRecord(value: unknown): value is WikiBlueprintRecord {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+    const record = value as WikiBlueprintRecord;
+    return Boolean(record.Name || record.Result || record.Parts);
+}
+
+function collectWikiBlueprintRecords(raw: unknown): Record<string, WikiBlueprintRecord> {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+
+    const out: Record<string, WikiBlueprintRecord> = {};
+
+    for (const section of Object.values(raw as Record<string, unknown>)) {
+        if (!section || typeof section !== "object" || Array.isArray(section)) continue;
+
+        for (const [key, value] of Object.entries(section as Record<string, unknown>)) {
+            if (!looksLikeWikiBlueprintRecord(value)) continue;
+            out[key] = value;
+        }
+    }
+
+    return out;
+}
+
+const WIKI_BLUEPRINTS: Record<string, WikiBlueprintRecord> = collectWikiBlueprintRecords(WIKI_BLUEPRINTS_JSON as any);
 
 const WIKI_BY_RESULT = new Map<string, WikiBlueprintRecord>();
 const WIKI_BY_BLUEPRINT_NAME = new Map<string, WikiBlueprintRecord>();

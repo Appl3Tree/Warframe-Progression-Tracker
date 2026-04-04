@@ -36,6 +36,14 @@ export const NAV_ROUTES: NavRoute[] = [
     { key: "diagnostics", label: "Diagnostics", shortLabel: "Diag", desc: "Validation and debug output.", mode: "system" },
 ];
 
+export const SEARCH_DETAIL_ROUTE: NavRoute = {
+    key: "search_detail",
+    label: "Search Detail",
+    shortLabel: "Detail",
+    desc: "Focused dossier view for an item, mod, or arcane.",
+    mode: "collection",
+};
+
 export const WORK_MODE_META: Record<WorkModeKey, { label: string; desc: string }> = {
     command: {
         label: "Command",
@@ -62,6 +70,9 @@ export const WORK_MODE_META: Record<WorkModeKey, { label: string; desc: string }
 export const WORK_MODE_ORDER: WorkModeKey[] = ["command", "progression", "collection", "planning", "system"];
 
 export function getRouteByKey(key: PageKey): NavRoute {
+    if (key === "search_detail") {
+        return SEARCH_DETAIL_ROUTE;
+    }
     if (key === "relics") {
         return NAV_ROUTES.find((route) => route.key === "relic_planner") ?? NAV_ROUTES[0];
     }

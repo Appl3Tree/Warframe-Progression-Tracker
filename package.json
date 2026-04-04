@@ -16,7 +16,7 @@
     "update:data:warframe-items": "node --import tsx/esm scripts/updateExternalRawData.ts warframe-items",
     "update:data:drop-data": "node --import tsx/esm scripts/updateExternalRawData.ts warframe-drop-data",
     "generate:wiki-blueprints": "node --import tsx/esm scripts/generate/generateWikiBlueprints.ts",
-    "generate:data": "tsx scripts/generate/generateLeanItems.ts && tsx scripts/generate/generateLeanWarframeAll.ts && tsx scripts/generate/generateLeanMods.ts && tsx scripts/generate/generateLeanRelicCatalog.ts && tsx scripts/generate/generateWfcdItems.ts && tsx scripts/generate/generateWfcdRequirements.ts && tsx scripts/generate/generateRelicMissionIndex.ts && tsx scripts/generate/generateWfcdAcquisition.ts && tsx scripts/generate/generateSourceLabelMap.ts && tsx scripts/generate/generateUnifiedItemAcquisition.ts",
+    "generate:data": "tsx scripts/generate/generateLeanItems.ts && tsx scripts/generate/generateLeanWarframeAll.ts && tsx scripts/generate/generateLeanMods.ts && tsx scripts/generate/generateLeanRelicCatalog.ts && tsx scripts/generate/generateWfcdItems.ts && tsx scripts/generate/generateWfcdRequirements.ts && tsx scripts/generate/generateRelicMissionIndex.ts && tsx scripts/generate/generateWfcdAcquisition.ts && tsx scripts/generate/generateSourceLabelMap.ts && tsx scripts/generate/generateUnifiedItemAcquisition.ts && tsx scripts/generate/generateRelicGoalIndex.ts && tsx scripts/generate/generatePrimeAvailabilityIndex.ts",
     "refresh:data": "npm run update:data && npm run generate:data",
     "test": "vitest run",
     "test:watch": "vitest"

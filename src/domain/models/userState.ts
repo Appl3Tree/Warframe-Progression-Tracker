@@ -9,6 +9,7 @@ import type {
 export type PageKey =
     | "dashboard"
     | "world_state"
+    | "search_detail"
     | "prereqs"
     | "syndicates"
     | "goals"

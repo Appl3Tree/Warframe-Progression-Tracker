@@ -1,5 +1,5 @@
 // src/pages/Relics.tsx
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
 import IconCommon from "../assets/rarity/IconCommon.png";
@@ -7,14 +7,17 @@ import IconRare from "../assets/rarity/IconRare.png";
 import IconUncommon from "../assets/rarity/IconUncommon.png";
 import {
     expandRelicGoalItemNames,
+    getAllRelics,
     scoreRelicsForItems,
     type RelicEntry,
     type ScoredRelic,
 } from "../domain/catalog/relicCatalog";
-import { getRelicAvailabilityStatus, type PrimeAvailabilityStatus } from "../domain/catalog/vaultedItems";
-import { useWorldStateData } from "../lib/useWorldStateData";
-import { WorkspacePanel, WorkspaceSegmented, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
-import { buildRelicGoalItemNames } from "../domain/logic/relicGoalExpansion";
+import { getRelicAvailabilityStatus, type RelicAvailabilityStatus } from "../domain/catalog/relicAvailability";
+import { useVaultTraderData } from "../lib/useVaultTraderData";
+import { WorkspaceSegmented, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
+import { buildRelicGoalItemNames, getRelicGoalDisplayName } from "../domain/logic/relicGoalExpansion";
+
+const VoidTraceCalc = lazy(() => import("./relics/VoidTraceCalc"));
 
 // ---- Helpers ----
 
@@ -71,7 +74,49 @@ function RarityBadge({ rarity }: { rarity: string }) {
     );
 }
 
-function MissionList({ relic, availability }: { relic: RelicEntry; availability: PrimeAvailabilityStatus }) {
+function renderHighlightedText(text: string, query: string, highlightClassName: string) {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return text;
+
+    const lowerText = text.toLowerCase();
+    const lowerQuery = trimmedQuery.toLowerCase();
+    const parts: Array<string | { match: string; key: string }> = [];
+
+    let startIndex = 0;
+    let matchIndex = lowerText.indexOf(lowerQuery, startIndex);
+    while (matchIndex !== -1) {
+        if (matchIndex > startIndex) {
+            parts.push(text.slice(startIndex, matchIndex));
+        }
+
+        const endIndex = matchIndex + trimmedQuery.length;
+        parts.push({
+            match: text.slice(matchIndex, endIndex),
+            key: `${matchIndex}-${endIndex}-${parts.length}`,
+        });
+
+        startIndex = endIndex;
+        matchIndex = lowerText.indexOf(lowerQuery, startIndex);
+    }
+
+    if (parts.length === 0) return text;
+    if (startIndex < text.length) {
+        parts.push(text.slice(startIndex));
+    }
+
+    return parts.map((part) =>
+        typeof part === "string" ? part : (
+            <mark
+                key={part.key}
+                className={`rounded bg-transparent px-0 font-semibold underline decoration-2 underline-offset-2 ${highlightClassName}`}
+            >
+                {part.match}
+            </mark>
+        )
+    );
+}
+
+function MissionList({ relic, availability }: { relic: RelicEntry; availability: RelicAvailabilityStatus }) {
     const [expanded, setExpanded] = useState(false);
     if (relic.missions.length === 0) {
         if (availability === "prime_resurgence") {
@@ -81,12 +126,14 @@ function MissionList({ relic, availability }: { relic: RelicEntry; availability:
     }
 
     // Deduplicate by pathLabel, keep highest chance per path
-    const deduped = new Map<string, { pathLabel: string; rotation: string; chance: number }>();
-    for (const m of relic.missions) {
-        const existing = deduped.get(m.pathLabel);
-        if (!existing || m.chance > existing.chance) deduped.set(m.pathLabel, m);
-    }
-    const missions = Array.from(deduped.values()).sort((a, b) => b.chance - a.chance);
+    const missions = useMemo(() => {
+        const deduped = new Map<string, { pathLabel: string; rotation: string; chance: number }>();
+        for (const m of relic.missions) {
+            const existing = deduped.get(m.pathLabel);
+            if (!existing || m.chance > existing.chance) deduped.set(m.pathLabel, m);
+        }
+        return Array.from(deduped.values()).sort((a, b) => b.chance - a.chance);
+    }, [relic.missions]);
     const shown = expanded ? missions : missions.slice(0, 3);
 
     return (
@@ -122,16 +169,19 @@ function MissionList({ relic, availability }: { relic: RelicEntry; availability:
 }
 
 function RelicCard({
-    scored, goalItems, availability,
+    scored, goalItems, availability, searchQuery, showAllRewardsByDefault,
 }: {
     scored: ScoredRelic;
     goalItems: Set<string>;
-    availability: PrimeAvailabilityStatus;
+    availability: RelicAvailabilityStatus;
+    searchQuery: string;
+    showAllRewardsByDefault: boolean;
 }) {
     const { relic, matchedItems } = scored;
-    const [showAll, setShowAll] = useState(false);
+    const [showAllLocalOverride, setShowAllLocalOverride] = useState<boolean | null>(null);
     const [refinement, setRefinement] = useState<(typeof REFINEMENT_COSTS)[number]["label"]>("Intact");
     const refinementConfig = REFINEMENT_COSTS.find((r) => r.label === refinement) ?? REFINEMENT_COSTS[0];
+    const showAll = showAllLocalOverride ?? showAllRewardsByDefault;
 
     // Separate matched rewards (from goals) from the rest
     const allRewards = relic.rewards;
@@ -147,7 +197,9 @@ function RelicCard({
             {/* Header */}
             <div className="flex items-center gap-2 mb-2">
                 <TierBadge tier={relic.tier} />
-                <span className="text-sm font-semibold text-slate-100">{relic.displayName}</span>
+                <span className="text-sm font-semibold text-slate-100">
+                    {renderHighlightedText(relic.displayName, searchQuery, "text-amber-200")}
+                </span>
                 {availability === "prime_resurgence" && (
                     <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded border border-violet-700/50 bg-violet-950/30 text-violet-300 font-semibold shrink-0">
                         PRIME RESURGENCE
@@ -182,24 +234,32 @@ function RelicCard({
             </div>
 
             {/* Matched items (from goals) */}
-            <div className="space-y-1 mb-2">
-                {matchedItems.map((rw) => (
-                    <div key={rw.itemName} className="flex items-center gap-1.5 text-xs">
-                        <RarityBadge rarity={rw.rarity} />
-                        <span className="text-slate-200 font-medium">{rw.itemName}</span>
-                        <span className="ml-auto text-slate-500 text-[10px] font-mono">
-                            {refinementConfig.dropRates[rw.rarity]}%
-                        </span>
-                    </div>
-                ))}
-            </div>
+            {matchedItems.length > 0 ? (
+                <div className="space-y-1 mb-2">
+                    {matchedItems.map((rw) => (
+                        <div key={rw.itemName} className="flex items-center gap-1.5 text-xs">
+                            <RarityBadge rarity={rw.rarity} />
+                            <span className="text-slate-200 font-medium">
+                                {renderHighlightedText(rw.itemName, searchQuery, "text-amber-200")}
+                            </span>
+                            <span className="ml-auto text-slate-500 text-[10px] font-mono">
+                                {refinementConfig.dropRates[rw.rarity]}%
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="mb-2 rounded-lg border border-slate-800/80 bg-slate-950/40 px-2.5 py-2 text-[11px] text-slate-500">
+                    No active goal rewards in this relic. Expand the other rewards list to inspect its full drop table.
+                </div>
+            )}
 
             {/* Other rewards (collapsible) */}
             {otherRewards.length > 0 && (
                 <>
                     <button
                         className="text-[10px] text-slate-600 hover:text-slate-400 transition-colors mb-1"
-                        onClick={() => setShowAll((x) => !x)}
+                        onClick={() => setShowAllLocalOverride((current) => !(current ?? showAllRewardsByDefault))}
                     >
                         {showAll ? "Hide other rewards" : `Show ${otherRewards.length} other rewards`}
                     </button>
@@ -208,7 +268,7 @@ function RelicCard({
                             {otherRewards.map((rw) => (
                                 <div key={rw.itemName} className="flex items-center gap-1.5 text-[10px] text-slate-500">
                                     <RarityBadge rarity={rw.rarity} />
-                                    <span>{rw.itemName}</span>
+                                    <span>{renderHighlightedText(rw.itemName, searchQuery, "text-amber-200")}</span>
                                     <span className="ml-auto font-mono">{refinementConfig.dropRates[rw.rarity]}%</span>
                                 </div>
                             ))}
@@ -226,161 +286,8 @@ function RelicCard({
     );
 }
 
-// ---- Void Trace Calculator ----
-
-function VoidTraceCalc() {
-    const [traces, setTraces] = useState(0);
-    const [target, setTarget] = useState<"Exceptional" | "Flawless" | "Radiant">("Radiant");
-    const [runs, setRuns] = useState(10);
-
-    const targetLevel = REFINEMENT_COSTS.find((r) => r.label === target)!;
-    const cost = targetLevel.traces;
-    const canRefine = cost > 0 ? Math.floor(traces / cost) : Infinity;
-
-    return (
-        <div className="space-y-4">
-            <WorkspacePanel className="p-4">
-                <div className="text-lg font-semibold mb-1">Void Trace Budget</div>
-                <p className="text-sm text-slate-400 mb-4">
-                    Refining relics improves drop rates. Each refinement consumes void traces. See how many refinements you can afford.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Void traces you have</label>
-                        <input
-                            type="number"
-                            min={0}
-                            max={3300}
-                            value={traces}
-                            onChange={(e) => setTraces(Math.max(0, Math.min(3300, parseInt(e.target.value) || 0)))}
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-slate-500"
-                        />
-                        <div className="text-[10px] text-slate-600 mt-1">Max capacity: 3,300 traces</div>
-                    </div>
-                    <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Target refinement</label>
-                        <WorkspaceSegmented className="w-full gap-1.5 border-slate-700 bg-slate-900/40 shadow-none">
-                            {(["Exceptional", "Flawless", "Radiant"] as const).map((lvl) => (
-                                <WorkspaceSegmentedButton
-                                    key={lvl}
-                                    onClick={() => setTarget(lvl)}
-                                    active={target === lvl}
-                                    className="flex-1 rounded-lg border border-slate-700 px-2 py-2 text-xs"
-                                >
-                                    {lvl}
-                                </WorkspaceSegmentedButton>
-                            ))}
-                        </WorkspaceSegmented>
-                    </div>
-                </div>
-
-                <div className="mt-4 rounded-xl border border-slate-700 bg-slate-900/50 p-3">
-                    <div className="text-sm text-slate-300">
-                        With <span className="text-slate-100 font-semibold">{traces.toLocaleString()} traces</span> you can
-                        refine to <span className="text-slate-100 font-semibold">{target}</span>
-                    </div>
-                    <div className="text-2xl font-bold mt-1">
-                        {cost === 0 ? "∞" : canRefine.toLocaleString()}
-                        <span className="text-sm text-slate-400 font-normal ml-2">times</span>
-                    </div>
-                    {cost > 0 && (
-                        <div className="text-xs text-slate-500 mt-1">
-                            {cost} traces per refinement
-                            {canRefine > 0 && ` · ${(canRefine * cost).toLocaleString()} traces used · ${(traces - canRefine * cost).toLocaleString()} remaining`}
-                        </div>
-                    )}
-                </div>
-            </WorkspacePanel>
-
-            {/* Drop rate comparison table */}
-            <WorkspacePanel className="p-4">
-                <div className="text-lg font-semibold mb-1">Drop Rate Comparison</div>
-                <p className="text-sm text-slate-400 mb-4">
-                    How refinement improves your odds. Each relic has 3 common, 2 uncommon, and 1 rare slot.
-                </p>
-
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm border-collapse">
-                        <thead>
-                            <tr className="text-[11px] uppercase tracking-wide text-slate-500">
-                                <th className="text-left pb-2 pr-4">Refinement</th>
-                                <th className="text-right pb-2 pr-4">Cost</th>
-                                <th className="text-right pb-2 pr-4 text-amber-400">Rare</th>
-                                <th className="text-right pb-2 pr-4 text-slate-300">Uncommon</th>
-                                <th className="text-right pb-2">Common</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800/50">
-                            {REFINEMENT_COSTS.map((lvl) => (
-                                <tr
-                                    key={lvl.label}
-                                    className={[
-                                        "transition-colors",
-                                        lvl.label === target ? "bg-slate-800/40" : ""
-                                    ].join(" ")}
-                                >
-                                    <td className="py-2 pr-4 text-slate-200 font-medium">
-                                        {lvl.label}
-                                        {lvl.label === target && (
-                                            <span className="ml-2 text-[10px] text-slate-500">← selected</span>
-                                        )}
-                                    </td>
-                                    <td className="py-2 pr-4 text-right text-slate-400 font-mono">
-                                        {lvl.traces === 0 ? "free" : `${lvl.traces} traces`}
-                                    </td>
-                                    <td className="py-2 pr-4 text-right text-amber-400 font-mono font-semibold">
-                                        {lvl.dropRates.Rare}%
-                                    </td>
-                                    <td className="py-2 pr-4 text-right text-slate-300 font-mono">
-                                        {lvl.dropRates.Uncommon}%
-                                    </td>
-                                    <td className="py-2 text-right text-slate-400 font-mono">
-                                        {lvl.dropRates.Common}%
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                <p className="text-[11px] text-slate-600 mt-3">
-                    Percentages are per-slot. Each slot is rolled independently. With 4 players each picking a reward, the effective rare chance per run is roughly 4× the per-slot rate when running Radiant relics cooperatively.
-                </p>
-            </WorkspacePanel>
-
-            {/* Runs calculator */}
-            <WorkspacePanel className="p-4">
-                <div className="text-lg font-semibold mb-1">Runs → Traces Earned</div>
-                <p className="text-sm text-slate-400 mb-4">
-                    Estimate how many traces you'll earn from cracking relics. Opening a relic rewards traces based on how rare your chosen reward was.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Planned runs</label>
-                        <input
-                            type="number"
-                            min={1}
-                            max={1000}
-                            value={runs}
-                            onChange={(e) => setRuns(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))}
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-slate-500"
-                        />
-                    </div>
-                    <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-3">
-                        <div className="text-xs text-slate-400">Estimated traces earned</div>
-                        <div className="text-xl font-bold mt-0.5">{(runs * 6).toLocaleString()}</div>
-                        <div className="text-[10px] text-slate-500 mt-1">~6 traces/run average (varies by rarity picked)</div>
-                    </div>
-                </div>
-            </WorkspacePanel>
-        </div>
-    );
-}
-
 export default function RelicPlanner() {
-    const worldState = useWorldStateData();
+    const vaultTrader = useVaultTraderData();
     const { goals, inventory } = useTrackerStore(
         useShallow((s) => ({
             goals: s.state.goals ?? [],
@@ -391,18 +298,36 @@ export default function RelicPlanner() {
     const [tab, setTab] = useState<"goals" | "traces">("goals");
     const [tierFilter, setTierFilter] = useState<string>("all");
     const [showVaulted, setShowVaulted] = useState(false);
+    const [limitToGoalItems, setLimitToGoalItems] = useState(false);
+    const [showAllOtherRewards, setShowAllOtherRewards] = useState(false);
     const [showNeededItems, setShowNeededItems] = useState(true);
     const [relicSearch, setRelicSearch] = useState("");
 
     // Find all relic-sourced items and map to relic catalog entries
     const { scoredRelics, goalItemNames } = useMemo(() => {
-        const itemNames = buildRelicGoalItemNames({
-            goals: goals.filter((g) => g.isActive),
+        const activeItemGoals = goals.filter((g) => g.isActive && g.type === "item");
+
+        let itemNames = buildRelicGoalItemNames({
+            goals: activeItemGoals,
             inventory,
         });
 
-        const expandedItemNames = expandRelicGoalItemNames(itemNames);
-        const scored = scoreRelicsForItems(expandedItemNames);
+        let expandedItemNames = expandRelicGoalItemNames(itemNames);
+        let scored = scoreRelicsForItems(expandedItemNames);
+
+        if (scored.length === 0 && activeItemGoals.length > 0) {
+            const fallbackNames = new Set<string>();
+            for (const goal of activeItemGoals) {
+                const displayName = getRelicGoalDisplayName(String(goal.catalogId));
+                if (displayName) fallbackNames.add(displayName);
+            }
+
+            if (fallbackNames.size > 0) {
+                itemNames = fallbackNames;
+                expandedItemNames = expandRelicGoalItemNames(itemNames);
+                scored = scoreRelicsForItems(expandedItemNames);
+            }
+        }
 
         // Only include items that actually appear in at least one relic —
         // farmingItems may contain non-relic targets (crafting, vendors, etc.)
@@ -416,10 +341,33 @@ export default function RelicPlanner() {
         return { scoredRelics: scored, goalItemNames };
     }, [goals, inventory]);
 
+    const browsableRelics = useMemo(() => {
+        const scored = getAllRelics().map((relic) => {
+            const matchedItems = relic.rewards.filter((rw) => goalItemNames.has(rw.itemName));
+            const score = matchedItems.reduce((sum, rw) => {
+                const rarityBonus = rw.rarity === "Rare" ? 1.5 : rw.rarity === "Uncommon" ? 1.1 : 1.0;
+                return sum + rarityBonus;
+            }, 0);
+            return { relic, matchedItems, score };
+        });
+
+        return scored.sort((a, b) => b.score - a.score || a.relic.key.localeCompare(b.relic.key));
+    }, [goalItemNames]);
+
+    const relicPool = limitToGoalItems ? scoredRelics : browsableRelics;
+
+    const availabilityByRelicKey = useMemo(() => {
+        const entries = relicPool.map((sr) => [
+            sr.relic.key,
+            getRelicAvailabilityStatus(sr.relic.key, sr.relic.isActive, vaultTrader),
+        ] as const);
+        return new Map<string, RelicAvailabilityStatus>(entries);
+    }, [relicPool, vaultTrader]);
+
     const filteredRelics = useMemo(() => {
         const query = relicSearch.trim().toLowerCase();
-        return scoredRelics.filter((sr) => {
-            const availability = getRelicAvailabilityStatus(sr.relic.key, sr.relic.isActive, worldState);
+        return relicPool.filter((sr) => {
+            const availability = availabilityByRelicKey.get(sr.relic.key) ?? "vaulted";
             if (!showVaulted && availability === "vaulted") return false;
             if (tierFilter !== "all" && sr.relic.tier.toLowerCase() !== tierFilter) return false;
             if (!query) return true;
@@ -428,7 +376,20 @@ export default function RelicPlanner() {
             if (sr.relic.relicName.toLowerCase().includes(query)) return true;
             return sr.relic.rewards.some((reward) => reward.itemName.toLowerCase().includes(query));
         });
-    }, [relicSearch, scoredRelics, showVaulted, tierFilter, worldState]);
+    }, [availabilityByRelicKey, relicPool, relicSearch, showVaulted, tierFilter]);
+
+    const relicStats = useMemo(() => {
+        let active = 0;
+        let resurgence = 0;
+        let vaulted = 0;
+        for (const sr of relicPool) {
+            const availability = availabilityByRelicKey.get(sr.relic.key) ?? "vaulted";
+            if (availability === "available") active += 1;
+            else if (availability === "prime_resurgence") resurgence += 1;
+            else vaulted += 1;
+        }
+        return { active, resurgence, vaulted };
+    }, [availabilityByRelicKey, relicPool]);
 
     // Items that appear in the currently-visible (filtered) relics
     const filteredGoalItemNames = useMemo(() => {
@@ -443,6 +404,7 @@ export default function RelicPlanner() {
 
     const hasActiveGoals = goals.some((g) => g.isActive);
     const hasRelicItems = scoredRelics.length > 0;
+    const browseModeLabel = limitToGoalItems ? "Goal relics only" : "All relics";
 
     return (
         <div className="mx-auto max-w-[1500px] space-y-5 px-1 md:px-2">
@@ -468,7 +430,7 @@ export default function RelicPlanner() {
                         </div>
                         <div className="rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-2">
                             <div className="text-[10px] uppercase tracking-wide text-[color:var(--wf-text-dim)]">Relevant relics</div>
-                            <div className="mt-1 font-mono text-[color:var(--wf-text-strong)]">{scoredRelics.length}</div>
+                            <div className="mt-1 font-mono text-[color:var(--wf-text-strong)]">{relicPool.length}</div>
                         </div>
                         <div className="rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-3 py-2">
                             <div className="text-[10px] uppercase tracking-wide text-[color:var(--wf-text-dim)]">Visible now</div>
@@ -499,16 +461,16 @@ export default function RelicPlanner() {
             {/* Goal Tracker tab */}
             {tab === "goals" && (
                 <div className="space-y-4">
-                    {!hasActiveGoals ? (
+                    {limitToGoalItems && !hasActiveGoals ? (
                         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-6 text-center">
                             <div className="text-slate-400 text-sm">No active goals set.</div>
-                            <div className="text-slate-600 text-xs mt-1">Add goals in the Goals page to see which relics to farm.</div>
+                            <div className="text-slate-600 text-xs mt-1">Add goals in the Goals page or turn off Goal relics only to browse every relic.</div>
                         </div>
-                    ) : !hasRelicItems ? (
+                    ) : limitToGoalItems && !hasRelicItems ? (
                         <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-6 text-center">
                             <div className="text-slate-400 text-sm">No relic-farmable items found in your active goals.</div>
                             <div className="text-slate-600 text-xs mt-1">
-                                Your goals may require crafting, trading, or vendor purchases rather than relic cracking.
+                                Your goals may require crafting, trading, or vendor purchases rather than relic cracking. Turn off Goal relics only to browse every relic anyway.
                             </div>
                         </div>
                     ) : (
@@ -521,24 +483,35 @@ export default function RelicPlanner() {
                                 </div>
                                 <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                                     <div className="text-[11px] uppercase tracking-wide text-slate-400">Relevant relics</div>
-                                    <div className="mt-0.5 font-mono text-sm text-slate-100">{scoredRelics.length}</div>
+                                    <div className="mt-0.5 font-mono text-sm text-slate-100">{relicPool.length}</div>
                                 </div>
                                 <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                                     <div className="text-[11px] uppercase tracking-wide text-slate-400">Active relics</div>
                                     <div className="mt-0.5 font-mono text-sm text-slate-100">
-                                        {scoredRelics.filter((s) => s.relic.isActive).length}
+                                        {relicStats.active}
                                     </div>
                                 </div>
                                 <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
                                     <div className="text-[11px] uppercase tracking-wide text-slate-400">Prime Resurgence</div>
                                     <div className="mt-0.5 font-mono text-sm text-slate-100">
-                                        {scoredRelics.filter((s) => getRelicAvailabilityStatus(s.relic.key, s.relic.isActive, worldState) === "prime_resurgence").length}
+                                        {relicStats.resurgence}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Filters */}
                             <div className="flex flex-wrap gap-2 items-center">
+                                <button
+                                    onClick={() => setLimitToGoalItems((x) => !x)}
+                                    className={[
+                                        "rounded-full px-3 py-1 text-xs border transition-colors",
+                                        limitToGoalItems
+                                            ? "bg-[color:var(--wf-accent-primary)]/15 text-[color:var(--wf-accent-primary)] border-[color:var(--wf-accent-primary)]/40"
+                                            : "bg-slate-950/40 text-slate-300 border-slate-700 hover:bg-slate-900"
+                                    ].join(" ")}
+                                >
+                                    {limitToGoalItems ? "Goal relics only" : "All relics"}
+                                </button>
                                 <span className="text-xs text-slate-500">Tier:</span>
                                 {["all", "lith", "meso", "neo", "axi"].map((t) => (
                                     <button
@@ -565,6 +538,17 @@ export default function RelicPlanner() {
                                 >
                                     {showVaulted ? "Hide vaulted" : "Show vaulted"}
                                 </button>
+                                <button
+                                    onClick={() => setShowAllOtherRewards((x) => !x)}
+                                    className={[
+                                        "rounded-full px-3 py-1 text-xs border transition-colors",
+                                        showAllOtherRewards
+                                            ? "bg-amber-950/40 text-amber-200 border-amber-700/50"
+                                            : "bg-slate-950/40 text-slate-300 border-slate-700 hover:bg-slate-900"
+                                    ].join(" ")}
+                                >
+                                    {showAllOtherRewards ? "Hide all other rewards" : "Show all other rewards"}
+                                </button>
                             </div>
 
                             {/* Goal items needed */}
@@ -574,26 +558,36 @@ export default function RelicPlanner() {
                                     onClick={() => setShowNeededItems((x) => !x)}
                                     className="flex w-full items-center justify-between gap-3 text-left"
                                 >
-                                    <div className="text-xs text-slate-500 uppercase tracking-wide">Items needed from relics</div>
+                                    <div className="text-xs text-slate-500 uppercase tracking-wide">
+                                        {limitToGoalItems ? "Items needed from relics" : "Goal items highlighted in current results"}
+                                    </div>
                                     <span className="text-slate-500 text-sm leading-none">{showNeededItems ? "▾" : "▸"}</span>
                                 </button>
                                 {showNeededItems && (
-                                    <div className="mt-2 flex flex-wrap gap-1.5">
-                                        {Array.from(filteredGoalItemNames).sort().map((name) => (
-                                            <span
-                                                key={name}
-                                                className="text-xs px-2 py-0.5 rounded-full border border-slate-700 bg-slate-900/50 text-slate-300"
-                                            >
-                                                {name}
-                                            </span>
-                                        ))}
-                                    </div>
+                                    filteredGoalItemNames.size > 0 ? (
+                                        <div className="mt-2 flex flex-wrap gap-1.5">
+                                            {Array.from(filteredGoalItemNames).sort().map((name) => (
+                                                <span
+                                                    key={name}
+                                                    className="text-xs px-2 py-0.5 rounded-full border border-slate-700 bg-slate-900/50 text-slate-300"
+                                                >
+                                                    {name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="mt-2 text-xs text-slate-500">
+                                            {hasActiveGoals
+                                                ? "No currently visible relics match your goal items."
+                                                : "Set active goals to highlight matching rewards here while browsing all relics."}
+                                        </div>
+                                    )
                                 )}
                             </div>
 
                             <div className="rounded-2xl border border-slate-800 bg-slate-950/30 p-3">
                                 <label className="text-[11px] uppercase tracking-wide text-slate-500 block mb-2">
-                                    Search Relics
+                                    Search {browseModeLabel}
                                 </label>
                                 <input
                                     type="text"
@@ -617,14 +611,16 @@ export default function RelicPlanner() {
                             ) : (
                                 <div className="space-y-2">
                                     <div className="text-xs text-slate-500">
-                                        Sorted by relevance — relics containing more of your needed items appear first.
-                                        {!showVaulted && scoredRelics.some((s) => getRelicAvailabilityStatus(s.relic.key, s.relic.isActive, worldState) === "vaulted") && (
+                                        {hasActiveGoals
+                                            ? "Sorted by relevance — relics containing more of your needed items appear first."
+                                            : "Sorted alphabetically until you add active goals, then matching relics rise to the top."}
+                                        {!showVaulted && relicStats.vaulted > 0 && (
                                             <span className="ml-1">
                                                 <button
                                                     className="text-red-400 hover:text-red-300 underline"
                                                     onClick={() => setShowVaulted(true)}
                                                 >
-                                                    {scoredRelics.filter((s) => getRelicAvailabilityStatus(s.relic.key, s.relic.isActive, worldState) === "vaulted").length} vaulted relics hidden
+                                                    {relicStats.vaulted} vaulted relics hidden
                                                 </button>
                                             </span>
                                         )}
@@ -634,7 +630,9 @@ export default function RelicPlanner() {
                                             key={sr.relic.key}
                                             scored={sr}
                                             goalItems={goalItemNames}
-                                            availability={getRelicAvailabilityStatus(sr.relic.key, sr.relic.isActive, worldState)}
+                                            availability={availabilityByRelicKey.get(sr.relic.key) ?? "vaulted"}
+                                            searchQuery={relicSearch}
+                                            showAllRewardsByDefault={showAllOtherRewards}
                                         />
                                     ))}
                                 </div>
@@ -645,7 +643,11 @@ export default function RelicPlanner() {
             )}
 
             {/* Void Trace Calc tab */}
-            {tab === "traces" && <VoidTraceCalc />}
+            {tab === "traces" && (
+                <Suspense fallback={<div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-6 text-sm text-slate-400">Loading trace tools…</div>}>
+                    <VoidTraceCalc />
+                </Suspense>
+            )}
         </div>
         </div>
     );

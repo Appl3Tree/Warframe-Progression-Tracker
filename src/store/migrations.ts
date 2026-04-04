@@ -121,11 +121,36 @@ function normalizeInventory(raw: any): any {
         counts[k] = Math.max(0, n);
     }
 
+    const rawModRanks = (inv as any).modRanks && typeof (inv as any).modRanks === "object"
+        ? (inv as any).modRanks
+        : {};
+    const modRanks: Record<string, number> = {};
+    for (const [k, v] of Object.entries(rawModRanks)) {
+        const n = typeof v === "number" ? v : Number(v);
+        if (!Number.isFinite(n)) continue;
+        modRanks[k] = Math.max(0, Math.floor(n));
+    }
+
+    const rawArcaneRanks = (inv as any).arcaneRanks && typeof (inv as any).arcaneRanks === "object"
+        ? (inv as any).arcaneRanks
+        : {};
+    const arcaneRanks: Record<string, Record<string, number>> = {};
+    for (const [path, byRank] of Object.entries(rawArcaneRanks)) {
+        if (!byRank || typeof byRank !== "object") continue;
+        const normalizedByRank: Record<string, number> = {};
+        for (const [rank, count] of Object.entries(byRank as Record<string, unknown>)) {
+            const n = typeof count === "number" ? count : Number(count);
+            if (!Number.isFinite(n)) continue;
+            normalizedByRank[String(rank)] = Math.max(0, Math.floor(n));
+        }
+        arcaneRanks[path] = normalizedByRank;
+    }
+
     const customRivens = Array.isArray((inv as any).customRivens)
         ? (inv as any).customRivens.filter((entry: unknown) => !!entry && typeof entry === "object")
         : [];
 
-    return { credits, platinum, counts, customRivens };
+    return { credits, platinum, counts, modRanks, arcaneRanks, customRivens };
 }
 
 function normalizeMastery(raw: any): { xpByItem: Record<string, number>; mastered: Record<string, boolean>; overLevelMastered: Record<string, boolean> } {

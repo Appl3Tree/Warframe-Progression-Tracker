@@ -1,0 +1,1 @@
+let e=null;function r(n){e=n}function d(){const n=e;return e=null,n}function o(n){const t=String(n).match(/^data:(?:node|missionreward)\/([^/]+)\/([^/]+)/);return t?`node:mr/${t[1]}/${t[2]}`:null}export{r as a,d as g,o as s};

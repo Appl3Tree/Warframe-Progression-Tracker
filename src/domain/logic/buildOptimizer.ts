@@ -13,7 +13,7 @@ import type { WeaponEntry, WeaponAttack } from "../catalog/weaponCatalog";
 import type { ModEntry, ModEffect } from "../catalog/modCatalog";
 import { emptyEffect, getModsForWeapon } from "../catalog/modCatalog";
 import type { ArcaneEntry } from "../catalog/arcaneCatalog";
-import { getArcanesByWeaponCategory } from "../catalog/arcaneCatalog";
+import { getArcanesForWeapon } from "../catalog/arcaneCatalog";
 import { calculateBuild, avgCritMultiplier, estimateConditionalStackFactor, estimateConditionalUptime } from "./damageCalc";
 import { computeCapacity, effectiveDrain, type CapacityConfig, type SlotConfig } from "./capacityCalc";
 
@@ -605,18 +605,24 @@ function scoreEffects(
     const magneticUtilityWeight = target.shieldShare > 0
         ? modded.magneticShieldDamageBonus * (0.08 + target.shieldShare * 0.12)
         : 0;
+    const armorStripWeight = target.armor > 0
+        ? 0.15 + 0.15 * Math.min(1, target.armor / 2700)
+        : 0;
+    const radiationUtilityWeight = target.grouped
+        ? modded.radiationAllyDamageBonus * 0.04
+        : 0;
     const statusWeight =
         modded.dotDps / Math.max(1, sustainedDPS) +
         modded.viralHealthDamageBonus * 0.3 +
-        modded.heatArmorStrip * 0.25 +
-        modded.corrosiveArmorStrip * 0.3 +
+        modded.heatArmorStrip * armorStripWeight +
+        modded.corrosiveArmorStrip * armorStripWeight +
         magneticUtilityWeight +
         modded.coldSlow * 0.08 +
         modded.coldCritDamageBonus * 0.12 +
         modded.punctureEnemyDamageReduction * 0.08 +
         modded.punctureCritChanceBonus * 0.15 +
         modded.impactMercyThresholdBonus * 0.05 +
-        modded.radiationAllyDamageBonus * 0.04 +
+        radiationUtilityWeight +
         modded.tauStatusVulnerability * 0.08;
     const rangedUtility =
         punchThrough * 0.08 +
@@ -1472,7 +1478,7 @@ function optimizeArcaneSlot(
     targetFaction: string,
     opts: OptimizerOptions,
 ): { arcane: ArcaneEntry | null; rank: number } {
-    const arcanes = getArcanesByWeaponCategory(weapon.category).filter(arc =>
+    const arcanes = getArcanesForWeapon(weapon).filter(arc =>
         !opts.ownedArcaneUniqueNames || opts.ownedArcaneUniqueNames.has(arc.uniqueName)
     );
     if (!arcanes.length) return { arcane: null, rank: 0 };

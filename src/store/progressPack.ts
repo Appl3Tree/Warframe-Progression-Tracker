@@ -47,6 +47,8 @@ const InventorySchema = z.object({
     credits: z.number().int().min(0),
     platinum: z.number().int().min(0),
     counts: z.record(z.string(), z.number().nonnegative()),
+    modRanks: z.record(z.string(), z.number().int().nonnegative()).optional(),
+    arcaneRanks: z.record(z.string(), z.record(z.string(), z.number().int().nonnegative())).optional(),
     customRivens: z.array(z.any()).optional(),
 });
 
@@ -170,6 +172,14 @@ export function mergeProgressPackIntoState(current: UserStateV2, incoming: any):
             counts: {
                 ...next.inventory.counts,
                 ...(incoming.inventory.counts ?? {})
+            },
+            modRanks: {
+                ...(next.inventory.modRanks ?? {}),
+                ...(incoming.inventory.modRanks ?? {})
+            },
+            arcaneRanks: {
+                ...(next.inventory.arcaneRanks ?? {}),
+                ...(incoming.inventory.arcaneRanks ?? {})
             },
             customRivens: Array.isArray(incoming.inventory.customRivens)
                 ? incoming.inventory.customRivens

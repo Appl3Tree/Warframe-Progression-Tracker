@@ -4,7 +4,7 @@
 // Each has 6 ranks (0–5). Rank 5 = max.
 
 import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
-import type { WeaponCategory } from "./weaponCatalog";
+import type { ModCompatName, WeaponCategory, WeaponEntry } from "./weaponCatalog";
 import { emptyEffect, type ConditionalEffect, type ConditionalTrigger, type ModEffect } from "./modCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];
@@ -16,6 +16,8 @@ export interface ArcaneEntry {
     name: string;
     rarity: string;
     weaponType: ArcaneWeaponType;
+    compatibleModCompats?: ModCompatName[];
+    requiresKitgun?: boolean;
     maxRank: number;
     /** Display text for each rank 0..maxRank */
     statsByRank: string[];
@@ -308,11 +310,37 @@ function parseArcaneStats(levelStats: Array<{ stats: string[] }>): {
     };
 }
 
-function getWeaponType(name: string): ArcaneWeaponType | null {
-    if (name.startsWith("Primary "))   return "Primary";
-    if (name.startsWith("Secondary ")) return "Secondary";
-    if (name.startsWith("Melee "))     return "Melee";
+function getArcaneEligibility(item: Record<string, unknown>): {
+    weaponType: ArcaneWeaponType;
+    compatibleModCompats?: ModCompatName[];
+    requiresKitgun?: boolean;
+} | null {
+    const name = String(item.name ?? "");
+    const type = String(item.type ?? "");
+
+    if (type === "Primary Arcane") return { weaponType: "Primary" };
+    if (type === "Secondary Arcane") return { weaponType: "Secondary" };
+    if (type === "Melee Arcane") return { weaponType: "Melee" };
+    if (type === "Bow Arcane") return { weaponType: "Primary", compatibleModCompats: ["Bow"] };
+    if (type === "Shotgun Arcane") return { weaponType: "Primary", compatibleModCompats: ["Shotgun"] };
+    if (type === "Kitgun Arcane") return { weaponType: "Secondary", requiresKitgun: true };
+
+    if (name.startsWith("Primary ")) return { weaponType: "Primary" };
+    if (name.startsWith("Secondary ")) return { weaponType: "Secondary" };
+    if (name.startsWith("Melee ")) return { weaponType: "Melee" };
     return null;
+}
+
+function isKitgunWeapon(weapon: WeaponEntry): boolean {
+    const uniqueName = weapon.uniqueName.toLowerCase();
+    return uniqueName.includes("/solarisunited/") || uniqueName.includes("/infkitgun/");
+}
+
+function arcaneMatchesWeapon(arcane: ArcaneEntry, weapon: WeaponEntry): boolean {
+    if (arcane.weaponType !== weapon.category) return false;
+    if (arcane.compatibleModCompats?.length && !arcane.compatibleModCompats.includes(weapon.modCompat)) return false;
+    if (arcane.requiresKitgun && !isKitgunWeapon(weapon)) return false;
+    return true;
 }
 
 let _cache: ArcaneEntry[] | null = null;
@@ -324,8 +352,8 @@ export function getArcaneCatalog(): ArcaneEntry[] {
     for (const item of ALL) {
         if (item.category !== "Arcanes") continue;
         const name = String(item.name ?? "");
-        const weaponType = getWeaponType(name);
-        if (!weaponType) continue;
+        const eligibility = getArcaneEligibility(item);
+        if (!eligibility) continue;
 
         const levelStats = item.levelStats as Array<{ stats: string[] }> | undefined;
         if (!levelStats || levelStats.length === 0) continue;
@@ -336,7 +364,9 @@ export function getArcaneCatalog(): ArcaneEntry[] {
             uniqueName: String(item.uniqueName ?? ""),
             name,
             rarity: String(item.rarity ?? ""),
-            weaponType,
+            weaponType: eligibility.weaponType,
+            compatibleModCompats: eligibility.compatibleModCompats,
+            requiresKitgun: eligibility.requiresKitgun,
             maxRank: levelStats.length - 1,
             ...parsed,
         });
@@ -352,4 +382,8 @@ export function getArcanesByWeaponCategory(cat: WeaponCategory): ArcaneEntry[] {
         Primary: "Primary", Secondary: "Secondary", Melee: "Melee",
     };
     return getArcaneCatalog().filter(a => a.weaponType === map[cat]);
+}
+
+export function getArcanesForWeapon(weapon: WeaponEntry): ArcaneEntry[] {
+    return getArcaneCatalog().filter((arcane) => arcaneMatchesWeapon(arcane, weapon));
 }

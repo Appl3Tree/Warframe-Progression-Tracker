@@ -1,0 +1,100 @@
+import { describe, expect, it } from "vitest";
+import { mergeProgressPackIntoState, makeDefaultState, ProgressPackSchemaV2 } from "../progressPack";
+import { migrateToUserStateV2 } from "../migrations";
+
+describe("progress pack inventory serialization", () => {
+    it("accepts and merges modRanks and arcaneRanks from a progress pack", () => {
+        const current = makeDefaultState();
+        current.inventory.modRanks = {
+            "/Lotus/Upgrades/Mods/ExistingMod": 3,
+        };
+        current.inventory.arcaneRanks = {
+            "/Lotus/Upgrades/Mods/ExistingArcane": { "1": 1 },
+        };
+
+        const incoming = {
+            ...makeDefaultState(),
+            inventory: {
+                credits: 100,
+                platinum: 5,
+                counts: {
+                    "mods:/Lotus/Upgrades/Mods/NewMod": 2,
+                },
+                modRanks: {
+                    "/Lotus/Upgrades/Mods/NewMod": 8,
+                },
+                arcaneRanks: {
+                    "/Lotus/Upgrades/Mods/NewArcane": { "0": 2, "5": 1 },
+                },
+                customRivens: [],
+            },
+        };
+
+        const parsed = ProgressPackSchemaV2.parse(incoming);
+        const merged = mergeProgressPackIntoState(current, parsed);
+
+        expect(merged.inventory.modRanks).toEqual({
+            "/Lotus/Upgrades/Mods/ExistingMod": 3,
+            "/Lotus/Upgrades/Mods/NewMod": 8,
+        });
+        expect(merged.inventory.arcaneRanks).toEqual({
+            "/Lotus/Upgrades/Mods/ExistingArcane": { "1": 1 },
+            "/Lotus/Upgrades/Mods/NewArcane": { "0": 2, "5": 1 },
+        });
+    });
+
+    it("preserves modRanks and arcaneRanks during migration normalization", () => {
+        const iso = "2026-04-03T00:00:00.000Z";
+        const migrated = migrateToUserStateV2({
+            meta: {
+                schemaVersion: 2,
+                createdAtIso: iso,
+                updatedAtIso: iso,
+            },
+            player: {
+                platform: "PC",
+                accountId: "",
+                displayName: "Tester",
+                masteryRank: 30,
+            },
+            ui: {
+                activePage: "imports",
+                expandedGoalNodes: {},
+            },
+            prereqs: {
+                completed: {},
+            },
+            inventory: {
+                credits: 0,
+                platinum: 0,
+                counts: {},
+                modRanks: {
+                    "/Lotus/Upgrades/Mods/Serration": 10,
+                },
+                arcaneRanks: {
+                    "/Lotus/Upgrades/Mods/ArcaneMerciless": { "3": 2, "5": 1 },
+                },
+                customRivens: [],
+            },
+            syndicates: [],
+            dailyTasks: [],
+            resetChecklist: undefined,
+            goals: [],
+            mastery: {
+                xpByItem: {},
+                mastered: {},
+                overLevelMastered: {},
+            },
+            missions: {
+                completesByTag: {},
+            },
+        });
+
+        expect(migrated?.inventory.modRanks).toEqual({
+            "/Lotus/Upgrades/Mods/Serration": 10,
+        });
+        expect(migrated?.inventory.arcaneRanks).toEqual({
+            "/Lotus/Upgrades/Mods/ArcaneMerciless": { "3": 2, "5": 1 },
+        });
+    });
+});

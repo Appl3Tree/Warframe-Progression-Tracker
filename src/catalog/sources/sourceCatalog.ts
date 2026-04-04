@@ -7,7 +7,7 @@ import { CURATED_SOURCES } from "./curatedSources";
 
 // warframe-drop-data/raw inputs
 import missionRewardsJson from "../../../external/warframe-drop-data/raw/missionRewards.json";
-import relicsJson from "../../../external/warframe-drop-data/raw/relics.json";
+import relicsJson from "../../data/_generated/relics-lean.auto.json";
 import blueprintLocationsJson from "../../../external/warframe-drop-data/raw/blueprintLocations.json";
 import enemyBlueprintTablesJson from "../../../external/warframe-drop-data/raw/enemyBlueprintTables.json";
 import modLocationsJson from "../../../external/warframe-drop-data/raw/modLocations.json";
@@ -398,9 +398,8 @@ function buildDropDataSupplementSources(): RawSource[] {
     const seen = new Set<string>();
 
     // ---- Relics ----
-    const relicsArr = (relicsJson as any)?.relics ?? (relicsJson as any);
-    if (Array.isArray(relicsArr)) {
-        for (const r of relicsArr) {
+    if (Array.isArray(relicsJson)) {
+        for (const r of relicsJson as Array<{ tier?: string; relicName?: string }>) {
             const tier = safeString((r as any)?.tier) ?? "relic";
             const relicName = safeString((r as any)?.relicName) ?? "unknown";
             const id = dataId(["relic", tier, relicName]);

@@ -2,25 +2,23 @@
 // Shared prime availability helpers that combine static vaulted flags with
 // live Varzia / Prime Resurgence world state.
 
-import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
-import RELICS_RAW from "../../../external/warframe-drop-data/raw/relics.json";
+import ALL_RAW from "../../data/_generated/prime-availability.auto.json";
+import RELICS_RAW from "../../data/_generated/relics-lean.auto.json";
 import missionIndexRaw from "../../data/_generated/relic-missionRewards-index.auto.json";
 import { resolvePrimeResurgenceRelicKey } from "./primeResurgence";
-import type { WorldStateData } from "../../lib/worldStateCache";
+import type { VaultTrader } from "../../lib/worldStateCache";
+
+type PrimeAvailabilityWorldState = {
+    vaultTrader?: VaultTrader | null;
+};
 
 export type PrimeAvailabilityStatus = "available" | "prime_resurgence" | "vaulted";
 
-interface AllComponent {
-    uniqueName?: string;
-    name?: string;
-}
-
 interface AllEntry {
-    uniqueName?: string;
     name?: string;
     vaulted?: boolean;
     isPrime?: boolean;
-    components?: AllComponent[];
+    components?: string[];
 }
 
 interface SourceEntry {
@@ -38,8 +36,7 @@ const _vaultedByPath = new Map<string, boolean>();
 const _isPrimeByPath = new Map<string, boolean>();
 const _nameToPath = new Map<string, string>();
 
-for (const item of ALL_RAW as AllEntry[]) {
-    const path = item.uniqueName;
+for (const [path, item] of Object.entries(ALL_RAW as Record<string, AllEntry>)) {
     if (!path) continue;
     _allByPath.set(path, item);
     if (item.vaulted) _vaultedByPath.set(path, true);
@@ -49,12 +46,12 @@ for (const item of ALL_RAW as AllEntry[]) {
 
 // Build _sourcesByPath from external relics drop data
 const _sourcesByPath = new Map<string, SourceEntry[]>();
-interface RelicReward { itemName?: string; rarity?: string; chance?: number; }
-interface RelicEntry { tier?: string; relicName?: string; state?: string; rewards?: RelicReward[]; }
+interface RelicReward { itemName?: string; chance?: number; }
+interface RelicEntry { tier?: string; relicName?: string; rewards?: RelicReward[]; }
 const _seenRelicItemPairs = new Set<string>();
-for (const relic of (RELICS_RAW as { relics: RelicEntry[] }).relics ?? []) {
-    const { tier, relicName, state, rewards } = relic;
-    if (!tier || !relicName || state !== "Intact") continue;
+for (const relic of RELICS_RAW as RelicEntry[]) {
+    const { tier, relicName, rewards } = relic;
+    if (!tier || !relicName) continue;
     const sourceLabel = `${tier} ${relicName} Relic`;
     for (const reward of rewards ?? []) {
         const itemName = reward.itemName;
@@ -93,7 +90,7 @@ function normalizeVarziaInventoryPath(input: string): string {
     return raw;
 }
 
-function getPrimeResurgenceRelicKeys(worldState?: WorldStateData | null): Set<string> {
+function getPrimeResurgenceRelicKeys(worldState?: PrimeAvailabilityWorldState | null): Set<string> {
     const keys = new Set<string>();
     if (!worldState?.vaultTrader) return keys;
 
@@ -104,7 +101,7 @@ function getPrimeResurgenceRelicKeys(worldState?: WorldStateData | null): Set<st
     return keys;
 }
 
-function getPrimeResurgenceDirectItemPaths(worldState?: WorldStateData | null): Set<string> {
+function getPrimeResurgenceDirectItemPaths(worldState?: PrimeAvailabilityWorldState | null): Set<string> {
     const paths = new Set<string>();
     if (!worldState?.vaultTrader) return paths;
 
@@ -173,9 +170,10 @@ function resolvePathStatus(
         let sawPrimeResurgence = false;
 
         for (const comp of components) {
-            if (!comp.uniqueName) continue;
+            const compPath = String(comp ?? "");
+            if (!compPath) continue;
 
-            const compStatus = resolvePathStatus(comp.uniqueName, primeResurgenceRelicKeys, primeResurgenceDirectItemPaths, memo);
+            const compStatus = resolvePathStatus(compPath, primeResurgenceRelicKeys, primeResurgenceDirectItemPaths, memo);
             if (compStatus === "vaulted") {
                 memo.set(path, "vaulted");
                 return "vaulted";
@@ -199,7 +197,7 @@ function resolvePathStatus(
 
 export function getPrimeAvailabilityStatus(
     catalogId: string,
-    worldState?: WorldStateData | null
+    worldState?: PrimeAvailabilityWorldState | null
 ): PrimeAvailabilityStatus {
     const path = catalogId.startsWith("items:") ? catalogId.slice(6) : catalogId;
     return resolvePathStatus(
@@ -213,7 +211,7 @@ export function getPrimeAvailabilityStatus(
 export function getRelicAvailabilityStatus(
     relicKey: string,
     hasActiveMissions: boolean,
-    worldState?: WorldStateData | null
+    worldState?: PrimeAvailabilityWorldState | null
 ): PrimeAvailabilityStatus {
     if (hasActiveMissions) return "available";
     return getPrimeResurgenceRelicKeys(worldState).has(relicKey.toLowerCase())
@@ -221,7 +219,7 @@ export function getRelicAvailabilityStatus(
         : "vaulted";
 }
 
-export function isItemVaulted(catalogId: string, worldState?: WorldStateData | null): boolean {
+export function isItemVaulted(catalogId: string, worldState?: PrimeAvailabilityWorldState | null): boolean {
     return getPrimeAvailabilityStatus(catalogId, worldState) === "vaulted";
 }
 

@@ -2,7 +2,6 @@
 // Indexes all relic data: contents (rewards) and mission farming locations.
 
 import relicsDropRaw from "../../data/_generated/relics-lean.auto.json";
-import missionIndexRaw from "../../data/_generated/relic-missionRewards-index.auto.json";
 
 export type RelicTier = "Lith" | "Meso" | "Neo" | "Axi";
 export type RelicRarity = "Common" | "Uncommon" | "Rare";
@@ -43,12 +42,15 @@ interface RawRelicEntry {
     relicName?: string;
     state?: string;
     rewards?: Array<{ itemName?: string; rarity?: string; chance?: number }>;
+    missions?: Array<{ pathLabel?: string; rotation?: string; chance?: number }>;
 }
 
 const _relicByKey = new Map<string, RelicEntry>();
 const _relicsByItemName = new Map<string, string[]>(); // itemName → relicKeys
 
-const relicsArr: RawRelicEntry[] = (relicsDropRaw as any)?.relics ?? [];
+const relicsArr: RawRelicEntry[] = Array.isArray(relicsDropRaw)
+    ? (relicsDropRaw as RawRelicEntry[])
+    : (((relicsDropRaw as any)?.relics ?? []) as RawRelicEntry[]);
 
 function deriveRelicSlotRarityFromChance(chance: number): RelicRarity {
     // The source JSON is inconsistent for slot rarity, especially on common slots.
@@ -62,7 +64,7 @@ function deriveRelicSlotRarityFromChance(chance: number): RelicRarity {
 // Only index "Intact" state entries for standard tiers
 for (const r of relicsArr) {
     if (!r.relicName || !r.tier) continue;
-    if (r.state !== "Intact") continue;
+    if (r.state && r.state !== "Intact") continue;
     // Skip Requiem and Vanguard relics (no relicName-based key needed? they have no relicName)
     const tier = r.tier;
     const relicName = r.relicName;
@@ -81,8 +83,12 @@ for (const r of relicsArr) {
         relicName,
         displayName,
         rewards,
-        missions: [], // filled below
-        isActive: false, // set below
+        missions: (r.missions ?? []).map((m) => ({
+            pathLabel: m.pathLabel ?? "",
+            rotation: m.rotation ?? "",
+            chance: m.chance ?? 0,
+        })).filter((m) => m.pathLabel),
+        isActive: Array.isArray(r.missions) && r.missions.length > 0,
     });
 
     for (const rw of rewards) {
@@ -91,30 +97,6 @@ for (const r of relicsArr) {
         if (!existing.includes(key)) existing.push(key);
         _relicsByItemName.set(rw.itemName, existing);
     }
-}
-
-// ---- Parse mission rewards index ----
-
-interface RawMissionEntry {
-    relicKey?: string;
-    relicDisplay?: string;
-    pathLabel?: string;
-    rotation?: string;
-    chance?: number;
-}
-
-for (const m of missionIndexRaw as RawMissionEntry[]) {
-    const relicKey = m.relicKey;
-    if (!relicKey) continue;
-    const entry = _relicByKey.get(relicKey);
-    if (!entry) continue;
-
-    entry.missions.push({
-        pathLabel: m.pathLabel ?? "",
-        rotation: m.rotation ?? "",
-        chance: m.chance ?? 0,
-    });
-    entry.isActive = true;
 }
 
 /** Get a relic entry by its normalized key (e.g. "axi a1"). */
