@@ -34,7 +34,9 @@ const ACQUISITION_BY_CATALOG_ID: Record<string, AcquisitionDef> = (() => {
     const rawByCatalogId =
         root.byCatalogId && typeof root.byCatalogId === "object" && !Array.isArray(root.byCatalogId)
             ? (root.byCatalogId as Record<string, unknown>)
-            : {};
+            : Object.fromEntries(
+                Object.entries(root as Record<string, unknown>).filter(([key]) => key !== "sourcePool"),
+            );
 
     const out: Record<string, AcquisitionDef> = Object.create(null);
 

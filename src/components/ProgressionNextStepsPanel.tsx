@@ -20,7 +20,7 @@ function PrereqsLink() {
     );
 }
 
-export default function ProgressionNextStepsPanel() {
+export default function ProgressionNextStepsPanel({ embedded = false }: { embedded?: boolean }) {
     const completedMap       = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
     const setPrereqCompleted = useTrackerStore((s) => s.setPrereqCompleted);
     const syndicates         = useTrackerStore((s) => s.state.syndicates ?? []);
@@ -62,12 +62,18 @@ export default function ProgressionNextStepsPanel() {
     if (steps.length === 0) return null;
 
     return (
-        // h-full fills whatever height the parent grid cell gives it
-        // flex-col lets header stay fixed while list scrolls
-        <div className="h-full flex flex-col rounded-2xl border border-slate-800 bg-slate-950/40 overflow-hidden">
+        <div
+            className={[
+                "h-full flex flex-col overflow-hidden",
+                embedded ? "" : "rounded-2xl border border-slate-800 bg-slate-950/40",
+            ].join(" ")}
+        >
 
             {/* ── Fixed header ── */}
-            <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3 border-b border-slate-800/60 shrink-0">
+            <div className={[
+                "flex items-start justify-between gap-3 shrink-0",
+                embedded ? "px-0 pb-4" : "border-b border-slate-800/60 px-4 pt-4 pb-3",
+            ].join(" ")}>
                 <div>
                     <div className="text-base font-semibold">Progression Goals</div>
                     <div className="text-xs text-slate-400 mt-0.5">
@@ -81,7 +87,7 @@ export default function ProgressionNextStepsPanel() {
             </div>
 
             {/* ── Scrollable list ── */}
-            <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2">
+            <div className={["flex-1 overflow-y-auto flex flex-col gap-2", embedded ? "px-0 py-0" : "px-4 py-3"].join(" ")}>
                 {steps.map((step) => {
                     const completed = isComplete(step.prereqId);
                     return (

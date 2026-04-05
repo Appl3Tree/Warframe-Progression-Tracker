@@ -105,6 +105,10 @@ function normalizeName(s: string): string {
     return (s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+function normalizeSpaces(s: string): string {
+    return String(s ?? "").replace(/\s+/g, " ").trim();
+}
+
 function foldDiacritics(s: string): string {
     // NFKD splits letters+diacritics, then we remove the diacritic marks
     return (s ?? "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
@@ -283,6 +287,18 @@ function lotusPathFromCatalogId(catalogId: string): string | null {
     return s.slice(idx + 1);
 }
 
+function humanizeLotusPathTail(lotusPath: string): string {
+    const tail = String(lotusPath ?? "").split("/").filter(Boolean).pop() ?? "";
+    if (!tail) return "";
+
+    return normalizeSpaces(
+        tail
+            .replace(/[_-]+/g, " ")
+            .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+            .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    );
+}
+
 function candidateNameKeysForRecord(catalogId: string, rec: any): string[] {
     const keys: string[] = [];
 
@@ -302,12 +318,50 @@ function candidateNameKeysForRecord(catalogId: string, rec: any): string[] {
             const k3 = normalizeNameNoPunct(aliasNoBp);
             if (k3 && !keys.includes(k3)) keys.push(k3);
         }
+
+        const humanizedTail = humanizeLotusPathTail(lotus);
+        const kPath = normalizeNameNoPunct(humanizedTail);
+        if (kPath && !keys.includes(kPath)) keys.push(kPath);
+
+        const humanizedTailNoBp = humanizedTail.replace(/\bBlueprint\b/i, "").trim();
+        const kPathNoBp = normalizeNameNoPunct(humanizedTailNoBp);
+        if (kPathNoBp && !keys.includes(kPathNoBp)) keys.push(kPathNoBp);
     }
 
     if (primary) {
         const pNoBp = primary.replace(/\bBlueprint\b/i, "").trim();
         const k4 = normalizeNameNoPunct(pNoBp);
         if (k4 && !keys.includes(k4)) keys.push(k4);
+    }
+
+    const resultItemType =
+        typeof rec?.raw?.rawLotus?.data?.resultItemType === "string"
+            ? rec.raw.rawLotus.data.resultItemType
+            : typeof rec?.data?.resultItemType === "string"
+              ? rec.data.resultItemType
+              : null;
+
+    if (resultItemType) {
+        const resultCatalogId = `items:${resultItemType}`;
+        const resultRec = ((FULL_CATALOG as any).recordsById ?? {})[resultCatalogId];
+        const resultName =
+            typeof resultRec?.displayName === "string"
+                ? resultRec.displayName
+                : typeof resultRec?.name === "string"
+                  ? resultRec.name
+                  : "";
+
+        if (resultName) {
+            const resultBlueprintName = resultName.toLowerCase().endsWith(" blueprint")
+                ? resultName
+                : `${resultName} Blueprint`;
+
+            const k5 = normalizeNameNoPunct(resultBlueprintName);
+            if (k5 && !keys.includes(k5)) keys.push(k5);
+
+            const k6 = normalizeNameNoPunct(resultName);
+            if (k6 && !keys.includes(k6)) keys.push(k6);
+        }
     }
 
     return keys;

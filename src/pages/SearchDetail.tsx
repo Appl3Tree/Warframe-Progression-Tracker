@@ -1,5 +1,9 @@
-import { useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import blueprintTemplateUrl from "../assets/templates/Blueprint.webp";
+import blueprintChassisUrl from "../assets/templates/240px-Chassis.png";
+import blueprintNeuropticsUrl from "../assets/templates/240px-Neuroptics.png";
+import blueprintSystemsUrl from "../assets/templates/240px-Systems.png";
 import { WorkspaceAction, WorkspaceHero, WorkspaceSection, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { resolveItemRequirementGraph, type ItemRequirementEdge } from "../catalog/items/itemRequirements";
@@ -43,7 +47,14 @@ type CraftingNode = {
     name: string;
     count: number;
     owned: number;
+    acquisitionSources: Array<{ label: string; group: string }>;
     children: CraftingNode[];
+};
+
+type CraftedWithEntry = {
+    catalogId: string;
+    name: string;
+    count: number;
 };
 
 type StepperControlProps = {
@@ -164,6 +175,19 @@ function buildSupportingDescription(entitySubtitle: string, description: unknown
     if (typeof description === "string" && description.trim()) return description.trim();
     const parts = splitCatalogSubtitle(entitySubtitle);
     return parts.length > 0 ? parts.join(" · ") : "Catalog entry";
+}
+
+function isBlueprintName(name: string | null | undefined): boolean {
+    return typeof name === "string" && name.trim().toLowerCase().endsWith(" blueprint");
+}
+
+function getBlueprintOverlayImage(name: string | null | undefined, fallbackImageUrl: string | null): string | null {
+    const normalized = typeof name === "string" ? name.trim().toLowerCase() : "";
+    if (!normalized) return fallbackImageUrl;
+    if (normalized.includes("chassis blueprint")) return blueprintChassisUrl;
+    if (normalized.includes("systems blueprint")) return blueprintSystemsUrl;
+    if (normalized.includes("neuroptics blueprint")) return blueprintNeuropticsUrl;
+    return fallbackImageUrl;
 }
 
 function renderCodexText(text: string): ReactNode {
@@ -389,6 +413,26 @@ function getDisplayName(catalogId: string): string {
     return FULL_CATALOG.recordsById[catalogId as keyof typeof FULL_CATALOG.recordsById]?.displayName ?? catalogId;
 }
 
+function getAcquisitionSourcesForCatalogId(catalogId: string): Array<{ label: string; group: string }> {
+    const acquisition = getAcquisitionByCatalogId(catalogId as never);
+    if (!acquisition) return [];
+
+    const seen = new Set<string>();
+    return acquisition.sources
+        .slice(0, 16)
+        .map((sourceId) => formatSourceDisplayLabel(SOURCE_INDEX[sourceId as keyof typeof SOURCE_INDEX]?.label ?? sourceId))
+        .filter((label) => {
+            if (!label || seen.has(label)) return false;
+            seen.add(label);
+            return true;
+        })
+        .slice(0, 4)
+        .map((label) => ({
+            label,
+            group: getSourceGroup(label),
+        }));
+}
+
 function buildCraftingTree(catalogId: string, counts: Record<string, number>, depth = 0, seen = new Set<string>()): CraftingNode[] {
     if (depth > 4 || seen.has(catalogId)) return [];
 
@@ -401,8 +445,42 @@ function buildCraftingTree(catalogId: string, counts: Record<string, number>, de
         name: getDisplayName(edge.catalogId),
         count: edge.count,
         owned: Number(counts[edge.catalogId] ?? 0),
+        acquisitionSources: getAcquisitionSourcesForCatalogId(edge.catalogId),
         children: buildCraftingTree(edge.catalogId, counts, depth + 1, nextSeen),
     }));
+}
+
+const CRAFTED_WITH_CACHE = new Map<string, CraftedWithEntry[]>();
+
+function computeCraftedWithEntries(catalogId: string): CraftedWithEntry[] {
+    const cached = CRAFTED_WITH_CACHE.get(catalogId);
+    if (cached) return cached;
+
+    const entries: CraftedWithEntry[] = [];
+
+    for (const candidateId of FULL_CATALOG.displayableInventoryItemIds ?? []) {
+        const rawCandidateId = String(candidateId);
+        const edges = getDirectRequirementsForCraftingTree(rawCandidateId);
+        if (edges.length === 0) continue;
+
+        for (const edge of edges) {
+            if (String(edge.catalogId) !== catalogId) continue;
+            entries.push({
+                catalogId: rawCandidateId,
+                name: getDisplayName(rawCandidateId),
+                count: edge.count,
+            });
+        }
+    }
+
+    entries.sort((a, b) => {
+        if (a.name !== b.name) return a.name.localeCompare(b.name);
+        return a.catalogId.localeCompare(b.catalogId);
+    });
+
+    const deduped = entries.filter((entry, index) => index === 0 || entry.catalogId !== entries[index - 1]?.catalogId);
+    CRAFTED_WITH_CACHE.set(catalogId, deduped);
+    return deduped;
 }
 
 function CraftingTreeNode(props: { node: CraftingNode; depth: number; onOpenDetail?: (catalogId: string) => void }) {
@@ -440,6 +518,20 @@ function CraftingTreeNode(props: { node: CraftingNode; depth: number; onOpenDeta
                     <div className="mt-1 text-xs text-[color:var(--wf-text-dim)]">
                         Need {props.node.count} · Owned {props.node.owned}
                     </div>
+                    {props.node.acquisitionSources.length > 0 ? (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {props.node.acquisitionSources.map((source) => (
+                                <div
+                                    key={`${props.node.catalogId}-${source.group}-${source.label}`}
+                                    className="rounded-full border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface)] px-2.5 py-1 text-[10px] leading-relaxed text-[color:var(--wf-text-muted)]"
+                                >
+                                    <span className="font-semibold uppercase tracking-[0.12em] text-[color:var(--wf-text-dim)]">{source.group}</span>
+                                    {" · "}
+                                    <span>{source.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    ) : null}
                 </div>
                 <div
                     className={[
@@ -518,6 +610,7 @@ export default function SearchDetail(props: {
     onBack?: () => void;
     mode?: "page" | "panel";
 }) {
+    const rootRef = useRef<HTMLDivElement | null>(null);
     const setActivePage = useTrackerStore((s) => s.setActivePage);
     const addGoalCatalog = useTrackerStore((s) => s.addGoalCatalog);
     const setCount = useTrackerStore((s) => s.setCount);
@@ -571,8 +664,16 @@ export default function SearchDetail(props: {
         () => (detailRef?.kind === "item" && catalogId ? buildCraftingTree(catalogId, counts) : []),
         [catalogId, counts, detailRef?.kind],
     );
+    const [craftedWithEntries, setCraftedWithEntries] = useState<CraftedWithEntry[]>([]);
+    const [craftedWithLoading, setCraftedWithLoading] = useState(false);
+    const [showAllCraftedWith, setShowAllCraftedWith] = useState(false);
 
     const imageUrl = getSearchEntityImageUrl(entry);
+    const isBlueprint = isBlueprintName(entity?.name ?? null) || (catalogId ? String(catalogId).toLowerCase().endsWith("blueprint") : false);
+    const blueprintOverlayUrl = useMemo(
+        () => getBlueprintOverlayImage(entity?.name ?? null, imageUrl),
+        [entity?.name, imageUrl],
+    );
     const wikiUrl = getSearchEntityWikiUrl(entry, entity?.name);
     const countKey = detailRef?.kind === "item" ? catalogId : detailRef?.kind === "mod" ? `mods:${detailRef.id}` : null;
     const maxRank = typeof entry?.fusionLimit === "number" ? entry.fusionLimit : 0;
@@ -586,6 +687,62 @@ export default function SearchDetail(props: {
         rank,
         count: Number(ownedArcaneRanks[String(rank)] ?? 0),
     })) : [];
+
+    useEffect(() => {
+        setShowAllCraftedWith(false);
+
+        if (detailRef?.kind !== "item" || !catalogId) {
+            setCraftedWithEntries([]);
+            setCraftedWithLoading(false);
+            return;
+        }
+
+        const cached = CRAFTED_WITH_CACHE.get(catalogId);
+        if (cached) {
+            setCraftedWithEntries(cached.filter((entry) => entry.catalogId !== catalogId));
+            setCraftedWithLoading(false);
+            return;
+        }
+
+        setCraftedWithEntries([]);
+        setCraftedWithLoading(true);
+
+        const timer = window.setTimeout(() => {
+            const nextEntries = computeCraftedWithEntries(catalogId).filter((entry) => entry.catalogId !== catalogId);
+            startTransition(() => {
+                setCraftedWithEntries(nextEntries);
+                setCraftedWithLoading(false);
+            });
+        }, 0);
+
+        return () => window.clearTimeout(timer);
+    }, [catalogId, detailRef?.kind]);
+
+    useEffect(() => {
+        const root = rootRef.current;
+        if (!root || !detailRef) return;
+
+        const frame = window.requestAnimationFrame(() => {
+            if (mode === "page") {
+                window.scrollTo({ top: 0, behavior: "auto" });
+                return;
+            }
+
+            let current: HTMLElement | null = root.parentElement;
+            while (current) {
+                const isScrollable = current.scrollHeight > current.clientHeight && /(auto|scroll)/.test(window.getComputedStyle(current).overflowY);
+                if (isScrollable) {
+                    current.scrollTo({ top: 0, behavior: "auto" });
+                    return;
+                }
+                current = current.parentElement;
+            }
+
+            root.scrollIntoView({ block: "start" });
+        });
+
+        return () => window.cancelAnimationFrame(frame);
+    }, [detailRef, mode]);
 
     function closePanel() {
         if (props.onClose) {
@@ -652,7 +809,7 @@ export default function SearchDetail(props: {
     }
 
     return (
-        <div className="space-y-5">
+        <div ref={rootRef} className="space-y-5">
             <WorkspaceHero
                 eyebrow={detailRef.kind === "item" ? "Item Dossier" : detailRef.kind === "mod" ? "Mod Dossier" : "Arcane Dossier"}
                 title={entity.name}
@@ -774,7 +931,29 @@ export default function SearchDetail(props: {
                 >
                     <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
                         <div className="overflow-hidden rounded-[28px] border border-[color:var(--wf-border-subtle)] bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.12),transparent_55%),linear-gradient(180deg,rgba(30,41,59,0.58),rgba(15,23,42,0.72))]">
-                            {imageUrl ? (
+                            {isBlueprint ? (
+                                <div className="relative flex min-h-[280px] items-center justify-center overflow-hidden px-6 py-8">
+                                    <img
+                                        src={blueprintTemplateUrl}
+                                        alt="Blueprint template"
+                                        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-95"
+                                        loading="lazy"
+                                    />
+                                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.14),transparent_52%),linear-gradient(180deg,rgba(15,23,42,0.08),rgba(15,23,42,0.35))]" />
+                                    {blueprintOverlayUrl ? (
+                                        <img
+                                            src={blueprintOverlayUrl}
+                                            alt={entity.name}
+                                            className="relative z-[1] h-full max-h-[220px] w-full max-w-[320px] object-contain drop-shadow-[0_22px_36px_rgba(2,6,23,0.55)]"
+                                            loading="lazy"
+                                        />
+                                    ) : (
+                                        <div className="relative z-[1] rounded-full border border-white/10 bg-slate-950/35 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-200/80">
+                                            Blueprint
+                                        </div>
+                                    )}
+                                </div>
+                            ) : imageUrl ? (
                                 <img
                                     src={imageUrl}
                                     alt={entity.name}
@@ -942,6 +1121,81 @@ export default function SearchDetail(props: {
             {craftingTree.length > 0 ? (
                 <WorkspaceSection title="Crafting Tree" subtitle="Build path and component requirements for this crafted item.">
                     <CraftingTreeList nodes={craftingTree} onOpenDetail={openCatalogDetail} />
+                </WorkspaceSection>
+            ) : null}
+
+            {craftedWithLoading || craftedWithEntries.length > 0 ? (
+                <WorkspaceSection
+                    title="Used In"
+                    subtitle="Items and blueprints that directly consume this entry as a crafting requirement."
+                >
+                    <div className="space-y-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="text-sm text-[color:var(--wf-text-muted)]">
+                                {craftedWithLoading
+                                    ? "Scanning direct crafting results..."
+                                    : `${craftedWithEntries.length} direct crafting result${craftedWithEntries.length === 1 ? "" : "s"}`}
+                            </div>
+                            {craftedWithEntries.length > 10 ? (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAllCraftedWith((value) => !value)}
+                                    className="inline-flex items-center rounded-full border border-[color:var(--wf-border-subtle)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)] transition hover:border-[color:var(--wf-border-strong)] hover:text-[color:var(--wf-text-strong)]"
+                                >
+                                    {showAllCraftedWith ? "Show Top 10" : `Show All (${craftedWithEntries.length})`}
+                                </button>
+                            ) : null}
+                        </div>
+
+                        <div
+                            className={[
+                                "overflow-hidden rounded-[24px] border border-[color:var(--wf-border-subtle)] bg-[linear-gradient(180deg,rgba(15,23,42,0.24),rgba(15,23,42,0.08))]",
+                                showAllCraftedWith && craftedWithEntries.length > 10 ? "max-h-[26rem] overflow-y-auto" : "",
+                            ].join(" ")}
+                        >
+                            {craftedWithLoading ? (
+                                <div className="px-4 py-4 text-sm text-[color:var(--wf-text-muted)]">
+                                    Building reverse crafting references for this item...
+                                </div>
+                            ) : null}
+                            {(showAllCraftedWith ? craftedWithEntries : craftedWithEntries.slice(0, 10)).map((crafted) => {
+                                const canOpenDetail = Boolean(getSearchDetailRefForCatalogId(crafted.catalogId as never));
+                                const row = (
+                                    <>
+                                        <div className="min-w-0">
+                                            <div className="text-sm font-medium text-[color:var(--wf-text-strong)]">{crafted.name}</div>
+                                            <div className="mt-1 text-xs text-[color:var(--wf-text-muted)]">Consumes {crafted.count} in its direct recipe</div>
+                                        </div>
+                                        <div className="shrink-0 rounded-full border border-[color:var(--wf-border-subtle)] px-2.5 py-1 text-[11px] font-semibold text-[color:var(--wf-text-dim)]">
+                                            ×{crafted.count}
+                                        </div>
+                                    </>
+                                );
+
+                                if (canOpenDetail) {
+                                    return (
+                                        <button
+                                            key={`${crafted.catalogId}-${crafted.count}`}
+                                            type="button"
+                                            onClick={() => openCatalogDetail(crafted.catalogId)}
+                                            className="flex w-full items-center justify-between gap-4 border-t border-[color:var(--wf-border-subtle)] px-4 py-3 text-left transition first:border-t-0 hover:bg-white/5"
+                                        >
+                                            {row}
+                                        </button>
+                                    );
+                                }
+
+                                return (
+                                    <div
+                                        key={`${crafted.catalogId}-${crafted.count}`}
+                                        className="flex items-center justify-between gap-4 border-t border-[color:var(--wf-border-subtle)] px-4 py-3 first:border-t-0"
+                                    >
+                                        {row}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </WorkspaceSection>
             ) : null}
 

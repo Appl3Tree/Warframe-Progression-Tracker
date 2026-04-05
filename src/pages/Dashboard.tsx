@@ -3,22 +3,21 @@ import { useMemo } from "react";
 import WarframeResetTracker from "../components/WarframeResetTracker";
 import ProgressionNextStepsPanel from "../components/ProgressionNextStepsPanel";
 import DailyChecklist from "../components/DailyChecklist";
-import DashboardWorldState from "../components/DashboardWorldState";
 import { useTrackerStore } from "../store/store";
 import { useShallow } from "zustand/react/shallow";
 import { buildProgressionPlan } from "../domain/logic/plannerEngine";
 import { deriveCompletedMap } from "../domain/logic/syndicatePrereqs";
-import { WorkspaceAction, WorkspaceHero, WorkspacePanel, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
+import { WorkspaceAction, WorkspacePanel } from "../components/workspace/WorkspaceChrome";
 
 export default function Dashboard() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
     const { completedMap, syndicates, masteryRank, goals, dailyTasks } = useTrackerStore(
         useShallow((s) => ({
-            completedMap:  s.state.prereqs?.completed ?? {},
-            syndicates:    s.state.syndicates ?? [],
-            masteryRank:   s.state.player?.masteryRank,
-            goals:         s.state.goals ?? [],
-            dailyTasks:    s.state.dailyTasks ?? [],
+            completedMap: s.state.prereqs?.completed ?? {},
+            syndicates: s.state.syndicates ?? [],
+            masteryRank: s.state.player?.masteryRank,
+            goals: s.state.goals ?? [],
+            dailyTasks: s.state.dailyTasks ?? [],
         }))
     );
 
@@ -27,104 +26,117 @@ export default function Dashboard() {
         [completedMap, syndicates]
     );
 
-    const hasProgressionSteps = useMemo(() => {
+    const progressionSteps = useMemo(() => {
         try {
-            const steps = buildProgressionPlan(mergedMap).steps ?? [];
-            return steps.some((s: any) => s.id !== "planner_error_no_steps");
-        } catch { return false; }
+            return (buildProgressionPlan(mergedMap).steps ?? []).filter((s: any) => s.id !== "planner_error_no_steps");
+        } catch {
+            return [];
+        }
     }, [mergedMap]);
 
-    // Show the Handbook card when the player hasn't imported any data yet.
+    const hasProgressionSteps = progressionSteps.length > 0;
     const isNewPlayer = masteryRank == null && syndicates.length === 0 && Object.keys(completedMap).length === 0;
     const activeGoals = goals.filter((goal) => goal.isActive).length;
     const todayTaskCount = dailyTasks.length;
     const completedTasks = dailyTasks.filter((task) => task.isDone).length;
+    // const completionRate = todayTaskCount > 0 ? Math.round((completedTasks / todayTaskCount) * 100) : 0;
 
     return (
-        <div className="flex flex-col gap-4 pb-4">
-            <WorkspaceHero
-                eyebrow="Command Workspace"
-                title="Dashboard"
-                description="See what matters now: daily resets, live opportunities, active progression goals, and the next best actions to keep momentum."
-                actions={
-                    <>
-                        <WorkspaceAction onClick={() => setActivePage("world_state")}>Open World State</WorkspaceAction>
-                        <WorkspaceAction onClick={() => setActivePage("requirements")}>Open Farming</WorkspaceAction>
-                        <WorkspaceAction onClick={() => setActivePage("build_planner")}>Open Build Planner</WorkspaceAction>
-                    </>
-                }
-                stats={
-                    <>
-                        <WorkspaceStat
-                            label="Progression"
-                            value={hasProgressionSteps ? "Actionable" : "Stable"}
-                            hint={hasProgressionSteps ? "You have recommended next steps queued." : "No immediate progression blockers detected."}
-                        />
-                        <WorkspaceStat
-                            label="Active goals"
-                            value={activeGoals.toLocaleString()}
-                            hint="Pinned goals should drive farming and planner decisions."
-                        />
-                        <WorkspaceStat
-                            label="Today"
-                            value={`${completedTasks}/${todayTaskCount}`}
-                            hint="Personal checklist completion for the current reset."
-                        />
-                        <WorkspaceStat
-                            label="Profile"
-                            value={masteryRank == null ? "New / Unknown" : `MR ${masteryRank}`}
-                            hint={isNewPlayer ? "A good time to start with the Handbook." : "Imported profile context is available to the app."}
-                        />
-                    </>
-                }
-                className="py-5"
-            />
-
-            {isNewPlayer && (
-                <div className="flex items-center justify-between gap-4 rounded-[22px] border border-cyan-900/50 bg-cyan-950/20 px-4 py-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-2xl shrink-0" aria-hidden>📖</span>
-                        <div className="min-w-0">
-                            <div className="text-sm font-semibold text-cyan-200">New to the tracker?</div>
-                            <div className="text-xs text-cyan-400/80 mt-0.5">
-                                The Tenno's Handbook covers quest order, progression gates, and what to farm first.
-                            </div>
-                        </div>
+        <div className="flex flex-col gap-6 pb-6">
+            <WorkspacePanel className="px-4 py-4 sm:px-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0 max-w-2xl">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--wf-accent-primary)]">Dashboard</div>
+                        <h1 className="mt-1 text-xl font-semibold tracking-tight text-[color:var(--wf-text-strong)] sm:text-2xl">Progression and today, nothing extra.</h1>
+                        <p className="mt-1 text-sm text-[color:var(--wf-text-muted)]">
+                            Use this page for your next unlocks, your own checklist, and the reset tracker. World-state detail lives elsewhere.
+                        </p>
                     </div>
-                    <button
-                        className="shrink-0 rounded-lg border border-cyan-700 bg-cyan-900/40 px-3 py-1.5 text-xs font-semibold text-cyan-200 hover:bg-cyan-800/40 transition-colors"
-                        onClick={() => setActivePage("handbook")}
-                    >
-                        Open Handbook →
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                        <WorkspaceAction onClick={() => setActivePage("prereqs")}>Prerequisites</WorkspaceAction>
+                        <WorkspaceAction onClick={() => setActivePage("requirements")}>Farming</WorkspaceAction>
+                        <WorkspaceAction onClick={() => setActivePage("build_planner")}>Build Planner</WorkspaceAction>
+                        <WorkspaceAction onClick={() => setActivePage("world_state")}>World State</WorkspaceAction>
+                    </div>
                 </div>
-            )}
 
-            <div className="grid gap-4 xl:grid-cols-[1.3fr_0.9fr]">
-                <WorkspacePanel className="min-h-[420px] p-4">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                        <div>
-                            <div className="text-base font-semibold text-[color:var(--wf-text-strong)]">Live Intel</div>
-                            <div className="text-sm text-[color:var(--wf-text-muted)]">
-                                Upcoming cycles, active opportunities, and world-state signals that can affect today&apos;s plan.
-                            </div>
+                <div className="mt-3 flex flex-wrap gap-x-6 gap-y-3 border-t border-[color:var(--wf-border-subtle)] pt-3 text-sm">
+                    <div className="min-w-[130px]">
+                        <div className="text-[10px] uppercase tracking-[0.18em] text-[color:var(--wf-text-dim)]">Progression</div>
+                        <div className="mt-1 font-semibold text-[color:var(--wf-text-strong)]">
+                            {hasProgressionSteps ? `${progressionSteps.length} ready` : "Clear"}
                         </div>
-                        <WorkspaceAction onClick={() => setActivePage("world_state")}>Full View</WorkspaceAction>
                     </div>
-                    <DashboardWorldState />
-                </WorkspacePanel>
-
-                <div className="grid gap-4">
-                    {hasProgressionSteps && (
-                        <WorkspacePanel className="min-h-[340px] p-1">
-                            <ProgressionNextStepsPanel />
-                        </WorkspacePanel>
+                    <div className="min-w-[130px]">
+                        <div className="text-[10px] uppercase tracking-[0.18em] text-[color:var(--wf-text-dim)]">Pinned Goals</div>
+                        <div className="mt-1 font-semibold text-[color:var(--wf-text-strong)]">{activeGoals.toLocaleString()}</div>
+                    </div>
+                    <div className="min-w-[130px]">
+                        <div className="text-[10px] uppercase tracking-[0.18em] text-[color:var(--wf-text-dim)]">Today</div>
+                        <div className="mt-1 font-semibold text-[color:var(--wf-text-strong)]">
+                            {todayTaskCount === 0 ? "Open" : `${completedTasks}/${todayTaskCount}`}
+                        </div>
+                    </div>
+                    <div className="min-w-[130px]">
+                        <div className="text-[10px] uppercase tracking-[0.18em] text-[color:var(--wf-text-dim)]">Profile</div>
+                        <div className="mt-1 font-semibold text-[color:var(--wf-text-strong)]">{masteryRank == null ? "Unknown" : `MR ${masteryRank}`}</div>
+                    </div>
+                    {isNewPlayer && (
+                        <button
+                            className="rounded-full border border-cyan-800/60 bg-cyan-950/20 px-3 py-1.5 text-xs font-medium text-cyan-200 transition-colors hover:bg-cyan-900/30"
+                            onClick={() => setActivePage("handbook")}
+                        >
+                            Open Handbook
+                        </button>
                     )}
-                    <WorkspacePanel className="min-h-[340px] p-1">
-                        <DailyChecklist expanded={!hasProgressionSteps} />
-                    </WorkspacePanel>
                 </div>
-            </div>
+            </WorkspacePanel>
+
+            <WorkspacePanel className="overflow-hidden rounded-[32px] px-5 py-5 lg:px-6">
+                <div className="grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+                    <div className="min-w-0">
+                        <div className="mb-5 flex items-end justify-between gap-4 border-b border-[color:var(--wf-border-subtle)] pb-4">
+                            <div>
+                                <div className="text-[11px] uppercase tracking-[0.18em] text-[color:var(--wf-text-dim)]">Progression Focus</div>
+                                <div className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--wf-text-strong)]">Recommended next unlocks</div>
+                                <div className="mt-1 text-sm text-[color:var(--wf-text-muted)]">
+                                    Advance the systems that open more of the game instead of chasing scattered side tasks.
+                                </div>
+                            </div>
+                        </div>
+
+                        {hasProgressionSteps ? (
+                            <ProgressionNextStepsPanel embedded />
+                        ) : (
+                            <div className="flex min-h-[280px] flex-col justify-between rounded-[28px] border border-dashed border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)]/40 p-6">
+                                <div>
+                                    <div className="text-lg font-semibold text-[color:var(--wf-text-strong)]">No progression blockers right now</div>
+                                    <div className="mt-2 max-w-xl text-sm leading-6 text-[color:var(--wf-text-muted)]">
+                                        Your current profile does not have any obvious prerequisite gaps in the planner. This is a good time to farm for goals,
+                                        clean up backlog tasks, or work through the reset tracker.
+                                    </div>
+                                </div>
+                                <div className="mt-6 flex flex-wrap gap-2">
+                                    <WorkspaceAction onClick={() => setActivePage("requirements")}>Review Farming Targets</WorkspaceAction>
+                                    <WorkspaceAction onClick={() => setActivePage("build_planner")}>Open Build Planner</WorkspaceAction>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="min-w-0 border-t border-[color:var(--wf-border-subtle)] pt-6 xl:border-l xl:border-t-0 xl:pl-8 xl:pt-0">
+                        <div className="mb-5 border-b border-[color:var(--wf-border-subtle)] pb-4">
+                            <div className="text-[11px] uppercase tracking-[0.18em] text-[color:var(--wf-text-dim)]">Today Queue</div>
+                            <div className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--wf-text-strong)]">Personal checklist</div>
+                            <div className="mt-1 text-sm text-[color:var(--wf-text-muted)]">
+                                Keep this lightweight and personal. Use it for the things the system cannot infer for you.
+                            </div>
+                        </div>
+
+                        <DailyChecklist expanded embedded />
+                    </div>
+                </div>
+            </WorkspacePanel>
 
             <WorkspacePanel className="p-1">
                 <WarframeResetTracker />

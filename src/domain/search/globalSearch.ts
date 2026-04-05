@@ -37,6 +37,8 @@ export type SearchEntityRecord = Record<string, unknown> & {
     tags?: unknown;
     drops?: unknown;
     levelStats?: unknown;
+    texture?: string;
+    texture_new?: string;
 };
 
 const SEARCH_DETAIL_HASH_PREFIX = "#search-detail";
@@ -179,6 +181,127 @@ const ENTITY_DATA_BY_ID = new Map<string, SearchEntityRecord>(
         .map((entry) => [String(entry.uniqueName), entry]),
 );
 
+function getCatalogRecordForPath(path: string) {
+    const catalogId = getCatalogIdForPath(path);
+    if (!catalogId) return null;
+    return FULL_CATALOG.recordsById[catalogId] ?? null;
+}
+
+function getResultItemPathFromRaw(raw: Record<string, unknown>): string | null {
+    const lotus = (raw.rawLotus ?? raw) as Record<string, unknown>;
+    const data = lotus.data;
+    if (!data || typeof data !== "object") return null;
+
+    const resultItemType = (data as Record<string, unknown>).resultItemType;
+    if (typeof resultItemType === "string" && resultItemType.trim()) return resultItemType.trim();
+
+    const resultItem = (data as Record<string, unknown>).ResultItem;
+    if (typeof resultItem === "string" && resultItem.startsWith("/Lotus/StoreItems/")) {
+        return null;
+    }
+    if (typeof resultItem === "string" && resultItem.trim()) return resultItem.trim();
+
+    return null;
+}
+
+function inferKindFromCatalogRecord(path: string): SearchEntityKind {
+    const catalogRecord = getCatalogRecordForPath(path);
+    const category = catalogRecord?.categories?.[0] ?? "";
+    if (category === "Mods") return "mod";
+    if (category === "Arcanes") return "arcane";
+    return "item";
+}
+
+function getFallbackSearchEntity(ref: SearchDetailRef): SearchEntityResult | null {
+    const catalogRecord = getCatalogRecordForPath(ref.id);
+    if (!catalogRecord) return null;
+
+    const raw = (catalogRecord.raw ?? {}) as Record<string, unknown>;
+    const lotus = (raw.rawLotus ?? raw) as Record<string, unknown>;
+    const wfcd = (raw.rawWfcd ?? raw) as Record<string, unknown>;
+    const category = catalogRecord.categories[0] ?? (typeof wfcd.category === "string" ? wfcd.category : "Item");
+    const type =
+        typeof wfcd.type === "string" && wfcd.type.trim()
+            ? wfcd.type
+            : typeof lotus.tag === "string" && lotus.tag.trim()
+                ? lotus.tag
+                : typeof lotus.data === "object" && lotus.data && typeof (lotus.data as Record<string, unknown>).ProductCategory === "string"
+                    ? String((lotus.data as Record<string, unknown>).ProductCategory)
+                    : "";
+    const subtitle = buildSubtitle({ category, type }, ref.kind);
+
+    return {
+        kind: ref.kind,
+        id: ref.id,
+        name: catalogRecord.displayName,
+        subtitle,
+        summary: subtitle,
+        keywords: [category, type].filter((value): value is string => Boolean(value && value.trim())),
+    };
+}
+
+function getFallbackSearchEntityData(ref: SearchDetailRef): SearchEntityRecord | null {
+    const catalogRecord = getCatalogRecordForPath(ref.id);
+    if (!catalogRecord) return null;
+
+    const raw = (catalogRecord.raw ?? {}) as Record<string, unknown>;
+    const lotus = (raw.rawLotus ?? raw) as Record<string, unknown>;
+    const wfcd = (raw.rawWfcd ?? raw) as Record<string, unknown>;
+    const category = catalogRecord.categories[0] ?? (typeof wfcd.category === "string" ? wfcd.category : "Item");
+    const type =
+        typeof wfcd.type === "string" && wfcd.type.trim()
+            ? wfcd.type
+            : typeof lotus.tag === "string" && lotus.tag.trim()
+                ? lotus.tag
+                : typeof lotus.data === "object" && lotus.data && typeof (lotus.data as Record<string, unknown>).ProductCategory === "string"
+                    ? String((lotus.data as Record<string, unknown>).ProductCategory)
+                    : undefined;
+    const texture = typeof lotus.texture === "string" ? lotus.texture : undefined;
+    const textureNew = typeof lotus.texture_new === "string" ? lotus.texture_new : undefined;
+    const resultItemPath = getResultItemPathFromRaw(raw);
+    const resultItemData = resultItemPath ? ENTITY_DATA_BY_ID.get(resultItemPath) ?? null : null;
+    const releaseDate =
+        typeof wfcd.releaseDate === "string"
+            ? wfcd.releaseDate
+            : typeof lotus.releaseDate === "string"
+                ? lotus.releaseDate
+                : undefined;
+    const tradable =
+        typeof wfcd.tradable === "boolean"
+            ? wfcd.tradable
+            : typeof lotus.tradable === "boolean"
+                ? lotus.tradable
+                : undefined;
+    const masteryReq =
+        typeof wfcd.masteryReq === "number"
+            ? wfcd.masteryReq
+            : typeof lotus.masteryReq === "number"
+                ? lotus.masteryReq
+                : undefined;
+    const marketCost =
+        typeof wfcd.marketCost === "number"
+            ? wfcd.marketCost
+            : typeof lotus.data === "object" && lotus.data && typeof (lotus.data as Record<string, unknown>).RegularPrice === "number"
+                ? Number((lotus.data as Record<string, unknown>).RegularPrice)
+                : undefined;
+
+    return {
+        uniqueName: ref.id,
+        name: catalogRecord.displayName,
+        category,
+        type,
+        description: typeof wfcd.description === "string" ? wfcd.description : undefined,
+        imageName: typeof resultItemData?.imageName === "string" ? resultItemData.imageName : undefined,
+        wikiaThumbnail: typeof resultItemData?.wikiaThumbnail === "string" ? resultItemData.wikiaThumbnail : undefined,
+        releaseDate,
+        tradable,
+        masteryReq,
+        marketCost,
+        texture,
+        texture_new: textureNew,
+    };
+}
+
 export function searchCatalogEntities(query: string, limit = 10): SearchEntityResult[] {
     const trimmed = query.trim();
     if (!trimmed) return [];
@@ -195,13 +318,13 @@ export function searchCatalogEntities(query: string, limit = 10): SearchEntityRe
 }
 
 export function getSearchEntity(ref: SearchDetailRef): SearchEntityResult | null {
-    return ENTITY_BY_KEY.get(`${ref.kind}:${ref.id}`) ?? null;
+    return ENTITY_BY_KEY.get(`${ref.kind}:${ref.id}`) ?? getFallbackSearchEntity(ref);
 }
 
 export function getSearchEntityData(ref: SearchDetailRef): SearchEntityRecord | null {
     const entry = ENTITY_DATA_BY_ID.get(ref.id) ?? null;
-    if (!entry) return null;
-    return getEntityKind(entry) === ref.kind ? entry : null;
+    if (!entry) return getFallbackSearchEntityData(ref);
+    return getEntityKind(entry) === ref.kind ? entry : getFallbackSearchEntityData(ref);
 }
 
 export function getSearchEntityImageUrl(entry: SearchEntityRecord | null): string | null {
@@ -210,6 +333,8 @@ export function getSearchEntityImageUrl(entry: SearchEntityRecord | null): strin
     if (typeof entry.imageName === "string" && entry.imageName.trim()) {
         return `https://cdn.warframestat.us/img/${entry.imageName.trim()}`;
     }
+    if (typeof entry.texture_new === "string" && /^https?:\/\//i.test(entry.texture_new.trim())) return entry.texture_new.trim();
+    if (typeof entry.texture === "string" && /^https?:\/\//i.test(entry.texture.trim())) return entry.texture.trim();
     return null;
 }
 
@@ -235,7 +360,12 @@ export function getSearchDetailRefForCatalogId(catalogId: CatalogId): SearchDeta
 
     const path = rawId.slice(colonIndex + 1);
     const entry = ENTITY_DATA_BY_ID.get(path);
-    if (!entry) return null;
+    if (!entry) {
+        return {
+            kind: inferKindFromCatalogRecord(path),
+            id: path,
+        };
+    }
 
     return {
         kind: getEntityKind(entry),

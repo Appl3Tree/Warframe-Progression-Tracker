@@ -12,7 +12,24 @@ import { deriveItemsJsonMarketAcquisitionByCatalogId } from "./acquisitionFromIt
 import { deriveRecipeBucketAcquisitionByCatalogId } from "./acquisitionFromRecipeBuckets";
 import { deriveClanTechAcquisitionByCatalogId } from "./acquisitionFromClanTech";
 import { deriveComponentCraftabilityAcquisitionByCatalogId } from "./acquisitionFromComponentCraftability";
+import { deriveFishingBaitAcquisitionByCatalogId } from "./acquisitionFromFishingBaits";
+import { deriveFishingTrophyAcquisitionByCatalogId } from "./acquisitionFromFishingTrophies";
 import { deriveOverframeResearchAcquisitionByCatalogId } from "./acquisitionFromOverframeResearch";
+import { deriveRestorativeBlueprintAcquisitionByCatalogId } from "./acquisitionFromRestorativeBlueprints";
+import { deriveSolarisOperatorArmorAcquisitionByCatalogId } from "./acquisitionFromSolarisOperatorArmor";
+import { deriveWeaponSkinBlueprintAcquisitionByCatalogId } from "./acquisitionFromWeaponSkinBlueprints";
+import { deriveWeaponPartBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromWeaponPartBlueprintFamilies";
+import { deriveDeimosPetBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromDeimosPetBlueprintFamilies";
+import { deriveNecraloidBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromNecraloidBlueprintFamilies";
+import { deriveDeimosWeaponBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromDeimosWeaponBlueprintFamilies";
+import { deriveDeimosProspectingBlueprintAcquisitionByCatalogId } from "./acquisitionFromDeimosProspectingBlueprints";
+import { deriveSolarisRecipeBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromSolarisRecipeBlueprintFamilies";
+import { deriveEidolonProspectingBlueprintAcquisitionByCatalogId } from "./acquisitionFromEidolonProspectingBlueprints";
+import { deriveDroneAndComponentBlueprintAcquisitionByCatalogId } from "./acquisitionFromDroneAndComponentBlueprints";
+import { deriveFishingAndCurativeBlueprintAcquisitionByCatalogId } from "./acquisitionFromFishingAndCurativeBlueprints";
+import { deriveLandingCraftBlueprintAcquisitionByCatalogId } from "./acquisitionFromLandingCraftBlueprints";
+import { deriveLandingCraftComponentBlueprintAcquisitionByCatalogId } from "./acquisitionFromLandingCraftComponentBlueprints";
+import { deriveSynthicatorBlueprintAcquisitionByCatalogId } from "./acquisitionFromSynthicatorBlueprints";
 
 import { getItemRequirements } from "./itemRequirements";
 
@@ -30,7 +47,24 @@ const ITEMS_JSON_MARKET_ACQ: Record<string, AcquisitionDef> = deriveItemsJsonMar
 const RECIPE_BUCKET_ACQ: Record<string, AcquisitionDef> = deriveRecipeBucketAcquisitionByCatalogId();
 const CLAN_TECH_ACQ: Record<string, AcquisitionDef> = deriveClanTechAcquisitionByCatalogId();
 const COMPONENT_CRAFT_ACQ: Record<string, AcquisitionDef> = deriveComponentCraftabilityAcquisitionByCatalogId();
+const FISHING_BAIT_ACQ: Record<string, AcquisitionDef> = deriveFishingBaitAcquisitionByCatalogId();
+const FISHING_TROPHY_ACQ: Record<string, AcquisitionDef> = deriveFishingTrophyAcquisitionByCatalogId();
 const OVERFRAME_RESEARCH_ACQ: Record<string, AcquisitionDef> = deriveOverframeResearchAcquisitionByCatalogId();
+const RESTORATIVE_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveRestorativeBlueprintAcquisitionByCatalogId();
+const SOLARIS_OPERATOR_ARMOR_ACQ: Record<string, AcquisitionDef> = deriveSolarisOperatorArmorAcquisitionByCatalogId();
+const WEAPON_SKIN_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveWeaponSkinBlueprintAcquisitionByCatalogId();
+const WEAPON_PART_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveWeaponPartBlueprintFamilyAcquisitionByCatalogId();
+const DEIMOS_PET_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveDeimosPetBlueprintFamilyAcquisitionByCatalogId();
+const NECRALOID_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveNecraloidBlueprintFamilyAcquisitionByCatalogId();
+const DEIMOS_WEAPON_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveDeimosWeaponBlueprintFamilyAcquisitionByCatalogId();
+const DEIMOS_PROSPECTING_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveDeimosProspectingBlueprintAcquisitionByCatalogId();
+const SOLARIS_RECIPE_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveSolarisRecipeBlueprintFamilyAcquisitionByCatalogId();
+const EIDOLON_PROSPECTING_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveEidolonProspectingBlueprintAcquisitionByCatalogId();
+const DRONE_AND_COMPONENT_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveDroneAndComponentBlueprintAcquisitionByCatalogId();
+const FISHING_AND_CURATIVE_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveFishingAndCurativeBlueprintAcquisitionByCatalogId();
+const LANDING_CRAFT_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveLandingCraftBlueprintAcquisitionByCatalogId();
+const LANDING_CRAFT_COMPONENT_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveLandingCraftComponentBlueprintAcquisitionByCatalogId();
+const SYNTHICATOR_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveSynthicatorBlueprintAcquisitionByCatalogId();
 
 const RECIPE_CATALOG_ID_PREFIX = "items:/Lotus/Types/Recipes/";
 
@@ -301,6 +335,23 @@ function gatherDirectSources(catalogId: CatalogId): string[] {
     const ct = CLAN_TECH_ACQ[key];
     const or = OVERFRAME_RESEARCH_ACQ[key];
     const cc = COMPONENT_CRAFT_ACQ[key];
+    const fb = FISHING_BAIT_ACQ[key];
+    const ft = FISHING_TROPHY_ACQ[key];
+    const rs = RESTORATIVE_BLUEPRINT_ACQ[key];
+    const so = SOLARIS_OPERATOR_ARMOR_ACQ[key];
+    const ws = WEAPON_SKIN_BLUEPRINT_ACQ[key];
+    const wp = WEAPON_PART_FAMILY_ACQ[key];
+    const dp = DEIMOS_PET_BLUEPRINT_FAMILY_ACQ[key];
+    const nb = NECRALOID_BLUEPRINT_FAMILY_ACQ[key];
+    const dw = DEIMOS_WEAPON_BLUEPRINT_FAMILY_ACQ[key];
+    const dpr = DEIMOS_PROSPECTING_BLUEPRINT_ACQ[key];
+    const sr = SOLARIS_RECIPE_BLUEPRINT_FAMILY_ACQ[key];
+    const ep = EIDOLON_PROSPECTING_BLUEPRINT_ACQ[key];
+    const dc = DRONE_AND_COMPONENT_BLUEPRINT_ACQ[key];
+    const fc = FISHING_AND_CURATIVE_BLUEPRINT_ACQ[key];
+    const lc = LANDING_CRAFT_BLUEPRINT_ACQ[key];
+    const lcc = LANDING_CRAFT_COMPONENT_BLUEPRINT_ACQ[key];
+    const sb = SYNTHICATOR_BLUEPRINT_ACQ[key];
 
     return unionSources(
         wfcd?.sources,
@@ -312,7 +363,24 @@ function gatherDirectSources(catalogId: CatalogId): string[] {
         rb?.sources,
         ct?.sources,
         or?.sources,
-        cc?.sources
+        cc?.sources,
+        fb?.sources,
+        ft?.sources,
+        rs?.sources,
+        so?.sources,
+        ws?.sources,
+        wp?.sources,
+        dp?.sources,
+        nb?.sources,
+        dw?.sources,
+        dpr?.sources,
+        sr?.sources,
+        ep?.sources,
+        dc?.sources,
+        fc?.sources,
+        lc?.sources,
+        lcc?.sources,
+        sb?.sources
     );
 }
 

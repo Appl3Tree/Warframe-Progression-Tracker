@@ -2088,6 +2088,7 @@ export default function Inventory() {
   const sellSafetyById = useMemo(() => {
     const map = new Map<string, SellSafetyInfo>();
     const protectionMemo = new Map<string, SafeToSellProtectionKey[]>();
+    const NON_INHERITABLE_SAFE_TO_SELL_KEYS = new Set<SafeToSellProtectionKey>(["weaponIngredients"]);
 
     const collectProtectionKeys = (catalogId: CatalogId, seen = new Set<string>()): SafeToSellProtectionKey[] => {
       const key = String(catalogId);
@@ -2112,7 +2113,7 @@ export default function Inventory() {
       });
       const blueprintProtections =
         siblingBlueprintCatalogId && String(siblingBlueprintCatalogId) !== key
-          ? collectProtectionKeys(siblingBlueprintCatalogId, nextSeen)
+          ? collectProtectionKeys(siblingBlueprintCatalogId, nextSeen).filter((protectionKey) => !NON_INHERITABLE_SAFE_TO_SELL_KEYS.has(protectionKey))
           : [];
 
       const requirementCatalogId = siblingBlueprintCatalogId ?? catalogId;
@@ -2123,7 +2124,7 @@ export default function Inventory() {
         const requirementCls = classifyFromRecord(String(requirement.catalogId), requirementRec);
         if (requirementCls.groups.has("resources")) return [];
 
-        return collectProtectionKeys(requirement.catalogId, nextSeen);
+        return collectProtectionKeys(requirement.catalogId, nextSeen).filter((protectionKey) => !NON_INHERITABLE_SAFE_TO_SELL_KEYS.has(protectionKey));
       });
 
       const combined = Array.from(new Set([...ownProtections, ...blueprintProtections, ...inheritedProtections])).sort((a, b) =>

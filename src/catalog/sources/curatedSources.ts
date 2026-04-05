@@ -30,11 +30,17 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     { id: "data:baro/void-trader", label: "Buy from Baro Ki’Teer (Ducats + Credits)", type: "vendor" },
     { id: "data:vendor/steel-path/teshin", label: "Buy from Teshin (Steel Path Honors)", type: "vendor" },
     { id: "data:nightwave/cred-offerings", label: "Buy from Nightwave Cred Offerings", type: "vendor" },
+    { id: "data:nightwave/rank-reward", label: "Earn from Nightwave rank rewards", type: "other" },
 
     // Quests
     { id: "data:quest/the-sacrifice", label: "Complete The Sacrifice", type: "other" },
     { id: "data:quest/chimera-prologue", label: "Complete Chimera Prologue", type: "other" },
+    { id: "data:quest/the-archwing", label: "Complete The Archwing", type: "other" },
+    { id: "data:quest/the-new-strange", label: "Complete The New Strange", type: "other" },
     { id: "data:quest/octavias-anthem", label: "Complete Octavia’s Anthem", type: "other" },
+    { id: "data:quest/rising-tide", label: "Complete Rising Tide", type: "other" },
+    { id: "data:quest/the-jordas-precept", label: "Progress through The Jordas Precept", type: "other" },
+    { id: "data:quest/the-silver-grove", label: "Progress through The Silver Grove", type: "other" },
     { id: "data:quest/whispers-in-the-walls", label: "Complete Whispers in the Walls", type: "other" },
     { id: "data:quest/the-waverider", label: "Complete The Waverider", type: "other" },
     { id: "data:quest/the-old-peace", label: "Complete The Old Peace", type: "other" },
@@ -42,6 +48,7 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
 
     // Unobtainable
     { id: "data:unobtainable/founders", label: "Unobtainable (Founders)", type: "other" },
+    { id: "data:unobtainable/legacy", label: "Unobtainable legacy item", type: "other" },
 
     // Operator / amps
     { id: "data:operator/amp-starter", label: "Receive as a starter amp component", type: "other" },
@@ -74,10 +81,16 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     // Open-world vendors
     { id: "data:vendor/cetus/ostron", label: "Buy from Ostrons (Cetus)", type: "vendor" },
     { id: "data:vendor/cetus/quills", label: "Buy from The Quills (Cetus)", type: "vendor" },
+    { id: "data:vendor/cetus/hai-luk", label: "Buy from Hai-Luk (Cetus)", type: "vendor" },
+    { id: "data:vendor/cetus/nakak", label: "Buy from Nakak (Cetus)", type: "vendor" },
+    { id: "data:vendor/cetus/teasonai", label: "Buy from Master Teasonai (Cetus)", type: "vendor" },
+    { id: "data:vendor/cetus/suumbaat", label: "Buy from Old Man Suumbaat (Cetus)", type: "vendor" },
 
     { id: "data:vendor/fortuna/solaris-united", label: "Buy from Solaris United (Fortuna)", type: "vendor" },
     { id: "data:vendor/fortuna/vox-solaris", label: "Buy from Vox Solaris (Fortuna)", type: "vendor" },
     { id: "data:vendor/fortuna/ventkids", label: "Buy from Ventkids (Fortuna)", type: "vendor" },
+    { id: "data:vendor/fortuna/business", label: "Buy from The Business (Fortuna)", type: "vendor" },
+    { id: "data:vendor/fortuna/smokefinger", label: "Buy from Smokefinger (Fortuna)", type: "vendor" },
 
     { id: "data:vendor/deimos/entrati", label: "Buy from the Entrati Family (Deimos)", type: "vendor" },
     { id: "data:vendor/deimos/necraloid", label: "Buy from Necraloid (Deimos)", type: "vendor" },
@@ -92,6 +105,7 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     { id: "data:vendor/zariman/yonta", label: "Buy from Archimedean Yonta (Zariman)", type: "vendor" },
 
     { id: "data:vendor/sanctum/cavia", label: "Buy from Cavia (Sanctum Anatomica)", type: "vendor" },
+    { id: "data:vendor/sanctum/loid", label: "Buy from Loid (Sanctum Anatomica)", type: "vendor" },
     { id: "data:vendor/kahl-garrison/chipper", label: "Buy from Chipper (Kahl’s Garrison)", type: "vendor" },
 
     // Other key vendors
@@ -153,14 +167,25 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     { id: "data:1999/resources", label: "Farm resources in 1999", type: "drop" },
     { id: "data:bounties/narmer", label: "Run Narmer bounties", type: "drop" },
     { id: "data:enemy/zanuka-hunter", label: "Farm Zanuka Hunter for drops", type: "drop" },
+    { id: "data:enemy/stalker", label: "Farm Stalker and Shadow Stalker for drops", type: "drop" },
+    { id: "data:enemy/vem-tabook", label: "Farm Vem Tabook for drops", type: "drop" },
     { id: "data:events/anniversary", label: "Play Anniversary event content", type: "drop" },
+    { id: "data:events/fomorian-sabotage", label: "Respond to a Fomorian Sabotage event inbox", type: "other" },
     { id: "data:events/naberus", label: "Play Naberus event content", type: "drop" },
+    { id: "data:events/pyrus-project", label: "Progress through The Pyrus Project event", type: "other" },
+    { id: "data:events/razorback-armada", label: "Respond to a Razorback Armada event inbox", type: "other" },
 
     // Fishing processing: include the NPC name (so the user does not have to leave the app)
     // (Open world fishing NPCs: Hai-Luk, The Business, Daughter)
     { id: "data:fishing/cetus/processing", label: "Process fish with Hai-Luk (Cetus)", type: "drop" },
     { id: "data:fishing/fortuna/processing", label: "Process fish with The Business (Fortuna)", type: "drop" },
     { id: "data:fishing/deimos/processing", label: "Process fish with Daughter (Deimos)", type: "drop" },
+
+    { id: "data:container/rare-orokin-storage", label: "Open rare Orokin storage containers", type: "drop" },
+    { id: "data:container/rare-grineer-storage", label: "Open rare Grineer storage containers", type: "drop" },
+    { id: "data:container/forgotten-grineer-storage", label: "Open forgotten Grineer storage containers", type: "drop" },
+    { id: "data:container/rare-corpus-storage", label: "Open rare Corpus storage containers", type: "drop" },
+    { id: "data:container/reinforced-carrypod", label: "Open Zariman reinforced carrypods", type: "drop" },
 
     { id: "data:openworld/cetus/mining", label: "Mine in Plains of Eidolon", type: "drop" },
     { id: "data:openworld/fortuna/mining", label: "Mine in Orb Vallis", type: "drop" },

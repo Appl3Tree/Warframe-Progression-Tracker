@@ -74,19 +74,31 @@ export function WorkspaceHero(props: {
     className?: string;
 }) {
     return (
-        <WorkspacePanel className={joinClasses("px-5 py-4", props.className)}>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="max-w-3xl">
+        <WorkspacePanel className={joinClasses("px-4 py-4 sm:px-5", props.className)}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="max-w-3xl min-w-0">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--wf-accent-primary)]">
                         {props.eyebrow}
                     </div>
-                    <h1 className="mt-1 text-2xl font-semibold text-[color:var(--wf-text-strong)]">{props.title}</h1>
-                    <p className="mt-1 text-sm text-[color:var(--wf-text-muted)]">{props.description}</p>
+                    <h1 className="mt-1 text-xl font-semibold tracking-tight text-[color:var(--wf-text-strong)] sm:text-2xl">{props.title}</h1>
+                    <p className="mt-1 max-w-2xl text-sm text-[color:var(--wf-text-muted)]">{props.description}</p>
                 </div>
                 {props.actions ? <div className="flex flex-wrap items-center gap-2">{props.actions}</div> : null}
             </div>
 
-            {props.stats ? <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">{props.stats}</div> : null}
+            {props.stats ? (
+                <div
+                    className={joinClasses(
+                        "mt-3 flex flex-wrap gap-x-6 gap-y-3 border-t border-[color:var(--wf-border-subtle)] pt-3",
+                        "[&>*]:min-w-[120px] [&>*]:flex-1 [&>*]:rounded-none [&>*]:border-0 [&>*]:bg-transparent [&>*]:px-0 [&>*]:py-0 [&>*]:shadow-none",
+                        "[&>*_div:first-child]:text-[10px] [&>*_div:first-child]:tracking-[0.18em]",
+                        "[&>*_div:nth-child(2)]:mt-0.5 [&>*_div:nth-child(2)]:font-sans [&>*_div:nth-child(2)]:text-base [&>*_div:nth-child(2)]:font-semibold",
+                        "[&>*_div:nth-child(3)]:mt-1 [&>*_div:nth-child(3)]:text-[11px] [&>*_div:nth-child(3)]:leading-5"
+                    )}
+                >
+                    {props.stats}
+                </div>
+            ) : null}
         </WorkspacePanel>
     );
 }

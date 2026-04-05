@@ -111,6 +111,32 @@ export const MANUAL_ACQUISITION_BY_CATALOG_ID: Record<string, string[]> = {
     "items:/Lotus/Types/Recipes/Weapons/PangolinSwordBlueprint": ["data:market/credits"],
     "items:/Lotus/Types/Recipes/Weapons/PlasmaSwordBlueprint": ["data:market/credits"],
 
+    // ----------------------------
+    // Quest / Simaris / dojo / legacy blueprint cleanup
+    // ----------------------------
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/StandardArchwing/StandardArchwingBlueprint": ["data:quest/the-archwing", "data:vendor/simaris"], // Odonata Blueprint
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/StandardArchwing/StandardArchwingChassisBlueprint": ["data:quest/the-archwing", "data:vendor/simaris"], // Odonata Harness Blueprint
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/StandardArchwing/StandardArchwingSystemsBlueprint": ["data:quest/the-archwing", "data:vendor/simaris"], // Odonata Systems Blueprint
+    "items:/Lotus/Types/Recipes/ArchwingRecipes/StandardArchwing/StandardArchwingWingsBlueprint": ["data:quest/the-archwing", "data:vendor/simaris"], // Odonata Wings Blueprint
+
+    "items:/Lotus/Types/Recipes/Railjack/RailjackCephalonBlueprint": ["data:quest/rising-tide"], // Railjack Cephalon Blueprint
+
+    "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaBlueprint": ["data:quest/the-new-strange", "data:vendor/simaris", "data:duviri/circuit"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaChassisBlueprint": ["data:vendor/simaris", "data:duviri/circuit"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaHelmetBlueprint": ["data:vendor/simaris", "data:duviri/circuit"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/ChromaSystemsBlueprint": ["data:vendor/simaris", "data:duviri/circuit"],
+
+    "items:/Lotus/Types/Recipes/WarframeRecipes/DagathBlueprint": ["data:dojo/dagaths-hollow"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/DagathChassisBlueprint": ["data:dojo/dagaths-hollow"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/DagathHelmetBlueprint": ["data:dojo/dagaths-hollow"],
+    "items:/Lotus/Types/Recipes/WarframeRecipes/DagathSystemsBlueprint": ["data:dojo/dagaths-hollow"],
+
+    "items:/Lotus/Types/Recipes/Weapons/OperationsLaceraBlueprint": ["data:events/naberus"], // Ceti Lacera Blueprint
+
+    // Legacy reusable fishing blueprints removed in Update 24.6
+    "items:/Lotus/Types/Items/Fish/Eidolon/Boosters/AnglerVisionBlueprint": ["data:unobtainable/legacy"], // Luminous Dye Blueprint
+    "items:/Lotus/Types/Items/Fish/Eidolon/Boosters/SoftTouchBlueprint": ["data:unobtainable/legacy"], // Pharoma Blueprint
+
 
     // ----------------------------
     // Conclave / PvP variants

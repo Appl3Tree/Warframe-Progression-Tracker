@@ -26,17 +26,22 @@ import { WorkspacePanel, WorkspaceSegmented, WorkspaceSegmentedButton } from "./
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
 // "conclave" replaces "weekly_friday" — it has an internal daily+weekly split.
-type Bucket = "primary_daily" | "secondary_daily" | "weekly_monday" | "conclave";
+type Bucket = "primary_daily" | "eight_hour" | "secondary_daily" | "weekly_monday" | "four_day" | "rotation" | "conclave";
 type TimeMode = "utc" | "local";
 
 interface RCState {
     timeMode: TimeMode;
     primaryDailyResetKey: string;
     completedPrimaryDailyTaskIds: string[];
+    eightHourResetKey: string;
+    completedEightHourTaskIds: string[];
     secondaryDailyResetKey: string;
     completedSecondaryDailyTaskIds: string[];
     weeklyMondayResetKey: string;
     completedWeeklyMondayTaskIds: string[];
+    fourDayResetKey: string;
+    completedFourDayTaskIds: string[];
+    completedRotationTaskInstanceKeys: Record<string, string>;
     // Conclave has two internal windows — keyed separately so each auto-clears correctly
     conclaveWeeklyResetKey: string;
     completedConclaveWeeklyTaskIds: string[];
@@ -59,10 +64,13 @@ type TaskDef = {
     isFactionStanding?: boolean;
     factionSyndicateId?: string;
     prereqIds?: string[];
+    usesDynamicInstance?: boolean;
     isVisible?: (ctx: { completedPrereqs: Record<string, boolean>; syndicates: SyndicateState[] }) => boolean;
 };
 
 type TaskRenderState = "pending" | "completed" | "auto_blocked";
+type TrackerLayoutMode = "tracker" | "calendar";
+type CalendarScale = "day" | "week" | "month";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -83,42 +91,55 @@ const TEMPORAL_ARCHIMEDEA_TASK_ID = "temporal_archimedea";
 // by whichever deadline is most imminent.
 const WINDOW_MS: Record<Bucket, number> = {
     primary_daily: 86_400_000,
+    eight_hour: 28_800_000,
     secondary_daily: 86_400_000,
     weekly_monday: 604_800_000,
+    four_day: 345_600_000,
+    rotation: 21_600_000,
     conclave: 86_400_000,
 };
 
 const BUCKET_LABEL: Record<Bucket, string> = {
-    primary_daily: "Primary Daily",
-    secondary_daily: "Secondary Daily",
+    primary_daily: "Daily Reset",
+    eight_hour: "8-Hour Rotations",
+    secondary_daily: "Morning Reset",
     weekly_monday: "Weekly Reset",
+    four_day: "Long Rotations",
+    rotation: "Live Rotations",
     conclave: "Conclave",
 };
 
 function getBucketSub(mode: TimeMode): Record<Bucket, string> {
     return {
         primary_daily: fmtFixedUTC(0, 0, mode),
+        eight_hour: `${fmtFixedUTC(0, 0, mode)} · ${fmtFixedUTC(8, 0, mode)} · ${fmtFixedUTC(16, 0, mode)}`,
         secondary_daily: fmtFixedUTC(16, 0, mode),
         weekly_monday: `Mon ${fmtFixedUTC(0, 0, mode)}`,
+        four_day: `Every 4 days · ${fmtFixedUTC(0, 0, mode)}`,
+        rotation: "Live world-state timers",
         conclave: `Daily ${fmtFixedUTC(16, 0, mode)} · Weekly Fri`,
     };
 }
 
 const BUCKET_ORDER: Bucket[] = [
-    "primary_daily", "secondary_daily", "weekly_monday", "conclave",
+    "primary_daily", "eight_hour", "secondary_daily", "weekly_monday", "four_day", "rotation", "conclave",
 ];
 
 // For non-conclave buckets only — conclave uses two separate key pairs below.
 const COMPLETED_KEY: Partial<Record<Bucket, keyof RCState>> = {
     primary_daily: "completedPrimaryDailyTaskIds",
+    eight_hour: "completedEightHourTaskIds",
     secondary_daily: "completedSecondaryDailyTaskIds",
     weekly_monday: "completedWeeklyMondayTaskIds",
+    four_day: "completedFourDayTaskIds",
 };
 
 const RESET_KEY: Partial<Record<Bucket, keyof RCState>> = {
     primary_daily: "primaryDailyResetKey",
+    eight_hour: "eightHourResetKey",
     secondary_daily: "secondaryDailyResetKey",
     weekly_monday: "weeklyMondayResetKey",
+    four_day: "fourDayResetKey",
 };
 
 // Baro anchor — 2026-03-20T13:00:00Z, every 14 days, available 48 h
@@ -157,6 +178,10 @@ const ALL_TASKS: TaskDef[] = [
     { id: "standing_cephalon_simaris", label: "Cephalon Simaris", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_RELAY, PR.NEW_STRANGE] },
 
     { id: "steel_path_incursions", label: "Steel Path Incursions", bucket: "primary_daily", description: "Finish the day's Steel Path Incursions." },
+    { id: "simaris_daily_synthesis", label: "Simaris Daily Synthesis", bucket: "primary_daily", description: "Complete today's Cephalon Simaris synthesis target.", prereqIds: [PR.HUB_RELAY, PR.NEW_STRANGE] },
+    { id: "darvo_daily_deal", label: "Darvo Daily Deal", bucket: "primary_daily", description: "Review today's Darvo Deal before it rotates." },
+    { id: "k_drive_races", label: "K-Drive Races", bucket: "primary_daily", description: "Check today's active K-Drive races.", prereqIds: [PR.HUB_FORTUNA] },
+    { id: "nightmare_missions", label: "Nightmare Missions", bucket: "eight_hour", description: "Run the current Nightmare Missions before the next 8-hour rotation." },
     { id: "nightwave_daily", label: "Nightwave Daily Acts", bucket: "primary_daily", description: "Complete today's Nightwave daily acts." },
     { id: "argon_decay", label: "Argon Crystal Check", bucket: "primary_daily", description: "Spend Argon before daily decay if needed." },
     { id: "circuit_stage_bonus", label: "Circuit Stage Bonus", bucket: "primary_daily", description: "Use today's Circuit stage bonus.", prereqIds: [PR.DUVIRI_PARADOX] },
@@ -185,8 +210,10 @@ const ALL_TASKS: TaskDef[] = [
     { id: "circuit_incarnon", label: "Circuit Incarnon Genesis", bucket: "weekly_monday", description: "Use current weekly Incarnon rotation.", prereqIds: [PR.DUVIRI_PARADOX] },
     { id: "nightwave_weekly", label: "Nightwave Weekly Acts", bucket: "weekly_monday", description: "Complete this week's Nightwave weekly acts." },
     { id: "nightwave_elite", label: "Nightwave Elite Weekly", bucket: "weekly_monday", description: "Complete this week's Nightwave elite acts." },
+    { id: "nightwave_cred_offerings", label: "Nightwave Cred Offerings", bucket: "weekly_monday", description: "Review this week's Nightwave Cred offerings." },
     { id: "helminth_invigoration", label: "Helminth Invigoration", bucket: "weekly_monday", description: "Use the current weekly Helminth Invigoration.", prereqIds: [PR.SEGMENT_HELMINTH_INVIGORATION] },
     { id: "steel_path_honors", label: "Steel Path Honors", bucket: "weekly_monday", description: "Check or buy this week's Steel Path Honors." },
+    { id: "cavalero_incarnon_market", label: "Cavalero Incarnon Market", bucket: "weekly_monday", description: "Review Cavalero's weekly Incarnon stock.", prereqIds: [PR.HUB_ZARIMAN] },
     { id: "palladino_weekly", label: "Palladino — Iron Wake", bucket: "weekly_monday", description: "Check this week's Palladino offerings." },
     { id: "yonta_weekly", label: "Yonta — Weekly Kuva", bucket: "weekly_monday", description: "Claim Yonta's weekly Kuva purchase.", prereqIds: [PR.HUB_ZARIMAN] },
     {
@@ -202,6 +229,7 @@ const ALL_TASKS: TaskDef[] = [
     },
     { id: "acrithis_weekly", label: "Acrithis Weekly Shop", bucket: "weekly_monday", description: "Review the weekly Acrithis inventory.", prereqIds: [PR.DUVIRI_PARADOX] },
     { id: "break_narmer", label: "Break Narmer (Kahl)", bucket: "weekly_monday", description: "Complete the weekly Kahl mission.", prereqIds: [PR.VEILBREAKER] },
+    { id: "chipper_weekly", label: "Chipper Weekly Stock", bucket: "weekly_monday", description: "Check Chipper's weekly stock and purchases.", prereqIds: [PR.VEILBREAKER] },
     { id: "maroo", label: "Maroo — Ayatan Hunt", bucket: "weekly_monday", description: "Run the weekly Ayatan Treasure Hunt." },
     { id: "help_clem", label: "Help Clem", bucket: "weekly_monday", description: "Run the weekly Help Clem mission." },
     { id: "the_descendia_normal", label: "The Descendia (Normal)", bucket: "weekly_monday", description: "Complete this week's Normal Descendia run. Separate reward table from Steel Path.", prereqIds: [PR.THE_OLD_PEACE] },
@@ -220,6 +248,24 @@ const ALL_TASKS: TaskDef[] = [
     },
     { id: "calendar_1999", label: "1999 Calendar Season", bucket: "weekly_monday", description: "Check weekly calendar To Do tasks, prize selection, and Hex Override choices.", prereqIds: [PR.THE_HEX] },
 
+    // ── Four-day rotations — 00:00 UTC cadence ────────────────────────────────
+    { id: "ergo_glast_tenet_rotation", label: "Ergo Glast Tenet Rotation", bucket: "four_day", description: "Review Ergo Glast's current Tenet weapon rotation.", prereqIds: [PR.HUB_RELAY] },
+    { id: "eleanor_coda_rotation", label: "Eleanor Coda Rotation", bucket: "four_day", description: "Review the current Coda weapon rotation.", prereqIds: [PR.HUB_HOLLVANIA] },
+
+    // ── World-state rotations — driven by live expiry, not fixed UTC boundaries ──
+    { id: "ostrons_bounties", label: "Ostrons Bounties", bucket: "rotation", description: "Check the current Plains bounty board before it rotates.", usesDynamicInstance: true, prereqIds: [PR.HUB_CETUS] },
+    { id: "solaris_bounties", label: "Solaris United Bounties", bucket: "rotation", description: "Check the current Orb Vallis bounty board before it rotates.", usesDynamicInstance: true, prereqIds: [PR.HUB_FORTUNA] },
+    { id: "entrati_bounties", label: "Entrati Bounties", bucket: "rotation", description: "Check the current Cambion Drift bounty board before it rotates.", usesDynamicInstance: true, prereqIds: [PR.HUB_NECRALISK] },
+    { id: "holdfasts_bounties", label: "Holdfasts Bounties", bucket: "rotation", description: "Check the current Zariman bounty board before it rotates.", usesDynamicInstance: true, prereqIds: [PR.HUB_ZARIMAN] },
+    { id: "cavia_bounties", label: "Cavia Bounties", bucket: "rotation", description: "Check the current Sanctum bounty board before it rotates.", usesDynamicInstance: true, prereqIds: [PR.HUB_SANCTUM] },
+    { id: "hex_bounties", label: "The Hex Bounties", bucket: "rotation", description: "Check the current Höllvania bounty board before it rotates.", usesDynamicInstance: true, prereqIds: [PR.HUB_HOLLVANIA] },
+    { id: "arbitration", label: "Arbitration", bucket: "rotation", description: "Use the current Arbitration before it rotates.", usesDynamicInstance: true },
+    { id: "kuva_flood", label: "Kuva Flood", bucket: "rotation", description: "Run the current Kuva Flood before it rotates.", usesDynamicInstance: true },
+    { id: "kuva_siphons", label: "Kuva Siphons", bucket: "rotation", description: "Check the current Kuva Siphon set before it rotates.", usesDynamicInstance: true },
+    { id: "baro_visit", label: "Baro Ki'Teer", bucket: "rotation", description: "Review Baro Ki'Teer before his current visit or next arrival window changes.", usesDynamicInstance: true },
+    { id: "varzia_rotation", label: "Varzia Rotation", bucket: "rotation", description: "Review the current Prime Resurgence rotation.", usesDynamicInstance: true },
+    { id: "sentient_outpost", label: "Sentient Outpost", bucket: "rotation", description: "Run the current Sentient Outpost before it expires.", usesDynamicInstance: true },
+
     // ── Conclave — Daily 16:00 UTC ─────────────────────────────────────────────
     { id: "conclave_daily_standing", label: "Conclave Standing", bucket: "conclave", conclaveSub: "conclave_daily", description: "Use today's Conclave standing cap.", prereqIds: [PR.HUB_RELAY] },
     { id: "conclave_daily_challenges", label: "Conclave Daily Challenges", bucket: "conclave", conclaveSub: "conclave_daily", description: "Complete today's Conclave daily challenges.", prereqIds: [PR.HUB_RELAY] },
@@ -232,6 +278,158 @@ const ALL_TASKS: TaskDef[] = [
 
 function utcKey(d: Date) {
     return d.toISOString().slice(0, 10);
+}
+
+function eightHourResetStart(now: Date): Date {
+    const hour = now.getUTCHours();
+    const startHour = Math.floor(hour / 8) * 8;
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), startHour));
+}
+
+function eightHourResetKey(now: Date): string {
+    return eightHourResetStart(now).toISOString();
+}
+
+// Four-day vendor rotation anchor. We treat 2025-03-23 00:00 UTC as a known cycle boundary
+// for the modern 4-day vendor weapon rotations and advance in 4-day windows from there.
+const FOUR_DAY_ANCHOR_MS = Date.UTC(2025, 2, 23, 0, 0, 0, 0);
+const FOUR_DAY_WINDOW_MS = 4 * 86_400_000;
+
+function fourDayResetStart(now: Date): Date {
+    const utcMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0);
+    const diff = utcMidnight - FOUR_DAY_ANCHOR_MS;
+    const windows = Math.floor(diff / FOUR_DAY_WINDOW_MS);
+    return new Date(FOUR_DAY_ANCHOR_MS + windows * FOUR_DAY_WINDOW_MS);
+}
+
+function fourDayResetKey(now: Date): string {
+    return fourDayResetStart(now).toISOString();
+}
+
+function getSyndicateMissionBoard(data: WorldStateData | null, syndicateKey: string): WorldStateData["syndicateMissions"][number] | null {
+    return data?.syndicateMissions.find((board) => board.syndicateKey === syndicateKey || board.syndicate === syndicateKey) ?? null;
+}
+
+function dynamicTaskInstanceKey(taskId: string, data: WorldStateData | null): string | null {
+    if (!data) return null;
+
+    const bountyBoardMap: Record<string, string> = {
+        ostrons_bounties: "Ostrons",
+        solaris_bounties: "Solaris United",
+        entrati_bounties: "Entrati",
+        holdfasts_bounties: "The Holdfasts",
+        cavia_bounties: "Cavia",
+        hex_bounties: "The Hex",
+    };
+    const bountyBoardKey = bountyBoardMap[taskId];
+    if (bountyBoardKey) {
+        const board = getSyndicateMissionBoard(data, bountyBoardKey);
+        if (!board?.expiry) return null;
+        return `${board.syndicateKey}|${board.expiry}|${board.jobs.map((job) => `${job.id}|${job.expiry}`).join("||")}`;
+    }
+
+    if (taskId === "arbitration") {
+        const a = data.arbitration;
+        return a?.expiry ? `${a.node}|${a.type}|${a.expiry}` : null;
+    }
+
+    if (taskId === "kuva_flood") {
+        const flood = data.kuva.find((k) => k.isFlood && k.expiry);
+        return flood ? `${flood.node}|${flood.type}|${flood.expiry}` : null;
+    }
+
+    if (taskId === "kuva_siphons") {
+        const siphons = data.kuva.filter((k) => !k.isFlood && k.expiry);
+        if (siphons.length === 0) return null;
+        return siphons
+            .map((k) => `${k.node}|${k.type}|${k.expiry}`)
+            .sort()
+            .join("||");
+    }
+
+    if (taskId === "baro_visit") {
+        const trader = data.voidTrader;
+        if (!trader?.activation || !trader?.expiry) return null;
+        return `${trader.activation}|${trader.expiry}|${trader.location}|${trader.active ? "active" : "inactive"}`;
+    }
+
+    if (taskId === "varzia_rotation") {
+        const trader = data.vaultTrader;
+        if (!trader?.activation && !trader?.expiry) return null;
+        return `${trader.activation ?? ""}|${trader.expiry ?? ""}|${trader.location}|${trader.active ? "active" : "inactive"}`;
+    }
+
+    if (taskId === "sentient_outpost") {
+        const outpost = data.sentientOutposts;
+        return outpost?.expiry ? `${outpost.mission?.node ?? ""}|${outpost.missionType ?? ""}|${outpost.expiry}` : null;
+    }
+
+    return null;
+}
+
+function dynamicTaskNextReset(taskId: string, data: WorldStateData | null, now: Date): Date | null {
+    if (!data) return null;
+
+    const bountyBoardMap: Record<string, string> = {
+        ostrons_bounties: "Ostrons",
+        solaris_bounties: "Solaris United",
+        entrati_bounties: "Entrati",
+        holdfasts_bounties: "The Holdfasts",
+        cavia_bounties: "Cavia",
+        hex_bounties: "The Hex",
+    };
+    const bountyBoardKey = bountyBoardMap[taskId];
+    if (bountyBoardKey) {
+        const board = getSyndicateMissionBoard(data, bountyBoardKey);
+        return board?.expiry ? new Date(board.expiry) : null;
+    }
+
+    if (taskId === "arbitration") {
+        return data.arbitration?.expiry ? new Date(data.arbitration.expiry) : null;
+    }
+
+    if (taskId === "kuva_flood") {
+        const flood = data.kuva.find((k) => k.isFlood && k.expiry);
+        return flood?.expiry ? new Date(flood.expiry) : null;
+    }
+
+    if (taskId === "kuva_siphons") {
+        const expiries = data.kuva
+            .filter((k) => !k.isFlood && k.expiry)
+            .map((k) => new Date(k.expiry))
+            .filter((d) => !Number.isNaN(d.getTime()) && d.getTime() > now.getTime())
+            .sort((a, b) => a.getTime() - b.getTime());
+        return expiries[0] ?? null;
+    }
+
+    if (taskId === "baro_visit") {
+        const trader = data.voidTrader;
+        if (!trader) return null;
+        const target = trader.active ? trader.expiry : trader.activation;
+        return target ? new Date(target) : null;
+    }
+
+    if (taskId === "varzia_rotation") {
+        const trader = data.vaultTrader;
+        if (!trader) return null;
+        const target = trader.active ? trader.expiry : trader.activation;
+        return target ? new Date(target) : null;
+    }
+
+    if (taskId === "sentient_outpost") {
+        return data.sentientOutposts?.expiry ? new Date(data.sentientOutposts.expiry) : null;
+    }
+
+    return null;
+}
+
+function getRotationNextReset(data: WorldStateData | null, tasks: TaskDef[], now: Date): Date {
+    const candidates = tasks
+        .map((task) => dynamicTaskNextReset(task.id, data, now))
+        .filter((date): date is Date => !!date && !Number.isNaN(date.getTime()) && date.getTime() > now.getTime())
+        .sort((a, b) => a.getTime() - b.getTime());
+
+    return candidates[0] ?? new Date(now.getTime() + WINDOW_MS.rotation);
 }
 
 // Key for conclave daily — date string for the 16:00 UTC window currently active
@@ -250,7 +448,7 @@ function conclaveWeeklyKey(now: Date): string {
     return utcKey(base);
 }
 
-function getCurrentKeys(now: Date): Record<Exclude<Bucket, "conclave">, string> & { conclave_daily: string; conclave_weekly: string } {
+function getCurrentKeys(now: Date): Record<Exclude<Bucket, "conclave" | "rotation">, string> & { conclave_daily: string; conclave_weekly: string } {
     const st = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 16));
     const mb = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     mb.setUTCDate(mb.getUTCDate() - (mb.getUTCDay() + 6) % 7);
@@ -262,27 +460,35 @@ function getCurrentKeys(now: Date): Record<Exclude<Bucket, "conclave">, string> 
 
     return {
         primary_daily: utcKey(now),
+        eight_hour: eightHourResetKey(now),
         secondary_daily: secKey,
         weekly_monday: utcKey(mb),
+        four_day: fourDayResetKey(now),
         conclave_daily: conclaveDailyKey(now),
         conclave_weekly: conclaveWeeklyKey(now),
     };
 }
 
 // Next reset times for all sub-windows
-function getNextResets(now: Date): Record<Bucket, Date> & { conclave_daily: Date; conclave_weekly: Date } {
+function getNextResets(now: Date): Record<Exclude<Bucket, "rotation">, Date> & { conclave_daily: Date; conclave_weekly: Date } {
     const st = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 16));
     const nm = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     nm.setUTCDate(nm.getUTCDate() - (nm.getUTCDay() + 6) % 7 + 7);
     const nf = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     nf.setUTCDate(nf.getUTCDate() - (nf.getUTCDay() + 2) % 7 + 7);
+    const nextEightHour = new Date(eightHourResetStart(now));
+    nextEightHour.setUTCHours(nextEightHour.getUTCHours() + 8);
+    const nextFourDay = new Date(fourDayResetStart(now));
+    nextFourDay.setUTCDate(nextFourDay.getUTCDate() + 4);
 
     const nextConcDaily = now < st ? st : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 16));
 
     return {
         primary_daily: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)),
+        eight_hour: nextEightHour,
         secondary_daily: now < st ? st : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 16)),
         weekly_monday: nm,
+        four_day: nextFourDay,
         conclave: nextConcDaily,
         conclave_daily: nextConcDaily,
         conclave_weekly: nf,
@@ -382,6 +588,49 @@ function getTaskDescription(task: TaskDef, completedIds: string[], netracellRuns
     return task.description;
 }
 
+function getTaskDeadlineLine(task: TaskDef, worldState: WorldStateData | null, timeMode: TimeMode, now: Date): string | null {
+    if (task.bucket === "four_day") {
+        const nextReset = new Date(fourDayResetStart(now));
+        nextReset.setUTCDate(nextReset.getUTCDate() + 4);
+        return `Rotates ${fmtAbs(nextReset, timeMode)}`;
+    }
+
+    if (!task.usesDynamicInstance) return null;
+    const nextReset = dynamicTaskNextReset(task.id, worldState, now);
+    if (!nextReset || Number.isNaN(nextReset.getTime()) || nextReset.getTime() <= now.getTime()) return null;
+
+    if (task.id === "baro_visit") {
+        return `${worldState?.voidTrader?.active ? "Leaves" : "Arrives"} ${fmtAbs(nextReset, timeMode)}`;
+    }
+
+    if (task.id === "varzia_rotation") {
+        return `${worldState?.vaultTrader?.active ? "Ends" : "Returns"} ${fmtAbs(nextReset, timeMode)}`;
+    }
+
+    if (task.id === "sentient_outpost") {
+        return `Ends ${fmtAbs(nextReset, timeMode)}`;
+    }
+
+    return `Rotates ${fmtAbs(nextReset, timeMode)}`;
+}
+
+function getCalendarTaskState(
+    task: TaskDef,
+    completedIds: Record<Exclude<Bucket, "conclave">, string[]> & { conclave_daily: string[]; conclave_weekly: string[] },
+    rotationCompletedIds: string[],
+    netracellRuns: number,
+): TaskRenderState {
+    if (task.bucket === "rotation") return getTaskRenderState(task, rotationCompletedIds, netracellRuns);
+    if (task.bucket === "conclave") {
+        return getTaskRenderState(
+            task,
+            task.conclaveSub === "conclave_daily" ? completedIds.conclave_daily : completedIds.conclave_weekly,
+            netracellRuns,
+        );
+    }
+    return getTaskRenderState(task, completedIds[task.bucket], netracellRuns);
+}
+
 function getCompletedTaskCount(tasks: TaskDef[], completedIds: string[], netracellRuns: number): number {
     return tasks.filter((task) => getTaskRenderState(task, completedIds, netracellRuns) !== "pending").length;
 }
@@ -425,10 +674,15 @@ function makeDefault(now: Date): RCState {
         timeMode: "utc",
         primaryDailyResetKey: keys.primary_daily,
         completedPrimaryDailyTaskIds: [],
+        eightHourResetKey: keys.eight_hour,
+        completedEightHourTaskIds: [],
         secondaryDailyResetKey: keys.secondary_daily,
         completedSecondaryDailyTaskIds: [],
         weeklyMondayResetKey: keys.weekly_monday,
         completedWeeklyMondayTaskIds: [],
+        fourDayResetKey: keys.four_day,
+        completedFourDayTaskIds: [],
+        completedRotationTaskInstanceKeys: {},
         conclaveWeeklyResetKey: keys.conclave_weekly,
         completedConclaveWeeklyTaskIds: [],
         conclaveDailyResetKey: keys.conclave_daily,
@@ -444,8 +698,15 @@ function loadState(): RCState {
         if (raw) {
             const parsed = JSON.parse(raw) as RCState;
             if (!Array.isArray(parsed.hiddenTaskIds)) parsed.hiddenTaskIds = [];
+            if (!Array.isArray(parsed.completedEightHourTaskIds)) parsed.completedEightHourTaskIds = [];
+            if (!Array.isArray(parsed.completedFourDayTaskIds)) parsed.completedFourDayTaskIds = [];
+            if (!parsed.completedRotationTaskInstanceKeys || typeof parsed.completedRotationTaskInstanceKeys !== "object") {
+                parsed.completedRotationTaskInstanceKeys = {};
+            }
             if (!Array.isArray(parsed.completedConclaveWeeklyTaskIds)) parsed.completedConclaveWeeklyTaskIds = [];
             if (!Array.isArray(parsed.completedConclaveDailyTaskIds)) parsed.completedConclaveDailyTaskIds = [];
+            if (!parsed.eightHourResetKey) parsed.eightHourResetKey = eightHourResetKey(new Date());
+            if (!parsed.fourDayResetKey) parsed.fourDayResetKey = fourDayResetKey(new Date());
             if (!parsed.conclaveWeeklyResetKey) parsed.conclaveWeeklyResetKey = conclaveWeeklyKey(new Date());
             if (!parsed.conclaveDailyResetKey) parsed.conclaveDailyResetKey = conclaveDailyKey(new Date());
             if (typeof parsed.netracellRuns !== "number") parsed.netracellRuns = 0;
@@ -470,7 +731,7 @@ function syncResets(s: RCState, now: Date): RCState {
     let next = s;
 
     // Standard buckets — also clear netracellRuns when weekly monday resets
-    (["primary_daily", "secondary_daily", "weekly_monday"] as const).forEach((b) => {
+    (["primary_daily", "eight_hour", "secondary_daily", "weekly_monday", "four_day"] as const).forEach((b) => {
         const rk = RESET_KEY[b]!;
         const ck = COMPLETED_KEY[b]!;
         if (next[rk] !== keys[b]) {
@@ -491,6 +752,7 @@ function syncResets(s: RCState, now: Date): RCState {
 function getEligibleTasks(
     completedPrereqs: Record<string, boolean>,
     syndicates: SyndicateState[],
+    worldState: WorldStateData | null,
 ): TaskDef[] {
     const pledgedIds = new Set(
         syndicates.filter((s) => s.pledged && RELAY_FACTION_IDS.has(s.id as SyndicateId)).map((s) => s.id)
@@ -502,6 +764,7 @@ function getEligibleTasks(
             if (anyPledged && !pledgedIds.has(t.factionSyndicateId)) return false;
         }
         if (!(t.prereqIds ?? []).every((id) => completedPrereqs[id] === true)) return false;
+        if (t.usesDynamicInstance && worldState && !dynamicTaskInstanceKey(t.id, worldState)) return false;
         if (t.isVisible) return t.isVisible({ completedPrereqs, syndicates });
         return true;
     });
@@ -991,12 +1254,199 @@ function buildWorldStateHints(data: WorldStateData | null): HintMaps {
         );
     }
 
+    hints["chipper_weekly"] = (
+        <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+            <div className="text-[10px] font-medium text-slate-300">Kahl's Garrison</div>
+            <div className="text-[9px] text-slate-500 mt-0.5">
+                Check Chipper's weekly stock after the Monday reset and before spending Stock elsewhere.
+            </div>
+        </div>
+    );
+    hints["nightwave_cred_offerings"] = (
+        <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+            <div className="text-[10px] font-medium text-slate-300">Nightwave Store</div>
+            <div className="text-[9px] text-slate-500 mt-0.5">
+                Review Nora's current Cred offerings after the weekly reset.
+            </div>
+        </div>
+    );
+    hints["cavalero_incarnon_market"] = (
+        <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+            <div className="text-[10px] font-medium text-slate-300">Cavalero</div>
+            <div className="text-[9px] text-slate-500 mt-0.5">
+                Review this week's Incarnon market stock in the Chrysalith.
+            </div>
+        </div>
+    );
+    hints["k_drive_races"] = (
+        <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+            <div className="text-[10px] font-medium text-slate-300">Orb Vallis</div>
+            <div className="text-[9px] text-slate-500 mt-0.5">
+                Five active K-Drive races rotate with the daily reset.
+            </div>
+        </div>
+    );
+    hints["ergo_glast_tenet_rotation"] = (
+        <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+            <div className="text-[10px] font-medium text-slate-300">Ergo Glast</div>
+            <div className="text-[9px] text-slate-500 mt-0.5">
+                Tenet melee and weapon bonus stock rotates every four days.
+            </div>
+        </div>
+    );
+    hints["eleanor_coda_rotation"] = (
+        <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+            <div className="text-[10px] font-medium text-slate-300">Eleanor</div>
+            <div className="text-[9px] text-slate-500 mt-0.5">
+                Coda weapon availability rotates every four days.
+            </div>
+        </div>
+    );
+
     // ── Simaris target ───────────────────────────────────────────────────────────
     if (data.simaris?.target) {
         hints["standing_cephalon_simaris"] = (
             <div className="mt-1 text-[10px] text-slate-400">
                 Synthesis target: <span className="text-slate-200 font-medium">{data.simaris.target}</span>
                 {data.simaris.isTargetActive && <span className="ml-1 text-green-400">(active)</span>}
+            </div>
+        );
+
+        hints["simaris_daily_synthesis"] = (
+            <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+                <div className="text-[10px] font-medium text-slate-300">{data.simaris.target}</div>
+                <div className="text-[9px] text-slate-500 mt-0.5">
+                    {data.simaris.isTargetActive ? "Active in current mission" : "Pick up and finish today's synthesis target."}
+                </div>
+            </div>
+        );
+    }
+
+    if (data.dailyDeals.length > 0) {
+        const deal = data.dailyDeals[0];
+        hints["darvo_daily_deal"] = (
+            <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+                <div className="flex items-center justify-between gap-1.5">
+                    <span className="text-[10px] font-medium text-slate-300 truncate">{deal.item}</span>
+                    <WsChip color="text-green-300" bg="bg-green-950/20" border="border-green-700/40">{deal.discount}% off</WsChip>
+                </div>
+                <div className="text-[9px] text-slate-500 mt-0.5">
+                    {deal.salePrice.toLocaleString()} plat · {deal.sold}/{deal.total} sold
+                </div>
+            </div>
+        );
+    }
+
+    const bountyHintMap: Record<string, string> = {
+        ostrons_bounties: "Ostrons",
+        solaris_bounties: "Solaris United",
+        entrati_bounties: "Entrati",
+        holdfasts_bounties: "The Holdfasts",
+        cavia_bounties: "Cavia",
+        hex_bounties: "The Hex",
+    };
+    for (const [taskId, syndicateKey] of Object.entries(bountyHintMap)) {
+        const board = getSyndicateMissionBoard(data, syndicateKey);
+        if (!board || board.jobs.length === 0) continue;
+        hints[taskId] = (
+            <div className="mt-1.5 space-y-1">
+                {board.jobs.slice(0, 4).map((job) => (
+                    <div key={job.id} className="rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1">
+                        <div className="flex items-center justify-between gap-1.5">
+                            <span className="text-[10px] font-medium text-slate-300">{job.type}</span>
+                            {job.enemyLevels.length >= 2 && (
+                                <WsChip color="text-slate-400">{job.enemyLevels[0]}-{job.enemyLevels[job.enemyLevels.length - 1]}</WsChip>
+                            )}
+                        </div>
+                        <div className="text-[9px] text-slate-500 mt-0.5">
+                            {job.rewardPool.slice(0, 2).join(" · ") || "Reward data unavailable"}
+                        </div>
+                    </div>
+                ))}
+                {board.jobs.length > 4 && (
+                    <div className="text-[9px] text-slate-600">+{board.jobs.length - 4} more bounty tiers</div>
+                )}
+            </div>
+        );
+    }
+
+    if (data.arbitration) {
+        hints["arbitration"] = (
+            <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+                <div className="text-[10px] font-medium text-slate-300">{data.arbitration.type}</div>
+                <div className="text-[9px] text-slate-500 mt-0.5">{data.arbitration.node}</div>
+                <div className="text-[9px] text-slate-500">{data.arbitration.enemy}</div>
+            </div>
+        );
+    }
+
+    const kuvaFlood = data.kuva.find((k) => k.isFlood);
+    if (kuvaFlood) {
+        hints["kuva_flood"] = (
+            <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+                <div className="text-[10px] font-medium text-slate-300">{kuvaFlood.type}</div>
+                <div className="text-[9px] text-slate-500 mt-0.5">{kuvaFlood.node}</div>
+            </div>
+        );
+    }
+
+    const kuvaSiphons = data.kuva.filter((k) => !k.isFlood);
+    if (kuvaSiphons.length > 0) {
+        hints["kuva_siphons"] = (
+            <div className="mt-1.5 space-y-1">
+                {kuvaSiphons.slice(0, 4).map((mission, i) => (
+                    <div key={i} className="rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1">
+                        <div className="text-[10px] font-medium text-slate-300">{mission.type}</div>
+                        <div className="text-[9px] text-slate-500">{mission.node}</div>
+                    </div>
+                ))}
+                {kuvaSiphons.length > 4 && (
+                    <div className="text-[9px] text-slate-600">+{kuvaSiphons.length - 4} more siphons</div>
+                )}
+            </div>
+        );
+    }
+
+    if (data.voidTrader) {
+        const trader = data.voidTrader;
+        hints["baro_visit"] = (
+            <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+                <div className="flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${trader.active ? "bg-amber-400" : "bg-slate-500"}`} />
+                    <span className="text-[10px] font-medium text-slate-300">{trader.active ? "Here now" : "Next visit"}</span>
+                </div>
+                <div className="text-[9px] text-slate-500 mt-0.5">{trader.location || "Relay"}</div>
+                {trader.inventory.length > 0 && (
+                    <div className="text-[9px] text-slate-600">{trader.inventory.length} items in inventory</div>
+                )}
+            </div>
+        );
+    }
+
+    if (data.vaultTrader) {
+        const trader = data.vaultTrader;
+        hints["varzia_rotation"] = (
+            <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+                <div className="flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${trader.active ? "bg-violet-400" : "bg-slate-500"}`} />
+                    <span className="text-[10px] font-medium text-slate-300">{trader.active ? "Active" : "Inactive"}</span>
+                </div>
+                <div className="text-[9px] text-slate-500 mt-0.5">{trader.location || "Maroo's Bazaar"}</div>
+                {trader.inventory.length > 0 && (
+                    <div className="text-[9px] text-slate-600">{trader.inventory.length} items in rotation</div>
+                )}
+            </div>
+        );
+    }
+
+    if (data.sentientOutposts?.active && data.sentientOutposts.mission) {
+        const outpost = data.sentientOutposts;
+        const mission = outpost.mission!;
+        hints["sentient_outpost"] = (
+            <div className="mt-1.5 rounded-lg border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+                <div className="text-[10px] font-medium text-slate-300">{mission.type}</div>
+                <div className="text-[9px] text-slate-500 mt-0.5">{mission.node}</div>
+                <div className="text-[9px] text-slate-500">{mission.faction}</div>
             </div>
         );
     }
@@ -1020,6 +1470,9 @@ function TaskList({
     onToggle,
     netracellRuns,
     onNetracellChange,
+    timeMode,
+    worldState,
+    now,
     inlineHints,
     expandableHints,
 }: {
@@ -1028,6 +1481,9 @@ function TaskList({
     onToggle: (id: string) => void;
     netracellRuns?: number;
     onNetracellChange?: (n: number) => void;
+    timeMode: TimeMode;
+    worldState: WorldStateData | null;
+    now: Date;
     inlineHints?: Record<string, React.ReactNode>;
     expandableHints?: Record<string, React.ReactNode>;
 }) {
@@ -1061,6 +1517,7 @@ function TaskList({
         labelClass: string,
         checkboxNode: React.ReactNode,
         outerClass: string,
+        deadlineLine: string | null,
         onClickToggle?: () => void,
     ) => {
         const hasExpandable = !!expandableHints?.[t.id];
@@ -1079,6 +1536,7 @@ function TaskList({
                             <div className="min-w-0 flex-1">
                                 <div className={`text-sm font-medium leading-tight ${labelClass}`}>{t.label}</div>
                                 <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
+                                {deadlineLine && <div className="text-[10px] text-slate-600 mt-1">{deadlineLine}</div>}
                             </div>
                         </button>
                     ) : (
@@ -1087,6 +1545,7 @@ function TaskList({
                             <div className="min-w-0 flex-1">
                                 <div className={`text-sm font-medium leading-tight ${labelClass}`}>{t.label}</div>
                                 <div className="text-xs text-slate-500 mt-0.5 leading-snug">{description}</div>
+                                {deadlineLine && <div className="text-[10px] text-slate-600 mt-1">{deadlineLine}</div>}
                             </div>
                         </div>
                     )}
@@ -1135,6 +1594,7 @@ function TaskList({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
             {pending.map((t) => {
                 const description = getTaskDescription(t, completedIds, runs);
+                const deadlineLine = getTaskDeadlineLine(t, worldState, timeMode, now);
 
                 if (t.id === NETRACELLS_TASK_ID && netracellRuns !== undefined && onNetracellChange) {
                     return (
@@ -1153,6 +1613,7 @@ function TaskList({
                     "text-slate-200",
                     <div className="flex-shrink-0 w-4 h-4 mt-0.5 rounded border border-slate-600 bg-slate-900" />,
                     "border-transparent hover:border-slate-700 hover:bg-slate-900/50",
+                    deadlineLine,
                     () => onToggle(t.id),
                 );
             })}
@@ -1168,6 +1629,7 @@ function TaskList({
             {completed.map((t) => {
                 const state = getTaskRenderState(t, completedIds, runs);
                 const description = getTaskDescription(t, completedIds, runs);
+                const deadlineLine = getTaskDeadlineLine(t, worldState, timeMode, now);
 
                 if (t.id === NETRACELLS_TASK_ID && netracellRuns !== undefined && onNetracellChange) {
                     return (
@@ -1191,6 +1653,7 @@ function TaskList({
                             </svg>
                         </div>,
                         "border-amber-900/30 bg-amber-950/10 opacity-80",
+                        deadlineLine,
                         undefined, // no toggle
                     );
                 }
@@ -1203,6 +1666,7 @@ function TaskList({
                         <CheckIcon />
                     </div>,
                     "border-emerald-900/30 bg-emerald-950/10 opacity-70 hover:opacity-100",
+                    deadlineLine,
                     () => onToggle(t.id),
                 );
             })}
@@ -1220,6 +1684,8 @@ function TaskPanel({
     onToggle,
     onClear,
     timeMode,
+    worldState,
+    now,
     netracellRuns,
     onNetracellChange,
     inlineHints,
@@ -1232,6 +1698,8 @@ function TaskPanel({
     onToggle: (id: string) => void;
     onClear: () => void;
     timeMode: TimeMode;
+    worldState: WorldStateData | null;
+    now: Date;
     netracellRuns?: number;
     onNetracellChange?: (n: number) => void;
     inlineHints?: Record<string, React.ReactNode>;
@@ -1272,6 +1740,9 @@ function TaskPanel({
                         onToggle={onToggle}
                         netracellRuns={netracellRuns}
                         onNetracellChange={onNetracellChange}
+                        timeMode={timeMode}
+                        worldState={worldState}
+                        now={now}
                         inlineHints={inlineHints}
                         expandableHints={expandableHints}
                     />
@@ -1350,7 +1821,7 @@ function ConclavePanel({
                             </button>
                         </div>
                     </div>
-                    <TaskList tasks={dailyTasks} completedIds={completedDailyIds} onToggle={onToggleDaily} inlineHints={inlineHints} expandableHints={expandableHints} />
+                    <TaskList tasks={dailyTasks} completedIds={completedDailyIds} onToggle={onToggleDaily} timeMode={timeMode} worldState={null} now={nextDailyReset} inlineHints={inlineHints} expandableHints={expandableHints} />
                 </div>
 
                 <div className="h-px bg-slate-800" />
@@ -1371,7 +1842,7 @@ function ConclavePanel({
                             </button>
                         </div>
                     </div>
-                    <TaskList tasks={weeklyTasks} completedIds={completedWeeklyIds} onToggle={onToggleWeekly} inlineHints={inlineHints} expandableHints={expandableHints} />
+                    <TaskList tasks={weeklyTasks} completedIds={completedWeeklyIds} onToggle={onToggleWeekly} timeMode={timeMode} worldState={null} now={nextWeeklyReset} inlineHints={inlineHints} expandableHints={expandableHints} />
                 </div>
             </div>
         </div>
@@ -1401,9 +1872,12 @@ function CustomizePanel({
     const bucketSub = getBucketSub(timeMode);
     const groups: Group[] = [
         { key: "primary_daily", label: BUCKET_LABEL.primary_daily, sub: bucketSub.primary_daily, tasks: eligibleTasks.filter((t) => t.bucket === "primary_daily") },
+        { key: "eight_hour", label: BUCKET_LABEL.eight_hour, sub: bucketSub.eight_hour, tasks: eligibleTasks.filter((t) => t.bucket === "eight_hour") },
         { key: "secondary_daily", label: BUCKET_LABEL.secondary_daily, sub: bucketSub.secondary_daily, tasks: eligibleTasks.filter((t) => t.bucket === "secondary_daily") },
         { key: "weekly_monday", label: BUCKET_LABEL.weekly_monday, sub: bucketSub.weekly_monday, tasks: eligibleTasks.filter((t) => t.bucket === "weekly_monday") },
-        { key: "conclave", label: "Conclave", sub: `Daily ${fmtFixedUTC(17, 0, timeMode)} · Weekly Fri`, tasks: eligibleTasks.filter((t) => t.bucket === "conclave") },
+        { key: "four_day", label: BUCKET_LABEL.four_day, sub: bucketSub.four_day, tasks: eligibleTasks.filter((t) => t.bucket === "four_day") },
+        { key: "rotation", label: BUCKET_LABEL.rotation, sub: bucketSub.rotation, tasks: eligibleTasks.filter((t) => t.bucket === "rotation") },
+        { key: "conclave", label: "Conclave", sub: `Daily ${fmtFixedUTC(16, 0, timeMode)} · Weekly Fri`, tasks: eligibleTasks.filter((t) => t.bucket === "conclave") },
     ].filter((g) => g.tasks.length > 0);
 
     return (
@@ -1486,6 +1960,827 @@ function CustomizePanel({
     );
 }
 
+type CalendarTaskEvent = {
+    id: string;
+    startAt: Date;
+    endAt: Date;
+    task: TaskDef;
+    bucketLabel: string;
+};
+
+type VisibleCalendarTaskEvent = CalendarTaskEvent & {
+    continuesBefore: boolean;
+    continuesAfter: boolean;
+};
+
+function startOfUtcDay(date: Date): Date {
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+function addUtcDays(date: Date, days: number): Date {
+    const next = new Date(date);
+    next.setUTCDate(next.getUTCDate() + days);
+    return next;
+}
+
+function secondaryDailyResetStart(now: Date): Date {
+    const slot = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 16));
+    if (now.getTime() >= slot.getTime()) return slot;
+    slot.setUTCDate(slot.getUTCDate() - 1);
+    return slot;
+}
+
+function conclaveWeeklyResetStart(now: Date): Date {
+    const day = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+    day.setUTCDate(day.getUTCDate() - ((day.getUTCDay() + 2) % 7));
+    return day;
+}
+
+function overlapsRange(startAt: Date, endAt: Date, rangeStart: Date, rangeEnd: Date): boolean {
+    return startAt.getTime() < rangeEnd.getTime() && endAt.getTime() > rangeStart.getTime();
+}
+
+function getDynamicTaskWindow(taskId: string, data: WorldStateData | null, now: Date): { startAt: Date; endAt: Date } | null {
+    if (!data) return null;
+
+    const fallbackWindowMs: Record<string, number> = {
+        arbitration: 60 * 60 * 1000,
+        kuva_flood: 2 * 60 * 60 * 1000,
+        kuva_siphons: 2 * 60 * 60 * 1000,
+        sentient_outpost: 30 * 60 * 1000,
+        ostrons_bounties: 150 * 60 * 1000,
+        solaris_bounties: 150 * 60 * 1000,
+        entrati_bounties: 150 * 60 * 1000,
+        holdfasts_bounties: 150 * 60 * 1000,
+        cavia_bounties: 150 * 60 * 1000,
+        hex_bounties: 150 * 60 * 1000,
+    };
+
+    if (taskId === "baro_visit") {
+        const trader = data.voidTrader;
+        if (!trader) return null;
+        if (trader.activation && trader.expiry) {
+            return { startAt: new Date(trader.activation), endAt: new Date(trader.expiry) };
+        }
+        return null;
+    }
+
+    if (taskId === "varzia_rotation") {
+        const trader = data.vaultTrader;
+        if (!trader) return null;
+        if (trader.active && trader.activation && trader.expiry) {
+            return { startAt: new Date(trader.activation), endAt: new Date(trader.expiry) };
+        }
+        if (!trader.active && trader.activation) {
+            const arrival = new Date(trader.activation);
+            return { startAt: new Date(now), endAt: arrival };
+        }
+        return null;
+    }
+
+    const nextReset = dynamicTaskNextReset(taskId, data, now);
+    if (!nextReset) return null;
+    const fallback = fallbackWindowMs[taskId] ?? WINDOW_MS.rotation;
+    return {
+        startAt: new Date(nextReset.getTime() - fallback),
+        endAt: nextReset,
+    };
+}
+
+function buildCalendarTaskEvents(tasks: TaskDef[], rangeStart: Date, rangeEnd: Date, worldState: WorldStateData | null, now: Date): CalendarTaskEvent[] {
+    const events: CalendarTaskEvent[] = [];
+
+    tasks.forEach((task) => {
+        if (task.usesDynamicInstance) {
+            const window = getDynamicTaskWindow(task.id, worldState, now);
+            if (window && overlapsRange(window.startAt, window.endAt, rangeStart, rangeEnd)) {
+                events.push({
+                    id: `${task.id}:${window.endAt.toISOString()}`,
+                    startAt: window.startAt,
+                    endAt: window.endAt,
+                    task,
+                    bucketLabel: BUCKET_LABEL[task.bucket],
+                });
+            }
+            return;
+        }
+
+        if (task.bucket === "primary_daily") {
+            for (let cursor = addUtcDays(startOfUtcDay(rangeStart), -1); cursor < rangeEnd; cursor = addUtcDays(cursor, 1)) {
+                const endAt = addUtcDays(cursor, 1);
+                if (overlapsRange(cursor, endAt, rangeStart, rangeEnd)) {
+                    events.push({ id: `${task.id}:${cursor.toISOString()}`, startAt: new Date(cursor), endAt, task, bucketLabel: BUCKET_LABEL[task.bucket] });
+                }
+            }
+            return;
+        }
+
+        if (task.bucket === "eight_hour") {
+            const cursor = new Date(eightHourResetStart(rangeStart));
+            while (cursor.getTime() + WINDOW_MS.eight_hour <= rangeStart.getTime()) cursor.setUTCHours(cursor.getUTCHours() + 8);
+            for (; cursor < rangeEnd; cursor.setUTCHours(cursor.getUTCHours() + 8)) {
+                const startAt = new Date(cursor);
+                const endAt = new Date(cursor.getTime() + WINDOW_MS.eight_hour);
+                if (overlapsRange(startAt, endAt, rangeStart, rangeEnd)) {
+                    events.push({ id: `${task.id}:${startAt.toISOString()}`, startAt, endAt, task, bucketLabel: BUCKET_LABEL[task.bucket] });
+                }
+            }
+            return;
+        }
+
+        if (task.bucket === "secondary_daily" || (task.bucket === "conclave" && task.conclaveSub === "conclave_daily")) {
+            const cursor = new Date(secondaryDailyResetStart(rangeStart));
+            while (cursor.getTime() + WINDOW_MS.secondary_daily <= rangeStart.getTime()) cursor.setUTCDate(cursor.getUTCDate() + 1);
+            for (; cursor < rangeEnd; cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+                const startAt = new Date(cursor);
+                const endAt = new Date(cursor.getTime() + WINDOW_MS.secondary_daily);
+                if (overlapsRange(startAt, endAt, rangeStart, rangeEnd)) {
+                    events.push({ id: `${task.id}:${startAt.toISOString()}`, startAt, endAt, task, bucketLabel: BUCKET_LABEL[task.bucket] });
+                }
+            }
+            return;
+        }
+
+        if (task.bucket === "weekly_monday") {
+            const cursor = new Date(startOfUtcDay(rangeStart));
+            cursor.setUTCDate(cursor.getUTCDate() - ((cursor.getUTCDay() + 6) % 7));
+            if (cursor.getTime() >= rangeStart.getTime()) cursor.setUTCDate(cursor.getUTCDate() - 7);
+            for (; cursor < rangeEnd; cursor.setUTCDate(cursor.getUTCDate() + 7)) {
+                const startAt = new Date(cursor);
+                const endAt = new Date(cursor.getTime() + WINDOW_MS.weekly_monday);
+                if (overlapsRange(startAt, endAt, rangeStart, rangeEnd)) {
+                    events.push({ id: `${task.id}:${startAt.toISOString()}`, startAt, endAt, task, bucketLabel: BUCKET_LABEL[task.bucket] });
+                }
+            }
+            return;
+        }
+
+        if (task.bucket === "four_day") {
+            const cursor = new Date(fourDayResetStart(rangeStart));
+            while (cursor.getTime() + WINDOW_MS.four_day <= rangeStart.getTime()) cursor.setUTCDate(cursor.getUTCDate() + 4);
+            for (; cursor < rangeEnd; cursor.setUTCDate(cursor.getUTCDate() + 4)) {
+                const startAt = new Date(cursor);
+                const endAt = new Date(cursor.getTime() + WINDOW_MS.four_day);
+                if (overlapsRange(startAt, endAt, rangeStart, rangeEnd)) {
+                    events.push({ id: `${task.id}:${startAt.toISOString()}`, startAt, endAt, task, bucketLabel: BUCKET_LABEL[task.bucket] });
+                }
+            }
+            return;
+        }
+
+        if (task.bucket === "conclave" && task.conclaveSub === "conclave_weekly") {
+            const cursor = new Date(conclaveWeeklyResetStart(rangeStart));
+            if (cursor.getTime() >= rangeStart.getTime()) cursor.setUTCDate(cursor.getUTCDate() - 7);
+            for (; cursor < rangeEnd; cursor.setUTCDate(cursor.getUTCDate() + 7)) {
+                const startAt = new Date(cursor);
+                const endAt = new Date(cursor.getTime() + WINDOW_MS.weekly_monday);
+                if (overlapsRange(startAt, endAt, rangeStart, rangeEnd)) {
+                    events.push({ id: `${task.id}:${startAt.toISOString()}`, startAt, endAt, task, bucketLabel: BUCKET_LABEL[task.bucket] });
+                }
+            }
+        }
+    });
+
+    return events.sort((a, b) => a.startAt.getTime() - b.startAt.getTime() || a.task.label.localeCompare(b.task.label));
+}
+
+function calendarRange(anchor: Date, scale: CalendarScale): { start: Date; end: Date; label: string } {
+    if (scale === "day") {
+        const start = startOfUtcDay(anchor);
+        const end = addUtcDays(start, 1);
+        const label = start.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+        return { start, end, label };
+    }
+
+    if (scale === "week") {
+        const start = startOfUtcDay(anchor);
+        start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() + 6) % 7));
+        const end = addUtcDays(start, 7);
+        const label = `${start.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })} - ${addUtcDays(end, -1).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })}`;
+        return { start, end, label };
+    }
+
+    const start = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth(), 1));
+    const end = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth() + 1, 1));
+    const label = start.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+    return { start, end, label };
+}
+
+const CALENDAR_ACCENT: Record<Bucket, { bar: string; fill: string; muted: string }> = {
+    primary_daily: { bar: "bg-emerald-400", fill: "bg-emerald-400/18 border-emerald-400/25", muted: "text-emerald-200" },
+    eight_hour: { bar: "bg-amber-400", fill: "bg-amber-400/18 border-amber-400/25", muted: "text-amber-100" },
+    secondary_daily: { bar: "bg-sky-400", fill: "bg-sky-400/18 border-sky-400/25", muted: "text-sky-100" },
+    weekly_monday: { bar: "bg-fuchsia-400", fill: "bg-fuchsia-400/15 border-fuchsia-400/25", muted: "text-fuchsia-100" },
+    four_day: { bar: "bg-orange-400", fill: "bg-orange-400/18 border-orange-400/25", muted: "text-orange-100" },
+    rotation: { bar: "bg-rose-400", fill: "bg-rose-400/18 border-rose-400/25", muted: "text-rose-100" },
+    conclave: { bar: "bg-violet-400", fill: "bg-violet-400/18 border-violet-400/25", muted: "text-violet-100" },
+};
+
+function clipEventToRange(event: CalendarTaskEvent, startAt: Date, endAt: Date): CalendarTaskEvent | null {
+    const clippedStart = new Date(Math.max(event.startAt.getTime(), startAt.getTime()));
+    const clippedEnd = new Date(Math.min(event.endAt.getTime(), endAt.getTime()));
+    if (clippedEnd.getTime() <= clippedStart.getTime()) return null;
+    return { ...event, startAt: clippedStart, endAt: clippedEnd };
+}
+
+function visibleEventForRange(event: CalendarTaskEvent, startAt: Date, endAt: Date): VisibleCalendarTaskEvent | null {
+    const clipped = clipEventToRange(event, startAt, endAt);
+    if (!clipped) return null;
+    return {
+        ...clipped,
+        continuesBefore: event.startAt.getTime() < startAt.getTime(),
+        continuesAfter: event.endAt.getTime() > endAt.getTime(),
+    };
+}
+
+function formatTimelineTime(date: Date, timeMode: TimeMode): string {
+    if (timeMode === "utc") {
+        return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "UTC" });
+    }
+    return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: getDisplayTimezone() });
+}
+
+function formatTimelineDate(date: Date): string {
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+}
+
+function TimelineSpan({
+    event,
+    selected,
+    onToggle,
+    onOpenDetails,
+    scrollLeft,
+    viewportWidth,
+    top,
+    height,
+    left,
+    leftPx,
+    width,
+    widthPx,
+    compact = false,
+    muted = false,
+}: {
+    event: VisibleCalendarTaskEvent;
+    selected: boolean;
+    onToggle: (task: TaskDef) => void;
+    onOpenDetails: (id: string) => void;
+    scrollLeft: number;
+    viewportWidth: number;
+    top: number | string;
+    height: number | string;
+    left: string;
+    leftPx: number;
+    width: string;
+    widthPx: number;
+    compact?: boolean;
+    muted?: boolean;
+}) {
+    const accent = CALENDAR_ACCENT[event.task.bucket];
+    const buttonWidth = compact ? 28 : 34;
+    const buttonHeight = compact ? 24 : 30;
+    const edgePad = 8;
+    const canOpenDetails = event.endAt.getTime() >= Date.now();
+    const buttonLeft = Math.max(
+        edgePad,
+        Math.min(scrollLeft + viewportWidth - leftPx - buttonWidth - edgePad, Math.max(widthPx - buttonWidth - edgePad, edgePad))
+    );
+    const labelInset = Math.max(
+        8,
+        Math.min(
+            Math.max(scrollLeft - leftPx + 8, 8),
+            Math.max((canOpenDetails ? buttonLeft : widthPx) - 12, 8)
+        )
+    );
+    return (
+        <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onToggle(event.task)}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onToggle(event.task);
+                }
+            }}
+            className={[
+                "absolute overflow-hidden border text-left shadow-[0_16px_40px_rgba(2,6,23,0.32)] transition-all",
+                accent.fill,
+                compact ? "px-2 py-1.5" : "px-2.5 py-2",
+                muted ? "opacity-35 saturate-50" : "",
+                "cursor-pointer",
+                selected ? "z-20 ring-1 ring-slate-50/30 brightness-110" : "hover:z-10 hover:brightness-110",
+                event.continuesBefore ? "rounded-l-none" : "rounded-l-2xl",
+                event.continuesAfter ? "rounded-r-none" : "rounded-r-2xl",
+            ].join(" ")}
+            style={{ top, height, left, width }}
+        >
+            {canOpenDetails && (
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenDetails(event.id);
+                    }}
+                    className="absolute top-1.5 flex shrink-0 items-center justify-center rounded-[14px] border border-slate-700/80 bg-slate-950/52 text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-sm transition-all hover:border-slate-500 hover:bg-slate-900/78 hover:text-white"
+                    style={{ left: buttonLeft, width: buttonWidth, height: buttonHeight }}
+                    title="View details"
+                    aria-label={`View details for ${event.task.label}`}
+                >
+                    <span className="pointer-events-none absolute inset-y-[5px] left-0 w-px bg-white/8" />
+                    <span className="text-[15px] font-semibold leading-none">i</span>
+                </button>
+            )}
+            <div
+                className="absolute top-2"
+                style={{
+                    left: labelInset,
+                    maxWidth: `${Math.max((canOpenDetails ? buttonLeft : widthPx) - labelInset - 8, 24)}px`,
+                }}
+            >
+                <div className={`h-1 ${compact ? "w-8" : "w-10"} rounded-full ${accent.bar}`} />
+                <div className={`mt-2 text-[11px] font-medium leading-tight ${compact ? "truncate whitespace-nowrap" : "truncate"} ${accent.muted}`}>
+                    {event.task.label}
+                </div>
+                {!compact && (
+                    <div className="mt-1 truncate text-[10px] text-slate-300/80">
+                        {formatTimelineTime(event.startAt, "utc")} - {formatTimelineTime(event.endAt, "utc")} UTC
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function getCalendarTaskRows(
+    events: CalendarTaskEvent[],
+    rangeStart: Date,
+    rangeEnd: Date,
+    now: Date,
+    taskStateById: Record<string, TaskRenderState>,
+    worldState: WorldStateData | null,
+): TaskDef[] {
+    const clipped = events
+        .map((event) => clipEventToRange(event, rangeStart, rangeEnd))
+        .filter((event): event is CalendarTaskEvent => !!event);
+    return Array.from(new Map(clipped.map((event) => [event.task.id, event.task])).values()).sort((a, b) => {
+        const aState = taskStateById[a.id] ?? "pending";
+        const bState = taskStateById[b.id] ?? "pending";
+        if (aState === "pending" && bState !== "pending") return -1;
+        if (aState !== "pending" && bState === "pending") return 1;
+
+        const taskNextReset = (task: TaskDef): number => {
+            if (task.usesDynamicInstance) {
+                return dynamicTaskNextReset(task.id, worldState, now)?.getTime() ?? Number.POSITIVE_INFINITY;
+            }
+            if (task.bucket === "rotation") {
+                return Number.POSITIVE_INFINITY;
+            }
+            if (task.bucket === "conclave") {
+                if (task.conclaveSub === "conclave_daily") {
+                    return getNextResets(now).conclave_daily.getTime();
+                }
+                return getNextResets(now).conclave_weekly.getTime();
+            }
+            return getNextResets(now)[task.bucket].getTime();
+        };
+
+        const aNextEnd = taskNextReset(a);
+        const bNextEnd = taskNextReset(b);
+
+        if (aNextEnd !== bNextEnd) return aNextEnd - bNextEnd;
+        if (WINDOW_MS[a.bucket] !== WINDOW_MS[b.bucket]) return WINDOW_MS[a.bucket] - WINDOW_MS[b.bucket];
+        return a.label.localeCompare(b.label);
+    });
+}
+
+function ScheduleCanvas({
+    rangeStart,
+    rangeEnd,
+    scale,
+    events,
+    timeMode,
+    selectedEventId,
+    onToggleTask,
+    onOpenDetails,
+    now,
+    taskStateById,
+    worldState,
+}: {
+    rangeStart: Date;
+    rangeEnd: Date;
+    scale: CalendarScale;
+    events: CalendarTaskEvent[];
+    timeMode: TimeMode;
+    selectedEventId: string | null;
+    onToggleTask: (task: TaskDef) => void;
+    onOpenDetails: (id: string) => void;
+    now: Date;
+    taskStateById: Record<string, TaskRenderState>;
+    worldState: WorldStateData | null;
+}) {
+    const [scrollLeft, setScrollLeft] = useState(0);
+    const [viewportWidth, setViewportWidth] = useState(0);
+    const clippedEvents = events
+        .map((event) => visibleEventForRange(event, rangeStart, rangeEnd))
+        .filter((event): event is VisibleCalendarTaskEvent => !!event);
+    const rows = getCalendarTaskRows(clippedEvents, rangeStart, rangeEnd, now, taskStateById, worldState);
+    const rowIndex = new Map(rows.map((task, index) => [task.id, index]));
+    const rangeMs = rangeEnd.getTime() - rangeStart.getTime();
+    const rowHeight = scale === "month" ? 52 : 58;
+    const plotHeight = Math.max(rows.length * rowHeight, 320);
+    const nowLeft = now.getTime() >= rangeStart.getTime() && now.getTime() <= rangeEnd.getTime()
+        ? ((now.getTime() - rangeStart.getTime()) / rangeMs) * 100
+        : null;
+
+    const header = (() => {
+        if (scale === "day") {
+            return Array.from({ length: 24 }, (_, hour) => new Date(rangeStart.getTime() + hour * 60 * 60 * 1000));
+        }
+        if (scale === "week") {
+            return Array.from({ length: 7 }, (_, day) => addUtcDays(rangeStart, day));
+        }
+        const dayCount = Math.round((rangeEnd.getTime() - rangeStart.getTime()) / 86_400_000);
+        return Array.from({ length: dayCount }, (_, day) => addUtcDays(rangeStart, day));
+    })();
+
+    const headerTemplate = scale === "day"
+        ? "repeat(24, minmax(56px, 1fr))"
+        : scale === "week"
+            ? "repeat(7, minmax(120px, 1fr))"
+            : `repeat(${header.length}, minmax(28px, 1fr))`;
+    const canvasWidthPx = scale === "day"
+        ? header.length * 56
+        : scale === "week"
+            ? header.length * 120
+            : header.length * 28;
+    const canvasMinWidth = `${canvasWidthPx}px`;
+
+    const minorLines = scale === "week"
+        ? Array.from({ length: 28 }, (_, i) => i / 28)
+        : scale === "day"
+            ? Array.from({ length: 24 }, (_, i) => i / 24)
+            : Array.from({ length: header.length }, (_, i) => i / header.length);
+
+    useEffect(() => {
+        const syncViewport = () => {
+            const el = document.getElementById("wf-reset-calendar-scroll");
+            if (el) setViewportWidth(el.clientWidth);
+        };
+        syncViewport();
+        window.addEventListener("resize", syncViewport);
+        return () => window.removeEventListener("resize", syncViewport);
+    }, []);
+
+    return (
+        <div className="overflow-hidden rounded-[32px] border border-slate-800 bg-[linear-gradient(180deg,rgba(2,6,23,0.96),rgba(15,23,42,0.92))]">
+            <div className="grid grid-cols-[220px_minmax(0,1fr)]">
+                <div className="border-r border-slate-800/80 bg-slate-950/45">
+                    <div className="flex h-[78px] items-end border-b border-slate-800/80 px-5 pb-4">
+                        <div className="text-[11px] uppercase tracking-[0.24em] text-slate-500">Tracked Tasks</div>
+                    </div>
+                    {rows.map((task) => (
+                        <div
+                            key={task.id}
+                            onClick={() => {
+                                const firstEvent = clippedEvents.find((event) => event.task.id === task.id);
+                                if (firstEvent) onOpenDetails(firstEvent.id);
+                            }}
+                            className={[
+                                "flex h-[58px] w-full cursor-pointer items-center gap-3 border-b border-slate-900/80 px-5 text-left last:border-b-0 hover:bg-slate-900/50",
+                                taskStateById[task.id] === "pending" ? "" : "opacity-45",
+                            ].join(" ")}
+                            style={{ height: rowHeight }}
+                        >
+                            <button
+                                className={[
+                                    "flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors",
+                                    taskStateById[task.id] === "pending"
+                                        ? "border-slate-600 bg-slate-950 hover:border-slate-400"
+                                        : taskStateById[task.id] === "auto_blocked"
+                                            ? "border-amber-800/60 bg-amber-950/20 text-amber-300"
+                                            : "border-emerald-800 bg-emerald-950/30 text-emerald-300",
+                                ].join(" ")}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleTask(task);
+                                }}
+                                disabled={task.id === NETRACELLS_TASK_ID}
+                                title={task.id === NETRACELLS_TASK_ID ? "Adjust from the tracker counter" : taskStateById[task.id] === "pending" ? "Mark complete" : "Mark incomplete"}
+                            >
+                                {taskStateById[task.id] === "completed" && <CheckIcon />}
+                                {taskStateById[task.id] === "auto_blocked" && <span className="text-xs">/</span>}
+                            </button>
+                            <div className="min-w-0">
+                                <div className="truncate text-sm font-medium text-slate-100">{task.label}</div>
+                                <div className="mt-1 text-[11px] text-slate-500">{BUCKET_LABEL[task.bucket]}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div
+                    id="wf-reset-calendar-scroll"
+                    className="overflow-x-auto"
+                    onScroll={(e) => {
+                        setScrollLeft(e.currentTarget.scrollLeft);
+                        setViewportWidth(e.currentTarget.clientWidth);
+                    }}
+                >
+                    <div style={{ minWidth: canvasMinWidth }}>
+                        <div className="grid border-b border-slate-800/80 bg-slate-950/80" style={{ gridTemplateColumns: headerTemplate, height: 78 }}>
+                        {header.map((tick) => (
+                            <div key={tick.toISOString()} className="border-l border-slate-800/80 px-2 py-4 text-center first:border-l-0">
+                                {scale === "day" ? (
+                                    <div className="pt-1 text-[10px] uppercase tracking-[0.16em] text-slate-500">
+                                        {formatTimelineTime(tick, timeMode)}
+                                    </div>
+                                ) : scale === "week" ? (
+                                    <div className="pt-1">
+                                        <div className="text-[10px] uppercase tracking-[0.16em] text-slate-500">
+                                            {tick.toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" })}
+                                        </div>
+                                        <div className="mt-1 text-sm font-medium text-slate-100">{formatTimelineDate(tick)}</div>
+                                    </div>
+                                ) : (
+                                    <div className="pt-1 text-[10px] text-slate-500">{tick.getUTCDate()}</div>
+                                )}
+                            </div>
+                        ))}
+                        </div>
+                        <div className="relative" style={{ height: plotHeight }}>
+                        {minorLines.map((ratio, index) => (
+                            <div
+                                key={index}
+                                className={`absolute bottom-0 top-0 ${scale === "week" && index % 4 === 0 ? "border-l border-slate-700/80" : "border-l border-slate-800/50"}`}
+                                style={{ left: `${ratio * 100}%` }}
+                            />
+                        ))}
+                        {rows.map((task, index) => (
+                            <div
+                                key={task.id}
+                                className="absolute inset-x-0 border-t border-slate-900/80"
+                                style={{ top: index * rowHeight }}
+                            />
+                        ))}
+                        {nowLeft !== null && (
+                            <div className="absolute bottom-0 top-0 z-20" style={{ left: `${nowLeft}%` }}>
+                                <div className="absolute bottom-0 top-0 w-px bg-amber-300/90" />
+                                <div className="absolute -left-[5px] top-3 h-3 w-3 rounded-full border-2 border-amber-300 bg-slate-950" />
+                            </div>
+                        )}
+                        {clippedEvents.map((event) => {
+                            const top = (rowIndex.get(event.task.id) ?? 0) * rowHeight + 8;
+                            const leftPct = ((event.startAt.getTime() - rangeStart.getTime()) / rangeMs) * 100;
+                            const widthPct = ((event.endAt.getTime() - event.startAt.getTime()) / rangeMs) * 100;
+                            const leftPx = (leftPct / 100) * canvasWidthPx;
+                            const widthPx = Math.max((widthPct / 100) * canvasWidthPx, scale === "month" ? 1.6 / 100 * canvasWidthPx : 2.4 / 100 * canvasWidthPx);
+                            return (
+                                <TimelineSpan
+                                    key={event.id}
+                                    event={event}
+                                    selected={selectedEventId === event.id}
+                                    onToggle={onToggleTask}
+                                    onOpenDetails={onOpenDetails}
+                                    scrollLeft={scrollLeft}
+                                    viewportWidth={viewportWidth}
+                                    top={top}
+                                    height={rowHeight - 16}
+                                    left={`${leftPct}%`}
+                                    leftPx={leftPx}
+                                    width={`${Math.max(widthPct, scale === "month" ? 1.6 : 2.4)}%`}
+                                    widthPx={widthPx}
+                                    compact={scale !== "day"}
+                                    muted={taskStateById[event.task.id] !== "pending"}
+                                />
+                            );
+                        })}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function DayPlannerBoard(props: {
+    start: Date;
+    end: Date;
+    events: CalendarTaskEvent[];
+    timeMode: TimeMode;
+    selectedEventId: string | null;
+    onToggleTask: (task: TaskDef) => void;
+    onOpenDetails: (id: string) => void;
+    now: Date;
+    taskStateById: Record<string, TaskRenderState>;
+    worldState: WorldStateData | null;
+}) {
+    return <ScheduleCanvas rangeStart={props.start} rangeEnd={props.end} scale="day" events={props.events} timeMode={props.timeMode} selectedEventId={props.selectedEventId} onToggleTask={props.onToggleTask} onOpenDetails={props.onOpenDetails} now={props.now} taskStateById={props.taskStateById} worldState={props.worldState} />;
+}
+
+function WeekPlannerBoard(props: {
+    rangeStart: Date;
+    events: CalendarTaskEvent[];
+    timeMode: TimeMode;
+    selectedEventId: string | null;
+    onToggleTask: (task: TaskDef) => void;
+    onOpenDetails: (id: string) => void;
+    now: Date;
+    taskStateById: Record<string, TaskRenderState>;
+    worldState: WorldStateData | null;
+}) {
+    return <ScheduleCanvas rangeStart={props.rangeStart} rangeEnd={addUtcDays(props.rangeStart, 7)} scale="week" events={props.events} timeMode={props.timeMode} selectedEventId={props.selectedEventId} onToggleTask={props.onToggleTask} onOpenDetails={props.onOpenDetails} now={props.now} taskStateById={props.taskStateById} worldState={props.worldState} />;
+}
+
+function MonthGanttBoard(props: {
+    anchor: Date;
+    events: CalendarTaskEvent[];
+    timeMode: TimeMode;
+    selectedEventId: string | null;
+    onToggleTask: (task: TaskDef) => void;
+    onOpenDetails: (id: string) => void;
+    now: Date;
+    taskStateById: Record<string, TaskRenderState>;
+    worldState: WorldStateData | null;
+}) {
+    const start = new Date(Date.UTC(props.anchor.getUTCFullYear(), props.anchor.getUTCMonth(), 1));
+    const end = new Date(Date.UTC(props.anchor.getUTCFullYear(), props.anchor.getUTCMonth() + 1, 1));
+    return <ScheduleCanvas rangeStart={start} rangeEnd={end} scale="month" events={props.events} timeMode={props.timeMode} selectedEventId={props.selectedEventId} onToggleTask={props.onToggleTask} onOpenDetails={props.onOpenDetails} now={props.now} taskStateById={props.taskStateById} worldState={props.worldState} />;
+}
+
+function CalendarAgenda({
+    events,
+    scale,
+    anchor,
+    timeMode,
+    selectedEventId,
+    onToggleTask,
+    onOpenDetails,
+    now,
+    taskStateById,
+    worldState,
+}: {
+    events: CalendarTaskEvent[];
+    scale: CalendarScale;
+    anchor: Date;
+    timeMode: TimeMode;
+    selectedEventId: string | null;
+    onToggleTask: (task: TaskDef) => void;
+    onOpenDetails: (id: string) => void;
+    now: Date;
+    taskStateById: Record<string, TaskRenderState>;
+    worldState: WorldStateData | null;
+}) {
+    if (scale === "day") {
+        return (
+            events.length === 0 ? (
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/30 px-4 py-8 text-center text-sm text-slate-500">
+                    No reset windows in this day.
+                </div>
+            ) : (
+                <DayPlannerBoard
+                    start={calendarRange(anchor, "day").start}
+                    end={calendarRange(anchor, "day").end}
+                    events={events}
+                    timeMode={timeMode}
+                    selectedEventId={selectedEventId}
+                    onToggleTask={onToggleTask}
+                    onOpenDetails={onOpenDetails}
+                    now={now}
+                    taskStateById={taskStateById}
+                    worldState={worldState}
+                />
+            )
+        );
+    }
+
+    if (scale === "week") {
+        return (
+            <WeekPlannerBoard
+                rangeStart={calendarRange(anchor, "week").start}
+                events={events}
+                timeMode={timeMode}
+                selectedEventId={selectedEventId}
+                onToggleTask={onToggleTask}
+                onOpenDetails={onOpenDetails}
+                now={now}
+                taskStateById={taskStateById}
+                worldState={worldState}
+            />
+        );
+    }
+
+    return (
+        <MonthGanttBoard
+            anchor={anchor}
+            events={events}
+            timeMode={timeMode}
+            selectedEventId={selectedEventId}
+            onToggleTask={onToggleTask}
+            onOpenDetails={onOpenDetails}
+            now={now}
+            taskStateById={taskStateById}
+            worldState={worldState}
+        />
+    );
+}
+
+function CalendarDetailModal({
+    event,
+    open,
+    onClose,
+    timeMode,
+    worldState,
+    now,
+    inlineHints,
+    expandableHints,
+    taskState,
+    onToggleTask,
+}: {
+    event: CalendarTaskEvent | null;
+    open: boolean;
+    onClose: () => void;
+    timeMode: TimeMode;
+    worldState: WorldStateData | null;
+    now: Date;
+    inlineHints: Record<string, React.ReactNode>;
+    expandableHints: Record<string, React.ReactNode>;
+    taskState: TaskRenderState | null;
+    onToggleTask: (task: TaskDef) => void;
+}) {
+    if (!open || !event) return null;
+
+    const deadlineLine = getTaskDeadlineLine(event.task, worldState, timeMode, now);
+    const liveLabel = event.endAt.getTime() <= now.getTime()
+        ? "Ended"
+        : event.startAt.getTime() > now.getTime()
+            ? `Starts in ${fmtMs(event.startAt.getTime() - now.getTime())}`
+            : `Ends in ${fmtMs(event.endAt.getTime() - now.getTime())}`;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div className="absolute inset-0 bg-slate-950/78 backdrop-blur-sm" />
+            <div
+                className="relative z-10 w-full max-w-3xl overflow-hidden rounded-[32px] border border-slate-700/80 bg-[linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.96))] shadow-[0_40px_120px_rgba(2,6,23,0.7)]"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="flex items-start justify-between gap-4 border-b border-slate-800/80 px-6 py-5">
+                    <div>
+                        <div className="text-[11px] uppercase tracking-[0.24em] text-slate-500">{event.bucketLabel}</div>
+                        <div className="mt-2 text-3xl font-semibold text-slate-100">{event.task.label}</div>
+                        <div className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">{event.task.description}</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => onToggleTask(event.task)}
+                            disabled={event.task.id === NETRACELLS_TASK_ID}
+                            className={[
+                                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                                taskState === "pending"
+                                    ? "border-emerald-700/60 text-emerald-300 hover:bg-emerald-950/20"
+                                    : taskState === "auto_blocked"
+                                        ? "border-amber-700/60 text-amber-300"
+                                        : "border-slate-700 text-slate-300 hover:bg-slate-900/70",
+                                event.task.id === NETRACELLS_TASK_ID ? "opacity-40 cursor-not-allowed" : "",
+                            ].join(" ")}
+                        >
+                            {taskState === "pending" ? "Mark Complete" : taskState === "completed" ? "Mark Incomplete" : "Unavailable"}
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 text-slate-300 transition-colors hover:border-slate-500 hover:text-slate-100"
+                            aria-label="Close details"
+                        >
+                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div className="grid gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
+                    <div className="space-y-4">
+                        {inlineHints[event.task.id] && (
+                            <div className="rounded-[24px] border border-slate-800 bg-slate-950/35 p-4">
+                                {inlineHints[event.task.id]}
+                            </div>
+                        )}
+                        {expandableHints[event.task.id] && (
+                            <div className="rounded-[24px] border border-slate-800 bg-slate-950/35 p-4">
+                                {expandableHints[event.task.id]}
+                            </div>
+                        )}
+                    </div>
+                    <div className="rounded-[24px] border border-slate-800 bg-slate-950/35 p-4">
+                        <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Availability</div>
+                        <div className="mt-4 font-mono text-base text-amber-300">{fmtAbs(event.startAt, timeMode)}</div>
+                        <div className="font-mono text-base text-slate-300">{fmtAbs(event.endAt, timeMode)}</div>
+                        <div className="mt-4 text-sm text-slate-400">{liveLabel}</div>
+                        <div className="mt-1 text-sm text-slate-500">{deadlineLine ?? "Scheduled reset window"}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ─── Main component ─────────────────────────────────────────────────────────────
 
 export default function WarframeResetTracker() {
@@ -1498,11 +2793,19 @@ export default function WarframeResetTracker() {
     const [showHelp, setHelp] = useState(false);
     const [showCustomize, setCustomize] = useState(false);
     const [selected, setSel] = useState<Bucket>("primary_daily");
+    const [layoutMode, setLayoutMode] = useState<TrackerLayoutMode>("tracker");
+    const [calendarScale, setCalendarScale] = useState<CalendarScale>("week");
+    const [calendarAnchor, setCalendarAnchor] = useState(() => new Date());
+    const [selectedCalendarEventId, setSelectedCalendarEventId] = useState<string | null>(null);
     const [wsData, setWsData] = useState<WorldStateData | null>(() => getCachedWorldState());
 
     // Fetch world state once on mount (uses shared cache — no double-fetch with WorldState page)
     useEffect(() => {
         fetchWorldState().then(setWsData).catch(() => {});
+        const id = setInterval(() => {
+            fetchWorldState(true).then(setWsData).catch(() => {});
+        }, 5 * 60 * 1000);
+        return () => clearInterval(id);
     }, []);
 
     useEffect(() => {
@@ -1523,9 +2826,9 @@ export default function WarframeResetTracker() {
             setNow(n);
             setRc((p) => syncResets(p, n));
 
-            // Re-fetch world state whenever a primary daily, secondary daily, or weekly reset boundary is crossed
+            // Re-fetch world state whenever a tracked reset boundary is crossed
             const keys = getCurrentKeys(n);
-            const keysStr = `${keys.primary_daily}|${keys.secondary_daily}|${keys.weekly_monday}`;
+            const keysStr = `${keys.primary_daily}|${keys.eight_hour}|${keys.secondary_daily}|${keys.weekly_monday}`;
             if (lastResetKeysRef.current && lastResetKeysRef.current !== keysStr) {
                 fetchWorldState(true).then(setWsData).catch(() => {});
             }
@@ -1544,8 +2847,11 @@ export default function WarframeResetTracker() {
         const get = (rk: keyof RCState, ck: keyof RCState, key: string) => rc[rk] === key ? (rc[ck] as string[]) : [];
         return {
             primary_daily: get("primaryDailyResetKey", "completedPrimaryDailyTaskIds", keys.primary_daily),
+            eight_hour: get("eightHourResetKey", "completedEightHourTaskIds", keys.eight_hour),
             secondary_daily: get("secondaryDailyResetKey", "completedSecondaryDailyTaskIds", keys.secondary_daily),
             weekly_monday: get("weeklyMondayResetKey", "completedWeeklyMondayTaskIds", keys.weekly_monday),
+            four_day: get("fourDayResetKey", "completedFourDayTaskIds", keys.four_day),
+            rotation: [],
             conclave_daily: get("conclaveDailyResetKey", "completedConclaveDailyTaskIds", keys.conclave_daily),
             conclave_weekly: get("conclaveWeeklyResetKey", "completedConclaveWeeklyTaskIds", keys.conclave_weekly),
         };
@@ -1557,8 +2863,8 @@ export default function WarframeResetTracker() {
     );
 
     const eligibleTasks = useMemo(
-        () => getEligibleTasks(completedPrereqs, syndicates),
-        [completedPrereqs, syndicates]
+        () => getEligibleTasks(completedPrereqs, syndicates, wsData),
+        [completedPrereqs, syndicates, wsData]
     );
 
     const visibleTasks = useMemo(
@@ -1574,6 +2880,26 @@ export default function WarframeResetTracker() {
     const byBucket = useCallback((b: Exclude<Bucket, "conclave">) => visibleTasks.filter((t) => t.bucket === b), [visibleTasks]);
     const conclaveDaily = useMemo(() => visibleTasks.filter((t) => t.bucket === "conclave" && t.conclaveSub === "conclave_daily"), [visibleTasks]);
     const conclaveWeekly = useMemo(() => visibleTasks.filter((t) => t.bucket === "conclave" && t.conclaveSub === "conclave_weekly"), [visibleTasks]);
+    const rotationTasks = useMemo(() => visibleTasks.filter((t) => t.bucket === "rotation"), [visibleTasks]);
+    const rotationNextReset = useMemo(() => getRotationNextReset(wsData, rotationTasks, now), [wsData, rotationTasks, now]);
+    const rotationCompletedIds = useMemo(
+        () => rotationTasks
+            .filter((task) => {
+                const instanceKey = dynamicTaskInstanceKey(task.id, wsData);
+                return !!instanceKey && rc.completedRotationTaskInstanceKeys[task.id] === instanceKey;
+            })
+            .map((task) => task.id),
+        [rotationTasks, wsData, rc.completedRotationTaskInstanceKeys]
+    );
+    const calendarTaskStateById = useMemo(
+        () => Object.fromEntries(
+            visibleTasks.map((task) => [
+                task.id,
+                getCalendarTaskState(task, completedIds, rotationCompletedIds, rc.netracellRuns),
+            ])
+        ) as Record<string, TaskRenderState>,
+        [visibleTasks, completedIds, rotationCompletedIds, rc.netracellRuns]
+    );
 
     const msFor = useCallback((b: Bucket): number => {
         if (b === "conclave") {
@@ -1581,8 +2907,11 @@ export default function WarframeResetTracker() {
             const wms = Math.max(0, nextResets.conclave_weekly.getTime() - now.getTime());
             return Math.min(dms, wms);
         }
+        if (b === "rotation") {
+            return Math.max(0, rotationNextReset.getTime() - now.getTime());
+        }
         return Math.max(0, nextResets[b].getTime() - now.getTime());
-    }, [nextResets, now]);
+    }, [nextResets, rotationNextReset, now]);
 
     const tierFor = useCallback((b: Bucket) => urgTier(msFor(b), b), [msFor]);
 
@@ -1592,8 +2921,11 @@ export default function WarframeResetTracker() {
 
     const eligibleByBucket = useMemo(() => ({
         primary_daily: eligibleTasks.filter((t) => t.bucket === "primary_daily"),
+        eight_hour: eligibleTasks.filter((t) => t.bucket === "eight_hour"),
         secondary_daily: eligibleTasks.filter((t) => t.bucket === "secondary_daily"),
         weekly_monday: eligibleTasks.filter((t) => t.bucket === "weekly_monday"),
+        four_day: eligibleTasks.filter((t) => t.bucket === "four_day"),
+        rotation: eligibleTasks.filter((t) => t.bucket === "rotation"),
         conclave: eligibleTasks.filter((t) => t.bucket === "conclave"),
     }), [eligibleTasks]);
 
@@ -1607,12 +2939,30 @@ export default function WarframeResetTracker() {
         () => BUCKET_ORDER.filter((b) => !isBucketFullyHidden(b)),
         [isBucketFullyHidden]
     );
+    const calendarWindow = useMemo(
+        () => calendarRange(calendarAnchor, calendarScale),
+        [calendarAnchor, calendarScale]
+    );
+    const calendarEvents = useMemo(
+        () => buildCalendarTaskEvents(visibleTasks, calendarWindow.start, calendarWindow.end, wsData, now),
+        [visibleTasks, calendarWindow, wsData, now]
+    );
+    const selectedCalendarEvent = useMemo(
+        () => selectedCalendarEventId ? (calendarEvents.find((event) => event.id === selectedCalendarEventId) ?? null) : null,
+        [calendarEvents, selectedCalendarEventId]
+    );
 
     useEffect(() => {
         if (!visibleBuckets.includes(selected)) {
             setSel(visibleBuckets[0] ?? "primary_daily");
         }
     }, [visibleBuckets, selected]);
+
+    useEffect(() => {
+        if (selectedCalendarEventId && !calendarEvents.some((event) => event.id === selectedCalendarEventId)) {
+            setSelectedCalendarEventId(null);
+        }
+    }, [calendarEvents, selectedCalendarEventId]);
 
     const toggleStandard = useCallback((id: string, ck: keyof RCState) => {
         setRc((prev) => {
@@ -1642,6 +2992,11 @@ export default function WarframeResetTracker() {
 
         if (bucket === "primary_daily") {
             toggleStandard(id, "completedPrimaryDailyTaskIds");
+            return;
+        }
+
+        if (bucket === "eight_hour") {
+            toggleStandard(id, "completedEightHourTaskIds");
             return;
         }
 
@@ -1676,6 +3031,23 @@ export default function WarframeResetTracker() {
             }
 
             toggleStandard(id, "completedWeeklyMondayTaskIds");
+            return;
+        }
+
+        if (bucket === "four_day") {
+            toggleStandard(id, "completedFourDayTaskIds");
+            return;
+        }
+
+        if (bucket === "rotation") {
+            const instanceKey = dynamicTaskInstanceKey(id, wsData);
+            if (!instanceKey) return;
+            setRc((prev) => {
+                const next = { ...prev.completedRotationTaskInstanceKeys };
+                if (next[id] === instanceKey) delete next[id];
+                else next[id] = instanceKey;
+                return { ...prev, completedRotationTaskInstanceKeys: next };
+            });
         }
     }, [toggleStandard, wsData, completedIds, setNightwaveChallengesDone]);
 
@@ -1700,6 +3072,25 @@ export default function WarframeResetTracker() {
     }, []);
     const showAll = useCallback(() => setRc((p) => ({ ...p, hiddenTaskIds: [] })), []);
     const hideAll = useCallback(() => setRc((p) => ({ ...p, hiddenTaskIds: eligibleTasks.map((t) => t.id) })), [eligibleTasks]);
+    const moveCalendarAnchor = useCallback((direction: -1 | 1) => {
+        setCalendarAnchor((prev) => {
+            if (calendarScale === "day") {
+                return addUtcDays(prev, direction);
+            }
+            if (calendarScale === "week") {
+                return addUtcDays(prev, direction * 7);
+            }
+            return new Date(Date.UTC(prev.getUTCFullYear(), prev.getUTCMonth() + direction, Math.min(prev.getUTCDate(), 28)));
+        });
+    }, [calendarScale]);
+    const toggleCalendarTask = useCallback((task: TaskDef) => {
+        if (task.id === NETRACELLS_TASK_ID) return;
+        if (task.bucket === "conclave") {
+            toggleStandard(task.id, task.conclaveSub === "conclave_daily" ? "completedConclaveDailyTaskIds" : "completedConclaveWeeklyTaskIds");
+            return;
+        }
+        toggle(task.id, task.bucket);
+    }, [toggle, toggleStandard]);
 
     return (
         <WorkspacePanel className="flex flex-col gap-4 p-4">
@@ -1707,10 +3098,16 @@ export default function WarframeResetTracker() {
                 <div>
                     <div className="text-lg font-semibold">Reset Tracker</div>
                     <div className="text-sm text-slate-400 mt-1">
-                        Click a timer to view its tasks · completed tasks sink to bottom · auto-clears on rollover
+                        {layoutMode === "tracker"
+                            ? "Click a timer to view its tasks · completed tasks sink to bottom · auto-clears on rollover"
+                            : "A planning view for daily, weekly, monthly, and live rotations with a persistent now-line for what is ending soon."}
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
+                    <WorkspaceSegmented className="text-xs">
+                        <WorkspaceSegmentedButton active={layoutMode === "tracker"} onClick={() => setLayoutMode("tracker")} className="px-3 py-1.5 font-medium">Tracker</WorkspaceSegmentedButton>
+                        <WorkspaceSegmentedButton active={layoutMode === "calendar"} onClick={() => setLayoutMode("calendar")} className="px-3 py-1.5 font-medium">Calendar</WorkspaceSegmentedButton>
+                    </WorkspaceSegmented>
                     <button
                         className={["text-xs font-medium border rounded px-3 py-1.5 transition-colors", showCustomize ? "bg-slate-700 border-slate-600 text-slate-100" : "border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-500"].join(" ")}
                         onClick={() => {
@@ -1780,8 +3177,8 @@ export default function WarframeResetTracker() {
                     <span className="text-emerald-400 font-medium">green</span> →{" "}
                     <span className="text-amber-400 font-medium">amber</span> →{" "}
                     <span className="text-red-400 font-medium">red</span>{" "}
-                    as the reset approaches (35% and 10% thresholds). Conclave runs its own daily reset at 16:00 UTC and
-                    a weekly reset every Friday. Relay faction standing filters to your pledged faction(s).
+                    as the reset approaches (35% and 10% thresholds). The 8-hour bucket rotates at 00:00, 08:00, and 16:00 UTC.
+                    Conclave runs its own daily reset at 16:00 UTC and a weekly reset every Friday. The Rotations bucket follows live world-state expiries for things like Arbitration, Kuva, Baro, and Varzia. Relay faction standing filters to your pledged faction(s).
                     Use <strong className="text-slate-300">Customize</strong> to permanently hide tasks — if you hide
                     every task in a bucket, that timer card is suppressed entirely.
                 </div>
@@ -1798,94 +3195,169 @@ export default function WarframeResetTracker() {
                 />
             )}
 
-            <div className={`grid gap-3 ${visibleBuckets.length === 4 ? "grid-cols-2 lg:grid-cols-4" : visibleBuckets.length === 3 ? "grid-cols-2 lg:grid-cols-3" : visibleBuckets.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
-                {visibleBuckets.map((b) => {
-                    const isConclave = b === "conclave";
-                    const bucketTasks = isConclave ? [] : byBucket(b as Exclude<Bucket, "conclave">);
-                    const tasks = isConclave ? conclaveTotalTasks : bucketTasks.length;
-                    const done = isConclave
-                        ? conclaveTotalDone
-                        : getCompletedTaskCount(bucketTasks, completedIds[b as Exclude<Bucket, "conclave">] as string[], rc.netracellRuns);
-                    const pct = tasks > 0 ? Math.round((done / tasks) * 100) : 0;
-                    const ms = msFor(b);
-                    const tier = tierFor(b);
-                    const allDone = tasks > 0 && done === tasks;
+            {layoutMode === "tracker" ? (
+                <>
+                    <div className={`grid gap-3 ${visibleBuckets.length >= 4 ? "grid-cols-2 lg:grid-cols-4" : visibleBuckets.length === 3 ? "grid-cols-2 lg:grid-cols-3" : visibleBuckets.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
+                        {visibleBuckets.map((b) => {
+                            const isConclave = b === "conclave";
+                            const isRotation = b === "rotation";
+                            const bucketTasks = isConclave ? [] : byBucket(b as Exclude<Bucket, "conclave">);
+                            const tasks = isConclave ? conclaveTotalTasks : bucketTasks.length;
+                            const done = isConclave
+                                ? conclaveTotalDone
+                                : getCompletedTaskCount(bucketTasks, (isRotation ? rotationCompletedIds : completedIds[b as Exclude<Bucket, "conclave">]) as string[], rc.netracellRuns);
+                            const pct = tasks > 0 ? Math.round((done / tasks) * 100) : 0;
+                            const ms = msFor(b);
+                            const tier = tierFor(b);
+                            const allDone = tasks > 0 && done === tasks;
 
-                    const pendingTasks = isConclave
-                        ? [
-                            ...conclaveDaily.filter((t) => getTaskRenderState(t, completedIds.conclave_daily, 0) === "pending"),
-                            ...conclaveWeekly.filter((t) => getTaskRenderState(t, completedIds.conclave_weekly, 0) === "pending"),
-                        ]
-                        : bucketTasks.filter((t) => getTaskRenderState(t, completedIds[b as Exclude<Bucket, "conclave">] as string[], rc.netracellRuns) === "pending");
+                            const pendingTasks = isConclave
+                                ? [
+                                    ...conclaveDaily.filter((t) => getTaskRenderState(t, completedIds.conclave_daily, 0) === "pending"),
+                                    ...conclaveWeekly.filter((t) => getTaskRenderState(t, completedIds.conclave_weekly, 0) === "pending"),
+                                ]
+                                : bucketTasks.filter((t) => getTaskRenderState(t, (isRotation ? rotationCompletedIds : completedIds[b as Exclude<Bucket, "conclave">]) as string[], rc.netracellRuns) === "pending");
 
-                    return (
-                        <button
-                            key={b}
-                            onClick={() => setSel(b)}
-                            className={["rounded-xl border-l-[3px] p-3 text-left transition-all", URG_BORDER_L[tier], selected === b ? "border border-slate-600 bg-slate-900" : "border border-slate-800 bg-slate-950/40 hover:border-slate-700 hover:bg-slate-900/60"].join(" ")}
-                        >
-                            <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-                                {BUCKET_LABEL[b]}
-                            </div>
-                            <div className={`text-xl font-semibold mt-1.5 tabular-nums ${URG_COUNTDOWN[tier]}`}>
-                                {fmtMs(ms)}
-                            </div>
-                            <div className="text-[11px] text-slate-500 mt-0.5">
-                                {isConclave ? `Next daily ${fmtAbs(nextResets.conclave_daily, rc.timeMode)}` : fmtAbs(nextResets[b], rc.timeMode)}
-                            </div>
-                            <div className="flex items-center gap-2 mt-2">
-                                <div className="flex-1 h-1 rounded-full bg-slate-800 overflow-hidden">
-                                    <div className={`h-full rounded-full transition-all ${URG_BAR[tier]}`} style={{ width: `${pct}%` }} />
-                                </div>
-                                <span className={`text-[11px] tabular-nums ${allDone ? "text-emerald-400" : "text-slate-500"}`}>
-                                    {done}/{tasks}
-                                </span>
-                            </div>
-                            {allDone ? (
-                                <div className="text-[10px] text-emerald-600 mt-1.5 leading-tight">All done</div>
-                            ) : pendingTasks.length > 0 && (
-                                <div className="text-[10px] text-slate-600 mt-1.5 leading-tight truncate">
-                                    {pendingTasks.slice(0, 2).map((t) => t.label).join(" · ")}
-                                    {pendingTasks.length > 2 && <span> +{pendingTasks.length - 2}</span>}
-                                </div>
-                            )}
-                        </button>
-                    );
-                })}
-            </div>
+                            return (
+                                <button
+                                    key={b}
+                                    onClick={() => setSel(b)}
+                                    className={["rounded-xl border-l-[3px] p-3 text-left transition-all", URG_BORDER_L[tier], selected === b ? "border border-slate-600 bg-slate-900" : "border border-slate-800 bg-slate-950/40 hover:border-slate-700 hover:bg-slate-900/60"].join(" ")}
+                                >
+                                    <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+                                        {BUCKET_LABEL[b]}
+                                    </div>
+                                    <div className={`text-xl font-semibold mt-1.5 tabular-nums ${URG_COUNTDOWN[tier]}`}>
+                                        {fmtMs(ms)}
+                                    </div>
+                                    <div className="text-[11px] text-slate-500 mt-0.5">
+                                        {isConclave ? `Next daily ${fmtAbs(nextResets.conclave_daily, rc.timeMode)}` : isRotation ? fmtAbs(rotationNextReset, rc.timeMode) : fmtAbs(nextResets[b], rc.timeMode)}
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <div className="flex-1 h-1 rounded-full bg-slate-800 overflow-hidden">
+                                            <div className={`h-full rounded-full transition-all ${URG_BAR[tier]}`} style={{ width: `${pct}%` }} />
+                                        </div>
+                                        <span className={`text-[11px] tabular-nums ${allDone ? "text-emerald-400" : "text-slate-500"}`}>
+                                            {done}/{tasks}
+                                        </span>
+                                    </div>
+                                    {allDone ? (
+                                        <div className="text-[10px] text-emerald-600 mt-1.5 leading-tight">All done</div>
+                                    ) : pendingTasks.length > 0 && (
+                                        <div className="text-[10px] text-slate-600 mt-1.5 leading-tight truncate">
+                                            {pendingTasks.slice(0, 2).map((t) => t.label).join(" · ")}
+                                            {pendingTasks.length > 2 && <span> +{pendingTasks.length - 2}</span>}
+                                        </div>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
 
-            {selected === "conclave" ? (
-                <ConclavePanel
-                    dailyTasks={conclaveDaily}
-                    weeklyTasks={conclaveWeekly}
-                    completedDailyIds={completedIds.conclave_daily}
-                    completedWeeklyIds={completedIds.conclave_weekly}
-                    tier={tierFor("conclave")}
-                    nextDailyReset={nextResets.conclave_daily}
-                    nextWeeklyReset={nextResets.conclave_weekly}
-                    timeMode={rc.timeMode}
-                    onToggleDaily={(id) => toggleStandard(id, "completedConclaveDailyTaskIds")}
-                    onToggleWeekly={(id) => toggleStandard(id, "completedConclaveWeeklyTaskIds")}
-                    onClearDaily={() => clearBucket("completedConclaveDailyTaskIds")}
-                    onClearWeekly={() => clearBucket("completedConclaveWeeklyTaskIds")}
-                    inlineHints={wsInlineHints}
-                    expandableHints={wsExpandableHints}
-                />
+                    {selected === "conclave" ? (
+                        <ConclavePanel
+                            dailyTasks={conclaveDaily}
+                            weeklyTasks={conclaveWeekly}
+                            completedDailyIds={completedIds.conclave_daily}
+                            completedWeeklyIds={completedIds.conclave_weekly}
+                            tier={tierFor("conclave")}
+                            nextDailyReset={nextResets.conclave_daily}
+                            nextWeeklyReset={nextResets.conclave_weekly}
+                            timeMode={rc.timeMode}
+                            onToggleDaily={(id) => toggleStandard(id, "completedConclaveDailyTaskIds")}
+                            onToggleWeekly={(id) => toggleStandard(id, "completedConclaveWeeklyTaskIds")}
+                            onClearDaily={() => clearBucket("completedConclaveDailyTaskIds")}
+                            onClearWeekly={() => clearBucket("completedConclaveWeeklyTaskIds")}
+                            inlineHints={wsInlineHints}
+                            expandableHints={wsExpandableHints}
+                        />
+                    ) : (
+                        <TaskPanel
+                            bucket={selected}
+                            tasks={byBucket(selected as Exclude<Bucket, "conclave">)}
+                            completedIds={(selected === "rotation" ? rotationCompletedIds : completedIds[selected as Exclude<Bucket, "conclave">]) as string[]}
+                            tier={tierFor(selected)}
+                            onToggle={(id) => toggle(id, selected)}
+                            onClear={() => selected === "weekly_monday" ? clearWeeklyMonday() : selected === "rotation" ? setRc((p) => ({ ...p, completedRotationTaskInstanceKeys: {} })) : clearBucket(COMPLETED_KEY[selected as Exclude<Bucket, "conclave" | "rotation">]!)}
+                            timeMode={rc.timeMode}
+                            worldState={wsData}
+                            now={now}
+                            netracellRuns={rc.netracellRuns}
+                            onNetracellChange={(n) => setRc((p) => ({ ...p, netracellRuns: n }))}
+                            inlineHints={wsInlineHints}
+                            expandableHints={wsExpandableHints}
+                        />
+                    )}
+                </>
             ) : (
-                <TaskPanel
-                    bucket={selected}
-                    tasks={byBucket(selected as Exclude<Bucket, "conclave">)}
-                    completedIds={completedIds[selected as Exclude<Bucket, "conclave">] as string[]}
-                    tier={tierFor(selected)}
-                    onToggle={(id) => toggle(id, selected)}
-                    onClear={() => selected === "weekly_monday" ? clearWeeklyMonday() : clearBucket(COMPLETED_KEY[selected as Exclude<Bucket, "conclave">]!)}
-                    timeMode={rc.timeMode}
-                    netracellRuns={rc.netracellRuns}
-                    onNetracellChange={(n) => setRc((p) => ({ ...p, netracellRuns: n }))}
-                    inlineHints={wsInlineHints}
-                    expandableHints={wsExpandableHints}
-                />
+                <div className="space-y-4">
+                    <div className="rounded-[30px] border border-slate-800 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.09),transparent_34%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.95))] p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800/80 pb-4">
+                            <div>
+                                <div className="text-[11px] uppercase tracking-[0.24em] text-slate-500">Operations Calendar</div>
+                                <div className="mt-2 text-3xl font-semibold text-slate-100">{calendarWindow.label}</div>
+                                <div className="mt-1 max-w-2xl text-sm text-slate-400">
+                                    Plotted availability windows across the selected time range, with the live time marker showing what is active now and what expires next.
+                                </div>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <WorkspaceSegmented className="text-xs">
+                                    <WorkspaceSegmentedButton active={calendarScale === "day"} onClick={() => setCalendarScale("day")} className="px-3 py-1.5 font-medium">Day</WorkspaceSegmentedButton>
+                                    <WorkspaceSegmentedButton active={calendarScale === "week"} onClick={() => setCalendarScale("week")} className="px-3 py-1.5 font-medium">Week</WorkspaceSegmentedButton>
+                                    <WorkspaceSegmentedButton active={calendarScale === "month"} onClick={() => setCalendarScale("month")} className="px-3 py-1.5 font-medium">Month</WorkspaceSegmentedButton>
+                                </WorkspaceSegmented>
+                                <div className="flex items-center gap-1 rounded-full border border-slate-700 bg-slate-950/30 p-1">
+                                    <button
+                                        className="rounded-full px-3 py-1.5 text-xs text-slate-300 transition-colors hover:bg-slate-800 hover:text-slate-100"
+                                        onClick={() => moveCalendarAnchor(-1)}
+                                    >
+                                        Prev
+                                    </button>
+                                    <button
+                                        className="rounded-full bg-amber-400/10 px-3 py-1.5 text-xs font-medium text-amber-300 transition-colors hover:bg-amber-400/20"
+                                        onClick={() => setCalendarAnchor(new Date())}
+                                    >
+                                        Today
+                                    </button>
+                                    <button
+                                        className="rounded-full px-3 py-1.5 text-xs text-slate-300 transition-colors hover:bg-slate-800 hover:text-slate-100"
+                                        onClick={() => moveCalendarAnchor(1)}
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-4 rounded-[28px] bg-slate-950/20 p-1">
+                            <CalendarAgenda
+                                events={calendarEvents}
+                                scale={calendarScale}
+                                anchor={calendarAnchor}
+                                timeMode={rc.timeMode}
+                                selectedEventId={selectedCalendarEvent?.id ?? null}
+                                onToggleTask={toggleCalendarTask}
+                                onOpenDetails={setSelectedCalendarEventId}
+                                now={now}
+                                taskStateById={calendarTaskStateById}
+                                worldState={wsData}
+                            />
+                        </div>
+                    </div>
+                </div>
             )}
+
+            <CalendarDetailModal
+                event={selectedCalendarEvent}
+                open={layoutMode === "calendar" && !!selectedCalendarEvent}
+                onClose={() => setSelectedCalendarEventId(null)}
+                timeMode={rc.timeMode}
+                worldState={wsData}
+                now={now}
+                inlineHints={wsInlineHints}
+                expandableHints={wsExpandableHints}
+                taskState={selectedCalendarEvent ? calendarTaskStateById[selectedCalendarEvent.task.id] ?? null : null}
+                onToggleTask={toggleCalendarTask}
+            />
 
         </WorkspacePanel>
     );

@@ -25,6 +25,11 @@ type WarframeItemsRow = {
     }> | null;
 };
 
+type DropSourcesIndex = {
+    byUniqueName: Record<string, string[]>;
+    byDropTypeName: Record<string, string[]>;
+};
+
 function normalizeItemsArray(input: unknown): WarframeItemsRow[] {
     if (Array.isArray(input)) return input as WarframeItemsRow[];
     if (input && typeof input === "object") {
@@ -320,9 +325,11 @@ function sourceIdForBountyLocation(locRaw: string): string | null {
     return null;
 }
 
-function collectDropSourcesFromAllJson(): Record<string, string[]> {
+function collectDropSourcesFromAllJson(): DropSourcesIndex {
     // Map uniqueName (/Lotus/...) → [sourceId...]
     const byUniqueName: Record<string, string[]> = Object.create(null);
+    // Map drop.type labels like "Ash Chassis Blueprint" → [sourceId...]
+    const byDropTypeName: Record<string, Set<string>> = Object.create(null);
 
     const stack: unknown[] = [ALL as unknown];
     while (stack.length > 0) {
@@ -348,10 +355,12 @@ function collectDropSourcesFromAllJson(): Record<string, string[]> {
         if (!Array.isArray(dropsRaw)) continue;
 
         const set = new Set<string>();
+        const dropTypeToSources = new Map<string, Set<string>>();
 
         for (const d of dropsRaw as Array<Record<string, unknown>>) {
             const loc = typeof d.location === "string" ? d.location : "";
             if (!loc) continue;
+            const dropType = normalizeSpaces(typeof d.type === "string" ? d.type : "");
 
             // 1) Relic locations
             const baseRelic = baseRelicLocation(loc);
@@ -359,6 +368,10 @@ function collectDropSourcesFromAllJson(): Record<string, string[]> {
                 const canon = canonicalizeWfItemsLocation(baseRelic);
                 if (canon.legacySourceId !== "data:wfitems:loc:requiem-undefined-relic") {
                     set.add(canon.canonicalSourceId);
+                    if (dropType) {
+                        if (!dropTypeToSources.has(dropType)) dropTypeToSources.set(dropType, new Set<string>());
+                        dropTypeToSources.get(dropType)!.add(canon.canonicalSourceId);
+                    }
                 }
                 continue;
             }
@@ -367,13 +380,23 @@ function collectDropSourcesFromAllJson(): Record<string, string[]> {
             const bountySid = sourceIdForBountyLocation(loc);
             if (bountySid) {
                 set.add(bountySid);
+                if (dropType) {
+                    if (!dropTypeToSources.has(dropType)) dropTypeToSources.set(dropType, new Set<string>());
+                    dropTypeToSources.get(dropType)!.add(bountySid);
+                }
                 continue;
             }
 
             // 3) Mission-like labels (rotation / caches) → typed sources
             const missionLike = sourcesForMissionLikeLocation(loc);
             if (missionLike.length > 0) {
-                for (const s of missionLike) set.add(s);
+                for (const s of missionLike) {
+                    set.add(s);
+                    if (dropType) {
+                        if (!dropTypeToSources.has(dropType)) dropTypeToSources.set(dropType, new Set<string>());
+                        dropTypeToSources.get(dropType)!.add(s);
+                    }
+                }
                 continue;
             }
 
@@ -381,6 +404,10 @@ function collectDropSourcesFromAllJson(): Record<string, string[]> {
             const canon = canonicalizeWfItemsLocation(loc);
             if (canon.legacySourceId !== "data:wfitems:loc:requiem-undefined-relic") {
                 set.add(canon.canonicalSourceId);
+                if (dropType) {
+                    if (!dropTypeToSources.has(dropType)) dropTypeToSources.set(dropType, new Set<string>());
+                    dropTypeToSources.get(dropType)!.add(canon.canonicalSourceId);
+                }
             }
         }
 
@@ -390,9 +417,73 @@ function collectDropSourcesFromAllJson(): Record<string, string[]> {
         const merged = new Set<string>(prev);
         for (const s of set) merged.add(s);
         byUniqueName[uniqueName] = Array.from(merged.values());
+
+        for (const [dropType, sources] of dropTypeToSources.entries()) {
+            const key = normalizeNameNoPunct(dropType);
+            if (!key || key === "blueprint") continue;
+
+            if (!byDropTypeName[key]) byDropTypeName[key] = new Set<string>();
+            for (const source of sources) byDropTypeName[key].add(source);
+        }
     }
 
-    return byUniqueName;
+    const finalizedDropTypeName: Record<string, string[]> = Object.create(null);
+    for (const [name, sources] of Object.entries(byDropTypeName)) {
+        finalizedDropTypeName[name] = Array.from(sources.values()).sort((a, b) => a.localeCompare(b));
+    }
+
+    return { byUniqueName, byDropTypeName: finalizedDropTypeName };
+}
+
+function isBlueprintLikeRecord(catalogId: string, rec: any): boolean {
+    const displayName = normalizeSpaces(String(rec?.displayName ?? rec?.name ?? ""));
+    return catalogId.includes("Blueprint") || displayName.toLowerCase().endsWith(" blueprint");
+}
+
+function buildBlueprintAliasIndex(): Record<string, string[]> {
+    const aliases = new Map<string, Set<string>>();
+    const recordsById: Record<string, any> = (FULL_CATALOG as any).recordsById ?? {};
+
+    function addAlias(aliasRaw: string, catalogId: string): void {
+        const alias = normalizeSpaces(aliasRaw);
+        if (!alias || alias.startsWith("/Lotus/")) return;
+
+        const key = normalizeNameNoPunct(alias);
+        if (!key || key === "blueprint") return;
+
+        if (!aliases.has(key)) aliases.set(key, new Set<string>());
+        aliases.get(key)!.add(catalogId);
+    }
+
+    for (const [catalogId, rec] of Object.entries(recordsById)) {
+        if (!isBlueprintLikeRecord(catalogId, rec)) continue;
+
+        addAlias(String(rec?.displayName ?? ""), catalogId);
+        addAlias(String(rec?.name ?? ""), catalogId);
+
+        const resultItemType = typeof rec?.raw?.rawLotus?.data?.resultItemType === "string"
+            ? rec.raw.rawLotus.data.resultItemType
+            : null;
+        if (!resultItemType) continue;
+
+        const resultCatalogId = `items:${resultItemType}`;
+        const resultRec = recordsById[resultCatalogId];
+        const resultDisplayName = normalizeSpaces(String(resultRec?.displayName ?? resultRec?.name ?? ""));
+        if (!resultDisplayName || resultDisplayName.startsWith("/Lotus/")) continue;
+
+        addAlias(
+            resultDisplayName.toLowerCase().endsWith(" blueprint")
+                ? resultDisplayName
+                : `${resultDisplayName} Blueprint`,
+            catalogId,
+        );
+    }
+
+    const out: Record<string, string[]> = Object.create(null);
+    for (const [alias, catalogIds] of aliases.entries()) {
+        out[alias] = Array.from(catalogIds.values()).sort((a, b) => a.localeCompare(b));
+    }
+    return out;
 }
 
 /* ---------- Lotus-path rules ---------- */
@@ -721,10 +812,21 @@ function buildInternal(): Record<string, AcquisitionDef> {
     }
 
     // 3) All.json: drop locations → sources (relics + nodes + bounties + fallback wfitems:loc)
-    const sourcesByUniqueName = collectDropSourcesFromAllJson();
+    const { byUniqueName: sourcesByUniqueName, byDropTypeName: sourcesByDropTypeName } = collectDropSourcesFromAllJson();
     for (const [uniqueName, sources] of Object.entries(sourcesByUniqueName)) {
         const cid = `items:${uniqueName}` as CatalogId;
         for (const s of sources) addSource(out, cid, s);
+    }
+
+    // 3.1) Bridge All.json drop.type labels like "Ash Chassis Blueprint" back onto
+    // the hidden blueprint recipe records in FULL_CATALOG.
+    const blueprintAliasesByName = buildBlueprintAliasIndex();
+    for (const [dropTypeName, sources] of Object.entries(sourcesByDropTypeName)) {
+        const candidateCatalogIds = blueprintAliasesByName[dropTypeName] ?? [];
+        if (candidateCatalogIds.length !== 1) continue;
+
+        const cid = candidateCatalogIds[0] as CatalogId;
+        for (const source of sources) addSource(out, cid, source);
     }
 
     // 4) Lotus-path rules (FULL_CATALOG-driven)

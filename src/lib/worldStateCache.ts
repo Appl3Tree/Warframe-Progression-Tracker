@@ -214,6 +214,26 @@ export type DailyDeal = {
     expiry: string;
 };
 
+export type SyndicateMissionJob = {
+    id: string;
+    expiry: string;
+    type: string;
+    enemyLevels: number[];
+    standingStages: number[];
+    minMR: number;
+    rewardPool: string[];
+};
+
+export type SyndicateMissionBoard = {
+    id: string;
+    activation: string;
+    expiry: string;
+    syndicate: string;
+    syndicateKey: string;
+    nodes: string[];
+    jobs: SyndicateMissionJob[];
+};
+
 export type SentientOutpostMission = {
     node: string;
     faction: string;
@@ -514,6 +534,7 @@ export type WorldStateData = {
     steelPath:            SteelPath | null;
     constructionProgress: ConstructionProgress | null;
     dailyDeals:           DailyDeal[];
+    syndicateMissions:    SyndicateMissionBoard[];
     sentientOutposts:     SentientOutpost | null;
     archimedeas:          Archimedea[];
     calendar:             Calendar | null;
@@ -836,6 +857,28 @@ export async function fetchWorldState(force = false): Promise<WorldStateData> {
                         sold:          d.sold          ?? 0,
                         activation:    d.activation    ?? "",
                         expiry:        d.expiry        ?? "",
+                    }))
+                    : [],
+
+                syndicateMissions: Array.isArray(j.syndicateMissions)
+                    ? (j.syndicateMissions as any[]).map((m): SyndicateMissionBoard => ({
+                        id: m.id ?? "",
+                        activation: m.activation ?? "",
+                        expiry: m.expiry ?? "",
+                        syndicate: m.syndicate ?? "",
+                        syndicateKey: m.syndicateKey ?? "",
+                        nodes: Array.isArray(m.nodes) ? m.nodes.filter(Boolean) : [],
+                        jobs: Array.isArray(m.jobs)
+                            ? m.jobs.map((job: any): SyndicateMissionJob => ({
+                                id: job.id ?? "",
+                                expiry: job.expiry ?? "",
+                                type: job.type ?? job.jobType ?? "",
+                                enemyLevels: Array.isArray(job.enemyLevels) ? job.enemyLevels.filter((n: unknown) => typeof n === "number") : [],
+                                standingStages: Array.isArray(job.standingStages) ? job.standingStages.filter((n: unknown) => typeof n === "number") : [],
+                                minMR: typeof job.minMR === "number" ? job.minMR : 0,
+                                rewardPool: Array.isArray(job.rewardPool) ? job.rewardPool.filter(Boolean) : [],
+                            }))
+                            : [],
                     }))
                     : [],
 
