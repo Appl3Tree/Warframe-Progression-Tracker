@@ -187,13 +187,10 @@ const FACTION_DAMAGE_MODIFIERS: Partial<Record<string, Partial<Record<typeof PRO
         impact: 0.5,
         corrosive: 0.5,
         heat: -0.5,
-        magnetic: -0.5,
-        viral: -0.5,
     },
     corpus: {
         magnetic: 0.5,
         puncture: 0.5,
-        radiation: -0.5,
     },
     "corpus amalgam": {
         magnetic: 0.5,
@@ -205,13 +202,11 @@ const FACTION_DAMAGE_MODIFIERS: Partial<Record<string, Partial<Record<typeof PRO
         slash: 0.5,
     },
     "infested deimos": {
-        corrosive: 0.5,
         blast: 0.5,
         gas: 0.5,
         viral: -0.5,
     },
     "deimos infested": {
-        corrosive: 0.5,
         blast: 0.5,
         gas: 0.5,
         viral: -0.5,
@@ -240,18 +235,14 @@ const FACTION_DAMAGE_MODIFIERS: Partial<Record<string, Partial<Record<typeof PRO
         magnetic: -0.5,
     },
     techrot: {
-        electricity: 0.5,
         magnetic: 0.5,
         gas: 0.5,
         cold: -0.5,
-        radiation: -0.5,
     },
     "techrot (1999)": {
-        electricity: 0.5,
         magnetic: 0.5,
         gas: 0.5,
         cold: -0.5,
-        radiation: -0.5,
     },
     scaldra: {
         corrosive: 0.5,
@@ -266,6 +257,7 @@ const FACTION_DAMAGE_MODIFIERS: Partial<Record<string, Partial<Record<typeof PRO
     anarchs: {
         impact: 0.5,
         electricity: 0.5,
+        radiation: -0.5,
     },
 };
 
@@ -476,6 +468,16 @@ function directDamageTypeMultiplier(
     magneticShieldDamageBonus: number,
 ): number {
     const factionModifier = 1 + (FACTION_DAMAGE_MODIFIERS[targetFaction.toLowerCase()]?.[damageType] ?? 0);
+    if (damageType === "toxin") {
+        // Toxin direct damage bypasses shields entirely — it goes straight to health.
+        // Because effectiveHealth includes shield HP in the denominator of TtK, we must
+        // use 1/healthShare (not healthShare) so the formula yields the correct kill time.
+        // For unshielded targets healthShare=1, so this is a no-op there.
+        return factionModifier *
+            effectiveArmorMultiplier *
+            (1 + viralHealthDamageBonus) /
+            Math.max(0.01, target.healthShare);
+    }
     const healthModifier =
         target.healthShare *
         effectiveArmorMultiplier *
@@ -488,12 +490,27 @@ function directDamageTypeMultiplier(
 
 function armorDamageMultiplier(armor: number): number {
     if (armor <= 0) return 1;
-    return Math.max(0.1, 1 - 0.9 * Math.sqrt(armor / 2700));
+    // Wiki formula: Damage Multiplier = 300 / (Net Armor + 300)
+    // This means 300 armor → 50% reduction, 1200 → 80%, 2700 → 90%, etc.
+    return 300 / (armor + 300);
 }
 
-function dotRealizationFactor(timeToKill: number, duration: number): number {
+/**
+ * Estimates what fraction of a DoT proc's total damage is realized within the kill window.
+ *
+ * tickDelay: seconds before the first tick fires.
+ *   - Slash / Heat / Toxin: 1s (first tick at t=1s)
+ *   - Electricity / Gas:    0s (first tick is immediate, at t=0)
+ *
+ * With a delay, a kill that lands before the first tick yields zero DoT, so the
+ * effective realized window is (timeToKill - tickDelay). Without a delay the full
+ * timeToKill window counts.
+ */
+function dotRealizationFactor(timeToKill: number, duration: number, tickDelay = 0): number {
     if (duration <= 0 || !Number.isFinite(timeToKill) || timeToKill <= 0) return 1;
-    if (timeToKill < duration) return Math.max(0.05, timeToKill / (2 * duration));
+    const effectiveTime = Math.max(0, timeToKill - tickDelay);
+    if (effectiveTime <= 0) return 0;
+    if (effectiveTime < duration) return Math.max(0.05, effectiveTime / (2 * duration));
     return Math.max(0.2, 1 - duration / (2 * timeToKill));
 }
 
@@ -602,20 +619,22 @@ function scoreEffects(
     }
 
     const target = getTargetProfile(targetFaction);
-    const magneticUtilityWeight = target.shieldShare > 0
-        ? modded.magneticShieldDamageBonus * (0.08 + target.shieldShare * 0.12)
-        : 0;
-    const armorStripWeight = target.armor > 0
-        ? 0.15 + 0.15 * Math.min(1, target.armor / 2700)
+    // Magnetic's shield damage amplification is already captured in adjustedDirectDps via
+    // (1 + magneticShieldDamageBonus) in directDamageTypeMultiplier. The extra utility here
+    // represents only the binary shield-regen suppression effect — it doesn't scale with stacks.
+    const magneticUtilityWeight = target.shieldShare > 0 && modded.magneticShieldDamageBonus > 0
+        ? target.shieldShare * 0.06
         : 0;
     const radiationUtilityWeight = target.grouped
         ? modded.radiationAllyDamageBonus * 0.04
         : 0;
+    // NOTE: heatArmorStrip, corrosiveArmorStrip, and the full magneticShieldDamageBonus are
+    // intentionally excluded from statusWeight. Their value is already fully captured via
+    // effectiveArmorMultiplier / (1 + magneticShieldDamageBonus) in adjustedDirectDps / adjustedDotDps.
+    // Including them here would double-count in scalingScore.
     const statusWeight =
         modded.dotDps / Math.max(1, sustainedDPS) +
         modded.viralHealthDamageBonus * 0.3 +
-        modded.heatArmorStrip * armorStripWeight +
-        modded.corrosiveArmorStrip * armorStripWeight +
         magneticUtilityWeight +
         modded.coldSlow * 0.08 +
         modded.coldCritDamageBonus * 0.12 +
@@ -659,7 +678,13 @@ function scoreEffects(
         }, 0),
     );
     const directDamagePerStatusWeight = directDamagePerStatusBonus * effectiveStatusTypes;
-    const directDamagePerStatusMultiplier = 1 + directDamagePerStatusBonus * effectiveStatusTypes;
+    // CO / Galvanized Aptitude are additive with damage mods (Serration/Pressure Point bracket),
+    // not a separate multiplicative layer. Wiki formula:
+    //   Damage = Base × [1 + damageMods + (coBonus × n)] × (1 + elementalMods) × …
+    // To apply this correctly on top of burstDPS (which already includes damageMods), we divide
+    // the new bracket by the old bracket: (1 + damageMods + coBonus×n) / (1 + damageMods).
+    const damageBracket = 1 + modded.totalDamageBonus;
+    const directDamagePerStatusMultiplier = (damageBracket + directDamagePerStatusWeight) / damageBracket;
     const directTypeWeightTotal = PROC_DAMAGE_KEYS.reduce(
         (sum, key) => sum + (modded.damageBreakdown[key] ?? 0),
         0,
@@ -676,10 +701,6 @@ function scoreEffects(
                 modded.viralHealthDamageBonus,
                 modded.magneticShieldDamageBonus,
             );
-            if (key === "toxin" && target.shieldShare > 0) {
-                // Toxin bypasses most shields, so its shield contribution is smaller but its health contribution remains.
-                typeMultiplier += target.shieldShare * 0.1;
-            }
             return sum + share * typeMultiplier;
         }, 0)
         : 1;
@@ -690,40 +711,67 @@ function scoreEffects(
         Math.max(0.1, targetAdjustedDirectMultiplier) *
         directDamagePerStatusMultiplier;
     const estimatedTimeToKill = target.effectiveHealth / Math.max(1, adjustedDirectDps);
-    const realizedSlashFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
-    const realizedHeatFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
-    const realizedToxinFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
-    const realizedElectricFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
-    const realizedGasFactor = dotRealizationFactor(estimatedTimeToKill, 6 * (1 + statusDurationBonus));
+    const dotDuration = 6 * (1 + statusDurationBonus);
+    // Slash/Heat/Toxin first tick fires 1s after the proc — a fast kill can land before any tick.
+    // Electricity/Gas tick immediately (t=0), so they are always at least partially realized.
+    const realizedSlashFactor    = dotRealizationFactor(estimatedTimeToKill, dotDuration, 1);
+    const realizedHeatFactor     = dotRealizationFactor(estimatedTimeToKill, dotDuration, 1);
+    const realizedToxinFactor    = dotRealizationFactor(estimatedTimeToKill, dotDuration, 1);
+    const realizedElectricFactor = dotRealizationFactor(estimatedTimeToKill, dotDuration, 0);
+    const realizedGasFactor      = dotRealizationFactor(estimatedTimeToKill, dotDuration, 0);
+    // Faction damage type affinity multipliers for each DoT type.
+    // These mirror the post-Update-36.0 flat per-faction modifiers from FACTION_DAMAGE_MODIFIERS,
+    // applied to the DoT layer since faction affinities affect DoT damage in addition to direct hits.
+    const factionMod = (key: typeof PROC_DAMAGE_KEYS[number]) =>
+        1 + (FACTION_DAMAGE_MODIFIERS[targetFaction.toLowerCase()]?.[key] ?? 0);
+
+    // For shield-bypassing DoTs (Slash, Toxin, Gas) the effective target is only the health pool.
+    // Because effectiveHealth includes shield HP, the correct factor is 1/healthShare (not healthShare),
+    // so that TtK = effectiveHealth / (dotDps × factor) yields the true health-only kill time.
+    // For unshielded targets healthShare=1, so this is a no-op there.
+    const shieldBypassHealthFactor = 1 / Math.max(0.01, target.healthShare);
     const adjustedDotDps =
-        (modded.dotDpsByType.slash ?? 0) * target.healthShare * (1 + modded.viralHealthDamageBonus) * realizedSlashFactor +
-        (modded.dotDpsByType.heat ?? 0) * target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) * realizedHeatFactor +
-        (modded.dotDpsByType.toxin ?? 0) * (
-            target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) +
-            target.shieldShare * 0.35
-        ) * realizedToxinFactor +
-        (modded.dotDpsByType.electricity ?? 0) * (
-            (target.healthShare * effectiveArmorMultiplier + target.shieldShare) *
+        // Slash: bypasses armor AND shields — goes directly to health.
+        (modded.dotDpsByType.slash ?? 0) * factionMod("slash") * shieldBypassHealthFactor * (1 + modded.viralHealthDamageBonus) * realizedSlashFactor +
+        // Heat: goes through armor, hits health (does NOT bypass shields).
+        (modded.dotDpsByType.heat ?? 0) * factionMod("heat") * target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) * realizedHeatFactor +
+        // Toxin: bypasses shields, goes to health through armor.
+        (modded.dotDpsByType.toxin ?? 0) * factionMod("toxin") * shieldBypassHealthFactor * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) * realizedToxinFactor +
+        // Electricity: AoE DoT to all enemies in 3m radius, hits both health (armor-reduced) and shields.
+        // Viral amplifies the health-damage portion only.
+        (modded.dotDpsByType.electricity ?? 0) * factionMod("electricity") * (
+            (target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) + target.shieldShare) *
             (target.grouped ? 1.2 : 1)
         ) * realizedElectricFactor +
-        (modded.dotDpsByType.gas ?? 0) * (
-            target.healthShare *
-            effectiveArmorMultiplier *
-            (1 + modded.viralHealthDamageBonus) *
-            (target.grouped ? 1.25 : 1.05)
+        // Gas: AoE cloud dealing Gas-type damage to all enemies in 3m radius (including target).
+        // Gas is NOT Toxin-type — it does NOT bypass shields. Treated like Electricity: hits both
+        // health (armor-reduced) and shields. Viral applies to the health portion only.
+        (modded.dotDpsByType.gas ?? 0) * factionMod("gas") * (
+            (target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) + target.shieldShare) *
+            (target.grouped ? 1.25 : 1)
         ) * realizedGasFactor;
-    const blastUtilityDps = modded.blastDetonationDamagePerShot * modded.fireRate * (target.grouped ? 1.25 : 0.75);
-    const gasUtility = modded.gasCloudRadius * 0.04;
+    // blastDetonationDamagePerShot is the single-target detonation value (0.3× base per stack).
+    // The AoE component deals 3.0× base per stack to each surrounding enemy — 10× the single value.
+    // Wiki: AoE hits all enemies within 5m of the target EXCEPT the initial target itself.
+    // For grouped targets we assume ~2 nearby enemies are in the blast radius on average.
+    // For non-grouped (single target) we discount the single-target detonation to 75% utilization.
+    const BLAST_AOE_NEARBY_ENEMIES = 2;
+    const blastGroupedMultiplier = (0.3 + 3.0 * BLAST_AOE_NEARBY_ENEMIES) / 0.3; // = 21
+    const blastUtilityDps = modded.blastDetonationDamagePerShot * modded.fireRate *
+        (target.grouped ? blastGroupedMultiplier : 0.75);
+    // Gas radius utility only matters when there are nearby enemies to hit.
+    const gasUtility = target.grouped ? modded.gasCloudRadius * 0.04 : 0;
     const coldCritMultiplierGain = modded.coldCritDamageBonus > 0
         ? avgCritMultiplier(modded.critChance + modded.punctureCritChanceBonus, modded.critMultiplier + modded.coldCritDamageBonus) /
           Math.max(1, avgCritMultiplier(modded.critChance, modded.critMultiplier))
         : 1;
     const punctureCritGain = avgCritMultiplier(modded.critChance + modded.punctureCritChanceBonus, modded.critMultiplier) /
         Math.max(1, avgCritMultiplier(modded.critChance, modded.critMultiplier));
+    // Cold's crit multiplier bonus and Puncture's crit chance bonus apply to DoT crits too,
+    // not just direct hits — apply the combined gain to both components.
     const burstDamageScore =
         (
-            adjustedBurstDirectDps * coldCritMultiplierGain * punctureCritGain +
-            adjustedDotDps * 0.08 +
+            (adjustedBurstDirectDps + adjustedDotDps * 0.8) * coldCritMultiplierGain * punctureCritGain +
             blastUtilityDps * 0.45
         ) *
         (1 + gasUtility * 0.18);

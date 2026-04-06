@@ -37,6 +37,12 @@ const COMBINED_ELEMENTS: Record<string, DamageKey> = {
 export interface ModdedWeaponStats {
     rawDamageBreakdown: Record<DamageKey, number>;
     arsenalDamage: number;
+    /**
+     * Sum of all additive damage bonuses applied to base damage (e.g. Serration, Pressure Point,
+     * conditional bonuses). Used by the optimizer to correctly apply Condition Overload and
+     * Galvanized Aptitude as additive within this bracket rather than as a separate multiplier.
+     */
+    totalDamageBonus: number;
     averageShotDamage: number;
     critChance: number;
     critMultiplier: number;
@@ -618,10 +624,12 @@ export function calculateBuild(
     const tauStacks = expectedStacksByType.tau ?? 0;
 
     const coldSlow = coldStacks >= 10 ? 1 : scaleForStacks(Math.min(coldStacks, 9), 0.5, 0.05, 0.9);
+    // Wiki: +0.1 on first proc, +0.05 per subsequent proc, max +0.45 at 9 stacks (before freeze).
+    // At 10 stacks the enemy freezes and the bonus jumps to +1.0 flat.
     const coldCritDamageBonus =
         coldStacks >= 10
             ? 1.0
-            : scaleForStacks(Math.min(coldStacks, 9), 0.1, 0.05, 0.5);
+            : scaleForStacks(Math.min(coldStacks, 9), 0.1, 0.05, 0.45);
     const viralHealthDamageBonus = scaleForStacks(viralStacks, 1.0, 0.25, 3.25);
     const heatArmorStrip = Math.min(0.5, 0.5 * Math.min(1, heatStacks));
     const corrosiveArmorStrip = scaleForStacks(corrosiveStacks, 0.26, 0.06, 0.8);
@@ -644,6 +652,7 @@ export function calculateBuild(
     const modded: ModdedWeaponStats = {
         rawDamageBreakdown: rawBreakdown,
         arsenalDamage,
+        totalDamageBonus: damageBonus,
         averageShotDamage,
         critChance,
         critMultiplier,

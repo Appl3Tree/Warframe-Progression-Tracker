@@ -26,10 +26,10 @@ Tasks are organized by priority. Update this list as work progresses.
 
 #### Damage Calculation Corrections
 
-- [ ] Update quantization from `1/16` to `1/32`
-- [ ] Change scale to `Scale = Modded Base Damage / 32`
-- [ ] Quantize each physical damage type separately
-- [ ] Quantize each elemental contribution separately
+- [x] Update quantization from `1/16` to `1/32` (already implemented: `quantumScale = totalBase / 32`)
+- [x] Change scale to `Scale = Modded Base Damage / 32` (matches above)
+- [x] Quantize each physical damage type separately (`roundQuantized` applied per key)
+- [x] Quantize each elemental contribution separately (`roundQuantized` applied per key)
 - [ ] Quantize combined elemental sums as the final combined element
 - [ ] Ensure physical/elemental bonuses do not affect scale
 - [ ] Apply non-elemental multipliers after quantization
@@ -40,8 +40,8 @@ Tasks are organized by priority. Update this list as work progresses.
 - [ ] Model toxin shield bypass correctly
 - [ ] Update gun effective fire rate by trigger type:
   - [ ] Auto / Semi / Duplex / Held
-  - [ ] Charge
-  - [ ] Burst
+  - [x] Charge (`chargeTime` → effective rate via `1 / (chargeTime + 1/fireRate)`)
+  - [ ] Burst — **blocked**: WFCD `All.json` has no `burstCount` field; need to source burst-round-count data before this can be implemented
 - [ ] Use `Shots Per Magazine = Modded Mag Size / Ammo Cost Per Shot`
 - [ ] Update sustained DPS to the wiki shooting-vs-reloading proportion formula
 - [ ] Add melee DPS math using average combo multiplier and base combo length
