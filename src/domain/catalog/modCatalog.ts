@@ -349,6 +349,14 @@ function parseRampingLine(raw: string): Partial<ModEffect> {
 function parseStatLine(raw: string, options?: { applyStackMultiplier?: boolean }): Partial<ModEffect> {
     const clean = stripColorTags(raw);
     if (/^On [^:]+:/i.test(clean)) return {};
+    // Skip activation-based conditions the optimizer can't model (e.g. "Hold Wall Latch for 2s
+    // to gain +X%"). The "to gain" pattern uniquely identifies these; real passive stats never
+    // use that phrasing.
+    if (/\bto\s+gain\b/i.test(clean)) return {};
+    // Skip continuation lines of multi-part activation conditions that arrive as a separate
+    // stat string starting with "and +N" (e.g. " and +50% Status Chance for 20s.").
+    // Processed "A and B" splits from explodeStatLines never start with "and".
+    if (/^\s*and\s+[+-]?\d/i.test(clean)) return {};
     const stackMatch = clean.match(/stacks?\s+up\s+to\s+(\d+)x/i);
     const stackMult = options?.applyStackMultiplier === false
         ? 1

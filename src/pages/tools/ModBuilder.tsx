@@ -3028,7 +3028,7 @@ export default function ModBuilder() {
                                                     { label: "Respect Capacity", active: respectCap, set: setRespectCap, desc: "Only use mods that fit within the weapon mod capacity." },
                                                     { label: "Allow Non-Maxed", active: allowNonMax, set: setAllowNonMax, desc: "Try lower-ranked mods so more fit within capacity." },
                                                     { label: "Owned Only", active: onlyOwned, set: setOnlyOwned, desc: "Only use mods you have marked as owned." },
-                                                    { label: "Faction Focus", active: factionOn, set: setFactionOn, desc: "Target the selected faction specifically." },
+                                                    { label: "Faction Focus", active: factionOn, set: setFactionOn, desc: "Target the selected faction specifically. When off, a balanced target (median armor, mixed health/shields) is used instead." },
                                                     { label: "Allow Catalyst", active: allowCatalyst, set: setAllowCatalyst, desc: "Assume Orokin Catalyst installed if needed." },
                                                     { label: "Allow Forma", active: allowForma, set: setAllowForma, desc: "Reassign slot polarities to reduce drain." },
                                                     { label: "Optimize Exilus", active: optExilus, set: setOptExilus, desc: "Include the exilus slot in optimization." },

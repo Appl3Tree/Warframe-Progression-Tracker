@@ -445,16 +445,26 @@ function getTargetProfile(targetFaction: string): TargetProfile {
                 armorMaterial: "alloyArmor",
                 shieldMaterial: "shield",
             };
+        // Default (no faction selected): balanced target derived from median/average stats
+        // across 13 main factions (Grineer, Corpus, Corpus Amalgam, Infested ×2, Orokin,
+        // Murmur, Zariman, Sentient, Narmer, Techrot, Scaldra, Anarchs).
+        //   armor        median = 600  (avoids Grineer 2700 skew; still rewards armor-strip value)
+        //   healthShare  avg/median ≈ 0.85  (most enemies are health-primary)
+        //   shieldShare  avg/median ≈ 0.15  (small but present shield component)
+        //   effectiveHP  avg ≈ 20 900, median = 21 000
+        //   grouped      false  (≈77% of factions are single-target)
+        // Faction damage modifiers are neutral (no per-type bonuses), rewarding
+        // broadly applicable damage types over narrow faction counters.
         default:
             return {
-                armor: 0,
-                healthShare: 1,
-                shieldShare: 0,
+                armor: 600,
+                healthShare: 0.85,
+                shieldShare: 0.15,
                 grouped: false,
-                effectiveHealth: 18000,
+                effectiveHealth: 21000,
                 healthMaterial: "flesh",
-                armorMaterial: "",
-                shieldMaterial: "",
+                armorMaterial: "alloyArmor",
+                shieldMaterial: "shield",
             };
     }
 }
@@ -628,21 +638,7 @@ function scoreEffects(
     const radiationUtilityWeight = target.grouped
         ? modded.radiationAllyDamageBonus * 0.04
         : 0;
-    // NOTE: heatArmorStrip, corrosiveArmorStrip, and the full magneticShieldDamageBonus are
-    // intentionally excluded from statusWeight. Their value is already fully captured via
-    // effectiveArmorMultiplier / (1 + magneticShieldDamageBonus) in adjustedDirectDps / adjustedDotDps.
-    // Including them here would double-count in scalingScore.
-    const statusWeight =
-        modded.dotDps / Math.max(1, sustainedDPS) +
-        modded.viralHealthDamageBonus * 0.3 +
-        magneticUtilityWeight +
-        modded.coldSlow * 0.08 +
-        modded.coldCritDamageBonus * 0.12 +
-        modded.punctureEnemyDamageReduction * 0.08 +
-        modded.punctureCritChanceBonus * 0.15 +
-        modded.impactMercyThresholdBonus * 0.05 +
-        radiationUtilityWeight +
-        modded.tauStatusVulnerability * 0.08;
+    // statusWeight is computed after adjustedDotDps (see below).
     const rangedUtility =
         punchThrough * 0.08 +
         beamRangeBonus * 0.25 +
@@ -659,9 +655,11 @@ function scoreEffects(
         comboCountChanceBonus * 0.08 +
         heavyAttackEfficiencyBonus * 0.07 +
         heavyAttackWindUpBonus * 0.05;
+    // statusDamageBonus and statusDurationBonus are intentionally excluded here.
+    // calculateBuild already bakes statusDamageMultiplier and statusDurationMultiplier into
+    // dotDpsByType, which flows through adjustedDotDps. Adding them again here would double-count
+    // their contribution relative to CO / directDamagePerStatusBonus (which isn't pre-baked).
     const sharedUtility =
-        statusDamageBonus * 0.2 +
-        statusDurationBonus * 0.08 +
         lifeStealBonus * 0.04 +
         ammoEfficiencyBonus * 0.12 +
         finalStatusChanceBonus * 0.2;
@@ -750,6 +748,26 @@ function scoreEffects(
             (target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) + target.shieldShare) *
             (target.grouped ? 1.25 : 1)
         ) * realizedGasFactor;
+    // statusWeight captures the incremental value of status-driven effects that aren't already
+    // baked into adjustedDirectDps or adjustedDotDps.
+    // - DoT ratio: use armor-corrected adjustedDotDps so Slash (armor-bypassing, e.g. 1.0× vs
+    //   Grineer) correctly outweighs Electricity (armor-reduced, ~0.1× vs 2700 armor). The old
+    //   modded.dotDps / sustainedDPS treated every DoT type equally regardless of armor.
+    // - viralHealthDamageBonus intentionally excluded: already in adjustedDotDps and
+    //   adjustedDirectDps via (1 + viralHealthDamageBonus). Adding 0.3× here was a double-count
+    //   inflating every mod that generates Viral by ~0.975, masking better crit/damage options.
+    // - heatArmorStrip, corrosiveArmorStrip, magneticShieldDamageBonus also excluded:
+    //   captured in effectiveArmorMultiplier / (1 + magneticShieldDamageBonus) upstream.
+    const statusWeight =
+        adjustedDotDps / Math.max(1, adjustedDirectDps + adjustedDotDps) +
+        magneticUtilityWeight +
+        modded.coldSlow * 0.08 +
+        modded.coldCritDamageBonus * 0.12 +
+        modded.punctureEnemyDamageReduction * 0.08 +
+        modded.punctureCritChanceBonus * 0.15 +
+        modded.impactMercyThresholdBonus * 0.05 +
+        radiationUtilityWeight +
+        modded.tauStatusVulnerability * 0.08;
     // blastDetonationDamagePerShot is the single-target detonation value (0.3× base per stack).
     // The AoE component deals 3.0× base per stack to each surrounding enemy — 10× the single value.
     // Wiki: AoE hits all enemies within 5m of the target EXCEPT the initial target itself.
@@ -786,13 +804,15 @@ function scoreEffects(
             blastUtilityDps * 0.85
         ) *
         (1 + statusWeight * 0.9 + finalStatusChanceBonus * 0.45 + utilityWeight * 0.22) *
-        (1 + modded.averageProcsPerShot * 0.2 + statusDamageBonus * 0.35 + statusDurationBonus * 0.18 + directDamagePerStatusWeight * 0.05);
+        // statusDamageBonus / statusDurationBonus omitted — already in adjustedDotDps via calculateBuild.
+        (1 + modded.averageProcsPerShot * 0.2 + directDamagePerStatusWeight * 0.05);
 
     switch (goal) {
         case "burst":    return burstScore;
         case "scaling":  return scalingScore;
         case "crit":     return avgCritMultiplier(modded.critChance, modded.critMultiplier) * (1 + (headshotMultiplierBonus + weakPointCritChanceBonus + weakPointDamageBonus) * 0.35 + directDamagePerStatusWeight * 0.15 + utilityWeight * 0.08);
-        case "status":   return ((modded.averageProcsPerShot + adjustedDotDps * 0.02 + blastUtilityDps * 0.01) * (1 + statusWeight + finalStatusChanceBonus + directDamagePerStatusWeight * 0.2)) * (1 + statusDamageBonus * 0.35 + statusDurationBonus * 0.15 + utilityWeight * 0.12);
+        // statusDamageBonus / statusDurationBonus omitted from outer factor — already in adjustedDotDps.
+        case "status":   return ((modded.averageProcsPerShot + adjustedDotDps * 0.02 + blastUtilityDps * 0.01) * (1 + statusWeight + finalStatusChanceBonus + directDamagePerStatusWeight * 0.2)) * (1 + utilityWeight * 0.12);
     }
 }
 
