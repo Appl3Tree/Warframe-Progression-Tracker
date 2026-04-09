@@ -26719,6 +26719,10 @@
     "displayName": "Nora's Mix: Dreams of The Dead Cred",
     "edges": []
   },
+  "items:/Lotus/Types/Items/MiscItems/NoraIntermissionFifteenCreds": {
+    "displayName": "Nora's Mix: Time Tempests Cred",
+    "edges": []
+  },
   "items:/Lotus/Types/Items/SyndicateDogTags/NoraDogTag": {
     "displayName": "Noradogtag",
     "edges": []
@@ -29392,6 +29396,48 @@
         "count": 50
       }
     ]
+  },
+  "items:/Lotus/Weapons/Tenno/LongGuns/PrimePerigale/PrimePerigaleSniper": {
+    "displayName": "Perigale Prime",
+    "edges": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PerigalePrimeBlueprint",
+        "count": 1
+      }
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeBarrel": {
+    "displayName": "Perigale Prime Barrel",
+    "edges": []
+  },
+  "items:/Lotus/Types/Recipes/Weapons/PerigalePrimeBlueprint": {
+    "displayName": "Perigale Prime Blueprint",
+    "edges": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeBarrel",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeReceiver",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeStock",
+        "count": 1
+      }
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeReceiver": {
+    "displayName": "Perigale Prime Receiver",
+    "edges": []
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeStock": {
+    "displayName": "Perigale Prime Stock",
+    "edges": []
   },
   "items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnQuadSniperRifleReceiver": {
     "displayName": "Perigale Receiver",
@@ -33041,6 +33087,40 @@
   },
   "items:/Lotus/Types/Recipes/Weapons/WeaponParts/WolfFrameAxeWeaponHandle": {
     "displayName": "Sarofang Handle",
+    "edges": []
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/PrimeVorunaAxeWeapon": {
+    "displayName": "Sarofang Prime",
+    "edges": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SarofangPrimeBlueprint",
+        "count": 1
+      }
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeBlade": {
+    "displayName": "Sarofang Prime Blade",
+    "edges": []
+  },
+  "items:/Lotus/Types/Recipes/Weapons/SarofangPrimeBlueprint": {
+    "displayName": "Sarofang Prime Blueprint",
+    "edges": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ]
+  },
+  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeHandle": {
+    "displayName": "Sarofang Prime Handle",
     "edges": []
   },
   "items:/Lotus/Weapons/Tenno/Melee/Gunblade/GunbladeAutomatic/TnoGunbladeAutomatic": {
@@ -42716,6 +42796,60 @@
         "count": 25
       }
     ]
+  },
+  "items:/Lotus/Powersuits/Werewolf/VorunaPrime": {
+    "displayName": "Voruna Prime",
+    "edges": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeBlueprint",
+        "count": 1
+      }
+    ]
+  },
+  "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeBlueprint": {
+    "displayName": "Voruna Prime Blueprint",
+    "edges": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisComponent",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetComponent",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsComponent",
+        "count": 1
+      }
+    ]
+  },
+  "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisComponent": {
+    "displayName": "Voruna Prime Chassis",
+    "edges": []
+  },
+  "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisBlueprint": {
+    "displayName": "Voruna Prime Chassis Blueprint",
+    "edges": []
+  },
+  "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetComponent": {
+    "displayName": "Voruna Prime Neuroptics",
+    "edges": []
+  },
+  "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetBlueprint": {
+    "displayName": "Voruna Prime Neuroptics Blueprint",
+    "edges": []
+  },
+  "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsComponent": {
+    "displayName": "Voruna Prime Systems",
+    "edges": []
+  },
+  "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsBlueprint": {
+    "displayName": "Voruna Prime Systems Blueprint",
+    "edges": []
   },
   "items:/Lotus/Types/Recipes/WarframeRecipes/WolfFrameSystemsComponent": {
     "displayName": "Voruna Systems",

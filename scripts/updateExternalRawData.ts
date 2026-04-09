@@ -19,13 +19,13 @@ const DATASETS: Record<DatasetKey, DatasetConfig> = {
     "warframe-items": {
         dir: path.join(ROOT, "external/warframe-items/raw"),
         baseUrl: process.env.WARFRAME_ITEMS_RAW_BASE
-            ?? "https://raw.githubusercontent.com/WFCD/warframe-items/master/data/json",
+            ?? "https://raw.githubusercontent.com/WFCD/warframe-items/refs/heads/master/data/json",
         envVar: "WARFRAME_ITEMS_RAW_BASE",
     },
     "warframe-drop-data": {
         dir: path.join(ROOT, "external/warframe-drop-data/raw"),
         baseUrl: process.env.WARFRAME_DROP_DATA_RAW_BASE
-            ?? "https://raw.githubusercontent.com/WFCD/warframe-drop-data/master/data",
+            ?? "https://raw.githubusercontent.com/WFCD/warframe-drop-data/refs/heads/main/data",
         envVar: "WARFRAME_DROP_DATA_RAW_BASE",
     },
 };
@@ -107,7 +107,7 @@ async function runCurl(url: string, outPath: string): Promise<void> {
 async function updateDataset(key: DatasetKey, options: { dryRun: boolean; allowEmpty: boolean }): Promise<void> {
     const config = DATASETS[key];
     const files = (await readdir(config.dir))
-        .filter((file) => file.endsWith(".json"))
+        .filter((file) => file.endsWith(".json") && !file.startsWith("."))
         .sort((a, b) => a.localeCompare(b));
 
     if (files.length === 0) {

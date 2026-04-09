@@ -152,8 +152,8 @@ const BARO_WINDOW_MS = 2 * 86_400_000;
 const ALL_TASKS: TaskDef[] = [
     // ── Primary Daily — 00:00 UTC ──────────────────────────────────────────────
     { id: "daily_tribute", label: "Daily Tribute", bucket: "primary_daily", description: "Claim the daily login reward." },
+    { id: "daily_first_win", label: "Daily First Win Bonus", bucket: "primary_daily", description: "Doubled credits for first mission completed." },
     { id: "daily_trade_limit", label: "Daily Trade Limit", bucket: "primary_daily", description: "Use remaining trades before midnight UTC." },
-    { id: "daily_gift_limit", label: "Daily Gift Limit", bucket: "primary_daily", description: "Use remaining daily gifts." },
     { id: "focus_daily_cap", label: "Focus Daily Cap", bucket: "primary_daily", description: "Spend today's Focus cap.", prereqIds: [PR.SECOND_DREAM] },
 
     // Relay faction standing — filtered to pledged faction(s) automatically
@@ -177,16 +177,24 @@ const ALL_TASKS: TaskDef[] = [
     { id: "standing_the_hex", label: "The Hex", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_HOLLVANIA] },
     { id: "standing_cephalon_simaris", label: "Cephalon Simaris", bucket: "primary_daily", description: "Use today's standing cap.", prereqIds: [PR.HUB_RELAY, PR.NEW_STRANGE] },
 
+    { id: "nightwave_daily", label: "Nightwave Daily Acts", bucket: "primary_daily", description: "Complete today's Nightwave daily acts." },
     { id: "steel_path_incursions", label: "Steel Path Incursions", bucket: "primary_daily", description: "Finish the day's Steel Path Incursions." },
     { id: "simaris_daily_synthesis", label: "Simaris Daily Synthesis", bucket: "primary_daily", description: "Complete today's Cephalon Simaris synthesis target.", prereqIds: [PR.HUB_RELAY, PR.NEW_STRANGE] },
     { id: "darvo_daily_deal", label: "Darvo Daily Deal", bucket: "primary_daily", description: "Review today's Darvo Deal before it rotates." },
     { id: "k_drive_races", label: "K-Drive Races", bucket: "primary_daily", description: "Check today's active K-Drive races.", prereqIds: [PR.HUB_FORTUNA] },
-    { id: "nightmare_missions", label: "Nightmare Missions", bucket: "eight_hour", description: "Run the current Nightmare Missions before the next 8-hour rotation." },
-    { id: "nightwave_daily", label: "Nightwave Daily Acts", bucket: "primary_daily", description: "Complete today's Nightwave daily acts." },
     { id: "argon_decay", label: "Argon Crystal Check", bucket: "primary_daily", description: "Spend Argon before daily decay if needed." },
-    { id: "circuit_stage_bonus", label: "Circuit Stage Bonus", bucket: "primary_daily", description: "Use today's Circuit stage bonus.", prereqIds: [PR.DUVIRI_PARADOX] },
-    { id: "acrithis_daily", label: "Acrithis Daily", bucket: "primary_daily", description: "Check current daily Duviri shop offerings.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "circuit_stage_bonus", label: "Circuit Stage Bonus", bucket: "primary_daily", description: "Get today's Circuit 4-stage bonus.", prereqIds: [PR.DUVIRI_PARADOX] },
     { id: "kim_daily", label: "KIM Daily Conversations", bucket: "primary_daily", description: "Check new daily KIM messages from Hex members and Roundtable contacts.", prereqIds: [PR.THE_HEX] },
+
+    // Vendor Reset
+    { id: "acrithis_daily", label: "Acrithis Daily", bucket: "primary_daily", description: "Check current daily Duviri shop offerings.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "grandmother_daily", label: "Grandmother Daily", bucket: "primary_daily", description: "Check current daily Mend the Family shop offerings.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "ticker_daily", label: "Ticker Daily", bucket: "primary_daily", description: "Check current daily Railjack Crew hire offerings.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "lyon_daily", label: "Lyon Daily", bucket: "primary_daily", description: "Check current daily furniture shop offerings.", prereqIds: [PR.DUVIRI_PARADOX] },
+    { id: "marie_daily", label: "Marie Daily", bucket: "primary_daily", description: "Check current daily Antique Mods and Tektolyst Artifact Arcanes shop offerings.", prereqIds: [PR.DUVIRI_PARADOX] },
+
+    // ── 8-hour Rotation ────────────────────────────────────────────
+    { id: "nightmare_missions", label: "Nightmare Missions", bucket: "eight_hour", description: "Run the current Nightmare Missions before the next 8-hour rotation." },
 
     // ── Secondary Daily — 16:00 UTC ────────────────────────────────────────────
     { id: "sortie_set", label: "Sortie Mission Set", bucket: "secondary_daily", description: "Complete today's Sortie before missions rotate." },
@@ -229,7 +237,6 @@ const ALL_TASKS: TaskDef[] = [
     },
     { id: "acrithis_weekly", label: "Acrithis Weekly Shop", bucket: "weekly_monday", description: "Review the weekly Acrithis inventory.", prereqIds: [PR.DUVIRI_PARADOX] },
     { id: "break_narmer", label: "Break Narmer (Kahl)", bucket: "weekly_monday", description: "Complete the weekly Kahl mission.", prereqIds: [PR.VEILBREAKER] },
-    { id: "chipper_weekly", label: "Chipper Weekly Stock", bucket: "weekly_monday", description: "Check Chipper's weekly stock and purchases.", prereqIds: [PR.VEILBREAKER] },
     { id: "maroo", label: "Maroo — Ayatan Hunt", bucket: "weekly_monday", description: "Run the weekly Ayatan Treasure Hunt." },
     { id: "help_clem", label: "Help Clem", bucket: "weekly_monday", description: "Run the weekly Help Clem mission." },
     { id: "the_descendia_normal", label: "The Descendia (Normal)", bucket: "weekly_monday", description: "Complete this week's Normal Descendia run. Separate reward table from Steel Path.", prereqIds: [PR.THE_OLD_PEACE] },
@@ -250,7 +257,8 @@ const ALL_TASKS: TaskDef[] = [
 
     // ── Four-day rotations — 00:00 UTC cadence ────────────────────────────────
     { id: "ergo_glast_tenet_rotation", label: "Ergo Glast Tenet Rotation", bucket: "four_day", description: "Review Ergo Glast's current Tenet weapon rotation.", prereqIds: [PR.HUB_RELAY] },
-    { id: "eleanor_coda_rotation", label: "Eleanor Coda Rotation", bucket: "four_day", description: "Review the current Coda weapon rotation.", prereqIds: [PR.HUB_HOLLVANIA] },
+    // Eleanor resets 24h after Ergo Glast — uses a separate anchor (+1 day) tracked via dynamic instance key.
+    { id: "eleanor_coda_rotation", label: "Eleanor Coda Rotation", bucket: "four_day", description: "Review the current Coda weapon rotation.", prereqIds: [PR.HUB_HOLLVANIA], usesDynamicInstance: true },
 
     // ── World-state rotations — driven by live expiry, not fixed UTC boundaries ──
     { id: "ostrons_bounties", label: "Ostrons Bounties", bucket: "rotation", description: "Check the current Plains bounty board before it rotates.", usesDynamicInstance: true, prereqIds: [PR.HUB_CETUS] },
@@ -290,9 +298,12 @@ function eightHourResetKey(now: Date): string {
     return eightHourResetStart(now).toISOString();
 }
 
-// Four-day vendor rotation anchor. We treat 2025-03-23 00:00 UTC as a known cycle boundary
-// for the modern 4-day vendor weapon rotations and advance in 4-day windows from there.
-const FOUR_DAY_ANCHOR_MS = Date.UTC(2025, 2, 23, 0, 0, 0, 0);
+// Four-day vendor rotation anchors.
+// Ergo Glast: March 21, 2025 00:00 UTC. Verified: Dec 3 2015 + 849×4 days = March 21 2025.
+// Eleanor Nightingale: resets 24 hours AFTER Ergo Glast (wiki: same 4-day cadence, +1 day offset).
+// So Eleanor anchor = March 22, 2025 00:00 UTC.
+const FOUR_DAY_ANCHOR_MS = Date.UTC(2025, 2, 21, 0, 0, 0, 0);   // Ergo Glast
+const ELEANOR_ANCHOR_MS  = Date.UTC(2025, 2, 22, 0, 0, 0, 0);   // Eleanor = Ergo + 1 day
 const FOUR_DAY_WINDOW_MS = 4 * 86_400_000;
 
 function fourDayResetStart(now: Date): Date {
@@ -306,11 +317,25 @@ function fourDayResetKey(now: Date): string {
     return fourDayResetStart(now).toISOString();
 }
 
+function eleanorResetStart(now: Date): Date {
+    const utcMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0);
+    const diff = utcMidnight - ELEANOR_ANCHOR_MS;
+    const windows = Math.floor(diff / FOUR_DAY_WINDOW_MS);
+    return new Date(ELEANOR_ANCHOR_MS + windows * FOUR_DAY_WINDOW_MS);
+}
+
+function eleanorResetKey(now: Date): string {
+    return eleanorResetStart(now).toISOString();
+}
+
 function getSyndicateMissionBoard(data: WorldStateData | null, syndicateKey: string): WorldStateData["syndicateMissions"][number] | null {
     return data?.syndicateMissions.find((board) => board.syndicateKey === syndicateKey || board.syndicate === syndicateKey) ?? null;
 }
 
 function dynamicTaskInstanceKey(taskId: string, data: WorldStateData | null): string | null {
+    // Eleanor uses its own 4-day anchor (offset +1 day from Ergo Glast) — no world state needed.
+    if (taskId === "eleanor_coda_rotation") return eleanorResetKey(new Date());
+
     if (!data) return null;
 
     const bountyBoardMap: Record<string, string> = {
@@ -368,6 +393,13 @@ function dynamicTaskInstanceKey(taskId: string, data: WorldStateData | null): st
 }
 
 function dynamicTaskNextReset(taskId: string, data: WorldStateData | null, now: Date): Date | null {
+    // Eleanor uses its own 4-day anchor — no world state needed.
+    if (taskId === "eleanor_coda_rotation") {
+        const next = new Date(eleanorResetStart(now));
+        next.setUTCDate(next.getUTCDate() + 4);
+        return next;
+    }
+
     if (!data) return null;
 
     const bountyBoardMap: Record<string, string> = {

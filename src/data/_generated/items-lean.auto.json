@@ -107035,6 +107035,21 @@
       "type": "Warframes"
     }
   },
+  "/Lotus/Types/Recipes/Helmets/FollieAltHelmetBlueprint": {
+    "name": "Follie Sfumato Helmet Blueprint",
+    "path": "/Lotus/Types/Recipes/Helmets/FollieAltHelmetBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Helmets/FollieAltHelmetBlueprint",
+    "category": "Skins",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Upgrades/Skins/Inkblot/InkblotAltHelmet",
+      "type": "Skins"
+    }
+  },
   "/Lotus/Types/StoreItems/Consumables/Restoratives/FomorianNegatorBlueprint": {
     "name": "Fomorian Disruptor Blueprint",
     "path": "/Lotus/Types/StoreItems/Consumables/Restoratives/FomorianNegatorBlueprint",
@@ -110794,6 +110809,63 @@
       "type": "Gear"
     }
   },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeBarrel": {
+    "name": "Perigale Prime Barrel",
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeBarrel",
+    "categories": [
+      "component"
+    ],
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeBarrel",
+    "category": "Primary",
+    "data": {
+      "ProductCategory": "LongGuns",
+      "type": "Component"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/PerigalePrimeBlueprint": {
+    "name": "Perigale Prime Blueprint",
+    "path": "/Lotus/Types/Recipes/Weapons/PerigalePrimeBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/PerigalePrimeBlueprint",
+    "category": "Primary",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Weapons/Tenno/LongGuns/PrimePerigale/PrimePerigaleSniper",
+      "type": "Primary"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeReceiver": {
+    "name": "Perigale Prime Receiver",
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeReceiver",
+    "categories": [
+      "component"
+    ],
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeReceiver",
+    "category": "Primary",
+    "data": {
+      "ProductCategory": "LongGuns",
+      "type": "Component"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeStock": {
+    "name": "Perigale Prime Stock",
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeStock",
+    "categories": [
+      "component"
+    ],
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeStock",
+    "category": "Primary",
+    "data": {
+      "ProductCategory": "LongGuns",
+      "type": "Component"
+    }
+  },
   "/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleOneBlueprint": {
     "name": "Peye Blueprint",
     "path": "/Lotus/Weapons/Ostron/Melee/ModularMelee01/Handle/HandleOneBlueprint",
@@ -111551,6 +111623,49 @@
     "category": "Skins",
     "data": {
       "ProductCategory": "MiscItems",
+      "type": "Component"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeBlade": {
+    "name": "Sarofang Prime Blade",
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeBlade",
+    "categories": [
+      "component"
+    ],
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeBlade",
+    "category": "Melee",
+    "data": {
+      "ProductCategory": "Melee",
+      "type": "Component"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/SarofangPrimeBlueprint": {
+    "name": "Sarofang Prime Blueprint",
+    "path": "/Lotus/Types/Recipes/Weapons/SarofangPrimeBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/SarofangPrimeBlueprint",
+    "category": "Melee",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Weapons/Tenno/Melee/Axe/PrimeVorunaAxeWeapon",
+      "type": "Melee"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeHandle": {
+    "name": "Sarofang Prime Handle",
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeHandle",
+    "categories": [
+      "component"
+    ],
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeHandle",
+    "category": "Melee",
+    "data": {
+      "ProductCategory": "Melee",
       "type": "Component"
     }
   },
@@ -113430,6 +113545,21 @@
       "type": "Pets"
     }
   },
+  "/Lotus/Types/Recipes/Helmets/UrielAltHelmetBlueprint": {
+    "name": "Uriel Asmodion Helmet Blueprint",
+    "path": "/Lotus/Types/Recipes/Helmets/UrielAltHelmetBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Helmets/UrielAltHelmetBlueprint",
+    "category": "Skins",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Upgrades/Skins/DemonFrame/DemonFrameAltHelmet",
+      "type": "Skins"
+    }
+  },
   "/Lotus/Types/Recipes/Syandanas/UruSyandanaBlueprint": {
     "name": "Uru Syandana Blueprint",
     "path": "/Lotus/Types/Recipes/Syandanas/UruSyandanaBlueprint",
@@ -114023,6 +114153,108 @@
       "ProductCategory": "Recipes",
       "resultItemType": "/Lotus/Upgrades/Skins/Werewolf/WerewolfAltHelmet",
       "type": "Skins"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeBlueprint": {
+    "name": "Voruna Prime Blueprint",
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeBlueprint",
+    "category": "Warframes",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Powersuits/Werewolf/VorunaPrime",
+      "type": "Warframes"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisComponent": {
+    "name": "Voruna Prime Chassis",
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisComponent",
+    "categories": [
+      "component"
+    ],
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisComponent",
+    "category": "Warframes",
+    "data": {
+      "ProductCategory": "Suits",
+      "type": "Component"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisBlueprint": {
+    "name": "Voruna Prime Chassis Blueprint",
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisBlueprint",
+    "category": "Warframes",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisComponent",
+      "type": "Warframes"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetComponent": {
+    "name": "Voruna Prime Neuroptics",
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetComponent",
+    "categories": [
+      "component"
+    ],
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetComponent",
+    "category": "Warframes",
+    "data": {
+      "ProductCategory": "Suits",
+      "type": "Component"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetBlueprint": {
+    "name": "Voruna Prime Neuroptics Blueprint",
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetBlueprint",
+    "category": "Warframes",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetComponent",
+      "type": "Warframes"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsComponent": {
+    "name": "Voruna Prime Systems",
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsComponent",
+    "categories": [
+      "component"
+    ],
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsComponent",
+    "category": "Warframes",
+    "data": {
+      "ProductCategory": "Suits",
+      "type": "Component"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsBlueprint": {
+    "name": "Voruna Prime Systems Blueprint",
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsBlueprint",
+    "categories": [
+      "blueprint"
+    ],
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsBlueprint",
+    "category": "Warframes",
+    "data": {
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsComponent",
+      "type": "Warframes"
     }
   },
   "/Lotus/Types/Recipes/ZanukaPetParts/ZanukaPetPartTailABlueprint": {

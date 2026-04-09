@@ -6721,6 +6721,28 @@
     ],
     "note": "WFCD recipe (Melee.json)"
   },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/PrimeVorunaAxeWeapon": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Axe/PrimeVorunaAxeWeapon",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeBlade",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SarofangPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeHandle",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 15
+      }
+    ],
+    "note": "WFCD recipe (Melee.json)"
+  },
   "items:/Lotus/Weapons/Tenno/Melee/Gunblade/GunbladeAutomatic/TnoGunbladeAutomatic": {
     "outputCatalogId": "items:/Lotus/Weapons/Tenno/Melee/Gunblade/GunbladeAutomatic/TnoGunbladeAutomatic",
     "components": [
@@ -15369,6 +15391,32 @@
     ],
     "note": "WFCD recipe (Primary.json)"
   },
+  "items:/Lotus/Weapons/Tenno/LongGuns/PrimePerigale/PrimePerigaleSniper": {
+    "outputCatalogId": "items:/Lotus/Weapons/Tenno/LongGuns/PrimePerigale/PrimePerigaleSniper",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeBarrel",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/PerigalePrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 10
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeReceiver",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeStock",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Primary.json)"
+  },
   "items:/Lotus/Weapons/Infested/LongGuns/Tentacluster/InfestedShotgun": {
     "outputCatalogId": "items:/Lotus/Weapons/Infested/LongGuns/Tentacluster/InfestedShotgun",
     "components": [
@@ -23867,6 +23915,32 @@
     ],
     "note": "WFCD recipe (Skins.json)"
   },
+  "items:/Lotus/Upgrades/Skins/Inkblot/InkblotAltHelmet": {
+    "outputCatalogId": "items:/Lotus/Upgrades/Skins/Inkblot/InkblotAltHelmet",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Helmets/FollieAltHelmetBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 1500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Alertium",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Skins.json)"
+  },
   "items:/Lotus/Upgrades/Skins/Hammer/GrnHammer": {
     "outputCatalogId": "items:/Lotus/Upgrades/Skins/Hammer/GrnHammer",
     "components": [
@@ -27739,6 +27813,32 @@
     ],
     "note": "WFCD recipe (Skins.json)"
   },
+  "items:/Lotus/Upgrades/Skins/DemonFrame/DemonFrameAltHelmet": {
+    "outputCatalogId": "items:/Lotus/Upgrades/Skins/DemonFrame/DemonFrameAltHelmet",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Helmets/UrielAltHelmetBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Nanospores",
+        "count": 1500
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Alertium",
+        "count": 2
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Plastids",
+        "count": 600
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/Rubedo",
+        "count": 1200
+      }
+    ],
+    "note": "WFCD recipe (Skins.json)"
+  },
   "items:/Lotus/Upgrades/Skins/Scarves/RazorScarf": {
     "outputCatalogId": "items:/Lotus/Upgrades/Skins/Scarves/RazorScarf",
     "components": [
@@ -31440,6 +31540,32 @@
       },
       {
         "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/WolfFrameSystemsComponent",
+        "count": 1
+      }
+    ],
+    "note": "WFCD recipe (Warframes.json)"
+  },
+  "items:/Lotus/Powersuits/Werewolf/VorunaPrime": {
+    "outputCatalogId": "items:/Lotus/Powersuits/Werewolf/VorunaPrime",
+    "components": [
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeBlueprint",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisComponent",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetComponent",
+        "count": 1
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Items/MiscItems/OrokinCell",
+        "count": 5
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsComponent",
         "count": 1
       }
     ],

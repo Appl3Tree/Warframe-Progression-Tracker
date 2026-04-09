@@ -1,6 +1,17 @@
 {
   "dataset": "warframe-drop-data",
-  "syncedAt": "2026-04-04T21:43:16.108Z",
-  "changedFiles": [],
-  "sourceBaseUrl": "https://raw.githubusercontent.com/WFCD/warframe-drop-data/master/data"
+  "syncedAt": "2026-04-09T00:36:07.637Z",
+  "changedFiles": [
+    "all.json",
+    "cetusBountyRewards.json",
+    "deimosRewards.json",
+    "info.json",
+    "keyRewards.json",
+    "missionRewards.json",
+    "relics.json",
+    "solarisBountyRewards.json",
+    "syndicates.json",
+    "transientRewards.json"
+  ],
+  "sourceBaseUrl": "https://raw.githubusercontent.com/WFCD/warframe-drop-data/refs/heads/main/data"
 }

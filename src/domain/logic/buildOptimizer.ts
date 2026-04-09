@@ -710,13 +710,26 @@ function scoreEffects(
         directDamagePerStatusMultiplier;
     const estimatedTimeToKill = target.effectiveHealth / Math.max(1, adjustedDirectDps);
     const dotDuration = 6 * (1 + statusDurationBonus);
+    // For the scaling goal, DoT value should be evaluated at endgame enemy health levels (Steel Path /
+    // high-level content) rather than the base profile health — otherwise a strong direct-damage build
+    // makes TTK so short that Slash/Heat/Toxin never land their first tick (t=1s delay), causing the
+    // optimizer to dismiss Hunter Munitions, armor-strip DoT, and Slash-bypass entirely.
+    //
+    // A 5-second floor represents level ~150–200 enemies on Steel Path, where "scaling" matters.
+    // Fast-killing builds (estimated TTK 0.9s) are floored to 5s; slow builds (TTK ≥ 5s) unchanged.
+    // The raw estimatedTimeToKill is preserved for other uses (e.g. blastUtilityDps). Only the
+    // dotRealizationFactor calls see the adjusted value.
+    const SCALING_DOT_TTK_FLOOR = 5.0; // seconds
+    const dotTTK = goal === "scaling"
+        ? Math.max(SCALING_DOT_TTK_FLOOR, estimatedTimeToKill)
+        : estimatedTimeToKill;
     // Slash/Heat/Toxin first tick fires 1s after the proc — a fast kill can land before any tick.
     // Electricity/Gas tick immediately (t=0), so they are always at least partially realized.
-    const realizedSlashFactor    = dotRealizationFactor(estimatedTimeToKill, dotDuration, 1);
-    const realizedHeatFactor     = dotRealizationFactor(estimatedTimeToKill, dotDuration, 1);
-    const realizedToxinFactor    = dotRealizationFactor(estimatedTimeToKill, dotDuration, 1);
-    const realizedElectricFactor = dotRealizationFactor(estimatedTimeToKill, dotDuration, 0);
-    const realizedGasFactor      = dotRealizationFactor(estimatedTimeToKill, dotDuration, 0);
+    const realizedSlashFactor    = dotRealizationFactor(dotTTK, dotDuration, 1);
+    const realizedHeatFactor     = dotRealizationFactor(dotTTK, dotDuration, 1);
+    const realizedToxinFactor    = dotRealizationFactor(dotTTK, dotDuration, 1);
+    const realizedElectricFactor = dotRealizationFactor(dotTTK, dotDuration, 0);
+    const realizedGasFactor      = dotRealizationFactor(dotTTK, dotDuration, 0);
     // Faction damage type affinity multipliers for each DoT type.
     // These mirror the post-Update-36.0 flat per-faction modifiers from FACTION_DAMAGE_MODIFIERS,
     // applied to the DoT layer since faction affinities affect DoT damage in addition to direct hits.
@@ -728,26 +741,40 @@ function scoreEffects(
     // so that TtK = effectiveHealth / (dotDps × factor) yields the true health-only kill time.
     // For unshielded targets healthShare=1, so this is a no-op there.
     const shieldBypassHealthFactor = 1 / Math.max(0.01, target.healthShare);
+    // AoE elemental status spread (Melee Influence): triggers on Electricity proc, spreads all
+    // elemental statuses to enemies within 20m. Only active when grouped AND the build has
+    // Electricity stacks (required to trigger). Modelled as a flat multiplier on elemental DoTs
+    // for grouped scenarios, representing ~4 nearby enemies receiving the spread.
+    // Slash DoT is physical — not affected by elemental status spread.
+    const hasElectricityProcs = (modded.expectedStacksByType.electricity ?? 0) >= 0.25;
+    const aoeSpreadMult = target.grouped && hasElectricityProcs && modded.aoeElementalStatusSpreadChance > 0
+        ? 1 + modded.aoeElementalStatusSpreadChance * 4
+        : 1;
     const adjustedDotDps =
-        // Slash: bypasses armor AND shields — goes directly to health.
-        (modded.dotDpsByType.slash ?? 0) * factionMod("slash") * shieldBypassHealthFactor * (1 + modded.viralHealthDamageBonus) * realizedSlashFactor +
+        // Slash: bypasses armor only (wiki: "temporarily ignores the target's armor").
+        // Does NOT bypass shields — hits both health and shield proportionally, but without armor reduction.
+        // Bleed DoT deals Cinematic damage (wiki: "neutral modifiers") — faction TYPE AFFINITY does NOT
+        // apply (no +50% vs Infested, no -50% resistance). The faction DAMAGE mod (Bane of Grineer etc.)
+        // is already baked into dotBaseDamagePerProc via the (1+factionDamageBonus)² double-dip, which
+        // is correct and separate from type affinity. So we use 1× here, not factionMod("slash").
+        (modded.dotDpsByType.slash ?? 0) * 1 * (target.healthShare * (1 + modded.viralHealthDamageBonus) + target.shieldShare) * realizedSlashFactor +
         // Heat: goes through armor, hits health (does NOT bypass shields).
-        (modded.dotDpsByType.heat ?? 0) * factionMod("heat") * target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) * realizedHeatFactor +
+        (modded.dotDpsByType.heat ?? 0) * factionMod("heat") * target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) * realizedHeatFactor * aoeSpreadMult +
         // Toxin: bypasses shields, goes to health through armor.
-        (modded.dotDpsByType.toxin ?? 0) * factionMod("toxin") * shieldBypassHealthFactor * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) * realizedToxinFactor +
+        (modded.dotDpsByType.toxin ?? 0) * factionMod("toxin") * shieldBypassHealthFactor * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) * realizedToxinFactor * aoeSpreadMult +
         // Electricity: AoE DoT to all enemies in 3m radius, hits both health (armor-reduced) and shields.
         // Viral amplifies the health-damage portion only.
         (modded.dotDpsByType.electricity ?? 0) * factionMod("electricity") * (
             (target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) + target.shieldShare) *
             (target.grouped ? 1.2 : 1)
-        ) * realizedElectricFactor +
+        ) * realizedElectricFactor * aoeSpreadMult +
         // Gas: AoE cloud dealing Gas-type damage to all enemies in 3m radius (including target).
         // Gas is NOT Toxin-type — it does NOT bypass shields. Treated like Electricity: hits both
         // health (armor-reduced) and shields. Viral applies to the health portion only.
         (modded.dotDpsByType.gas ?? 0) * factionMod("gas") * (
             (target.healthShare * effectiveArmorMultiplier * (1 + modded.viralHealthDamageBonus) + target.shieldShare) *
             (target.grouped ? 1.25 : 1)
-        ) * realizedGasFactor;
+        ) * realizedGasFactor * aoeSpreadMult;
     // statusWeight captures the incremental value of status-driven effects that aren't already
     // baked into adjustedDirectDps or adjustedDotDps.
     // - DoT ratio: use armor-corrected adjustedDotDps so Slash (armor-bypassing, e.g. 1.0× vs

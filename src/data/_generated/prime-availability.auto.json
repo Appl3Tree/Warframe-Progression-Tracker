@@ -3902,6 +3902,22 @@
   "/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeCPlatinum": {
     "name": "Axi C10 Radiant"
   },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCSilver": {
+    "name": "Axi C11 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCGold": {
+    "name": "Axi C11 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCBronze": {
+    "name": "Axi C11 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCPlatinum": {
+    "name": "Axi C11 Radiant",
+    "vaulted": true
+  },
   "/Lotus/Types/Game/Projections/T4VoidProjectionUSilver": {
     "name": "Axi C2 Exceptional",
     "vaulted": true
@@ -4108,6 +4124,22 @@
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionGaussPrimeBPlatinum": {
     "name": "Axi D5 Radiant",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBSilver": {
+    "name": "Axi D6 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBGold": {
+    "name": "Axi D6 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze": {
+    "name": "Axi D6 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBPlatinum": {
+    "name": "Axi D6 Radiant",
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionQSilver": {
@@ -5685,6 +5717,22 @@
     "name": "Axi S2 Radiant",
     "vaulted": true
   },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDSilver": {
+    "name": "Axi S20 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDGold": {
+    "name": "Axi S20 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze": {
+    "name": "Axi S20 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDPlatinum": {
+    "name": "Axi S20 Radiant",
+    "vaulted": true
+  },
   "/Lotus/Types/Game/Projections/T4VoidProjectionRhinoNyxVaultASilver": {
     "name": "Axi S3 Exceptional",
     "vaulted": true
@@ -6073,6 +6121,22 @@
     "name": "Axi V13 Radiant",
     "vaulted": true
   },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeESilver": {
+    "name": "Axi V14 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEGold": {
+    "name": "Axi V14 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEBronze": {
+    "name": "Axi V14 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEPlatinum": {
+    "name": "Axi V14 Radiant",
+    "vaulted": true
+  },
   "/Lotus/Types/Game/Projections/T4VoidProjectionFSilver": {
     "name": "Axi V2 Exceptional",
     "vaulted": true
@@ -6291,6 +6355,22 @@
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeDPlatinum": {
     "name": "Axi Y2 Radiant",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeASilver": {
+    "name": "Axi Y3 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeAGold": {
+    "name": "Axi Y3 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeABronze": {
+    "name": "Axi Y3 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeAPlatinum": {
+    "name": "Axi Y3 Radiant",
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionNezhaPrimeASilver": {
@@ -17106,7 +17186,14 @@
     "name": "Follie Sfumato Glyph - Dark"
   },
   "/Lotus/Upgrades/Skins/Inkblot/InkblotAltHelmet": {
-    "name": "Follie Sfumato Helmet"
+    "name": "Follie Sfumato Helmet",
+    "components": [
+      "/Lotus/Types/Recipes/Helmets/FollieAltHelmetBlueprint",
+      "/Lotus/Types/Items/MiscItems/Nanospores",
+      "/Lotus/Types/Items/MiscItems/Alertium",
+      "/Lotus/Types/Items/MiscItems/Plastids",
+      "/Lotus/Types/Items/MiscItems/Rubedo"
+    ]
   },
   "/Lotus/Upgrades/Skins/Inkblot/InkblotSkin": {
     "name": "Follie Skin"
@@ -20133,6 +20220,9 @@
   "/Lotus/Types/Items/ShipDecos/Plants/Nokko/LisetPropLASxIvyOvergrowthE": {
     "name": "Hanging Ivy (Wide)"
   },
+  "/Lotus/Upgrades/Skins/Scarves/PrimeVorunaSyandana": {
+    "name": "Hanteler Prime Syandana"
+  },
   "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageHappinessDark": {
     "name": "Happinessdark Glyph"
   },
@@ -20623,6 +20713,9 @@
   },
   "/Lotus/Types/Items/SongItems/DeimosLoginSongItem": {
     "name": "Heart Of Deimos Login Music"
+  },
+  "/Lotus/Types/Items/Titles/TitleVorunaPrime": {
+    "name": "Heart Of The Pack Honoria"
   },
   "/Lotus/Upgrades/Skins/Effects/InfestedLichEphemeraC": {
     "name": "Heart-Beat Ephemera"
@@ -21796,6 +21889,9 @@
   },
   "/Lotus/Types/Items/MiscItems/PhotoboothTileBardBossArena": {
     "name": "Hunhow's Datascape Scene"
+  },
+  "/Lotus/Upgrades/Skins/Effects/TennoCon2026Ephemera": {
+    "name": "Hunhullus Ephemera"
   },
   "/Lotus/Types/Friendly/Pets/KubrowPetPrecepts/KubrowChargePrecept": {
     "name": "Hunt"
@@ -26892,6 +26988,22 @@
     "name": "Lith C13 Radiant",
     "vaulted": true
   },
+  "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeASilver": {
+    "name": "Lith C14 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeAGold": {
+    "name": "Lith C14 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeABronze": {
+    "name": "Lith C14 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeAPlatinum": {
+    "name": "Lith C14 Radiant",
+    "vaulted": true
+  },
   "/Lotus/Types/Game/Projections/T1VoidProjectionMiragePrimeASilver": {
     "name": "Lith C2 Exceptional",
     "vaulted": true
@@ -28207,6 +28319,22 @@
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionGyrePrimeCPlatinum": {
     "name": "Lith N18 Radiant"
+  },
+  "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBSilver": {
+    "name": "Lith N19 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBGold": {
+    "name": "Lith N19 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBBronze": {
+    "name": "Lith N19 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBPlatinum": {
+    "name": "Lith N19 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionRSilver": {
     "name": "Lith N2 Exceptional",
@@ -31831,6 +31959,22 @@
     "name": "Meso A1 Radiant",
     "vaulted": true
   },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeESilver": {
+    "name": "Meso A10 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEGold": {
+    "name": "Meso A10 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze": {
+    "name": "Meso A10 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEPlatinum": {
+    "name": "Meso A10 Radiant",
+    "vaulted": true
+  },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultASilver": {
     "name": "Meso A11 Exceptional",
     "vaulted": true
@@ -32403,6 +32547,22 @@
     "name": "Meso D7 Radiant",
     "vaulted": true
   },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCSilver": {
+    "name": "Meso D8 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCGold": {
+    "name": "Meso D8 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCBronze": {
+    "name": "Meso D8 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCPlatinum": {
+    "name": "Meso D8 Radiant",
+    "vaulted": true
+  },
   "/Lotus/Types/Game/Projections/T2VoidProjectionELFVaultASilver": {
     "name": "Meso E1 Exceptional",
     "vaulted": true
@@ -32497,6 +32657,22 @@
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionXakuPrimeBPlatinum": {
     "name": "Meso E6 Radiant",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBSilver": {
+    "name": "Meso E7 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBGold": {
+    "name": "Meso E7 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBBronze": {
+    "name": "Meso E7 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBPlatinum": {
+    "name": "Meso E7 Radiant",
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionKSilver": {
@@ -33057,6 +33233,22 @@
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionCalibanPrimeAPlatinum": {
     "name": "Meso L3 Radiant",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeASilver": {
+    "name": "Meso L4 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeAGold": {
+    "name": "Meso L4 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeABronze": {
+    "name": "Meso L4 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeAPlatinum": {
+    "name": "Meso L4 Radiant",
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionYSilver": {
@@ -34317,6 +34509,22 @@
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeCPlatinum": {
     "name": "Meso V14 Radiant"
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDSilver": {
+    "name": "Meso V15 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDGold": {
+    "name": "Meso V15 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDBronze": {
+    "name": "Meso V15 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDPlatinum": {
+    "name": "Meso V15 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionDSilver": {
     "name": "Meso V2 Exceptional",
@@ -38066,6 +38274,22 @@
     "name": "Neo N23 Radiant",
     "vaulted": true
   },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeASilver": {
+    "name": "Neo N24 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeAGold": {
+    "name": "Neo N24 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze": {
+    "name": "Neo N24 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeAPlatinum": {
+    "name": "Neo N24 Radiant",
+    "vaulted": true
+  },
   "/Lotus/Types/Game/Projections/T3VoidProjectionISilver": {
     "name": "Neo N3 Exceptional",
     "vaulted": true
@@ -38236,6 +38460,22 @@
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionTitaniaPrimeBPlatinum": {
     "name": "Neo P1 Radiant",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBSilver": {
+    "name": "Neo P10 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBGold": {
+    "name": "Neo P10 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBBronze": {
+    "name": "Neo P10 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBPlatinum": {
+    "name": "Neo P10 Radiant",
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionOctaviaPrimeCSilver": {
@@ -38653,6 +38893,22 @@
     "name": "Neo S2 Radiant",
     "vaulted": true
   },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCSilver": {
+    "name": "Neo S20 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCGold": {
+    "name": "Neo S20 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze": {
+    "name": "Neo S20 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCPlatinum": {
+    "name": "Neo S20 Radiant",
+    "vaulted": true
+  },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGSilver": {
     "name": "Neo S3 Exceptional",
     "vaulted": true
@@ -38935,6 +39191,22 @@
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGaraPrimeDPlatinum": {
     "name": "Neo V10 Radiant",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDSilver": {
+    "name": "Neo V11 Exceptional",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDGold": {
+    "name": "Neo V11 Flawless",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDBronze": {
+    "name": "Neo V11 Intact",
+    "vaulted": true
+  },
+  "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDPlatinum": {
+    "name": "Neo V11 Radiant",
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionJSilver": {
@@ -40730,6 +41002,9 @@
   "/Lotus/Types/Items/MiscItems/NoraIntermissionFourteenCreds": {
     "name": "Nora's Mix:\nDreams Of The Dead Cred"
   },
+  "/Lotus/Types/Items/MiscItems/NoraIntermissionFifteenCreds": {
+    "name": "Nora's Mix: Time Tempests Cred"
+  },
   "/Lotus/Types/Items/SyndicateDogTags/NoraDogTag": {
     "name": "Noradogtag"
   },
@@ -41875,6 +42150,7 @@
   },
   "/Lotus/Weapons/Tenno/Melee/Swords/PrimeOkina/PrimeOkina": {
     "name": "Okina Prime",
+    "vaulted": true,
     "components": [
       "/Lotus/Types/Recipes/Weapons/WeaponParts/OkinaPrimeBlade",
       "/Lotus/Types/Recipes/Weapons/OkinaPrimeBlueprint",
@@ -41890,6 +42166,9 @@
   },
   "/Lotus/Upgrades/Skins/Effects/WerewolfEphemera": {
     "name": "Okuri Tails Ephemera"
+  },
+  "/Lotus/Upgrades/Skins/Effects/PrimeVorunaEphemera": {
+    "name": "Okuri Tails Prime Ephemera"
   },
   "/Lotus/Upgrades/Skins/Clan/LichKillerBadgeItem": {
     "name": "Old Blood Emblem"
@@ -43429,6 +43708,16 @@
       "/Lotus/Types/Gameplay/Zariman/Resources/EclipseVoidWraithItem",
       "/Lotus/Types/Recipes/Weapons/WeaponParts/TnQuadSniperRifleReceiver",
       "/Lotus/Types/Recipes/Weapons/WeaponParts/TnQuadSniperRifleStock"
+    ]
+  },
+  "/Lotus/Weapons/Tenno/LongGuns/PrimePerigale/PrimePerigaleSniper": {
+    "name": "Perigale Prime",
+    "components": [
+      "/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeBarrel",
+      "/Lotus/Types/Recipes/Weapons/PerigalePrimeBlueprint",
+      "/Lotus/Types/Items/MiscItems/OrokinCell",
+      "/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeReceiver",
+      "/Lotus/Types/Recipes/Weapons/WeaponParts/PerigalePrimeStock"
     ]
   },
   "/Lotus/Types/Items/Titles/MedalRank20Title": {
@@ -45030,6 +45319,7 @@
   },
   "/Lotus/Powersuits/Odalisk/ProteaPrime": {
     "name": "Protea Prime",
+    "vaulted": true,
     "isPrime": true,
     "components": [
       "/Lotus/Types/Recipes/WarframeRecipes/ProteaPrimeBlueprint",
@@ -47891,6 +48181,15 @@
       "/Lotus/Types/Recipes/Weapons/WolfFrameAxeWeaponBlueprint",
       "/Lotus/Types/Recipes/Weapons/WeaponParts/WolfFrameAxeWeaponHandle",
       "/Lotus/Types/Gameplay/Zariman/Resources/EclipseVoidWraithItem"
+    ]
+  },
+  "/Lotus/Weapons/Tenno/Melee/Axe/PrimeVorunaAxeWeapon": {
+    "name": "Sarofang Prime",
+    "components": [
+      "/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeBlade",
+      "/Lotus/Types/Recipes/Weapons/SarofangPrimeBlueprint",
+      "/Lotus/Types/Recipes/Weapons/WeaponParts/SarofangPrimeHandle",
+      "/Lotus/Types/Items/MiscItems/OrokinCell"
     ]
   },
   "/Lotus/Weapons/Tenno/Melee/Gunblade/GunbladeAutomatic/TnoGunbladeAutomatic": {
@@ -56134,7 +56433,14 @@
     "name": "Uriel Asmodion Glyph - Dark"
   },
   "/Lotus/Upgrades/Skins/DemonFrame/DemonFrameAltHelmet": {
-    "name": "Uriel Asmodion Helmet"
+    "name": "Uriel Asmodion Helmet",
+    "components": [
+      "/Lotus/Types/Recipes/Helmets/UrielAltHelmetBlueprint",
+      "/Lotus/Types/Items/MiscItems/Nanospores",
+      "/Lotus/Types/Items/MiscItems/Alertium",
+      "/Lotus/Types/Items/MiscItems/Plastids",
+      "/Lotus/Types/Items/MiscItems/Rubedo"
+    ]
   },
   "/Lotus/Types/StoreItems/AvatarImages/Warframes/ImageUrielBright": {
     "name": "Uriel Glyph - Bright"
@@ -57203,6 +57509,7 @@
   },
   "/Lotus/Weapons/Tenno/Pistols/PrimeVelox/PrimeVeloxPistol": {
     "name": "Velox Prime",
+    "vaulted": true,
     "components": [
       "/Lotus/Types/Recipes/Weapons/WeaponParts/VeloxPrimeBarrel",
       "/Lotus/Types/Recipes/Weapons/VeloxPrimeBlueprint",
@@ -57915,6 +58222,9 @@
   },
   "/Lotus/Upgrades/Mods/Rifle/DualStat/CorruptedRecoilFireRateRifle": {
     "name": "Vile Precision"
+  },
+  "/Lotus/Upgrades/Skins/Liset/VorunaPrimeHoodOrnament": {
+    "name": "Vilkas Prime Sumdali"
   },
   "/Lotus/Weapons/Tenno/Bayonet/TnBayonetRifleWeapon": {
     "name": "Vinquibus",
@@ -58873,6 +59183,32 @@
   },
   "/Lotus/Types/Items/ShipDecos/TarotCardVoruna": {
     "name": "Voruna Prex"
+  },
+  "/Lotus/Powersuits/Werewolf/VorunaPrime": {
+    "name": "Voruna Prime",
+    "isPrime": true,
+    "components": [
+      "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeBlueprint",
+      "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeChassisComponent",
+      "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeHelmetComponent",
+      "/Lotus/Types/Items/MiscItems/OrokinCell",
+      "/Lotus/Types/Recipes/WarframeRecipes/VorunaPrimeSystemsComponent"
+    ]
+  },
+  "/Lotus/Upgrades/Skins/Armor/WarframeDefaults/VorunaPrimeArmArmor": {
+    "name": "Voruna Prime Armor"
+  },
+  "/Lotus/Types/StoreItems/AvatarImages/Primes/ImageVorunaPrimeBright": {
+    "name": "Voruna Prime Glyph - Bright"
+  },
+  "/Lotus/Types/StoreItems/AvatarImages/Primes/ImageVorunaPrimeDark": {
+    "name": "Voruna Prime Glyph - Dark"
+  },
+  "/Lotus/Upgrades/Skins/Werewolf/VorunaPrimeHelmet": {
+    "name": "Voruna Prime Helmet"
+  },
+  "/Lotus/Upgrades/Skins/Werewolf/VorunaPrimeSkin": {
+    "name": "Voruna Prime Skin"
   },
   "/Lotus/Upgrades/Skins/Werewolf/WerewolfSkin": {
     "name": "Voruna Skin"

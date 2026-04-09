@@ -173,6 +173,20 @@ function buildArcaneDisplayParts(rawStats: string[]) {
 
 function parseArcaneConditionalEffect(line: string): Partial<ModEffect> {
     const clean = stripColorTags(line).replace(/\\n/g, " ").replace(/\s+/g, " ").trim();
+
+    // Melee Influence: "On Melee Electricity Status: N% chance for elemental Melee Status
+    // Effects to apply to enemies within Xm for Ys. Cannot refresh while active."
+    // The trigger is an Electricity proc; the effect is an AoE elemental status spread.
+    const meleeInfluenceMatch = clean.match(
+        /^On Melee [A-Za-z]+ Status:\s*(\d+(?:\.\d+)?)%\s+chance for elemental Melee Status Effects to apply to enemies within (\d+(?:\.\d+)?)m/i
+    );
+    if (meleeInfluenceMatch) {
+        return {
+            aoeElementalStatusSpreadChance: parseFloat(meleeInfluenceMatch[1]) / 100,
+            aoeElementalStatusSpreadRadius: parseFloat(meleeInfluenceMatch[2]),
+        };
+    }
+
     const match = clean.match(/^(On Reload From Empty|On Reload|On Precision Headshot Kill|On Headshot Kill|On Weak Point Hit|On Weak Point Kill|On Melee Kill|On Kill or Assist|On Kill|On Base Critical Hits|On Ability Cast|On [A-Za-z ]+ Status Effect|On Weapon [A-Za-z ]+ Status Effect|When [^:]+|If [^:]+|Gain):\s*(.+)$/i);
     if (!match) return {};
 

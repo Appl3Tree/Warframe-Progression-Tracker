@@ -18,6 +18,7 @@ import { WorkspaceSegmented, WorkspaceSegmentedButton } from "../components/work
 import { buildRelicGoalItemNames, getRelicGoalDisplayName } from "../domain/logic/relicGoalExpansion";
 
 const VoidTraceCalc = lazy(() => import("./relics/VoidTraceCalc"));
+const RelicFarming = lazy(() => import("./relics/RelicFarming"));
 
 // ---- Helpers ----
 
@@ -170,12 +171,15 @@ function MissionList({ relic, availability }: { relic: RelicEntry; availability:
 
 function RelicCard({
     scored, goalItems, availability, searchQuery, showAllRewardsByDefault,
+    isSelectedForFarming, onToggleFarming,
 }: {
     scored: ScoredRelic;
     goalItems: Set<string>;
     availability: RelicAvailabilityStatus;
     searchQuery: string;
     showAllRewardsByDefault: boolean;
+    isSelectedForFarming: boolean;
+    onToggleFarming: () => void;
 }) {
     const { relic, matchedItems } = scored;
     const [showAllLocalOverride, setShowAllLocalOverride] = useState<boolean | null>(null);
@@ -200,13 +204,25 @@ function RelicCard({
                 <span className="text-sm font-semibold text-slate-100">
                     {renderHighlightedText(relic.displayName, searchQuery, "text-amber-200")}
                 </span>
+                <button
+                    onClick={onToggleFarming}
+                    title={isSelectedForFarming ? "Remove from Relic Farming tab" : "Add to Relic Farming tab"}
+                    className={[
+                        "ml-auto rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors shrink-0",
+                        isSelectedForFarming
+                            ? "border-teal-600/60 bg-teal-950/50 text-teal-300 hover:bg-teal-950/80"
+                            : "border-slate-700 bg-slate-900/50 text-slate-500 hover:border-slate-500 hover:text-slate-300",
+                    ].join(" ")}
+                >
+                    {isSelectedForFarming ? "✓ Farming" : "+ Farm"}
+                </button>
                 {availability === "prime_resurgence" && (
-                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded border border-violet-700/50 bg-violet-950/30 text-violet-300 font-semibold shrink-0">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded border border-violet-700/50 bg-violet-950/30 text-violet-300 font-semibold shrink-0">
                         PRIME RESURGENCE
                     </span>
                 )}
                 {availability === "vaulted" && (
-                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded border border-red-700/50 bg-red-950/30 text-red-400 font-semibold shrink-0">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded border border-red-700/50 bg-red-950/30 text-red-400 font-semibold shrink-0">
                         VAULTED
                     </span>
                 )}
@@ -295,7 +311,8 @@ export default function RelicPlanner() {
         }))
     );
 
-    const [tab, setTab] = useState<"goals" | "traces">("goals");
+    const [tab, setTab] = useState<"goals" | "traces" | "farming">("goals");
+    const [farmingSelectedKeys, setFarmingSelectedKeys] = useState<Set<string>>(new Set());
     const [tierFilter, setTierFilter] = useState<string>("all");
     const [showVaulted, setShowVaulted] = useState(false);
     const [limitToGoalItems, setLimitToGoalItems] = useState(false);
@@ -445,6 +462,7 @@ export default function RelicPlanner() {
             <WorkspaceSegmented className="gap-1.5 bg-transparent border-slate-800 shadow-none">
                 {([
                     { key: "goals", label: "Goal Tracker" },
+                    { key: "farming", label: "Relic Farming" },
                     { key: "traces", label: "Void Trace Calc" },
                 ] as const).map((t) => (
                     <WorkspaceSegmentedButton
@@ -633,6 +651,13 @@ export default function RelicPlanner() {
                                             availability={availabilityByRelicKey.get(sr.relic.key) ?? "vaulted"}
                                             searchQuery={relicSearch}
                                             showAllRewardsByDefault={showAllOtherRewards}
+                                            isSelectedForFarming={farmingSelectedKeys.has(sr.relic.key)}
+                                            onToggleFarming={() => setFarmingSelectedKeys((prev) => {
+                                                const next = new Set(prev);
+                                                if (next.has(sr.relic.key)) next.delete(sr.relic.key);
+                                                else next.add(sr.relic.key);
+                                                return next;
+                                            })}
                                         />
                                     ))}
                                 </div>
@@ -640,6 +665,13 @@ export default function RelicPlanner() {
                         </>
                     )}
                 </div>
+            )}
+
+            {/* Relic Farming tab */}
+            {tab === "farming" && (
+                <Suspense fallback={<div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-6 text-sm text-slate-400">Loading…</div>}>
+                    <RelicFarming selectedKeys={farmingSelectedKeys} setSelectedKeys={setFarmingSelectedKeys} />
+                </Suspense>
             )}
 
             {/* Void Trace Calc tab */}

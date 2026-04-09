@@ -1,31 +1,21 @@
 {
   "dataset": "warframe-items",
-  "syncedAt": "2026-04-04T21:43:12.824Z",
+  "syncedAt": "2026-04-09T00:36:04.240Z",
   "changedFiles": [
     "All.json",
-    "Arcanes.json",
     "Arch-Gun.json",
-    "Arch-Melee.json",
-    "Archwing.json",
-    "Fish.json",
-    "Gear.json",
     "Glyphs.json",
     "Melee.json",
     "Misc.json",
     "Mods.json",
     "Node.json",
-    "Pets.json",
     "Primary.json",
-    "Quests.json",
-    "Railjack.json",
     "Relics.json",
     "Resources.json",
     "Secondary.json",
     "Sentinels.json",
-    "SentinelWeapons.json",
-    "Sigils.json",
     "Skins.json",
     "Warframes.json"
   ],
-  "sourceBaseUrl": "https://raw.githubusercontent.com/WFCD/warframe-items/master/data/json"
+  "sourceBaseUrl": "https://raw.githubusercontent.com/WFCD/warframe-items/refs/heads/master/data/json"
 }

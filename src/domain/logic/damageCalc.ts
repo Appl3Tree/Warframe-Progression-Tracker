@@ -77,6 +77,9 @@ export interface ModdedWeaponStats {
     blastDetonationDamagePerShot: number;
     gasCloudRadius: number;
     tauStatusVulnerability: number;
+    /** AoE elemental status spread chance (0–1). Melee Influence-type arcane effect. */
+    aoeElementalStatusSpreadChance: number;
+    aoeElementalStatusSpreadRadius: number;
 }
 
 const AIMING_UPTIME_ASSUMPTION = 0.75;
@@ -125,8 +128,15 @@ export function avgCritMultiplier(critChance: number, critMult: number): number 
     if (critChance <= 0) return 1;
     const guaranteedTier = Math.floor(critChance);
     const frac = critChance - guaranteedTier;
-    const low = 1 + guaranteedTier * (critMult - 1);
-    const high = 1 + (guaranteedTier + 1) * (critMult - 1);
+    // Warframe crit tiers are multiplicative: tier-n damage = critMult^n.
+    //   tier 0 = 1× (no crit)
+    //   tier 1 = critMult  (yellow)
+    //   tier 2 = critMult² (orange)
+    //   tier 3 = critMult³ (red)
+    // Previous formula used additive 1 + n*(critMult-1), which is only correct at tier 0–1
+    // and severely undervalues high crit chance on weapons with large multipliers (snipers, etc.).
+    const low  = Math.pow(critMult, guaranteedTier);
+    const high = Math.pow(critMult, guaranteedTier + 1);
     return (1 - frac) * low + frac * high;
 }
 
@@ -300,6 +310,8 @@ export function calculateBuild(
     let impactStatusExtraProcLowFireRateThreshold = 0;
     let impactStatusExtraProcLowFireRateMultiplier = 1;
     let critAppliesSlashChance = 0;
+    let aoeElementalStatusSpreadChance = 0;
+    let aoeElementalStatusSpreadRadius = 0;
     const conditionalEffects: ConditionalEffect[] = [];
 
     const orderedPrimaryElementBonuses: Array<{ type: DamageKey; value: number; order: number }> = [];
@@ -340,6 +352,8 @@ export function calculateBuild(
         impactStatusExtraProcLowFireRateThreshold = Math.max(impactStatusExtraProcLowFireRateThreshold, e.impactStatusExtraProcLowFireRateThreshold ?? 0);
         impactStatusExtraProcLowFireRateMultiplier = Math.max(impactStatusExtraProcLowFireRateMultiplier, e.impactStatusExtraProcLowFireRateMultiplier || 1);
         critAppliesSlashChance += e.critAppliesSlashChance ?? 0;
+        aoeElementalStatusSpreadChance = Math.max(aoeElementalStatusSpreadChance, e.aoeElementalStatusSpreadChance ?? 0);
+        aoeElementalStatusSpreadRadius = Math.max(aoeElementalStatusSpreadRadius, e.aoeElementalStatusSpreadRadius ?? 0);
         conditionalEffects.push(...(e.conditionalEffects ?? []));
 
         if (targetFaction && e.targetFaction && e.targetFaction.toLowerCase() === targetFaction.toLowerCase()) {
@@ -597,7 +611,7 @@ export function calculateBuild(
         const stacks = rate * duration * statusDurationMultiplier;
         return cap ? Math.min(cap, stacks) : stacks;
     };
-    expectedStacksByType.impact = expectedStacks("impact", 1, 5);
+    expectedStacksByType.impact = expectedStacks("impact", 6, 5);
     expectedStacksByType.puncture = expectedStacks("puncture", 10, 5);
     expectedStacksByType.slash = expectedStacks("slash", 6);
     expectedStacksByType.heat = expectedStacks("heat", 6);
@@ -687,6 +701,8 @@ export function calculateBuild(
         blastDetonationDamagePerShot,
         gasCloudRadius,
         tauStatusVulnerability,
+        aoeElementalStatusSpreadChance,
+        aoeElementalStatusSpreadRadius,
     };
 
     const burstDPS = averageShotDamage * fireRate;

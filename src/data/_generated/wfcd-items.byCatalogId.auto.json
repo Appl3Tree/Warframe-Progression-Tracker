@@ -32183,6 +32183,30 @@
     "wfcdFile": "Glyphs.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/StoreItems/AvatarImages/Primes/ImageVorunaPrimeBright": {
+    "name": "Voruna Prime Glyph - Bright",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/StoreItems/AvatarImages/Primes/ImageVorunaPrimeDark": {
+    "name": "Voruna Prime Glyph - Dark",
+    "category": "Glyphs",
+    "productCategory": null,
+    "type": "Glyph",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Glyphs.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/StoreItems/AvatarImages/AvatarImageCreatorVVhiteAngel": {
     "name": "Vvhite Angel Glyph",
     "category": "Glyphs",
@@ -36350,6 +36374,20 @@
       "Tenno"
     ],
     "masteryReq": 8,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Melee.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Weapons/Tenno/Melee/Axe/PrimeVorunaAxeWeapon": {
+    "name": "Sarofang Prime",
+    "category": "Melee",
+    "productCategory": "Melee",
+    "type": "Melee",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 16,
     "masterable": true,
     "tradable": false,
     "wfcdFile": "Melee.json",
@@ -46371,6 +46409,18 @@
   },
   "items:/Lotus/Types/Items/MiscItems/NoraIntermissionFourteenCreds": {
     "name": "Nora's Mix:\nDreams Of The Dead Cred",
+    "category": "Misc",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Misc.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/MiscItems/NoraIntermissionFifteenCreds": {
+    "name": "Nora's Mix: Time Tempests Cred",
     "category": "Misc",
     "productCategory": null,
     "type": "Misc",
@@ -79342,6 +79392,20 @@
     "wfcdFile": "Primary.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Weapons/Tenno/LongGuns/PrimePerigale/PrimePerigaleSniper": {
+    "name": "Perigale Prime",
+    "category": "Primary",
+    "productCategory": "LongGuns",
+    "type": "Rifle",
+    "tags": [
+      "Tenno"
+    ],
+    "masteryReq": 14,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Primary.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Weapons/Infested/LongGuns/Tentacluster/InfestedShotgun": {
     "name": "Phage",
     "category": "Primary",
@@ -79749,6 +79813,7 @@
     "type": "Sniper",
     "tags": [
       "Corpus",
+      "Invasion Reward",
       "Vandal"
     ],
     "masteryReq": 5,
@@ -83877,6 +83942,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCSilver": {
+    "name": "Axi C11 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCGold": {
+    "name": "Axi C11 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCBronze": {
+    "name": "Axi C11 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCPlatinum": {
+    "name": "Axi C11 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T4VoidProjectionUSilver": {
     "name": "Axi C2 Exceptional",
     "category": "Relics",
@@ -84491,6 +84604,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T4VoidProjectionGaussPrimeBPlatinum": {
     "name": "Axi D5 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBSilver": {
+    "name": "Axi D6 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBGold": {
+    "name": "Axi D6 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze": {
+    "name": "Axi D6 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBPlatinum": {
+    "name": "Axi D6 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -89265,6 +89426,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDSilver": {
+    "name": "Axi S20 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDGold": {
+    "name": "Axi S20 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze": {
+    "name": "Axi S20 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDPlatinum": {
+    "name": "Axi S20 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T4VoidProjectionRhinoNyxVaultASilver": {
     "name": "Axi S3 Exceptional",
     "category": "Relics",
@@ -90465,6 +90674,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeESilver": {
+    "name": "Axi V14 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEGold": {
+    "name": "Axi V14 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEBronze": {
+    "name": "Axi V14 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEPlatinum": {
+    "name": "Axi V14 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T4VoidProjectionFSilver": {
     "name": "Axi V2 Exceptional",
     "category": "Relics",
@@ -91127,6 +91384,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeDPlatinum": {
     "name": "Axi Y2 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeASilver": {
+    "name": "Axi Y3 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeAGold": {
+    "name": "Axi Y3 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeABronze": {
+    "name": "Axi Y3 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeAPlatinum": {
+    "name": "Axi Y3 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -92519,6 +92824,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T1VoidProjectionCalibanPrimeAPlatinum": {
     "name": "Lith C13 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeASilver": {
+    "name": "Lith C14 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeAGold": {
+    "name": "Lith C14 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeABronze": {
+    "name": "Lith C14 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeAPlatinum": {
+    "name": "Lith C14 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -96561,6 +96914,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBSilver": {
+    "name": "Lith N19 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBGold": {
+    "name": "Lith N19 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBBronze": {
+    "name": "Lith N19 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBPlatinum": {
+    "name": "Lith N19 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T1VoidProjectionRSilver": {
     "name": "Lith N2 Exceptional",
     "category": "Relics",
@@ -100365,6 +100766,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeESilver": {
+    "name": "Meso A10 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEGold": {
+    "name": "Meso A10 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze": {
+    "name": "Meso A10 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEPlatinum": {
+    "name": "Meso A10 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultASilver": {
     "name": "Meso A11 Exceptional",
     "category": "Relics",
@@ -102093,6 +102542,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCSilver": {
+    "name": "Meso D8 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCGold": {
+    "name": "Meso D8 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCBronze": {
+    "name": "Meso D8 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCPlatinum": {
+    "name": "Meso D8 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T2VoidProjectionELFVaultASilver": {
     "name": "Meso E1 Exceptional",
     "category": "Relics",
@@ -102371,6 +102868,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T2VoidProjectionXakuPrimeBPlatinum": {
     "name": "Meso E6 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBSilver": {
+    "name": "Meso E7 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBGold": {
+    "name": "Meso E7 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBBronze": {
+    "name": "Meso E7 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBPlatinum": {
+    "name": "Meso E7 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -104051,6 +104596,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T2VoidProjectionCalibanPrimeAPlatinum": {
     "name": "Meso L3 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeASilver": {
+    "name": "Meso L4 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeAGold": {
+    "name": "Meso L4 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeABronze": {
+    "name": "Meso L4 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeAPlatinum": {
+    "name": "Meso L4 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -107903,6 +108496,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeCPlatinum": {
     "name": "Meso V14 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDSilver": {
+    "name": "Meso V15 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDGold": {
+    "name": "Meso V15 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDBronze": {
+    "name": "Meso V15 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDPlatinum": {
+    "name": "Meso V15 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -113721,6 +114362,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeASilver": {
+    "name": "Neo N24 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeAGold": {
+    "name": "Neo N24 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze": {
+    "name": "Neo N24 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeAPlatinum": {
+    "name": "Neo N24 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T3VoidProjectionISilver": {
     "name": "Neo N3 Exceptional",
     "category": "Relics",
@@ -114239,6 +114928,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T3VoidProjectionTitaniaPrimeBPlatinum": {
     "name": "Neo P1 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBSilver": {
+    "name": "Neo P10 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBGold": {
+    "name": "Neo P10 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBBronze": {
+    "name": "Neo P10 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBPlatinum": {
+    "name": "Neo P10 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -115509,6 +116246,54 @@
     "wfcdFile": "Relics.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCSilver": {
+    "name": "Neo S20 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCGold": {
+    "name": "Neo S20 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze": {
+    "name": "Neo S20 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCPlatinum": {
+    "name": "Neo S20 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Game/Projections/T3VoidProjectionGSilver": {
     "name": "Neo S3 Exceptional",
     "category": "Relics",
@@ -116363,6 +117148,54 @@
   },
   "items:/Lotus/Types/Game/Projections/T3VoidProjectionGaraPrimeDPlatinum": {
     "name": "Neo V10 Radiant",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDSilver": {
+    "name": "Neo V11 Exceptional",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDGold": {
+    "name": "Neo V11 Flawless",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDBronze": {
+    "name": "Neo V11 Intact",
+    "category": "Relics",
+    "productCategory": null,
+    "type": "Relic",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
+    "wfcdFile": "Relics.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDPlatinum": {
+    "name": "Neo V11 Radiant",
     "category": "Relics",
     "productCategory": null,
     "type": "Relic",
@@ -152403,6 +153236,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Scarves/PrimeVorunaSyandana": {
+    "name": "Hanteler Prime Syandana",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/Arcade/FlappyArcadeItem": {
     "name": "Happy Zephyr",
     "category": "Skins",
@@ -153240,6 +154085,18 @@
     "masteryReq": null,
     "masterable": false,
     "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Types/Items/Titles/TitleVorunaPrime": {
+    "name": "Heart Of The Pack Honoria",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Misc",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": true,
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
@@ -155501,6 +156358,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Sentinels/Masks/HunhowMask": {
     "name": "Hunhow Sentinel Mask",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Effects/TennoCon2026Ephemera": {
+    "name": "Hunhullus Ephemera",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -176057,6 +176926,18 @@
   },
   "items:/Lotus/Upgrades/Skins/Effects/WerewolfEphemera": {
     "name": "Okuri Tails Ephemera",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Effects/PrimeVorunaEphemera": {
+    "name": "Okuri Tails Prime Ephemera",
     "category": "Skins",
     "productCategory": null,
     "type": "Skin",
@@ -199371,6 +200252,18 @@
     "wfcdFile": "Skins.json",
     "source": "wfcd"
   },
+  "items:/Lotus/Upgrades/Skins/Liset/VorunaPrimeHoodOrnament": {
+    "name": "Vilkas Prime Sumdali",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
   "items:/Lotus/Types/Items/ShipDecos/LisetPropOldLocker": {
     "name": "Vintage Corpus Locker",
     "category": "Skins",
@@ -201056,6 +201949,42 @@
     "category": "Skins",
     "productCategory": null,
     "type": "Ship Decoration",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Armor/WarframeDefaults/VorunaPrimeArmArmor": {
+    "name": "Voruna Prime Armor",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Werewolf/VorunaPrimeHelmet": {
+    "name": "Voruna Prime Helmet",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
+    "tags": [],
+    "masteryReq": null,
+    "masterable": false,
+    "tradable": false,
+    "wfcdFile": "Skins.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Upgrades/Skins/Werewolf/VorunaPrimeSkin": {
+    "name": "Voruna Prime Skin",
+    "category": "Skins",
+    "productCategory": null,
+    "type": "Skin",
     "tags": [],
     "masteryReq": null,
     "masterable": false,
@@ -207485,6 +208414,18 @@
   },
   "items:/Lotus/Powersuits/Werewolf/Werewolf": {
     "name": "Voruna",
+    "category": "Warframes",
+    "productCategory": "Suits",
+    "type": "Warframe",
+    "tags": [],
+    "masteryReq": 0,
+    "masterable": true,
+    "tradable": false,
+    "wfcdFile": "Warframes.json",
+    "source": "wfcd"
+  },
+  "items:/Lotus/Powersuits/Werewolf/VorunaPrime": {
+    "name": "Voruna Prime",
     "category": "Warframes",
     "productCategory": "Suits",
     "type": "Warframe",

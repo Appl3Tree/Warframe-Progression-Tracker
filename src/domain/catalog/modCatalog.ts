@@ -103,6 +103,14 @@ export interface ModEffect {
     impactStatusExtraProcLowFireRateMultiplier: number;
     /** Chance for a critical hit to also apply Slash. */
     critAppliesSlashChance: number;
+    /**
+     * AoE elemental status spread chance (0–1). On Electricity proc, spreads all elemental
+     * melee status effects to enemies within aoeElementalStatusSpreadRadius metres.
+     * (Melee Influence arcane mechanic.)
+     */
+    aoeElementalStatusSpreadChance: number;
+    /** Radius in metres for aoeElementalStatusSpreadChance. */
+    aoeElementalStatusSpreadRadius: number;
     conditionalEffects: ConditionalEffect[];
     /** Faction damage multiplier as a bonus fraction, e.g. 0.3 = ×1.3. 0 if not a faction mod. */
     factionDamageBonus: number;
@@ -516,6 +524,8 @@ export function emptyEffect(): ModEffect {
         impactStatusExtraProcLowFireRateThreshold: 0,
         impactStatusExtraProcLowFireRateMultiplier: 0,
         critAppliesSlashChance: 0,
+        aoeElementalStatusSpreadChance: 0,
+        aoeElementalStatusSpreadRadius: 0,
         conditionalEffects: [],
         factionDamageBonus: 0, targetFaction: "",
     };
@@ -867,7 +877,11 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
 
     for (const [compatKey, mods] of byWeaponName.entries()) {
         const compatLower = compatKey.toLowerCase();
-        if (weaponNameLower.includes(compatLower) || compatLower.includes(weaponNameLower)) {
+        // Only match when the weapon's name CONTAINS the compat name — not the reverse.
+        // e.g. "Vaykor Hek" correctly sees "Hek" augments because "vaykor hek".includes("hek").
+        // The reverse `compatLower.includes(weaponNameLower)` was wrong: it caused "Soma" to see
+        // "Soma Prime"-exclusive mods because "soma prime".includes("soma") is true.
+        if (weaponNameLower.includes(compatLower)) {
             for (const m of mods) {
                 if (!augSeen.has(m.name) && matchesHiddenTags(weapon, m)) {
                     augSeen.add(m.name);
