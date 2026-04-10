@@ -1039,14 +1039,24 @@ const SECTIONS: Section[] = [
                         </thead>
                         <tbody>
                             {[
-                                ["Defense", "Every 3 waves", "Wave 12 (4th interval)"],
-                                ["Survival", "Every 5 minutes", "20 minutes (4th interval)"],
-                                ["Interception", "Every completed round", "Round 4 (4th interval)"],
-                                ["Excavation", "Every 100 Cryotic excavated", "4th excavator (4th interval)"],
-                                ["Defection", "Every 2 squads safely escorted", "8 squads total (4th interval)"],
-                                ["Mobile Defense", "Mission completion", "Single reward — no rotation"],
-                                ["Capture / Exterminate", "Mission completion", "Single reward — no rotation"],
-                                ["Spy", "Per vault successfully hacked", "Up to 3 rewards (one per vault) — no cycle"],
+                                ["Defense",              "Every 3 waves",                          "Wave 12 (4th interval)"],
+                                ["Survival",             "Every 5 minutes",                        "20 minutes (4th interval)"],
+                                ["Interception",         "Every completed round",                  "Round 4 (4th interval)"],
+                                ["Excavation",           "Every completed excavator (100 Cryotic)", "4th excavator (4th interval)"],
+                                ["Defection",            "Every 2 squads safely escorted",         "8 squads total (4th interval)"],
+                                ["Infested Salvage",     "Every round (manifest decoded)",         "Round 4 (4th interval)"],
+                                ["Sanctuary Onslaught",  "Every 2 zones cleared",                  "Zones 8, 16, 24… (4th interval)"],
+                                ["Void Armageddon",      "Every 3 waves + Void Angel kill",        "4th angel kill (4th interval)"],
+                                ["Void Cascade",         "Every 4 Exolizers retired",              "16 Exolizers (4th interval)"],
+                                ["Void Flood",           "Every 3 Void Ruptures sealed",           "12 ruptures (4th interval)"],
+                                ["Alchemy (Höllvania)",  "Every crucible filled",                  "4th crucible (4th interval)"],
+                                ["Legacyte Harvest",     "Every Legacyte captured",                "4th Legacyte (4th interval)"],
+                                ["Mobile Defense",       "Mission completion",                      "Single reward — no rotation"],
+                                ["Capture / Exterminate","Mission completion",                      "Single reward — no rotation"],
+                                ["Spy",                  "Per vault successfully hacked",           "Up to 3 rewards (one per vault) — no cycle"],
+                                ["Sabotage (caches)",    "Per cache opened",                       "Up to 3 rewards (one per cache) — no cycle"],
+                                ["Rush (Archwing)",      "Per transport destroyed",                "3 transports = all 3 rotations in one run"],
+                                ["Skirmish (Railjack)",  "Per mission run completed",              "Run 4 (4th interval across runs)"],
                             ].map(([type, trigger, firstC]) => (
                                 <tr key={type} className="border-t border-slate-800/60">
                                     <td className="px-3 py-2 font-semibold text-slate-100">{type}</td>
@@ -1057,6 +1067,15 @@ const SECTIONS: Section[] = [
                         </tbody>
                     </table>
                 </TableWrap>
+
+                <SectionHeading>Non-standard rotation missions</SectionHeading>
+                <P>
+                    A few missions use reward systems that don't follow standard AABC:
+                </P>
+                <Bullets items={[
+                    <><B>The Circuit (Duviri)</B> — tier-based progression, not AABC. Each run advances through numbered tiers with fixed rewards. Includes Warframe blueprint parts at tiers 2, 5, 8, and 10, and Incarnon Genesis adapters at higher tiers. Resets weekly (Monday 00:00 UTC).</>,
+                    <><B>The Perita Rebellion (Höllvania)</B> — Rotation B drops every completed Order; Rotation A drops as a bonus every 3rd Order; Rotation C drops once at mission completion.</>,
+                ]} />
 
                 <SectionHeading>Disruption — unique ABCD system</SectionHeading>
                 <P>

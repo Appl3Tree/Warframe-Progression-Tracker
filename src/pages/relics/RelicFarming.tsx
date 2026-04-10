@@ -36,11 +36,126 @@ const TIER_COLOR: Record<string, string> = {
 type FarmingMode = "max-drops" | "coverage" | "total-chance";
 
 /**
+ * null → no limit (show all rotations A, B, C)
  * "A"  → player stops at rotation A (only A drops count)
- * "AB" → player stops at rotation B (A and B drops count)
- * "any" → player runs through C (all rotations count)
+ * "B"  → player stops at rotation B (A and B drops count — never reaches C)
  */
-type RotationLimit = "any" | "A" | "AB";
+type RotationLimit = null | "A" | "B";
+
+/**
+ * Per-mission-type tooltip text for each rotation label.
+ * Helps players understand what in-game milestone each rotation corresponds to.
+ */
+const ROTATION_TOOLTIPS: Record<string, Record<string, string>> = {
+    // ── Standard AABC endless ───────────────────────────────────────────────
+    Defense: {
+        A: "Waves 3, 6, 15, 18, 27, 30…",
+        B: "Waves 9, 21, 33…",
+        C: "Waves 12, 24, 36…",
+    },
+    Survival: {
+        A: "5, 10, 25, 30… min",
+        B: "15, 35, 55… min",
+        C: "20, 40, 60… min",
+    },
+    Interception: {
+        A: "Rounds 1, 2, 5, 6, 9, 10…",
+        B: "Rounds 3, 7, 11…",
+        C: "Rounds 4, 8, 12…",
+    },
+    Excavation: {
+        A: "Drills 1, 2, 5, 6, 9, 10…",
+        B: "Drills 3, 7, 11…",
+        C: "Drills 4, 8, 12…",
+    },
+    Defection: {
+        A: "2, 4, 10, 12… squads escorted",
+        B: "6, 14… squads escorted",
+        C: "8, 16… squads escorted",
+    },
+    "Infested Salvage": {
+        A: "Rounds 1, 2, 5, 6… (manifest decoded)",
+        B: "Rounds 3, 7…",
+        C: "Rounds 4, 8…",
+    },
+    "Sanctuary Onslaught": {
+        A: "Zones 2, 4, 10, 12…",
+        B: "Zones 6, 14…",
+        C: "Zones 8, 16…",
+    },
+    // ── Zariman endless ─────────────────────────────────────────────────────
+    "Void Armageddon": {
+        A: "Angel kills 1, 2, 5, 6… (every 3 waves + kill)",
+        B: "Angel kills 3, 7…",
+        C: "Angel kills 4, 8…",
+    },
+    "Void Cascade": {
+        A: "4, 8, 20, 24 Exolizers retired",
+        B: "12, 28 Exolizers retired",
+        C: "16, 32 Exolizers retired",
+    },
+    "Void Flood": {
+        A: "3, 6, 15, 18 Void Ruptures sealed",
+        B: "9, 21 Void Ruptures sealed",
+        C: "12, 24 Void Ruptures sealed",
+    },
+    // ── Höllvania ───────────────────────────────────────────────────────────
+    Alchemy: {
+        A: "Crucibles 1, 2, 5, 6… (each crucible filled)",
+        B: "Crucibles 3, 7…",
+        C: "Crucibles 4, 8…",
+    },
+    "Legacyte Harvest": {
+        A: "Legacytes 1, 2, 5, 6… captured",
+        B: "Legacytes 3, 7…",
+        C: "Legacytes 4, 8…",
+    },
+    "The Perita Rebellion": {
+        A: "Every 3rd order completed (bonus reward)",
+        B: "Every order completed",
+        C: "Mission completion",
+    },
+    // ── Disruption (special 2D matrix) ──────────────────────────────────────
+    Disruption: {
+        A: "Earlier rounds or fewer conduits defended",
+        B: "Round 3+ with 2–3 conduits defended",
+        C: "Round 3+ with 3–4 conduits defended",
+    },
+    // ── Non-endless (one reward per objective) ───────────────────────────────
+    Spy: {
+        A: "1st vault hacked",
+        B: "2nd vault hacked",
+        C: "3rd vault hacked",
+    },
+    Caches: {
+        A: "1st cache found",
+        B: "2nd cache found",
+        C: "3rd cache found",
+    },
+    Sabotage: {
+        A: "1st cache found",
+        B: "2nd cache found",
+        C: "3rd cache found",
+    },
+    // ── Railjack ────────────────────────────────────────────────────────────
+    Skirmish: {
+        A: "Runs 1, 2, 5, 6… (AABC cycles across successive runs)",
+        B: "Runs 3, 7…",
+        C: "Runs 4, 8…",
+    },
+    // ── Archwing Rush ────────────────────────────────────────────────────────
+    Rush: {
+        A: "1 transport destroyed",
+        B: "2 transports destroyed",
+        C: "All 3 transports destroyed",
+    },
+    // ── Duviri ───────────────────────────────────────────────────────────────
+    "The Circuit": {
+        A: "Early tiers (1, 3, 4)",
+        B: "Mid tiers — includes Warframe parts",
+        C: "High tiers — includes Warframe parts & Incarnon",
+    },
+};
 
 // A single rotation slot within a node (e.g. Rot A, Rot C)
 interface RotationEntry {
@@ -91,11 +206,11 @@ function computeScores(rotations: RotationEntry[]): Pick<ScoredNode, "totalDropC
 
 /** Returns true if this rotation label is within the player's chosen limit. */
 function rotationAllowed(rotation: string, limit: RotationLimit): boolean {
-    if (limit === "any") return true;
+    if (limit === null) return true;
     // Non-rotation nodes (rotation = "") are always included regardless of limit
     if (rotation === "") return true;
     if (limit === "A") return rotation === "A";
-    if (limit === "AB") return rotation === "A" || rotation === "B";
+    if (limit === "B") return rotation === "A" || rotation === "B";
     return true;
 }
 
@@ -202,11 +317,20 @@ function NodeCard({
             <div className={multiRotation ? "space-y-2" : "space-y-1"}>
                 {rotations.map((rot) => (
                     <div key={rot.rotation || "__"}>
-                        {multiRotation && (
-                            <div className="text-[10px] uppercase tracking-wide text-slate-500 mb-0.5">
-                                {rot.rotation ? `Rotation ${rot.rotation}` : "Drop"}
-                            </div>
-                        )}
+                        {multiRotation && (() => {
+                            const tip = rot.rotation
+                                ? ROTATION_TOOLTIPS[missionType ?? ""]?.[rot.rotation]
+                                : undefined;
+                            return (
+                                <div
+                                    className="text-[10px] uppercase tracking-wide text-slate-500 mb-0.5 w-fit"
+                                    title={tip}
+                                    style={tip ? { cursor: "help", textDecorationLine: "underline", textDecorationStyle: "dotted" } : undefined}
+                                >
+                                    {rot.rotation ? `Rotation ${rot.rotation}` : "Drop"}
+                                </div>
+                            );
+                        })()}
                         <div className="space-y-1">
                             {rot.relics.map(({ relic, chance }) => {
                                 const avail = availabilityByKey.get(relic.key) ?? "vaulted";
@@ -248,7 +372,7 @@ export default function RelicFarming({ selectedKeys, setSelectedKeys }: RelicFar
     const [tierFilter, setTierFilter] = useState("all");
     const [search, setSearch] = useState("");
     const [farmingMode, setFarmingMode] = useState<FarmingMode>("max-drops");
-    const [rotationLimit, setRotationLimit] = useState<RotationLimit>("any");
+    const [rotationLimit, setRotationLimit] = useState<RotationLimit>(null);
     const [excludedMissionTypes, setExcludedMissionTypes] = useState<Set<string>>(new Set());
 
     const availabilityByKey = useMemo(() => {
@@ -554,17 +678,16 @@ export default function RelicFarming({ selectedKeys, setSelectedKeys }: RelicFar
                         <div className="space-y-1.5">
                             <div className="text-[10px] uppercase tracking-wide text-slate-500">
                                 Rotation limit
-                                <span className="ml-1.5 normal-case text-slate-600">— how far into a mission are you willing to go?</span>
+                                <span className="ml-1.5 normal-case text-slate-600">— stop farming after reaching this rotation</span>
                             </div>
-                            <div className="flex gap-1.5">
+                            <div className="flex gap-1.5 items-center">
                                 {([
-                                    { key: "any" as RotationLimit, label: "Any",       desc: "Include all rotations (A, B, C)" },
-                                    { key: "AB"  as RotationLimit, label: "Stop at B", desc: "Only A and B rotations" },
-                                    { key: "A"   as RotationLimit, label: "Stop at A", desc: "First rotation only" },
+                                    { key: "A" as const, label: "Stop at A", desc: "Only show Rotation A drops — exit after the first reward" },
+                                    { key: "B" as const, label: "Stop at B", desc: "Show Rotation A and B drops — exit before reaching C" },
                                 ] as const).map((opt) => (
                                     <button
                                         key={opt.key}
-                                        onClick={() => setRotationLimit(opt.key)}
+                                        onClick={() => setRotationLimit((prev) => prev === opt.key ? null : opt.key)}
                                         title={opt.desc}
                                         className={[
                                             "rounded-lg border px-3 py-1.5 text-xs transition-colors",
@@ -576,6 +699,11 @@ export default function RelicFarming({ selectedKeys, setSelectedKeys }: RelicFar
                                         {opt.label}
                                     </button>
                                 ))}
+                                {rotationLimit !== null && (
+                                    <span className="text-[10px] text-slate-600 ml-1">
+                                        (click again to clear)
+                                    </span>
+                                )}
                             </div>
                         </div>
 

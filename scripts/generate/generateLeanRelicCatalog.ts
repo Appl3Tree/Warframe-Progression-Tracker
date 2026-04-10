@@ -53,7 +53,7 @@ interface RewardEntry {
 }
 
 interface NodeInfo {
-    rewards?: Record<string, RewardEntry[]>;
+    rewards?: Record<string, RewardEntry[]> | RewardEntry[];
 }
 
 interface MissionRewardsFile {
@@ -117,15 +117,26 @@ async function main(): Promise<void> {
         for (const [node, info] of Object.entries(nodes ?? {})) {
             const rewards = info?.rewards;
             if (!rewards) continue;
-            for (const [rotation, rewardList] of Object.entries(rewards)) {
-                if (!Array.isArray(rewardList)) continue;
+
+            // Non-rotation nodes have rewards as a flat array; rotation nodes have
+            // rewards as { A: [...], B: [...], C: [...] }.  Normalise both to the
+            // same [rotation, rewardList] shape so the loop below handles both.
+            const rotationEntries: Array<[string, RewardEntry[]]> = Array.isArray(rewards)
+                ? [["", rewards]]
+                : Object.entries(rewards).filter(([, v]) => Array.isArray(v)) as Array<[string, RewardEntry[]]>;
+
+            for (const [rotation, rewardList] of rotationEntries) {
                 for (const reward of rewardList) {
                     const name = String(reward?.itemName ?? "").trim();
                     if (!/\bRelic\b/i.test(name)) continue;
                     const relicKey = toMissionRelicKey(name);
                     const existing = missionsByRelicKey.get(relicKey) ?? [];
+                    // Non-rotation path omits the trailing rotation segment
+                    const pathLabel = rotation
+                        ? `missionRewards / ${planet} / ${node} / ${rotation}`
+                        : `missionRewards / ${planet} / ${node}`;
                     existing.push({
-                        pathLabel: `missionRewards / ${planet} / ${node} / ${rotation}`,
+                        pathLabel,
                         rotation,
                         chance: Number(reward?.chance ?? 0),
                     });

@@ -8,7 +8,8 @@
       "WebFetch(domain:wiki.warframe.com)",
       "WebSearch",
       "WebFetch(domain:view.genially.com)",
-      "WebFetch(domain:forums.warframe.com)"
+      "WebFetch(domain:forums.warframe.com)",
+      "WebFetch(domain:progametalk.com)"
     ]
   }
 }

@@ -78,6 +78,7 @@ export const NIGHTWAVE_VENDOR_ENTRY: SyndicateVendorEntry = {
         { name: "Spring-Loaded Broadhead", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 20 }], notes: "Weapon Augment (Temporary)" },
         { name: "Volatile Variant", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 20 }], notes: "Weapon Augment (Temporary)" },
         { name: "Wild Frenzy", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 20 }], notes: "Weapon Augment (Temporary)" },
+        { name: "Clip Delegation", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 20 }], notes: "Weapon Augment (Temporary)" },
 
         // Warframe Augments (20 cred each)
         { name: "Deceptive Bond", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 20 }], notes: "Warframe Augment (Temporary)" },
@@ -111,6 +112,7 @@ export const NIGHTWAVE_VENDOR_ENTRY: SyndicateVendorEntry = {
         { name: "Excalibur Avalon Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
         { name: "Excalibur Mordred Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
         { name: "Excalibur Pendragon Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
+        { name: "Follie Sfumato Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
         { name: "Frost Aurora Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
         { name: "Frost Squall Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
         { name: "Gara Virago Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
@@ -175,6 +177,7 @@ export const NIGHTWAVE_VENDOR_ENTRY: SyndicateVendorEntry = {
         { name: "Titania Mab Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
         { name: "Trinity Aura Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
         { name: "Trinity Meridian Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
+        { name: "Uriel Asmodion Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
         { name: "Valkyr Bastet Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
         { name: "Valkyr Kara Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
         { name: "Vauban Armistice Helmet Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Alt Helmet Blueprint (Temporary)" },
@@ -197,6 +200,7 @@ export const NIGHTWAVE_VENDOR_ENTRY: SyndicateVendorEntry = {
         { name: "Atterax Desert-Camo Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Burston Solstice Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Corinth Solstice Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
+        { name: "Cedo Daybreak Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Dual Keres Solstice Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Dual Zoren Dagger-Axe Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Exergis Shock-Camo Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
@@ -205,6 +209,7 @@ export const NIGHTWAVE_VENDOR_ENTRY: SyndicateVendorEntry = {
         { name: "Fulmin Solstice Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Galatine Solstice Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Grinlok Desert-Camo Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
+        { name: "Glaive Daybreak Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Gram Solstice Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Guandao Solstice Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Guandao Synoid Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
@@ -213,6 +218,7 @@ export const NIGHTWAVE_VENDOR_ENTRY: SyndicateVendorEntry = {
         { name: "Karak Desert-Camo Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Lenz Solstice Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Marelok Desert-Camo Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
+        { name: "Nukor Daybreak Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 35 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Plinx Shock-Camo Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Pyrana Synoid Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
         { name: "Rubico Synoid Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
@@ -223,6 +229,7 @@ export const NIGHTWAVE_VENDOR_ENTRY: SyndicateVendorEntry = {
         { name: "Tonkor Desert-Camo Skin Blueprint", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Weapon Skin Blueprint (Temporary)" },
 
         // Decorations (Ornaments/Floofs/Noggles/Posters/Other)
+        { name: "Nightwave Landing Craft Decoration", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 40 }], notes: "Decoration (Temporary)" },
         { name: "Nightwave Ornament", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 40 }], notes: "Decoration (Temporary)" },
         { name: "Saturn Six Ornament", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 40 }], notes: "Decoration (Temporary)" },
         { name: "Emissary Ornament", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 40 }], notes: "Decoration (Temporary)" },
@@ -232,6 +239,7 @@ export const NIGHTWAVE_VENDOR_ENTRY: SyndicateVendorEntry = {
         { name: "Gral's Kubrodon Floof", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 40 }], notes: "Floof (Temporary)" },
         { name: "Gral's Pobber Floof", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 40 }], notes: "Floof (Temporary)" },
 
+        { name: "Noggle Statue - Nora Night", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 40 }], notes: "Noggle (Temporary)" },
         { name: "Noggle Statue - The Wolf", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 40 }], notes: "Noggle (Temporary)" },
         { name: "Ember Vermillion Noggle", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 40 }], notes: "Noggle (Temporary)" },
 
@@ -259,6 +267,9 @@ export const NIGHTWAVE_VENDOR_ENTRY: SyndicateVendorEntry = {
         { name: "Nightwave Sigil", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Sigil (Temporary)" },
         { name: "Orowyrm's Rage Sigil", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Sigil (Temporary)" },
         { name: "Saturn Six Sigil", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Sigil (Temporary)" },
+
+        { name: "Nightwave Earpieces", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 30 }], notes: "Cosmetic (Temporary)" },
+        { name: "Transmission Color Picker", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 50 }], notes: "Cosmetic (Temporary)" },
 
         { name: "Wolf Beacon", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 50 }], notes: "Gear item (Temporary)" },
         { name: "Wolf Howl Emote", rankRequired: 0, costs: [{ kind: "item", name: "Nightwave Cred", qty: 50 }], notes: "Emote (Temporary)" },
