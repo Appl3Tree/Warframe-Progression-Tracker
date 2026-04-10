@@ -1,20 +1,12 @@
 {
   "dataset": "warframe-items",
-  "syncedAt": "2026-04-09T00:36:04.240Z",
+  "syncedAt": "2026-04-10T00:28:29.659Z",
   "changedFiles": [
     "All.json",
-    "Arch-Gun.json",
-    "Glyphs.json",
     "Melee.json",
     "Misc.json",
-    "Mods.json",
-    "Node.json",
     "Primary.json",
-    "Relics.json",
     "Resources.json",
-    "Secondary.json",
-    "Sentinels.json",
-    "Skins.json",
     "Warframes.json"
   ],
   "sourceBaseUrl": "https://raw.githubusercontent.com/WFCD/warframe-items/refs/heads/master/data/json"

@@ -3,6 +3,26 @@ import React, { useMemo, useState } from "react";
 import { getAllRelics, getRelicByKey, type RelicEntry } from "../../domain/catalog/relicCatalog";
 import { getRelicAvailabilityStatus, type RelicAvailabilityStatus } from "../../domain/catalog/relicAvailability";
 import { useVaultTraderData } from "../../lib/useVaultTraderData";
+import missionRewardsRaw from "../../../external/warframe-drop-data/raw/missionRewards.json";
+
+// Build a static "Planet / Node" → gameMode lookup from the drop data.
+// missionRewardsRaw has a single outer key "missionRewards" before the planet map.
+const _missionTypeByGroupKey = new Map<string, string>();
+{
+    const missionRewardsData = (missionRewardsRaw as any).missionRewards as
+        Record<string, Record<string, { gameMode?: string }>>;
+    for (const [planet, nodes] of Object.entries(missionRewardsData ?? {})) {
+        for (const [node, data] of Object.entries(nodes)) {
+            if (data?.gameMode) {
+                _missionTypeByGroupKey.set(`${planet} / ${node}`, data.gameMode);
+            }
+        }
+    }
+}
+
+function getMissionType(groupKey: string): string | undefined {
+    return _missionTypeByGroupKey.get(groupKey);
+}
 
 const TIER_ORDER = ["Lith", "Meso", "Neo", "Axi"] as const;
 
@@ -13,28 +33,70 @@ const TIER_COLOR: Record<string, string> = {
     Axi:  "text-amber-300 border-amber-700/50 bg-amber-950/30",
 };
 
+type FarmingMode = "max-drops" | "coverage" | "total-chance";
+
+/**
+ * "A"  → player stops at rotation A (only A drops count)
+ * "AB" → player stops at rotation B (A and B drops count)
+ * "any" → player runs through C (all rotations count)
+ */
+type RotationLimit = "any" | "A" | "AB";
+
 // A single rotation slot within a node (e.g. Rot A, Rot C)
 interface RotationEntry {
     rotation: string; // "A", "B", "C", or "" for non-rotation nodes
     relics: Array<{ relic: RelicEntry; chance: number }>;
 }
 
-// A mission node (planet + node name) with all its rotation data aggregated
 interface ScoredNode {
     groupKey: string; // "Planet / Node"
     planet: string;
     node: string;
     rotations: RotationEntry[]; // sorted by rotation label
-    /** Sum of distinct selected-relic drops across all rotations — primary sort key */
+    /**
+     * Max-drops score: sum of (relic × rotation) pairs — a relic in Rot A and
+     * Rot C contributes 2. Primary sort key in "max-drops" mode.
+     */
     totalDropCount: number;
-    /** Sum of all per-rotation drop %s — tiebreaker */
+    /**
+     * Coverage score: number of *distinct* selected relics across all rotations
+     * — a relic appearing in multiple rotations still counts as 1.
+     * Primary sort key in "coverage" mode.
+     */
+    uniqueRelicCount: number;
+    /** Sum of all per-rotation drop %s — tiebreaker in both modes. */
     totalChance: number;
+    /** Mission type e.g. "Survival", "Defense" — undefined if not found in data. */
+    missionType: string | undefined;
 }
 
 function parsePath(pathLabel: string): { planet: string; node: string; rotation: string } {
     const stripped = pathLabel.replace(/^missionRewards\s*\/\s*/, "");
     const parts = stripped.split(/\s*\/\s*/);
     return { planet: parts[0] ?? "", node: parts[1] ?? "", rotation: parts[2] ?? "" };
+}
+
+function computeScores(rotations: RotationEntry[]): Pick<ScoredNode, "totalDropCount" | "uniqueRelicCount" | "totalChance"> {
+    const totalDropCount = rotations.reduce((s, rot) => s + rot.relics.length, 0);
+    const seenKeys = new Set<string>();
+    for (const rot of rotations) {
+        for (const { relic } of rot.relics) seenKeys.add(relic.key);
+    }
+    const totalChance = rotations.reduce(
+        (s, rot) => s + rot.relics.reduce((rs, r) => rs + r.chance, 0),
+        0,
+    );
+    return { totalDropCount, uniqueRelicCount: seenKeys.size, totalChance };
+}
+
+/** Returns true if this rotation label is within the player's chosen limit. */
+function rotationAllowed(rotation: string, limit: RotationLimit): boolean {
+    if (limit === "any") return true;
+    // Non-rotation nodes (rotation = "") are always included regardless of limit
+    if (rotation === "") return true;
+    if (limit === "A") return rotation === "A";
+    if (limit === "AB") return rotation === "A" || rotation === "B";
+    return true;
 }
 
 // ---- Sub-components ----
@@ -78,21 +140,37 @@ function AvailBadge({ avail }: { avail: RelicAvailabilityStatus }) {
 function NodeCard({
     node,
     availabilityByKey,
+    mode,
 }: {
     node: ScoredNode;
     availabilityByKey: Map<string, RelicAvailabilityStatus>;
+    mode: FarmingMode;
 }) {
-    const { planet, node: nodeName, rotations, totalDropCount, totalChance } = node;
+    const { planet, node: nodeName, rotations, totalDropCount, uniqueRelicCount, totalChance, missionType } = node;
     const multiRotation = rotations.length > 1 || (rotations.length === 1 && rotations[0].rotation !== "");
 
-    const countBadgeCls =
-        totalDropCount >= 4
+    const primaryCount = mode === "coverage" ? uniqueRelicCount : totalDropCount;
+    const countBadgeCls = mode === "total-chance"
+        ? (totalChance >= 30
             ? "text-amber-200 border-amber-600/50 bg-amber-950/40"
-            : totalDropCount === 3
+            : totalChance >= 20
                 ? "text-green-200 border-green-700/50 bg-green-950/30"
-                : totalDropCount === 2
+                : totalChance >= 10
                     ? "text-blue-200 border-blue-700/50 bg-blue-950/30"
-                    : "text-slate-400 border-slate-700 bg-slate-900/50";
+                    : "text-slate-400 border-slate-700 bg-slate-900/50")
+        : (primaryCount >= 4
+            ? "text-amber-200 border-amber-600/50 bg-amber-950/40"
+            : primaryCount === 3
+                ? "text-green-200 border-green-700/50 bg-green-950/30"
+                : primaryCount === 2
+                    ? "text-blue-200 border-blue-700/50 bg-blue-950/30"
+                    : "text-slate-400 border-slate-700 bg-slate-900/50");
+
+    const badgeLabel = mode === "coverage"
+        ? `${uniqueRelicCount} unique`
+        : mode === "total-chance"
+            ? `${totalChance.toFixed(1)}%`
+            : `${totalDropCount} drop${totalDropCount === 1 ? "" : "s"}`;
 
     return (
         <div className="rounded-xl border border-slate-700 bg-slate-950/40 p-3">
@@ -102,13 +180,20 @@ function NodeCard({
                     <span className="text-slate-400 text-xs shrink-0">{planet}</span>
                     <span className="text-slate-600 shrink-0">›</span>
                     <span className="truncate">{nodeName}</span>
+                    {missionType && (
+                        <span className="text-[10px] font-normal text-slate-500 shrink-0">
+                            {missionType}
+                        </span>
+                    )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[11px] font-mono text-slate-400" title="Combined drop % across all rotations">
-                        {totalChance.toFixed(1)}%
-                    </span>
+                    {mode !== "total-chance" && (
+                        <span className="text-[11px] font-mono text-slate-400" title="Combined drop % across all rotations">
+                            {totalChance.toFixed(1)}%
+                        </span>
+                    )}
                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${countBadgeCls}`}>
-                        {totalDropCount} drop{totalDropCount === 1 ? "" : "s"}
+                        {badgeLabel}
                     </span>
                 </div>
             </div>
@@ -162,6 +247,9 @@ export default function RelicFarming({ selectedKeys, setSelectedKeys }: RelicFar
     const [showVaulted, setShowVaulted] = useState(false);
     const [tierFilter, setTierFilter] = useState("all");
     const [search, setSearch] = useState("");
+    const [farmingMode, setFarmingMode] = useState<FarmingMode>("max-drops");
+    const [rotationLimit, setRotationLimit] = useState<RotationLimit>("any");
+    const [excludedMissionTypes, setExcludedMissionTypes] = useState<Set<string>>(new Set());
 
     const availabilityByKey = useMemo(() => {
         const map = new Map<string, RelicAvailabilityStatus>();
@@ -191,11 +279,10 @@ export default function RelicFarming({ selectedKeys, setSelectedKeys }: RelicFar
         return groups;
     }, [filteredRelics]);
 
+    // Build the full node map — no rotation/mission-type filtering here
     const scoredNodes = useMemo((): ScoredNode[] => {
         if (selectedKeys.size === 0) return [];
 
-        // Group by (planet + node), then by rotation within each group.
-        // Each (relic × rotation) pair counts as one independent drop.
         type RotationMap = Map<string, Map<string, { relic: RelicEntry; chance: number }>>;
         const nodeMap = new Map<string, { planet: string; node: string; rotationMap: RotationMap }>();
 
@@ -222,7 +309,6 @@ export default function RelicFarming({ selectedKeys, setSelectedKeys }: RelicFar
                 if (!nodeData.rotationMap.has(rotation)) {
                     nodeData.rotationMap.set(rotation, new Map());
                 }
-                // One entry per relic per rotation — keep highest chance if somehow duplicated
                 const existing = nodeData.rotationMap.get(rotation)!.get(key);
                 if (!existing || chance > existing.chance) {
                     nodeData.rotationMap.get(rotation)!.set(key, { relic, chance });
@@ -230,32 +316,70 @@ export default function RelicFarming({ selectedKeys, setSelectedKeys }: RelicFar
             }
         }
 
-        return Array.from(nodeMap.values())
-            .map(({ planet, node, rotationMap }) => {
-                const rotations: RotationEntry[] = Array.from(rotationMap.entries())
-                    .map(([rotation, relicMap]) => ({
-                        rotation,
-                        relics: Array.from(relicMap.values()).sort((a, b) => b.chance - a.chance),
-                    }))
-                    .sort((a, b) => a.rotation.localeCompare(b.rotation));
+        return Array.from(nodeMap.values()).map(({ planet, node, rotationMap }) => {
+            const rotations: RotationEntry[] = Array.from(rotationMap.entries())
+                .map(([rotation, relicMap]) => ({
+                    rotation,
+                    relics: Array.from(relicMap.values()).sort((a, b) => b.chance - a.chance),
+                }))
+                .sort((a, b) => a.rotation.localeCompare(b.rotation));
 
-                const totalDropCount = rotations.reduce((s, rot) => s + rot.relics.length, 0);
-                const totalChance = rotations.reduce(
-                    (s, rot) => s + rot.relics.reduce((rs, r) => rs + r.chance, 0),
-                    0,
+            const gk = `${planet} / ${node}`;
+            return {
+                groupKey: gk,
+                planet,
+                node,
+                rotations,
+                ...computeScores(rotations),
+                missionType: getMissionType(gk),
+            };
+        });
+    }, [selectedKeys]);
+
+    // Collect all mission types present in the full result set (before filtering)
+    const allMissionTypes = useMemo(() => {
+        const types = new Set<string>();
+        for (const node of scoredNodes) {
+            types.add(node.missionType ?? "Unknown");
+        }
+        return Array.from(types).sort();
+    }, [scoredNodes]);
+
+    // Apply rotation limit + mission type exclusions, recompute scores
+    const filteredNodes = useMemo((): ScoredNode[] => {
+        return scoredNodes
+            .map((node) => {
+                // Apply rotation limit
+                const allowedRotations = node.rotations.filter((rot) =>
+                    rotationAllowed(rot.rotation, rotationLimit),
                 );
+                if (allowedRotations.length === 0) return null;
 
+                // Apply mission type exclusion
+                const mt = node.missionType ?? "Unknown";
+                if (excludedMissionTypes.has(mt)) return null;
+
+                // Recompute scores on the filtered rotation set
                 return {
-                    groupKey: `${planet} / ${node}`,
-                    planet,
-                    node,
-                    rotations,
-                    totalDropCount,
-                    totalChance,
+                    ...node,
+                    rotations: allowedRotations,
+                    ...computeScores(allowedRotations),
                 };
             })
-            .sort((a, b) => b.totalDropCount - a.totalDropCount || b.totalChance - a.totalChance);
-    }, [selectedKeys]);
+            .filter((n): n is ScoredNode => n !== null);
+    }, [scoredNodes, rotationLimit, excludedMissionTypes]);
+
+    const sortedNodes = useMemo(() => {
+        const nodes = filteredNodes.slice();
+        if (farmingMode === "coverage") {
+            nodes.sort((a, b) => b.uniqueRelicCount - a.uniqueRelicCount || b.totalChance - a.totalChance);
+        } else if (farmingMode === "total-chance") {
+            nodes.sort((a, b) => b.totalChance - a.totalChance || b.totalDropCount - a.totalDropCount);
+        } else {
+            nodes.sort((a, b) => b.totalDropCount - a.totalDropCount || b.totalChance - a.totalChance);
+        }
+        return nodes;
+    }, [filteredNodes, farmingMode]);
 
     function toggleRelic(key: string) {
         setSelectedKeys((prev) => {
@@ -266,10 +390,27 @@ export default function RelicFarming({ selectedKeys, setSelectedKeys }: RelicFar
         });
     }
 
+    function toggleMissionType(type: string) {
+        setExcludedMissionTypes((prev) => {
+            const next = new Set(prev);
+            if (next.has(type)) next.delete(type);
+            else next.add(type);
+            return next;
+        });
+    }
+
     const selectedCount = selectedKeys.size;
     const vaultedSelectedCount = Array.from(selectedKeys).filter(
         (k) => (availabilityByKey.get(k) ?? "vaulted") === "vaulted",
     ).length;
+
+    const modeDescriptions: Record<FarmingMode, string> = {
+        "max-drops":    "Sorted by total relic drops across all rotations — a relic in two rotations counts twice.",
+        "coverage":     "Sorted by unique relics per node — duplicate rotations don't add to the score.",
+        "total-chance": "Sorted by highest summed drop % across all rotations — pure probability, ignoring variety.",
+    };
+
+    const hasResults = selectedCount > 0 && scoredNodes.length > 0;
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-4 items-start">
@@ -377,38 +518,138 @@ export default function RelicFarming({ selectedKeys, setSelectedKeys }: RelicFar
                 </div>
             </div>
 
-            {/* ── Right: Node results ── */}
+            {/* ── Right: Filters + Node results ── */}
             <div className="space-y-3">
+                {/* Controls card — ranking mode, rotation limit, mission type filter */}
+                {hasResults && (
+                    <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-3 space-y-3">
+                        {/* Ranking mode */}
+                        <div className="space-y-1.5">
+                            <div className="text-[10px] uppercase tracking-wide text-slate-500">Ranking mode</div>
+                            <div className="flex gap-2">
+                                {([
+                                    { key: "max-drops"    as FarmingMode, label: "Max Drops",   desc: "Every relic × rotation is a separate drop" },
+                                    { key: "coverage"     as FarmingMode, label: "Coverage",    desc: "Count each unique relic once per node" },
+                                    { key: "total-chance" as FarmingMode, label: "Total %",     desc: "Highest combined drop % wins" },
+                                ] as const).map((m) => (
+                                    <button
+                                        key={m.key}
+                                        onClick={() => setFarmingMode(m.key)}
+                                        title={m.desc}
+                                        className={[
+                                            "flex-1 rounded-lg border px-3 py-2 text-xs text-left transition-colors",
+                                            farmingMode === m.key
+                                                ? "border-slate-400 bg-slate-800 text-slate-100"
+                                                : "border-slate-700 bg-slate-900/50 text-slate-400 hover:bg-slate-900 hover:text-slate-300",
+                                        ].join(" ")}
+                                    >
+                                        <div className="font-semibold">{m.label}</div>
+                                        <div className="text-[10px] mt-0.5 opacity-70">{m.desc}</div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Rotation limit */}
+                        <div className="space-y-1.5">
+                            <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                                Rotation limit
+                                <span className="ml-1.5 normal-case text-slate-600">— how far into a mission are you willing to go?</span>
+                            </div>
+                            <div className="flex gap-1.5">
+                                {([
+                                    { key: "any" as RotationLimit, label: "Any",       desc: "Include all rotations (A, B, C)" },
+                                    { key: "AB"  as RotationLimit, label: "Stop at B", desc: "Only A and B rotations" },
+                                    { key: "A"   as RotationLimit, label: "Stop at A", desc: "First rotation only" },
+                                ] as const).map((opt) => (
+                                    <button
+                                        key={opt.key}
+                                        onClick={() => setRotationLimit(opt.key)}
+                                        title={opt.desc}
+                                        className={[
+                                            "rounded-lg border px-3 py-1.5 text-xs transition-colors",
+                                            rotationLimit === opt.key
+                                                ? "border-slate-400 bg-slate-800 text-slate-100 font-semibold"
+                                                : "border-slate-700 bg-slate-900/50 text-slate-400 hover:bg-slate-900 hover:text-slate-300",
+                                        ].join(" ")}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Mission type filter — only shown when multiple types exist */}
+                        {allMissionTypes.length > 1 && (
+                            <div className="space-y-1.5">
+                                <div className="flex items-center gap-2">
+                                    <div className="text-[10px] uppercase tracking-wide text-slate-500">Mission type</div>
+                                    {excludedMissionTypes.size > 0 && (
+                                        <button
+                                            onClick={() => setExcludedMissionTypes(new Set())}
+                                            className="text-[10px] text-slate-500 hover:text-slate-300 transition-colors"
+                                        >
+                                            Show all
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {allMissionTypes.map((type) => {
+                                        const excluded = excludedMissionTypes.has(type);
+                                        return (
+                                            <button
+                                                key={type}
+                                                onClick={() => toggleMissionType(type)}
+                                                className={[
+                                                    "rounded-full border px-2.5 py-0.5 text-[11px] transition-colors",
+                                                    excluded
+                                                        ? "border-slate-800 bg-slate-900/30 text-slate-600 line-through"
+                                                        : "border-slate-600 bg-slate-800/60 text-slate-300 hover:border-slate-500",
+                                                ].join(" ")}
+                                            >
+                                                {type}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {selectedCount === 0 ? (
                     <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-8 text-center">
                         <div className="text-slate-400 text-sm">Select relics on the left to find the best farming locations.</div>
                         <div className="text-slate-600 text-xs mt-1">
-                            Nodes are ranked by total drops across all rotations, then by combined drop %.
+                            Choose a ranking mode to prioritise maximum drop chances or broadest relic coverage.
                         </div>
                     </div>
-                ) : scoredNodes.length === 0 ? (
+                ) : sortedNodes.length === 0 ? (
                     <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-8 text-center">
                         <div className="text-slate-400 text-sm">
-                            None of the {selectedCount} selected relic{selectedCount === 1 ? "" : "s"} have active mission drops.
+                            No nodes match the current filters.
                         </div>
-                        <div className="text-slate-600 text-xs mt-1">All selected relics may be vaulted or from Prime Resurgence only.</div>
+                        <div className="text-slate-600 text-xs mt-1">
+                            Try relaxing the rotation limit or re-enabling some mission types.
+                        </div>
                     </div>
                 ) : (
                     <>
                         <div className="text-xs text-slate-500">
-                            {scoredNodes.length} node{scoredNodes.length === 1 ? "" : "s"} reward at least one of your {selectedCount} selected relic{selectedCount === 1 ? "" : "s"}.
-                            {" "}Sorted by total drops across all rotations, then by combined drop %.
+                            {sortedNodes.length} node{sortedNodes.length === 1 ? "" : "s"} reward at least one of your {selectedCount} selected relic{selectedCount === 1 ? "" : "s"}.
+                            {" "}{modeDescriptions[farmingMode]}
                             {vaultedSelectedCount > 0 && (
                                 <span className="ml-1 text-red-500/70">
                                     ({vaultedSelectedCount} vaulted relic{vaultedSelectedCount === 1 ? "" : "s"} excluded from results.)
                                 </span>
                             )}
                         </div>
-                        {scoredNodes.map((node) => (
+                        {sortedNodes.map((node) => (
                             <NodeCard
                                 key={node.groupKey}
                                 node={node}
                                 availabilityByKey={availabilityByKey}
+                                mode={farmingMode}
                             />
                         ))}
                     </>

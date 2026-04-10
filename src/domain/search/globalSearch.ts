@@ -168,6 +168,42 @@ const ALL_ENTITIES: SearchEntityResult[] = (() => {
             summary: buildSummary(raw, subtitle),
             keywords: buildKeywords(raw),
         });
+
+        const components = raw.components;
+        if (Array.isArray(components)) {
+            for (const comp of components) {
+                if (!comp || typeof comp !== "object" || Array.isArray(comp)) continue;
+                const compRaw = comp as Record<string, unknown>;
+                const compId = typeof compRaw.uniqueName === "string" ? compRaw.uniqueName.trim() : "";
+                if (!compId) continue;
+
+                // Prefer the catalog display name (same source crafting tree uses) over the short WFCD component name
+                let compName = typeof compRaw.name === "string" ? compRaw.name.trim() : "";
+                for (const source of CATALOG_SOURCES) {
+                    const catalogId = `${source}:${compId}`;
+                    const record = (FULL_CATALOG.recordsById as Record<string, { displayName?: string }>)[catalogId];
+                    if (record?.displayName) {
+                        compName = record.displayName;
+                        break;
+                    }
+                }
+                if (!compName) continue;
+
+                const compKey = `item:${compId}`;
+                if (seen.has(compKey)) continue;
+                seen.add(compKey);
+
+                const compSubtitle = `${name} Component`;
+                out.push({
+                    kind: "item",
+                    id: compId,
+                    name: compName,
+                    subtitle: compSubtitle,
+                    summary: compSubtitle,
+                    keywords: [name, ...(typeof raw.category === "string" ? [raw.category] : [])],
+                });
+            }
+        }
     }
 
     out.sort((a, b) => a.name.localeCompare(b.name));
