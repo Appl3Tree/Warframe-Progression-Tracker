@@ -104,6 +104,37 @@ async function runCurl(url: string, outPath: string): Promise<void> {
     });
 }
 
+async function formatJsonWithJq(filePath: string): Promise<void> {
+    const formatted = await new Promise<string>((resolve, reject) => {
+        const child = spawn("jq", [".", filePath], { cwd: ROOT, stdio: ["ignore", "pipe", "pipe"] });
+
+        let stdout = "";
+        let stderr = "";
+
+        child.stdout.on("data", (chunk) => {
+            stdout += String(chunk);
+        });
+
+        child.stderr.on("data", (chunk) => {
+            stderr += String(chunk);
+        });
+
+        child.on("error", (error) => {
+            reject(new Error(`Failed to run jq for ${path.basename(filePath)}: ${error.message}`));
+        });
+
+        child.on("close", (code) => {
+            if (code === 0) {
+                resolve(stdout);
+                return;
+            }
+            reject(new Error(stderr.trim() || `jq exited with code ${code} for ${path.basename(filePath)}`));
+        });
+    });
+
+    await writeFile(filePath, formatted, "utf8");
+}
+
 async function updateDataset(key: DatasetKey, options: { dryRun: boolean; allowEmpty: boolean }): Promise<void> {
     const config = DATASETS[key];
     const files = (await readdir(config.dir))
@@ -130,6 +161,7 @@ async function updateDataset(key: DatasetKey, options: { dryRun: boolean; allowE
             const url = `${config.baseUrl.replace(/\/$/, "")}/${file}`;
 
             await runCurl(url, tempPath);
+            await formatJsonWithJq(tempPath);
 
             const [currentInfo, nextInfo] = await Promise.all([
                 readJsonInfo(currentPath),

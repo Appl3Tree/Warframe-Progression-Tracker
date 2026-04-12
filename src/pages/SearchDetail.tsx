@@ -143,8 +143,8 @@ function formatDate(value: unknown): string {
     return typeof value === "string" && value.trim().length > 0 ? value.trim() : "—";
 }
 
-function formatPercent(value: number): string {
-    return `${(value * 100).toFixed(2)}%`;
+function formatDropPercent(value: number): string {
+    return `${value.toFixed(2)}%`;
 }
 
 function formatCompactPercent(value: number | null | undefined, digits = 1): string {
@@ -1213,7 +1213,7 @@ export default function SearchDetail(props: {
                                 className="grid grid-cols-[minmax(0,1fr)_110px_110px] border-t border-[color:var(--wf-border-subtle)] px-4 py-3 text-sm"
                             >
                                 <div className="min-w-0 text-[color:var(--wf-text-strong)]">{drop.location}</div>
-                                <div className="text-[color:var(--wf-text)]">{formatPercent(drop.chance)}</div>
+                                <div className="text-[color:var(--wf-text)]">{formatDropPercent(drop.chance)}</div>
                                 <div className="text-[color:var(--wf-text-dim)]">{drop.rarity ?? drop.type ?? "—"}</div>
                             </div>
                         ))}

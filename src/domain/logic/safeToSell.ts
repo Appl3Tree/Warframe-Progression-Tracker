@@ -221,6 +221,101 @@ function classifyAssassinDropFallback(args: Pick<SafeToSellProtectionArgs, "rawP
     return [];
 }
 
+const INCARNON_COMPATIBLE_WEAPON_NAME_FALLBACKS = new Set(
+    [
+        "ack & brunt",
+        "angstrum",
+        "anku",
+        "atomos",
+        "bo",
+        "bo prime",
+        "boar",
+        "boar prime",
+        "boltor",
+        "boltor prime",
+        "braton",
+        "braton prime",
+        "braton vandal",
+        "bronco",
+        "bronco prime",
+        "burston",
+        "burston prime",
+        "ceramic dagger",
+        "cestra",
+        "dera",
+        "dera vandal",
+        "despair",
+        "dex sybaris",
+        "dread",
+        "dual ichor",
+        "dual toxocyst",
+        "furax",
+        "furax wraith",
+        "furis",
+        "gammacor",
+        "gorgon",
+        "gorgon wraith",
+        "hate",
+        "kunai",
+        "lato",
+        "lato prime",
+        "lato vandal",
+        "latron",
+        "latron prime",
+        "latron wraith",
+        "lex",
+        "lex prime",
+        "magistar",
+        "miter",
+        "mk1-bo",
+        "mk1-braton",
+        "mk1-furax",
+        "mk1-furis",
+        "mk1-kunai",
+        "mk1-paris",
+        "mk1-strun",
+        "nami solo",
+        "okina",
+        "okina prime",
+        "paris",
+        "paris prime",
+        "prisma angstrum",
+        "prisma gorgon",
+        "prisma skana",
+        "sancti magistar",
+        "sibear",
+        "sicarus",
+        "sicarus prime",
+        "skana",
+        "skana prime",
+        "soma",
+        "soma prime",
+        "strun",
+        "strun prime",
+        "strun wraith",
+        "sybaris",
+        "sybaris prime",
+        "synoid gammacor",
+        "telos boltor",
+        "torid",
+        "vasto",
+        "vasto prime",
+        "zylok",
+        "zylok prime",
+    ].map((value) => value.toLowerCase()),
+);
+
+function classifyIncarnonFallback(args: Pick<SafeToSellProtectionArgs, "displayName">): SafeToSellProtectionKey[] {
+    const name = String(args.displayName ?? "").trim().toLowerCase();
+    if (!name) return [];
+
+    if (INCARNON_COMPATIBLE_WEAPON_NAME_FALLBACKS.has(name)) {
+        return ["incarnonItems"];
+    }
+
+    return [];
+}
+
 export function getSafeToSellProtectionKeys(args: SafeToSellProtectionArgs): SafeToSellProtectionKey[] {
     const matches = new Set<SafeToSellProtectionKey>();
 
@@ -247,6 +342,10 @@ export function getSafeToSellProtectionKeys(args: SafeToSellProtectionArgs): Saf
     }
 
     for (const key of classifyAssassinDropFallback(args)) {
+        matches.add(key);
+    }
+
+    for (const key of classifyIncarnonFallback(args)) {
         matches.add(key);
     }
 

@@ -258,6 +258,60 @@ Only confirmed source findings belong here. If a case is still ambiguous, leave 
   - `items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnDagathBladeWhip*Blueprint`
   - `items:/Lotus/Types/Recipes/Weapons/WeaponParts/TnYareliPistol*Blueprint`
   - `items:/Lotus/Types/Recipes/Weapons/WeaponParts/LasrianNoxPlayerWeapon*Blueprint`
+
+### Market syandana and armor attachment blueprints
+
+- Catalog IDs:
+  - `items:/Lotus/Types/Recipes/Syandanas/AsaSyandanaBlueprint`
+  - `items:/Lotus/Types/Recipes/Syandanas/UruSyandanaBlueprint`
+  - `items:/Lotus/Types/Recipes/Syandanas/YomoSyandanaBlueprint`
+  - `items:/Lotus/Types/Recipes/ArmourAttachments/DaedelusChestPlateBlueprint`
+  - `items:/Lotus/Types/Recipes/ArmourAttachments/DaedelusLeftLegBlueprint`
+  - `items:/Lotus/Types/Recipes/ArmourAttachments/DaedelusLeftShoulderBlueprint`
+  - `items:/Lotus/Types/Recipes/ArmourAttachments/EdoChestPlateBlueprint`
+  - `items:/Lotus/Types/Recipes/ArmourAttachments/EdoLeftLegBlueprint`
+  - `items:/Lotus/Types/Recipes/ArmourAttachments/EdoLeftShoulderBlueprint`
+  - `items:/Lotus/Types/Recipes/ArmourAttachments/EosChestPlateBlueprint`
+  - `items:/Lotus/Types/Recipes/ArmourAttachments/EosLeftLegBlueprint`
+  - `items:/Lotus/Types/Recipes/ArmourAttachments/EosLeftShoulderBlueprint`
+- Resolved source:
+  - `data:market/platinum`
+- Research basis:
+  - The WARFRAME Wiki `Syandana` page lists `Asa Syandana` in the Market-Available section, and the same page’s media/history covers `Uru Syandana` and `Yomo Syandana` as standard syandanas rather than syndicate-, event-, or pack-exclusive items.
+  - The archived WARFRAME `Market/Warframes` page explicitly lists `Asa Syandana`, `Daedalus Chest Plate`, `Daedalus Shoulder Plates`, `Daedalus Spurs`, `Edo Chest Plate`, `Edo Shin Plates`, `Edo Shoulder Plates`, `Eos Chest Plate`, `Eos Shoulder Plates`, and `Eos Spurs` with Market Platinum prices.
+  - URLs:
+    - [https://wiki.warframe.com/w/Syandana](https://wiki.warframe.com/w/Syandana)
+    - [https://warframe-archive.fandom.com/wiki/Market/Warframes](https://warframe-archive.fandom.com/wiki/Market/Warframes)
+
+### Quest and clan key blueprints
+
+- Catalog IDs:
+  - `items:/Lotus/Types/Keys/DojoKeyBlueprint`
+  - `items:/Lotus/Types/Keys/FairyQuestKeyBlueprint`
+  - `items:/Lotus/Types/Keys/GolemQuestKeyBlueprint`
+  - `items:/Lotus/Types/Keys/InfestedAladVQuest/InfestedAladKeyBlueprint`
+  - `items:/Lotus/Types/Keys/LimboQuest/LimboChassisKeyBlueprint`
+  - `items:/Lotus/Types/Keys/LimboQuest/LimboHelmetKeyBlueprint`
+  - `items:/Lotus/Types/Keys/LimboQuest/LimboSystemsKeyBlueprint`
+- Resolved sources:
+  - Clan Key Blueprint -> `data:clan/join`
+  - The Silver Grove Blueprint -> `data:quest/the-silver-grove`
+  - The Jordas Precept Blueprint -> `data:quest/the-jordas-precept`
+  - Mutalist Alad V Assassinate Blueprint -> `data:quest/patient-zero`
+  - Limbo theorem blueprints -> `data:quest/the-limbo-theorem`
+- Research basis:
+  - The WARFRAME Wiki `Clan Key` page states the blueprint is automatically added when a player starts or joins a clan.
+  - The `Patient Zero` page lists `Mutalist Alad V Key Blueprint` as the quest reward, and the `Mutalist Alad V Assassinate Key` page repeats that the reusable blueprint is awarded from the quest.
+  - The `The Silver Grove` page documents the quest blueprint as the item used to progress the quest.
+  - The `The Jordas Precept` page centers the quest around building the quest key blueprint to continue the chain.
+  - The `The Limbo Theorem` transcript explicitly references the Limbo theorem blueprints as quest-delivered attachments and progression steps.
+  - URLs:
+    - [https://wiki.warframe.com/w/Clan_Key](https://wiki.warframe.com/w/Clan_Key)
+    - [https://wiki.warframe.com/w/Patient_Zero](https://wiki.warframe.com/w/Patient_Zero)
+    - [https://wiki.warframe.com/w/Mutalist_Alad_V_Assassinate_Key](https://wiki.warframe.com/w/Mutalist_Alad_V_Assassinate_Key)
+    - [https://wiki.warframe.com/w/The_Silver_Grove](https://wiki.warframe.com/w/The_Silver_Grove)
+    - [https://wiki.warframe.com/w/The_Jordas_Precept](https://wiki.warframe.com/w/The_Jordas_Precept)
+    - [https://wiki.warframe.com/w/The_Limbo_Theorem/Transcript](https://wiki.warframe.com/w/The_Limbo_Theorem/Transcript)
   - `items:/Lotus/Types/Recipes/Weapons/WeaponParts/EntFistIncarnonGloveBlueprint`
 - Resolved sources:
   - Keratinos / Zymos / Sepulcrum / Trumna part blueprints -> `data:vendor/deimos/father`
@@ -503,3 +557,31 @@ Only confirmed source findings belong here. If a case is still ambiguous, leave 
   - URLs:
     - [https://wiki.warframe.com/w/Fosfor](https://wiki.warframe.com/w/Fosfor)
     - [https://wiki.warframe.com/w/Nakak](https://wiki.warframe.com/w/Nakak)
+
+### Warframe skin / ephemera blueprints
+
+- Catalog IDs:
+  - `items:/Lotus/Types/Recipes/WarframeSkins/AvatarBatBlueprint`
+  - `items:/Lotus/Types/Recipes/WarframeSkins/AvatarBloodABlueprint`
+  - `items:/Lotus/Types/Recipes/WarframeSkins/EmberImmortalBlueprint`
+  - `items:/Lotus/Types/Recipes/WarframeSkins/ExcaliburImmortalBlueprint`
+  - `items:/Lotus/Types/Recipes/WarframeSkins/FootstepsEidolonBlueprint`
+  - `items:/Lotus/Types/Recipes/WarframeSkins/FootstepsPetalsBlueprint`
+  - `items:/Lotus/Types/Recipes/WarframeSkins/FrostImmortalBlueprint`
+- Resolved sources:
+  - Naberus Ephemera Blueprint -> `data:events/naberus`
+  - Bleeding Body Ephemera Blueprint -> `data:vendor/arbitrations/galatea`
+  - Seeding Step Ephemera Blueprint -> `data:vendor/arbitrations/galatea`
+  - Eidolon Ephemera Blueprint -> `data:nightwave/rank-reward`
+  - Ember / Excalibur / Frost Immortal Skin Blueprints -> `data:market/platinum`
+- Research basis:
+  - The `Naberus` page lists Naberus Ephemera in Daughter's Nights of Naberus offerings.
+  - The `Vitus Essence` and `Arbitrations/Rewards` pages place Bleeding Body and Seeding Step under Arbitration honors / Arbitration rewards.
+  - `Nightwave: Intermission I` lists Eidolon Ephemera as a rank reward.
+  - `Immortal Skin Bundle` confirms the Immortal skins are Market cosmetics sold for Platinum.
+  - URLs:
+    - [https://wiki.warframe.com/w/Naberus](https://wiki.warframe.com/w/Naberus)
+    - [https://wiki.warframe.com/w/Vitus_Essence](https://wiki.warframe.com/w/Vitus_Essence)
+    - [https://wiki.warframe.com/w/Arbitrations/Rewards](https://wiki.warframe.com/w/Arbitrations/Rewards)
+    - [https://wiki.warframe.com/w/Nightwave/Intermission_I](https://wiki.warframe.com/w/Nightwave/Intermission_I)
+    - [https://wiki.warframe.com/w/Immortal_Skin_Bundle](https://wiki.warframe.com/w/Immortal_Skin_Bundle)

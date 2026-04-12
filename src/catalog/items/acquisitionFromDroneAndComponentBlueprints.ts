@@ -5,10 +5,14 @@ const SOURCE_BY_PATH: ReadonlyArray<readonly [path: string, sources: string[]]> 
     ["/Lotus/Types/Recipes/Drones/BasicResourceDroneBlueprint", ["data:market/credits"]],
     ["/Lotus/Types/Recipes/Drones/BasicUcResourceDroneBlueprint", ["data:market/credits"]],
     ["/Lotus/Types/Recipes/Components/CorruptedBombardBallBlueprint", ["data:baro/void-trader"]],
+    ["/Lotus/Types/Recipes/Components/CorruptedLancerBallBlueprint", ["data:vendor/syndicate/arbiters-of-hexis"]],
     ["/Lotus/Types/Recipes/Components/EliteAlertShipDecoBlueprint", ["data:vendor/arbitrations/galatea"]],
     ["/Lotus/Types/Recipes/Components/FormaStanceBlueprint", ["data:vendor/steel-path/teshin"]],
     ["/Lotus/Types/Recipes/Components/InfestedIrradiatedBaitBallBlueprint", ["data:quest/the-jordas-precept"]],
+    ["/Lotus/Types/Recipes/Components/MoaBallBlueprint", ["data:vendor/syndicate/the-perrin-sequence"]],
     ["/Lotus/Types/Recipes/Components/RelayThermicStrutBlueprint", ["data:events/pyrus-project"]],
+    ["/Lotus/Types/Recipes/Components/RollerBallBlueprint", ["data:vendor/syndicate/steel-meridian"]],
+    ["/Lotus/Types/Recipes/Components/ShieldDroneBallBlueprint", ["data:vendor/syndicate/cephalon-suda"]],
     ["/Lotus/Types/Recipes/Components/StalkerBallBlueprint", ["data:nightwave/rank-reward"]],
     ["/Lotus/Types/Recipes/Components/UmbraFormaBlueprint", ["data:vendor/steel-path/teshin", "data:nightwave/rank-reward"]]
 ] as const;

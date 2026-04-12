@@ -161,6 +161,10 @@ function formatReleaseDate(date: string | undefined): string | undefined {
   return date;
 }
 
+function formatDropPercent(chance: number): string {
+  return `${chance.toFixed(2)}%`;
+}
+
 type PrimaryTab =
   | "all"
   | "warframesVehicles"
@@ -575,7 +579,7 @@ function InvDropRow({ d, small = false, worldState = null, steelPath = false }: 
         <a href={farmUrl} target="_blank" rel="noopener noreferrer"
           className="flex-1 truncate text-slate-300 hover:text-cyan-300 hover:underline transition-colors">{d.location}</a>
         <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
-        <span className="font-mono text-slate-500 shrink-0">{(d.chance * 100).toFixed(2)}%</span>
+        <span className="font-mono text-slate-500 shrink-0">{formatDropPercent(d.chance)}</span>
         <a href={farmUrl} target="_blank" rel="noopener noreferrer"
           className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIconSvg}</a>
       </div>
@@ -618,7 +622,7 @@ function InvDropRow({ d, small = false, worldState = null, steelPath = false }: 
           </span>
         )}
         <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
-        <span className="font-mono text-slate-500 shrink-0">{(d.chance * 100).toFixed(2)}%</span>
+        <span className="font-mono text-slate-500 shrink-0">{formatDropPercent(d.chance)}</span>
         <a href={farmUrl} target="_blank" rel="noopener noreferrer"
           className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIconSvg}</a>
       </div>
@@ -644,7 +648,7 @@ function InvDropRow({ d, small = false, worldState = null, steelPath = false }: 
         </span>
       )}
       <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
-      <span className="font-mono text-slate-500 shrink-0">{(d.chance * 100).toFixed(2)}%</span>
+      <span className="font-mono text-slate-500 shrink-0">{formatDropPercent(d.chance)}</span>
     </div>
   );
 }

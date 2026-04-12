@@ -54,6 +54,7 @@ export interface WeaponEntry {
     statusChance: number;
     fireRate: number;
     magazineSize: number;
+    ammoCostPerShot: number;
     hasExplicitMagazineSize: boolean;
     reloadTime: number;
     multishot: number;
@@ -292,30 +293,40 @@ function inferWeaponTags(item: Record<string, unknown>, isExalted: boolean): str
 
 const STANCE_TAG_MAP: Record<string, string> = {
     ASSAULT_SAW_STANCE: "Assault Saw",
+    BLADESAW_STANCE: "Assault Saw",
     BLADE_AND_WHIP_STANCE: "Blade And Whip",
     CLAWS_STANCE: "Claws",
+    CLAWS_STANCE_STANCE: "Claws",
     DAGGERS_STANCE: "Daggers",
     DUAL_DAGGERS_STANCE: "Dual Daggers",
+    DUAL_KATANAS_STANCE: "Dual Nikanas",
     DUAL_NIKANAS_STANCE: "Dual Nikanas",
     DUAL_SWORDS_STANCE: "Dual Swords",
+    FIST_STANCE: "Fists",
     FISTS_STANCE: "Fists",
     GLAIVES_STANCE: "Glaives",
     GUNBLADE_STANCE: "Gunblade",
     HAMMERS_STANCE: "Hammers",
+    "HEAVY SCYTHE_STANCE": "Heavy Scythe",
     HEAVY_BLADE_STANCE: "Heavy Blade",
+    LONG_KATANA_STANCE: "Two-Handed Nikana",
     MACHETES_STANCE: "Machetes",
     NIKANAS_STANCE: "Nikanas",
     NUNCHAKU_STANCE: "Nunchaku",
     POLEARMS_STANCE: "Polearms",
+    RAPIER_STANCE: "Rapiers",
     RAPIERS_STANCE: "Rapiers",
     SCYTHES_STANCE: "Scythes",
     SPARRING_STANCE: "Sparring",
+    STAVES_STANCE: "Staves",
     STAFF_STANCE: "Staves",
     SWORDS_STANCE: "Swords",
+    SWORDS_AND_SHIELD_STANCE: "Sword And Shield",
     SWORD_AND_SHIELD_STANCE: "Sword And Shield",
     TONFA_STANCE: "Tonfas",
     TONFAS_STANCE: "Tonfas",
     TWO_HANDED_NIKANA_STANCE: "Two-Handed Nikana",
+    WARFAN_STANCE: "Warfans",
     WARFANS_STANCE: "Warfans",
     WHIPS_STANCE: "Whips",
 };
@@ -526,6 +537,7 @@ export function getWeaponCatalog(): WeaponEntry[] {
             // Bows typically behave like single-shot magazines with effectively no reload animation
             // between shots; use 1 when the source data does not report a magazine size.
             magazineSize:  n(item.magazineSize) || 1,
+            ammoCostPerShot: Math.max(0.0001, n((item as any).ammoCost) || 1),
             hasExplicitMagazineSize,
             reloadTime:    n(item.reloadTime),
             multishot:     n(item.multishot) || 1,

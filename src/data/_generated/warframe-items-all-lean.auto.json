@@ -511131,6 +511131,7 @@
     "vaulted": false,
     "polarities": [
       "madurai",
+      "madurai",
       "madurai"
     ],
     "damage": {
@@ -576777,7 +576778,7 @@
     "masteryReq": 16,
     "vaulted": false,
     "polarities": [
-      "madurai"
+      "naramon"
     ],
     "damage": {
       "total": 220,
@@ -711289,6 +711290,7 @@
     "power": 130,
     "sprintSpeed": 1.2,
     "polarities": [
+      "madurai",
       "madurai",
       "vazarin"
     ],

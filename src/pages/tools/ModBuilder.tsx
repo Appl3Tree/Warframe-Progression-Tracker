@@ -14,6 +14,11 @@ import {
     type WeaponCategory,
     type WeaponEntry,
 } from "../../domain/catalog/weaponCatalog";
+import {
+    getIncarnonRecordForWeapon,
+    resolveIncarnonState,
+    type IncarnonTier,
+} from "../../domain/catalog/incarnonCatalog";
 import { getModsForWeapon, getStancesForWeapon, type ModEntry, type ModEffect, emptyEffect } from "../../domain/catalog/modCatalog";
 import { getArcanesForWeapon, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
 import { calculateBuild } from "../../domain/logic/damageCalc";
@@ -57,6 +62,14 @@ function PolarityIcon({ polarity, className = "w-4 h-4" }: { polarity: string; c
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const SLOT_COUNT = 8;
+const INCARNON_TIER_ORDER: IncarnonTier[] = [1, 2, 3, 4, 5];
+const INCARNON_TIER_LABELS: Record<IncarnonTier, string> = {
+    1: "I",
+    2: "II",
+    3: "III",
+    4: "IV",
+    5: "V",
+};
 const WEAPON_FILTER_OPTIONS: Array<{ value: WeaponCategory | "All"; label: string; compactLabel?: string }> = [
     { value: "All", label: "All Weapons", compactLabel: "All" },
     { value: "Primary", label: "Primary" },
@@ -159,6 +172,35 @@ function actionRateLabel(category: WeaponCategory) {
     return usesHitTerminology(category) ? "Attack Speed" : "Fire Rate";
 }
 
+function normalizeBuilderModPath(path: string): string {
+    return path
+        .replace(/\/(Beginner|Intermediate|Expert)\//g, "/")
+        .replace(/(Beginner|Intermediate|Expert)$/g, "");
+}
+
+function isBuilderBeginnerPath(path: string): boolean {
+    return /\/beginner\//i.test(path) || /Beginner$/i.test(path);
+}
+
+function isBuilderExpertPath(path: string): boolean {
+    return /\/expert\//i.test(path) || /Expert$/i.test(path);
+}
+
+function getBuilderModVariantTier(entry: ModEntry): "flawed" | "standard" | "expert" {
+    if (isBuilderBeginnerPath(entry.path)) return "flawed";
+    if (isBuilderExpertPath(entry.path)) return "expert";
+    return normalizeBuilderModPath(entry.path) !== entry.path && /Intermediate/.test(entry.path) ? "standard" : "standard";
+}
+
+function getBuilderDisplayModName(entry: ModEntry): string {
+    return getBuilderModVariantTier(entry) === "flawed" ? `${entry.name} (Flawed)` : entry.name;
+}
+
+function shouldHideBuilderExpertMod(entry: ModEntry, pool: ModEntry[]): boolean {
+    if (!isBuilderExpertPath(entry.path)) return false;
+    return pool.some((candidate) => candidate.name === entry.name && !isBuilderExpertPath(candidate.path));
+}
+
 function normalizeArcaneDisplayText(value: string | null | undefined) {
     if (!value) return value ?? "";
     const parts = value
@@ -243,6 +285,9 @@ interface BuildExportPayload {
         valenceBonusPct?: number;
         valenceElement?: string | null;
         optimizeValenceElement?: boolean;
+        incarnonUnlockedTier?: number;
+        incarnonSelectedOptionsByTier?: Partial<Record<IncarnonTier, string>>;
+        optimizeIncarnonSelections?: boolean;
         includeArcaneStats: boolean;
         selectedAttackIdx: number;
     };
@@ -668,6 +713,35 @@ function makeSelectedAttackWeapon(
     };
 }
 
+function applyWeaponConfig(
+    weapon: WeaponEntry,
+    selectedAttackIdx: number,
+    buildCfg: BuildCfg,
+) {
+    const withValence = applyValenceToWeapon(weapon, buildCfg.valenceBonusPct, buildCfg.valenceElement);
+    const incarnon = resolveIncarnonState(withValence, selectedAttackIdx, {
+        unlockedTier: buildCfg.incarnonUnlockedTier,
+        selectedOptionsByTier: buildCfg.incarnonSelectedOptionsByTier,
+    });
+    return {
+        weaponWithIntrinsicOptions: incarnon.weapon,
+        selectedWeapon: makeSelectedAttackWeapon(incarnon.weapon, selectedAttackIdx),
+        activeIncarnonEffects: incarnon.activeEffects,
+        incarnonRecord: incarnon.record,
+        appliedIncarnonOptions: incarnon.appliedOptions,
+    };
+}
+
+function getSelectedIncarnonTierCount(selectedOptionsByTier: Partial<Record<IncarnonTier, string>>) {
+    return INCARNON_TIER_ORDER.filter((tier) => Boolean(selectedOptionsByTier[tier])).length;
+}
+
+function getHighestSelectedIncarnonTier(selectedOptionsByTier: Partial<Record<IncarnonTier, string>>) {
+    return INCARNON_TIER_ORDER.reduce((highest, tier) => (
+        selectedOptionsByTier[tier] ? tier : highest
+    ), 0);
+}
+
 function sumEffects(effects: (ModEffect | null)[]) {
     return effects.reduce((acc, effect) => {
         if (!effect) return acc;
@@ -687,7 +761,9 @@ function sumEffects(effects: (ModEffect | null)[]) {
         acc.tauBonus += effect.tauBonus ?? 0;
         acc.trueBonus += effect.trueBonus ?? 0;
         acc.critChanceBonus += effect.critChanceBonus ?? 0;
+        acc.finalCritChanceBonus += effect.finalCritChanceBonus ?? 0;
         acc.critMultBonus += effect.critMultBonus ?? 0;
+        acc.finalCritMultiplierBonus += effect.finalCritMultiplierBonus ?? 0;
         acc.statusChanceBonus += effect.statusChanceBonus ?? 0;
         acc.finalStatusChanceBonus += effect.finalStatusChanceBonus ?? 0;
         acc.multishotBonus += effect.multishotBonus ?? 0;
@@ -716,7 +792,9 @@ function sumEffects(effects: (ModEffect | null)[]) {
         tauBonus: 0,
         trueBonus: 0,
         critChanceBonus: 0,
+        finalCritChanceBonus: 0,
         critMultBonus: 0,
+        finalCritMultiplierBonus: 0,
         statusChanceBonus: 0,
         finalStatusChanceBonus: 0,
         multishotBonus: 0,
@@ -855,15 +933,20 @@ function buildExportPayload(args: {
     } = args;
     if (!weapon) return null;
 
-    const valenceWeapon = applyValenceToWeapon(weapon, buildCfg.valenceBonusPct, buildCfg.valenceElement);
-    const selectedAttack = valenceWeapon.attacks.length > 1 ? valenceWeapon.attacks[selectedAttackIdx] ?? null : null;
-    const calcWeapon = makeSelectedAttackWeapon(valenceWeapon, selectedAttackIdx);
+    const weaponState = applyWeaponConfig(weapon, selectedAttackIdx, buildCfg);
+    const selectedAttack = weaponState.weaponWithIntrinsicOptions.attacks.length > 1
+        ? weaponState.weaponWithIntrinsicOptions.attacks[selectedAttackIdx] ?? null
+        : null;
+    const calcWeapon = weaponState.selectedWeapon;
 
-    const effects: (ModEffect | null)[] = slots.map((m, i) => {
+    const effects: (ModEffect | null)[] = [
+        ...weaponState.activeIncarnonEffects,
+        ...slots.map((m, i) => {
         if (!m) return null;
         const r = ranks[i] ?? m.fusionLimit;
         return m.effectsByRank[r] ?? m.effect;
-    });
+        }),
+    ];
     if (exilusEnabled && exilusMod) {
         effects.push(exilusMod.effectsByRank[exilusRank] ?? exilusMod.effect);
     }
@@ -898,6 +981,9 @@ function buildExportPayload(args: {
             valenceBonusPct: weapon.isProgenitorWeapon ? buildCfg.valenceBonusPct : undefined,
             valenceElement: weapon.isProgenitorWeapon ? buildCfg.valenceElement : null,
             optimizeValenceElement: weapon.isProgenitorWeapon ? buildCfg.optimizeValenceElement : undefined,
+            incarnonUnlockedTier: weaponState.incarnonRecord ? getHighestSelectedIncarnonTier(buildCfg.incarnonSelectedOptionsByTier) : undefined,
+            incarnonSelectedOptionsByTier: weaponState.incarnonRecord ? buildCfg.incarnonSelectedOptionsByTier : undefined,
+            optimizeIncarnonSelections: weaponState.incarnonRecord ? buildCfg.optimizeIncarnonSelections : undefined,
             includeArcaneStats,
             selectedAttackIdx,
         },
@@ -1063,12 +1149,12 @@ interface SlotProps {
     index: number; label?: string;
     mod: ModEntry | null; rank: number; slotPolarity: string;
     compatMods: ModEntry[]; usedGroups: Set<string>;
-    ownedNames: Set<string>; onlyOwned: boolean; isExilusSlot?: boolean;
+    ownedUniqueNames: Set<string>; onlyOwned: boolean; isExilusSlot?: boolean;
     excluded: Set<string>;
     onChange: (i: number, m: ModEntry | null) => void;
     onRankChange: (i: number, r: number) => void;
     onPolarityChange: (i: number, p: string) => void;
-    onToggleExclude: (name: string) => void;
+    onToggleExclude: (uniqueName: string) => void;
     effDrain: number;
     compactEmpty?: boolean;
     draggable?: boolean;
@@ -1080,7 +1166,7 @@ interface SlotProps {
 }
 
 function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups,
-    ownedNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onToggleExclude, effDrain, compactEmpty,
+    ownedUniqueNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onToggleExclude, effDrain, compactEmpty,
     draggable, isDragOver, onDragStartSlot, onDragEndSlot, onDragOverSlot, onDropSlot }: SlotProps) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
@@ -1103,11 +1189,11 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
         return compatMods.filter(m => {
             if (isExilusSlot && !m.isExilus) return false;
             if (usedGroups.has(m.incompatibilityGroup) && m.incompatibilityGroup !== mod?.incompatibilityGroup) return false;
-            if (onlyOwned && ownedNames.size > 0 && !ownedNames.has(m.name)) return false;
-            if (q && !m.name.toLowerCase().includes(q) && !m.statsLabel.toLowerCase().includes(q)) return false;
+            if (onlyOwned && ownedUniqueNames.size > 0 && !ownedUniqueNames.has(m.uniqueName)) return false;
+            if (q && !getBuilderDisplayModName(m).toLowerCase().includes(q) && !m.statsLabel.toLowerCase().includes(q)) return false;
             return true;
         });
-    }, [compatMods, usedGroups, mod, query, onlyOwned, ownedNames, isExilusSlot]);
+    }, [compatMods, usedGroups, mod, query, onlyOwned, ownedUniqueNames, isExilusSlot]);
     const currentStatsLabel = mod ? (mod.statsTextByRank[rank] ?? mod.statsLabel) : "";
 
     const polMatch    = !!(mod && slotPolarity && slotPolarity === mod.polarity);
@@ -1165,7 +1251,7 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
                                             overflow: "hidden",
                                         }}
                                     >
-                                        {mod.name}
+                                        {getBuilderDisplayModName(mod)}
                                     </span>
                                     {mod.compatBucket === "Riven" && <span className="text-[9px] px-1 rounded border border-yellow-700/50 bg-yellow-950/30 text-yellow-400">RIVEN</span>}
                                     {mod.effect.targetFaction && <span className="text-[9px] px-1 rounded border border-orange-700/50 bg-orange-950/30 text-orange-400">{mod.effect.targetFaction}</span>}
@@ -1184,7 +1270,7 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
                                 </div>
                                 {showDetails && (
                                     <div className="pointer-events-none absolute left-0 top-full z-[70] mt-2 w-64 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 shadow-xl">
-                                        <div className="text-xs font-semibold leading-tight text-slate-100">{mod.name}</div>
+                                        <div className="text-xs font-semibold leading-tight text-slate-100">{getBuilderDisplayModName(mod)}</div>
                                         <div className="mt-1 text-[11px] leading-relaxed text-slate-300">{currentStatsLabel}</div>
                                     </div>
                                 )}
@@ -1272,38 +1358,38 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
                             const eff      = effectiveDrain(m, slotPolarity);
                             const match    = !!(slotPolarity && slotPolarity === m.polarity);
                             const mismatch = !!(slotPolarity && slotPolarity !== m.polarity && slotPolarity !== "");
-                            const owned    = ownedNames.size === 0 || ownedNames.has(m.name);
+                            const owned    = ownedUniqueNames.size === 0 || ownedUniqueNames.has(m.uniqueName);
                             return (
                                 <button key={m.uniqueName}
                                     className={["w-full px-3 py-2 text-left hover:bg-slate-800/50 transition-colors",
-                                        m.name === mod?.name ? "bg-slate-800/30" : "",
+                                        m.uniqueName === mod?.uniqueName ? "bg-slate-800/30" : "",
                                         !owned ? "opacity-50" : ""].join(" ")}
                                     onClick={() => { onChange(index, m); setOpen(false); setQuery(""); }}>
                                     <div className="flex items-center gap-1.5">
                                         <span className="shrink-0 w-4">
                                             {m.polarity ? <PolarityIcon polarity={m.polarity} className="w-3.5 h-3.5" /> : <span className="text-slate-700 text-xs">○</span>}
                                         </span>
-                                        <span className="text-xs font-medium text-slate-200 flex-1 truncate">{m.name}</span>
+                                        <span className="text-xs font-medium text-slate-200 flex-1 truncate">{getBuilderDisplayModName(m)}</span>
                                         {!owned && <span className="text-[9px] text-slate-600 shrink-0">(unowned)</span>}
                                         {m.effect.targetFaction && <span className="text-[9px] px-1 rounded border border-orange-700/50 bg-orange-950/30 text-orange-400 shrink-0">{m.effect.targetFaction}</span>}
                                         <span
                                             role="button"
                                             tabIndex={0}
-                                            onClick={(e) => { e.stopPropagation(); onToggleExclude(m.name); }}
+                                            onClick={(e) => { e.stopPropagation(); onToggleExclude(m.uniqueName); }}
                                             onKeyDown={(e) => {
                                                 if (e.key === "Enter" || e.key === " ") {
                                                     e.preventDefault();
                                                     e.stopPropagation();
-                                                    onToggleExclude(m.name);
+                                                    onToggleExclude(m.uniqueName);
                                                 }
                                             }}
                                             className={["text-[9px] px-1.5 py-0.5 rounded border shrink-0 transition-colors",
-                                                excluded.has(m.name)
+                                                excluded.has(m.uniqueName)
                                                     ? "border-red-700/60 bg-red-950/30 text-red-300"
                                                     : "border-slate-700 text-slate-500 hover:border-red-700/60 hover:text-red-300"].join(" ")}
-                                            title={excluded.has(m.name) ? "Remove from exclusions" : "Exclude from optimizer"}
+                                            title={excluded.has(m.uniqueName) ? "Remove from exclusions" : "Exclude from optimizer"}
                                         >
-                                            {excluded.has(m.name) ? "Excluded" : "Exclude"}
+                                            {excluded.has(m.uniqueName) ? "Excluded" : "Exclude"}
                                         </span>
                                         <span className={["text-[9px] font-mono font-bold shrink-0 px-1 rounded",
                                             match ? "text-green-400 bg-green-950/30" : mismatch ? "text-amber-400 bg-amber-950/30" : "text-slate-500"].join(" ")}>
@@ -1609,12 +1695,12 @@ function WeaponSelector({ selected, onSelect }: { selected: WeaponEntry | null; 
 // ── Exclusion List ────────────────────────────────────────────────────────────
 
 function ExclusionList({ allMods, excluded, onToggle }: {
-    allMods: ModEntry[]; excluded: Set<string>; onToggle: (name: string) => void;
+    allMods: ModEntry[]; excluded: Set<string>; onToggle: (uniqueName: string) => void;
 }) {
     const [query, setQuery] = useState("");
     const filteredAll = useMemo(() => {
         const q = query.toLowerCase();
-        return allMods.filter(m => !q || m.name.toLowerCase().includes(q)).slice(0, 60);
+        return allMods.filter(m => !q || getBuilderDisplayModName(m).toLowerCase().includes(q)).slice(0, 60);
     }, [allMods, query]);
 
     return (
@@ -1630,10 +1716,14 @@ function ExclusionList({ allMods, excluded, onToggle }: {
                 <div>
                     <div className="text-[10px] text-slate-600 mb-1.5 uppercase tracking-wide">Currently excluded</div>
                     <div className="flex flex-wrap gap-1.5">
-                        {[...excluded].filter(n => !query || n.toLowerCase().includes(query.toLowerCase())).map(name => (
-                            <button key={name} onClick={() => onToggle(name)}
+                        {[...excluded]
+                            .map(uniqueName => allMods.find(mod => mod.uniqueName === uniqueName) ?? null)
+                            .filter((mod): mod is ModEntry => !!mod)
+                            .filter(mod => !query || getBuilderDisplayModName(mod).toLowerCase().includes(query.toLowerCase()))
+                            .map(mod => (
+                            <button key={mod.uniqueName} onClick={() => onToggle(mod.uniqueName)}
                                 className="rounded-full px-2.5 py-0.5 text-[10px] border border-red-700/60 bg-red-950/30 text-red-300 hover:bg-red-900/40 transition-colors">
-                                ✕ {name}
+                                ✕ {getBuilderDisplayModName(mod)}
                             </button>
                         ))}
                     </div>
@@ -1642,12 +1732,12 @@ function ExclusionList({ allMods, excluded, onToggle }: {
             {filteredAll.length > 0 && (
                 <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-800 divide-y divide-slate-800/50">
                     {filteredAll.map(m => (
-                        <button key={m.uniqueName} onClick={() => onToggle(m.name)}
+                        <button key={m.uniqueName} onClick={() => onToggle(m.uniqueName)}
                             className={["w-full flex items-center gap-2 px-3 py-1.5 text-left text-xs transition-colors hover:bg-slate-800/50",
-                                excluded.has(m.name) ? "text-red-300 bg-red-950/10" : "text-slate-300"].join(" ")}>
-                            <span className="w-4 shrink-0 text-center">{excluded.has(m.name) ? "✕" : "+"}</span>
+                                excluded.has(m.uniqueName) ? "text-red-300 bg-red-950/10" : "text-slate-300"].join(" ")}>
+                            <span className="w-4 shrink-0 text-center">{excluded.has(m.uniqueName) ? "✕" : "+"}</span>
                             {m.polarity && <PolarityIcon polarity={m.polarity} className="w-3 h-3 opacity-50 shrink-0" />}
-                            <span className="flex-1 truncate">{m.name}</span>
+                            <span className="flex-1 truncate">{getBuilderDisplayModName(m)}</span>
                             <span className="text-slate-600 ml-auto shrink-0 truncate max-w-[120px]">{m.statsLabel.slice(0, 24)}</span>
                         </button>
                     ))}
@@ -1698,6 +1788,9 @@ function SavedBuildsPanel({ weapon, availableMods, currentSlots, currentRanks, c
             valenceBonusPct: weapon.isProgenitorWeapon ? currentCfg.valenceBonusPct : undefined,
             valenceElement: weapon.isProgenitorWeapon ? currentCfg.valenceElement : undefined,
             optimizeValenceElement: weapon.isProgenitorWeapon ? currentCfg.optimizeValenceElement : undefined,
+            incarnonUnlockedTier: getIncarnonRecordForWeapon(weapon) ? getHighestSelectedIncarnonTier(currentCfg.incarnonSelectedOptionsByTier) : undefined,
+            incarnonSelectedOptionsByTier: getIncarnonRecordForWeapon(weapon) ? currentCfg.incarnonSelectedOptionsByTier : undefined,
+            optimizeIncarnonSelections: getIncarnonRecordForWeapon(weapon) ? currentCfg.optimizeIncarnonSelections : undefined,
             hasExilus,
             exilusModUniqueName: exilusMod?.uniqueName,
             exilusPol,
@@ -1759,6 +1852,21 @@ function SavedBuildsPanel({ weapon, availableMods, currentSlots, currentRanks, c
         return effects;
     }
 
+    function buildCfgFromSavedBuild(build: SavedBuild): BuildCfg {
+        const selectedOptionsByTier = build.incarnonSelectedOptionsByTier ?? currentCfg.incarnonSelectedOptionsByTier;
+        return {
+            weaponRank: build.weaponRank,
+            hasCatalyst: build.hasCatalyst,
+            masteryRank: currentCfg.masteryRank,
+            valenceBonusPct: build.valenceBonusPct ?? currentCfg.valenceBonusPct,
+            valenceElement: (build.valenceElement as ValenceElement | undefined) ?? currentCfg.valenceElement,
+            optimizeValenceElement: build.optimizeValenceElement ?? false,
+            incarnonUnlockedTier: getHighestSelectedIncarnonTier(selectedOptionsByTier) || build.incarnonUnlockedTier || currentCfg.incarnonUnlockedTier,
+            incarnonSelectedOptionsByTier: selectedOptionsByTier,
+            optimizeIncarnonSelections: build.optimizeIncarnonSelections ?? false,
+        };
+    }
+
     function comparisonRows(stats: ReturnType<typeof calculateBuild>) {
         const category = weapon?.category ?? "Primary";
         const avgDamageLabel = averageDamageLabel(category);
@@ -1803,15 +1911,9 @@ function SavedBuildsPanel({ weapon, availableMods, currentSlots, currentRanks, c
                     <div className="text-[10px] uppercase tracking-wide text-blue-300 mb-2">Side-by-side comparison</div>
                     <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${comparedBuilds.length}, minmax(0, 1fr))` }}>
                         {comparedBuilds.map(b => {
-                            const buildWeapon = makeSelectedAttackWeapon(
-                                applyValenceToWeapon(
-                                    weapon,
-                                    b.valenceBonusPct ?? 0,
-                                    (b.valenceElement as ValenceElement | undefined) ?? "heat",
-                                ),
-                                0,
-                            );
-                            const stats = calculateBuild(buildWeapon, buildSavedBuildEffects(b));
+                            const buildCfg = buildCfgFromSavedBuild(b);
+                            const weaponState = applyWeaponConfig(weapon, 0, buildCfg);
+                            const stats = calculateBuild(weaponState.selectedWeapon, [...weaponState.activeIncarnonEffects, ...buildSavedBuildEffects(b)]);
                             return (
                                 <div key={b.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-2">
                                     <div className="text-xs font-semibold text-slate-100">{b.name}</div>
@@ -1834,17 +1936,11 @@ function SavedBuildsPanel({ weapon, availableMods, currentSlots, currentRanks, c
                 <div className="space-y-1.5">
                     <div className="text-[10px] text-slate-500 uppercase tracking-wide">This weapon</div>
                     {thisWeapon.map(b => {
-                        const stats = weapon ? calculateBuild(
-                            makeSelectedAttackWeapon(
-                                applyValenceToWeapon(
-                                    weapon,
-                                    b.valenceBonusPct ?? 0,
-                                    (b.valenceElement as ValenceElement | undefined) ?? "heat",
-                                ),
-                                0,
-                            ),
-                            buildSavedBuildEffects(b),
-                        ) : null;
+                        const stats = weapon ? (() => {
+                            const buildCfg = buildCfgFromSavedBuild(b);
+                            const weaponState = applyWeaponConfig(weapon, 0, buildCfg);
+                            return calculateBuild(weaponState.selectedWeapon, [...weaponState.activeIncarnonEffects, ...buildSavedBuildEffects(b)]);
+                        })() : null;
                         return (
                             <div key={b.id} className={["rounded-lg border px-3 py-2",
                                 comparing.has(b.id) ? "border-blue-700/50 bg-blue-950/10" : "border-slate-800 bg-slate-900/40"].join(" ")}>
@@ -1913,7 +2009,7 @@ function OwnedModsPanel({ availableMods }: { availableMods: ModEntry[] }) {
     const ownedCountForMod = (path: string) => inventoryCounts[`mods:${path}`] ?? inventoryCounts[path] ?? 0;
     const filtered = useMemo(() => {
         const q = query.toLowerCase();
-        return allMods.filter(m => !q || m.name.toLowerCase().includes(q));
+        return allMods.filter(m => !q || getBuilderDisplayModName(m).toLowerCase().includes(q));
     }, [allMods, query]);
 
     return (
@@ -1942,7 +2038,7 @@ function OwnedModsPanel({ availableMods }: { availableMods: ModEntry[] }) {
                             {m.polarity ? <PolarityIcon polarity={m.polarity} className="w-3.5 h-3.5 opacity-60" /> : <span className="text-slate-700 text-xs">○</span>}
                         </span>
                         <div className="min-w-0 flex-1">
-                            <div className="text-xs text-slate-200 truncate">{m.name}</div>
+                            <div className="text-xs text-slate-200 truncate">{getBuilderDisplayModName(m)}</div>
                             {m.statsLabel && <div className="text-[10px] text-slate-500 truncate">{m.statsLabel}</div>}
                         </div>
                         <div className="flex items-center gap-1 shrink-0" onClick={e => e.preventDefault()}>
@@ -2062,6 +2158,9 @@ interface BuildCfg {
     valenceBonusPct: number;
     valenceElement: ValenceElement;
     optimizeValenceElement: boolean;
+    incarnonUnlockedTier: number;
+    incarnonSelectedOptionsByTier: Partial<Record<IncarnonTier, string>>;
+    optimizeIncarnonSelections: boolean;
 }
 
 type DragSlotKind = "main" | "exilus";
@@ -2112,6 +2211,9 @@ export default function ModBuilder() {
         valenceBonusPct: 0.25,
         valenceElement: "heat",
         optimizeValenceElement: false,
+        incarnonUnlockedTier: 0,
+        incarnonSelectedOptionsByTier: {},
+        optimizeIncarnonSelections: false,
     });
     // Optimizer
     const [goal, setGoal]              = useState<OptimizeGoal>("burst");
@@ -2138,6 +2240,7 @@ export default function ModBuilder() {
     const [draggedSlot, setDraggedSlot] = useState<DragSlotRef | null>(null);
     const [dragOverSlot, setDragOverSlot] = useState<DragSlotRef | null>(null);
     const [optimizeMode, setOptimizeMode] = useState<OptimizeMode>("optimize");
+    const [incarnonPickerTier, setIncarnonPickerTier] = useState<IncarnonTier | null>(null);
 
     useEffect(() => {
         setBuildCfg((prev) => {
@@ -2151,6 +2254,39 @@ export default function ModBuilder() {
         setMaxFormaAllowed((prev) => Math.min(Math.max(1, prev), maxForWeapon));
     }, [weapon]);
 
+    function setIncarnonTierSelection(tier: IncarnonTier, optionId: string) {
+        setBuildCfg((prev) => {
+            const nextSelections = {
+                ...prev.incarnonSelectedOptionsByTier,
+                [tier]: optionId,
+            };
+            return {
+                ...prev,
+                incarnonUnlockedTier: getHighestSelectedIncarnonTier(nextSelections),
+                incarnonSelectedOptionsByTier: nextSelections,
+            };
+        });
+        setIncarnonPickerTier(null);
+        setReasoning(null);
+        setReasoningMath(null);
+    }
+
+    function clearIncarnonTierSelection(tier: IncarnonTier) {
+        setBuildCfg((prev) => {
+            const nextSelections = { ...prev.incarnonSelectedOptionsByTier };
+            delete nextSelections[tier];
+            return {
+                ...prev,
+                incarnonUnlockedTier: getHighestSelectedIncarnonTier(nextSelections),
+                incarnonSelectedOptionsByTier: nextSelections,
+                optimizeIncarnonSelections: getSelectedIncarnonTierCount(nextSelections) > 0 ? prev.optimizeIncarnonSelections : false,
+            };
+        });
+        setIncarnonPickerTier(null);
+        setReasoning(null);
+        setReasoningMath(null);
+    }
+
     function resetBuildForWeapon(w: WeaponEntry, opts?: { resetConfig?: boolean }) {
         setSlots(Array(SLOT_COUNT).fill(null));
         setRanks(Array(SLOT_COUNT).fill(0));
@@ -2161,6 +2297,7 @@ export default function ModBuilder() {
         setExilusMod(null); setExilusRank(0); setExilusPol(""); setHasExilus(false);
         setArcane1(null); setArcane1Rank(0);
         setSelectedAttackIdx(0);
+        setIncarnonPickerTier(null);
         if (opts?.resetConfig) {
             setBuildCfg(p => ({
                 ...p,
@@ -2169,6 +2306,9 @@ export default function ModBuilder() {
                 valenceBonusPct: 0.25,
                 valenceElement: "heat",
                 optimizeValenceElement: false,
+                incarnonUnlockedTier: 0,
+                incarnonSelectedOptionsByTier: {},
+                optimizeIncarnonSelections: false,
             }));
         }
         setReasoning(null);
@@ -2186,10 +2326,29 @@ export default function ModBuilder() {
         const customRivens = inventoryCustomRivens
             .filter((riven: CustomRivenRecord) => customRivenSupportsWeapon(riven, weapon))
             .map((riven: CustomRivenRecord) => buildCustomRivenEntry(riven, weapon));
-        return [...baseMods, ...customRivens];
+        return [...baseMods.filter((mod) => !shouldHideBuilderExpertMod(mod, baseMods)), ...customRivens];
     }, [weapon, inventoryCustomRivens]);
-    const stanceMods   = useMemo(() => weapon ? getStancesForWeapon(weapon) : [], [weapon]);
+    const stanceMods   = useMemo(() => {
+        if (!weapon) return [];
+        const mods = getStancesForWeapon(weapon);
+        return mods.filter((mod) => !shouldHideBuilderExpertMod(mod, mods));
+    }, [weapon]);
     const weaponArcanes = useMemo(() => weapon ? getArcanesForWeapon(weapon) : [], [weapon]);
+    const incarnonRecord = useMemo(() => getIncarnonRecordForWeapon(weapon), [weapon]);
+    const selectedIncarnonTierCount = useMemo(
+        () => getSelectedIncarnonTierCount(buildCfg.incarnonSelectedOptionsByTier),
+        [buildCfg.incarnonSelectedOptionsByTier],
+    );
+    const activeIncarnonTier = useMemo(
+        () => incarnonPickerTier ? incarnonRecord?.tiers.find((tier) => tier.tier === incarnonPickerTier) ?? null : null,
+        [incarnonPickerTier, incarnonRecord],
+    );
+    useEffect(() => {
+        if (!incarnonPickerTier) return;
+        if (!incarnonRecord?.tiers.some((tier) => tier.tier === incarnonPickerTier)) {
+            setIncarnonPickerTier(null);
+        }
+    }, [incarnonPickerTier, incarnonRecord]);
     const trackableMods = useMemo(() => {
         const seen = new Set<string>();
         const out: ModEntry[] = [];
@@ -2203,17 +2362,17 @@ export default function ModBuilder() {
     const ownedSet     = useMemo(() => new Set(
         trackableMods
             .filter(mod => mod.compatBucket === "Riven" || Number(inventoryCounts[`mods:${mod.path}`] ?? inventoryCounts[mod.path] ?? 0) > 0)
-            .map(mod => mod.name)
+            .map(mod => mod.uniqueName)
     ), [trackableMods, inventoryCounts]);
-    const ownedModMaxRankByName = useMemo(() => {
+    const ownedModMaxRankByUniqueName = useMemo(() => {
         const out: Record<string, number> = {};
         for (const mod of trackableMods) {
             if (mod.compatBucket === "Riven") {
-                out[mod.name] = mod.fusionLimit;
+                out[mod.uniqueName] = mod.fusionLimit;
                 continue;
             }
             if (Number(inventoryCounts[`mods:${mod.path}`] ?? inventoryCounts[mod.path] ?? 0) <= 0) continue;
-            out[mod.name] = getOwnedModRank(mod.path, mod.fusionLimit, inventoryCounts, inventoryModRanks);
+            out[mod.uniqueName] = getOwnedModRank(mod.path, mod.fusionLimit, inventoryCounts, inventoryModRanks);
         }
         return out;
     }, [trackableMods, inventoryCounts, inventoryModRanks]);
@@ -2294,13 +2453,11 @@ export default function ModBuilder() {
         slots, ranks, slotPols, stanceMod, stanceRank, stancePol, formaCount, hasExilus, exilusMod, exilusRank, exilusPol, arcane1, arcane1Rank,
     ]);
 
-    const activeCalcWeapon = useMemo(() => {
+    const activeWeaponState = useMemo(() => {
         if (!weapon) return null;
-        return makeSelectedAttackWeapon(
-            applyValenceToWeapon(weapon, buildCfg.valenceBonusPct, buildCfg.valenceElement),
-            selectedAttackIdx,
-        );
-    }, [weapon, selectedAttackIdx, buildCfg.valenceBonusPct, buildCfg.valenceElement]);
+        return applyWeaponConfig(weapon, selectedAttackIdx, buildCfg);
+    }, [weapon, selectedAttackIdx, buildCfg]);
+    const activeCalcWeapon = activeWeaponState?.selectedWeapon ?? null;
     async function handleCopyBuildExport() {
         if (!currentBuildExport) return;
         const json = JSON.stringify(currentBuildExport, null, 2);
@@ -2452,7 +2609,7 @@ export default function ModBuilder() {
         setDragOverSlot(null);
         setDraggedSlot(null);
     }
-    function toggleExclude(name: string) { setExcluded(p => { const n = new Set(p); n.has(name) ? n.delete(name) : n.add(name); return n; }); }
+    function toggleExclude(uniqueName: string) { setExcluded(p => { const n = new Set(p); n.has(uniqueName) ? n.delete(uniqueName) : n.add(uniqueName); return n; }); }
 
     const capacityCfg: CapacityConfig = {
         weaponRank: buildCfg.weaponRank, hasCatalyst: buildCfg.hasCatalyst,
@@ -2478,11 +2635,14 @@ export default function ModBuilder() {
         return r;
     }, [ranks, stanceMod, stanceRank, exilusRank, hasExilus, weapon]);
     const activeBuildEffects = useMemo(() => {
-        const effects: (ModEffect | null)[] = allSlotsForCap.map((mod, i) => {
+        const effects: (ModEffect | null)[] = [
+            ...(activeWeaponState?.activeIncarnonEffects ?? []),
+            ...allSlotsForCap.map((mod, i) => {
             if (!mod) return null;
             const r = allRanksForCap[i] ?? mod.fusionLimit;
             return mod.effectsByRank[r] ?? mod.effect;
-        });
+            }),
+        ];
         if (includeArcaneStats && arcane1) {
             const ae = arcane1.permanentEffectByRank[arcane1Rank];
             effects.push({
@@ -2492,7 +2652,7 @@ export default function ModBuilder() {
             });
         }
         return effects;
-    }, [allSlotsForCap, allRanksForCap, includeArcaneStats, arcane1, arcane1Rank]);
+    }, [activeWeaponState, allSlotsForCap, allRanksForCap, includeArcaneStats, arcane1, arcane1Rank]);
     const activeMetrics = useMemo(
         () => activeCalcWeapon ? calculateBuild(activeCalcWeapon, activeBuildEffects, factionOn ? faction : "") : null,
         [activeCalcWeapon, activeBuildEffects, factionOn, faction],
@@ -2546,7 +2706,7 @@ export default function ModBuilder() {
             if (supportsStanceMods(weapon.category)) {
                 if (!fillMode || !stanceMod) {
                     const candidateStances = onlyOwned
-                        ? stanceMods.filter(mod => ownedSet.has(mod.name))
+                        ? stanceMods.filter(mod => ownedSet.has(mod.uniqueName))
                         : stanceMods;
                     const bestStance = candidateStances.reduce<ModEntry | null>((best, current) => {
                         if (!stancePol) return best;
@@ -2557,7 +2717,7 @@ export default function ModBuilder() {
                     }, null);
                     optimizerStanceMod = bestStance;
                     optimizerStanceRank = bestStance
-                        ? Math.min(bestStance.fusionLimit, ownedModMaxRankByName[bestStance.name] ?? bestStance.fusionLimit)
+                        ? Math.min(bestStance.fusionLimit, ownedModMaxRankByUniqueName[bestStance.uniqueName] ?? bestStance.fusionLimit)
                         : 0;
                     setStanceMod(bestStance);
                     setStanceRank(optimizerStanceRank);
@@ -2568,13 +2728,17 @@ export default function ModBuilder() {
                 candidateWeapon: WeaponEntry,
                 candidateAttackIdx: number,
                 candidateResult: ReturnType<typeof optimizeBuild>,
+                preEquippedEffects: ModEffect[],
             ) => {
                 const scoringWeapon = makeSelectedAttackWeapon(candidateWeapon, candidateAttackIdx);
-                const effects: (ModEffect | null)[] = candidateResult.slots.map((mod, index) => {
+                const effects: (ModEffect | null)[] = [
+                    ...preEquippedEffects,
+                    ...candidateResult.slots.map((mod, index) => {
                     if (!mod) return null;
                     const rank = candidateResult.slotRanks[index] ?? mod.fusionLimit;
                     return mod.effectsByRank[rank] ?? mod.effect;
-                });
+                    }),
+                ];
                 if (optExilus && candidateResult.exilusMod) {
                     effects.push(candidateResult.exilusMod.effectsByRank[candidateResult.exilusRank] ?? candidateResult.exilusMod.effect);
                 }
@@ -2584,8 +2748,73 @@ export default function ModBuilder() {
                 return debugScoreBuild(scoringWeapon, effects, goal, factionOn ? faction : "", arcaneEffect);
             };
 
-            const runOptimizeForValence = (valenceElement: ValenceElement) => {
-                const weaponForOpt = applyValenceToWeapon(weapon, buildCfg.valenceBonusPct, valenceElement);
+            const buildIncarnonCandidateConfigs = (): Array<{
+                unlockedTier: number;
+                selectedOptionsByTier: Partial<Record<IncarnonTier, string>>;
+            }> => {
+                if (!incarnonRecord) {
+                    return [{
+                        unlockedTier: getHighestSelectedIncarnonTier(buildCfg.incarnonSelectedOptionsByTier),
+                        selectedOptionsByTier: buildCfg.incarnonSelectedOptionsByTier,
+                    }];
+                }
+                if (!buildCfg.optimizeIncarnonSelections) {
+                    return [{
+                        unlockedTier: getHighestSelectedIncarnonTier(buildCfg.incarnonSelectedOptionsByTier),
+                        selectedOptionsByTier: buildCfg.incarnonSelectedOptionsByTier,
+                    }];
+                }
+                const tiers = selectedIncarnonTierCount > 0
+                    ? incarnonRecord.tiers.filter((tier) => Boolean(buildCfg.incarnonSelectedOptionsByTier[tier.tier]))
+                    : incarnonRecord.tiers;
+                if (!tiers.length) {
+                    return [{
+                        unlockedTier: getHighestSelectedIncarnonTier(buildCfg.incarnonSelectedOptionsByTier),
+                        selectedOptionsByTier: buildCfg.incarnonSelectedOptionsByTier,
+                    }];
+                }
+                const out: Array<{
+                    unlockedTier: number;
+                    selectedOptionsByTier: Partial<Record<IncarnonTier, string>>;
+                }> = [];
+                const walk = (index: number, selected: Partial<Record<IncarnonTier, string>>) => {
+                    if (index >= tiers.length) {
+                        out.push({
+                            unlockedTier: getHighestSelectedIncarnonTier(selected),
+                            selectedOptionsByTier: { ...selected },
+                        });
+                        return;
+                    }
+                    const tier = tiers[index];
+                    const options = tier.options.length > 0 ? tier.options : [];
+                    if (!options.length) {
+                        walk(index + 1, selected);
+                        return;
+                    }
+                    for (const option of options) {
+                        selected[tier.tier] = option.id;
+                        walk(index + 1, selected);
+                    }
+                };
+                walk(0, { ...buildCfg.incarnonSelectedOptionsByTier });
+                return out;
+            };
+
+            const runOptimizeForConfig = (
+                valenceElement: ValenceElement,
+                incarnonCandidate: {
+                    unlockedTier: number;
+                    selectedOptionsByTier: Partial<Record<IncarnonTier, string>>;
+                },
+            ) => {
+                const candidateCfg: BuildCfg = {
+                    ...buildCfg,
+                    valenceElement,
+                    incarnonUnlockedTier: incarnonCandidate.unlockedTier,
+                    incarnonSelectedOptionsByTier: incarnonCandidate.selectedOptionsByTier,
+                };
+                const weaponState = applyWeaponConfig(weapon, selectedAttackIdx, candidateCfg);
+                const weaponForOpt = weaponState.weaponWithIntrinsicOptions;
                 const atk = weaponForOpt.attacks.length > 1 ? weaponForOpt.attacks[selectedAttackIdx] : null;
 
                 // If allowCatalyst, override capacityCfg to hasCatalyst:true
@@ -2596,11 +2825,11 @@ export default function ModBuilder() {
                 ) : undefined;
 
                 const result = optimizeBuild(weaponForOpt, compatMods, goal, SLOT_COUNT, {
-                    ownedModNames:    onlyOwned ? ownedSet : undefined,
-                    ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
+                    ownedModUniqueNames:    onlyOwned ? ownedSet : undefined,
+                    ownedModMaxRankByUniqueName: onlyOwned ? ownedModMaxRankByUniqueName : undefined,
                     ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
                     ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
-                    excludedModNames: excluded.size > 0 ? excluded : undefined,
+                    excludedModUniqueNames: excluded.size > 0 ? excluded : undefined,
                     allowNonMaxRank:  allowNonMax,
                     targetFaction:    factionOn ? faction : "",
                     capacityConfig:   capForOpt,
@@ -2616,7 +2845,7 @@ export default function ModBuilder() {
                     extraCapacitySlots: supportsStanceMods(weapon.category) && optimizerStanceMod
                         ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
                         : undefined,
-                    preEquippedEffects: lockedExternalEffects,
+                    preEquippedEffects: [...weaponState.activeIncarnonEffects, ...lockedExternalEffects],
                     lockedSlots: fillMode ? lockedMainSlots : undefined,
                     lockedSlotRanks: fillMode ? lockedMainRanks : undefined,
                     lockedSlotMask: fillMode ? lockedSlotMask : undefined,
@@ -2657,11 +2886,11 @@ export default function ModBuilder() {
 
                             if (catalyzedFit.overCapacity && allowForma) {
                                 appliedResult = optimizeBuild(weaponForOpt, compatMods, goal, SLOT_COUNT, {
-                                    ownedModNames:    onlyOwned ? ownedSet : undefined,
-                                    ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
+                                    ownedModUniqueNames:    onlyOwned ? ownedSet : undefined,
+                                    ownedModMaxRankByUniqueName: onlyOwned ? ownedModMaxRankByUniqueName : undefined,
                                     ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
                                     ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
-                                    excludedModNames: excluded.size > 0 ? excluded : undefined,
+                                    excludedModUniqueNames: excluded.size > 0 ? excluded : undefined,
                                     allowNonMaxRank:  allowNonMax,
                                     targetFaction:    factionOn ? faction : "",
                                     capacityConfig:   catalyzedCfg,
@@ -2675,7 +2904,7 @@ export default function ModBuilder() {
                                     optimizeArcane:   optArcane,
                                     buildForAttack:   atk,
                                     extraCapacitySlots: baseExtraCapacitySlots,
-                                    preEquippedEffects: lockedExternalEffects,
+                                    preEquippedEffects: [...weaponState.activeIncarnonEffects, ...lockedExternalEffects],
                                     lockedSlots: fillMode ? lockedMainSlots : undefined,
                                     lockedSlotRanks: fillMode ? lockedMainRanks : undefined,
                                     lockedSlotMask: fillMode ? lockedSlotMask : undefined,
@@ -2685,11 +2914,11 @@ export default function ModBuilder() {
                             }
                         } else if (allowForma) {
                             appliedResult = optimizeBuild(weaponForOpt, compatMods, goal, SLOT_COUNT, {
-                                ownedModNames:    onlyOwned ? ownedSet : undefined,
-                                ownedModMaxRankByName: onlyOwned ? ownedModMaxRankByName : undefined,
+                                ownedModUniqueNames:    onlyOwned ? ownedSet : undefined,
+                                ownedModMaxRankByUniqueName: onlyOwned ? ownedModMaxRankByUniqueName : undefined,
                                 ownedArcaneUniqueNames: onlyOwned ? ownedArcaneUniqueNames : undefined,
                                 ownedArcaneMaxRankByUniqueName: onlyOwned ? ownedArcaneMaxRankByUniqueName : undefined,
-                                excludedModNames: excluded.size > 0 ? excluded : undefined,
+                                excludedModUniqueNames: excluded.size > 0 ? excluded : undefined,
                                 allowNonMaxRank:  allowNonMax,
                                 targetFaction:    factionOn ? faction : "",
                                 capacityConfig:   capacityCfg,
@@ -2703,7 +2932,7 @@ export default function ModBuilder() {
                                 optimizeArcane:   optArcane,
                                 buildForAttack:   atk,
                                 extraCapacitySlots: baseExtraCapacitySlots,
-                                preEquippedEffects: lockedExternalEffects,
+                                preEquippedEffects: [...weaponState.activeIncarnonEffects, ...lockedExternalEffects],
                                 lockedSlots: fillMode ? lockedMainSlots : undefined,
                                 lockedSlotRanks: fillMode ? lockedMainRanks : undefined,
                                 lockedSlotMask: fillMode ? lockedSlotMask : undefined,
@@ -2720,23 +2949,37 @@ export default function ModBuilder() {
                     appliedResult,
                     appliedCatalyst,
                     baseExtraCapacitySlots,
-                    score: scoreOptimizerResult(weaponForOpt, selectedAttackIdx, appliedResult),
+                    score: scoreOptimizerResult(weaponForOpt, selectedAttackIdx, appliedResult, weaponState.activeIncarnonEffects),
                     valenceElement,
+                    incarnonSelectedOptionsByTier: incarnonCandidate.selectedOptionsByTier,
                 };
             };
 
             const valenceElementsToTry = weapon.isProgenitorWeapon && buildCfg.valenceBonusPct > 0 && buildCfg.optimizeValenceElement && buildCfg.weaponRank >= 40
                 ? VALENCE_ELEMENTS.map((entry) => entry.key)
                 : [buildCfg.valenceElement];
-            const bestRun = valenceElementsToTry.reduce<ReturnType<typeof runOptimizeForValence> | null>((best, candidateElement) => {
-                const run = runOptimizeForValence(candidateElement);
-                if (!best || run.score > best.score) return run;
-                return best;
-            }, null);
+            const incarnonCandidates = buildIncarnonCandidateConfigs();
+            let bestRun: ReturnType<typeof runOptimizeForConfig> | null = null;
+            let evaluatedConfigs = 0;
+            for (const candidateElement of valenceElementsToTry) {
+                for (const incarnonCandidate of incarnonCandidates) {
+                    const run = runOptimizeForConfig(candidateElement, incarnonCandidate);
+                    if (!bestRun || run.score > bestRun.score) {
+                        bestRun = run;
+                    }
+                    evaluatedConfigs += 1;
+                    if (evaluatedConfigs % 2 === 0) {
+                        await new Promise((resolve) => setTimeout(resolve, 0));
+                    }
+                }
+            }
             if (!bestRun) return;
-            const { weaponForOpt, atk, appliedResult, appliedCatalyst, baseExtraCapacitySlots, valenceElement } = bestRun;
+            const { weaponForOpt, atk, appliedResult, appliedCatalyst, baseExtraCapacitySlots, valenceElement, incarnonSelectedOptionsByTier } = bestRun;
             if (weapon.isProgenitorWeapon && valenceElement !== buildCfg.valenceElement) {
                 setBuildCfg(p => ({ ...p, valenceElement }));
+            }
+            if (incarnonRecord) {
+                setBuildCfg(p => ({ ...p, incarnonSelectedOptionsByTier }));
             }
 
             // Apply exilus mod if optimized
@@ -2850,11 +3093,19 @@ export default function ModBuilder() {
             }
 
             setReasoning(explainBuild(weaponForOpt, appliedResult.mods, appliedResult.ranks, goal, factionOn ? faction : "", atk));
-            const mathEffects: (ModEffect | null)[] = appliedResult.slots.map((m, i) => {
+            const optimizedWeaponState = applyWeaponConfig(weapon, selectedAttackIdx, {
+                ...buildCfg,
+                valenceElement,
+                incarnonSelectedOptionsByTier,
+            });
+            const mathEffects: (ModEffect | null)[] = [
+                ...optimizedWeaponState.activeIncarnonEffects,
+                ...appliedResult.slots.map((m, i) => {
                 if (!m) return null;
                 const r = appliedResult.slotRanks[i] ?? m.fusionLimit;
                 return m.effectsByRank[r] ?? m.effect;
-            });
+                }),
+            ];
             if (optExilus && appliedResult.exilusMod) {
                 mathEffects.push(appliedResult.exilusMod.effectsByRank[appliedResult.exilusRank] ?? appliedResult.exilusMod.effect);
             }
@@ -2878,13 +3129,18 @@ export default function ModBuilder() {
         setSlots(ns);
         setRanks(ns.map((m, i) => m ? (build.slotRanks?.[i] ?? m.fusionLimit) : 0));
         setSlotPols([...build.slotPolarities, ...Array(SLOT_COUNT).fill("")].slice(0, SLOT_COUNT));
-        setBuildCfg(p => ({
-            ...p,
+            setBuildCfg(p => ({
+                ...p,
             weaponRank: build.weaponRank,
             hasCatalyst: build.hasCatalyst,
             valenceBonusPct: build.valenceBonusPct ?? p.valenceBonusPct,
             valenceElement: (build.valenceElement as ValenceElement | undefined) ?? p.valenceElement,
             optimizeValenceElement: build.optimizeValenceElement ?? false,
+            incarnonUnlockedTier: build.incarnonSelectedOptionsByTier
+                ? getHighestSelectedIncarnonTier(build.incarnonSelectedOptionsByTier)
+                : (build.incarnonUnlockedTier ?? p.incarnonUnlockedTier),
+            incarnonSelectedOptionsByTier: build.incarnonSelectedOptionsByTier ?? p.incarnonSelectedOptionsByTier,
+            optimizeIncarnonSelections: build.optimizeIncarnonSelections ?? false,
         }));
         if (build.stanceModUniqueName) {
             const sm = stanceMods.find(m => m.uniqueName === build.stanceModUniqueName) ?? null;
@@ -3179,6 +3435,82 @@ export default function ModBuilder() {
                                                             </div>
                                                         </>
                                                     )}
+                                                    {incarnonRecord && (
+                                                        <div className="md:col-span-3">
+                                                            <div className="rounded-[1.35rem] border border-cyan-500/20 bg-[linear-gradient(180deg,rgba(7,15,25,0.9),rgba(2,6,23,0.86))] px-4 py-3 shadow-[0_0_0_1px_rgba(34,211,238,0.04),0_14px_36px_rgba(8,47,73,0.18)]">
+                                                                <div className="flex flex-wrap items-center justify-between gap-4">
+                                                                    <div>
+                                                                        <div className="text-[10px] uppercase tracking-[0.3em] text-cyan-200/70">Incarnon Evolution Path</div>
+                                                                        <div className="mt-1 text-xs text-slate-400">
+                                                                            Click any evolution to review its effects and choose what this build should use.
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+                                                                        {INCARNON_TIER_ORDER.map((tierNumber) => {
+                                                                            const tier = incarnonRecord.tiers.find((entry) => entry.tier === tierNumber) ?? null;
+                                                                            const selectedOptionId = buildCfg.incarnonSelectedOptionsByTier[tierNumber];
+                                                                            const selectedOption = tier?.options.find((option) => option.id === selectedOptionId) ?? null;
+
+                                                                            if (!tier) {
+                                                                                return (
+                                                                                    <span
+                                                                                        key={tierNumber}
+                                                                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-800 bg-slate-950/40 text-sm font-semibold tracking-[0.14em] text-slate-600"
+                                                                                    >
+                                                                                        {INCARNON_TIER_LABELS[tierNumber]}
+                                                                                    </span>
+                                                                                );
+                                                                            }
+
+                                                                            return (
+                                                                                <button
+                                                                                    key={tierNumber}
+                                                                                    type="button"
+                                                                                    onClick={() => setIncarnonPickerTier(tierNumber)}
+                                                                                    title={selectedOption?.name ?? `Choose Evolution ${INCARNON_TIER_LABELS[tierNumber]}`}
+                                                                                    className="group flex items-center gap-2"
+                                                                                >
+                                                                                    <span
+                                                                                        className={[
+                                                                                            "relative flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold tracking-[0.14em] transition-all duration-200",
+                                                                                            selectedOption
+                                                                                                ? "border-cyan-300/70 bg-cyan-400/12 text-cyan-100 shadow-[0_0_0_1px_rgba(103,232,249,0.08),0_0_26px_rgba(34,211,238,0.34),inset_0_0_18px_rgba(34,211,238,0.18)]"
+                                                                                                : "border-cyan-500/25 bg-slate-950/45 text-slate-400 group-hover:border-cyan-300/45 group-hover:text-cyan-100",
+                                                                                        ].join(" ")}
+                                                                                    >
+                                                                                        <span className="absolute inset-[5px] rounded-full border border-white/5" />
+                                                                                        <span className="relative">{INCARNON_TIER_LABELS[tierNumber]}</span>
+                                                                                    </span>
+                                                                                </button>
+                                                                            );
+                                                                        })}
+                                                                        <div className="ml-1 rounded-full border border-cyan-400/15 bg-slate-950/50 px-3 py-1 text-[11px] text-cyan-100/80">
+                                                                            {selectedIncarnonTierCount > 0
+                                                                                ? `${selectedIncarnonTierCount} evolution${selectedIncarnonTierCount === 1 ? "" : "s"} active`
+                                                                                : buildCfg.optimizeIncarnonSelections
+                                                                                    ? "Optimizer will search all tiers"
+                                                                                : "No evolutions selected"}
+                                                                        </div>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => setBuildCfg((p) => ({ ...p, optimizeIncarnonSelections: !p.optimizeIncarnonSelections }))}
+                                                                            className={[
+                                                                                "rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors",
+                                                                                buildCfg.optimizeIncarnonSelections
+                                                                                    ? "border-cyan-300/45 bg-cyan-400/12 text-cyan-100"
+                                                                                    : "border-slate-700 bg-slate-950/45 text-slate-400 hover:border-cyan-300/30 hover:text-cyan-100",
+                                                                            ].join(" ")}
+                                                                            title={selectedIncarnonTierCount > 0
+                                                                                ? "Allow the optimizer to test the selected Incarnon tiers and keep the best-scoring evolution path."
+                                                                                : "Allow the optimizer to search all available Incarnon tiers and choose the best-scoring path."}
+                                                                        >
+                                                                            Optimize Incarnon Path
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className="min-h-[34px] flex items-center justify-start lg:justify-end">
                                                     {factionOn && (
@@ -3406,7 +3738,7 @@ export default function ModBuilder() {
                                                                 {stanceMods.length > 0 ? (
                                                                     <ModSlot index={0} label="Stance" mod={stanceMod} rank={stanceRank}
                                                                         slotPolarity={stancePol} compatMods={stanceMods}
-                                                                        usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                        usedGroups={usedGroups} ownedUniqueNames={ownedSet} onlyOwned={false}
                                                                         excluded={excluded}
                                                                         onChange={(_, m) => { setStanceMod(m); setStanceRank(m ? m.fusionLimit : 0); }}
                                                                         onRankChange={(_, r) => setStanceRank(r)}
@@ -3431,7 +3763,7 @@ export default function ModBuilder() {
                                                                 {hasExilus ? (
                                                                     <ModSlot index={0} label="Exilus" mod={exilusMod} rank={exilusRank}
                                                                         slotPolarity={exilusPol} compatMods={compatMods}
-                                                                        usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                        usedGroups={usedGroups} ownedUniqueNames={ownedSet} onlyOwned={false}
                                                                         isExilusSlot={true}
                                                                         excluded={excluded}
                                                                         onChange={handleExilusChange}
@@ -3458,7 +3790,7 @@ export default function ModBuilder() {
                                                             {slots.map((mod, i) => (
                                                                 <ModSlot key={i} index={i} mod={mod} rank={ranks[i] ?? 0}
                                                                     slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
-                                                                    usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                    usedGroups={usedGroups} ownedUniqueNames={ownedSet} onlyOwned={false}
                                                                     excluded={excluded}
                                                                     onChange={handleSlotChange} onRankChange={handleRankChange}
                                                                     onPolarityChange={handlePolChange}
@@ -3502,7 +3834,7 @@ export default function ModBuilder() {
                                                             {slots.map((mod, i) => (
                                                                 <ModSlot key={i} index={i} mod={mod} rank={ranks[i] ?? 0}
                                                                     slotPolarity={slotPols[i] ?? ""} compatMods={compatMods}
-                                                                    usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                    usedGroups={usedGroups} ownedUniqueNames={ownedSet} onlyOwned={false}
                                                                     excluded={excluded}
                                                                     onChange={handleSlotChange} onRankChange={handleRankChange}
                                                                     onPolarityChange={handlePolChange}
@@ -3550,7 +3882,7 @@ export default function ModBuilder() {
                                                             {hasExilus ? (
                                                                 <ModSlot index={0} label="Exilus" mod={exilusMod} rank={exilusRank}
                                                                     slotPolarity={exilusPol} compatMods={compatMods}
-                                                                    usedGroups={usedGroups} ownedNames={ownedSet} onlyOwned={false}
+                                                                    usedGroups={usedGroups} ownedUniqueNames={ownedSet} onlyOwned={false}
                                                                     isExilusSlot={true}
                                                                     excluded={excluded}
                                                                     onChange={handleExilusChange}
@@ -3897,6 +4229,113 @@ export default function ModBuilder() {
                             })()}
                                 </div>
                             </div>
+
+                            {activeIncarnonTier && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/78 px-4 py-8 backdrop-blur-md">
+                                    <div className="relative w-full max-w-5xl overflow-hidden rounded-[2rem] border border-cyan-400/18 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.22),_transparent_32%),linear-gradient(180deg,rgba(4,10,20,0.98),rgba(2,6,23,0.96))] shadow-[0_24px_80px_rgba(2,12,27,0.7)]">
+                                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent" />
+                                        <div className="px-6 pb-5 pt-6 sm:px-8 sm:pt-8">
+                                            <div className="flex flex-wrap items-start justify-between gap-3">
+                                                <div>
+                                                    <div className="text-[11px] uppercase tracking-[0.35em] text-cyan-200/65">
+                                                        Evolution {INCARNON_TIER_LABELS[activeIncarnonTier.tier]}
+                                                    </div>
+                                                    <h3 className="mt-2 text-2xl font-semibold text-slate-50 sm:text-[2rem]">
+                                                        {activeIncarnonTier.tier === 1 ? "Review Incarnon evolution" : "Choose an Incarnon perk"}
+                                                    </h3>
+                                                    <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300/80">
+                                                        {activeIncarnonTier.tier === 1
+                                                            ? "Evolution I is the Incarnon-form baseline. Review what it changes, then enable or remove it for this build."
+                                                            : "Pick the upgrade that should shape this build. The optimizer can branch across enabled tiers later if you turn path optimization on."}
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIncarnonPickerTier(null)}
+                                                    className="rounded-full border border-slate-700/80 bg-slate-950/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300 transition-colors hover:border-cyan-300/40 hover:text-cyan-100"
+                                                >
+                                                    Close
+                                                </button>
+                                            </div>
+
+                                            <div className={["mt-8 grid gap-4", activeIncarnonTier.options.length > 1 ? "lg:grid-cols-3" : ""].join(" ")}>
+                                                {activeIncarnonTier.options.map((option, index) => {
+                                                    const selected = buildCfg.incarnonSelectedOptionsByTier[activeIncarnonTier.tier] === option.id;
+                                                    return (
+                                                        <button
+                                                            key={option.id}
+                                                            type="button"
+                                                            onClick={() => setIncarnonTierSelection(activeIncarnonTier.tier, option.id)}
+                                                            className={[
+                                                                "group relative overflow-hidden rounded-[1.6rem] border p-5 text-left transition-all duration-200",
+                                                                selected
+                                                                    ? "border-cyan-300/70 bg-cyan-400/10 shadow-[0_0_0_1px_rgba(34,211,238,0.12),0_0_36px_rgba(34,211,238,0.18),inset_0_0_24px_rgba(34,211,238,0.14)]"
+                                                                    : "border-slate-800/90 bg-slate-950/55 hover:border-cyan-300/35 hover:bg-slate-900/80",
+                                                            ].join(" ")}
+                                                        >
+                                                            <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/50 to-transparent opacity-80" />
+                                                            <div className="flex items-start justify-between gap-4">
+                                                                <div>
+                                                                    <div className="text-[10px] uppercase tracking-[0.32em] text-cyan-200/60">Perk {index + 1}</div>
+                                                                    <div className="mt-3 text-lg font-semibold text-slate-50">{option.name}</div>
+                                                                </div>
+                                                                <span
+                                                                    className={[
+                                                                        "flex h-12 w-12 items-center justify-center rounded-full border text-sm font-semibold transition-all",
+                                                                        selected
+                                                                            ? "border-cyan-200/80 bg-cyan-300/18 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.28)]"
+                                                                            : "border-slate-700/90 bg-slate-950/70 text-slate-400 group-hover:border-cyan-300/45 group-hover:text-cyan-100",
+                                                                    ].join(" ")}
+                                                                >
+                                                                    {INCARNON_TIER_LABELS[activeIncarnonTier.tier]}
+                                                                </span>
+                                                            </div>
+                                                            <div className="mt-5 space-y-2">
+                                                                {option.descriptionLines.map((line, lineIndex) => (
+                                                                    <div key={`${option.id}-line-${lineIndex}`} className="text-sm leading-6 text-slate-200/92">
+                                                                        {line}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                            {option.notes.length > 0 && (
+                                                                <div className="mt-5 border-t border-white/5 pt-4 text-xs leading-5 text-cyan-100/72">
+                                                                    {option.notes.join(" ")}
+                                                                </div>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-cyan-400/10 pt-5">
+                                                <div className="text-xs uppercase tracking-[0.22em] text-slate-500">
+                                                    {buildCfg.incarnonSelectedOptionsByTier[activeIncarnonTier.tier]
+                                                        ? "Current tier is active"
+                                                        : "Tier is currently inactive"}
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-3">
+                                                    {buildCfg.incarnonSelectedOptionsByTier[activeIncarnonTier.tier] && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => clearIncarnonTierSelection(activeIncarnonTier.tier)}
+                                                            className="rounded-full border border-rose-400/25 bg-rose-950/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-rose-200 transition-colors hover:border-rose-300/40 hover:text-rose-100"
+                                                        >
+                                                            Remove Evolution
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIncarnonPickerTier(null)}
+                                                        className="rounded-full border border-slate-700/80 bg-slate-950/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300 transition-colors hover:border-cyan-300/35 hover:text-cyan-100"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                 </>
             )}

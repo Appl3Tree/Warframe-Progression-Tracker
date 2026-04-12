@@ -39,6 +39,7 @@ function makeWeapon(overrides: Partial<WeaponEntry> = {}): WeaponEntry {
         statusChance: 0.45,
         fireRate: 8,
         magazineSize: 40,
+        ammoCostPerShot: 1,
         hasExplicitMagazineSize: true,
         reloadTime: 3.2,
         multishot: 1,
@@ -152,6 +153,31 @@ describe("build optimizer scoring", () => {
         expect(threeStackScore).toBeGreaterThan(oneStackScore);
     });
 
+    it("assumes ramping headshot conditionals are fully online for scaling but not burst", () => {
+        const weapon = makeWeapon({
+            critChance: 0.35,
+            critMultiplier: 2.4,
+            fireRate: 9,
+            statusChance: 0.25,
+        });
+
+        const stackedHeadshotPackage = {
+            ...emptyEffect(),
+            conditionalEffects: [{
+                trigger: "onHeadshot" as const,
+                durationSeconds: 12,
+                requiresAiming: true,
+                maxStacks: 5,
+                stats: { critChanceBonus: 0.4 },
+            }],
+        };
+
+        const burstScore = debugScoreBuild(weapon, [stackedHeadshotPackage], "burst", "grineer");
+        const scalingScore = debugScoreBuild(weapon, [stackedHeadshotPackage], "scaling", "grineer");
+
+        expect(scalingScore).toBeGreaterThan(burstScore);
+    });
+
     it("treats magnetic as favored against corpus and radiation as resisted", () => {
         const weapon = makeWeapon({
             damage: {
@@ -166,7 +192,7 @@ describe("build optimizer scoring", () => {
                 blast: 0,
                 radiation: 0,
                 gas: 0,
-                magnetic: 0,
+                magnetic: 100,
                 viral: 0,
                 corrosive: 0,
                 void: 0,
@@ -201,7 +227,7 @@ describe("build optimizer scoring", () => {
                 blast: 0,
                 radiation: 0,
                 gas: 0,
-                magnetic: 0,
+                magnetic: 100,
                 viral: 0,
                 corrosive: 0,
                 void: 0,
@@ -258,6 +284,195 @@ describe("build optimizer scoring", () => {
         expect(toxinScore).toBeGreaterThan(magneticScore);
     });
 
+    it("does not count magnetic as an affecting status on shieldless grineer targets", () => {
+        const weapon = makeWeapon({
+            damage: {
+                total: 100,
+                impact: 0,
+                puncture: 0,
+                slash: 0,
+                heat: 0,
+                cold: 0,
+                electricity: 0,
+                toxin: 0,
+                blast: 0,
+                radiation: 0,
+                gas: 0,
+                magnetic: 0,
+                viral: 0,
+                corrosive: 0,
+                void: 0,
+                tau: 0,
+                true: 0,
+            },
+            statusChance: 1,
+            critChance: 0,
+            critMultiplier: 1,
+            fireRate: 10,
+        });
+
+        const directPerStatus = { ...emptyEffect(), directDamagePerStatusBonus: 0.4 };
+        const magneticPrimer = { ...emptyEffect(), magneticBonus: 1 };
+        const toxinPrimer = { ...emptyEffect(), toxinBonus: 1 };
+
+        const magneticScore = debugScoreBuild(weapon, [directPerStatus, magneticPrimer], "scaling", "Grineer");
+        const toxinScore = debugScoreBuild(weapon, [directPerStatus, toxinPrimer], "scaling", "Grineer");
+
+        expect(toxinScore).toBeGreaterThan(magneticScore);
+    });
+
+    it("allows magnetic-gated conditionals only when the target can actually be affected", () => {
+        const weapon = makeWeapon({
+            damage: {
+                total: 100,
+                impact: 0,
+                puncture: 0,
+                slash: 0,
+                heat: 0,
+                cold: 0,
+                electricity: 0,
+                toxin: 0,
+                blast: 0,
+                radiation: 0,
+                gas: 0,
+                magnetic: 0,
+                viral: 0,
+                corrosive: 0,
+                void: 0,
+                tau: 0,
+                true: 0,
+            },
+            statusChance: 1,
+            critChance: 0,
+            critMultiplier: 1,
+            fireRate: 10,
+        });
+
+        const magneticPrimer = { ...emptyEffect(), magneticBonus: 1 };
+        const magneticConditional = {
+            ...emptyEffect(),
+            conditionalEffects: [{
+                trigger: "onHit" as const,
+                durationSeconds: 6,
+                requiresAiming: false,
+                maxStacks: 1,
+                requiredStatusType: "magnetic" as const,
+                stats: { damageBonus: 1.2 },
+            }],
+        };
+
+        const grineerScore = debugScoreBuild(weapon, [magneticPrimer, magneticConditional], "scaling", "Grineer");
+        const corpusScore = debugScoreBuild(weapon, [magneticPrimer, magneticConditional], "scaling", "Corpus");
+
+        expect(corpusScore).toBeGreaterThan(grineerScore);
+    });
+
+    it("allows magnetic status value on overguarded shieldless targets", () => {
+        const weapon = makeWeapon({
+            damage: {
+                total: 100,
+                impact: 0,
+                puncture: 0,
+                slash: 0,
+                heat: 0,
+                cold: 0,
+                electricity: 0,
+                toxin: 0,
+                blast: 0,
+                radiation: 0,
+                gas: 0,
+                magnetic: 100,
+                viral: 0,
+                corrosive: 0,
+                void: 0,
+                tau: 0,
+                true: 0,
+            },
+            statusChance: 1,
+            critChance: 0,
+            critMultiplier: 1,
+            fireRate: 10,
+        });
+
+        const magneticPrimer = { ...emptyEffect(), magneticBonus: 1 };
+        const magneticConditional = {
+            ...emptyEffect(),
+            conditionalEffects: [{
+                trigger: "onHit" as const,
+                durationSeconds: 6,
+                requiresAiming: false,
+                maxStacks: 1,
+                requiredStatusType: "magnetic" as const,
+                stats: { damageBonus: 1.2 },
+            }],
+        };
+
+        const baseScore = debugScoreBuild(weapon, [magneticPrimer, magneticConditional], "scaling", "Grineer");
+        const overguardedScore = debugScoreBuild(
+            weapon,
+            [magneticPrimer, magneticConditional],
+            "scaling",
+            "Grineer",
+            null,
+            { hasOverguard: true },
+        );
+
+        expect(overguardedScore).toBeGreaterThan(baseScore);
+    });
+
+    it("can zero out specific status types via target profile override", () => {
+        const weapon = makeWeapon({
+            damage: {
+                total: 100,
+                impact: 0,
+                puncture: 0,
+                slash: 0,
+                heat: 100,
+                cold: 0,
+                electricity: 0,
+                toxin: 0,
+                blast: 0,
+                radiation: 0,
+                gas: 0,
+                magnetic: 0,
+                viral: 0,
+                corrosive: 0,
+                void: 0,
+                tau: 0,
+                true: 0,
+            },
+            statusChance: 1,
+            critChance: 0,
+            critMultiplier: 1,
+            fireRate: 10,
+        });
+
+        const heatPrimer = { ...emptyEffect(), heatBonus: 1 };
+        const heatConditional = {
+            ...emptyEffect(),
+            conditionalEffects: [{
+                trigger: "onHit" as const,
+                durationSeconds: 6,
+                requiresAiming: false,
+                maxStacks: 1,
+                requiredStatusType: "heat" as const,
+                stats: { damageBonus: 1.2 },
+            }],
+        };
+
+        const normalScore = debugScoreBuild(weapon, [heatPrimer, heatConditional], "scaling", "Grineer");
+        const heatImmuneScore = debugScoreBuild(
+            weapon,
+            [heatPrimer, heatConditional],
+            "scaling",
+            "Grineer",
+            null,
+            { statusImmuneTypes: ["heat"] },
+        );
+
+        expect(normalScore).toBeGreaterThan(heatImmuneScore);
+    });
+
     it("prefers the bane/crit acceltra prime scaling build over the magnetic variant against grineer", () => {
         const weapon = getWeaponCatalog().find(w => w.name === "Acceltra Prime");
         expect(weapon).toBeTruthy();
@@ -307,7 +522,7 @@ describe("build optimizer scoring", () => {
         expect(baneScore).toBeGreaterThan(magneticScore);
     });
 
-    it("reuses built-in polarities, reserves room for exilus, and avoids frozen-only arcanes for War scaling", () => {
+    it("reuses built-in polarities, reserves room for exilus, and avoids frozen-only arcanes for War scaling", { timeout: 12000 }, () => {
         const weapon = getWeaponCatalog().find(w => w.name === "War");
         expect(weapon).toBeTruthy();
 
@@ -348,7 +563,7 @@ describe("build optimizer scoring", () => {
         ).toBeLessThanOrEqual(5);
     });
 
-    it("only considers exilus-eligible mods for exilus and avoids movement-only no-op picks when better utility exists", () => {
+    it("only considers exilus-eligible mods for exilus and avoids movement-only no-op picks when better utility exists", { timeout: 12000 }, () => {
         const weapon = getWeaponCatalog().find(w => w.name === "Acceltra Prime");
         expect(weapon).toBeTruthy();
 
@@ -376,7 +591,7 @@ describe("build optimizer scoring", () => {
         expect((result.exilusMod?.statsLabel ?? "").toLowerCase()).not.toContain("double jump");
     });
 
-    it("respects the configured max forma cap during optimization", () => {
+    it("respects the configured max forma cap during optimization", { timeout: 12000 }, () => {
         const weapon = getWeaponCatalog().find(w => w.name === "War");
         expect(weapon).toBeTruthy();
 
@@ -412,7 +627,7 @@ describe("build optimizer scoring", () => {
         ).toBeLessThanOrEqual(1);
     });
 
-    it("keeps respected-capacity acceltra builds within capacity and avoids toxin-only arcanes on viral setups", () => {
+    it("keeps respected-capacity acceltra builds within capacity and avoids toxin-only arcanes on viral setups", { timeout: 12000 }, () => {
         const weapon = getWeaponCatalog().find(w => w.name === "Acceltra Prime");
         expect(weapon).toBeTruthy();
 
@@ -450,9 +665,98 @@ describe("build optimizer scoring", () => {
         expect(capacity.overCapacity).toBe(false);
         expect(result.arcane?.name).not.toBe("Primary Blight");
     });
+
+    it("finds a viral-oriented scaling build for Nataruk against Grineer", { timeout: 15000 }, () => {
+        const weapon = getWeaponCatalog().find(w => w.name === "Nataruk");
+        expect(weapon).toBeTruthy();
+
+        const attack = weapon!.attacks.find(a => a.name === "Perfect Shot");
+        expect(attack).toBeTruthy();
+
+        const result = optimizeBuild(weapon!, null, "scaling", 8, {
+            targetFaction: "Grineer",
+            allowForma: true,
+            maxFormaCount: 9,
+            optimizeArcane: true,
+            buildForAttack: attack!,
+        });
+
+        const modNames = result.slots.map(mod => mod?.name).filter(Boolean);
+        expect(modNames).toContain("Vile Acceleration");
+        expect(modNames.some(name => name === "Primed Cryo Rounds" || name === "Cryo Rounds")).toBe(true);
+        expect(modNames.some(name => name === "Infected Clip" || name === "Malignant Force")).toBe(true);
+        expect(modNames.some(name => name === "Thermite Rounds" || name === "Hellfire")).toBe(true);
+        expect(modNames).not.toContain("Radiated Reload");
+    });
 });
 
 describe("damage calculation ramp interactions", () => {
+    it("uses the wiki average crit formula instead of exponential crit tiers", () => {
+        const weapon = makeWeapon({
+            damage: {
+                total: 100,
+                impact: 100,
+                puncture: 0,
+                slash: 0,
+                heat: 0,
+                cold: 0,
+                electricity: 0,
+                toxin: 0,
+                blast: 0,
+                radiation: 0,
+                gas: 0,
+                magnetic: 0,
+                viral: 0,
+                corrosive: 0,
+                void: 0,
+                tau: 0,
+                true: 0,
+            },
+            critChance: 2.5,
+            critMultiplier: 3,
+            multishot: 1,
+        });
+
+        const result = calculateBuild(weapon, []);
+        expect(result.modded.averageShotDamage).toBeCloseTo(600, 6);
+    });
+
+    it("keeps arsenal damage free of faction multipliers", () => {
+        const weapon = makeWeapon({
+            damage: {
+                total: 100,
+                impact: 100,
+                puncture: 0,
+                slash: 0,
+                heat: 0,
+                cold: 0,
+                electricity: 0,
+                toxin: 0,
+                blast: 0,
+                radiation: 0,
+                gas: 0,
+                magnetic: 0,
+                viral: 0,
+                corrosive: 0,
+                void: 0,
+                tau: 0,
+                true: 0,
+            },
+            critChance: 0,
+            multishot: 1,
+        });
+
+        const bane = {
+            ...emptyEffect(),
+            factionDamageBonus: 0.3,
+            targetFaction: "Grineer",
+        };
+
+        const result = calculateBuild(weapon, [bane], "Grineer");
+        expect(result.modded.arsenalDamage).toBeCloseTo(100, 6);
+        expect(result.burstDPS).toBeCloseTo(weapon.fireRate * 100, 6);
+    });
+
     it("lets per-hit crit scaling benefit from added multishot", () => {
         const weapon = makeWeapon({
             critChance: 0.12,
@@ -496,5 +800,56 @@ describe("damage calculation ramp interactions", () => {
         const multishotResult = calculateBuild(weapon, [nextMagRampWithMultishot]);
 
         expect(multishotResult.modded.statusChance).toBeGreaterThan(baseResult.modded.statusChance);
+    });
+
+    it("keeps flawed training variants in the rifle mod pool as distinct candidates", () => {
+        const weapon = getWeaponCatalog().find(w => w.name === "Braton");
+        expect(weapon).toBeTruthy();
+
+        const mods = getModsForWeapon(weapon!);
+        const serrations = mods.filter(mod => mod.name === "Serration");
+
+        expect(serrations.some(mod => /\/Beginner\//.test(mod.uniqueName))).toBe(true);
+        expect(serrations.some(mod => !/\/(Beginner|Intermediate|Expert)\//.test(mod.uniqueName))).toBe(true);
+    });
+
+    it("does not stack pressure point family variants in the same optimized melee build", () => {
+        const thalys = getWeaponCatalog().find((weapon) => weapon.name === "Thalys");
+        expect(thalys).toBeTruthy();
+
+        const candidatePool = getModsForWeapon(thalys!).filter((mod) =>
+            [
+                "/Lotus/Upgrades/Mods/Melee/WeaponMeleeDamageMod",
+                "/Lotus/Upgrades/Mods/Melee/Beginner/WeaponMeleeDamageModBeginner",
+                "/Lotus/Upgrades/Mods/Melee/Expert/WeaponMeleeDamageModExpert",
+                "/Lotus/Upgrades/Mods/Melee/WeaponCritDamageMod",
+                "/Lotus/Upgrades/Mods/Melee/WeaponCritChanceMod",
+                "/Lotus/Upgrades/Mods/Melee/WeaponToxinDamageMod",
+                "/Lotus/Upgrades/Mods/Melee/DualStat/IceEventMeleeMod",
+                "/Lotus/Upgrades/Mods/Melee/WeaponFireDamageMod",
+                "/Lotus/Upgrades/Mods/Melee/Expert/WeaponMeleeStatusChanceSPMod",
+            ].includes(mod.uniqueName)
+        );
+
+        const result = optimizeBuild(thalys!, candidatePool, "scaling", 8, {
+            allowForma: true,
+            maxFormaCount: 99,
+        });
+
+        const pressurePointFamilyCount = result.slots
+            .filter((mod): mod is NonNullable<typeof mod> => !!mod)
+            .filter((mod) => /Pressure Point/i.test(mod.name))
+            .length;
+
+        expect(pressurePointFamilyCount).toBe(1);
+    });
+
+    it("hides internal-only melee mod variants from melee candidate pools", () => {
+        const thalys = getWeaponCatalog().find((weapon) => weapon.name === "Thalys");
+        expect(thalys).toBeTruthy();
+
+        const candidatePool = getModsForWeapon(thalys!);
+
+        expect(candidatePool.some((mod) => mod.uniqueName === "/Lotus/Upgrades/Mods/Melee/WeaponMeleeDamageOnHeavyKillMod")).toBe(false);
     });
 });

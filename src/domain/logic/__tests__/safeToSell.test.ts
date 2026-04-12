@@ -96,6 +96,26 @@ describe("getSafeToSellProtectionKeys", () => {
         expect(keys).toContain("incarnonItems");
     });
 
+    it("protects Incarnon Genesis-compatible base and variant weapons even without explicit metadata", () => {
+        const names = [
+            "Telos Boltor",
+            "Dex Sybaris",
+            "Prisma Gorgon",
+            "Sancti Magistar",
+            "Mk1-Braton",
+            "Ack & Brunt",
+        ];
+
+        for (const displayName of names) {
+            const keys = getSafeToSellProtectionKeys({
+                acquisitionSources: ["data:crafting"],
+                displayName,
+            });
+
+            expect(keys, displayName).toContain("incarnonItems");
+        }
+    });
+
     it("does not treat generic assassination or unrelated relic items as assassin drops", () => {
         const aklexPrimeKeys = getSafeToSellProtectionKeys({
             acquisitionSources: [

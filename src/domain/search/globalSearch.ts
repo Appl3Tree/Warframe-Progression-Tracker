@@ -119,7 +119,7 @@ function scoreEntity(result: SearchEntityResult, query: string): number {
 
     let score = 0;
 
-    if (name === normalizedQuery) score += 320;
+    if (name === normalizedQuery) score += 400;
     else if (name.startsWith(normalizedQuery)) score += 220;
     else if (name.includes(normalizedQuery)) score += 140;
 

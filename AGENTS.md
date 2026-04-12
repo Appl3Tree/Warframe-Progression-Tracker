@@ -17,6 +17,7 @@ Tasks are organized by priority. Update this list as work progresses.
 
 - [x] Expand Build Planner weapon coverage to include archguns, arch-melee, and companion weapons with correct mod/stance/arcane eligibility
 - [x] Audit unknown acquisition / blueprint-source gaps and generate a repeatable report
+- [ ] Implement Incarnon evolutions in the Build Planner and optimizer, including unlocked/chosen evolution selection plus optional evolution-path optimization
 
 ### Intake Rule
 

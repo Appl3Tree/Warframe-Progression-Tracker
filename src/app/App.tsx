@@ -67,9 +67,9 @@ function useDevStartupValidation() {
 
         let active = true;
         void import("../domain/logic/startupValidation")
-            .then((mod) => {
+            .then(async (mod) => {
                 if (!active) return;
-                mod.validateDataOrThrow();
+                await mod.validateDataOrThrow();
             })
             .catch((error) => {
                 if (!active) return;

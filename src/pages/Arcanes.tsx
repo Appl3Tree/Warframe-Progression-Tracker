@@ -264,6 +264,10 @@ function formatReleaseDate(date: string | undefined): string | undefined {
   return date;
 }
 
+function formatDropPercent(chance: number): string {
+  return `${chance.toFixed(2)}%`;
+}
+
 function arcaneEquiv(rank: number) {
   return ARCANE_TOTAL_PER_RANK[rank] ?? 1;
 }
@@ -508,7 +512,7 @@ function DropRow({ drop }: { drop: AllModDrop }) {
           {drop.location}
         </a>
         <span className={["shrink-0 text-[11px] font-semibold", rarityClass].join(" ")}>{drop.rarity}</span>
-        <span className="shrink-0 font-mono text-[11px] text-slate-500">{(drop.chance * 100).toFixed(2)}%</span>
+        <span className="shrink-0 font-mono text-[11px] text-slate-500">{formatDropPercent(drop.chance)}</span>
         <a
           href={enemyWikiUrl(drop.location)}
           target="_blank"
@@ -525,7 +529,7 @@ function DropRow({ drop }: { drop: AllModDrop }) {
     <div className="flex items-center gap-2 rounded border border-slate-800/50 bg-slate-900/50 px-2 py-1.5 text-xs">
       <span className="min-w-0 flex-1 truncate text-slate-300">{drop.location}</span>
       <span className={["shrink-0 text-[11px] font-semibold", rarityClass].join(" ")}>{drop.rarity}</span>
-      <span className="shrink-0 font-mono text-[11px] text-slate-500">{(drop.chance * 100).toFixed(2)}%</span>
+      <span className="shrink-0 font-mono text-[11px] text-slate-500">{formatDropPercent(drop.chance)}</span>
     </div>
   );
 }

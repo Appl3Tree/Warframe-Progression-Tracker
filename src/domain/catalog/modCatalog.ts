@@ -62,7 +62,9 @@ export interface ModEffect {
     tauBonus: number;
     trueBonus: number;
     critChanceBonus: number;
+    finalCritChanceBonus: number;
     critMultBonus: number;
+    finalCritMultiplierBonus: number;
     statusChanceBonus: number;
     multishotBonus: number;
     fireRateBonus: number;
@@ -125,6 +127,7 @@ export type ConditionalTrigger =
     | "onHeadshot"
     | "onHeadshotKill"
     | "onHit"
+    | "onPunchThroughHit"
     | "onWeakPointHit"
     | "onWeakPointKill"
     | "onMeleeKill"
@@ -141,14 +144,20 @@ export interface ConditionalEffect {
         ModEffect,
         | "damageBonus"
         | "critChanceBonus"
+        | "finalCritChanceBonus"
         | "critMultBonus"
+        | "finalCritMultiplierBonus"
         | "statusChanceBonus"
+        | "finalStatusChanceBonus"
         | "multishotBonus"
         | "fireRateBonus"
+        | "magazineBonus"
         | "reloadSpeedBonus"
         | "projectileSpeedBonus"
         | "beamRangeBonus"
         | "accuracyBonus"
+        | "punchThrough"
+        | "headshotMultiplierBonus"
         | "weakPointDamageBonus"
         | "blastBonus"
         | "heatBonus"
@@ -507,7 +516,7 @@ export function emptyEffect(): ModEffect {
         heatBonus: 0, coldBonus: 0, electricityBonus: 0, toxinBonus: 0,
         blastBonus: 0, gasBonus: 0, magneticBonus: 0, viralBonus: 0, corrosiveBonus: 0, radiationBonus: 0,
         voidBonus: 0, tauBonus: 0, trueBonus: 0,
-        critChanceBonus: 0, critMultBonus: 0, statusChanceBonus: 0,
+        critChanceBonus: 0, finalCritChanceBonus: 0, critMultBonus: 0, finalCritMultiplierBonus: 0, statusChanceBonus: 0,
         multishotBonus: 0, fireRateBonus: 0, magazineBonus: 0,
         reloadSpeedBonus: 0, attackSpeedBonus: 0,
         statusDurationBonus: 0, statusDamageBonus: 0,
@@ -581,8 +590,32 @@ let _modsMetaByPath: Map<string, {
     incompatibilityTags: string[];
 }> | null = null;
 
+const HIDDEN_INTERNAL_MOD_PATHS = new Set([
+    "/Lotus/Upgrades/Mods/Melee/WeaponMeleeDamageOnHeavyKillMod",
+]);
+
+export function isHiddenModPath(path: string): boolean {
+    return HIDDEN_INTERNAL_MOD_PATHS.has(path);
+}
+
 function isTrainingVariant(uniqueName: string): boolean {
     return /\/(beginner|intermediate|expert)\//i.test(uniqueName);
+}
+
+function normalizeVariantPath(path: string): string {
+    return path
+        .replace(/\/(Beginner|Intermediate|Expert)\//g, "/")
+        .replace(/(Beginner|Intermediate|Expert)$/g, "");
+}
+
+function getVariantTier(path: string): "flawed" | "standard" | "expert" {
+    if (/\/beginner\//i.test(path) || /Beginner$/i.test(path)) return "flawed";
+    if (/\/expert\//i.test(path) || /Expert$/i.test(path)) return "expert";
+    return "standard";
+}
+
+function getOptimizerVariantFamily(path: string): "flawed" | "standard" {
+    return getVariantTier(path) === "flawed" ? "flawed" : "standard";
 }
 
 /**
@@ -606,6 +639,14 @@ function dedupScore(item: Record<string, unknown>): number {
     const trainingPenalty = isTrainingVariant(uniqueName) ? 1000 : 0;
     const expectedPenalty = Math.abs(fl - expectedFusionLimit(name)) * 10;
     return -trainingPenalty - expectedPenalty + fl;
+}
+
+function genericDedupKey(name: string, bucket: string, path: string): string {
+    return `${name}||${bucket}||${getOptimizerVariantFamily(path)}||${normalizeVariantPath(path)}`;
+}
+
+function augmentDedupKey(name: string, rawCompat: string, path: string): string {
+    return `${name}||${rawCompat}||${getOptimizerVariantFamily(path)}||${normalizeVariantPath(path)}`;
 }
 
 function getModsMetaByPath() {
@@ -643,7 +684,7 @@ function resolveCanonicalParent(path: string): string {
 }
 
 function resolveIncompatibilityGroup(path: string): string {
-    return resolveCanonicalParent(path);
+    return normalizeVariantPath(resolveCanonicalParent(path));
 }
 
 function matchesHiddenTags(weapon: WeaponEntry, mod: ModEntry): boolean {
@@ -670,23 +711,25 @@ function buildCaches(): ModCaches {
         const name = String(item.name ?? "");
         const fl = Number(item.fusionLimit ?? 0);
         const score = dedupScore(item);
+        const isStance = String(item.type ?? "") === "Stance Mod";
 
         const bucket = COMPAT_MAP[rawCompat];
         if (bucket) {
             // Generic weapon-class mod
-            const key = `${name}||${bucket}`;
+            const key = genericDedupKey(name, bucket, String(item.uniqueName ?? ""));
             const cur = bestGeneric.get(key);
             if (!cur || score > cur.score || (score === cur.score && fl > cur.fl)) {
                 bestGeneric.set(key, { item, fl, score });
             }
         } else if (rawCompat && rawCompat.length >= 2 && rawCompat.length <= 30) {
             // Potential weapon-specific augment (compat name looks like a weapon name)
+            // Stance mods also flow through here so they can be indexed by their stance family.
             // Exclude known non-weapon compats
             const skip = new Set(["ANY", "AURA", "BEAST", "COMPANION", "Archgun",
                 "Archmelee", "Archwing", "Railjack", "Parazon", "Tome",
                 "Assault Saw", "Gunblade", "Bayonet"]);
-            if (!skip.has(rawCompat) && !/^\s*[A-Z]+\s*$/.test(rawCompat)) {
-                const key = `${name}||${rawCompat}`;
+            if (isStance || (!skip.has(rawCompat) && !/^\s*[A-Z]+\s*$/.test(rawCompat))) {
+                const key = augmentDedupKey(name, rawCompat, String(item.uniqueName ?? ""));
                 const cur = bestAugment.get(key);
                 const augScore = dedupScore(item);
                 if (!cur || augScore > cur.score || (augScore === cur.score && fl > cur.fl)) {
@@ -697,6 +740,8 @@ function buildCaches(): ModCaches {
     }
 
     function parseEntry(item: Record<string, unknown>, bucket: string, rawCompat: string): ModEntry | null {
+        const path = String(item.uniqueName ?? "");
+        if (isHiddenModPath(path)) return null;
         const levelStats = item.levelStats as Array<{ stats: string[] }> | undefined;
         const fl = Number(item.fusionLimit ?? 0);
         const rawBaseDrain = Number(item.baseDrain ?? 2);
@@ -746,7 +791,6 @@ function buildCaches(): ModCaches {
         const statsLabel = statsTextByRank[fl] ?? statsTextByRank[statsTextByRank.length - 1] ?? (isStance ? "Stance Mod" : "");
 
         const name = String(item.name ?? "");
-        const path = String(item.uniqueName ?? "");
         const meta = getModsMetaByPath().get(path);
 
         return {
@@ -846,7 +890,7 @@ export function getModsForCompat(compat: ModCompatName): ModEntry[] {
     const out: ModEntry[] = [];
     for (const bucket of bucketsForCompat(compat)) {
         for (const m of byBucket.get(bucket) ?? []) {
-            if (!seen.has(m.name)) { seen.add(m.name); out.push(m); }
+            if (!seen.has(m.uniqueName)) { seen.add(m.uniqueName); out.push(m); }
         }
     }
     return out.sort((a, b) => a.name.localeCompare(b.name));
@@ -873,7 +917,7 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
     // (handles "Hek" matching both "Hek" and "Vaykor Hek")
     const weaponNameLower = weapon.name.toLowerCase();
     const augments: ModEntry[] = [];
-    const augSeen = new Set(filtered.map(m => m.name));
+    const augSeen = new Set(filtered.map(m => m.uniqueName));
 
     for (const [compatKey, mods] of byWeaponName.entries()) {
         const compatLower = compatKey.toLowerCase();
@@ -883,8 +927,8 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
         // "Soma Prime"-exclusive mods because "soma prime".includes("soma") is true.
         if (weaponNameLower.includes(compatLower)) {
             for (const m of mods) {
-                if (!augSeen.has(m.name) && matchesHiddenTags(weapon, m)) {
-                    augSeen.add(m.name);
+                if (!augSeen.has(m.uniqueName) && matchesHiddenTags(weapon, m)) {
+                    augSeen.add(m.uniqueName);
                     augments.push(m);
                 }
             }

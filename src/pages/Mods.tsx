@@ -2,6 +2,7 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
 import { useTrackerStore } from "../store/store";
+import { isHiddenModPath } from "../domain/catalog/modCatalog";
 import { getWeaponCatalog } from "../domain/catalog/weaponCatalog";
 import { CUSTOM_RIVEN_STAT_DEFS, formatRivenStatValue, generateCustomRivenName, getCustomRivenStatDef, getCustomRivenStatDefsForWeapon, normalizeRivenWeaponFamilyKey, type CustomRivenRecord as CustomRivenInventoryRecord, type CustomRivenStatValue } from "../domain/rivens";
 import MODS_RAW from "../data/_generated/mods-lean.auto.json";
@@ -66,6 +67,10 @@ function formatReleaseDate(date: string | undefined): string | undefined {
   return date;
 }
 
+function formatDropPercent(chance: number): string {
+  return `${chance.toFixed(2)}%`;
+}
+
 function getSupplementalRivenWeapons() {
   const out = new Map<string, ReturnType<typeof getWeaponCatalog>[number]>();
   for (const raw of ALL_RAW as Array<Record<string, unknown>>) {
@@ -119,6 +124,7 @@ function getSupplementalRivenWeapons() {
       statusChance: 0,
       fireRate: 1,
       magazineSize: 1,
+      ammoCostPerShot: 1,
       hasExplicitMagazineSize: false,
       reloadTime: 0,
       multishot: 1,
@@ -1137,7 +1143,7 @@ if (Array.isArray(rawLocations)) {
 // Parse mods.json
 const ALL_ENTRIES: ModEntry[] = Object.entries(MODS_RAW as Record<string, any>)
   .map(([path, val]) => ({ path, ...val }) as ModEntry)
-  .filter((e) => e.name && typeof e.name === "string");
+  .filter((e) => e.name && typeof e.name === "string" && !isHiddenModPath(e.path));
 
 // Mods (category "mod"), excluding OperatorSuit ones (those are arcanes)
 const MOD_ENTRIES_BASE: ModEntry[] = ALL_ENTRIES.filter(
@@ -1159,6 +1165,7 @@ const ALL_MODS_SUPPLEMENT: ModEntry[] = (ALL_RAW as any[])
       item.type !== "Mod Set Mod" &&
       !String(item.type ?? "").includes("Riven") &&
       item.compatName !== "Operator" &&
+      !isHiddenModPath(String(item.uniqueName ?? "")) &&
       !MODS_BASE_PATHS.has(item.uniqueName),
   )
   .map((item) => ({
@@ -2085,7 +2092,7 @@ function DropRow({ d }: { d: AllModDrop }) {
           {d.location}
         </a>
         <span className={["shrink-0 font-semibold text-[11px]", rarityClass].join(" ")}>{d.rarity}</span>
-        <span className="shrink-0 font-mono text-slate-500 text-[11px]">{(d.chance * 100).toFixed(2)}%</span>
+        <span className="shrink-0 font-mono text-slate-500 text-[11px]">{formatDropPercent(d.chance)}</span>
         <a href={enemyWikiUrl(d.location)} target="_blank" rel="noopener noreferrer"
           className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIcon}</a>
       </div>
@@ -2097,7 +2104,7 @@ function DropRow({ d }: { d: AllModDrop }) {
     <div className="flex items-center gap-2 text-xs rounded px-2 py-1.5 bg-slate-900/50 border border-slate-800/50">
       <span className="flex-1 min-w-0 text-slate-300 truncate">{d.location}</span>
       <span className={["shrink-0 font-semibold text-[11px]", rarityClass].join(" ")}>{d.rarity}</span>
-      <span className="shrink-0 font-mono text-slate-500 text-[11px]">{(d.chance * 100).toFixed(2)}%</span>
+      <span className="shrink-0 font-mono text-slate-500 text-[11px]">{formatDropPercent(d.chance)}</span>
     </div>
   );
 }

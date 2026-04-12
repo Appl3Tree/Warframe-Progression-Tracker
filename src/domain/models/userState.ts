@@ -204,5 +204,8 @@ export interface SavedBuild {
     valenceBonusPct?: number;
     valenceElement?: string;
     optimizeValenceElement?: boolean;
+    incarnonUnlockedTier?: number;
+    incarnonSelectedOptionsByTier?: Partial<Record<1 | 2 | 3 | 4 | 5, string>>;
+    optimizeIncarnonSelections?: boolean;
     createdAt: string;
 }

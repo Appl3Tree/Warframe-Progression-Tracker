@@ -27,9 +27,15 @@ import { deriveSolarisRecipeBlueprintFamilyAcquisitionByCatalogId } from "./acqu
 import { deriveEidolonProspectingBlueprintAcquisitionByCatalogId } from "./acquisitionFromEidolonProspectingBlueprints";
 import { deriveDroneAndComponentBlueprintAcquisitionByCatalogId } from "./acquisitionFromDroneAndComponentBlueprints";
 import { deriveFishingAndCurativeBlueprintAcquisitionByCatalogId } from "./acquisitionFromFishingAndCurativeBlueprints";
+import { deriveHoundBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromHoundBlueprintFamilies";
 import { deriveLandingCraftBlueprintAcquisitionByCatalogId } from "./acquisitionFromLandingCraftBlueprints";
 import { deriveLandingCraftComponentBlueprintAcquisitionByCatalogId } from "./acquisitionFromLandingCraftComponentBlueprints";
+import { deriveMarketCosmeticBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromMarketCosmeticBlueprintFamilies";
+import { deriveMoaPetBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromMoaPetBlueprintFamilies";
+import { deriveOperatorArmorBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromOperatorArmorBlueprintFamilies";
+import { deriveQuestKeyBlueprintAcquisitionByCatalogId } from "./acquisitionFromQuestKeyBlueprints";
 import { deriveSynthicatorBlueprintAcquisitionByCatalogId } from "./acquisitionFromSynthicatorBlueprints";
+import { deriveWarframeSkinBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromWarframeSkinBlueprintFamilies";
 
 import { getItemRequirements } from "./itemRequirements";
 
@@ -62,9 +68,15 @@ const SOLARIS_RECIPE_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deri
 const EIDOLON_PROSPECTING_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveEidolonProspectingBlueprintAcquisitionByCatalogId();
 const DRONE_AND_COMPONENT_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveDroneAndComponentBlueprintAcquisitionByCatalogId();
 const FISHING_AND_CURATIVE_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveFishingAndCurativeBlueprintAcquisitionByCatalogId();
+const HOUND_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveHoundBlueprintFamilyAcquisitionByCatalogId();
 const LANDING_CRAFT_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveLandingCraftBlueprintAcquisitionByCatalogId();
 const LANDING_CRAFT_COMPONENT_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveLandingCraftComponentBlueprintAcquisitionByCatalogId();
+const MARKET_COSMETIC_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveMarketCosmeticBlueprintFamilyAcquisitionByCatalogId();
+const MOA_PET_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveMoaPetBlueprintFamilyAcquisitionByCatalogId();
+const OPERATOR_ARMOR_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveOperatorArmorBlueprintFamilyAcquisitionByCatalogId();
+const QUEST_KEY_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveQuestKeyBlueprintAcquisitionByCatalogId();
 const SYNTHICATOR_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveSynthicatorBlueprintAcquisitionByCatalogId();
+const WARFRAME_SKIN_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveWarframeSkinBlueprintFamilyAcquisitionByCatalogId();
 
 const RECIPE_CATALOG_ID_PREFIX = "items:/Lotus/Types/Recipes/";
 
@@ -349,9 +361,15 @@ function gatherDirectSources(catalogId: CatalogId): string[] {
     const ep = EIDOLON_PROSPECTING_BLUEPRINT_ACQ[key];
     const dc = DRONE_AND_COMPONENT_BLUEPRINT_ACQ[key];
     const fc = FISHING_AND_CURATIVE_BLUEPRINT_ACQ[key];
+    const hb = HOUND_BLUEPRINT_FAMILY_ACQ[key];
     const lc = LANDING_CRAFT_BLUEPRINT_ACQ[key];
     const lcc = LANDING_CRAFT_COMPONENT_BLUEPRINT_ACQ[key];
+    const mcb = MARKET_COSMETIC_BLUEPRINT_FAMILY_ACQ[key];
+    const mp = MOA_PET_BLUEPRINT_FAMILY_ACQ[key];
+    const oa = OPERATOR_ARMOR_BLUEPRINT_FAMILY_ACQ[key];
+    const qk = QUEST_KEY_BLUEPRINT_ACQ[key];
     const sb = SYNTHICATOR_BLUEPRINT_ACQ[key];
+    const wsb = WARFRAME_SKIN_BLUEPRINT_FAMILY_ACQ[key];
 
     return unionSources(
         wfcd?.sources,
@@ -378,9 +396,15 @@ function gatherDirectSources(catalogId: CatalogId): string[] {
         ep?.sources,
         dc?.sources,
         fc?.sources,
+        hb?.sources,
         lc?.sources,
         lcc?.sources,
-        sb?.sources
+        mcb?.sources,
+        mp?.sources,
+        oa?.sources,
+        qk?.sources,
+        sb?.sources,
+        wsb?.sources
     );
 }
 

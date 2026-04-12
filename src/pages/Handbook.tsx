@@ -1077,7 +1077,7 @@ const SECTIONS: Section[] = [
                     <><B>The Perita Rebellion (Höllvania)</B> — Rotation B drops every completed Order; Rotation A drops as a bonus every 3rd Order; Rotation C drops once at mission completion.</>,
                 ]} />
 
-                <SectionHeading>Disruption — unique ABCD system</SectionHeading>
+                <SectionHeading>Disruption — unique rotation system</SectionHeading>
                 <P>
                     Disruption does <B>not</B> use the standard AABC cycle. Each round has 4 conduits;
                     the rotation you receive depends on <B>both the round number and how many conduits

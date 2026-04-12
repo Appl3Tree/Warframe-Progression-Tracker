@@ -40,6 +40,8 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     { id: "data:quest/octavias-anthem", label: "Complete Octavia’s Anthem", type: "other" },
     { id: "data:quest/rising-tide", label: "Complete Rising Tide", type: "other" },
     { id: "data:quest/the-jordas-precept", label: "Progress through The Jordas Precept", type: "other" },
+    { id: "data:quest/the-limbo-theorem", label: "Progress through The Limbo Theorem", type: "other" },
+    { id: "data:quest/patient-zero", label: "Complete Patient Zero", type: "other" },
     { id: "data:quest/the-silver-grove", label: "Progress through The Silver Grove", type: "other" },
     { id: "data:quest/whispers-in-the-walls", label: "Complete Whispers in the Walls", type: "other" },
     { id: "data:quest/the-waverider", label: "Complete The Waverider", type: "other" },
@@ -154,6 +156,7 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     { id: "data:dojo/research", label: "Research in the Dojo", type: "vendor" },
     { id: "data:clan/tenno-lab", label: "Research in Dojo Tenno Lab", type: "vendor" },
     { id: "data:dojo/dagaths-hollow", label: "Research in Dagath’s Hollow (Dojo)", type: "vendor" },
+    { id: "data:clan/join", label: "Join or create a Clan", type: "other" },
 
     // Resource buckets
     { id: "data:resource/fieldron-sample", label: "Farm Fieldron Samples", type: "drop" },

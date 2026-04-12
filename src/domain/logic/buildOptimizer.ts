@@ -10,7 +10,7 @@
 //            most expensive mod one at a time until it fits.
 
 import { usesMeleeDamageModel, type WeaponEntry, type WeaponAttack } from "../catalog/weaponCatalog";
-import type { ModEntry, ModEffect } from "../catalog/modCatalog";
+import type { ConditionalEffect, ModEntry, ModEffect } from "../catalog/modCatalog";
 import { emptyEffect, getModsForWeapon } from "../catalog/modCatalog";
 import type { ArcaneEntry } from "../catalog/arcaneCatalog";
 import { getArcanesForWeapon } from "../catalog/arcaneCatalog";
@@ -35,11 +35,11 @@ export function normalizeOptimizeGoal(goal: LegacyOptimizeGoal | null | undefine
 }
 
 export interface OptimizerOptions {
-    ownedModNames?: Set<string>;
-    ownedModMaxRankByName?: Record<string, number>;
+    ownedModUniqueNames?: Set<string>;
+    ownedModMaxRankByUniqueName?: Record<string, number>;
     ownedArcaneUniqueNames?: Set<string>;
     ownedArcaneMaxRankByUniqueName?: Record<string, number>;
-    excludedModNames?: Set<string>;
+    excludedModUniqueNames?: Set<string>;
     allowNonMaxRank?: boolean;
     targetFaction?: string;
     /** If set, enforce capacity constraint using this config. */
@@ -171,11 +171,28 @@ interface TargetProfile {
     armor: number;
     healthShare: number;
     shieldShare: number;
+    hasOverguard: boolean;
+    crowdControlImmune: boolean;
     grouped: boolean;
     effectiveHealth: number;
     healthMaterial: "flesh" | "clonedFlesh" | "infestedFlesh" | "machinery" | "robotic";
     armorMaterial: "" | "ferriteArmor" | "alloyArmor";
     shieldMaterial: "" | "shield" | "protoShield";
+    statusImmuneTypes?: ReadonlySet<typeof PROC_DAMAGE_KEYS[number]>;
+}
+
+export interface TargetProfileOverride {
+    armor?: number;
+    healthShare?: number;
+    shieldShare?: number;
+    hasOverguard?: boolean;
+    crowdControlImmune?: boolean;
+    grouped?: boolean;
+    effectiveHealth?: number;
+    healthMaterial?: TargetProfile["healthMaterial"];
+    armorMaterial?: TargetProfile["armorMaterial"];
+    shieldMaterial?: TargetProfile["shieldMaterial"];
+    statusImmuneTypes?: Iterable<typeof PROC_DAMAGE_KEYS[number]>;
 }
 
 const FACTION_DAMAGE_MODIFIERS: Partial<Record<string, Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>>>> = {
@@ -286,165 +303,219 @@ export function getFactionFocusOptions(): FactionFocusOption[] {
     }));
 }
 
-function getTargetProfile(targetFaction: string): TargetProfile {
+function applyTargetProfileOverride(base: TargetProfile, override?: TargetProfileOverride | null): TargetProfile {
+    if (!override) return base;
+    return {
+        ...base,
+        ...override,
+        statusImmuneTypes: override.statusImmuneTypes
+            ? new Set(override.statusImmuneTypes)
+            : base.statusImmuneTypes,
+    };
+}
+
+function getTargetProfile(targetFaction: string, override?: TargetProfileOverride | null): TargetProfile {
+    let base: TargetProfile;
     switch (targetFaction.toLowerCase()) {
         case "grineer":
-            return {
+            base = {
                 armor: 2700,
                 healthShare: 1,
                 shieldShare: 0,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 25000,
                 healthMaterial: "clonedFlesh",
                 armorMaterial: "ferriteArmor",
                 shieldMaterial: "",
             };
+            break;
         case "corpus":
-            return {
+            base = {
                 armor: 0,
                 healthShare: 0.4,
                 shieldShare: 0.6,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 18000,
                 healthMaterial: "flesh",
                 armorMaterial: "",
                 shieldMaterial: "shield",
             };
+            break;
         case "corpus amalgam":
-            return {
+            base = {
                 armor: 450,
                 healthShare: 0.7,
                 shieldShare: 0.3,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 20000,
                 healthMaterial: "robotic",
                 armorMaterial: "alloyArmor",
                 shieldMaterial: "shield",
             };
+            break;
         case "infested":
-            return {
+            base = {
                 armor: 0,
                 healthShare: 1,
                 shieldShare: 0,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: true,
                 effectiveHealth: 16000,
                 healthMaterial: "infestedFlesh",
                 armorMaterial: "",
                 shieldMaterial: "",
             };
+            break;
         case "infested deimos":
         case "deimos infested":
-            return {
+            base = {
                 armor: 400,
                 healthShare: 1,
                 shieldShare: 0,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: true,
                 effectiveHealth: 18000,
                 healthMaterial: "infestedFlesh",
                 armorMaterial: "ferriteArmor",
                 shieldMaterial: "",
             };
+            break;
         case "orokin":
-            return {
+            base = {
                 armor: 1200,
                 healthShare: 0.85,
                 shieldShare: 0.15,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 22000,
                 healthMaterial: "flesh",
                 armorMaterial: "alloyArmor",
                 shieldMaterial: "protoShield",
             };
+            break;
         case "the murmur":
-            return {
+            base = {
                 armor: 600,
                 healthShare: 1,
                 shieldShare: 0,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 20000,
                 healthMaterial: "robotic",
                 armorMaterial: "alloyArmor",
                 shieldMaterial: "",
             };
+            break;
         case "zariman":
-            return {
+            base = {
                 armor: 800,
                 healthShare: 0.8,
                 shieldShare: 0.2,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 23000,
                 healthMaterial: "flesh",
                 armorMaterial: "alloyArmor",
                 shieldMaterial: "protoShield",
             };
+            break;
         case "kuva grineer":
-            return {
+            base = {
                 armor: 3200,
                 healthShare: 1,
                 shieldShare: 0,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 28000,
                 healthMaterial: "clonedFlesh",
                 armorMaterial: "ferriteArmor",
                 shieldMaterial: "",
             };
+            break;
         case "sentient":
-            return {
+            base = {
                 armor: 900,
                 healthShare: 0.85,
                 shieldShare: 0.15,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 24000,
                 healthMaterial: "robotic",
                 armorMaterial: "alloyArmor",
                 shieldMaterial: "protoShield",
             };
+            break;
         case "narmer":
-            return {
+            base = {
                 armor: 700,
                 healthShare: 0.7,
                 shieldShare: 0.3,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 22000,
                 healthMaterial: "flesh",
                 armorMaterial: "alloyArmor",
                 shieldMaterial: "protoShield",
             };
+            break;
         case "techrot":
         case "techrot (1999)":
-            return {
+            base = {
                 armor: 0,
                 healthShare: 0.85,
                 shieldShare: 0.15,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: true,
                 effectiveHealth: 18500,
                 healthMaterial: "infestedFlesh",
                 armorMaterial: "",
                 shieldMaterial: "shield",
             };
+            break;
         case "scaldra":
         case "scaldra (1999)":
-            return {
+            base = {
                 armor: 2200,
                 healthShare: 1,
                 shieldShare: 0,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 24000,
                 healthMaterial: "clonedFlesh",
                 armorMaterial: "ferriteArmor",
                 shieldMaterial: "",
             };
+            break;
         case "anarchs":
-            return {
+            base = {
                 armor: 500,
                 healthShare: 0.85,
                 shieldShare: 0.15,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 21000,
                 healthMaterial: "flesh",
                 armorMaterial: "alloyArmor",
                 shieldMaterial: "shield",
             };
+            break;
         // Default (no faction selected): balanced target derived from median/average stats
         // across 13 main factions (Grineer, Corpus, Corpus Amalgam, Infested ×2, Orokin,
         // Murmur, Zariman, Sentient, Narmer, Techrot, Scaldra, Anarchs).
@@ -456,17 +527,21 @@ function getTargetProfile(targetFaction: string): TargetProfile {
         // Faction damage modifiers are neutral (no per-type bonuses), rewarding
         // broadly applicable damage types over narrow faction counters.
         default:
-            return {
+            base = {
                 armor: 600,
                 healthShare: 0.85,
                 shieldShare: 0.15,
+                hasOverguard: false,
+                crowdControlImmune: false,
                 grouped: false,
                 effectiveHealth: 21000,
                 healthMaterial: "flesh",
                 armorMaterial: "alloyArmor",
                 shieldMaterial: "shield",
             };
+            break;
     }
+    return applyTargetProfileOverride(base, override);
 }
 
 function directDamageTypeMultiplier(
@@ -500,9 +575,10 @@ function directDamageTypeMultiplier(
 
 function armorDamageMultiplier(armor: number): number {
     if (armor <= 0) return 1;
-    // Wiki formula: Damage Multiplier = 300 / (Net Armor + 300)
-    // This means 300 armor → 50% reduction, 1200 → 80%, 2700 → 90%, etc.
-    return 300 / (armor + 300);
+    // Saved official wiki source (Damage:Calculation) gives:
+    //   DM = 1 - 0.9 * sqrt(AR / 2700)
+    // where AR is armor after all debuffs.
+    return Math.max(0, 1 - 0.9 * Math.sqrt(armor / 2700));
 }
 
 /**
@@ -522,6 +598,58 @@ function dotRealizationFactor(timeToKill: number, duration: number, tickDelay = 
     if (effectiveTime <= 0) return 0;
     if (effectiveTime < duration) return Math.max(0.05, effectiveTime / (2 * duration));
     return Math.max(0.2, 1 - duration / (2 * timeToKill));
+}
+
+function statusCanAffectTarget(
+    statusType: typeof PROC_DAMAGE_KEYS[number],
+    target: TargetProfile,
+): boolean {
+    if (target.statusImmuneTypes?.has(statusType)) return false;
+    // Magnetic's effect only exists when shields/overguard are present. Our current target model
+    // does not include overguard yet, so shieldless targets treat Magnetic as a dead status for
+    // scoring and status-gated conditionals.
+    if (statusType === "magnetic" && target.shieldShare <= 0 && !target.hasOverguard) return false;
+    return true;
+}
+
+function expectedStacksAffectingTarget(
+    expectedStacksByType: Partial<Record<typeof PROC_DAMAGE_KEYS[number], number>>,
+    target: TargetProfile,
+    statusType: typeof PROC_DAMAGE_KEYS[number],
+): number {
+    if (!statusCanAffectTarget(statusType, target)) return 0;
+    const stacks = expectedStacksByType[statusType] ?? 0;
+    if (statusType === "cold" && target.hasOverguard) return Math.min(4, stacks);
+    return stacks;
+}
+
+function shouldAssumeFullyOnlineForGoal(
+    goal: OptimizeGoal,
+    conditional: ConditionalEffect,
+): boolean {
+    if (goal !== "scaling") return false;
+    switch (conditional.trigger) {
+        case "onReload":
+        case "onReloadFromEmpty":
+            return false;
+        default:
+            return true;
+    }
+}
+
+function conditionalFactorForGoal(
+    goal: OptimizeGoal,
+    conditional: ConditionalEffect,
+    fireRate: number,
+    magazineSize: number,
+): number {
+    if (shouldAssumeFullyOnlineForGoal(goal, conditional)) {
+        return Math.max(1, conditional.maxStacks ?? 1);
+    }
+    return (
+        estimateConditionalUptime(conditional, fireRate, magazineSize) *
+        estimateConditionalStackFactor(conditional, fireRate, magazineSize)
+    );
 }
 
 // ── Scoring ───────────────────────────────────────────────────────────────────
@@ -545,7 +673,9 @@ function scoreEffects(
     goal: OptimizeGoal,
     targetFaction: string,
     arcaneEffect?: Partial<ModEffect> | null,
+    targetProfileOverride?: TargetProfileOverride | null,
 ): number {
+    const target = getTargetProfile(targetFaction, targetProfileOverride);
     const normalizedArcaneEffect = arcaneEffect
         ? { ...emptyEffect(), ...arcaneEffect, conditionalEffects: [...(arcaneEffect.conditionalEffects ?? [])] }
         : null;
@@ -564,7 +694,11 @@ function scoreEffects(
             ...effect,
             conditionalEffects: effect.conditionalEffects.filter((conditional) =>
                 !conditional.requiredStatusType ||
-                (preview.modded.expectedStacksByType[conditional.requiredStatusType] ?? 0) >= 0.25,
+                expectedStacksAffectingTarget(
+                    preview.modded.expectedStacksByType,
+                    target,
+                    conditional.requiredStatusType,
+                ) >= 0.25,
             ),
         };
     });
@@ -589,6 +723,7 @@ function scoreEffects(
     let ammoEfficiencyBonus = 0;
     let directDamagePerStatusBonus = 0;
     let finalStatusChanceBonus = 0;
+    let factionDamageBonus = 0;
     const conditionalEffects = allEffects.flatMap(effect => effect?.conditionalEffects ?? []);
 
     for (const effect of allEffects) {
@@ -613,22 +748,24 @@ function scoreEffects(
         ammoEfficiencyBonus += effect.ammoEfficiencyBonus ?? 0;
         directDamagePerStatusBonus += effect.directDamagePerStatusBonus ?? 0;
         finalStatusChanceBonus += effect.finalStatusChanceBonus ?? 0;
+        if (targetFaction && effect.targetFaction && effect.targetFaction.toLowerCase() === targetFaction.toLowerCase()) {
+            factionDamageBonus += effect.factionDamageBonus ?? 0;
+        }
     }
 
     const baselineFireRate = weapon.fireRate * (1 + (usesMeleeDamageModel(weapon.category) ? 0 : 0));
     const baselineMagazineSize = Math.max(1, Math.round(weapon.magazineSize));
     for (const conditional of conditionalEffects) {
-        if (conditional.requiredStatusType && (modded.expectedStacksByType[conditional.requiredStatusType] ?? 0) < 0.25) {
+        if (
+            conditional.requiredStatusType &&
+            expectedStacksAffectingTarget(modded.expectedStacksByType, target, conditional.requiredStatusType) < 0.25
+        ) {
             continue;
         }
-        const factor =
-            estimateConditionalUptime(conditional, baselineFireRate, baselineMagazineSize) *
-            estimateConditionalStackFactor(conditional, baselineFireRate, baselineMagazineSize);
+        const factor = conditionalFactorForGoal(goal, conditional, baselineFireRate, baselineMagazineSize);
         ammoEfficiencyBonus += (conditional.stats.ammoEfficiencyBonus ?? 0) * factor;
         directDamagePerStatusBonus += (conditional.stats.directDamagePerStatusBonus ?? 0) * factor;
     }
-
-    const target = getTargetProfile(targetFaction);
     // Magnetic's shield damage amplification is already captured in adjustedDirectDps via
     // (1 + magneticShieldDamageBonus) in directDamageTypeMultiplier. The extra utility here
     // represents only the binary shield-regen suppression effect — it doesn't scale with stacks.
@@ -669,9 +806,9 @@ function scoreEffects(
     const effectiveArmorMultiplier = armorDamageMultiplier(strippedArmor);
     const effectiveStatusTypes = Math.max(
         1,
-        Object.entries(modded.expectedStacksByType).reduce((count, [key, value]) => {
-            if ((value ?? 0) < 0.25) return count;
-            if (key === "magnetic" && target.shieldShare <= 0) return count;
+        Object.entries(modded.expectedStacksByType).reduce((count, [key]) => {
+            const statusType = key as typeof PROC_DAMAGE_KEYS[number];
+            if (expectedStacksAffectingTarget(modded.expectedStacksByType, target, statusType) < 0.25) return count;
             return count + 1;
         }, 0),
     );
@@ -703,26 +840,18 @@ function scoreEffects(
         }, 0)
         : 1;
     const adjustedBurstDirectDps = burstDPS *
+        Math.max(0, 1 + factionDamageBonus) *
         Math.max(0.1, targetAdjustedDirectMultiplier) *
         directDamagePerStatusMultiplier;
     const adjustedDirectDps = sustainedDPS *
+        Math.max(0, 1 + factionDamageBonus) *
         Math.max(0.1, targetAdjustedDirectMultiplier) *
         directDamagePerStatusMultiplier;
     const estimatedTimeToKill = target.effectiveHealth / Math.max(1, adjustedDirectDps);
     const dotDuration = 6 * (1 + statusDurationBonus);
-    // For the scaling goal, DoT value should be evaluated at endgame enemy health levels (Steel Path /
-    // high-level content) rather than the base profile health — otherwise a strong direct-damage build
-    // makes TTK so short that Slash/Heat/Toxin never land their first tick (t=1s delay), causing the
-    // optimizer to dismiss Hunter Munitions, armor-strip DoT, and Slash-bypass entirely.
-    //
-    // A 5-second floor represents level ~150–200 enemies on Steel Path, where "scaling" matters.
-    // Fast-killing builds (estimated TTK 0.9s) are floored to 5s; slow builds (TTK ≥ 5s) unchanged.
-    // The raw estimatedTimeToKill is preserved for other uses (e.g. blastUtilityDps). Only the
-    // dotRealizationFactor calls see the adjusted value.
-    const SCALING_DOT_TTK_FLOOR = 5.0; // seconds
-    const dotTTK = goal === "scaling"
-        ? Math.max(SCALING_DOT_TTK_FLOOR, estimatedTimeToKill)
-        : estimatedTimeToKill;
+    // Use the modeled TTK directly. The previous scaling-only floor was heuristic and not present in
+    // the saved wiki formulas, so it could manufacture DoT value that the current model had not earned.
+    const dotTTK = estimatedTimeToKill;
     // Slash/Heat/Toxin first tick fires 1s after the proc — a fast kill can land before any tick.
     // Electricity/Gas tick immediately (t=0), so they are always at least partially realized.
     const realizedSlashFactor    = dotRealizationFactor(dotTTK, dotDuration, 1);
@@ -816,30 +945,37 @@ function scoreEffects(
     // not just direct hits — apply the combined gain to both components.
     const burstDamageScore =
         (
-            (adjustedBurstDirectDps + adjustedDotDps * 0.8) * coldCritMultiplierGain * punctureCritGain +
-            blastUtilityDps * 0.45
+            adjustedBurstDirectDps +
+            adjustedDotDps * 0.35 +
+            blastUtilityDps * 0.35
         ) *
-        (1 + gasUtility * 0.18);
+        coldCritMultiplierGain *
+        punctureCritGain *
+        (1 + gasUtility * 0.08);
 
     const burstScore =
         burstDamageScore *
-        (1 + directDamagePerStatusWeight * 0.05 + utilityWeight * 0.08 + modded.averageProcsPerShot * 0.02);
-    const scalingScore =
+        (1 + utilityWeight * 0.05 + statusWeight * 0.08);
+    const scalingDamageScore =
         (
-            adjustedDirectDps * (1 + directDamagePerStatusWeight * 0.12) +
-            adjustedDotDps * 1.35 +
-            blastUtilityDps * 0.85
+            adjustedDirectDps +
+            adjustedDotDps +
+            blastUtilityDps * 0.7
         ) *
-        (1 + statusWeight * 0.9 + finalStatusChanceBonus * 0.45 + utilityWeight * 0.22) *
-        // statusDamageBonus / statusDurationBonus omitted — already in adjustedDotDps via calculateBuild.
-        (1 + modded.averageProcsPerShot * 0.2 + directDamagePerStatusWeight * 0.05);
+        coldCritMultiplierGain *
+        punctureCritGain;
+    const scalingScore =
+        scalingDamageScore *
+        // Keep only modest utility/status shaping here; the heavy lifting should come from modeled
+        // direct damage, realized DoT, and status-derived buffs already folded into those values.
+        (1 + statusWeight * 0.2 + utilityWeight * 0.1);
 
     switch (goal) {
         case "burst":    return burstScore;
         case "scaling":  return scalingScore;
         case "crit":     return avgCritMultiplier(modded.critChance, modded.critMultiplier) * (1 + (headshotMultiplierBonus + weakPointCritChanceBonus + weakPointDamageBonus) * 0.35 + directDamagePerStatusWeight * 0.15 + utilityWeight * 0.08);
         // statusDamageBonus / statusDurationBonus omitted from outer factor — already in adjustedDotDps.
-        case "status":   return ((modded.averageProcsPerShot + adjustedDotDps * 0.02 + blastUtilityDps * 0.01) * (1 + statusWeight + finalStatusChanceBonus + directDamagePerStatusWeight * 0.2)) * (1 + utilityWeight * 0.12);
+        case "status":   return ((modded.averageProcsPerShot + adjustedDotDps * 0.01 + blastUtilityDps * 0.005) * (1 + statusWeight * 0.5 + finalStatusChanceBonus * 0.5 + directDamagePerStatusWeight * 0.12)) * (1 + utilityWeight * 0.08);
     }
 }
 
@@ -866,8 +1002,9 @@ export function debugScoreBuild(
     goal: OptimizeGoal,
     targetFaction: string,
     arcaneEffect?: Partial<ModEffect> | null,
+    targetProfileOverride?: TargetProfileOverride | null,
 ): number {
-    return scoreEffects(weapon, effects, goal, targetFaction, arcaneEffect);
+    return scoreEffects(weapon, effects, goal, targetFaction, arcaneEffect, targetProfileOverride);
 }
 
 // ── Capacity ──────────────────────────────────────────────────────────────────
@@ -905,12 +1042,12 @@ function bestPolarity(mod: ModEntry): string {
 interface Candidate { mod: ModEntry; rank: number; }
 
 function buildCandidates(allMods: ModEntry[], opts: OptimizerOptions): Candidate[] {
-    const { ownedModNames, ownedModMaxRankByName, excludedModNames, allowNonMaxRank, targetFaction = "", lockedIncompatibilityGroups, lockedUniqueNames } = opts;
+    const { ownedModUniqueNames, ownedModMaxRankByUniqueName, excludedModUniqueNames, allowNonMaxRank, targetFaction = "", lockedIncompatibilityGroups, lockedUniqueNames } = opts;
     const out: Candidate[] = [];
     for (const mod of allMods) {
         if (mod.isAura) continue; // auras go in the aura slot, not regular slots
-        if (excludedModNames?.has(mod.name)) continue;
-        if (ownedModNames && !ownedModNames.has(mod.name)) continue;
+        if (excludedModUniqueNames?.has(mod.uniqueName)) continue;
+        if (ownedModUniqueNames && !ownedModUniqueNames.has(mod.uniqueName)) continue;
         if (lockedIncompatibilityGroups?.has(mod.incompatibilityGroup)) continue;
         if (lockedUniqueNames?.has(mod.uniqueName)) continue;
         if (mod.effect.targetFaction && !targetFaction) continue;
@@ -920,7 +1057,7 @@ function buildCandidates(allMods: ModEntry[], opts: OptimizerOptions): Candidate
             0,
             Math.min(
                 mod.fusionLimit,
-                ownedModMaxRankByName?.[mod.name] ?? mod.fusionLimit,
+                ownedModMaxRankByUniqueName?.[mod.uniqueName] ?? mod.fusionLimit,
             ),
         );
         if (allowNonMaxRank) {
@@ -1135,8 +1272,14 @@ function getCapacityAwarePolarities(
 // polarities if allowForma is set) — this avoids over-conservative capacity
 // rejection that was killing builds with polarity-matched mods.
 
+// The optimizer needs enough search breadth to preserve synergistic element packages
+// such as Viral + faction damage + status support, even when their partial builds look
+// weaker than crit/heat-heavy shells early in the search.
 const BEAM_WIDTH = 512;
 const BEAM_WIDTH_PER_FILLED_COUNT = 128;
+const BEAM_WIDTH_PER_THEME = 48;
+const COMBO_REFINE_SHORTLIST = 10;
+const COMBO_REFINE_MAX_SWAPS = 3;
 
 interface BeamState {
     mods: (ModEntry | null)[];
@@ -1156,6 +1299,30 @@ function beamStateSignature(state: BeamState): string {
         .filter((part): part is string => !!part)
         .sort()
         .join("|");
+}
+
+function beamThemeSignature(state: BeamState): string {
+    const tags = new Set<string>();
+    for (let index = 0; index < state.mods.length; index++) {
+        const mod = state.mods[index];
+        if (!mod) continue;
+        const rank = state.ranks[index] ?? mod.fusionLimit;
+        const effect = mod.effectsByRank[rank] ?? mod.effect;
+        if ((effect.coldBonus ?? 0) > 0) tags.add("cold");
+        if ((effect.heatBonus ?? 0) > 0) tags.add("heat");
+        if ((effect.toxinBonus ?? 0) > 0) tags.add("toxin");
+        if ((effect.electricityBonus ?? 0) > 0) tags.add("electricity");
+        if ((effect.viralBonus ?? 0) > 0) tags.add("viral");
+        if ((effect.corrosiveBonus ?? 0) > 0) tags.add("corrosive");
+        if ((effect.radiationBonus ?? 0) > 0) tags.add("radiation");
+        if ((effect.gasBonus ?? 0) > 0) tags.add("gas");
+        if ((effect.magneticBonus ?? 0) > 0) tags.add("magnetic");
+        if ((effect.blastBonus ?? 0) > 0) tags.add("blast");
+        if ((effect.factionDamageBonus ?? 0) > 0 && effect.targetFaction) tags.add(`faction:${effect.targetFaction.toLowerCase()}`);
+        if ((effect.directDamagePerStatusBonus ?? 0) > 0) tags.add("per-status");
+        if ((effect.critChanceBonus ?? 0) > 0 || (effect.critMultBonus ?? 0) > 0) tags.add("crit");
+    }
+    return [...tags].sort().join("|");
 }
 
 function beamSearch(
@@ -1258,6 +1425,17 @@ function beamSearch(
         for (const states of byFilledCount.values()) {
             states.sort((a, b) => b.score - a.score);
             diversified.push(...states.slice(0, BEAM_WIDTH_PER_FILLED_COUNT));
+        }
+
+        const byTheme = new Map<string, BeamState[]>();
+        for (const candidate of deduped.values()) {
+            const signature = beamThemeSignature(candidate);
+            if (!byTheme.has(signature)) byTheme.set(signature, []);
+            byTheme.get(signature)!.push(candidate);
+        }
+        for (const states of byTheme.values()) {
+            states.sort((a, b) => b.score - a.score);
+            diversified.push(...states.slice(0, BEAM_WIDTH_PER_THEME));
         }
 
         diversified.sort((a, b) => b.score - a.score);
@@ -1436,6 +1614,187 @@ function fillEmptySlots(
     return { mods, ranks };
 }
 
+function chooseIndexCombos(length: number, pick: number): number[][] {
+    if (pick <= 0 || pick > length) return [];
+    const results: number[][] = [];
+    const current: number[] = [];
+    const walk = (start: number) => {
+        if (current.length === pick) {
+            results.push([...current]);
+            return;
+        }
+        for (let index = start; index < length; index++) {
+            current.push(index);
+            walk(index + 1);
+            current.pop();
+        }
+    };
+    walk(0);
+    return results;
+}
+
+function chooseCandidateCombos(candidates: Candidate[], pick: number): Candidate[][] {
+    if (pick <= 0 || pick > candidates.length) return [];
+    const results: Candidate[][] = [];
+    const current: Candidate[] = [];
+    const walk = (start: number) => {
+        if (current.length === pick) {
+            results.push([...current]);
+            return;
+        }
+        for (let index = start; index < candidates.length; index++) {
+            current.push(candidates[index]);
+            walk(index + 1);
+            current.pop();
+        }
+    };
+    walk(0);
+    return results;
+}
+
+function comboRefineBuildSet(
+    weapon: WeaponEntry,
+    selectedMods: ModEntry[],
+    selectedRanks: number[],
+    candidates: Candidate[],
+    goal: OptimizeGoal,
+    opts: OptimizerOptions,
+    extraEffects: (ModEffect | null)[] = [],
+    arcaneEffect?: Partial<ModEffect> | null,
+): { mods: ModEntry[]; ranks: number[] } {
+    const {
+        slotPolarities = [],
+        targetFaction = "",
+        allowForma = false,
+        capacityConfig,
+        preEquippedEffects = [],
+    } = opts;
+
+    if (selectedMods.length === 0 || candidates.length === 0) {
+        return { mods: selectedMods, ranks: selectedRanks };
+    }
+
+    const padded = [...slotPolarities];
+    while (padded.length < Math.max(selectedMods.length, 8)) padded.push("");
+
+    const scoreCurrent = (modsToScore: ModEntry[], ranksToScore: number[]) => {
+        const effects = modsToScore.map((mod, index) => mod.effectsByRank[ranksToScore[index]] ?? mod.effect);
+        return scoreEffects(weapon, [...preEquippedEffects, ...effects, ...extraEffects], goal, targetFaction, arcaneEffect);
+    };
+
+    let mods = [...selectedMods];
+    let ranks = [...selectedRanks];
+
+    let improved = true;
+    while (improved) {
+        improved = false;
+        const currentScore = scoreCurrent(mods, ranks);
+        const presentNames = new Set(mods.map((mod) => mod.uniqueName));
+
+        const shortlist = candidates
+            .filter(({ mod }) => !presentNames.has(mod.uniqueName))
+            .map((candidate) => {
+                let bestReplacementScore = -Infinity;
+                for (let replaceIndex = 0; replaceIndex < mods.length; replaceIndex++) {
+                    const trialMods = [...mods];
+                    const trialRanks = [...ranks];
+                    trialMods[replaceIndex] = candidate.mod;
+                    trialRanks[replaceIndex] = candidate.rank;
+                    const { slotMods, slotRanks, resultPolarities } = assignModsToSlots(
+                        trialMods,
+                        trialRanks,
+                        padded,
+                        Math.max(mods.length, trialMods.length),
+                        allowForma,
+                    );
+                    const capPolarities = allowForma
+                        ? getCapacityAwarePolarities(slotMods, slotRanks, Math.max(mods.length, trialMods.length), opts).mainPolarities
+                        : resultPolarities;
+                    if (capacityConfig && !fitsCapacity(slotMods, slotRanks, capacityConfig, capPolarities, opts.extraCapacitySlots)) {
+                        continue;
+                    }
+                    const compactMods = slotMods.filter((mod): mod is ModEntry => !!mod);
+                    const compactRanks = slotMods.flatMap((mod, index) => (mod ? [slotRanks[index]] : []));
+                    bestReplacementScore = Math.max(bestReplacementScore, scoreCurrent(compactMods, compactRanks));
+                }
+                return { candidate, candidateScore: bestReplacementScore };
+            })
+            .filter((entry) => Number.isFinite(entry.candidateScore))
+            .sort((a, b) => b.candidateScore - a.candidateScore)
+            .slice(0, COMBO_REFINE_SHORTLIST)
+            .map((entry) => entry.candidate);
+
+        if (!shortlist.length) break;
+
+        let bestScore = currentScore;
+        let bestMods = mods;
+        let bestRanks = ranks;
+
+        for (let swapCount = 1; swapCount <= Math.min(COMBO_REFINE_MAX_SWAPS, mods.length, shortlist.length); swapCount++) {
+            const removeCombos = chooseIndexCombos(mods.length, swapCount);
+            const addCombos = chooseCandidateCombos(shortlist, swapCount);
+
+            for (const removeIndexes of removeCombos) {
+                const removeSet = new Set(removeIndexes);
+                const keptMods = mods.filter((_, index) => !removeSet.has(index));
+                const keptRanks = ranks.filter((_, index) => !removeSet.has(index));
+                const keptNames = new Set(keptMods.map((mod) => mod.uniqueName));
+                const keptGroups = new Set(keptMods.map((mod) => mod.incompatibilityGroup));
+
+                for (const addCombo of addCombos) {
+                    let valid = true;
+                    const trialMods = [...keptMods];
+                    const trialRanks = [...keptRanks];
+                    const localNames = new Set(keptNames);
+                    const localGroups = new Set(keptGroups);
+
+                    for (const candidate of addCombo) {
+                        if (localNames.has(candidate.mod.uniqueName) || localGroups.has(candidate.mod.incompatibilityGroup)) {
+                            valid = false;
+                            break;
+                        }
+                        localNames.add(candidate.mod.uniqueName);
+                        localGroups.add(candidate.mod.incompatibilityGroup);
+                        trialMods.push(candidate.mod);
+                        trialRanks.push(candidate.rank);
+                    }
+                    if (!valid) continue;
+
+                    const { slotMods, slotRanks, resultPolarities } = assignModsToSlots(
+                        trialMods,
+                        trialRanks,
+                        padded,
+                        Math.max(mods.length, trialMods.length),
+                        allowForma,
+                    );
+
+                    const capPolarities = allowForma
+                        ? getCapacityAwarePolarities(slotMods, slotRanks, Math.max(mods.length, trialMods.length), opts).mainPolarities
+                        : resultPolarities;
+                    if (capacityConfig && !fitsCapacity(slotMods, slotRanks, capacityConfig, capPolarities, opts.extraCapacitySlots)) continue;
+
+                    const compactMods = slotMods.filter((mod): mod is ModEntry => !!mod);
+                    const compactRanks = slotMods.flatMap((mod, index) => (mod ? [slotRanks[index]] : []));
+                    const trialScore = scoreCurrent(compactMods, compactRanks);
+                    if (trialScore > bestScore + 1e-9) {
+                        bestScore = trialScore;
+                        bestMods = compactMods;
+                        bestRanks = compactRanks;
+                    }
+                }
+            }
+        }
+
+        if (bestScore > currentScore + 1e-9) {
+            mods = bestMods;
+            ranks = bestRanks;
+            improved = true;
+        }
+    }
+
+    return { mods, ranks };
+}
+
 // ── Exilus optimization ───────────────────────────────────────────────────────
 
 function optimizeExilusSlot(
@@ -1453,8 +1812,8 @@ function optimizeExilusSlot(
     const eligibleExilus = allMods.filter(m =>
         m.isExilus &&
         !m.isAura &&
-        !(opts.excludedModNames?.has(m.name)) &&
-        (!opts.ownedModNames || opts.ownedModNames.has(m.name))
+        !(opts.excludedModUniqueNames?.has(m.uniqueName)) &&
+        (!opts.ownedModUniqueNames || opts.ownedModUniqueNames.has(m.uniqueName))
     );
     if (!eligibleExilus.length) return { mod: null, rank: 0, polarity: exilusPolarity };
 
@@ -1650,6 +2009,14 @@ function optimizeBuildInternal(
             goal,
             effectiveOpts,
         ));
+        ({ mods, ranks } = comboRefineBuildSet(
+            scoringWeapon,
+            mods,
+            ranks,
+            candidates,
+            goal,
+            effectiveOpts,
+        ));
     }
 
     // Phase 2: Assign mods to slots with polarity awareness
@@ -1834,8 +2201,18 @@ function optimizeBuildInternal(
             contextualExtraEffects,
             contextualArcaneEffect,
         );
-        mods = filledWithContext.mods;
-        ranks = filledWithContext.ranks;
+        const comboRefinedWithContext = comboRefineBuildSet(
+            scoringWeapon,
+            filledWithContext.mods,
+            filledWithContext.ranks,
+            candidates,
+            goal,
+            { ...effectiveOpts, extraCapacitySlots: contextualCapacitySlots },
+            contextualExtraEffects,
+            contextualArcaneEffect,
+        );
+        mods = comboRefinedWithContext.mods;
+        ranks = comboRefinedWithContext.ranks;
     } else {
         mods = slotMods.filter((m, i): m is ModEntry => !!m && !lockedSlots[i]);
         ranks = slotMods.flatMap((m, i) => (m && !lockedSlots[i] ? [slotRanks[i]] : []));

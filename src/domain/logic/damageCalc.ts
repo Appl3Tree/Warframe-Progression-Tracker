@@ -126,18 +126,7 @@ function roundQuantized(value: number, quantum: number): number {
 
 export function avgCritMultiplier(critChance: number, critMult: number): number {
     if (critChance <= 0) return 1;
-    const guaranteedTier = Math.floor(critChance);
-    const frac = critChance - guaranteedTier;
-    // Warframe crit tiers are multiplicative: tier-n damage = critMult^n.
-    //   tier 0 = 1× (no crit)
-    //   tier 1 = critMult  (yellow)
-    //   tier 2 = critMult² (orange)
-    //   tier 3 = critMult³ (red)
-    // Previous formula used additive 1 + n*(critMult-1), which is only correct at tier 0–1
-    // and severely undervalues high crit chance on weapons with large multipliers (snipers, etc.).
-    const low  = Math.pow(critMult, guaranteedTier);
-    const high = Math.pow(critMult, guaranteedTier + 1);
-    return (1 - frac) * low + frac * high;
+    return 1 + critChance * (critMult - 1);
 }
 
 function collapsePrimaryElements(entries: Array<{ type: DamageKey; value: number; order: number }>) {
@@ -220,6 +209,9 @@ export function estimateConditionalUptime(
         case "onHit":
             uptime = ON_HIT_UPTIME_ASSUMPTION;
             break;
+        case "onPunchThroughHit":
+            uptime = ON_HIT_UPTIME_ASSUMPTION * 0.45;
+            break;
         case "onWeakPointHit":
             uptime = WEAK_POINT_HIT_UPTIME_ASSUMPTION;
             break;
@@ -283,7 +275,9 @@ export function calculateBuild(
     let punctureBonus = 0;
     let slashBonus = 0;
     let critChanceBonus = 0;
+    let finalCritChanceBonus = 0;
     let critMultBonus = 0;
+    let finalCritMultiplierBonus = 0;
     let statusChanceBonus = 0;
     let finalStatusChanceBonus = 0;
     let multishotBonus = 0;
@@ -324,7 +318,9 @@ export function calculateBuild(
         punctureBonus += e.punctureBonus ?? 0;
         slashBonus += e.slashBonus ?? 0;
         critChanceBonus += e.critChanceBonus ?? 0;
+        finalCritChanceBonus += e.finalCritChanceBonus ?? 0;
         critMultBonus += e.critMultBonus ?? 0;
+        finalCritMultiplierBonus += e.finalCritMultiplierBonus ?? 0;
         statusChanceBonus += e.statusChanceBonus ?? 0;
         finalStatusChanceBonus += e.finalStatusChanceBonus ?? 0;
         multishotBonus += e.multishotBonus ?? 0;
@@ -386,7 +382,9 @@ export function calculateBuild(
     const baselineMagazineSize = Math.max(1, Math.round(weapon.magazineSize * (1 + magazineBonus)));
     let conditionalDamageBonus = 0;
     let conditionalCritChanceBonus = 0;
+    let conditionalFinalCritChanceBonus = 0;
     let conditionalCritMultBonus = 0;
+    let conditionalFinalCritMultiplierBonus = 0;
     let conditionalStatusChanceBonus = 0;
     let conditionalMultishotBonus = 0;
     let conditionalFireRateBonus = 0;
@@ -398,7 +396,9 @@ export function calculateBuild(
             estimateConditionalStackFactor(conditional, baselineRawFireRate, baselineMagazineSize);
         conditionalDamageBonus += (conditional.stats.damageBonus ?? 0) * factor;
         conditionalCritChanceBonus += (conditional.stats.critChanceBonus ?? 0) * factor;
+        conditionalFinalCritChanceBonus += (conditional.stats.finalCritChanceBonus ?? 0) * factor;
         conditionalCritMultBonus += (conditional.stats.critMultBonus ?? 0) * factor;
+        conditionalFinalCritMultiplierBonus += (conditional.stats.finalCritMultiplierBonus ?? 0) * factor;
         conditionalStatusChanceBonus += (conditional.stats.statusChanceBonus ?? 0) * factor;
         conditionalMultishotBonus += (conditional.stats.multishotBonus ?? 0) * factor;
         conditionalFireRateBonus += (conditional.stats.fireRateBonus ?? 0) * factor;
@@ -418,7 +418,9 @@ export function calculateBuild(
 
     damageBonus += conditionalDamageBonus;
     critChanceBonus += conditionalCritChanceBonus;
+    finalCritChanceBonus += conditionalFinalCritChanceBonus;
     critMultBonus += conditionalCritMultBonus;
+    finalCritMultiplierBonus += conditionalFinalCritMultiplierBonus;
     statusChanceBonus += conditionalStatusChanceBonus;
     multishotBonus += conditionalMultishotBonus;
     fireRateBonus += conditionalFireRateBonus;
@@ -493,12 +495,12 @@ export function calculateBuild(
         damageBreakdown[key] = roundQuantized(rawBreakdown[key], quantumScale);
     }
 
-    const totalDamage = totalDamageOf(damageBreakdown) * (1 + factionDamageBonus);
+    const totalDamage = totalDamageOf(damageBreakdown);
     const moddedMultishot = weapon.multishot * (1 + multishotBonus);
     const arsenalDamage = totalDamage * moddedMultishot;
 
-    const critChance = weapon.critChance * (1 + critChanceBonus);
-    const critMultiplier = weapon.critMultiplier * (1 + critMultBonus);
+    const critChance = weapon.critChance * (1 + critChanceBonus) + finalCritChanceBonus;
+    const critMultiplier = weapon.critMultiplier * (1 + critMultBonus) + finalCritMultiplierBonus;
     const averageCritTier = Math.max(0, critChance);
     const statusChance = weapon.statusChance * (1 + statusChanceBonus) + finalStatusChanceBonus;
 
@@ -516,7 +518,7 @@ export function calculateBuild(
         ? weapon.reloadTime
         : weapon.reloadTime / (1 + reloadSpeedBonus);
     const averageShotDamage = arsenalDamage * avgCritMultiplier(critChance, critMultiplier);
-    const shotsPerMag = magazineSize;
+    const shotsPerMag = magazineSize / Math.max(0.0001, weapon.ammoCostPerShot ?? 1);
 
     const procChanceByType: Partial<Record<DamageKey, number>> = {};
     const baseDamageTotal = totalDamageOf(damageBreakdown);
@@ -596,7 +598,7 @@ export function calculateBuild(
                 (key === "heat" ? (mods.reduce((sum, effect) => sum + (effect?.heatBonus ?? 0), 0)) :
                  key === "electricity" ? (mods.reduce((sum, effect) => sum + (effect?.electricityBonus ?? 0), 0)) :
                  key === "toxin" ? (mods.reduce((sum, effect) => sum + (effect?.toxinBonus ?? 0), 0)) :
-                 key === "gas" ? (mods.reduce((sum, effect) => sum + (effect?.gasBonus ?? 0), 0)) :
+                 key === "gas" ? 0 :
                  0));
         const perShotDamage = expectedProcsPerShotForType * perProcTotal;
         dotDamagePerShotByType[key] = perShotDamage;

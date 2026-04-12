@@ -2,7 +2,6 @@
 // src/domain/logic/startupValidation.ts
 
 import { SOURCE_CATALOG } from "../../catalog/sources/sourceCatalog";
-import { STAR_CHART_DATA } from "../catalog/starChart";
 
 type ValidationIssueSeverity = "error" | "warning";
 
@@ -129,7 +128,8 @@ function validateSources(issues: ValidationIssue[]): void {
     }
 }
 
-function validateStarChart(issues: ValidationIssue[]): void {
+async function validateStarChart(issues: ValidationIssue[]): Promise<void> {
+    const { STAR_CHART_DATA } = await import("../catalog/starChart");
     const data = STAR_CHART_DATA;
 
     if (!data || !Array.isArray(data.planets) || !Array.isArray(data.nodes) || data.planets.length === 0 || data.nodes.length === 0) {
@@ -275,11 +275,11 @@ function validateStarChart(issues: ValidationIssue[]): void {
     }
 }
 
-export function validateDataOrThrow(): void {
+export async function validateDataOrThrow(): Promise<void> {
     const issues: ValidationIssue[] = [];
 
     validateSources(issues);
-    validateStarChart(issues);
+    await validateStarChart(issues);
 
     const errors = issues.filter((i) => i.severity === "error");
     const warnings = issues.filter((i) => i.severity === "warning");

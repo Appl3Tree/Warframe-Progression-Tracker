@@ -1,48 +1,40 @@
 {
-  "generatedAt": "2026-04-05T19:26:38.714Z",
+  "generatedAt": "2026-04-11T02:19:23.143Z",
   "summary": {
-    "catalogCount": 21729,
-    "displayableCount": 19566,
-    "withAcquisition": 8912,
-    "withoutAcquisition": 12817,
-    "displayableWithoutAcquisition": 11758,
-    "placeholderBlueprints": 343,
-    "zeroSourceDisplayableRecipes": 33,
+    "catalogCount": 21823,
+    "displayableCount": 19660,
+    "withAcquisition": 9985,
+    "withoutAcquisition": 11838,
+    "displayableWithoutAcquisition": 11001,
+    "placeholderBlueprints": 246,
+    "zeroSourceDisplayableRecipes": 12,
     "coarseManualMappings": 23
   },
   "placeholderBlueprints": {
     "byBucket": [
       {
         "bucket": "/Lotus/Types/Recipes/Helmets",
-        "count": 127
+        "count": 129
       },
       {
         "bucket": "/Lotus/Types/Recipes/Weapons",
-        "count": 62
+        "count": 32
       },
       {
         "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "count": 55
+        "count": 21
       },
       {
         "bucket": "/Lotus/Types/Recipes/WeaponSkins",
         "count": 12
       },
       {
-        "bucket": "/Lotus/Types/Items/ShipFeatureItems",
-        "count": 10
-      },
-      {
         "bucket": "/Lotus/Types/Recipes/Lens",
         "count": 10
       },
       {
-        "bucket": "/Lotus/Types/Recipes/ArmourAttachments",
-        "count": 9
-      },
-      {
-        "bucket": "/Lotus/Types/Recipes/WarframeSkins",
-        "count": 9
+        "bucket": "/Lotus/Types/Items/ShipFeatureItems",
+        "count": 8
       },
       {
         "bucket": "/Lotus/Types/Recipes/SolarisRecipes",
@@ -57,19 +49,7 @@
         "count": 5
       },
       {
-        "bucket": "/Lotus/Weapons/SolarisUnited/Primary",
-        "count": 4
-      },
-      {
-        "bucket": "/Lotus/Types/Keys/LimboQuest",
-        "count": 3
-      },
-      {
         "bucket": "/Lotus/Types/Recipes/LandingCraftRecipes",
-        "count": 3
-      },
-      {
-        "bucket": "/Lotus/Types/Recipes/Syandanas",
         "count": 3
       },
       {
@@ -93,22 +73,6 @@
         "count": 1
       },
       {
-        "bucket": "/Lotus/Types/Keys/DojoKeyBlueprint",
-        "count": 1
-      },
-      {
-        "bucket": "/Lotus/Types/Keys/FairyQuestKeyBlueprint",
-        "count": 1
-      },
-      {
-        "bucket": "/Lotus/Types/Keys/GolemQuestKeyBlueprint",
-        "count": 1
-      },
-      {
-        "bucket": "/Lotus/Types/Keys/InfestedAladVQuest",
-        "count": 1
-      },
-      {
         "bucket": "/Lotus/Types/Keys/LimboQuestKeyBlueprint",
         "count": 1
       },
@@ -127,16 +91,12 @@
       {
         "bucket": "/Lotus/Types/Recipes/EidolonRecipes",
         "count": 1
-      },
-      {
-        "bucket": "/Lotus/Types/Recipes/SentinelRecipes",
-        "count": 1
       }
     ],
     "byLikelyFixPath": [
       {
         "likelyFixPath": "manual-or-new-source",
-        "count": 343
+        "count": 246
       }
     ],
     "rows": [
@@ -201,58 +161,6 @@
           "Helminth Coalescent Segment Blueprint",
           "Infested Foundry Archon Shard Upgrade Feature Blueprint",
           "Infested Foundry Archon Shard Upgrade Feature"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/ShipFeatureItems/InfestedFoundryBlueprint",
-        "displayName": "Helminth Segment Blueprint",
-        "path": "/Lotus/Types/Items/ShipFeatureItems/InfestedFoundryBlueprint",
-        "bucket": "/Lotus/Types/Items/ShipFeatureItems",
-        "candidateNames": [
-          "Helminth Segment Blueprint",
-          "Infested Foundry Blueprint",
-          "Infested Foundry"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/ShipFeatureItems/InfestedFoundryUpgradeBlueprint",
-        "displayName": "Helminth Invigoration Segment Blueprint",
-        "path": "/Lotus/Types/Items/ShipFeatureItems/InfestedFoundryUpgradeBlueprint",
-        "bucket": "/Lotus/Types/Items/ShipFeatureItems",
-        "candidateNames": [
-          "Helminth Invigoration Segment Blueprint",
-          "Infested Foundry Upgrade Blueprint",
-          "Infested Foundry Upgrade"
         ],
         "evidence": {
           "warframeDrops": {
@@ -453,188 +361,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Keys/DojoKeyBlueprint",
-        "displayName": "Clan Key Blueprint",
-        "path": "/Lotus/Types/Keys/DojoKeyBlueprint",
-        "bucket": "/Lotus/Types/Keys/DojoKeyBlueprint",
-        "candidateNames": [
-          "Clan Key Blueprint",
-          "Dojo Key Blueprint",
-          "Dojo Key"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Keys/FairyQuestKeyBlueprint",
-        "displayName": "The Silver Grove Blueprint",
-        "path": "/Lotus/Types/Keys/FairyQuestKeyBlueprint",
-        "bucket": "/Lotus/Types/Keys/FairyQuestKeyBlueprint",
-        "candidateNames": [
-          "The Silver Grove Blueprint",
-          "Fairy Quest Key Blueprint",
-          "Fairy Quest Key"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Keys/GolemQuestKeyBlueprint",
-        "displayName": "The Jordas Precept Blueprint",
-        "path": "/Lotus/Types/Keys/GolemQuestKeyBlueprint",
-        "bucket": "/Lotus/Types/Keys/GolemQuestKeyBlueprint",
-        "candidateNames": [
-          "The Jordas Precept Blueprint",
-          "Golem Quest Key Blueprint",
-          "Golem Quest Key"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Keys/InfestedAladVQuest/InfestedAladKeyBlueprint",
-        "displayName": "Mutalist Alad V Assassinate Blueprint",
-        "path": "/Lotus/Types/Keys/InfestedAladVQuest/InfestedAladKeyBlueprint",
-        "bucket": "/Lotus/Types/Keys/InfestedAladVQuest",
-        "candidateNames": [
-          "Mutalist Alad V Assassinate Blueprint",
-          "Infested Alad Key Blueprint",
-          "Infested Alad Key"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Keys/LimboQuest/LimboChassisKeyBlueprint",
-        "displayName": "Limbo Chassis Theorem Blueprint",
-        "path": "/Lotus/Types/Keys/LimboQuest/LimboChassisKeyBlueprint",
-        "bucket": "/Lotus/Types/Keys/LimboQuest",
-        "candidateNames": [
-          "Limbo Chassis Theorem Blueprint",
-          "Limbo Chassis Key Blueprint",
-          "Limbo Chassis Key"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Keys/LimboQuest/LimboHelmetKeyBlueprint",
-        "displayName": "Limbo Neuroptics Theorem Blueprint",
-        "path": "/Lotus/Types/Keys/LimboQuest/LimboHelmetKeyBlueprint",
-        "bucket": "/Lotus/Types/Keys/LimboQuest",
-        "candidateNames": [
-          "Limbo Neuroptics Theorem Blueprint",
-          "Limbo Helmet Key Blueprint",
-          "Limbo Helmet Key"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Keys/LimboQuest/LimboSystemsKeyBlueprint",
-        "displayName": "Limbo Systems Theorem Blueprint",
-        "path": "/Lotus/Types/Keys/LimboQuest/LimboSystemsKeyBlueprint",
-        "bucket": "/Lotus/Types/Keys/LimboQuest",
-        "candidateNames": [
-          "Limbo Systems Theorem Blueprint",
-          "Limbo Systems Key Blueprint",
-          "Limbo Systems Key"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Keys/LimboQuestKeyBlueprint",
         "displayName": "The Limbo Theorem Blueprint",
         "path": "/Lotus/Types/Keys/LimboQuestKeyBlueprint",
@@ -721,238 +447,6 @@
           "Patient Zero Blueprint",
           "Patient Zero Key Blueprint",
           "Patient Zero Key"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/ArmourAttachments/DaedelusChestPlateBlueprint",
-        "displayName": "Daedalus Chest Plate Blueprint",
-        "path": "/Lotus/Types/Recipes/ArmourAttachments/DaedelusChestPlateBlueprint",
-        "bucket": "/Lotus/Types/Recipes/ArmourAttachments",
-        "candidateNames": [
-          "Daedalus Chest Plate Blueprint",
-          "Daedelus Chest Plate Blueprint",
-          "Daedelus Chest Plate"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/ArmourAttachments/DaedelusLeftLegBlueprint",
-        "displayName": "Daedalus Spurs Blueprint",
-        "path": "/Lotus/Types/Recipes/ArmourAttachments/DaedelusLeftLegBlueprint",
-        "bucket": "/Lotus/Types/Recipes/ArmourAttachments",
-        "candidateNames": [
-          "Daedalus Spurs Blueprint",
-          "Daedelus Left Leg Blueprint",
-          "Daedelus Left Leg"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/ArmourAttachments/DaedelusLeftShoulderBlueprint",
-        "displayName": "Daedalus Shoulder Plates Blueprint",
-        "path": "/Lotus/Types/Recipes/ArmourAttachments/DaedelusLeftShoulderBlueprint",
-        "bucket": "/Lotus/Types/Recipes/ArmourAttachments",
-        "candidateNames": [
-          "Daedalus Shoulder Plates Blueprint",
-          "Daedelus Left Shoulder Blueprint",
-          "Daedelus Left Shoulder"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/ArmourAttachments/EdoChestPlateBlueprint",
-        "displayName": "Edo Chest Plate Blueprint",
-        "path": "/Lotus/Types/Recipes/ArmourAttachments/EdoChestPlateBlueprint",
-        "bucket": "/Lotus/Types/Recipes/ArmourAttachments",
-        "candidateNames": [
-          "Edo Chest Plate Blueprint",
-          "Edo Chest Plate"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/ArmourAttachments/EdoLeftLegBlueprint",
-        "displayName": "Edo Shin Plates Blueprint",
-        "path": "/Lotus/Types/Recipes/ArmourAttachments/EdoLeftLegBlueprint",
-        "bucket": "/Lotus/Types/Recipes/ArmourAttachments",
-        "candidateNames": [
-          "Edo Shin Plates Blueprint",
-          "Edo Left Leg Blueprint",
-          "Edo Left Leg"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/ArmourAttachments/EdoLeftShoulderBlueprint",
-        "displayName": "Edo Shoulder Plates Blueprint",
-        "path": "/Lotus/Types/Recipes/ArmourAttachments/EdoLeftShoulderBlueprint",
-        "bucket": "/Lotus/Types/Recipes/ArmourAttachments",
-        "candidateNames": [
-          "Edo Shoulder Plates Blueprint",
-          "Edo Left Shoulder Blueprint",
-          "Edo Left Shoulder"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/ArmourAttachments/EosChestPlateBlueprint",
-        "displayName": "Eos Chest Plate Blueprint",
-        "path": "/Lotus/Types/Recipes/ArmourAttachments/EosChestPlateBlueprint",
-        "bucket": "/Lotus/Types/Recipes/ArmourAttachments",
-        "candidateNames": [
-          "Eos Chest Plate Blueprint",
-          "Eos Chest Plate"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/ArmourAttachments/EosLeftLegBlueprint",
-        "displayName": "Eos Spurs Blueprint",
-        "path": "/Lotus/Types/Recipes/ArmourAttachments/EosLeftLegBlueprint",
-        "bucket": "/Lotus/Types/Recipes/ArmourAttachments",
-        "candidateNames": [
-          "Eos Spurs Blueprint",
-          "Eos Left Leg Blueprint",
-          "Eos Left Leg"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/ArmourAttachments/EosLeftShoulderBlueprint",
-        "displayName": "Eos Shoulder Plates Blueprint",
-        "path": "/Lotus/Types/Recipes/ArmourAttachments/EosLeftShoulderBlueprint",
-        "bucket": "/Lotus/Types/Recipes/ArmourAttachments",
-        "candidateNames": [
-          "Eos Shoulder Plates Blueprint",
-          "Eos Left Shoulder Blueprint",
-          "Eos Left Shoulder"
         ],
         "evidence": {
           "warframeDrops": {
@@ -2252,6 +1746,32 @@
           "Titania Mab Helmet Blueprint",
           "Fairy Alt Two Helmet Blueprint",
           "Fairy Alt Two Helmet"
+        ],
+        "evidence": {
+          "warframeDrops": {
+            "count": 0,
+            "samples": []
+          },
+          "blueprintTables": {
+            "count": 0,
+            "samples": []
+          },
+          "syndicates": {
+            "count": 0,
+            "samples": []
+          }
+        },
+        "likelyFixPath": "manual-or-new-source"
+      },
+      {
+        "catalogId": "items:/Lotus/Types/Recipes/Helmets/FollieAltHelmetBlueprint",
+        "displayName": "Follie Sfumato Helmet Blueprint",
+        "path": "/Lotus/Types/Recipes/Helmets/FollieAltHelmetBlueprint",
+        "bucket": "/Lotus/Types/Recipes/Helmets",
+        "candidateNames": [
+          "Follie Sfumato Helmet Blueprint",
+          "Follie Alt Helmet Blueprint",
+          "Follie Alt Helmet"
         ],
         "evidence": {
           "warframeDrops": {
@@ -3721,6 +3241,32 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
+        "catalogId": "items:/Lotus/Types/Recipes/Helmets/UrielAltHelmetBlueprint",
+        "displayName": "Uriel Asmodion Helmet Blueprint",
+        "path": "/Lotus/Types/Recipes/Helmets/UrielAltHelmetBlueprint",
+        "bucket": "/Lotus/Types/Recipes/Helmets",
+        "candidateNames": [
+          "Uriel Asmodion Helmet Blueprint",
+          "Uriel Alt Helmet Blueprint",
+          "Uriel Alt Helmet"
+        ],
+        "evidence": {
+          "warframeDrops": {
+            "count": 0,
+            "samples": []
+          },
+          "blueprintTables": {
+            "count": 0,
+            "samples": []
+          },
+          "syndicates": {
+            "count": 0,
+            "samples": []
+          }
+        },
+        "likelyFixPath": "manual-or-new-source"
+      },
+      {
         "catalogId": "items:/Lotus/Types/Recipes/Helmets/V2AnimaAltHelmetBlueprint",
         "displayName": "Equinox Clisthert Helm Blueprint",
         "path": "/Lotus/Types/Recipes/Helmets/V2AnimaAltHelmetBlueprint",
@@ -5012,32 +4558,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Recipes/SentinelRecipes/RadarSentinelBlueprint",
-        "displayName": "Oxylus Blueprint",
-        "path": "/Lotus/Types/Recipes/SentinelRecipes/RadarSentinelBlueprint",
-        "bucket": "/Lotus/Types/Recipes/SentinelRecipes",
-        "candidateNames": [
-          "Oxylus Blueprint",
-          "Radar Sentinel Blueprint",
-          "Radar Sentinel"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Recipes/SolarisRecipes/Nokko/NokkoMushroomScrawlABlueprint",
         "displayName": "Deep Roots Cave Art Blueprint",
         "path": "/Lotus/Types/Recipes/SolarisRecipes/Nokko/NokkoMushroomScrawlABlueprint",
@@ -5220,81 +4740,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Recipes/Syandanas/AsaSyandanaBlueprint",
-        "displayName": "Asa Syandana Blueprint",
-        "path": "/Lotus/Types/Recipes/Syandanas/AsaSyandanaBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Syandanas",
-        "candidateNames": [
-          "Asa Syandana Blueprint",
-          "Asa Syandana"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Syandanas/UruSyandanaBlueprint",
-        "displayName": "Uru Syandana Blueprint",
-        "path": "/Lotus/Types/Recipes/Syandanas/UruSyandanaBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Syandanas",
-        "candidateNames": [
-          "Uru Syandana Blueprint",
-          "Uru Syandana"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Syandanas/YomoSyandanaBlueprint",
-        "displayName": "Yomo Syandana Blueprint",
-        "path": "/Lotus/Types/Recipes/Syandanas/YomoSyandanaBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Syandanas",
-        "candidateNames": [
-          "Yomo Syandana Blueprint",
-          "Yomo Syandana"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/AnimaBlueprint",
         "displayName": "/Lotus/Types/Recipes/WarframeRecipes/AnimaBlueprint",
         "path": "/Lotus/Types/Recipes/WarframeRecipes/AnimaBlueprint",
@@ -5329,58 +4774,6 @@
           "Animus Blueprint",
           "Animus",
           "Day Aspect Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/BrawlerBlueprint",
-        "displayName": "Atlas Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/BrawlerBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Atlas Blueprint",
-          "Brawler Blueprint",
-          "Brawler"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/BrokenFrameBlueprint",
-        "displayName": "Xaku Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/BrokenFrameBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Xaku Blueprint",
-          "Broken Frame Blueprint",
-          "Broken Frame"
         ],
         "evidence": {
           "warframeDrops": {
@@ -5555,161 +4948,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/FairyBlueprint",
-        "displayName": "Titania Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/FairyBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Titania Blueprint",
-          "Fairy Blueprint",
-          "Fairy"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/FairyChassisBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/FairyChassisBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/FairyChassisBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Fairy Chassis Blueprint",
-          "Fairy Chassis",
-          "Titania Chassis Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/FairyHelmetBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/FairyHelmetBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/FairyHelmetBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Fairy Helmet Blueprint",
-          "Fairy Helmet",
-          "Titania Neuroptics Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/FairySystemsBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/FairySystemsBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/FairySystemsBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Fairy Systems Blueprint",
-          "Fairy Systems",
-          "Titania Systems Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/GarudaBlueprint",
-        "displayName": "Garuda Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/GarudaBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Garuda Blueprint",
-          "Garuda"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/GlassBlueprint",
-        "displayName": "Gara Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/GlassBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Gara Blueprint",
-          "Glass Blueprint",
-          "Glass"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/GrendelChassisBlueprint",
         "displayName": "/Lotus/Types/Recipes/WarframeRecipes/GrendelChassisBlueprint",
         "path": "/Lotus/Types/Recipes/WarframeRecipes/GrendelChassisBlueprint",
@@ -5786,110 +5024,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/HarlequinChassisBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/HarlequinChassisBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/HarlequinChassisBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Harlequin Chassis Blueprint",
-          "Harlequin Chassis",
-          "Mirage Chassis Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/HarlequinHelmetBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/HarlequinHelmetBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/HarlequinHelmetBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Harlequin Helmet Blueprint",
-          "Harlequin Helmet",
-          "Mirage Neuroptics Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/HarlequinSystemsBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/HarlequinSystemsBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/HarlequinSystemsBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Harlequin Systems Blueprint",
-          "Harlequin Systems",
-          "Mirage Systems Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/IronframeBlueprint",
-        "displayName": "Hildryn Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/IronframeBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Hildryn Blueprint",
-          "Ironframe Blueprint",
-          "Ironframe"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/KhoraBlueprint",
         "displayName": "Khora Blueprint",
         "path": "/Lotus/Types/Recipes/WarframeRecipes/KhoraBlueprint",
@@ -5897,342 +5031,6 @@
         "candidateNames": [
           "Khora Blueprint",
           "Khora"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/MagicianChassisBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/MagicianChassisBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/MagicianChassisBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Magician Chassis Blueprint",
-          "Magician Chassis",
-          "Limbo Chassis Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/MagicianHelmetBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/MagicianHelmetBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/MagicianHelmetBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Magician Helmet Blueprint",
-          "Magician Helmet",
-          "Limbo Neuroptics Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/MagicianSystemsBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/MagicianSystemsBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/MagicianSystemsBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Magician Systems Blueprint",
-          "Magician Systems",
-          "Limbo Systems Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/MummyBlueprint",
-        "displayName": "Inaros Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/MummyBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Inaros Blueprint",
-          "Mummy Blueprint",
-          "Mummy"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/MummyChassisBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/MummyChassisBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/MummyChassisBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Mummy Chassis Blueprint",
-          "Mummy Chassis",
-          "Inaros Chassis Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/MummyHelmetBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/MummyHelmetBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/MummyHelmetBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Mummy Helmet Blueprint",
-          "Mummy Helmet",
-          "Inaros Neuroptics Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/MummySystemsBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/MummySystemsBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/MummySystemsBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Mummy Systems Blueprint",
-          "Mummy Systems",
-          "Inaros Systems Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/NidusBlueprint",
-        "displayName": "Nidus Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/NidusBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Nidus Blueprint",
-          "Nidus"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/OctaviaBlueprint",
-        "displayName": "Octavia Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/OctaviaBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Octavia Blueprint",
-          "Octavia"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/PacifistBlueprint",
-        "displayName": "Baruuk Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/PacifistBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Baruuk Blueprint",
-          "Pacifist Blueprint",
-          "Pacifist"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/PacifistChassisBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/PacifistChassisBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/PacifistChassisBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Pacifist Chassis Blueprint",
-          "Pacifist Chassis",
-          "Baruuk Chassis Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/PacifistHelmetBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/PacifistHelmetBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/PacifistHelmetBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Pacifist Helmet Blueprint",
-          "Pacifist Helmet",
-          "Baruuk Neuroptics Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/PacifistSystemsBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/PacifistSystemsBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/PacifistSystemsBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Pacifist Systems Blueprint",
-          "Pacifist Systems",
-          "Baruuk Systems Blueprint"
         ],
         "evidence": {
           "warframeDrops": {
@@ -6355,57 +5153,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/PriestBlueprint",
-        "displayName": "Harrow Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/PriestBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Harrow Blueprint",
-          "Priest Blueprint",
-          "Priest"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/ProteaBlueprint",
-        "displayName": "Protea Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/ProteaBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Protea Blueprint",
-          "Protea"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/RangerBlueprint",
         "displayName": "Ivara Blueprint",
         "path": "/Lotus/Types/Recipes/WarframeRecipes/RangerBlueprint",
@@ -6414,132 +5161,6 @@
           "Ivara Blueprint",
           "Ranger Blueprint",
           "Ranger"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/RevenantBlueprint",
-        "displayName": "Revenant Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/RevenantBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Revenant Blueprint",
-          "Revenant"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/StyanaxBlueprint",
-        "displayName": "Styanax Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/StyanaxBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Styanax Blueprint",
-          "Styanax"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/StyanaxChassisBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/StyanaxChassisBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/StyanaxChassisBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Styanax Chassis Blueprint",
-          "Styanax Chassis"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/StyanaxHelmetBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/StyanaxHelmetBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/StyanaxHelmetBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Styanax Helmet Blueprint",
-          "Styanax Helmet",
-          "Styanax Neuroptics Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/StyanaxSystemsBlueprint",
-        "displayName": "/Lotus/Types/Recipes/WarframeRecipes/StyanaxSystemsBlueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/StyanaxSystemsBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Styanax Systems Blueprint",
-          "Styanax Systems"
         ],
         "evidence": {
           "warframeDrops": {
@@ -6661,291 +5282,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/WraithBlueprint",
-        "displayName": "Sevagoth Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/WraithBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Sevagoth Blueprint",
-          "Wraith Blueprint",
-          "Wraith"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeRecipes/YareliBlueprint",
-        "displayName": "Yareli Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeRecipes/YareliBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeRecipes",
-        "candidateNames": [
-          "Yareli Blueprint",
-          "Yareli"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeSkins/AvatarBatBlueprint",
-        "displayName": "Naberus Ephemera Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeSkins/AvatarBatBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeSkins",
-        "candidateNames": [
-          "Naberus Ephemera Blueprint",
-          "Avatar Bat Blueprint",
-          "Avatar Bat"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeSkins/AvatarBloodABlueprint",
-        "displayName": "Bleeding Body Ephemera Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeSkins/AvatarBloodABlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeSkins",
-        "candidateNames": [
-          "Bleeding Body Ephemera Blueprint",
-          "Avatar Blood A Blueprint",
-          "Avatar Blood A"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeSkins/EmberImmortalBlueprint",
-        "displayName": "Ember Immortal Skin Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeSkins/EmberImmortalBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeSkins",
-        "candidateNames": [
-          "Ember Immortal Skin Blueprint",
-          "Ember Immortal Blueprint",
-          "Ember Immortal"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeSkins/ExcaliburImmortalBlueprint",
-        "displayName": "Excalibur Immortal Skin Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeSkins/ExcaliburImmortalBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeSkins",
-        "candidateNames": [
-          "Excalibur Immortal Skin Blueprint",
-          "Excalibur Immortal Blueprint",
-          "Excalibur Immortal"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeSkins/FootstepsEidolonBlueprint",
-        "displayName": "Eidolon Ephemera Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeSkins/FootstepsEidolonBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeSkins",
-        "candidateNames": [
-          "Eidolon Ephemera Blueprint",
-          "Footsteps Eidolon Blueprint",
-          "Footsteps Eidolon"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeSkins/FootstepsPetalsBlueprint",
-        "displayName": "Seeding Step Ephemera Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeSkins/FootstepsPetalsBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeSkins",
-        "candidateNames": [
-          "Seeding Step Ephemera Blueprint",
-          "Footsteps Petals Blueprint",
-          "Footsteps Petals"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeSkins/FrostImmortalBlueprint",
-        "displayName": "Frost Immortal Skin Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeSkins/FrostImmortalBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeSkins",
-        "candidateNames": [
-          "Frost Immortal Skin Blueprint",
-          "Frost Immortal Blueprint",
-          "Frost Immortal"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeSkins/VoidAngelEphemeraABlueprint",
-        "displayName": "Raptwing Ephemera Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeSkins/VoidAngelEphemeraABlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeSkins",
-        "candidateNames": [
-          "Raptwing Ephemera Blueprint",
-          "Void Angel Ephemera A Blueprint",
-          "Void Angel Ephemera A"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/WarframeSkins/VoidAngelEphemeraBBlueprint",
-        "displayName": "Seraphayre Ephemera Blueprint",
-        "path": "/Lotus/Types/Recipes/WarframeSkins/VoidAngelEphemeraBBlueprint",
-        "bucket": "/Lotus/Types/Recipes/WarframeSkins",
-        "candidateNames": [
-          "Seraphayre Ephemera Blueprint",
-          "Void Angel Ephemera B Blueprint",
-          "Void Angel Ephemera B"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Recipes/Weapons/BratonBlueprint",
         "displayName": "Braton Blueprint",
         "path": "/Lotus/Types/Recipes/Weapons/BratonBlueprint",
@@ -6953,83 +5289,6 @@
         "candidateNames": [
           "Braton Blueprint",
           "Braton"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/BrokenScepterBlueprint",
-        "displayName": "Broken Scepter Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/BrokenScepterBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Broken Scepter Blueprint",
-          "Broken Scepter"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CephHammerBlueprint",
-        "displayName": "Heliocor Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/CephHammerBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Heliocor Blueprint",
-          "Ceph Hammer Blueprint",
-          "Ceph Hammer"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CephPrimaryBlueprint",
-        "displayName": "Simulor Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/CephPrimaryBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Simulor Blueprint",
-          "Ceph Primary Blueprint",
-          "Ceph Primary"
         ],
         "evidence": {
           "warframeDrops": {
@@ -7100,32 +5359,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/CrpGhostCatcherGlaiveBlueprint",
-        "displayName": "Xoris Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/CrpGhostCatcherGlaiveBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Xoris Blueprint",
-          "Crp Ghost Catcher Glaive Blueprint",
-          "Crp Ghost Catcher Glaive"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Recipes/Weapons/CrpHammerShieldBlueprint",
         "displayName": "Tenet Agendus Blueprint",
         "path": "/Lotus/Types/Recipes/Weapons/CrpHammerShieldBlueprint",
@@ -7152,32 +5385,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/DualEtherDaggerBlueprint",
-        "displayName": "Ether Daggers Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/DualEtherDaggerBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Ether Daggers Blueprint",
-          "Dual Ether Dagger Blueprint",
-          "Dual Ether Dagger"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Recipes/Weapons/EntSphereHammerBlueprint",
         "displayName": "Ekhein Blueprint",
         "path": "/Lotus/Types/Recipes/Weapons/EntSphereHammerBlueprint",
@@ -7186,162 +5393,6 @@
           "Ekhein Blueprint",
           "Ent Sphere Hammer Blueprint",
           "Ent Sphere Hammer"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/EventSnipetronBlueprint",
-        "displayName": "/Lotus/Types/Recipes/Weapons/EventSnipetronBlueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/EventSnipetronBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Event Snipetron Blueprint",
-          "Event Snipetron",
-          "Snipetron Blueprint"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/Evolving/ZarimanDaggerWeaponBlueprint",
-        "displayName": "Innodem Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/Evolving/ZarimanDaggerWeaponBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Innodem Blueprint",
-          "Zariman Dagger Weapon Blueprint",
-          "Zariman Dagger Weapon"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/Evolving/ZarimanHeavyPistolBlueprint",
-        "displayName": "Laetum Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/Evolving/ZarimanHeavyPistolBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Laetum Blueprint",
-          "Zariman Heavy Pistol Blueprint",
-          "Zariman Heavy Pistol"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/Evolving/ZarimanPumpShotgunBlueprint",
-        "displayName": "Felarx Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/Evolving/ZarimanPumpShotgunBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Felarx Blueprint",
-          "Zariman Pump Shotgun Blueprint",
-          "Zariman Pump Shotgun"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/Evolving/ZarimanSemiAutoRifleBlueprint",
-        "displayName": "Phenmor Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/Evolving/ZarimanSemiAutoRifleBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Phenmor Blueprint",
-          "Zariman Semi Auto Rifle Blueprint",
-          "Zariman Semi Auto Rifle"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/Evolving/ZarimanTonfaWeaponBlueprint",
-        "displayName": "Praedos Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/Evolving/ZarimanTonfaWeaponBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Praedos Blueprint",
-          "Zariman Tonfa Weapon Blueprint",
-          "Zariman Tonfa Weapon"
         ],
         "evidence": {
           "warframeDrops": {
@@ -7419,135 +5470,6 @@
           "Sheev Blueprint",
           "Grineer Combat Knife Sortie Blueprint",
           "Grineer Combat Knife Sortie"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrnSharbolaWeaponBlueprint",
-        "displayName": "Slaytra Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/GrnSharbolaWeaponBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Slaytra Blueprint",
-          "Grn Sharbola Weapon Blueprint",
-          "Grn Sharbola Weapon"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/GrnVorStickyBombBlueprint",
-        "displayName": "Aegrit Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/GrnVorStickyBombBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Aegrit Blueprint",
-          "Grn Vor Sticky Bomb Blueprint",
-          "Grn Vor Sticky Bomb"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/ImperatorBlueprint",
-        "displayName": "Imperator Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/ImperatorBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Imperator Blueprint",
-          "Imperator"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/InfTransformClawsBlueprint",
-        "displayName": "Keratinos Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/InfTransformClawsBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Keratinos Blueprint",
-          "Inf Transform Claws Blueprint",
-          "Inf Transform Claws"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/InfUziBlueprint",
-        "displayName": "Zymos Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/InfUziBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Zymos Blueprint",
-          "Inf Uzi Blueprint",
-          "Inf Uzi"
         ],
         "evidence": {
           "warframeDrops": {
@@ -8033,110 +5955,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/NWOrokinSwordBlueprint",
-        "displayName": "Vitrica Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/NWOrokinSwordBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Vitrica Blueprint",
-          "NW Orokin Sword Blueprint",
-          "NW Orokin Sword"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SentinelCryoxionWeaponBlueprint",
-        "displayName": "Cryotra Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/SentinelCryoxionWeaponBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Cryotra Blueprint",
-          "Sentinel Cryoxion Weapon Blueprint",
-          "Sentinel Cryoxion Weapon"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SentinelTazronWeaponBlueprint",
-        "displayName": "Tazicor Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/SentinelTazronWeaponBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Tazicor Blueprint",
-          "Sentinel Tazron Weapon Blueprint",
-          "Sentinel Tazron Weapon"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SentinelThermocorWeaponBlueprint",
-        "displayName": "Vulcax Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/SentinelThermocorWeaponBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Vulcax Blueprint",
-          "Sentinel Thermocor Weapon Blueprint",
-          "Sentinel Thermocor Weapon"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Recipes/Weapons/SentRifleNewWarGunBlueprint",
         "displayName": "Basmu Blueprint",
         "path": "/Lotus/Types/Recipes/Weapons/SentRifleNewWarGunBlueprint",
@@ -8145,57 +5963,6 @@
           "Basmu Blueprint",
           "Sent Rifle New War Gun Blueprint",
           "Sent Rifle New War Gun"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SheduHeavyWeaponBlueprint",
-        "displayName": "Shedu Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/SheduHeavyWeaponBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Shedu Blueprint",
-          "Shedu Heavy Weapon Blueprint",
-          "Shedu Heavy Weapon"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SnipetronBlueprint",
-        "displayName": "Snipetron Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/SnipetronBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Snipetron Blueprint",
-          "Snipetron"
         ],
         "evidence": {
           "warframeDrops": {
@@ -8239,136 +6006,6 @@
         "likelyFixPath": "manual-or-new-source"
       },
       {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SundialAxeBlueprint",
-        "displayName": "Zenistar Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/SundialAxeBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Zenistar Blueprint",
-          "Sundial Axe Blueprint",
-          "Sundial Axe"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SundialPistolBlueprint",
-        "displayName": "Azima Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/SundialPistolBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Azima Blueprint",
-          "Sundial Pistol Blueprint",
-          "Sundial Pistol"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SundialRifleBlueprint",
-        "displayName": "Zenith Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/SundialRifleBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Zenith Blueprint",
-          "Sundial Rifle Blueprint",
-          "Sundial Rifle"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SundialSwordBoardBlueprint",
-        "displayName": "Sigma & Octantis Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/SundialSwordBoardBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Sigma & Octantis Blueprint",
-          "Sundial Sword Board Blueprint",
-          "Sundial Sword Board"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/SwarmerWeaponBlueprint",
-        "displayName": "Helstrum Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/SwarmerWeaponBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Helstrum Blueprint",
-          "Swarmer Weapon Blueprint",
-          "Swarmer Weapon"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Recipes/Weapons/TC2024AK47Blueprint",
         "displayName": "Ax-52 Blueprint",
         "path": "/Lotus/Types/Recipes/Weapons/TC2024AK47Blueprint",
@@ -8377,58 +6014,6 @@
           "Ax-52 Blueprint",
           "TC2024 AK47 Blueprint",
           "TC2024 AK47"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TeshinGlaiveBlueprint",
-        "displayName": "Orvius Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/TeshinGlaiveBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Orvius Blueprint",
-          "Teshin Glaive Blueprint",
-          "Teshin Glaive"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/TnHopliteSpearGunWeaponBlueprint",
-        "displayName": "Afentis Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/TnHopliteSpearGunWeaponBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Afentis Blueprint",
-          "Tn Hoplite Spear Gun Weapon Blueprint",
-          "Tn Hoplite Spear Gun Weapon"
         ],
         "evidence": {
           "warframeDrops": {
@@ -8481,31 +6066,6 @@
           "Skiajati Blueprint",
           "Umbra Katana Blueprint",
           "Umbra Katana"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/VerituxBlueprint",
-        "displayName": "Veritux Blueprint",
-        "path": "/Lotus/Types/Recipes/Weapons/VerituxBlueprint",
-        "bucket": "/Lotus/Types/Recipes/Weapons",
-        "candidateNames": [
-          "Veritux Blueprint",
-          "Veritux"
         ],
         "evidence": {
           "warframeDrops": {
@@ -8908,110 +6468,6 @@
           }
         },
         "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Weapons/SolarisUnited/Primary/SUModularPrimarySet1/Handles/SUModularPrimaryHandleAPartBlueprint",
-        "displayName": "Brash Blueprint",
-        "path": "/Lotus/Weapons/SolarisUnited/Primary/SUModularPrimarySet1/Handles/SUModularPrimaryHandleAPartBlueprint",
-        "bucket": "/Lotus/Weapons/SolarisUnited/Primary",
-        "candidateNames": [
-          "Brash Blueprint",
-          "SU Modular Primary Handle A Part Blueprint",
-          "SU Modular Primary Handle A Part"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Weapons/SolarisUnited/Primary/SUModularPrimarySet1/Handles/SUModularPrimaryHandleBPartBlueprint",
-        "displayName": "Shrewd Blueprint",
-        "path": "/Lotus/Weapons/SolarisUnited/Primary/SUModularPrimarySet1/Handles/SUModularPrimaryHandleBPartBlueprint",
-        "bucket": "/Lotus/Weapons/SolarisUnited/Primary",
-        "candidateNames": [
-          "Shrewd Blueprint",
-          "SU Modular Primary Handle B Part Blueprint",
-          "SU Modular Primary Handle B Part"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Weapons/SolarisUnited/Primary/SUModularPrimarySet1/Handles/SUModularPrimaryHandleCPartBlueprint",
-        "displayName": "Steadyslam Blueprint",
-        "path": "/Lotus/Weapons/SolarisUnited/Primary/SUModularPrimarySet1/Handles/SUModularPrimaryHandleCPartBlueprint",
-        "bucket": "/Lotus/Weapons/SolarisUnited/Primary",
-        "candidateNames": [
-          "Steadyslam Blueprint",
-          "SU Modular Primary Handle C Part Blueprint",
-          "SU Modular Primary Handle C Part"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
-      },
-      {
-        "catalogId": "items:/Lotus/Weapons/SolarisUnited/Primary/SUModularPrimarySet1/Handles/SUModularPrimaryHandleDPartBlueprint",
-        "displayName": "Tremor Blueprint",
-        "path": "/Lotus/Weapons/SolarisUnited/Primary/SUModularPrimarySet1/Handles/SUModularPrimaryHandleDPartBlueprint",
-        "bucket": "/Lotus/Weapons/SolarisUnited/Primary",
-        "candidateNames": [
-          "Tremor Blueprint",
-          "SU Modular Primary Handle D Part Blueprint",
-          "SU Modular Primary Handle D Part"
-        ],
-        "evidence": {
-          "warframeDrops": {
-            "count": 0,
-            "samples": []
-          },
-          "blueprintTables": {
-            "count": 0,
-            "samples": []
-          },
-          "syndicates": {
-            "count": 0,
-            "samples": []
-          }
-        },
-        "likelyFixPath": "manual-or-new-source"
       }
     ]
   },
@@ -9053,141 +6509,15 @@
       "siblingBlueprintCatalogId": null
     },
     {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchAxeBlade",
-      "displayName": "Onorix Blade",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchAxeBlade",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchAxeHandle",
-      "displayName": "Onorix Handle",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchAxeHandle",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchBurstGunBarrel",
-      "displayName": "Cyngas Barrel",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchBurstGunBarrel",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchBurstGunReceiver",
-      "displayName": "Cyngas Receiver",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchBurstGunReceiver",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchBurstGunStock",
-      "displayName": "Cyngas Stock",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchBurstGunStock",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchCannonBarrel",
-      "displayName": "Corvas Barrel",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchCannonBarrel",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchCannonReceiver",
-      "displayName": "Corvas Receiver",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchCannonReceiver",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchCannonStock",
-      "displayName": "Corvas Stock",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchCannonStock",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHammerHandle",
-      "displayName": "Rathbone Handle",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHammerHandle",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHammerHead",
-      "displayName": "Rathbone Head",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHammerHead",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHookSwordBlade",
-      "displayName": "Agkuza Blade",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHookSwordBlade",
-      "siblingBlueprintCatalogId": null
-    },
-    {
       "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHookSwordGuard",
       "displayName": "Guard",
       "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHookSwordGuard",
       "siblingBlueprintCatalogId": null
     },
     {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHookSwordHandle",
-      "displayName": "Agkuza Handle",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHookSwordHandle",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchLongRifleBarrel",
-      "displayName": "Phaedra Barrel",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchLongRifleBarrel",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchLongRifleStock",
-      "displayName": "Phaedra Stock",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchLongRifleStock",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchRailgunBarrel",
-      "displayName": "Velocitus Barrel",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchRailgunBarrel",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchRailgunReceiver",
-      "displayName": "Velocitus Receiver",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchRailgunReceiver",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchRailgunStock",
-      "displayName": "Velocitus Stock",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchRailgunStock",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchScytheBlade",
-      "displayName": "Kaszas Blade",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchScytheBlade",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchScytheHandle",
-      "displayName": "Kaszas Handle",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchScytheHandle",
-      "siblingBlueprintCatalogId": null
-    },
-    {
       "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchSwordShieldAegis",
       "displayName": "Aegis",
       "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchSwordShieldAegis",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchSwordShieldBlade",
-      "displayName": "Centaur Blade",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchSwordShieldBlade",
-      "siblingBlueprintCatalogId": null
-    },
-    {
-      "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchSwordShieldHandle",
-      "displayName": "Centaur Handle",
-      "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchSwordShieldHandle",
       "siblingBlueprintCatalogId": null
     },
     {
@@ -9219,11 +6549,11 @@
     "byPrefix": [
       {
         "prefix": "/Lotus/Types/StoreItems/AvatarImages",
-        "count": 1647
+        "count": 1641
       },
       {
         "prefix": "/Lotus/Types/Items/ShipDecos",
-        "count": 1364
+        "count": 1213
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Operator",
@@ -9231,19 +6561,11 @@
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Armor",
-        "count": 449
-      },
-      {
-        "prefix": "/Lotus/Upgrades/Skins/Sigils",
-        "count": 307
+        "count": 441
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Scarves",
-        "count": 291
-      },
-      {
-        "prefix": "/Lotus/Types/Items/MiscItems",
-        "count": 227
+        "count": 285
       },
       {
         "prefix": "/Lotus/Types/Enemies/Grineer",
@@ -9258,31 +6580,39 @@
         "count": 196
       },
       {
-        "prefix": "/Lotus/Types/Items/Titles",
-        "count": 149
+        "prefix": "/Lotus/Upgrades/Skins/Sigils",
+        "count": 187
       },
       {
-        "prefix": "/Lotus/Types/Items/Emotes",
-        "count": 137
+        "prefix": "/Lotus/Types/Items/MiscItems",
+        "count": 182
+      },
+      {
+        "prefix": "/Lotus/Types/Items/Titles",
+        "count": 150
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Clan",
-        "count": 126
-      },
-      {
-        "prefix": "/Lotus/Upgrades/Skins/Sentinels",
-        "count": 126
+        "count": 125
       },
       {
         "prefix": "/Lotus/Types/Game/KubrowPet",
         "count": 118
       },
       {
-        "prefix": "/Lotus/Upgrades/Skins/Effects",
-        "count": 95
+        "prefix": "/Lotus/Types/Items/Emotes",
+        "count": 115
+      },
+      {
+        "prefix": "/Lotus/Upgrades/Skins/Sentinels",
+        "count": 115
       },
       {
         "prefix": "/Lotus/Types/Game/CatbrowPet",
+        "count": 92
+      },
+      {
+        "prefix": "/Lotus/Upgrades/Skins/Effects",
         "count": 92
       },
       {
@@ -9290,16 +6620,12 @@
         "count": 83
       },
       {
-        "prefix": "/Lotus/Upgrades/Mods/PvPMods",
-        "count": 78
-      },
-      {
         "prefix": "/Lotus/Types/Friendly/Pets",
         "count": 76
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Liset",
-        "count": 75
+        "count": 76
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Promo",
@@ -9318,14 +6644,6 @@
         "count": 65
       },
       {
-        "prefix": "/Lotus/Types/Items/PhotoBooth",
-        "count": 64
-      },
-      {
-        "prefix": "/Lotus/Types/Restoratives/Consumable",
-        "count": 64
-      },
-      {
         "prefix": "/Lotus/Types/Items/SongItems",
         "count": 63
       },
@@ -9342,15 +6660,15 @@
         "count": 53
       },
       {
-        "prefix": "/Lotus/Weapons/Tenno/Melee",
-        "count": 53
-      },
-      {
         "prefix": "/Lotus/Upgrades/Mods/FusionBundles",
         "count": 51
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Weapons",
+        "count": 51
+      },
+      {
+        "prefix": "/Lotus/Weapons/Tenno/Melee",
         "count": 51
       },
       {
@@ -9362,12 +6680,16 @@
         "count": 49
       },
       {
-        "prefix": "/Lotus/Upgrades/Skins/TextureOverrides",
-        "count": 49
-      },
-      {
         "prefix": "/Lotus/Upgrades/Skins/HolsterCustomizations",
         "count": 48
+      },
+      {
+        "prefix": "/Lotus/Types/Restoratives/Consumable",
+        "count": 47
+      },
+      {
+        "prefix": "/Lotus/Types/Items/PhotoBooth",
+        "count": 46
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Volt",
@@ -9383,6 +6705,10 @@
       },
       {
         "prefix": "/Lotus/Types/Enemies/Infested",
+        "count": 44
+      },
+      {
+        "prefix": "/Lotus/Upgrades/Skins/TextureOverrides",
         "count": 44
       },
       {
@@ -9402,20 +6728,8 @@
         "count": 37
       },
       {
-        "prefix": "/Lotus/Types/Restoratives/Conservation",
-        "count": 36
-      },
-      {
         "prefix": "/Lotus/Upgrades/Skins/Cowgirl",
         "count": 36
-      },
-      {
-        "prefix": "/Lotus/Types/Items/Deimos",
-        "count": 35
-      },
-      {
-        "prefix": "/Lotus/Types/Sentinels/SentinelPrecepts",
-        "count": 35
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Harlequin",
@@ -9426,15 +6740,15 @@
         "count": 35
       },
       {
+        "prefix": "/Lotus/Types/Items/Deimos",
+        "count": 34
+      },
+      {
         "prefix": "/Lotus/Upgrades/Mods/Railjack",
         "count": 33
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Loki",
-        "count": 33
-      },
-      {
-        "prefix": "/Lotus/Upgrades/Skins/PvP",
         "count": 33
       },
       {
@@ -9478,16 +6792,16 @@
         "count": 29
       },
       {
+        "prefix": "/Lotus/Types/Sentinels/SentinelPrecepts",
+        "count": 28
+      },
+      {
         "prefix": "/Lotus/Upgrades/Skins/Fairy",
         "count": 28
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Horse",
         "count": 28
-      },
-      {
-        "prefix": "/Lotus/Types/Recipes/Weapons",
-        "count": 27
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Dragon",
@@ -9554,24 +6868,12 @@
         "count": 24
       },
       {
-        "prefix": "/Lotus/Upgrades/Mods/Sets",
-        "count": 24
-      },
-      {
         "prefix": "/Lotus/Upgrades/Skins/Runner",
         "count": 24
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Trinity",
         "count": 24
-      },
-      {
-        "prefix": "/Lotus/Types/Items/Gems",
-        "count": 23
-      },
-      {
-        "prefix": "/Lotus/Upgrades/Mods/Hoverboard",
-        "count": 23
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Bard",
@@ -9608,6 +6910,10 @@
       {
         "prefix": "/Lotus/Upgrades/Skins/Priest",
         "count": 22
+      },
+      {
+        "prefix": "/Lotus/Types/Items/Gems",
+        "count": 21
       },
       {
         "prefix": "/Lotus/Types/Items/Solaris",
@@ -9662,6 +6968,10 @@
         "count": 19
       },
       {
+        "prefix": "/Lotus/Upgrades/Mods/Sets",
+        "count": 19
+      },
+      {
         "prefix": "/Lotus/Upgrades/Mods/Shotgun",
         "count": 19
       },
@@ -9678,19 +6988,7 @@
         "count": 19
       },
       {
-        "prefix": "/Lotus/Types/Gameplay/InfestedMicroplanet",
-        "count": 18
-      },
-      {
-        "prefix": "/Lotus/Upgrades/CosmeticEnhancers/OperatorArmour",
-        "count": 18
-      },
-      {
         "prefix": "/Lotus/Upgrades/Focus/Power",
-        "count": 18
-      },
-      {
-        "prefix": "/Lotus/Upgrades/Mods/Warframe",
         "count": 18
       },
       {
@@ -9699,6 +6997,10 @@
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Sandman",
+        "count": 18
+      },
+      {
+        "prefix": "/Lotus/Upgrades/Skins/Werewolf",
         "count": 18
       },
       {
@@ -9722,24 +7024,12 @@
         "count": 16
       },
       {
-        "prefix": "/Lotus/Types/Game/FishBait",
-        "count": 16
-      },
-      {
         "prefix": "/Lotus/Upgrades/Skins/Alchemist",
-        "count": 16
-      },
-      {
-        "prefix": "/Lotus/Upgrades/Skins/Werewolf",
         "count": 16
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/Yareli",
         "count": 16
-      },
-      {
-        "prefix": "/Lotus/Types/Game/QuartersWallpapers",
-        "count": 15
       },
       {
         "prefix": "/Lotus/Types/Items/Plants",
@@ -9754,7 +7044,7 @@
         "count": 15
       },
       {
-        "prefix": "/Lotus/Types/Items/DangerRoom",
+        "prefix": "/Lotus/Types/Gameplay/InfestedMicroplanet",
         "count": 14
       },
       {
@@ -9798,6 +7088,10 @@
         "count": 11
       },
       {
+        "prefix": "/Lotus/Upgrades/Mods/Warframe",
+        "count": 11
+      },
+      {
         "prefix": "/Lotus/Upgrades/Skins/WinterSolstice",
         "count": 11
       },
@@ -9814,15 +7108,11 @@
         "count": 10
       },
       {
+        "prefix": "/Lotus/Types/Game/QuartersWallpapers",
+        "count": 10
+      },
+      {
         "prefix": "/Lotus/Types/Items/VideoWallSoundscapes",
-        "count": 10
-      },
-      {
-        "prefix": "/Lotus/Upgrades/CosmeticEnhancers/Offensive",
-        "count": 10
-      },
-      {
-        "prefix": "/Lotus/Upgrades/CosmeticEnhancers/OperatorAmps",
         "count": 10
       },
       {
@@ -9871,6 +7161,10 @@
       },
       {
         "prefix": "/Lotus/StoreItems/Upgrades/Mods",
+        "count": 8
+      },
+      {
+        "prefix": "/Lotus/Types/Items/DangerRoom",
         "count": 8
       },
       {
@@ -9974,7 +7268,7 @@
         "count": 6
       },
       {
-        "prefix": "/Lotus/Upgrades/Mods/Necromech",
+        "prefix": "/Lotus/Types/Recipes/Weapons",
         "count": 6
       },
       {
@@ -9998,20 +7292,12 @@
         "count": 6
       },
       {
-        "prefix": "/Lotus/Weapons/Tenno/Bows",
-        "count": 6
-      },
-      {
         "prefix": "/Lotus/Weapons/Tenno/Rifle",
         "count": 6
       },
       {
         "prefix": "/Lotus/Weapons/Tenno/Zariman",
         "count": 6
-      },
-      {
-        "prefix": "/Lotus/Types/Items/Arcade",
-        "count": 5
       },
       {
         "prefix": "/Lotus/Types/Items/VideoWallBackdrops",
@@ -10050,10 +7336,6 @@
         "count": 4
       },
       {
-        "prefix": "/Lotus/Types/Items/FusionTreasures",
-        "count": 4
-      },
-      {
         "prefix": "/Lotus/Types/Keys/LimboQuest",
         "count": 4
       },
@@ -10062,19 +7344,11 @@
         "count": 4
       },
       {
-        "prefix": "/Lotus/Upgrades/CosmeticEnhancers/Utility",
-        "count": 4
-      },
-      {
         "prefix": "/Lotus/Upgrades/Mods/Aura",
         "count": 4
       },
       {
         "prefix": "/Lotus/Upgrades/Mods/DualSource",
-        "count": 4
-      },
-      {
-        "prefix": "/Lotus/Upgrades/Mods/TransmuteCores",
         "count": 4
       },
       {
@@ -10102,6 +7376,10 @@
         "count": 4
       },
       {
+        "prefix": "/Lotus/Weapons/Tenno/Bows",
+        "count": 4
+      },
+      {
         "prefix": "/Lotus/Types/Gameplay/Eidolon",
         "count": 3
       },
@@ -10114,6 +7392,14 @@
         "count": 3
       },
       {
+        "prefix": "/Lotus/Types/Items/Arcade",
+        "count": 3
+      },
+      {
+        "prefix": "/Lotus/Types/Items/FusionTreasures",
+        "count": 3
+      },
+      {
         "prefix": "/Lotus/Types/Items/RelayRebuild",
         "count": 3
       },
@@ -10122,15 +7408,15 @@
         "count": 3
       },
       {
-        "prefix": "/Lotus/Types/Items/Ships",
-        "count": 3
-      },
-      {
         "prefix": "/Lotus/Types/Recipes/ArchwingRecipes",
         "count": 3
       },
       {
         "prefix": "/Lotus/Types/Recipes/WarframeRecipes",
+        "count": 3
+      },
+      {
+        "prefix": "/Lotus/Types/Restoratives/Conservation",
         "count": 3
       },
       {
@@ -10143,10 +7429,6 @@
       },
       {
         "prefix": "/Lotus/Types/StoreItems/Packages",
-        "count": 3
-      },
-      {
-        "prefix": "/Lotus/Upgrades/Mods/Randomized",
         "count": 3
       },
       {
@@ -10167,10 +7449,6 @@
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/GrineerUrban",
-        "count": 3
-      },
-      {
-        "prefix": "/Lotus/Upgrades/Skins/KDrive",
         "count": 3
       },
       {
@@ -10198,30 +7476,6 @@
         "count": 3
       },
       {
-        "prefix": "/Lotus/Weapons/Syndicates/ArbitersOfHexis",
-        "count": 3
-      },
-      {
-        "prefix": "/Lotus/Weapons/Syndicates/CephalonSuda",
-        "count": 3
-      },
-      {
-        "prefix": "/Lotus/Weapons/Syndicates/NewLoka",
-        "count": 3
-      },
-      {
-        "prefix": "/Lotus/Weapons/Syndicates/PerrinSequence",
-        "count": 3
-      },
-      {
-        "prefix": "/Lotus/Weapons/Syndicates/RedVeil",
-        "count": 3
-      },
-      {
-        "prefix": "/Lotus/Weapons/Syndicates/SteelMeridian",
-        "count": 3
-      },
-      {
         "prefix": "/Lotus/Weapons/Tenno/Akimbo",
         "count": 3
       },
@@ -10246,15 +7500,15 @@
         "count": 2
       },
       {
-        "prefix": "/Lotus/Types/Friendly/PlayerControllable",
-        "count": 2
-      },
-      {
         "prefix": "/Lotus/Types/Game/Pets",
         "count": 2
       },
       {
         "prefix": "/Lotus/Types/Gameplay/Race",
+        "count": 2
+      },
+      {
+        "prefix": "/Lotus/Types/Items/Ships",
         "count": 2
       },
       {
@@ -10275,6 +7529,18 @@
       },
       {
         "prefix": "/Lotus/Upgrades/CosmeticEnhancers/Peculiars",
+        "count": 2
+      },
+      {
+        "prefix": "/Lotus/Upgrades/CosmeticEnhancers/Utility",
+        "count": 2
+      },
+      {
+        "prefix": "/Lotus/Upgrades/Mods/PvPMods",
+        "count": 2
+      },
+      {
+        "prefix": "/Lotus/Upgrades/Mods/Randomized",
         "count": 2
       },
       {
@@ -10311,10 +7577,6 @@
       },
       {
         "prefix": "/Lotus/Weapons/Grineer/Melee",
-        "count": 2
-      },
-      {
-        "prefix": "/Lotus/Weapons/Operator/Melee",
         "count": 2
       },
       {
@@ -10450,10 +7712,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/AntiMatter/AntiMatterDropPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/AntiMatter/MolecularPrimeAugmentCard",
         "count": 1
       },
@@ -10542,10 +7800,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Berserker/LastStandPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Berserker/ShieldBashAugmentCard",
         "count": 1
       },
@@ -10579,10 +7833,6 @@
       },
       {
         "prefix": "/Lotus/Powersuits/Brawler/BrawlerSummonAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Brawler/BrawlerSummonPvPAugmentCard",
         "count": 1
       },
       {
@@ -10642,10 +7892,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Cowgirl/GunFuPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Cowgirl/PrimeSlingerPistols",
         "count": 1
       },
@@ -10702,10 +7948,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Dragon/DragonBreathAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Dragon/DragonLuckAugmentCard",
         "count": 1
       },
@@ -10731,10 +7973,6 @@
       },
       {
         "prefix": "/Lotus/Powersuits/Ember/FireBlastAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Ember/FireBlastPvPAugmentCard",
         "count": 1
       },
       {
@@ -10770,10 +8008,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Excalibur/ExcaliburBaseSuit",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Excalibur/ExcaliburUmbra",
         "count": 1
       },
@@ -10786,19 +8020,11 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Excalibur/RadialBlindPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Excalibur/RadialJavelinAugmentCard",
         "count": 1
       },
       {
         "prefix": "/Lotus/Powersuits/Excalibur/SlashDashAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Excalibur/SlashDashPvPAugmentCard",
         "count": 1
       },
       {
@@ -10863,10 +8089,6 @@
       },
       {
         "prefix": "/Lotus/Powersuits/Frost/IceShieldAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Frost/IceSpikeAugmentCard",
         "count": 1
       },
       {
@@ -10986,10 +8208,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Harlequin/PrismPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Hoplite/HopliteArmyAugmentCard",
         "count": 1
       },
@@ -11078,10 +8296,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Jade/SelfBulletAttractorPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Khora/KhoraBaseSuit",
         "count": 1
       },
@@ -11122,10 +8336,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Loki/DecoyPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Loki/DisarmAugmentCard",
         "count": 1
       },
@@ -11150,23 +8360,11 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Mag/MagBaseSuit",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Mag/PullAugmentCard",
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Mag/PullPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Mag/ShieldRegenAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Mag/ShieldRegenPvPAugmentCard",
         "count": 1
       },
       {
@@ -11230,10 +8428,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Necro/SoulPunchPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Necro/TerrorTotemAugmentCard",
         "count": 1
       },
@@ -11251,10 +8445,6 @@
       },
       {
         "prefix": "/Lotus/Powersuits/Nezha/NezhaSashAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Nezha/NezhaSashPvPAugmentCard",
         "count": 1
       },
       {
@@ -11287,10 +8477,6 @@
       },
       {
         "prefix": "/Lotus/Powersuits/Ninja/SmokeScreenAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Ninja/SmokeScreenPvPAugmentCard",
         "count": 1
       },
       {
@@ -11363,10 +8549,6 @@
       },
       {
         "prefix": "/Lotus/Powersuits/Paladin/ReckoningAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Paladin/ReckoningPvPAugmentCard",
         "count": 1
       },
       {
@@ -11458,10 +8640,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Ranger/RangerQuiverPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Ranger/RangerStealAugmentCard",
         "count": 1
       },
@@ -11479,10 +8657,6 @@
       },
       {
         "prefix": "/Lotus/Powersuits/Revenant/RevenantSentientAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Rhino/IronSkinAugmentCard",
         "count": 1
       },
       {
@@ -11638,23 +8812,11 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Powersuits/Volt/ShieldPvPAugmentCard",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Powersuits/Volt/ShockAugmentCard",
         "count": 1
       },
       {
         "prefix": "/Lotus/Powersuits/Volt/SpeedAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Volt/SpeedPvPAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/Volt/VoltBaseSuit",
         "count": 1
       },
       {
@@ -11759,10 +8921,6 @@
       },
       {
         "prefix": "/Lotus/Powersuits/YinYang/YinYangSwitchAugmentCard",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Powersuits/YinYang/YinYangSwitchPvPAugmentCard",
         "count": 1
       },
       {
@@ -12022,10 +9180,6 @@
         "count": 1
       },
       {
-        "prefix": "/Lotus/Types/Restoratives/CatbrowVampireDisinfect",
-        "count": 1
-      },
-      {
         "prefix": "/Lotus/Types/Restoratives/Cipher",
         "count": 1
       },
@@ -12266,7 +9420,19 @@
         "count": 1
       },
       {
+        "prefix": "/Lotus/Upgrades/Mods/Hoverboard",
+        "count": 1
+      },
+      {
         "prefix": "/Lotus/Upgrades/Mods/Immortal",
+        "count": 1
+      },
+      {
+        "prefix": "/Lotus/Upgrades/Mods/Necromech",
+        "count": 1
+      },
+      {
+        "prefix": "/Lotus/Upgrades/Mods/TransmuteCores",
         "count": 1
       },
       {
@@ -12314,6 +9480,10 @@
         "count": 1
       },
       {
+        "prefix": "/Lotus/Upgrades/Skins/PvP",
+        "count": 1
+      },
+      {
         "prefix": "/Lotus/Upgrades/Skins/SolarisUnited",
         "count": 1
       },
@@ -12323,10 +9493,6 @@
       },
       {
         "prefix": "/Lotus/Upgrades/Skins/ValentinesDay",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Upgrades/Tau/HealthPickupGivesArmourMax",
         "count": 1
       },
       {
@@ -12375,10 +9541,6 @@
       },
       {
         "prefix": "/Lotus/Weapons/Lasria/LasGooSickle",
-        "count": 1
-      },
-      {
-        "prefix": "/Lotus/Weapons/Operator/Pistols",
         "count": 1
       },
       {
@@ -13583,11 +10745,6 @@
         "path": "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAccessibleGamer"
       },
       {
-        "catalogId": "items:/Lotus/Upgrades/Skins/Sigils/SyndicateSigilConclaveN",
-        "displayName": "Accord Sigil",
-        "path": "/Lotus/Upgrades/Skins/Sigils/SyndicateSigilConclaveN"
-      },
-      {
         "catalogId": "items:/Lotus/Powersuits/Khora/KhoraCrackAugmentCard",
         "displayName": "Accumulating Whipclaw",
         "path": "/Lotus/Powersuits/Khora/KhoraCrackAugmentCard"
@@ -13601,11 +10758,6 @@
         "catalogId": "items:/Lotus/Types/Friendly/Pets/CreaturePets/CreaturePrecepts/InfestedPredatorSpitAcidPrecept",
         "displayName": "Acidic Spittle",
         "path": "/Lotus/Types/Friendly/Pets/CreaturePets/CreaturePrecepts/InfestedPredatorSpitAcidPrecept"
-      },
-      {
-        "catalogId": "items:/Lotus/Upgrades/Skins/PvP/Melee/PvPAckBrunt",
-        "displayName": "Ack & Brunt Conclave Skin",
-        "path": "/Lotus/Upgrades/Skins/PvP/Melee/PvPAckBrunt"
       },
       {
         "catalogId": "items:/Lotus/Upgrades/Skins/Halloween/HalloweenRegorAxeShield",
@@ -13671,11 +10823,6 @@
         "catalogId": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAdelfosSelene",
         "displayName": "Adelfos Selene Glyph",
         "path": "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAdelfosSelene"
-      },
-      {
-        "catalogId": "items:/Lotus/Upgrades/Mods/PvPMods/Warframe/MoreBulletJumpLessHealthMod",
-        "displayName": "Adept Surge",
-        "path": "/Lotus/Upgrades/Mods/PvPMods/Warframe/MoreBulletJumpLessHealthMod"
       },
       {
         "catalogId": "items:/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageAdikDarkCero",
@@ -13843,11 +10990,6 @@
         "path": "/Lotus/Types/Items/ShipFeatureItems/AdvancedOrdisFeatureItem"
       },
       {
-        "catalogId": "items:/Lotus/Types/Restoratives/Consumable/MiningLaserC",
-        "displayName": "Advanced Nosam Cutter",
-        "path": "/Lotus/Types/Restoratives/Consumable/MiningLaserC"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Items/ShipDecos/NokkoMushroomScrawlPosterG",
         "displayName": "Adventure Walk Cave Art",
         "path": "/Lotus/Types/Items/ShipDecos/NokkoMushroomScrawlPosterG"
@@ -13958,11 +11100,6 @@
         "path": "/Lotus/Types/StoreItems/Boosters/AffinityBoosterStoreItem"
       },
       {
-        "catalogId": "items:/Lotus/Powersuits/Dragon/DragonBreathAugmentCard",
-        "displayName": "Afterburn",
-        "path": "/Lotus/Powersuits/Dragon/DragonBreathAugmentCard"
-      },
-      {
         "catalogId": "items:/Lotus/Powersuits/Archwing/DemolitionJetPack/ExhaustTrailAugmentCard",
         "displayName": "Afterburner",
         "path": "/Lotus/Powersuits/Archwing/DemolitionJetPack/ExhaustTrailAugmentCard"
@@ -14003,21 +11140,6 @@
         "path": "/Lotus/Upgrades/Mods/OrokinChallenge/OrokinChallengeModAgility"
       },
       {
-        "catalogId": "items:/Lotus/Types/Items/ShipDecos/LisetPropOroSigilMarker",
-        "displayName": "Agkani Stone",
-        "path": "/Lotus/Types/Items/ShipDecos/LisetPropOroSigilMarker"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHookSwordBlade",
-        "displayName": "Agkuza Blade",
-        "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHookSwordBlade"
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHookSwordHandle",
-        "displayName": "Agkuza Handle",
-        "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/ArchHookSwordHandle"
-      },
-      {
         "catalogId": "items:/Lotus/Types/Items/Emotes/AgreeEmote",
         "displayName": "Agree",
         "path": "/Lotus/Types/Items/Emotes/AgreeEmote"
@@ -14046,16 +11168,6 @@
         "catalogId": "items:/Lotus/Types/Restoratives/LisetAirSupport",
         "displayName": "Air Support Charges",
         "path": "/Lotus/Types/Restoratives/LisetAirSupport"
-      },
-      {
-        "catalogId": "items:/Lotus/Upgrades/Mods/PvPMods/Warframe/AirSlideBoost",
-        "displayName": "Air Thrusters",
-        "path": "/Lotus/Upgrades/Mods/PvPMods/Warframe/AirSlideBoost"
-      },
-      {
-        "catalogId": "items:/Lotus/Upgrades/Mods/Hoverboard/HBAirGravMod",
-        "displayName": "Air Time",
-        "path": "/Lotus/Upgrades/Mods/Hoverboard/HBAirGravMod"
       },
       {
         "catalogId": "items:/Lotus/Powersuits/Tengu/TenguBurstAugmentCard",
@@ -14108,14 +11220,64 @@
         "path": "/Lotus/Types/Enemies/Grineer/Eidolon/Avatars/EidolonAutoTurretAvatar"
       },
       {
-        "catalogId": "items:/Lotus/Upgrades/Skins/PvP/Pistols/PvPAklato",
-        "displayName": "Aklato Conclave Skin",
-        "path": "/Lotus/Upgrades/Skins/PvP/Pistols/PvPAklato"
-      },
-      {
         "catalogId": "items:/Lotus/Upgrades/Skins/Halloween/HalloweenAklato",
         "displayName": "Aklato Day of The Dead Skin",
         "path": "/Lotus/Upgrades/Skins/Halloween/HalloweenAklato"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/Kintsukuroi/KintsukuroiAklato",
+        "displayName": "Aklato Kintsugi Skin",
+        "path": "/Lotus/Upgrades/Skins/Kintsukuroi/KintsukuroiAklato"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/Starry/StarryAklato",
+        "displayName": "Aklato Nocturne Skin",
+        "path": "/Lotus/Upgrades/Skins/Starry/StarryAklato"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/Promo/Nintendo/NintendoAklatoSkin",
+        "displayName": "Aklato Opal Skin",
+        "path": "/Lotus/Upgrades/Skins/Promo/Nintendo/NintendoAklatoSkin"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/PvP/Pistols/PvPAkLex",
+        "displayName": "Aklex Conclave Skin",
+        "path": "/Lotus/Upgrades/Skins/PvP/Pistols/PvPAkLex"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/Contests/Pistols/AkmagnusDakila",
+        "displayName": "Akmagnus Dakila Skin",
+        "path": "/Lotus/Upgrades/Skins/Contests/Pistols/AkmagnusDakila"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/Contests/Pistols/AkmagnusHiveLight",
+        "displayName": "Akmagnus Hivelight Skin",
+        "path": "/Lotus/Upgrades/Skins/Contests/Pistols/AkmagnusHiveLight"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/Sony/ObsidianAkmagnus",
+        "displayName": "Akmagnus Obsidian Skin",
+        "path": "/Lotus/Upgrades/Skins/Sony/ObsidianAkmagnus"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/Ornate/TekeluAkmagnusSkin",
+        "displayName": "Akmagnus Tekelu Skin",
+        "path": "/Lotus/Upgrades/Skins/Ornate/TekeluAkmagnusSkin"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/Koumei/KoumeiWarfanSkin",
+        "displayName": "Akomeogi Warfan Skin",
+        "path": "/Lotus/Upgrades/Skins/Koumei/KoumeiWarfanSkin"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/Scarves/PacifistSyandana",
+        "displayName": "Akrabu Syandana",
+        "path": "/Lotus/Upgrades/Skins/Scarves/PacifistSyandana"
+      },
+      {
+        "catalogId": "items:/Lotus/Upgrades/Skins/Ornate/TekeluAkstilettoSkin",
+        "displayName": "Akstiletto Tekelu Skin",
+        "path": "/Lotus/Upgrades/Skins/Ornate/TekeluAkstilettoSkin"
       }
     ]
   },
