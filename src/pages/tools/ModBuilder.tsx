@@ -21,7 +21,7 @@ import {
 } from "../../domain/catalog/incarnonCatalog";
 import { getModsForWeapon, getStancesForWeapon, type ModEntry, type ModEffect, emptyEffect } from "../../domain/catalog/modCatalog";
 import { getArcanesForWeapon, type ArcaneEntry } from "../../domain/catalog/arcaneCatalog";
-import { calculateBuild } from "../../domain/logic/damageCalc";
+import { calculateBuild, estimateConditionalStackFactor, estimateConditionalUptime } from "../../domain/logic/damageCalc";
 import { optimizeBuild, explainBuild, debugScoreBuild, getFactionFocusOptions, minimizePolaritiesByCapacity, type OptimizeGoal, type BuildReasoning, type LegacyOptimizeGoal } from "../../domain/logic/buildOptimizer";
 import { buildCustomRivenEntry, customRivenSupportsWeapon, type CustomRivenRecord } from "../../domain/rivens";
 import {
@@ -753,6 +753,8 @@ function sumEffects(effects: (ModEffect | null)[]) {
         acc.coldBonus += effect.coldBonus ?? 0;
         acc.electricityBonus += effect.electricityBonus ?? 0;
         acc.toxinBonus += effect.toxinBonus ?? 0;
+        acc.blastBonus += effect.blastBonus ?? 0;
+        acc.gasBonus += effect.gasBonus ?? 0;
         acc.magneticBonus += effect.magneticBonus ?? 0;
         acc.radiationBonus += effect.radiationBonus ?? 0;
         acc.viralBonus += effect.viralBonus ?? 0;
@@ -784,6 +786,8 @@ function sumEffects(effects: (ModEffect | null)[]) {
         coldBonus: 0,
         electricityBonus: 0,
         toxinBonus: 0,
+        blastBonus: 0,
+        gasBonus: 0,
         magneticBonus: 0,
         radiationBonus: 0,
         viralBonus: 0,
@@ -819,6 +823,102 @@ function getOwnedModRank(
     return Math.max(0, Math.min(maxRank, Number(modRanks[path] ?? maxRank)));
 }
 
+const BUILD_MATH_PRIMARY_ELEMENTS = ["heat", "cold", "electricity", "toxin"] as const;
+const BUILD_MATH_COMBINED_ELEMENTS: Record<string, string> = {
+    "cold+electricity": "magnetic",
+    "electricity+cold": "magnetic",
+    "heat+cold": "blast",
+    "cold+heat": "blast",
+    "heat+electricity": "radiation",
+    "electricity+heat": "radiation",
+    "heat+toxin": "gas",
+    "toxin+heat": "gas",
+    "cold+toxin": "viral",
+    "toxin+cold": "viral",
+    "electricity+toxin": "corrosive",
+    "toxin+electricity": "corrosive",
+};
+
+function roundQuantizedValue(value: number, quantum: number) {
+    if (quantum <= 0) return value;
+    return Math.round(value / quantum) * quantum;
+}
+
+function buildCombinedRawBreakdown(
+    weapon: WeaponEntry,
+    totals: ReturnType<typeof sumEffects>,
+) {
+    const baseDamage = weapon.damage.total;
+    const moddedBaseDamage = baseDamage * (1 + totals.damageBonus);
+    const physicalRaw = {
+        impact: weapon.damage.impact * (1 + totals.impactBonus) * (1 + totals.damageBonus),
+        puncture: weapon.damage.puncture * (1 + totals.punctureBonus) * (1 + totals.damageBonus),
+        slash: weapon.damage.slash * (1 + totals.slashBonus) * (1 + totals.damageBonus),
+    };
+    const queue: Array<{ type: string; value: number; order: number }> = [];
+    let order = 0;
+    for (const key of BUILD_MATH_PRIMARY_ELEMENTS) {
+        const bonus = totals[`${key}Bonus` as const];
+        if (bonus) queue.push({ type: key, value: baseDamage * bonus * (1 + totals.damageBonus), order: order++ });
+    }
+    for (const key of ["magnetic", "radiation", "viral", "corrosive", "gas", "blast", "void", "tau", "true"] as const) {
+        const bonus = totals[`${key}Bonus` as const];
+        if (bonus) queue.push({ type: key, value: baseDamage * bonus * (1 + totals.damageBonus), order: order++ });
+    }
+
+    const merged = new Map<string, { value: number; order: number }>();
+    for (const entry of queue) {
+        const existing = merged.get(entry.type);
+        if (existing) {
+            existing.value += entry.value;
+            existing.order = Math.min(existing.order, entry.order);
+        } else {
+            merged.set(entry.type, { value: entry.value, order: entry.order });
+        }
+    }
+
+    const ordered = [...merged.entries()]
+        .map(([type, meta]) => ({ type, value: meta.value, order: meta.order }))
+        .sort((a, b) => a.order - b.order);
+
+    const combined: Record<string, number> = {
+        impact: physicalRaw.impact,
+        puncture: physicalRaw.puncture,
+        slash: physicalRaw.slash,
+        heat: 0,
+        cold: 0,
+        electricity: 0,
+        toxin: 0,
+        blast: 0,
+        radiation: 0,
+        gas: 0,
+        magnetic: 0,
+        viral: 0,
+        corrosive: 0,
+        void: 0,
+        tau: 0,
+        true: 0,
+    };
+
+    let index = 0;
+    while (index < ordered.length) {
+        const current = ordered[index];
+        const next = ordered[index + 1];
+        if (next) {
+            const combo = BUILD_MATH_COMBINED_ELEMENTS[`${current.type}+${next.type}`];
+            if (combo) {
+                combined[combo] += current.value + next.value;
+                index += 2;
+                continue;
+            }
+        }
+        combined[current.type] += current.value;
+        index += 1;
+    }
+
+    return { moddedBaseDamage, physicalRaw, orderedElementQueue: ordered, combined };
+}
+
 function buildMathBreakdown(
     weapon: WeaponEntry,
     effects: (ModEffect | null)[],
@@ -833,74 +933,135 @@ function buildMathBreakdown(
     const moddedBaseDamage = baseDamage * baseDamageMultiplier;
     const quantScale = moddedBaseDamage / 32;
     const fireRateBonus = usesMeleeDamageModel(weapon.category) ? totals.attackSpeedBonus : totals.fireRateBonus;
-    const moddedFireRate = weapon.fireRate * (1 + fireRateBonus);
     const moddedReload = ignoresReloadAndMagazine
         ? weapon.reloadTime
         : weapon.reloadTime / Math.max(0.0001, (1 + totals.reloadSpeedBonus));
-    const moddedMagazine = ignoresReloadAndMagazine
-        ? Math.max(1, weapon.magazineSize)
-        : Math.max(1, Math.round(weapon.magazineSize * (1 + totals.magazineBonus)));
-    const displayMagazine = displayMagazineValue(weapon, moddedMagazine);
     const avgCritMultiplier = baseDamage > 0 ? stats.averageShotDamage / Math.max(0.0001, stats.arsenalDamage) : 1;
     const hasConditionalBonuses = effects.some(effect => (effect?.conditionalEffects?.length ?? 0) > 0);
     const damageUnit = actionUnitLabel(weapon.category);
     const avgDamageLabel = averageDamageLabel(weapon.category);
     const rateLabel = actionRateLabel(weapon.category);
+    const conditionalEntries = effects.flatMap((effect) => effect?.conditionalEffects ?? []);
+    const baselineRateForConditionals = weapon.fireRate;
+    const baseMagazineForConditionals = Math.max(1, Math.round(weapon.magazineSize || 1));
+    const rawBreakdown = buildCombinedRawBreakdown(weapon, totals);
+    const nonZeroRawEntries = Object.entries(rawBreakdown.combined).filter(([, value]) => value > 0);
+    const quantizedLines = nonZeroRawEntries.map(([type, rawValue]) => {
+        const ratio = quantScale > 0 ? rawValue / quantScale : 0;
+        const roundedUnits = Math.round(ratio);
+        const quantized = roundQuantizedValue(rawValue, quantScale);
+        return `${type}: raw ${fmt(rawValue, 5)} ÷ scale ${fmt(quantScale, 5)} = ${fmt(ratio, 5)} → round ${roundedUnits} → ${fmt(quantized, 5)}`;
+    });
+    const procLines = Object.entries(stats.procChanceByType)
+        .filter(([, value]) => (value ?? 0) > 0)
+        .map(([type, value]) => {
+            const damageValue = stats.damageBreakdown[type as keyof typeof stats.damageBreakdown] ?? 0;
+            const share = stats.totalDamage > 0 ? damageValue / stats.totalDamage : 0;
+            return `${type}: quantized damage ${fmt(damageValue, 5)} ÷ total ${fmt(stats.totalDamage, 5)} = ${fmt(share, 5)} → proc weight ${fmt((value ?? 0) * 100, 3)}%`;
+        });
+    const dotTypeLines = Object.entries(stats.dotDamagePerShotByType)
+        .filter(([, value]) => (value ?? 0) > 0)
+        .map(([type, value]) => `${type}: DoT per ${damageUnit} ${fmt(value ?? 0, 5)} | DoT DPS ${fmt(stats.dotDpsByType[type as keyof typeof stats.dotDpsByType] ?? 0, 5)}`);
+    const conditionalLines = conditionalEntries.map((conditional, index) => {
+        const uptime = estimateConditionalUptime(conditional, baselineRateForConditionals, baseMagazineForConditionals);
+        const stackFactor = estimateConditionalStackFactor(conditional, baselineRateForConditionals, baseMagazineForConditionals);
+        const combinedFactor = uptime * stackFactor;
+        const statsApplied = Object.entries(conditional.stats)
+            .filter(([, value]) => typeof value === "number" && value !== 0)
+            .map(([key, value]) => `${key} ${fmt((value as number) * 100, 2)}%`)
+            .join(", ");
+        return `Conditional ${index + 1}: trigger ${conditional.trigger}, duration ${fmt(conditional.durationSeconds, 2)}s, max stacks ${conditional.maxStacks}, aiming ${conditional.requiresAiming ? "yes" : "no"}, uptime ${fmt(uptime, 4)}, stack factor ${fmt(stackFactor, 4)}, combined factor ${fmt(combinedFactor, 4)}, stats [${statsApplied || "none"}]`;
+    });
+    const fireRateExplanation = (() => {
+        if (weapon.trigger === "Charge" && weapon.chargeTime) {
+            return [
+                `Modded charge time = ${fmt(weapon.chargeTime, 5)} ÷ (1 + ${fmt(fireRateBonus * 100, 3)}%) = ${fmt(weapon.chargeTime / Math.max(0.0001, 1 + fireRateBonus), 5)}`,
+                `Effective fire rate (Charge) = 1 ÷ (modded charge time + 1 ÷ modded fire rate) = ${fmt(stats.fireRate, 5)}`,
+            ];
+        }
+        return [`${rateLabel} = ${fmt(weapon.fireRate, 5)} × (1 + ${fmt(fireRateBonus * 100, 3)}%) = ${fmt(stats.fireRate, 5)}`];
+    })();
     const sections: BuildMathSection[] = [
+        {
+            title: "Inputs",
+            lines: [
+                `Weapon base damage total = ${fmt(baseDamage, 5)}`,
+                `Base damage split = impact ${fmt(weapon.damage.impact, 5)}, puncture ${fmt(weapon.damage.puncture, 5)}, slash ${fmt(weapon.damage.slash, 5)}, heat ${fmt(weapon.damage.heat, 5)}, cold ${fmt(weapon.damage.cold, 5)}, electricity ${fmt(weapon.damage.electricity, 5)}, toxin ${fmt(weapon.damage.toxin, 5)}, blast ${fmt(weapon.damage.blast, 5)}, radiation ${fmt(weapon.damage.radiation, 5)}, gas ${fmt(weapon.damage.gas, 5)}, magnetic ${fmt(weapon.damage.magnetic, 5)}, viral ${fmt(weapon.damage.viral, 5)}, corrosive ${fmt(weapon.damage.corrosive, 5)}, void ${fmt(weapon.damage.void, 5)}, tau ${fmt(weapon.damage.tau, 5)}, true ${fmt(weapon.damage.true, 5)}`,
+                `Base crit chance = ${fmt(weapon.critChance * 100, 5)}% | base crit multiplier = ${fmt(weapon.critMultiplier, 5)} | base status chance = ${fmt(weapon.statusChance * 100, 5)}%`,
+                `${rateLabel} base = ${fmt(weapon.fireRate, 5)} | magazine base = ${displayMagazineValue(weapon, weapon.magazineSize)} | reload base = ${fmt(weapon.reloadTime, 5)}s | multishot base = ${fmt(weapon.multishot, 5)}`,
+                targetFaction ? `Target faction flag passed to the calculator = ${targetFaction}` : "No target faction flag passed to the calculator",
+            ],
+        },
         {
             title: "Base Stats",
             lines: [
-                `Base damage = ${fmt(baseDamage, 3)}`,
-                `Base crit = ${fmt(weapon.critChance * 100, 1)}% × (1 + ${fmt(totals.critChanceBonus * 100, 1)}%) = ${fmt(stats.critChance * 100, 2)}%`,
-                `Base crit mult = ${fmt(weapon.critMultiplier, 2)} × (1 + ${fmt(totals.critMultBonus * 100, 1)}%) = ${fmt(stats.critMultiplier, 3)}`,
-                `Base status = ${fmt(weapon.statusChance * 100, 1)}% × (1 + ${fmt(totals.statusChanceBonus * 100, 1)}%) + ${fmt(totals.finalStatusChanceBonus * 100, 1)}% = ${fmt(stats.statusChance * 100, 2)}%`,
-                ...(hasConditionalBonuses ? ["Displayed final stats include estimated conditional/ramping bonuses beyond the static totals shown above."] : []),
+                `Base damage multiplier bracket = 1 + additive damage bonuses = 1 + ${fmt(totals.damageBonus, 5)} = ${fmt(baseDamageMultiplier, 5)}`,
+                `Crit chance = base ${fmt(weapon.critChance, 5)} × (1 + additive crit ${fmt(totals.critChanceBonus, 5)}) + final crit ${fmt(totals.finalCritChanceBonus, 5)} = ${fmt(stats.critChance, 5)} (${fmt(stats.critChance * 100, 3)}%)`,
+                `Crit multiplier = base ${fmt(weapon.critMultiplier, 5)} × (1 + additive crit mult ${fmt(totals.critMultBonus, 5)}) + final crit mult ${fmt(totals.finalCritMultiplierBonus, 5)} = ${fmt(stats.critMultiplier, 5)}`,
+                `Status chance = base ${fmt(weapon.statusChance, 5)} × (1 + additive status ${fmt(totals.statusChanceBonus, 5)}) + final status ${fmt(totals.finalStatusChanceBonus, 5)} = ${fmt(stats.statusChance, 5)} (${fmt(stats.statusChance * 100, 3)}%)`,
+                `Multishot = base ${fmt(weapon.multishot, 5)} × (1 + additive multishot ${fmt(totals.multishotBonus, 5)}) = ${fmt(stats.multishot, 5)}`,
+                ...(hasConditionalBonuses ? ["Conditional/ramping effects are included in the final calculated stats below according to the current calculator assumptions."] : []),
+            ],
+        },
+        {
+            title: "Damage Bonuses",
+            lines: [
+                `Damage bonus = ${fmt(totals.damageBonus * 100, 3)}% | impact bonus = ${fmt(totals.impactBonus * 100, 3)}% | puncture bonus = ${fmt(totals.punctureBonus * 100, 3)}% | slash bonus = ${fmt(totals.slashBonus * 100, 3)}%`,
+                `Primary element bonuses = heat ${fmt(totals.heatBonus * 100, 3)}%, cold ${fmt(totals.coldBonus * 100, 3)}%, electricity ${fmt(totals.electricityBonus * 100, 3)}%, toxin ${fmt(totals.toxinBonus * 100, 3)}%`,
+                `Advanced element bonuses = magnetic ${fmt(totals.magneticBonus * 100, 3)}%, radiation ${fmt(totals.radiationBonus * 100, 3)}%, viral ${fmt(totals.viralBonus * 100, 3)}%, corrosive ${fmt(totals.corrosiveBonus * 100, 3)}%, void ${fmt(totals.voidBonus * 100, 3)}%, tau ${fmt(totals.tauBonus * 100, 3)}%, true ${fmt(totals.trueBonus * 100, 3)}%`,
+                `Status damage bonus = ${fmt(totals.statusDamageBonus * 100, 3)}% | status duration bonus = ${fmt(totals.statusDurationBonus * 100, 3)}% | faction damage bonus tracked here = ${fmt(totals.factionDamageBonus * 100, 3)}%`,
             ],
         },
         {
             title: "Damage Construction",
             lines: [
-                `Modded base damage = ${fmt(baseDamage, 3)} × (1 + ${fmt(totals.damageBonus * 100, 1)}%) = ${fmt(moddedBaseDamage, 3)}`,
-                `Physical bonuses: Impact ${fmt(totals.impactBonus * 100, 1)}%, Puncture ${fmt(totals.punctureBonus * 100, 1)}%, Slash ${fmt(totals.slashBonus * 100, 1)}%`,
-                `Primary element bonuses: Heat ${fmt(totals.heatBonus * 100, 1)}%, Cold ${fmt(totals.coldBonus * 100, 1)}%, Electric ${fmt(totals.electricityBonus * 100, 1)}%, Toxin ${fmt(totals.toxinBonus * 100, 1)}%`,
-                `Advanced damage bonuses: Magnetic ${fmt(totals.magneticBonus * 100, 1)}%, Radiation ${fmt(totals.radiationBonus * 100, 1)}%, Viral ${fmt(totals.viralBonus * 100, 1)}%, Corrosive ${fmt(totals.corrosiveBonus * 100, 1)}%, Void ${fmt(totals.voidBonus * 100, 1)}%, Tau ${fmt(totals.tauBonus * 100, 1)}%, True ${fmt(totals.trueBonus * 100, 1)}%`,
-                `Final damage breakdown after element ordering and combination = ${Object.entries(stats.rawDamageBreakdown).filter(([, v]) => (v as number) > 0).map(([k, v]) => `${k} ${fmt(v as number, 3)}`).join(", ") || "none"}`,
+                `Modded base damage = base total ${fmt(baseDamage, 5)} × damage bracket ${fmt(baseDamageMultiplier, 5)} = ${fmt(moddedBaseDamage, 5)}`,
+                `Physical raw values before quantization = impact ${fmt(rawBreakdown.physicalRaw.impact, 5)}, puncture ${fmt(rawBreakdown.physicalRaw.puncture, 5)}, slash ${fmt(rawBreakdown.physicalRaw.slash, 5)}`,
+                `Element queue before combination = ${rawBreakdown.orderedElementQueue.map((entry) => `${entry.type} ${fmt(entry.value, 5)} (order ${entry.order})`).join(" | ") || "none"}`,
+                `Combined raw damage breakdown = ${nonZeroRawEntries.map(([type, value]) => `${type} ${fmt(value, 5)}`).join(", ") || "none"}`,
             ],
         },
         {
             title: "Quantization",
             lines: [
-                `Scale = Modded Base Damage / 32 = ${fmt(moddedBaseDamage, 3)} / 32 = ${fmt(quantScale, 5)}`,
-                `Each damage type is quantized as Round(Type Damage / Scale) × Scale`,
-                `Quantized total direct damage = ${fmt(stats.totalDamage, 3)}`,
-                targetFaction ? `Faction multiplier applied after quantization = ×${fmt(1 + totals.factionDamageBonus, 3)} (${targetFaction})` : "No faction multiplier applied",
+                `Scale = modded base damage ÷ 32 = ${fmt(moddedBaseDamage, 5)} ÷ 32 = ${fmt(quantScale, 5)}`,
+                `Per-type quantization follows Round(raw ÷ scale) × scale`,
+                ...quantizedLines,
+                `Quantized final breakdown = ${Object.entries(stats.damageBreakdown).filter(([, value]) => (value as number) > 0).map(([type, value]) => `${type} ${fmt(value as number, 5)}`).join(", ") || "none"}`,
+                `Quantized total direct damage = ${fmt(stats.totalDamage, 5)}`,
+                targetFaction ? `Faction mod multiplier tracked after quantization = ×${fmt(1 + totals.factionDamageBonus, 5)} (${targetFaction})` : "No faction-mod multiplier tracked in this build",
             ],
         },
         {
             title: "Crit and DPS",
             lines: [
-                `Multishot = ${fmt(weapon.multishot, 2)} × (1 + ${fmt(totals.multishotBonus * 100, 1)}%) = ${fmt(stats.multishot, 3)}`,
-                `Arsenal damage = Quantized direct damage × multishot = ${fmt(stats.totalDamage, 3)} × ${fmt(stats.multishot, 3)} = ${fmt(stats.arsenalDamage, 3)}`,
-                `Average crit multiplier = ${fmt(avgCritMultiplier, 4)}`,
-                `Average ${damageUnit} = Arsenal damage × average crit multiplier = ${fmt(stats.arsenalDamage, 3)} × ${fmt(avgCritMultiplier, 4)} = ${fmt(stats.averageShotDamage, 3)}`,
-                `${rateLabel} = ${fmt(weapon.fireRate, 3)} × (1 + ${fmt(fireRateBonus * 100, 1)}%) = ${fmt(moddedFireRate, 3)}`,
-                `Burst DPS = ${avgDamageLabel} × ${rateLabel} = ${fmt(stats.averageShotDamage, 3)} × ${fmt(stats.fireRate, 3)} = ${fmt(result.burstDPS, 3)}`,
+                `Arsenal damage = quantized direct damage ${fmt(stats.totalDamage, 5)} × multishot ${fmt(stats.multishot, 5)} = ${fmt(stats.arsenalDamage, 5)}`,
+                `Average crit multiplier = average ${damageUnit} ÷ arsenal damage = ${fmt(stats.averageShotDamage, 5)} ÷ ${fmt(stats.arsenalDamage, 5)} = ${fmt(avgCritMultiplier, 6)}`,
+                `Average crit multiplier cross-check = 1 + crit chance × (crit multiplier - 1) = 1 + ${fmt(stats.critChance, 5)} × (${fmt(stats.critMultiplier, 5)} - 1) = ${fmt(1 + stats.critChance * (stats.critMultiplier - 1), 6)}`,
+                `Average ${damageUnit} = arsenal damage ${fmt(stats.arsenalDamage, 5)} × average crit multiplier ${fmt(avgCritMultiplier, 6)} = ${fmt(stats.averageShotDamage, 5)}`,
+                ...fireRateExplanation,
+                `Burst DPS = ${avgDamageLabel} ${fmt(stats.averageShotDamage, 5)} × ${rateLabel} ${fmt(stats.fireRate, 5)} = ${fmt(result.burstDPS, 5)}`,
                 ignoresReloadAndMagazine
-                    ? `Sustained DPS equals burst DPS for exalted weapons; reload and magazine bonuses are ignored = ${fmt(result.sustainedDPS, 3)}`
-                    : `Sustained DPS uses reload uptime with mag ${displayMagazine} and reload ${fmt(moddedReload, 3)}s = ${fmt(result.sustainedDPS, 3)}`,
+                    ? `Sustained DPS = burst DPS for exalted weapons because reload/magazine are ignored = ${fmt(result.sustainedDPS, 5)}`
+                    : `Sustained DPS = burst DPS × ((shotsPerMag ÷ fireRate) ÷ ((shotsPerMag ÷ fireRate) + reload)) = ${fmt(result.burstDPS, 5)} × ((${fmt(stats.shotsPerMag, 5)} ÷ ${fmt(stats.fireRate, 5)}) ÷ ((${fmt(stats.shotsPerMag, 5)} ÷ ${fmt(stats.fireRate, 5)}) + ${fmt(moddedReload, 5)})) = ${fmt(result.sustainedDPS, 5)}`,
             ],
         },
         {
             title: "Status and DoT",
             lines: [
-                `Average procs / ${damageUnit} = multishot × status chance + extra procs = ${fmt(stats.multishot, 3)} × ${fmt(stats.statusChance, 4)} + extras = ${fmt(stats.averageProcsPerShot, 3)}`,
-                `Proc weighting by type = ${Object.entries(stats.procChanceByType).map(([k, v]) => `${k} ${fmt((v ?? 0) * 100, 1)}%`).join(", ") || "none"}`,
-                `Expected stacks = ${Object.entries(stats.expectedStacksByType).filter(([, v]) => (v ?? 0) > 0).map(([k, v]) => `${k} ${fmt(v ?? 0, 2)}`).join(", ") || "none"}`,
-                `DoT per ${damageUnit} = ${fmt(stats.dotDamagePerShot, 3)}`,
-                `DoT DPS = ${fmt(stats.dotDps, 3)}`,
-                `Status-derived effects: Viral +${fmt(stats.viralHealthDamageBonus * 100, 1)}% health damage, Corrosive ${fmt(stats.corrosiveArmorStrip * 100, 1)}% armor strip, Magnetic +${fmt(stats.magneticShieldDamageBonus * 100, 1)}% shield damage`,
+                `Average procs per ${damageUnit} = multishot ${fmt(stats.multishot, 5)} × status chance ${fmt(stats.statusChance, 5)} + extra procs = ${fmt(stats.averageProcsPerShot, 5)}`,
+                ...procLines,
+                `Expected stacks by type = ${Object.entries(stats.expectedStacksByType).filter(([, value]) => (value ?? 0) > 0).map(([type, value]) => `${type} ${fmt(value ?? 0, 5)}`).join(", ") || "none"}`,
+                `DoT per ${damageUnit} total = ${fmt(stats.dotDamagePerShot, 5)}`,
+                `DoT DPS total = ${fmt(stats.dotDps, 5)}`,
+                ...dotTypeLines,
+                `Derived status effects = Viral health bonus ${fmt(stats.viralHealthDamageBonus * 100, 5)}%, Heat armor strip ${fmt(stats.heatArmorStrip * 100, 5)}%, Corrosive armor strip ${fmt(stats.corrosiveArmorStrip * 100, 5)}%, Magnetic shield bonus ${fmt(stats.magneticShieldDamageBonus * 100, 5)}%, Radiation ally damage bonus ${fmt(stats.radiationAllyDamageBonus * 100, 5)}%, Cold slow ${fmt(stats.coldSlow * 100, 5)}%, Cold crit bonus ${fmt(stats.coldCritDamageBonus, 5)}, Puncture enemy damage reduction ${fmt(stats.punctureEnemyDamageReduction * 100, 5)}%, Puncture crit chance bonus ${fmt(stats.punctureCritChanceBonus * 100, 5)}%, Impact mercy threshold bonus ${fmt(stats.impactMercyThresholdBonus * 100, 5)}%, Tau status vulnerability ${fmt(stats.tauStatusVulnerability * 100, 5)}%`,
             ],
         },
+        ...(conditionalLines.length ? [{
+            title: "Conditional Assumptions",
+            lines: conditionalLines,
+        }] : []),
     ];
 
     return { sections };
@@ -2229,9 +2390,10 @@ export default function ModBuilder() {
     const [optArcane, setOptArcane]      = useState(false);
     const [showOptimizeOptions, setShowOptimizeOptions] = useState(false);
     // UI
-    const [infoTab, setInfoTab]        = useState<"stats"|"why"|"math">("stats");
+    const [infoTab, setInfoTab]        = useState<"stats"|"why">("stats");
     const [reasoning, setReasoning]    = useState<BuildReasoning | null>(null);
     const [reasoningMath, setReasoningMath] = useState<BuildMathBreakdown | null>(null);
+    const [showMathWindow, setShowMathWindow] = useState(false);
     const [tab, setTab]                = useState<"build"|"saves"|"owned"|"ownedArcanes"|"exclude">("build");
     const [optimizing, setOptimizing]  = useState(false);
     const [copiedExport, setCopiedExport] = useState(false);
@@ -2269,6 +2431,7 @@ export default function ModBuilder() {
         setIncarnonPickerTier(null);
         setReasoning(null);
         setReasoningMath(null);
+        setShowMathWindow(false);
     }
 
     function clearIncarnonTierSelection(tier: IncarnonTier) {
@@ -2285,6 +2448,7 @@ export default function ModBuilder() {
         setIncarnonPickerTier(null);
         setReasoning(null);
         setReasoningMath(null);
+        setShowMathWindow(false);
     }
 
     function resetBuildForWeapon(w: WeaponEntry, opts?: { resetConfig?: boolean }) {
@@ -2298,6 +2462,7 @@ export default function ModBuilder() {
         setArcane1(null); setArcane1Rank(0);
         setSelectedAttackIdx(0);
         setIncarnonPickerTier(null);
+        setShowMathWindow(false);
         if (opts?.resetConfig) {
             setBuildCfg(p => ({
                 ...p,
@@ -2313,6 +2478,7 @@ export default function ModBuilder() {
         }
         setReasoning(null);
         setReasoningMath(null);
+        setShowMathWindow(false);
     }
 
     function handleSelectWeapon(w: WeaponEntry) {
@@ -2458,6 +2624,7 @@ export default function ModBuilder() {
         return applyWeaponConfig(weapon, selectedAttackIdx, buildCfg);
     }, [weapon, selectedAttackIdx, buildCfg]);
     const activeCalcWeapon = activeWeaponState?.selectedWeapon ?? null;
+    const displayedMath = reasoningMath ?? currentBuildExport?.math ?? null;
     async function handleCopyBuildExport() {
         if (!currentBuildExport) return;
         const json = JSON.stringify(currentBuildExport, null, 2);
@@ -2511,21 +2678,25 @@ export default function ModBuilder() {
         setRanks(p => { const n = [...p]; n[i] = mod ? mod.fusionLimit : 0; return n; });
         setReasoning(null);
         setReasoningMath(null);
+        setShowMathWindow(false);
     }
     function handleRankChange(i: number, r: number) {
         setRanks(p => { const n = [...p]; n[i] = r; return n; });
         setReasoning(null);
         setReasoningMath(null);
+        setShowMathWindow(false);
     }
     function handlePolChange(i: number, p: string)  {
         setSlotPols(p2 => { const n = [...p2]; n[i] = p; return n; });
         setReasoning(null);
         setReasoningMath(null);
+        setShowMathWindow(false);
     }
     function handleExilusChange(_: number, m: ModEntry | null) {
         setExilusMod(m); setExilusRank(m ? m.fusionLimit : 0);
         setReasoning(null);
         setReasoningMath(null);
+        setShowMathWindow(false);
     }
     function getSlotMod(ref: DragSlotRef | null): ModEntry | null {
         if (!ref) return null;
@@ -2606,6 +2777,7 @@ export default function ModBuilder() {
 
         setReasoning(null);
         setReasoningMath(null);
+        setShowMathWindow(false);
         setDragOverSlot(null);
         setDraggedSlot(null);
     }
@@ -3584,7 +3756,6 @@ export default function ModBuilder() {
                                                     {([
                                                         ["stats", "Weapon Stats"],
                                                         ["why", "Why This Build"],
-                                                        ["math", "Math"],
                                                     ] as const).map(([key, label]) => (
                                                         <button
                                                             key={key}
@@ -3599,6 +3770,18 @@ export default function ModBuilder() {
                                                             {label}
                                                         </button>
                                                     ))}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowMathWindow(true)}
+                                                        className={[
+                                                            "rounded-full border px-2.5 py-1 text-[10px] transition-colors",
+                                                            showMathWindow
+                                                                ? "border-cyan-300/70 bg-cyan-950/40 text-cyan-100"
+                                                                : "border-slate-700 bg-slate-950/40 text-slate-300 hover:border-cyan-400/50 hover:text-cyan-100",
+                                                        ].join(" ")}
+                                                    >
+                                                        Open Math
+                                                    </button>
                                                 </div>
 
                                                 {infoTab === "stats" && (
@@ -3684,25 +3867,6 @@ export default function ModBuilder() {
                                                         ) : (
                                                             <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 px-3 py-3 text-[11px] text-slate-500">
                                                                 Run the optimizer to generate build reasoning.
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
-
-                                                {infoTab === "math" && (
-                                                    <div className="space-y-3">
-                                                        {reasoningMath ? reasoningMath.sections.map((section) => (
-                                                            <div key={section.title} className="rounded-lg bg-slate-900/50 border border-slate-800/50 px-3 py-3">
-                                                                <div className="text-xs font-semibold text-slate-200 mb-2">{section.title}</div>
-                                                                <div className="space-y-1">
-                                                                    {section.lines.map((line, idx) => (
-                                                                        <div key={idx} className="text-[11px] font-mono text-slate-400 break-words">{line}</div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )) : (
-                                                            <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 px-3 py-3 text-[11px] text-slate-500">
-                                                                Run the optimizer to see the substituted math for the current build.
                                                             </div>
                                                         )}
                                                     </div>
@@ -4332,6 +4496,65 @@ export default function ModBuilder() {
                                                     </button>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {showMathWindow && (
+                                <div
+                                    className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/78 px-4 py-8 backdrop-blur-md"
+                                    onClick={() => setShowMathWindow(false)}
+                                >
+                                    <div
+                                        className="relative w-full max-w-6xl overflow-hidden rounded-[2rem] border border-cyan-400/18 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.16),_transparent_30%),linear-gradient(180deg,rgba(4,10,20,0.985),rgba(2,6,23,0.97))] shadow-[0_24px_80px_rgba(2,12,27,0.72)]"
+                                        onClick={(event) => event.stopPropagation()}
+                                    >
+                                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent" />
+                                        <div className="max-h-[88vh] overflow-y-auto px-6 pb-6 pt-6 sm:px-8 sm:pt-8">
+                                            <div className="flex flex-wrap items-start justify-between gap-3">
+                                                <div>
+                                                    <div className="text-[11px] uppercase tracking-[0.35em] text-cyan-200/65">
+                                                        Detailed Build Math
+                                                    </div>
+                                                    <h3 className="mt-2 text-2xl font-semibold text-slate-50 sm:text-[2rem]">
+                                                        Full calculation trace
+                                                    </h3>
+                                                    <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300/80">
+                                                        This window shows the calculator inputs, intermediate values, and final outputs for the current build. It is intentionally verbose so you can inspect each bracket, quantization step, proc weight, DoT term, and conditional assumption without the inline panel getting bloated.
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowMathWindow(false)}
+                                                    className="rounded-full border border-slate-700/80 bg-slate-950/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300 transition-colors hover:border-cyan-300/40 hover:text-cyan-100"
+                                                >
+                                                    Close
+                                                </button>
+                                            </div>
+
+                                            {displayedMath ? (
+                                                <div className="mt-8 grid gap-4 lg:grid-cols-2">
+                                                    {displayedMath.sections.map((section) => (
+                                                        <div key={section.title} className="overflow-hidden rounded-[1.5rem] border border-slate-800/90 bg-slate-950/55">
+                                                            <div className="border-b border-cyan-400/10 bg-cyan-400/5 px-5 py-4">
+                                                                <div className="text-[10px] uppercase tracking-[0.32em] text-cyan-200/60">{section.title}</div>
+                                                            </div>
+                                                            <div className="space-y-2 px-5 py-4">
+                                                                {section.lines.map((line, idx) => (
+                                                                    <div key={idx} className="rounded-xl border border-slate-800/70 bg-slate-950/50 px-3 py-2 text-[11px] leading-5 text-slate-300 break-words">
+                                                                        <span className="font-mono">{line}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="mt-8 rounded-[1.5rem] border border-slate-800/90 bg-slate-950/55 px-5 py-5 text-sm text-slate-400">
+                                                    No math snapshot is available yet for this build state.
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

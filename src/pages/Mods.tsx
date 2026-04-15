@@ -20,6 +20,12 @@ import {
   CollectionUtilityPanel,
 } from "../components/collection/CollectionLedgerShell";
 import { getEntityImageUrl } from "../utils/entityImage";
+import {
+  GroupedSourceList,
+  classifySourceFamilyFromDropLocation,
+  extractInlinePriceMeta,
+  type GroupedSourceEntry,
+} from "../components/sources/GroupedSourceList";
 
 import MOD_LOCATIONS_RAW from "../../external/warframe-drop-data/raw/modLocations.json";
 
@@ -2027,88 +2033,6 @@ function RankCostCalculator({
 }
 
 
-// ─── Drop classification & smart rendering ────────────────────────────────────
-
-const SYNDICATE_ORGS = new Set([
-  "New Loka", "Steel Meridian", "Arbiters of Hexis", "Cephalon Suda",
-  "The Perrin Sequence", "Red Veil", "Conclave", "Cephalon Simaris",
-  "Operational Supply", "The Quills", "Vox Solaris", "Ventkids",
-  "Ostron", "Solaris United", "Entrati", "The Holdfasts", "NecraLoid",
-  "Kahl's Garrison", "Arbitrations",
-  "Nokko", "Höllvania",
-]);
-
-type DropKind = "syndicate" | "enemy" | "mission" | "relic" | "other";
-
-function classifyDrop(location: string): DropKind {
-  if (location.includes("Relic")) return "relic";
-  if (/^[A-Z][a-zA-Z ]+\/[A-Z]/.test(location) || location.startsWith("Duviri/")) return "mission";
-  const commaIdx = location.indexOf(", ");
-  if (commaIdx > 0) {
-    const org = location.slice(0, commaIdx);
-    for (const s of SYNDICATE_ORGS) { if (org.startsWith(s)) return "syndicate"; }
-  }
-  if (!location.includes("/") && !location.includes(", ")) return "enemy";
-  return "other";
-}
-
-function DropRow({ d }: { d: AllModDrop }) {
-  const kind = classifyDrop(d.location);
-  const rarityClass =
-    d.rarity === "Common"   ? "text-slate-400" :
-    d.rarity === "Uncommon" ? "text-blue-300"  :
-    d.rarity === "Rare"     ? "text-amber-300" : "text-rose-300";
-
-  const wikiIcon = (
-    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  );
-
-  if (kind === "syndicate") {
-    const commaIdx = d.location.indexOf(", ");
-    const syndName = commaIdx > 0 ? d.location.slice(0, commaIdx) : d.location;
-    const rankLabel = commaIdx > 0 ? d.location.slice(commaIdx + 2) : "";
-    return (
-      <div className="flex items-center gap-2 text-xs rounded px-2 py-1.5 bg-indigo-950/20 border border-indigo-800/30">
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-indigo-400 shrink-0">Purchase</span>
-        <a href={wikiUrl(syndName)} target="_blank" rel="noopener noreferrer"
-          className="flex-1 min-w-0 text-slate-300 truncate hover:text-indigo-300 hover:underline transition-colors">
-          {syndName}
-        </a>
-        {rankLabel && <span className="shrink-0 text-slate-500 text-[11px]">{rankLabel}</span>}
-        <a href={wikiUrl(syndName)} target="_blank" rel="noopener noreferrer"
-          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIcon}</a>
-      </div>
-    );
-  }
-
-  if (kind === "enemy") {
-    return (
-      <div className="flex items-center gap-2 text-xs rounded px-2 py-1.5 bg-slate-900/50 border border-slate-800/50">
-        <a href={enemyWikiUrl(d.location)} target="_blank" rel="noopener noreferrer"
-          className="flex-1 min-w-0 text-slate-300 truncate hover:text-cyan-300 hover:underline transition-colors">
-          {d.location}
-        </a>
-        <span className={["shrink-0 font-semibold text-[11px]", rarityClass].join(" ")}>{d.rarity}</span>
-        <span className="shrink-0 font-mono text-slate-500 text-[11px]">{formatDropPercent(d.chance)}</span>
-        <a href={enemyWikiUrl(d.location)} target="_blank" rel="noopener noreferrer"
-          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIcon}</a>
-      </div>
-    );
-  }
-
-  // mission / relic / other
-  return (
-    <div className="flex items-center gap-2 text-xs rounded px-2 py-1.5 bg-slate-900/50 border border-slate-800/50">
-      <span className="flex-1 min-w-0 text-slate-300 truncate">{d.location}</span>
-      <span className={["shrink-0 font-semibold text-[11px]", rarityClass].join(" ")}>{d.rarity}</span>
-      <span className="shrink-0 font-mono text-slate-500 text-[11px]">{formatDropPercent(d.chance)}</span>
-    </div>
-  );
-}
-
 function DropsSection({ drops, name }: { drops: AllModDrop[]; name: string }) {
   if (drops.length === 0) {
     return (
@@ -2125,21 +2049,18 @@ function DropsSection({ drops, name }: { drops: AllModDrop[]; name: string }) {
       </div>
     );
   }
-  const sorted = [...drops].sort((a, b) => {
-    const aS = classifyDrop(a.location) === "syndicate";
-    const bS = classifyDrop(b.location) === "syndicate";
-    if (aS !== bS) return aS ? -1 : 1;
-    return b.chance - a.chance;
-  });
+  const entries: GroupedSourceEntry[] = [...drops]
+    .sort((a, b) => b.chance - a.chance)
+    .map((drop) => ({
+      id: `${drop.location}:${drop.chance}:${drop.rarity ?? ""}`,
+      family: classifySourceFamilyFromDropLocation(drop.location),
+      title: drop.location,
+      meta: extractInlinePriceMeta(drop.location) ?? formatDropPercent(drop.chance),
+      href: wikiUrl(drop.location) + "#Farming_Locations",
+      badges: drop.rarity ? [{ label: drop.rarity, tone: "neutral" }] : [],
+    }));
   return (
-    <div>
-      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
-        Acquisition <span className="normal-case font-normal text-slate-600">({drops.length})</span>
-      </div>
-      <div className="space-y-0.5 max-h-64 overflow-y-auto pr-1">
-        {sorted.map((d, i) => <DropRow key={i} d={d} />)}
-      </div>
-    </div>
+    <GroupedSourceList entries={entries} maxHeightClassName="max-h-72" />
   );
 }
 
@@ -2177,13 +2098,6 @@ function WikiLink({ name }: { name: string }) {
     </a>
   );
 }
-
-/** Build a Warframe wiki URL for an enemy, boss, or location name */
-function enemyWikiUrl(name: string): string {
-  const slug = name.trim().replace(/\s+/g, "_");
-  return `https://wiki.warframe.com/w/${encodeURIComponent(slug)}#Farming_Locations`;
-}
-
 
 // ─── Mod Detail Panel ─────────────────────────────────────────────────────────
 

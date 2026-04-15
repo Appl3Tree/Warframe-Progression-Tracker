@@ -20,7 +20,7 @@ import missionRewardsJson from "../../external/warframe-drop-data/raw/missionRew
 import { getRelicByKey } from "../domain/catalog/relicCatalog";
 import { getPrimeAvailabilityStatus, getRelicAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";
-import { WorkspaceAction, WorkspaceFilterGroup, WorkspacePillButton, WorkspaceSection, WorkspaceSegmentedButton } from "../components/workspace/WorkspaceChrome";
+import { WorkspaceAction, WorkspaceFilterGroup, WorkspaceHero, WorkspacePillButton, WorkspaceSection, WorkspaceSegmentedButton, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
 import {
   SAFE_TO_SELL_PROTECTION_META,
   buildWeaponIngredientIndex,
@@ -41,6 +41,16 @@ import {
 } from "../components/collection/CollectionLedgerShell";
 import { getAllWikiBlueprintReferencedCatalogIds, getWikiBlueprintRequirements } from "../catalog/items/wikiBlueprintRequirements";
 import { getEntityImageUrl } from "../utils/entityImage";
+import { getSyndicateVendorPrice, parseSyndicateVendorLabel } from "../catalog/sources/syndicateVendorPricing";
+import {
+  GroupedSourceList,
+  classifySourceFamilyFromCatalog,
+  classifySourceFamilyFromDropLocation,
+  dedupeGroupedSourceEntries,
+  extractInlinePriceMeta,
+  type GroupedSourceBadge,
+  type GroupedSourceEntry,
+} from "../components/sources/GroupedSourceList";
 
 const _statusImgs = import.meta.glob<string>("../assets/statuses/*.png", { eager: true, import: "default" });
 const STATUS_IMG_INV: Record<string, string> = {};
@@ -114,6 +124,177 @@ function isStarChartCollectionSource(sourceId: string): boolean {
     sourceId.startsWith("data:missionreward/") ||
     sourceId.startsWith("data:cache:")
   );
+}
+
+type InventorySourceDrop = {
+  chance: number;
+  location: string;
+  rarity: string;
+  type?: string;
+};
+
+function normalizeCacheKey(value: string): string | null {
+  const normalized = String(value ?? "").trim();
+  if (!normalized) return null;
+
+  const dropMatch = normalized.match(/^([^/]+)\/([^,(]+)\s+\(Caches\)/i);
+  if (dropMatch) {
+    return `cache:${dropMatch[1].trim().toLowerCase()}/${dropMatch[2].trim().toLowerCase()}`;
+  }
+
+  const labelMatch = normalized.match(/^Caches:\s+(.+?)\s+-\s+(.+)$/i);
+  if (labelMatch) {
+    return `cache:${labelMatch[1].trim().toLowerCase()}/${labelMatch[2].trim().toLowerCase()}`;
+  }
+
+  const nodeLikeLabelMatch = normalized.match(/^(.+?)\s+-\s+(.+?)\s+\(Caches\)(?:\s+\(Caches\))?$/i);
+  if (nodeLikeLabelMatch) {
+    return `cache:${nodeLikeLabelMatch[1].trim().toLowerCase()}/${nodeLikeLabelMatch[2].trim().toLowerCase()}`;
+  }
+
+  return null;
+}
+
+function buildInventorySourceEntries(args: {
+  itemName?: string | string[] | null;
+  sourceIds?: string[];
+  drops?: InventorySourceDrop[];
+  worldState?: import("../lib/worldStateCache").WorldStateData | null;
+  marketCreditsPrice?: number | null;
+  marketPlatinumPrice?: number | null;
+}): GroupedSourceEntry[] {
+  const itemName = args.itemName ?? null;
+  const sourceIds = args.sourceIds ?? [];
+  const drops = args.drops ?? [];
+  const worldState = args.worldState ?? null;
+  const marketCreditsPrice = args.marketCreditsPrice ?? null;
+  const marketPlatinumPrice = args.marketPlatinumPrice ?? null;
+
+  const catalogEntries: GroupedSourceEntry[] = sourceIds
+    .filter((sourceId) => sourceId !== "data:crafting")
+    .map((sourceId) => {
+      const label = formatSourceDisplayLabel(SOURCE_INDEX[sourceId as keyof typeof SOURCE_INDEX]?.label ?? sourceId);
+      const syndicateVendor = parseSyndicateVendorLabel(label);
+      const marketMeta =
+        sourceId === "data:market/credits" && marketCreditsPrice && Number.isFinite(marketCreditsPrice)
+          ? `${marketCreditsPrice.toLocaleString()} Credits`
+          : sourceId === "data:market/platinum" && marketPlatinumPrice && Number.isFinite(marketPlatinumPrice)
+            ? `${marketPlatinumPrice.toLocaleString()} Platinum`
+            : null;
+      const syndicateStanding =
+        itemName && label.toLowerCase().startsWith("syndicate vendor:")
+          ? getSyndicateVendorPrice(itemName, label)
+          : null;
+      const cacheDedupeKey = classifySourceFamilyFromCatalog(sourceId, label) === "cache"
+        ? normalizeCacheKey(label)
+        : null;
+      return {
+        id: `catalog:${sourceId}`,
+        family: classifySourceFamilyFromCatalog(sourceId, label),
+        dedupeKey: syndicateVendor?.vendorName ? `vendor:${syndicateVendor.vendorName}` : cacheDedupeKey ?? undefined,
+        title: syndicateVendor?.vendorName ?? label,
+        subtitle: syndicateVendor?.rankName
+          ? `Rank ${syndicateVendor.rankNumber ?? "?"} · ${syndicateVendor.rankName}`
+          : undefined,
+        meta: syndicateStanding != null
+          ? `${syndicateStanding.toLocaleString()} Standing`
+          : marketMeta ?? extractInlinePriceMeta(label) ?? undefined,
+        sortValue: undefined,
+      };
+    });
+
+  const dropEntries: GroupedSourceEntry[] = drops.map((drop) => {
+    const family = classifySourceFamilyFromDropLocation(drop.location);
+    const badges: GroupedSourceBadge[] = [];
+    const rarity = drop.rarity?.trim();
+    const inlinePriceMeta = extractInlinePriceMeta(drop.location);
+    let title = drop.location;
+    let subtitle: string | undefined;
+    let meta = inlinePriceMeta ?? (family === "vendor" ? undefined : formatDropPercent(drop.chance));
+    let href = `https://wiki.warframe.com/w/${encodeURIComponent(drop.location.trim().replace(/\s+/g, "_"))}#Farming_Locations`;
+
+    if (family === "vendor") {
+      const commaIndex = drop.location.indexOf(", ");
+      if (commaIndex > 0) {
+        title = drop.location.slice(0, commaIndex);
+        subtitle = drop.location.slice(commaIndex + 2);
+        href = `https://wiki.warframe.com/w/${encodeURIComponent(title.trim().replace(/\s+/g, "_"))}`;
+      }
+    }
+
+    if (family === "mission") {
+      const rotationMatch = drop.location.match(/,\s*Rotation\s+([ABC])\s*$/i);
+      if (rotationMatch) {
+        title = drop.location.slice(0, drop.location.length - rotationMatch[0].length).trim();
+        badges.push({ label: `Rot ${rotationMatch[1].toUpperCase()}`, tone: "mission" });
+      }
+      if (isSteelPathDrop(drop)) {
+        badges.push({
+          label: "Steel Path",
+          tone: "warning",
+          title: "This drop rate is from the Steel Path variant of the mission.",
+        });
+      }
+    }
+
+    if (family === "relic") {
+      const baseName = drop.location.replace(/\s+\(.*?\)\s*$/, "").trim();
+      const relicKey = baseName.replace(/\s+Relic\s*$/i, "").trim().toLowerCase();
+      const relic = getRelicByKey(relicKey);
+      const availability = relic ? getRelicAvailabilityStatus(relic.key, relic.isActive, worldState) : "available";
+      const quality = drop.location.match(/\(([^)]+)\)$/)?.[1];
+      title = baseName;
+      href = `https://wiki.warframe.com/w/${encodeURIComponent(baseName.replace(/\s+/g, "_"))}`;
+      if (quality) badges.push({ label: quality, tone: "relic" });
+      if (availability === "vaulted") {
+        badges.push({ label: "Vaulted", tone: "warning", title: "This relic is currently vaulted." });
+      } else if (availability === "prime_resurgence") {
+        badges.push({ label: "Prime Resurgence", tone: "relic", title: "This relic is currently offered through Prime Resurgence." });
+      }
+    }
+
+    if (rarity && family !== "vendor") badges.push({ label: rarity, tone: "neutral" });
+    const cacheDedupeKey = family === "cache" ? normalizeCacheKey(drop.location) : null;
+
+    return {
+      id: `drop:${drop.location}:${drop.chance}:${drop.rarity ?? ""}`,
+      family,
+      dedupeKey: cacheDedupeKey ?? undefined,
+      title,
+      subtitle,
+      meta,
+      sortValue: Number.isFinite(drop.chance) ? drop.chance : undefined,
+      href,
+      badges,
+    };
+  });
+
+  const seen = new Set<string>();
+  return [...catalogEntries, ...dropEntries].filter((entry) => {
+    const key = `${entry.family}:${entry.title}:${entry.subtitle ?? ""}:${entry.meta ?? ""}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function getKnownMarketPrices(rawData: Record<string, unknown> | null | undefined, fallbackCredits?: number | null) {
+  const regularPriceRaw = Number(rawData?.RegularPrice ?? 0);
+  const premiumPriceRaw = Number(rawData?.PremiumPrice ?? 0);
+  const fallbackCreditValue = Number(fallbackCredits ?? 0);
+
+  return {
+    marketCreditsPrice:
+      (Number.isFinite(fallbackCreditValue) && fallbackCreditValue > 0
+        ? fallbackCreditValue
+        : Number.isFinite(regularPriceRaw) && regularPriceRaw > 0
+          ? regularPriceRaw
+          : null),
+    marketPlatinumPrice:
+      Number.isFinite(premiumPriceRaw) && premiumPriceRaw > 0
+        ? premiumPriceRaw
+        : null,
+  };
 }
 
 type SortKey =
@@ -489,11 +670,11 @@ function StatBox({
   color?: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900/40 px-2.5 py-2">
-      <div className="text-[10px] uppercase tracking-wide text-slate-500 mb-0.5">
+    <div className="rounded-[20px] border border-slate-800/70 bg-[rgba(15,23,42,0.44)] px-4 py-3 backdrop-blur-sm">
+      <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
         {label}
       </div>
-      <div className={["text-sm font-semibold", color].join(" ")}>{value}</div>
+      <div className={["text-base font-semibold leading-tight", color].join(" ")}>{value}</div>
     </div>
   );
 }
@@ -507,7 +688,7 @@ function Label({
   return (
     <div
       className={[
-        "text-xs uppercase tracking-wide font-semibold mb-2",
+        "mb-3 text-[11px] font-semibold uppercase tracking-[0.18em]",
         color,
       ].join(" ")}
     >
@@ -515,144 +696,6 @@ function Label({
     </div>
   );
 }
-
-const KNOWN_SYNDICATE_PREFIXES_INV = [
-  "New Loka", "Steel Meridian", "Arbiters of Hexis", "Cephalon Suda",
-  "The Perrin Sequence", "Red Veil", "Conclave", "Cephalon Simaris",
-  "Operational Supply", "The Quills", "Vox Solaris", "Ventkids",
-  "Ostron", "Solaris United", "Entrati", "The Holdfasts", "NecraLoid",
-  "Kahl's Garrison", "Arbitrations",
-];
-
-function classifyDropInv(location: string): "syndicate" | "enemy" | "mission" | "relic" | "other" {
-  if (location.includes("Relic")) return "relic";
-  if (/^[A-Z][a-zA-Z ]+\/[A-Z]/.test(location) || location.startsWith("Duviri/")) return "mission";
-  const commaIdx = location.indexOf(", ");
-  if (commaIdx > 0) {
-    const org = location.slice(0, commaIdx);
-    if (KNOWN_SYNDICATE_PREFIXES_INV.some(p => org.startsWith(p))) return "syndicate";
-  }
-  if (!location.includes("/") && !location.includes(", ")) return "enemy";
-  return "other";
-}
-
-function InvDropRow({ d, small = false, worldState = null, steelPath = false }: {
-  d: { chance: number; location: string; rarity: string; type?: string };
-  small?: boolean;
-  worldState?: import("../lib/worldStateCache").WorldStateData | null;
-  steelPath?: boolean;
-}) {
-  const kind = classifyDropInv(d.location);
-  const sz = small ? "text-[10px]" : "text-xs";
-  const rarityClass =
-    d.rarity === "Common" ? "text-slate-400" :
-    d.rarity === "Uncommon" ? "text-blue-300" :
-    d.rarity === "Rare" ? "text-amber-300" : "text-rose-300";
-
-  const wikiIconSvg = (
-    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  );
-
-  if (kind === "syndicate") {
-    const commaIdx = d.location.indexOf(", ");
-    const syndName = commaIdx > 0 ? d.location.slice(0, commaIdx) : d.location;
-    const rankLabel = commaIdx > 0 ? d.location.slice(commaIdx + 2) : "";
-    return (
-      <div className={["flex items-center gap-1.5 rounded px-2 py-1 bg-indigo-950/20 border border-indigo-800/30", sz].join(" ")}>
-        <span className="text-[9px] font-semibold uppercase tracking-wide text-indigo-400 shrink-0">Purchase</span>
-        <a href={wikiUrl(syndName)} target="_blank" rel="noopener noreferrer"
-          className="flex-1 truncate text-slate-300 hover:text-indigo-300 hover:underline transition-colors">{syndName}</a>
-        {rankLabel && <span className="shrink-0 text-slate-500">{rankLabel}</span>}
-        <a href={wikiUrl(syndName)} target="_blank" rel="noopener noreferrer"
-          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIconSvg}</a>
-      </div>
-    );
-  }
-
-  if (kind === "enemy") {
-    const farmUrl = `https://wiki.warframe.com/w/${encodeURIComponent(d.location.trim().replace(/\s+/g, "_"))}#Farming_Locations`;
-    return (
-      <div className={["flex items-center gap-1.5 rounded px-2 py-1 bg-slate-900/40 border border-slate-800/50", sz].join(" ")}>
-        <a href={farmUrl} target="_blank" rel="noopener noreferrer"
-          className="flex-1 truncate text-slate-300 hover:text-cyan-300 hover:underline transition-colors">{d.location}</a>
-        <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
-        <span className="font-mono text-slate-500 shrink-0">{formatDropPercent(d.chance)}</span>
-        <a href={farmUrl} target="_blank" rel="noopener noreferrer"
-          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIconSvg}</a>
-      </div>
-    );
-  }
-
-  if (kind === "relic") {
-    // "Lith C2 Relic (Exceptional)" → key "lith c2", base name "Lith C2 Relic"
-    const baseName = d.location.replace(/\s+\(.*?\)\s*$/, "").trim();
-    const relicKey = baseName.replace(/\s+Relic\s*$/i, "").trim().toLowerCase();
-    const relic = getRelicByKey(relicKey);
-    const availability = relic
-      ? getRelicAvailabilityStatus(relic.key, relic.isActive, worldState)
-      : "available";
-    const quality = d.location.match(/\(([^)]+)\)$/)?.[1];
-    const farmUrl = `https://wiki.warframe.com/w/${encodeURIComponent(baseName.replace(/\s+/g, "_"))}`;
-    return (
-      <div className={[
-        "flex items-center gap-1.5 rounded px-2 py-1 border",
-        availability === "vaulted"
-          ? "bg-red-950/10 border-red-900/40"
-          : availability === "prime_resurgence"
-            ? "bg-violet-950/10 border-violet-900/40"
-            : "bg-slate-900/40 border-slate-800/50",
-        sz,
-      ].join(" ")}>
-        <a href={farmUrl} target="_blank" rel="noopener noreferrer"
-          className="flex-1 truncate text-slate-300 hover:text-cyan-300 hover:underline transition-colors">{baseName}</a>
-        {quality && <span className="shrink-0 text-slate-500">{quality}</span>}
-        {availability === "vaulted" && (
-          <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1 py-0.5 rounded border border-red-700/50 bg-red-950/40 text-red-400"
-            title="This relic is vaulted — obtain via trading or Prime Resurgence (Varzia)">
-            Vaulted
-          </span>
-        )}
-        {availability === "prime_resurgence" && (
-          <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1 py-0.5 rounded border border-violet-700/50 bg-violet-950/40 text-violet-300"
-            title="This relic is currently available from Varzia's Prime Resurgence stock">
-            Prime Resurgence
-          </span>
-        )}
-        <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
-        <span className="font-mono text-slate-500 shrink-0">{formatDropPercent(d.chance)}</span>
-        <a href={farmUrl} target="_blank" rel="noopener noreferrer"
-          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">{wikiIconSvg}</a>
-      </div>
-    );
-  }
-
-  // Extract ", Rotation X" suffix so it can be shown as a compact badge instead of
-  // being buried in the truncated location string.
-  const rotMatch = d.location.match(/,\s*Rotation\s+([ABC])\s*$/i);
-  const rotLabel = rotMatch ? rotMatch[1].toUpperCase() : null;
-  const locationText = rotMatch ? d.location.slice(0, d.location.length - rotMatch[0].length).trim() : d.location;
-
-  return (
-    <div className={["flex items-center gap-1.5 rounded px-2 py-1 bg-slate-900/40 border border-slate-800/50", sz].join(" ")}>
-      <span className="flex-1 truncate text-slate-300">{locationText}</span>
-      {rotLabel && (
-        <span className="rounded px-1 py-px bg-slate-700 text-slate-300 font-mono font-bold shrink-0">{rotLabel}</span>
-      )}
-      {steelPath && (
-        <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1 py-0.5 rounded border border-yellow-700/50 bg-yellow-950/40 text-yellow-400"
-          title="This drop rate is from the Steel Path difficulty variant of this mission">
-          Steel Path
-        </span>
-      )}
-      <span className={["font-semibold shrink-0", rarityClass].join(" ")}>{d.rarity}</span>
-      <span className="font-mono text-slate-500 shrink-0">{formatDropPercent(d.chance)}</span>
-    </div>
-  );
-}
-
 
 /** Render a description string, replacing DT_ status tags and |VAR| placeholders */
 
@@ -3679,8 +3722,8 @@ export default function Inventory() {
       </div>
       </Section>
 
-      {selectedDetailId &&
-        (() => {
+      {selectedDetailId
+        ? (() => {
           const rec: any = FULL_CATALOG.recordsById[selectedDetailId];
           const name = rec?.displayName ?? String(selectedDetailId);
           const uniqueName = String(selectedDetailId).replace(/^[^:]+:/, "");
@@ -3694,6 +3737,24 @@ export default function Inventory() {
           const sources: string[] = Array.isArray(acq?.sources)
             ? (acq.sources as string[])
             : [];
+          const recRaw = rec?.raw as Record<string, unknown> | undefined;
+          const lotusData = (recRaw?.rawLotus as { data?: Record<string, unknown> } | undefined)?.data
+            ?? (recRaw?.data as Record<string, unknown> | undefined)
+            ?? null;
+          const { marketCreditsPrice, marketPlatinumPrice } = getKnownMarketPrices(
+            lotusData,
+            typeof (allE as { marketCost?: unknown } | null)?.marketCost === "number"
+              ? Number((allE as { marketCost?: number }).marketCost)
+              : null,
+          );
+          const itemSourceEntries = buildInventorySourceEntries({
+            itemName: name,
+            sourceIds: sources,
+            drops: allE?.drops ?? [],
+            worldState,
+            marketCreditsPrice,
+            marketPlatinumPrice,
+          });
           const avail = determineItemAvailability(
             selectedDetailId,
             completedPrereqs,
@@ -3744,21 +3805,6 @@ export default function Inventory() {
           const isFrame = cat === "Warframes" || cat === "Archwing";
           const isCompanion = cat === "Sentinels" || cat === "Pets";
 
-          // Collect all drops — item-level + component-level
-          const allDrops: Array<{
-            source: string;
-            drops: AllItemEntry["drops"];
-          }> = [];
-          if (allE?.drops && allE.drops.length > 0)
-            allDrops.push({ source: name, drops: allE.drops });
-          if (allE?.components) {
-            for (const comp of allE.components) {
-              if (comp.drops && comp.drops.length > 0) {
-                allDrops.push({ source: comp.name, drops: comp.drops });
-              }
-            }
-          }
-
           // Damage breakdown — non-zero damage types only
           const dmgTypes = allE?.damage
             ? Object.entries(allE.damage)
@@ -3780,40 +3826,63 @@ export default function Inventory() {
             : [];
 
           return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedDetailId(null)} />
-              <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl overflow-hidden">
-                {/* Modal header */}
-                <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 shrink-0">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-base font-semibold text-slate-100 truncate">{name}</span>
-                    <WikiLink name={name} />
+            <div className="fixed inset-0 z-50 p-2 sm:p-4">
+              <div className="absolute inset-0 bg-[rgba(2,6,23,0.78)] backdrop-blur-md" onClick={() => setSelectedDetailId(null)} />
+              <div className="relative mx-auto flex h-[calc(100vh-1rem)] w-full max-w-[1640px] flex-col overflow-hidden rounded-[34px] border border-slate-800/80 bg-[linear-gradient(180deg,rgba(3,7,18,0.98),rgba(8,13,24,0.97))] shadow-[0_42px_120px_rgba(0,0,0,0.55)] sm:h-[calc(100vh-2rem)]">
+                <div className="overflow-y-auto flex-1 px-4 py-4 sm:px-6 sm:py-6">
+              <div className="space-y-5">
+                <WorkspaceHero
+                  eyebrow={allE?.category ?? allE?.type ?? "Inventory Dossier"}
+                  title={name}
+                  description=""
+                  actions={
+                    <>
+                      <WorkspaceAction onClick={() => window.open(wikiUrl(name), "_blank", "noopener,noreferrer")}>Wiki</WorkspaceAction>
+                      <WorkspaceAction onClick={() => setSelectedDetailId(null)}>Close</WorkspaceAction>
+                    </>
+                  }
+                  stats={
+                    <>
+                      {(allE?.masteryReq ?? 0) > 0 ? <WorkspaceStat label="Mastery" value={`MR ${allE!.masteryReq}`} hint="Required rank" /> : null}
+                      {allE?.type ? <WorkspaceStat label="Type" value={allE.type} hint={allE?.category ?? "Catalog entry"} /> : null}
+                      <WorkspaceStat label="Owned" value={isOwned ? "Yes" : "No"} hint={isMastered ? "Mastered in profile" : "Not mastered yet"} />
+                      <WorkspaceStat label="Access" value={availLabel} hint={avail === "available" ? "Ready to acquire or use" : "Review blockers below"} />
+                    </>
+                  }
+                  className="overflow-hidden"
+                />
+                {allE?.description ? (
+                  <div className="-mt-2 px-1 text-sm leading-7 text-slate-300">
+                    {renderDesc(allE.description, allE.required !== undefined ? { COUNT: allE.required } : undefined)}
+                    {allE?.passiveDescription ? (
+                      <div className="mt-2 text-xs italic text-slate-500">
+                        Passive: {renderDesc(allE.passiveDescription)}
+                      </div>
+                    ) : null}
                   </div>
-                  <button
-                    className="shrink-0 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
-                    onClick={() => setSelectedDetailId(null)}
-                  >Close</button>
-                </div>
-                {/* Modal body */}
-                <div className="overflow-y-auto flex-1 p-5">
-              {/* ── Header row ── */}
-              <div className="grid grid-cols-1 gap-4 mb-4 lg:grid-cols-[minmax(240px,0.8fr)_minmax(0,1.2fr)]">
-                <div className="overflow-hidden rounded-[24px] border border-slate-800 bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.12),transparent_55%),linear-gradient(180deg,rgba(30,41,59,0.58),rgba(15,23,42,0.72))]">
+                ) : null}
+              <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(340px,0.72fr)_minmax(0,1.28fr)]">
+                <div className="space-y-5 self-start">
+                <div className="overflow-hidden rounded-[32px] border border-slate-800/70 bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.18),transparent_56%),linear-gradient(180deg,rgba(30,41,59,0.58),rgba(5,10,20,0.92))]">
                   {imageUrl ? (
                     <img
                       src={imageUrl}
                       alt={name}
-                      className="h-full min-h-[260px] w-full object-contain p-6"
+                      className="h-full min-h-[380px] w-full object-contain p-10"
                       loading="lazy"
                     />
                   ) : (
-                    <div className="flex min-h-[260px] items-center justify-center px-6 text-center text-sm text-slate-500">
+                    <div className="flex min-h-[380px] items-center justify-center px-6 text-center text-sm text-slate-500">
                       No artwork available for this item.
                     </div>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                <div className="rounded-[30px] border border-slate-800/70 bg-[rgba(7,12,23,0.78)] px-5 py-5 backdrop-blur-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Status + Availability</div>
+                    <WikiLink name={name} />
+                  </div>
+                  <div className="mt-4 flex items-center gap-2 flex-wrap">
                     {allE?.isPrime && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded border border-amber-600/50 bg-amber-950/30 text-amber-300 font-semibold">
                         PRIME
@@ -3860,24 +3929,17 @@ export default function Inventory() {
                       {availLabel}
                     </span>
                   </div>
-                  {allE?.description && (
-                    <p className="text-sm text-slate-400 leading-relaxed">
-                      {renderDesc(allE.description, allE.required !== undefined ? { COUNT: allE.required } : undefined)}
-                    </p>
-                  )}
-                  {allE?.passiveDescription && (
-                    <p className="text-xs text-slate-500 mt-1 italic">
-                      Passive: {renderDesc(allE.passiveDescription)}
-                    </p>
-                  )}
                 </div>
               </div>
+              <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1.12fr)_380px]">
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* ── LEFT COLUMN ── */}
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {/* Mastery / release / type */}
-                  <div className="grid grid-cols-2 gap-2">
+	                  <WorkspaceSection
+	                    title="Overview"
+	                    subtitle="Core identity, release context, and inventory-facing reference details."
+	                    bodyClassName="grid grid-cols-2 gap-3"
+	                  >
                     {(allE?.masteryReq ?? 0) > 0 && (
                       <StatBox
                         label="Mastery Required"
@@ -3915,11 +3977,11 @@ export default function Inventory() {
                         }
                       />
                     )}
-                  </div>
+	                  </WorkspaceSection>
 
                   {/* Warframe stats */}
                   {(isFrame || isCompanion) && (
-                    <div>
+                    <div className="rounded-[30px] border border-slate-800/65 bg-[rgba(7,12,23,0.72)] px-5 py-5 backdrop-blur-sm">
                       <Label>Base Stats</Label>
                       <div className="grid grid-cols-3 gap-2">
                         {allE?.health && (
@@ -3949,7 +4011,7 @@ export default function Inventory() {
 
                   {/* Abilities */}
                   {isFrame && allE?.abilities && allE.abilities.length > 0 && (
-                    <div>
+                    <div className="rounded-[30px] border border-slate-800/65 bg-[rgba(7,12,23,0.72)] px-5 py-5 backdrop-blur-sm">
                       <Label>Abilities</Label>
                       <div className="space-y-1.5">
                         {allE.abilities.map((ab, i) => (
@@ -3979,7 +4041,7 @@ export default function Inventory() {
                   {(isFrame || isCompanion) &&
                     allE?.polarities &&
                     allE.polarities.length > 0 && (
-                      <div>
+                      <div className="rounded-[30px] border border-slate-800/65 bg-[rgba(7,12,23,0.72)] px-5 py-5 backdrop-blur-sm">
                         <Label>Polarities</Label>
                         <div className="flex flex-wrap gap-1.5">
                           {allE.polarities.map((p, i) => (
@@ -4001,9 +4063,9 @@ export default function Inventory() {
 
                   {/* Weapon stats */}
                   {isWeapon && (
-                    <div>
+                    <div className="rounded-[30px] border border-slate-800/65 bg-[rgba(7,12,23,0.72)] px-5 py-5 backdrop-blur-sm">
                       <Label>Stats</Label>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2 xl:grid-cols-3">
                         {allE?.totalDamage && (
                           <StatBox
                             label="Total Damage"
@@ -4125,9 +4187,9 @@ export default function Inventory() {
 
                   {/* Damage breakdown */}
                   {dmgTypes.length > 0 && (
-                    <div>
+                    <div className="rounded-[30px] border border-slate-800/65 bg-[rgba(7,12,23,0.72)] px-5 py-5 backdrop-blur-sm">
                       <Label>Damage Breakdown</Label>
-                      <div className="grid grid-cols-2 gap-1.5">
+                      <div className="grid grid-cols-2 gap-2 xl:grid-cols-3">
                         {dmgTypes.map(([type, val]) => (
                           <div
                             key={type}
@@ -4147,7 +4209,7 @@ export default function Inventory() {
 
                   {/* Access explanation */}
                   {avail !== "available" && (
-                    <div>
+                    <div className="rounded-[30px] border border-slate-800/65 bg-[rgba(7,12,23,0.72)] px-5 py-5 backdrop-blur-sm">
                       <Label color={avail === "partial" ? "text-amber-400" : "text-rose-400"}>
                         {avail === "partial" ? "Why Access Is Partial" : "Why Access Is Blocked"}
                       </Label>
@@ -4174,7 +4236,7 @@ export default function Inventory() {
                 {/* ── RIGHT COLUMN ── */}
                 <div className="space-y-4">
                   {(matchedSellProtections.length > 0 || weaponRecipeUses.length > 0) && (
-                    <div>
+                    <div className="rounded-[30px] border border-slate-800/65 bg-[rgba(7,12,23,0.72)] px-5 py-5 backdrop-blur-sm">
                       <Label>Sell Safety</Label>
                       <div className="space-y-2">
                         {matchedSellProtections.length > 0 && (
@@ -4199,9 +4261,39 @@ export default function Inventory() {
                     </div>
                   )}
 
+                  <div className="rounded-[30px] border border-slate-800/65 bg-[rgba(7,12,23,0.72)] px-5 py-5 backdrop-blur-sm">
+                    <Label>Source Locations</Label>
+                    {itemSourceEntries.length > 0 ? (
+                      <GroupedSourceList entries={itemSourceEntries} maxHeightClassName="max-h-[24rem]" />
+                    ) : (
+                      <div className="rounded-[24px] border border-dashed border-slate-800/60 px-4 py-6 text-sm text-slate-500">
+                        No drop data available.
+                        <a
+                          href={wikiUrl(name) + "#Acquisition"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ml-2 inline-flex items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors"
+                        >
+                          <svg
+                            className="w-3 h-3"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                          </svg>
+                          Wiki
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Build info */}
                   {(allE?.buildPrice || allE?.buildTime || allE?.bpCost) && (
-                    <div>
+                    <div className="rounded-[30px] border border-slate-800/65 bg-[rgba(7,12,23,0.72)] px-5 py-5 backdrop-blur-sm">
                       <Label>Build Requirements</Label>
                       <div className="grid grid-cols-2 gap-2">
                         {allE.buildPrice && (
@@ -4238,200 +4330,126 @@ export default function Inventory() {
                     </div>
                   )}
 
-                  {/* Components with their drops */}
-                  {allE?.components && allE.components.length > 0 && (
+                </div>
+	                </div>
+                <div className="rounded-[30px] border border-slate-800/65 bg-[rgba(7,12,23,0.72)] px-5 py-5 backdrop-blur-sm 2xl:col-span-2">
+                  <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
-                      <Label>Components</Label>
-                      <div className="space-y-1.5">
-                        {allE.components.map((comp, i) => {
-                          const hasDrops = comp.drops && comp.drops.length > 0;
-                          // Only resolve catalog acquisition for recipe-path components
-                          // (blueprints, parts). Generic resources like Salvage, Neurodes,
-                          // Gallium etc. have incomplete or misleading catalog sources —
-                          // their drop rows (if any) or wiki link are more accurate.
-                          const isRecipeComp = comp.uniqueName
-                            ? /\/Recipes\//.test(comp.uniqueName)
-                            : false;
-                          const compCatalogId = isRecipeComp && comp.uniqueName
-                            ? (`items:${comp.uniqueName}` as import("../domain/catalog/loadFullCatalog").CatalogId)
-                            : null;
-                          const compAcq = compCatalogId
-                            ? getAcquisitionByCatalogId(compCatalogId)
-                            : null;
-                          // Only show "primary" acquisition sources in the header badge.
-                          // Drop-table sources (data:drop:*, data:node/*) are already
-                          // represented by the drop rows below and would show raw IDs here.
-                          // data:crafting is also not useful at the individual component level.
-                          const compSources = (compAcq?.sources ?? []).filter(s =>
-                            s !== "data:crafting" &&
-                            !s.startsWith("data:drop:") &&
-                            !s.startsWith("data:node/")
-                          );
-                          const hasCatalogSources = compSources.length > 0;
-                          return (
-                            <div
-                              key={i}
-                              className="rounded-lg border border-slate-800 bg-slate-900/30 px-3 py-2"
-                            >
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-medium text-slate-200">
-                                  {comp.name}
-                                </span>
-                                {comp.itemCount && comp.itemCount > 1 && (
-                                  <span className="text-[10px] text-slate-500">
-                                    ×{comp.itemCount}
-                                  </span>
-                                )}
-                                {/* Item-specific parts (/Recipes/) → parent item #Acquisition
-                                    Generic resources (/MiscItems/ etc.) → their own wiki page */}
-                                {comp.uniqueName && /\/Recipes\//.test(comp.uniqueName) ? (
-                                  <a href={wikiUrl(name) + "#Acquisition"} target="_blank" rel="noopener noreferrer"
-                                    title={`Find ${comp.name} on the ${name} wiki page`}
-                                    className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">
-                                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                      <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
-                                    </svg>
-                                  </a>
-                                ) : (
-                                  <WikiLink name={comp.name} />
-                                )}
-                                {/* Right side: catalog sources if known, else wiki fallback */}
-                                {hasCatalogSources ? (
-                                  <span className="ml-auto flex flex-wrap gap-x-2 gap-y-0.5 justify-end">
-                                    {compSources.slice(0, 3).map((s) => (
-                                      <span key={s} className="text-[10px] text-sky-400">
-                                        {formatSourceDisplayLabel(SOURCE_INDEX[s as any]?.label ?? s)}
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Components</div>
+                      <div className="mt-1 text-sm text-slate-400">Each component gets its own lane so source details expand downward without turning into one long column.</div>
+                    </div>
+                  </div>
+                  <div className="mt-5">
+                      {allE?.components && allE.components.length > 0 ? (
+                        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
+                          {allE.components.map((comp, i) => {
+                            const hasDrops = comp.drops && comp.drops.length > 0;
+                            const compCatalogId = comp.uniqueName
+                              ? (`items:${comp.uniqueName}` as import("../domain/catalog/loadFullCatalog").CatalogId)
+                              : null;
+                            const compAcq = compCatalogId
+                              ? getAcquisitionByCatalogId(compCatalogId)
+                              : null;
+                            const compRecord = compCatalogId ? FULL_CATALOG.recordsById[compCatalogId] : null;
+                            const compRecordRaw = (compRecord?.raw as Record<string, unknown> | undefined) ?? null;
+                            const compLotusData =
+                              (compRecordRaw?.rawLotus as { data?: Record<string, unknown> } | undefined)?.data
+                              ?? (compRecordRaw?.data as Record<string, unknown> | undefined)
+                              ?? null;
+                            const { marketCreditsPrice: componentMarketCreditsPrice, marketPlatinumPrice: componentMarketPlatinumPrice } =
+                              getKnownMarketPrices(
+                                compLotusData,
+                                typeof (comp as { marketCost?: unknown }).marketCost === "number"
+                                  ? Number((comp as { marketCost?: number }).marketCost)
+                                  : null,
+                              );
+                            const compSourceEntries = buildInventorySourceEntries({
+                              itemName: [comp.name, `${name} ${comp.name}`, `${name} ${comp.name} Blueprint`],
+                              sourceIds: compAcq?.sources ?? [],
+                              drops: comp.drops ?? [],
+                              worldState,
+                              marketCreditsPrice: componentMarketCreditsPrice,
+                              marketPlatinumPrice: componentMarketPlatinumPrice,
+                            });
+                            const dedupedCompSourceEntries = dedupeGroupedSourceEntries(compSourceEntries);
+                            return (
+                              <div
+                                key={i}
+                                className="rounded-[24px] border border-slate-800/60 bg-[rgba(5,10,20,0.38)] px-4 py-4 align-start"
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-base font-semibold text-slate-100">
+                                        {comp.name}
                                       </span>
-                                    ))}
-                                    {compSources.length > 3 && (
-                                      <span className="text-[10px] text-slate-500">+{compSources.length - 3} more</span>
-                                    )}
-                                  </span>
-                                ) : !hasDrops ? (
-                                  <a
-                                    href={comp.uniqueName && /\/Recipes\//.test(comp.uniqueName)
-                                      ? wikiUrl(name) + "#Acquisition"
-                                      : wikiUrl(comp.name) + "#Acquisition"}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="ml-auto text-[10px] text-slate-600 hover:text-slate-300 transition-colors"
-                                  >
-                                    Where to farm ↗
-                                  </a>
+                                      {comp.itemCount && comp.itemCount > 1 && (
+                                        <span className="rounded-full border border-slate-700/70 bg-slate-950/70 px-1.5 py-0.5 text-[9px] font-medium text-slate-400">
+                                          ×{comp.itemCount}
+                                        </span>
+                                      )}
+                                      {comp.uniqueName && /\/Recipes\//.test(comp.uniqueName) ? (
+                                        <a href={wikiUrl(name) + "#Acquisition"} target="_blank" rel="noopener noreferrer"
+                                          title={`Find ${comp.name} on the ${name} wiki page`}
+                                          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">
+                                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                            <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
+                                          </svg>
+                                        </a>
+                                      ) : (
+                                        <WikiLink name={comp.name} />
+                                      )}
+                                    </div>
+                                    <div className="mt-1 text-xs text-slate-500">
+                                    {dedupedCompSourceEntries.length > 0
+                                      ? `${dedupedCompSourceEntries.length} acquisition path${dedupedCompSourceEntries.length === 1 ? "" : "s"}`
+                                      : "No structured acquisition data"}
+                                  </div>
+                                  </div>
+                                  <div className="ml-2 flex shrink-0 items-center gap-2">
+                                  {!hasDrops && compSourceEntries.length === 0 ? (
+                                    <a
+                                      href={comp.uniqueName && /\/Recipes\//.test(comp.uniqueName)
+                                        ? wikiUrl(name) + "#Acquisition"
+                                        : wikiUrl(comp.name) + "#Acquisition"}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="ml-auto text-[10px] text-slate-600 hover:text-slate-300 transition-colors"
+                                    >
+                                      Where to farm ↗
+                                    </a>
+                                  ) : null}
+                                  </div>
+                                </div>
+                                {dedupedCompSourceEntries.length > 0 ? (
+                                  <div className="mt-4 border-t border-slate-800/60 pt-4">
+                                    <GroupedSourceList
+                                      entries={dedupedCompSourceEntries}
+                                      compact
+                                    />
+                                  </div>
                                 ) : null}
                               </div>
-                              {hasDrops && (
-                                <div className="space-y-0.5 max-h-32 overflow-y-auto">
-                                  {[...comp.drops!]
-                                    .sort((a,b) => {
-                                      const aS = classifyDropInv(a.location) === "syndicate";
-                                      const bS = classifyDropInv(b.location) === "syndicate";
-                                      if (aS !== bS) return aS ? -1 : 1;
-                                      return b.chance - a.chance;
-                                    })
-                                    .slice(0, 8)
-                                    .map((d, j) => <InvDropRow key={j} d={d} small worldState={worldState} steelPath={isSteelPathDrop(d)} />)}
-                                  {comp.drops!.length > 8 && (
-                                    <div className="text-[10px] text-slate-600">
-                                      +{comp.drops!.length - 8} more locations
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Direct item drops (non-prime, resources, relics, gear) */}
-                  {allE?.drops &&
-                    allE.drops.length > 0 &&
-                    (!allE.components || allE.components.length === 0) && (
-                      <div>
-                        <Label>Acquisition</Label>
-                        <div className="space-y-0.5 max-h-48 overflow-y-auto">
-                          {[...allE.drops]
-                            .sort((a,b) => {
-                              const aS = classifyDropInv(a.location) === "syndicate";
-                              const bS = classifyDropInv(b.location) === "syndicate";
-                              if (aS !== bS) return aS ? -1 : 1;
-                              return b.chance - a.chance;
-                            })
-                            .slice(0, 20)
-                            .map((d, i) => <InvDropRow key={i} d={d} worldState={worldState} steelPath={isSteelPathDrop(d)} />)}
-                          {allE.drops.length > 20 && (
-                            <div className="text-xs text-slate-600 px-2">
-                              +{allE.drops.length - 20} more
-                            </div>
-                          )}
+                            );
+                          })}
                         </div>
-                      </div>
-                    )}
-
-                  {/* No drop data */}
-                  {(!allE?.drops || allE.drops.length === 0) &&
-                    (!allE?.components ||
-                      allE.components.every(
-                        (c) => !c.drops || c.drops.length === 0,
-                      )) && (
-                      <div>
-                        <Label>Drop Locations</Label>
-                        <div className="text-xs text-slate-500 flex items-center gap-2">
-                          No drop data available.
-                          <a
-                            href={wikiUrl(name) + "#Acquisition"}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-slate-600 hover:text-slate-300 transition-colors flex items-center gap-1"
-                          >
-                            <svg
-                              className="w-3 h-3"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                              <polyline points="15 3 21 3 21 9" />
-                              <line x1="10" y1="14" x2="21" y2="3" />
-                            </svg>
-                            Wiki
-                          </a>
+                      ) : (
+                        <div className="rounded-[24px] border border-dashed border-slate-800/60 px-4 py-6 text-sm text-slate-500">
+                          No component data available.
                         </div>
-                      </div>
-                    )}
-
-                  {/* Acquisition sources from catalog */}
-                  {sources.length > 0 && (
-                    <div>
-                      <Label>Acquisition ({sources.length})</Label>
-                      <ul className="space-y-0.5 max-h-32 overflow-auto">
-                        {sources.slice(0, 15).map((s) => (
-                          <li key={s} className="text-xs text-slate-300">
-                            {formatSourceDisplayLabel(SOURCE_INDEX[s as any]?.label ?? s)}
-                          </li>
-                        ))}
-                        {sources.length > 15 && (
-                          <li className="text-xs text-slate-500">
-                            +{sources.length - 15} more
-                          </li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
-
-
+                      )}
+                  </div>
                 </div>
-              </div>
-
-              </div>
-              </div>
-            </div>
-          );
-        })()}
+	              </div>
+	
+	              </div>
+	              </div>
+	              </div>
+	            </div>
+	          );
+        })()
+        : null}
     </div>
   );
 }

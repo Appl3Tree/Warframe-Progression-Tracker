@@ -5,9 +5,17 @@ import blueprintChassisUrl from "../assets/templates/240px-Chassis.png";
 import blueprintNeuropticsUrl from "../assets/templates/240px-Neuroptics.png";
 import blueprintSystemsUrl from "../assets/templates/240px-Systems.png";
 import { WorkspaceAction, WorkspaceHero, WorkspaceSection, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
+import {
+    GroupedSourceList,
+    classifySourceFamilyFromCatalog,
+    classifySourceFamilyFromDropLocation,
+    extractInlinePriceMeta,
+    type GroupedSourceEntry,
+} from "../components/sources/GroupedSourceList";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { resolveItemRequirementGraph, type ItemRequirementEdge } from "../catalog/items/itemRequirements";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
+import { getSyndicateVendorPrice, parseSyndicateVendorLabel } from "../catalog/sources/syndicateVendorPricing";
 import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
 import { getWeaponCatalog, type WeaponAttack, type WeaponDamage, type WeaponEntry } from "../domain/catalog/weaponCatalog";
 import { useTrackerStore } from "../store/store";
@@ -154,6 +162,34 @@ function formatCompactPercent(value: number | null | undefined, digits = 1): str
 
 function formatPolarity(value: unknown): string {
     return typeof value === "string" && value.trim() ? titleCase(value) : "—";
+}
+
+function buildWikiUrl(name: string, anchor?: string): string {
+    const slug = name.trim().replace(/\s+/g, "_");
+    return `https://wiki.warframe.com/w/${encodeURIComponent(slug)}${anchor ? `#${anchor}` : ""}`;
+}
+
+function getKnownMarketMeta(entry: SearchEntityRecord | null, rawData: unknown, sourceId: string): string | null {
+    if (sourceId === "data:market/credits") {
+        const marketCost = typeof entry?.marketCost === "number" ? entry.marketCost : null;
+        if (marketCost && Number.isFinite(marketCost) && marketCost > 0) return `${marketCost.toLocaleString()} Credits`;
+    }
+
+    if (sourceId === "data:market/platinum" && rawData && typeof rawData === "object") {
+        const premium = Number((rawData as Record<string, unknown>).PremiumPrice ?? 0);
+        if (Number.isFinite(premium) && premium > 0) return `${premium.toLocaleString()} Platinum`;
+    }
+
+    return null;
+}
+
+function getCatalogSourceMeta(entry: SearchEntityRecord | null, rawData: unknown, sourceId: string, label: string): string | null {
+    const syndicateStanding =
+        entry?.name && label.toLowerCase().startsWith("syndicate vendor:")
+            ? getSyndicateVendorPrice(entry.name, label)
+            : null;
+    if (syndicateStanding != null) return `${syndicateStanding.toLocaleString()} Standing`;
+    return getKnownMarketMeta(entry, rawData, sourceId) ?? extractInlinePriceMeta(label);
 }
 
 function displayMagazineValue(weapon: WeaponEntry, magazineSize: number): string {
@@ -625,30 +661,56 @@ export default function SearchDetail(props: {
 
     const entity = useMemo(() => (detailRef ? getSearchEntity(detailRef) : null), [detailRef]);
     const entry = useMemo(() => (detailRef ? getSearchEntityData(detailRef) : null), [detailRef]);
+    const rawLotusData = useMemo(() => {
+        if (!entry || typeof entry !== "object") return null;
+        const data = (entry as Record<string, unknown>).data;
+        return data && typeof data === "object" ? (data as Record<string, unknown>) : null;
+    }, [entry]);
     const weapon = useMemo(() => {
         if (!detailRef || detailRef.kind !== "item") return null;
         return getWeaponCatalog().find((candidate) => candidate.uniqueName === detailRef.id) ?? null;
     }, [detailRef]);
     const catalogId = useMemo(() => (detailRef ? getCatalogIdForPath(detailRef.id) : null), [detailRef]);
     const acquisition = useMemo(() => (catalogId ? getAcquisitionByCatalogId(catalogId) : null), [catalogId]);
-    const acquisitionSources = useMemo(() => {
-        if (!acquisition) return [];
-        const seen = new Set<string>();
-        return acquisition.sources
-            .slice(0, 16)
-            .map((sourceId) => formatSourceDisplayLabel(SOURCE_INDEX[sourceId as keyof typeof SOURCE_INDEX]?.label ?? sourceId))
-            .filter((label) => {
-                if (!label || seen.has(label)) return false;
-                seen.add(label);
-                return true;
-            })
-            .slice(0, 8)
-            .map((label) => ({
-                label,
-                group: getSourceGroup(label),
-            }));
-    }, [acquisition]);
     const drops = useMemo(() => asDrops(entry?.drops), [entry]);
+    const sourceEntries = useMemo<GroupedSourceEntry[]>(() => {
+        const catalogEntries: GroupedSourceEntry[] = (acquisition?.sources ?? [])
+            .filter((sourceId) => sourceId !== "data:crafting")
+            .map((sourceId) => {
+                const label = formatSourceDisplayLabel(SOURCE_INDEX[sourceId as keyof typeof SOURCE_INDEX]?.label ?? sourceId);
+                const syndicateVendor = parseSyndicateVendorLabel(label);
+                return {
+                    id: `catalog:${sourceId}`,
+                    family: classifySourceFamilyFromCatalog(sourceId, label),
+                    dedupeKey: syndicateVendor?.vendorName ? `vendor:${syndicateVendor.vendorName}` : undefined,
+                    title: syndicateVendor?.vendorName ?? label,
+                    subtitle: syndicateVendor?.rankName
+                        ? `Rank ${syndicateVendor.rankNumber ?? "?"} · ${syndicateVendor.rankName}`
+                        : undefined,
+                    meta: getCatalogSourceMeta(entry, rawLotusData, sourceId, label) ?? undefined,
+                };
+            });
+
+        const dropEntries: GroupedSourceEntry[] = drops.map((drop) => {
+            const rarity = drop.rarity ?? drop.type ?? null;
+            return {
+                id: `drop:${drop.location}:${drop.chance}`,
+                family: classifySourceFamilyFromDropLocation(drop.location),
+                title: drop.location,
+                meta: extractInlinePriceMeta(drop.location) ?? formatDropPercent(drop.chance),
+                href: buildWikiUrl(drop.location, "Farming_Locations"),
+                badges: rarity ? [{ label: rarity, tone: "neutral" }] : [],
+            };
+        });
+
+        const seen = new Set<string>();
+        return [...catalogEntries, ...dropEntries].filter((entry) => {
+            const key = `${entry.family}:${entry.title}:${entry.meta ?? ""}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+    }, [acquisition?.sources, drops, entry, rawLotusData]);
     const stats = useMemo(() => statLinesFor(entry), [entry]);
     const weaponStats = useMemo(() => (weapon ? getWeaponStatRows(weapon) : []), [weapon]);
     const weaponDamageRows = useMemo(() => (weapon ? getWeaponDamageRows(weapon.damage) : []), [weapon]);
@@ -1102,19 +1164,9 @@ export default function SearchDetail(props: {
                 </>
             ) : null}
 
-            {acquisitionSources.length > 0 ? (
-                <WorkspaceSection title="Acquisition" subtitle="Best-known ways to get this item.">
-                    <div className="grid gap-2 md:grid-cols-2">
-                        {acquisitionSources.map((source) => (
-                            <div
-                                key={`${source.group}-${source.label}`}
-                                className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3"
-                            >
-                                <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--wf-text-dim)]">{source.group}</div>
-                                <div className="mt-2 text-sm leading-relaxed text-[color:var(--wf-text-strong)]">{source.label}</div>
-                            </div>
-                        ))}
-                    </div>
+            {sourceEntries.length > 0 ? (
+                <WorkspaceSection title="Source Locations" subtitle="Toggle between vendors, mission rewards, caches, relics, and other acquisition paths.">
+                    <GroupedSourceList entries={sourceEntries} />
                 </WorkspaceSection>
             ) : null}
 
@@ -1199,27 +1251,6 @@ export default function SearchDetail(props: {
                 </WorkspaceSection>
             ) : null}
 
-            {drops.length > 0 ? (
-                <WorkspaceSection title="Drop Snapshot" subtitle="Most relevant drop entries for this item.">
-                    <div className="overflow-hidden rounded-[24px] border border-[color:var(--wf-border-subtle)]">
-                        <div className="grid grid-cols-[minmax(0,1fr)_110px_110px] bg-[color:var(--wf-surface-soft)] px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">
-                            <div>Location</div>
-                            <div>Chance</div>
-                            <div>Rarity</div>
-                        </div>
-                        {drops.map((drop) => (
-                            <div
-                                key={`${drop.location}-${drop.chance}`}
-                                className="grid grid-cols-[minmax(0,1fr)_110px_110px] border-t border-[color:var(--wf-border-subtle)] px-4 py-3 text-sm"
-                            >
-                                <div className="min-w-0 text-[color:var(--wf-text-strong)]">{drop.location}</div>
-                                <div className="text-[color:var(--wf-text)]">{formatDropPercent(drop.chance)}</div>
-                                <div className="text-[color:var(--wf-text-dim)]">{drop.rarity ?? drop.type ?? "—"}</div>
-                            </div>
-                        ))}
-                    </div>
-                </WorkspaceSection>
-            ) : null}
         </div>
     );
 }
