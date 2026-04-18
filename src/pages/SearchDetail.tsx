@@ -523,6 +523,7 @@ function CraftingTreeNode(props: { node: CraftingNode; depth: number; onOpenDeta
     const hasChildren = props.node.children.length > 0;
     const [expanded, setExpanded] = useState(props.depth < 1);
     const canOpenDetail = Boolean(getSearchDetailRefForCatalogId(props.node.catalogId as never));
+    const setCount = useTrackerStore((s) => s.setCount);
 
     return (
         <div className="rounded-2xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] px-4 py-3">
@@ -551,8 +552,35 @@ function CraftingTreeNode(props: { node: CraftingNode; depth: number; onOpenDeta
                             </button>
                         ) : null}
                     </div>
-                    <div className="mt-1 text-xs text-[color:var(--wf-text-dim)]">
-                        Need {props.node.count} · Owned {props.node.owned}
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                        <div className="text-xs text-[color:var(--wf-text-dim)]">
+                            Need {props.node.count} · Owned {props.node.owned}
+                        </div>
+                        <div
+                            className="flex items-center overflow-hidden rounded-xl border border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface)]"
+                            onClick={(event) => event.stopPropagation()}
+                        >
+                            <button
+                                type="button"
+                                className="flex h-8 w-8 items-center justify-center text-base text-[color:var(--wf-text-dim)] transition hover:bg-white/5 hover:text-[color:var(--wf-text-strong)] disabled:cursor-not-allowed disabled:opacity-35"
+                                onClick={() => setCount(props.node.catalogId, Math.max(0, props.node.owned - 1))}
+                                disabled={props.node.owned <= 0}
+                                aria-label={`Decrease owned ${props.node.name}`}
+                            >
+                                -
+                            </button>
+                            <div className="min-w-[3rem] px-3 text-center text-sm font-semibold text-[color:var(--wf-text-strong)]">
+                                {props.node.owned}
+                            </div>
+                            <button
+                                type="button"
+                                className="flex h-8 w-8 items-center justify-center text-base text-[color:var(--wf-text-dim)] transition hover:bg-white/5 hover:text-[color:var(--wf-text-strong)]"
+                                onClick={() => setCount(props.node.catalogId, props.node.owned + 1)}
+                                aria-label={`Increase owned ${props.node.name}`}
+                            >
+                                +
+                            </button>
+                        </div>
                     </div>
                     {props.node.acquisitionSources.length > 0 ? (
                         <div className="mt-3 flex flex-wrap gap-2">

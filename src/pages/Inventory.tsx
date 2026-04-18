@@ -52,6 +52,7 @@ import {
 import { getAllWikiBlueprintReferencedCatalogIds, getWikiBlueprintRequirements } from "../catalog/items/wikiBlueprintRequirements";
 import { getEntityImageUrl } from "../utils/entityImage";
 import { getSyndicateVendorOffer, getSyndicateVendorPrice, parseSyndicateVendorLabel } from "../catalog/sources/syndicateVendorPricing";
+import { withManualReleaseDateFallback } from "../catalog/items/manualReleaseDates";
 import {
   GroupedSourceList,
   classifySourceFamilyFromCatalog,
@@ -69,6 +70,11 @@ for (const [p, url] of Object.entries(_statusImgs)) {
   const name = p.split("/").pop()!.replace(".png", "").toLowerCase();
   STATUS_IMG_INV[name] = url;
 }
+
+const EXCLUDED_INVENTORY_PATHS = new Set<string>([
+  "/Lotus/Powersuits/PowersuitAbilities/Helminth",
+  "/Lotus/Types/Game/KubrowPet/InfestedKubrowPetPowerSuit",
+]);
 
 // ── Steel Path drop annotation ────────────────────────────────────────────────
 // Builds a lookup: (planet/baseNode/rotation, roundedChance) → true
@@ -1290,10 +1296,11 @@ function buildFallbackDropsByUniqueIndex(): DerivedDropIndex {
 const FALLBACK_DROPS_BY_UNIQUE = buildFallbackDropsByUniqueIndex();
 
 for (const raw of ALL_RAW as AllItemEntry[]) {
-  if (raw.uniqueName) {
-    if (!ALL_BY_UNIQUE[raw.uniqueName]) ALL_BY_UNIQUE[raw.uniqueName] = raw;
+  const entry = withManualReleaseDateFallback(raw);
+  if (entry.uniqueName) {
+    if (!ALL_BY_UNIQUE[entry.uniqueName]) ALL_BY_UNIQUE[entry.uniqueName] = entry;
   }
-  if (raw.name && !ALL_BY_NAME[raw.name]) ALL_BY_NAME[raw.name] = raw;
+  if (entry.name && !ALL_BY_NAME[entry.name]) ALL_BY_NAME[entry.name] = entry;
 }
 
 function getAllEntry(
@@ -2621,6 +2628,10 @@ export default function Inventory() {
 
         const categories = rec.categories ?? [];
         const cls = classifyFromRecord(String(id), rec);
+
+        if (EXCLUDED_INVENTORY_PATHS.has(rawPath)) {
+          return null;
+        }
 
         // Hide base/template companion records like "VULPAPHYLA" / "PREDASITE" (Base*PowerSuit).
         // Keep real companions and non-companion items that mention these words (tags, floofs, lures, glyphs).
@@ -4517,12 +4528,14 @@ export default function Inventory() {
 
             return {
               key: componentKey,
+              catalogId: compCatalogId,
               component: comp,
               entries: dedupedEntries,
               acquisitionCount: dedupedEntries.length,
               familySummary,
               sourceIds: compAcq?.sources ?? [],
               hasDrops: resolvedCompDrops.length > 0,
+              ownedCount: compCatalogId ? safeInt(counts[String(compCatalogId)] ?? 0, 0) : 0,
             };
           });
           const activeComponent =
@@ -5170,6 +5183,38 @@ export default function Inventory() {
                                     </div>
                                   </div>
                                   <div className="mt-4 border-t border-slate-800/60 pt-3">
+                                    {model.catalogId ? (
+                                      <div
+                                        className="mb-3 flex items-center justify-between gap-3"
+                                        onClick={(event) => event.stopPropagation()}
+                                      >
+                                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                          Owned
+                                        </div>
+                                        <div className="flex items-center overflow-hidden rounded-xl border border-slate-700 bg-slate-950/80">
+                                          <button
+                                            type="button"
+                                            className="flex h-8 w-8 items-center justify-center text-base text-slate-400 transition hover:bg-slate-900 hover:text-slate-100 disabled:opacity-35"
+                                            onClick={() => setCount(String(model.catalogId), Math.max(0, model.ownedCount - 1))}
+                                            disabled={model.ownedCount <= 0}
+                                            aria-label={`Decrease owned ${comp.name}`}
+                                          >
+                                            -
+                                          </button>
+                                          <div className="min-w-[3rem] px-3 text-center text-sm font-semibold text-slate-100">
+                                            {model.ownedCount}
+                                          </div>
+                                          <button
+                                            type="button"
+                                            className="flex h-8 w-8 items-center justify-center text-base text-slate-400 transition hover:bg-slate-900 hover:text-slate-100"
+                                            onClick={() => setCount(String(model.catalogId), model.ownedCount + 1)}
+                                            aria-label={`Increase owned ${comp.name}`}
+                                          >
+                                            +
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ) : null}
                                     <div className="text-[12px] leading-relaxed text-slate-400">
                                       {model.familySummary || "Wiki-only or unstructured source data"}
                                     </div>
@@ -5196,6 +5241,35 @@ export default function Inventory() {
                                       ? `${activeComponent.acquisitionCount} acquisition path${activeComponent.acquisitionCount === 1 ? "" : "s"}`
                                       : "No structured acquisition data"}
                                   </div>
+                                  {activeComponent.catalogId ? (
+                                    <div className="mt-3 flex items-center gap-3">
+                                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                        Owned
+                                      </div>
+                                      <div className="flex items-center overflow-hidden rounded-xl border border-slate-700 bg-slate-950/80">
+                                        <button
+                                          type="button"
+                                          className="flex h-8 w-8 items-center justify-center text-base text-slate-400 transition hover:bg-slate-900 hover:text-slate-100 disabled:opacity-35"
+                                          onClick={() => setCount(String(activeComponent.catalogId), Math.max(0, activeComponent.ownedCount - 1))}
+                                          disabled={activeComponent.ownedCount <= 0}
+                                          aria-label={`Decrease owned ${activeComponent.component.name}`}
+                                        >
+                                          -
+                                        </button>
+                                        <div className="min-w-[3rem] px-3 text-center text-sm font-semibold text-slate-100">
+                                          {activeComponent.ownedCount}
+                                        </div>
+                                        <button
+                                          type="button"
+                                          className="flex h-8 w-8 items-center justify-center text-base text-slate-400 transition hover:bg-slate-900 hover:text-slate-100"
+                                          onClick={() => setCount(String(activeComponent.catalogId), activeComponent.ownedCount + 1)}
+                                          aria-label={`Increase owned ${activeComponent.component.name}`}
+                                        >
+                                          +
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : null}
                                 </div>
                                 <div className="max-w-[32rem] text-right text-sm text-slate-500">
                                   {activeComponent.familySummary || "Wiki-only or unstructured source data"}

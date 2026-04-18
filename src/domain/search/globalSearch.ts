@@ -1,5 +1,6 @@
 import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
 import { FULL_CATALOG, type CatalogId, type CatalogSource } from "../catalog/loadFullCatalog";
+import { getManualReleaseDateFallback, withManualReleaseDateFallback } from "../../catalog/items/manualReleaseDates";
 
 export type SearchEntityKind = "item" | "mod" | "arcane";
 
@@ -149,7 +150,8 @@ const ALL_ENTITIES: SearchEntityResult[] = (() => {
     const out: SearchEntityResult[] = [];
     const seen = new Set<string>();
 
-    for (const raw of ALL_RAW as SearchEntityRecord[]) {
+    for (const rawEntry of ALL_RAW as SearchEntityRecord[]) {
+        const raw = withManualReleaseDateFallback(rawEntry);
         const id = typeof raw.uniqueName === "string" ? raw.uniqueName.trim() : "";
         const name = typeof raw.name === "string" ? raw.name.trim() : "";
         if (!id || !name) continue;
@@ -213,6 +215,7 @@ const ALL_ENTITIES: SearchEntityResult[] = (() => {
 const ENTITY_BY_KEY = new Map<string, SearchEntityResult>(ALL_ENTITIES.map((entity) => [`${entity.kind}:${entity.id}`, entity]));
 const ENTITY_DATA_BY_ID = new Map<string, SearchEntityRecord>(
     (ALL_RAW as SearchEntityRecord[])
+        .map((entry) => withManualReleaseDateFallback(entry))
         .filter((entry) => typeof entry.uniqueName === "string" && entry.uniqueName.trim().length > 0)
         .map((entry) => [String(entry.uniqueName), entry]),
 );
@@ -301,7 +304,12 @@ function getFallbackSearchEntityData(ref: SearchDetailRef): SearchEntityRecord |
             ? wfcd.releaseDate
             : typeof lotus.releaseDate === "string"
                 ? lotus.releaseDate
-                : undefined;
+                : getManualReleaseDateFallback({
+                    uniqueName: ref.id,
+                    category,
+                    type,
+                    releaseDate: undefined,
+                });
     const tradable =
         typeof wfcd.tradable === "boolean"
             ? wfcd.tradable

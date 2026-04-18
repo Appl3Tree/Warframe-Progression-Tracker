@@ -5,6 +5,7 @@ import { useTrackerStore } from "../store/store";
 import { isHiddenModPath } from "../domain/catalog/modCatalog";
 import { getWeaponCatalog } from "../domain/catalog/weaponCatalog";
 import { CUSTOM_RIVEN_STAT_DEFS, formatRivenStatValue, generateCustomRivenName, getCustomRivenStatDef, getCustomRivenStatDefsForWeapon, normalizeRivenWeaponFamilyKey, type CustomRivenRecord as CustomRivenInventoryRecord, type CustomRivenStatValue } from "../domain/rivens";
+import { withManualReleaseDateFallback } from "../catalog/items/manualReleaseDates";
 import MODS_RAW from "../data/_generated/mods-lean.auto.json";
 import ALL_RAW from "../data/_generated/warframe-items-all-lean.auto.json";
 import { WorkspaceAction, WorkspaceFilterGroup, WorkspacePillButton, WorkspaceSection } from "../components/workspace/WorkspaceChrome";
@@ -156,22 +157,23 @@ const ALL_MODS_BY_NAME: Record<string, AllModEntry> = {};
 // Arcane lookup by name (arcanes use name not uniqueName as key in some contexts)
 const ALL_ARCANES_BY_NAME: Record<string, AllModEntry> = {};
 for (const item of ALL_RAW as AllModEntry[]) {
-  if (!item.uniqueName) continue;
-  if (item.category === "Mods") {
-    const existing = ALL_MODS_BY_PATH[item.uniqueName];
-    if (!existing || (item.levelStats && !existing.levelStats)) {
-      ALL_MODS_BY_PATH[item.uniqueName] = item as AllModEntry;
+  const entry = withManualReleaseDateFallback(item as AllModEntry);
+  if (!entry.uniqueName) continue;
+  if (entry.category === "Mods") {
+    const existing = ALL_MODS_BY_PATH[entry.uniqueName];
+    if (!existing || (entry.levelStats && !existing.levelStats)) {
+      ALL_MODS_BY_PATH[entry.uniqueName] = entry as AllModEntry;
     }
     // Name index — prefer entries with levelStats
-    if (item.name) {
-      const existingByName = ALL_MODS_BY_NAME[item.name];
-      if (!existingByName || (item.levelStats && !existingByName.levelStats)) {
-        ALL_MODS_BY_NAME[item.name] = item as AllModEntry;
+    if (entry.name) {
+      const existingByName = ALL_MODS_BY_NAME[entry.name];
+      if (!existingByName || (entry.levelStats && !existingByName.levelStats)) {
+        ALL_MODS_BY_NAME[entry.name] = entry as AllModEntry;
       }
     }
-  } else if (item.category === "Arcanes") {
-    if (item.name) ALL_ARCANES_BY_NAME[item.name] = item as AllModEntry;
-    ALL_MODS_BY_PATH[item.uniqueName] = item as AllModEntry;
+  } else if (entry.category === "Arcanes") {
+    if (entry.name) ALL_ARCANES_BY_NAME[entry.name] = entry as AllModEntry;
+    ALL_MODS_BY_PATH[entry.uniqueName] = entry as AllModEntry;
   }
 }
 
