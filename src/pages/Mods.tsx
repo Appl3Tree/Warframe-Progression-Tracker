@@ -1185,8 +1185,22 @@ const MOD_ENTRIES: ModEntry[] = [...MOD_ENTRIES_BASE, ...ALL_MODS_SUPPLEMENT];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return <WorkspaceSection title={title}>{children}</WorkspaceSection>;
+function Section({
+  title,
+  children,
+  className,
+  bodyClassName,
+}: {
+  title: string;
+  children: ReactNode;
+  className?: string;
+  bodyClassName?: string;
+}) {
+  return (
+    <WorkspaceSection title={title} className={className} bodyClassName={bodyClassName}>
+      {children}
+    </WorkspaceSection>
+  );
 }
 
 function SubPill({
@@ -2639,7 +2653,11 @@ function ModsPage() {
         }}
       />
 
-      <Section title="Mods">
+      <Section
+        title="Mods"
+        className="flex h-full min-h-0 flex-col md:min-h-[42rem]"
+        bodyClassName="flex min-h-0 flex-1 flex-col"
+      >
         <div className={baseLedgerShellClassName()}>
           <CatalogControlBand
             query={query}

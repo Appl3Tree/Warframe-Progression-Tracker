@@ -136,8 +136,8 @@ export default function Intrinsics() {
 
                 {!hasData && (
                     <div className="mt-4 rounded-xl border border-slate-700/60 bg-slate-900/60 px-4 py-3 text-sm text-slate-400">
-                        Import your profile on the <span className="text-slate-200 font-medium">Import / Export</span> page to view your intrinsic ranks.
-                        Intrinsics are read from the <span className="font-mono text-slate-300 text-xs">PlayerSkills</span> field in your profile data.
+                        Import your profile on the <span className="text-slate-200 font-medium">Import / Export</span> page to prefill intrinsic ranks, or set them manually below if the importer misses them.
+                        Intrinsics are read from the <span className="font-mono text-slate-300 text-xs">PlayerSkills</span> field in your profile data when available.
                     </div>
                 )}
             </WorkspacePanel>

@@ -652,8 +652,22 @@ function useVirtualLedgerWindow(totalRows: number, rowHeight = LEDGER_ROW_HEIGHT
   return { listRef, windowState, recompute };
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return <WorkspaceSection title={title}>{children}</WorkspaceSection>;
+function Section({
+  title,
+  children,
+  className,
+  bodyClassName,
+}: {
+  title: string;
+  children: ReactNode;
+  className?: string;
+  bodyClassName?: string;
+}) {
+  return (
+    <WorkspaceSection title={title} className={className} bodyClassName={bodyClassName}>
+      {children}
+    </WorkspaceSection>
+  );
 }
 
 function SubPill({ label, active, onClick }: { label: ReactNode; active: boolean; onClick: () => void }) {
@@ -1106,7 +1120,11 @@ export default function ArcanesPage() {
     <div className="flex h-full min-h-0 flex-col">
       {selectedArcane ? <ArcaneDetail entry={selectedArcane} onClose={() => setSelectedArcane(null)} /> : null}
 
-      <Section title="Arcanes">
+      <Section
+        title="Arcanes"
+        className="flex h-full min-h-0 flex-col md:min-h-[42rem]"
+        bodyClassName="flex min-h-0 flex-1 flex-col"
+      >
         <div className={baseLedgerShellClassName()}>
           <CatalogControlBand
             query={query}

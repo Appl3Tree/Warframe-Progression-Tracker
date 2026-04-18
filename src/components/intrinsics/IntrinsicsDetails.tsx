@@ -222,6 +222,7 @@ export function getTotalCost(costPerRank: number[]) {
 export function IntrinsicsDetails(props: { mode: IntrinsicsMode; className?: string }) {
     const { mode, className } = props;
     const intrinsics = useTrackerStore(s => s.state.intrinsics);
+    const setIntrinsicRank = useTrackerStore(s => s.setIntrinsicRank);
     const railjack = intrinsics?.railjack ?? {};
     const duviri = intrinsics?.duviri ?? {};
     const { skills, costPerRank } = getIntrinsicModeData(mode);
@@ -231,6 +232,9 @@ export function IntrinsicsDetails(props: { mode: IntrinsicsMode; className?: str
 
     return (
         <div className={["space-y-3", className].filter(Boolean).join(" ")}>
+            <div className="rounded-xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-xs leading-5 text-slate-400">
+                Profile import can miss intrinsic ranks for some accounts. You can correct them manually here and the values will be saved locally.
+            </div>
             {skills.map((sk) => {
                 const rank = Math.min(values[sk.key] ?? 0, MAX_RANK);
                 const isExpanded = expanded === sk.key;
@@ -302,6 +306,23 @@ export function IntrinsicsDetails(props: { mode: IntrinsicsMode; className?: str
 
                         {isExpanded && (
                             <div className="border-t border-slate-700/50 px-4 py-3 space-y-1.5">
+                                <div className="mb-2 flex flex-wrap gap-1.5">
+                                    {Array.from({ length: MAX_RANK + 1 }, (_, value) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            className={[
+                                                "rounded-md border px-2 py-1 text-[11px] font-medium transition-colors",
+                                                value === rank
+                                                    ? `${clr.border} ${clr.bg} ${clr.text}`
+                                                    : "border-slate-700 bg-slate-900/40 text-slate-400 hover:border-slate-500 hover:text-slate-200",
+                                            ].join(" ")}
+                                            onClick={() => setIntrinsicRank(mode, sk.key, value)}
+                                        >
+                                            R{value}
+                                        </button>
+                                    ))}
+                                </div>
                                 {sk.ranks.map((desc, r) => (
                                     <div
                                         key={r}
@@ -350,7 +371,7 @@ export function IntrinsicsPanel({ mode, onClose }: { mode: IntrinsicsMode; onClo
                         <div className="text-base font-semibold text-slate-100">{title}</div>
                         <div className="text-xs text-slate-400 mt-0.5">
                             {totalPoints} / {totalMax} points invested
-                            {!Object.keys(values).length && " — import your profile to track progress"}
+                            {!Object.keys(values).length && " — import your profile or enter ranks manually"}
                         </div>
                         <div className="text-[11px] text-amber-400/80 mt-1 flex items-center gap-1">
                             <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

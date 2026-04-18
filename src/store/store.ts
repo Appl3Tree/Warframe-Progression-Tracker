@@ -67,6 +67,7 @@ export interface TrackerStore {
     setCredits: (credits: number) => void;
     setPlatinum: (platinum: number) => void;
     setMasteryRank: (masteryRank: number | null) => void;
+    setIntrinsicRank: (mode: "proxima" | "duviri", key: string, rank: number) => void;
 
     setAccountId: (accountId: string) => void;
     setPlatform: (platform: "PC" | "PlayStation" | "Xbox" | "Switch" | "Mobile") => void;
@@ -364,6 +365,24 @@ export const useTrackerStore = create<TrackerStore>()(
                         const v = Number(masteryRank);
                         s.state.player.masteryRank = Number.isFinite(v) ? Math.max(0, Math.floor(v)) : null;
                     }
+                    s.state.meta.updatedAtIso = nowIso();
+                });
+            },
+
+            setIntrinsicRank: (mode, key, rank) => {
+                set((s) => {
+                    if (!s.state.intrinsics) {
+                        s.state.intrinsics = { railjack: {}, duviri: {} };
+                    }
+                    if (!s.state.intrinsics.railjack) s.state.intrinsics.railjack = {};
+                    if (!s.state.intrinsics.duviri) s.state.intrinsics.duviri = {};
+
+                    const target = mode === "proxima" ? s.state.intrinsics.railjack : s.state.intrinsics.duviri;
+                    const normalizedRank = Math.max(0, Math.min(10, Number.isFinite(rank) ? Math.floor(rank) : 0));
+
+                    if (normalizedRank === 0) delete target[key];
+                    else target[key] = normalizedRank;
+
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },
