@@ -3116,7 +3116,7 @@
   },
   "/Lotus/Powersuits/Trapper/LevTrapAugmentCard": {
     "path": "/Lotus/Powersuits/Trapper/LevTrapAugmentCard",
-    "name": "Repelling Bastille",
+    "name": "Enduring Bastille",
     "categories": [
       "mod"
     ],
@@ -6702,23 +6702,6 @@
       ]
     }
   },
-  "/Lotus/Upgrades/CosmeticEnhancers/Offensive/LongbowDamageOnHeadshot": {
-    "path": "/Lotus/Upgrades/CosmeticEnhancers/Offensive/LongbowDamageOnHeadshot",
-    "name": "Longbow Sharpshot",
-    "categories": [
-      "arcane"
-    ],
-    "parent": "/Lotus/Types/Game/LongGunCosmeticEnhancer",
-    "parents": [
-      "/Lotus/Types/Game/LongGunCosmeticEnhancer",
-      "/Lotus/Types/Game/LotusLockedCosmeticEnhancer",
-      "/Lotus/Types/Game/BaseCosmeticEnhancer"
-    ],
-    "data": {
-      "ItemCompatibility": "/Lotus/Weapons/Tenno/Bows/LotusLongBow",
-      "IncompatibilityTags": []
-    }
-  },
   "/Lotus/Upgrades/CosmeticEnhancers/Offensive/LongGunDamageOnHeadshot": {
     "path": "/Lotus/Upgrades/CosmeticEnhancers/Offensive/LongGunDamageOnHeadshot",
     "name": "Arcane Rage",
@@ -6755,6 +6738,23 @@
       "IncompatibilityTags": [
         "OPERATOR_SUIT"
       ]
+    }
+  },
+  "/Lotus/Upgrades/CosmeticEnhancers/Offensive/LongbowDamageOnHeadshot": {
+    "path": "/Lotus/Upgrades/CosmeticEnhancers/Offensive/LongbowDamageOnHeadshot",
+    "name": "Longbow Sharpshot",
+    "categories": [
+      "arcane"
+    ],
+    "parent": "/Lotus/Types/Game/LongGunCosmeticEnhancer",
+    "parents": [
+      "/Lotus/Types/Game/LongGunCosmeticEnhancer",
+      "/Lotus/Types/Game/LotusLockedCosmeticEnhancer",
+      "/Lotus/Types/Game/BaseCosmeticEnhancer"
+    ],
+    "data": {
+      "ItemCompatibility": "/Lotus/Weapons/Tenno/Bows/LotusLongBow",
+      "IncompatibilityTags": []
     }
   },
   "/Lotus/Upgrades/CosmeticEnhancers/Offensive/MaxEnergyForArmor": {
@@ -8998,6 +8998,26 @@
       ]
     }
   },
+  "/Lotus/Upgrades/EmpoweredHeavyMelee/CursedSyndicateEmpoweredHeavyMeleeMod": {
+    "path": "/Lotus/Upgrades/EmpoweredHeavyMelee/CursedSyndicateEmpoweredHeavyMeleeMod",
+    "name": "Truth's Flame",
+    "categories": [
+      "mod"
+    ],
+    "parent": "/Lotus/Upgrades/EmpoweredHeavyMelee/BaseEmpoweredHeavyMeleeMod",
+    "parents": [
+      "/Lotus/Upgrades/EmpoweredHeavyMelee/BaseEmpoweredHeavyMeleeMod",
+      "/Lotus/Types/Game/LotusArtifactUpgrades/BaseArtifactUpgrade",
+      "/Lotus/Types/Game/LotusArtifactUpgrade"
+    ],
+    "data": {
+      "ItemCompatibility": "/Lotus/Weapons/Tenno/Melee/PlayerMeleeWeapon",
+      "IncompatibilityTags": [
+        "POWER_WEAPON_LITE",
+        "NO_HEAVY_ATTACK"
+      ]
+    }
+  },
   "/Lotus/Upgrades/EmpoweredHeavyMelee/FocusedAttack": {
     "path": "/Lotus/Upgrades/EmpoweredHeavyMelee/FocusedAttack",
     "name": "Dreamer's Wrath",
@@ -10352,6 +10372,22 @@
       "ItemCompatibility": "/Lotus/Weapons/Tenno/Archwing/Primary/ArchGun"
     }
   },
+  "/Lotus/Upgrades/Mods/Archwing/Rifle/Expert/ArchwingWeaponToxinDamageModExpert": {
+    "path": "/Lotus/Upgrades/Mods/Archwing/Rifle/Expert/ArchwingWeaponToxinDamageModExpert",
+    "name": "Primed Venomous Clip",
+    "categories": [
+      "mod"
+    ],
+    "parent": "/Lotus/Upgrades/Mods/Archwing/Rifle/ArchwingWeaponToxinDamageMod",
+    "parents": [
+      "/Lotus/Upgrades/Mods/Archwing/Rifle/ArchwingWeaponToxinDamageMod",
+      "/Lotus/Types/Game/LotusArtifactUpgrades/BaseArtifactUpgrade",
+      "/Lotus/Types/Game/LotusArtifactUpgrade"
+    ],
+    "data": {
+      "ItemCompatibility": "/Lotus/Weapons/Tenno/Archwing/Primary/ArchGun"
+    }
+  },
   "/Lotus/Upgrades/Mods/Archwing/Rifle/PrimedArchwingDamageOnReloadMod": {
     "path": "/Lotus/Upgrades/Mods/Archwing/Rifle/PrimedArchwingDamageOnReloadMod",
     "name": "Primed Deadly Efficiency",
@@ -10677,7 +10713,7 @@
   },
   "/Lotus/Upgrades/Mods/Aura/PlayerCompanionSummonDamageAuraMod": {
     "path": "/Lotus/Upgrades/Mods/Aura/PlayerCompanionSummonDamageAuraMod",
-    "name": "Summoner’s Wrath",
+    "name": "Summoner's Wrath",
     "categories": [
       "mod"
     ],
@@ -12606,6 +12642,20 @@
     ],
     "data": {
       "ItemCompatibility": "/Lotus/Weapons/Tenno/Melee/Scythe/StalkerScytheWeapon"
+    }
+  },
+  "/Lotus/Upgrades/Mods/Melee/Event/Nightwave/NightwaveVenatoAugmentMod": {
+    "path": "/Lotus/Upgrades/Mods/Melee/Event/Nightwave/NightwaveVenatoAugmentMod",
+    "name": "Sentient Incision",
+    "categories": [
+      "mod"
+    ],
+    "parent": "/Lotus/Types/Game/LotusArtifactUpgrade",
+    "parents": [
+      "/Lotus/Types/Game/LotusArtifactUpgrade"
+    ],
+    "data": {
+      "ItemCompatibility": "/Lotus/Weapons/Sentients/SentJointedScythe/SentJointedScytheWeapon"
     }
   },
   "/Lotus/Upgrades/Mods/Melee/Event/ProjectNightwatch/AckBruntNightwatchMod": {
@@ -14681,6 +14731,20 @@
     ],
     "data": {
       "ItemCompatibility": "/Lotus/Weapons/Corpus/Pistols/CrpSentExperimentPistol/CrpSentExperimentPistol"
+    }
+  },
+  "/Lotus/Upgrades/Mods/Pistol/Event/Nightwave/NightwaveVeloxAugmentMod": {
+    "path": "/Lotus/Upgrades/Mods/Pistol/Event/Nightwave/NightwaveVeloxAugmentMod",
+    "name": "Velox Conclusion",
+    "categories": [
+      "mod"
+    ],
+    "parent": "/Lotus/Types/Game/LotusArtifactUpgrade",
+    "parents": [
+      "/Lotus/Types/Game/LotusArtifactUpgrade"
+    ],
+    "data": {
+      "ItemCompatibility": "/Lotus/Weapons/Tenno/Pistols/TnOdaliskSmg/TnOdaliskSmgPistol"
     }
   },
   "/Lotus/Upgrades/Mods/Pistol/Event/ShootPickUpPistolMod": {
@@ -24090,6 +24154,22 @@
       "/Lotus/Types/Game/LotusArtifactUpgrade"
     ]
   },
+  "/Lotus/Weapons/Tenno/LongGuns/Gunbrella/ShrineMaidenGunbrellaAugment": {
+    "path": "/Lotus/Weapons/Tenno/LongGuns/Gunbrella/ShrineMaidenGunbrellaAugment",
+    "name": "Higasa Serration",
+    "categories": [
+      "mod"
+    ],
+    "parent": "/Lotus/Upgrades/Mods/Rifle/WeaponDamageAmountMod",
+    "parents": [
+      "/Lotus/Upgrades/Mods/Rifle/WeaponDamageAmountMod",
+      "/Lotus/Types/Game/LotusArtifactUpgrades/BaseArtifactUpgrade",
+      "/Lotus/Types/Game/LotusArtifactUpgrade"
+    ],
+    "data": {
+      "ItemCompatibility": "/Lotus/Weapons/Tenno/LongGuns/Gunbrella/ShrineMaidenGunbrellaWeapon"
+    }
+  },
   "/Lotus/Weapons/Tenno/Melee/MeleeTrees/AtlasPunchMeleeTree": {
     "path": "/Lotus/Weapons/Tenno/Melee/MeleeTrees/AtlasPunchMeleeTree",
     "name": "Landslide",
@@ -25619,6 +25699,22 @@
       "CompatibilityTags": [
         "WHIPS_STANCE"
       ]
+    }
+  },
+  "/Lotus/Weapons/Tenno/Melee/Polearms/Naginata/ShrineMaidenNaginataAugment": {
+    "path": "/Lotus/Weapons/Tenno/Melee/Polearms/Naginata/ShrineMaidenNaginataAugment",
+    "name": "Amanata Pressure",
+    "categories": [
+      "mod"
+    ],
+    "parent": "/Lotus/Upgrades/Mods/Melee/WeaponMeleeDamageMod",
+    "parents": [
+      "/Lotus/Upgrades/Mods/Melee/WeaponMeleeDamageMod",
+      "/Lotus/Types/Game/LotusArtifactUpgrades/BaseArtifactUpgrade",
+      "/Lotus/Types/Game/LotusArtifactUpgrade"
+    ],
+    "data": {
+      "ItemCompatibility": "/Lotus/Weapons/Tenno/Melee/Polearms/Naginata/ShrineMaidenNaginataWeapon"
     }
   },
   "/Lotus/Weapons/Tenno/Melee/Swords/DaxDuviriTwoHandedKatana/DaxDuviriTwoHandKatanaInnateModAI": {

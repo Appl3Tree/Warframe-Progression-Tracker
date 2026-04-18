@@ -27,6 +27,14 @@
     "imageName": "accord-sigil-a11257c0bb.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Accord Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -92,6 +100,14 @@
     "imageName": "ambition-sigil-3e1a90dd19.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Ambition Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -140,6 +156,14 @@
     "imageName": "arbiter-of-hexis-sigil-89fa3d512e.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Principled",
+        "type": "Arbiter Of Hexis Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -161,6 +185,14 @@
     "imageName": "armada-sigil-65401102a1.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, Brave",
+        "type": "Armada Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -171,6 +203,14 @@
     "imageName": "armored-sigil-7a542bb1d1.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, Defender",
+        "type": "Armored Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -201,6 +241,14 @@
     "imageName": "assassin-sigil-fdeedc33e5.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Assassin Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -211,6 +259,14 @@
     "imageName": "atomic-sigil-b1b7f3c39d.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Intriguing",
+        "type": "Atomic Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -241,6 +297,14 @@
     "imageName": "awakening-sigil-39a62d1571.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Awakening Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -251,6 +315,14 @@
     "imageName": "awareness-sigil-74163d464b.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Awareness Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -282,6 +354,14 @@
     "imageName": "bending-will-sigil-b5214402db.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Principled",
+        "type": "Bending Will Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -323,6 +403,14 @@
     "imageName": "blades-sigil-88628d5fb9.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Respected",
+        "type": "Blades Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -433,6 +521,14 @@
     "imageName": "bloom-sigil-5d283c0c3e.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Benevolent",
+        "type": "Bloom Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -443,6 +539,14 @@
     "imageName": "bounty-sigil-fdcec95b88.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Pure",
+        "type": "Bounty Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -473,6 +577,14 @@
     "imageName": "calculating-sigil-3376bec41f.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Associate",
+        "type": "Calculating Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -494,6 +606,14 @@
     "imageName": "capital-sigil-c0aaac7f03.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Senior Executive",
+        "type": "Capital Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -559,6 +679,14 @@
     "imageName": "cephalon-simaris-sigil-521df97f1f.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Cephalon Simaris Sigil\n",
+        "type": "Cephalon Simaris Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -569,6 +697,14 @@
     "imageName": "cephalon-suda-sigil-37bfecfe29.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Competent",
+        "type": "Cephalon Suda Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -579,6 +715,14 @@
     "imageName": "chairman-sigil-ea3af3cfb2.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Chairman Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -589,6 +733,14 @@
     "imageName": "champion-sigil-77f8f0b378.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, General",
+        "type": "Champion Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -609,6 +761,14 @@
     "imageName": "choice-sigil-4f5f872128.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Authentic",
+        "type": "Choice Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -657,6 +817,14 @@
     "imageName": "clarity-sigil-132ebeb45a.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Bountiful",
+        "type": "Clarity Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -807,6 +975,14 @@
     "imageName": "covert-sigil-ee78dbb427.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Revered",
+        "type": "Covert Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -817,6 +993,14 @@
     "imageName": "cull-sigil-9768b0c070.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Respected",
+        "type": "Cull Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -953,6 +1137,14 @@
     "imageName": "defiance-sigil-32496b53b2.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, Brave",
+        "type": "Defiance Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -963,6 +1155,14 @@
     "imageName": "diligence-sigil-b8852f206d.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Diligence Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.13.0: TennoGen, Passives, & Reworks",
@@ -983,6 +1183,14 @@
     "imageName": "directives-sigil-82e8e02b60.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Senior Associate",
+        "type": "Directives Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1003,6 +1211,14 @@
     "imageName": "discipline-sigil-7f4571069d.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Principled",
+        "type": "Discipline Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1013,6 +1229,14 @@
     "imageName": "discovery-sigil-9925bb36af.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Discovery Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1023,6 +1247,14 @@
     "imageName": "discretion-sigil-53ed02b647.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Discretion Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1093,6 +1325,14 @@
     "imageName": "empathy-sigil-04f31f98ad.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Typhoon",
+        "type": "Empathy Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1113,6 +1353,14 @@
     "imageName": "enlightenment-sigil-ab3c3bf827.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Enlightenment Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1123,6 +1371,14 @@
     "imageName": "entrati-acquaintance-sigil-40f4e2dddc.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Entrati (Son), Acquaintance",
+        "type": "Entrati Acquaintance Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1133,6 +1389,14 @@
     "imageName": "entrati-associate-sigil-2b4bd22832.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Entrati (Son), Associate",
+        "type": "Entrati Associate Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1143,6 +1407,14 @@
     "imageName": "entrati-family-sigil-24b9a6563b.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Entrati (Son), Family",
+        "type": "Entrati Family Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1153,6 +1425,14 @@
     "imageName": "entrati-friend-sigil-829b129400.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Entrati (Son), Friend",
+        "type": "Entrati Friend Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1163,6 +1443,14 @@
     "imageName": "entrati-stranger-sigil-fbaa6d9da3.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Entrati (Son), Stranger",
+        "type": "Entrati Stranger Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1264,6 +1552,14 @@
     "imageName": "fractal-sigil-c9d9ee7f48.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Intelligent",
+        "type": "Fractal Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1274,6 +1570,14 @@
     "imageName": "freedom-fighter-sigil-06a3189a2b.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, Defender",
+        "type": "Freedom Fighter Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1284,6 +1588,14 @@
     "imageName": "freedom-sigil-200506354b.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Freedom Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1304,6 +1616,14 @@
     "imageName": "gaia-sigil-4b4b3b47f7.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Pure",
+        "type": "Gaia Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1412,6 +1732,14 @@
     "imageName": "grasp-sigil-c67e637312.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Lawful",
+        "type": "Grasp Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.13.0: TennoGen, Passives, & Reworks",
@@ -1442,6 +1770,14 @@
     "imageName": "growth-sigil-e5df86f2c1.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Bountiful",
+        "type": "Growth Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.13.0: TennoGen, Passives, & Reworks",
@@ -1490,6 +1826,14 @@
     "imageName": "guiding-path-sigil-958f945e16.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Principled",
+        "type": "Guiding Path Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1511,6 +1855,14 @@
     "imageName": "hexan-sigil-61a175adf8.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Wise",
+        "type": "Hexan Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1521,6 +1873,14 @@
     "imageName": "holdfasts-angel-sigil-7344b4f3d5.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Holdfasts (Cavalero), Angel",
+        "type": "Holdfasts Angel Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1531,6 +1891,14 @@
     "imageName": "holdfasts-fallen-sigil-08b9f77904.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Holdfasts (Cavalero), Fallen",
+        "type": "Holdfasts Fallen Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1541,6 +1909,14 @@
     "imageName": "holdfasts-guardian-sigil-15cca6a2e8.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Holdfasts (Cavalero), Guardian",
+        "type": "Holdfasts Guardian Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1551,6 +1927,14 @@
     "imageName": "holdfasts-seraph-sigil-fd43d8e4a2.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Holdfasts (Cavalero), Seraph",
+        "type": "Holdfasts Seraph Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1561,6 +1945,14 @@
     "imageName": "holdfasts-watcher-sigil-4121e37ae0.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Holdfasts (Cavalero), Watcher",
+        "type": "Holdfasts Watcher Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1601,6 +1993,14 @@
     "imageName": "humanity-sigil-026916fe5c.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Humanity Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1705,6 +2105,14 @@
     "imageName": "insight-sigil-a9c0e02d9e.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Typhoon",
+        "type": "Insight Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1818,6 +2226,14 @@
     "imageName": "labyrinth-sigil-3147a9d39b.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Wise",
+        "type": "Labyrinth Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -1948,6 +2364,14 @@
     "imageName": "lesion-sigil-b800b39351.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Honored",
+        "type": "Lesion Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2077,6 +2501,14 @@
     "imageName": "maelstrom-sigil-ae98c9d22a.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Honored",
+        "type": "Maelstrom Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2087,6 +2519,14 @@
     "imageName": "malevolent-sigil-47008ada7b.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Revered",
+        "type": "Malevolent Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2097,6 +2537,14 @@
     "imageName": "manifold-sigil-f4ddf603dd.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Intriguing",
+        "type": "Manifold Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2244,6 +2692,14 @@
     "imageName": "multivariate-sigil-facaef7ed8.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Intelligent",
+        "type": "Multivariate Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2275,6 +2731,14 @@
     "imageName": "necraloid-agnesis-sigil-b8fac6ee7a.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Agnesis",
+        "type": "Necraloid Agnesis Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2285,6 +2749,14 @@
     "imageName": "necraloid-modus-sigil-9c12d5912a.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Modus",
+        "type": "Necraloid Modus Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2295,6 +2767,14 @@
     "imageName": "necraloid-odima-sigil-653d91050f.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necraloid Odima Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2343,6 +2823,14 @@
     "imageName": "new-loka-sigil-a2fcfdc035.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Humane",
+        "type": "New Loka Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 15.1.0+15.1.01",
@@ -2437,6 +2925,14 @@
     "imageName": "opportunity-sigil-1ac49b209b.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Associate",
+        "type": "Opportunity Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2447,6 +2943,14 @@
     "imageName": "optimum-sigil-e3eb428f55.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Senior Executive",
+        "type": "Optimum Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2457,6 +2961,14 @@
     "imageName": "oracle-sigil-0a4f85d017.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Oracle Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2487,6 +2999,14 @@
     "imageName": "ostron-kin-sigil-59bcca8e33.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ostron (Old Man Suumbaat), Kin",
+        "type": "Ostron Kin Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2497,6 +3017,14 @@
     "imageName": "ostron-offworlder-sigil-37dcab98de.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ostron (Old Man Suumbaat), Offworlder",
+        "type": "Ostron Offworlder Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2507,6 +3035,14 @@
     "imageName": "ostron-surah-sigil-939a793434.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ostron (Old Man Suumbaat), Surah",
+        "type": "Ostron Surah Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2517,6 +3053,14 @@
     "imageName": "ostron-trusted-sigil-4ca8349cae.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ostron (Old Man Suumbaat), Trusted",
+        "type": "Ostron Trusted Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2527,6 +3071,14 @@
     "imageName": "ostron-visitor-sigil-045e95add4.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ostron (Old Man Suumbaat), Visitor",
+        "type": "Ostron Visitor Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2547,6 +3099,14 @@
     "imageName": "pattern-match-sigil-50fcfe7960.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Competent",
+        "type": "Pattern Match Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2557,6 +3117,14 @@
     "imageName": "perception-sigil-54e925158a.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Perception Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2567,6 +3135,14 @@
     "imageName": "perrin-sequence-sigil-d6dddb6ab2.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Associate",
+        "type": "Perrin Sequence Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hydroid Prime: Update 21.6.0",
@@ -2646,6 +3222,14 @@
     "imageName": "potential-sigil-649247d055.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Lawful",
+        "type": "Potential Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2738,6 +3322,14 @@
     "imageName": "progress-sigil-ab70a89515.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Associate",
+        "type": "Progress Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2758,6 +3350,14 @@
     "imageName": "protectorate-sigil-d370ab81b9.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, Valiant",
+        "type": "Protectorate Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2768,6 +3368,14 @@
     "imageName": "prudence-sigil-a3b20c1f30.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Prudence Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2778,6 +3386,14 @@
     "imageName": "purity-sigil-57cfeeac65.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Benevolent",
+        "type": "Purity Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2788,6 +3404,14 @@
     "imageName": "query-sigil-bad030afd0.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Competent",
+        "type": "Query Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2808,6 +3432,14 @@
     "imageName": "quills-adherent-sigil-58f32a5c00.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Quills, Adherent",
+        "type": "Quills Adherent Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2818,6 +3450,14 @@
     "imageName": "quills-architect-sigil-6e6c9c1d81.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Quills, Architect",
+        "type": "Quills Architect Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2828,6 +3468,14 @@
     "imageName": "quills-instrument-sigil-7a40c19ac8.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Quills, Instrument",
+        "type": "Quills Instrument Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2838,6 +3486,14 @@
     "imageName": "quills-mote-sigil-6f4237d319.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Quills, Mote",
+        "type": "Quills Mote Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2848,6 +3504,14 @@
     "imageName": "quills-observer-sigil-a51c02c270.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Quills, Observer",
+        "type": "Quills Observer Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2914,6 +3578,14 @@
     "imageName": "rebellion-sigil-fcca64f283.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, Protector",
+        "type": "Rebellion Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2924,6 +3596,14 @@
     "imageName": "rebirth-sigil-7798225c6e.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Humane",
+        "type": "Rebirth Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2934,6 +3614,14 @@
     "imageName": "red-veil-sigil-eb589df6a6.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Respected",
+        "type": "Red Veil Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -2944,6 +3632,14 @@
     "imageName": "revelation-sigil-a38cee4fa3.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Revelation Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3024,6 +3720,14 @@
     "imageName": "ruin-sigil-84ed2599f0.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Esteemed",
+        "type": "Ruin Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3034,6 +3738,14 @@
     "imageName": "sacrifice-sigil-a11b0f4bb6.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Humane",
+        "type": "Sacrifice Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3143,6 +3855,14 @@
     "imageName": "searching-sigil-10ee1a8b81.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Competent",
+        "type": "Searching Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3153,6 +3873,14 @@
     "imageName": "seed-sigil-a0ac3d6958.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "New Loka, Humane",
+        "type": "Seed Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3243,6 +3971,14 @@
     "imageName": "solaris-united-cove-sigil-b01134fa6d.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Solaris United (Smokefinger), Cove",
+        "type": "Solaris United Cove Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3253,6 +3989,14 @@
     "imageName": "solaris-united-doer-sigil-3eb90d353e.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Solaris United (Smokefinger), Doer",
+        "type": "Solaris United Doer Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3263,6 +4007,14 @@
     "imageName": "solaris-united-old-mate-sigil-87839025eb.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Solaris United (Smokefinger), Old Mate",
+        "type": "Solaris United Old Mate Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3273,6 +4025,14 @@
     "imageName": "solaris-united-outworlder-sigil-edd1ef3945.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Solaris United (Smokefinger), Outworlder",
+        "type": "Solaris United Outworlder Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3283,6 +4043,14 @@
     "imageName": "solaris-united-rapscallion-sigil-c64520665f.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Solaris United (Smokefinger), Rapscallion",
+        "type": "Solaris United Rapscallion Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3407,6 +4175,14 @@
     "imageName": "steel-meridian-sigil-6c04c189bc.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, Brave",
+        "type": "Steel Meridian Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3428,6 +4204,14 @@
     "imageName": "strategy-sigil-4da30fa621.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Executive",
+        "type": "Strategy Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3438,6 +4222,14 @@
     "imageName": "succession-sigil-eb769cc250.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Crusader",
+        "type": "Succession Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3448,6 +4240,14 @@
     "imageName": "surpassing-sigil-d7e89b5649.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Crusader",
+        "type": "Surpassing Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3458,6 +4258,14 @@
     "imageName": "synergy-sigil-9571fe71bc.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Senior Associate",
+        "type": "Synergy Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3717,6 +4525,14 @@
     "imageName": "tessellations-sigil-b043018c35.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Executive",
+        "type": "Tessellations Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3747,6 +4563,14 @@
     "imageName": "threat-sigil-3cfb97c72d.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Respected",
+        "type": "Threat Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3777,6 +4601,14 @@
     "imageName": "truth-sigil-b93aa93d02.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Truth Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3806,6 +4638,14 @@
     "imageName": "unity-sigil-2d0e653740.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Typhoon",
+        "type": "Unity Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3816,6 +4656,14 @@
     "imageName": "unyielding-sigil-1922a790c2.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, Protector",
+        "type": "Unyielding Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3826,6 +4674,14 @@
     "imageName": "uprising-sigil-fefcedf4d6.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, Valiant",
+        "type": "Uprising Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3949,6 +4805,14 @@
     "imageName": "ventkids-logical-sigil-9d0b5cf6c9.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ventkids, Logical",
+        "type": "Ventkids Logical Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3959,6 +4823,14 @@
     "imageName": "ventkids-primo-sigil-5b7bc333d9.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ventkids, Primo",
+        "type": "Ventkids Primo Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3969,6 +4841,14 @@
     "imageName": "ventkids-proper-felon-sigil-71221db856.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ventkids, Proper Felon",
+        "type": "Ventkids Proper Felon Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3979,6 +4859,14 @@
     "imageName": "ventkids-whozit-sigil-50f3256a5d.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ventkids, Whozit",
+        "type": "Ventkids Whozit Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3999,6 +4887,14 @@
     "imageName": "vigilance-sigil-24a026436b.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Steel Meridian, Brave",
+        "type": "Vigilance Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.13.0: TennoGen, Passives, & Reworks",
@@ -4019,6 +4915,14 @@
     "imageName": "viscera-sigil-9c399b1da6.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Red Veil, Esteemed",
+        "type": "Viscera Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -4039,6 +4943,14 @@
     "imageName": "volition-sigil-cefd6378a5.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Volition Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -4079,6 +4991,14 @@
     "imageName": "vox-solaris-agent-sigil-130e8bf714.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Vox Solaris, Agent",
+        "type": "Vox Solaris Agent Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -4089,6 +5009,14 @@
     "imageName": "vox-solaris-hand-sigil-18be622f09.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Vox Solaris, Hand",
+        "type": "Vox Solaris Hand Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -4099,6 +5027,14 @@
     "imageName": "vox-solaris-instrument-sigil-9c2067148e.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Vox Solaris, Instrument",
+        "type": "Vox Solaris Instrument Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -4109,6 +5045,14 @@
     "imageName": "vox-solaris-operative-sigil-9909523b23.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Vox Solaris, Operative",
+        "type": "Vox Solaris Operative Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -4119,6 +5063,14 @@
     "imageName": "vox-solaris-shadow-sigil-534e325778.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Vox Solaris, Shadow",
+        "type": "Vox Solaris Shadow Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -4129,6 +5081,20 @@
     "imageName": "will-sigil-cedf4e4439.png",
     "category": "Sigils",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Authentic",
+        "type": "Will Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Arbiters of Hexis, Principled",
+        "type": "Bending Will Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {

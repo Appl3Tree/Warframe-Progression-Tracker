@@ -4429,6 +4429,14 @@
     "type": "Node",
     "category": "Node",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Tainted Hydra",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Operation: Scarlet Spear: 27.3.0",
@@ -5799,6 +5807,14 @@
     "type": "Node",
     "category": "Node",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Conclave, Typhoon",
+        "type": "Lex Conclave Skin",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Hotfix 32.0.3",
@@ -12531,6 +12547,14 @@
     "type": "Node",
     "category": "Node",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Solaris United (Smokefinger), Old Mate",
+        "type": "Orb Vallis Scene",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 32.2.0: Lua’s Prey",
@@ -15781,6 +15805,14 @@
     "type": "Node",
     "category": "Node",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ostron (Old Man Suumbaat), Kin",
+        "type": "Plains of Eidolon Scene",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon Remaster: Hotfix 24.8.3",
@@ -16779,6 +16811,50 @@
     "type": "Node",
     "category": "Node",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Associate",
+        "type": "Ebisu Spear",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Entrati (Daughter), Neutral",
+        "type": "Spari Spear",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Neutral",
+        "type": "Lanzo Fishing Spear",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Neutral",
+        "type": "Tulok Fishing Spear",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Neutral",
+        "type": "Peram Fishing Spear",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Stunna Fishing Spear",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Neutral",
+        "type": "Shockprod Fishing Spear",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Lua’s Prey: Hotfix 32.2.1",
@@ -19311,6 +19387,32 @@
     "type": "Node",
     "category": "Node",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Complete The Silver Grove",
+        "type": "Titania Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Simaris, Complete The Silver Grove",
+        "type": "Titania Chassis Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Simaris, Complete The Silver Grove",
+        "type": "Titania Neuroptics Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Simaris, Complete The Silver Grove",
+        "type": "Titania Systems Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Lua’s Prey: Baruuk Prime: Hotfix 32.2.7",
@@ -22632,6 +22734,18 @@
         "location": "Typholyst",
         "type": "War Blade",
         "chance": 0.5,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Simaris, Complete The Second Dream",
+        "type": "War Hilt",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Simaris, Complete The Second Dream",
+        "type": "War Blade",
+        "chance": 100,
         "rarity": "Common"
       },
       {

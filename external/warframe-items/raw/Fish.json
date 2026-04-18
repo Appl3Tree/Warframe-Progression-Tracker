@@ -7,6 +7,14 @@
     "imageName": "amniophysi-0cb67aedd3.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Amniophysi Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -27,6 +35,14 @@
     "imageName": "amniophysi-a0ee0c1c56.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Amniophysi Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -47,6 +63,14 @@
     "imageName": "amniophysi-29dbdd28d7.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Amniophysi Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -67,6 +91,14 @@
     "imageName": "aquapulmo-61d5a76760.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Friend",
+        "type": "Aquapulmo Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -87,6 +119,14 @@
     "imageName": "aquapulmo-d5ed2712eb.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Friend",
+        "type": "Aquapulmo Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -107,6 +147,14 @@
     "imageName": "aquapulmo-d5580b0819.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Friend",
+        "type": "Aquapulmo Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -127,6 +175,14 @@
     "imageName": "barbisteo-91980eabd3.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Barbisteo Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -147,6 +203,14 @@
     "imageName": "barbisteo-77828bbc81.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Barbisteo Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -167,6 +231,14 @@
     "imageName": "barbisteo-d20a7ef07f.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Barbisteo Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -199,6 +271,24 @@
         "type": "Boot",
         "chance": 1.01,
         "rarity": "Rare"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Boot Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Old Man Suumbaat), Kin",
+        "type": "Fishing Boot",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Cove",
+        "type": "Boot Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Axi A12 Relic (Radiant)",
@@ -413,6 +503,14 @@
     "imageName": "brickie-d5d50ddd26.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Brickie Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.6",
@@ -449,6 +547,14 @@
     "imageName": "brickie-affc4ca8ec.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Brickie Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.6",
@@ -485,6 +591,14 @@
     "imageName": "brickie-6b2374664c.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Brickie Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.6",
@@ -523,6 +637,18 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Solaris United (The Business), Cove",
+        "type": "Charamote Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Charamote Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Exploiter Orb",
         "type": "Charamote Sagan Module",
         "chance": 50.01,
@@ -558,6 +684,18 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Solaris United (The Business), Cove",
+        "type": "Charamote Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Charamote Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Exploiter Orb",
         "type": "Charamote Sagan Module",
@@ -595,6 +733,18 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Solaris United (The Business), Cove",
+        "type": "Charamote Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Charamote Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Exploiter Orb",
         "type": "Charamote Sagan Module",
         "chance": 50.01,
@@ -629,6 +779,14 @@
     "imageName": "charc-eel-ed606319e9.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Charc Eel Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Hotfix 22.0.3",
@@ -649,6 +807,14 @@
     "imageName": "charc-eel-99892ece44.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Charc Eel Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Hotfix 22.0.3",
@@ -669,6 +835,14 @@
     "imageName": "charc-eel-e812718821.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Charc Eel Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Hotfix 22.0.3",
@@ -689,6 +863,14 @@
     "imageName": "chondricord-0e9f50aad5.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Associate",
+        "type": "Chondricord Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -709,6 +891,14 @@
     "imageName": "chondricord-5969651509.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Associate",
+        "type": "Chondricord Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -729,6 +919,14 @@
     "imageName": "chondricord-e8163d33a2.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Associate",
+        "type": "Chondricord Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -771,6 +969,14 @@
     "imageName": "cryptosuctus-85aabfaec3.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Cryptosuctus Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Hotfix: 29.2.4: NIGHTS OF NABERUS!",
@@ -799,6 +1005,14 @@
     "imageName": "cryptosuctus-668f61741c.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Cryptosuctus Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Hotfix: 29.2.4: NIGHTS OF NABERUS!",
@@ -827,6 +1041,14 @@
     "imageName": "cryptosuctus-5943cb825f.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Cryptosuctus Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Hotfix: 29.2.4: NIGHTS OF NABERUS!",
@@ -856,6 +1078,24 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Operational Supply, Neutral",
+        "type": "Cuthol Tendrils",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Cuthol Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Cuthol Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Cuthol Tendrils",
@@ -939,6 +1179,24 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Operational Supply, Neutral",
+        "type": "Cuthol Tendrils",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Cuthol Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Cuthol Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Cuthol Tendrils",
         "chance": 16.68,
@@ -1021,6 +1279,24 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Operational Supply, Neutral",
+        "type": "Cuthol Tendrils",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Cuthol Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Cuthol Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Cuthol Tendrils",
         "chance": 16.68,
@@ -1101,6 +1377,14 @@
     "imageName": "duroid-4f4f64600e.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Associate",
+        "type": "Duroid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -1121,6 +1405,14 @@
     "imageName": "duroid-3d6365e18a.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Associate",
+        "type": "Duroid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -1141,6 +1433,14 @@
     "imageName": "duroid-cb6525992e.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Associate",
+        "type": "Duroid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -1161,6 +1461,14 @@
     "imageName": "echowinder-6be71ef923.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Echowinder Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Update 24.0",
@@ -1181,6 +1489,14 @@
     "imageName": "echowinder-648bbfadca.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Echowinder Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Update 24.0",
@@ -1201,6 +1517,14 @@
     "imageName": "echowinder-ae26bf66f1.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Echowinder Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Update 24.0",
@@ -1221,6 +1545,14 @@
     "imageName": "eye-eye-e2867fb4dd.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Eye-Eye Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.6",
@@ -1257,6 +1589,14 @@
     "imageName": "eye-eye-1cf8a3c1a4.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Eye-Eye Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.6",
@@ -1293,6 +1633,14 @@
     "imageName": "eye-eye-19b0c4f50b.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Eye-Eye Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.6",
@@ -1329,6 +1677,14 @@
     "imageName": "flagellocanth-1a21be3dc8.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Friend",
+        "type": "Flagellocanth Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -1381,6 +1737,14 @@
     "imageName": "flagellocanth-0c7f3f2b2e.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Friend",
+        "type": "Flagellocanth Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -1433,6 +1797,14 @@
     "imageName": "flagellocanth-25625ea0f9.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Friend",
+        "type": "Flagellocanth Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -1485,6 +1857,20 @@
     "imageName": "glappid-82da3aa166.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Kin",
+        "type": "Glappid Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Kin",
+        "type": "Glappid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon Remaster: Hotfix 24.6.1",
@@ -1513,6 +1899,20 @@
     "imageName": "glappid-e8e37a1d74.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Kin",
+        "type": "Glappid Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Kin",
+        "type": "Glappid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon Remaster: Hotfix 24.6.1",
@@ -1541,6 +1941,20 @@
     "imageName": "glappid-dd785240b0.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Kin",
+        "type": "Glappid Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Kin",
+        "type": "Glappid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon Remaster: Hotfix 24.6.1",
@@ -1569,6 +1983,14 @@
     "imageName": "glutinox-82c1a2932d.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Acquaintance",
+        "type": "Glutinox Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -1589,6 +2011,14 @@
     "imageName": "glutinox-78e101beeb.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Acquaintance",
+        "type": "Glutinox Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -1609,6 +2039,14 @@
     "imageName": "glutinox-e7a5334fbe.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Acquaintance",
+        "type": "Glutinox Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -1630,6 +2068,18 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Kin",
+        "type": "Goopolla Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Goopolla Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Goopolla Spleen",
@@ -1697,6 +2147,18 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Ostron (Fisher Hai-Luk), Kin",
+        "type": "Goopolla Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Goopolla Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Goopolla Spleen",
         "chance": 16.68,
@@ -1762,6 +2224,18 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Kin",
+        "type": "Goopolla Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Goopolla Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Goopolla Spleen",
@@ -1851,6 +2325,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Ostron (Fisher Hai-Luk), Trusted",
+        "type": "Karkina Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Karkina Antenna",
         "chance": 16.68,
@@ -1916,6 +2396,12 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Trusted",
+        "type": "Karkina Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Karkina Antenna",
@@ -1983,6 +2469,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Ostron (Fisher Hai-Luk), Trusted",
+        "type": "Karkina Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Karkina Antenna",
         "chance": 16.68,
@@ -2049,6 +2541,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Khut-Khut Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Khut-Khut Venom Sac",
         "chance": 16.68,
@@ -2106,6 +2604,12 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Khut-Khut Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Khut-Khut Venom Sac",
@@ -2165,6 +2669,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Khut-Khut Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Khut-Khut Venom Sac",
         "chance": 16.68,
@@ -2221,6 +2731,20 @@
     "imageName": "kriller-d416809163.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Kriller Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Kriller Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Update 24.0",
@@ -2241,6 +2765,20 @@
     "imageName": "kriller-f8505c6348.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Kriller Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Kriller Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Update 24.0",
@@ -2261,6 +2799,20 @@
     "imageName": "kriller-996c682f31.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Kriller Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Kriller Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Update 24.0",
@@ -2281,6 +2833,14 @@
     "imageName": "kymaeros-c0a69ab3e7.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Kymaeros Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Hotfix 29.0.4",
@@ -2309,6 +2869,14 @@
     "imageName": "kymaeros-f66e2f45d4.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Kymaeros Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Hotfix 29.0.4",
@@ -2337,6 +2905,14 @@
     "imageName": "kymaeros-0d4fbd60b8.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Kymaeros Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Hotfix 29.0.4",
@@ -2365,6 +2941,14 @@
     "imageName": "lobotriscid-dede58f209.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Lobotriscid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -2409,6 +2993,14 @@
     "imageName": "lobotriscid-4a6239bcd0.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Lobotriscid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -2453,6 +3045,14 @@
     "imageName": "lobotriscid-55062846dd.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Stranger",
+        "type": "Lobotriscid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -2499,6 +3099,18 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Longwinder Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Longwinder Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Exploiter Orb",
         "type": "Longwinder Lathe Coagulant",
         "chance": 50.01,
@@ -2542,6 +3154,18 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Longwinder Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Longwinder Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Exploiter Orb",
         "type": "Longwinder Lathe Coagulant",
@@ -2587,6 +3211,18 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Longwinder Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Longwinder Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Exploiter Orb",
         "type": "Longwinder Lathe Coagulant",
         "chance": 50.01,
@@ -2630,6 +3266,12 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Mawfish Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Mawfish Bones",
@@ -2697,6 +3339,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Mawfish Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Mawfish Bones",
         "chance": 16.68,
@@ -2763,6 +3411,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Mawfish Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Mawfish Bones",
         "chance": 16.68,
@@ -2827,6 +3481,20 @@
     "imageName": "mirewinder-a5b961a6d9.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Mirewinder Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Mirewinder Bait",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.7",
@@ -2855,6 +3523,20 @@
     "imageName": "mirewinder-29a1571292.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Mirewinder Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Mirewinder Bait",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.7",
@@ -2883,6 +3565,20 @@
     "imageName": "mirewinder-bcc768b733.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Mirewinder Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Mirewinder Bait",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.7",
@@ -2911,6 +3607,14 @@
     "imageName": "mortus-lungfish-44fa9c46ae.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Visitor",
+        "type": "Mortus Lungfish Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Update 22: Plains of Eidolon",
@@ -2931,6 +3635,14 @@
     "imageName": "mortus-lungfish-793b26f4c8.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Visitor",
+        "type": "Mortus Lungfish Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Update 22: Plains of Eidolon",
@@ -2951,6 +3663,14 @@
     "imageName": "mortus-lungfish-300b4ee45a.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Visitor",
+        "type": "Mortus Lungfish Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Update 22: Plains of Eidolon",
@@ -2972,6 +3692,24 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Operational Supply, Neutral",
+        "type": "Murkray Liver",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Murkray Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Visitor",
+        "type": "Murkray Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Murkray Liver",
@@ -3047,6 +3785,24 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Operational Supply, Neutral",
+        "type": "Murkray Liver",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Murkray Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Visitor",
+        "type": "Murkray Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Murkray Liver",
         "chance": 16.68,
@@ -3121,6 +3877,24 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Operational Supply, Neutral",
+        "type": "Murkray Liver",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Murkray Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Visitor",
+        "type": "Murkray Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Murkray Liver",
         "chance": 16.68,
@@ -3193,6 +3967,14 @@
     "imageName": "myxostomata-ad9f92c3b5.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Family",
+        "type": "Myxostomata Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -3213,6 +3995,14 @@
     "imageName": "myxostomata-e771081e3a.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Family",
+        "type": "Myxostomata Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -3233,6 +4023,14 @@
     "imageName": "myxostomata-9a6e69540d.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Family",
+        "type": "Myxostomata Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -3276,6 +4074,24 @@
         "type": "Norg",
         "chance": 1.01,
         "rarity": "Rare"
+      },
+      {
+        "location": "Operational Supply, Neutral",
+        "type": "Norg Brain",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Norg Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Trusted",
+        "type": "Norg Bait",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Narmer Thumper",
@@ -3404,6 +4220,24 @@
         "rarity": "Rare"
       },
       {
+        "location": "Operational Supply, Neutral",
+        "type": "Norg Brain",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Norg Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Trusted",
+        "type": "Norg Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Norg Brain",
         "chance": 16.68,
@@ -3530,6 +4364,24 @@
         "rarity": "Rare"
       },
       {
+        "location": "Operational Supply, Neutral",
+        "type": "Norg Brain",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Surah",
+        "type": "Norg Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Fisher Hai-Luk), Trusted",
+        "type": "Norg Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Norg Brain",
         "chance": 16.68,
@@ -3642,6 +4494,14 @@
     "imageName": "ostimyr-3d54ff4970.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Acquaintance",
+        "type": "Ostimyr Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -3662,6 +4522,14 @@
     "imageName": "ostimyr-9bcbae2435.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Acquaintance",
+        "type": "Ostimyr Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -3682,6 +4550,14 @@
     "imageName": "ostimyr-d6d7e9d75c.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Acquaintance",
+        "type": "Ostimyr Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -3702,6 +4578,14 @@
     "imageName": "recaster-d41e0afb08.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Recaster Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.5",
@@ -3730,6 +4614,14 @@
     "imageName": "recaster-367393121f.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Recaster Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.5",
@@ -3758,6 +4650,14 @@
     "imageName": "recaster-13854c62a7.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Rapscallion",
+        "type": "Recaster Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.5",
@@ -3786,6 +4686,20 @@
     "imageName": "sapcaddy-eb65cbd6bc.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Old Mate",
+        "type": "Sapcaddy Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Sapcaddy Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -3822,6 +4736,20 @@
     "imageName": "sapcaddy-be52e6bb1f.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Old Mate",
+        "type": "Sapcaddy Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Sapcaddy Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -3858,6 +4786,20 @@
     "imageName": "sapcaddy-ff868b6d9c.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Old Mate",
+        "type": "Sapcaddy Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Sapcaddy Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -3894,6 +4836,14 @@
     "imageName": "scrubber-39bc6f06ea.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Scrubber Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Update 24.0",
@@ -3914,6 +4864,14 @@
     "imageName": "scrubber-c2cad828e4.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Scrubber Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Update 24.0",
@@ -3934,6 +4892,14 @@
     "imageName": "scrubber-17312d7f8f.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Scrubber Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Update 24.0",
@@ -3966,6 +4932,12 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Trusted",
+        "type": "Sharrac Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Sharrac Teeth",
@@ -4041,6 +5013,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Ostron (Fisher Hai-Luk), Trusted",
+        "type": "Sharrac Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Sharrac Teeth",
         "chance": 16.68,
@@ -4114,6 +5092,12 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Trusted",
+        "type": "Sharrac Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Sharrac Teeth",
@@ -4200,6 +5184,18 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Solaris United (The Business), Cove",
+        "type": "Synathid Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Old Mate",
+        "type": "Synathid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Exploiter Orb",
         "type": "Synathid Ecosynth Analyzer",
         "chance": 50.01,
@@ -4227,6 +5223,18 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Solaris United (The Business), Cove",
+        "type": "Synathid Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Old Mate",
+        "type": "Synathid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Exploiter Orb",
         "type": "Synathid Ecosynth Analyzer",
@@ -4256,6 +5264,18 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Solaris United (The Business), Cove",
+        "type": "Synathid Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Old Mate",
+        "type": "Synathid Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Exploiter Orb",
         "type": "Synathid Ecosynth Analyzer",
         "chance": 50.01,
@@ -4282,6 +5302,14 @@
     "imageName": "tink-7a7a0685cd.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Tink Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Deimos: Arcana: Hotfix 29.5.1",
@@ -4326,6 +5354,14 @@
     "imageName": "tink-d2d5d38fe3.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Tink Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Deimos: Arcana: Hotfix 29.5.1",
@@ -4370,6 +5406,14 @@
     "imageName": "tink-2006e685e2.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Outworlder",
+        "type": "Tink Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Deimos: Arcana: Hotfix 29.5.1",
@@ -4415,6 +5459,12 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Visitor",
+        "type": "Tralok Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Tralok Eyes",
@@ -4482,6 +5532,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Ostron (Fisher Hai-Luk), Visitor",
+        "type": "Tralok Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Tralok Eyes",
         "chance": 16.68,
@@ -4547,6 +5603,12 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Visitor",
+        "type": "Tralok Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Tralok Eyes",
@@ -4614,6 +5676,18 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Solaris United (The Business), Cove",
+        "type": "Tromyzon Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Tromyzon Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Exploiter Orb",
         "type": "Tromyzon Entroplasma",
         "chance": 50.01,
@@ -4649,6 +5723,18 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Solaris United (The Business), Cove",
+        "type": "Tromyzon Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Tromyzon Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Exploiter Orb",
         "type": "Tromyzon Entroplasma",
@@ -4686,6 +5772,18 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Solaris United (The Business), Cove",
+        "type": "Tromyzon Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Tromyzon Bait",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Exploiter Orb",
         "type": "Tromyzon Entroplasma",
         "chance": 50.01,
@@ -4720,6 +5818,14 @@
     "imageName": "vitreospina-990b006317.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Acquaintance",
+        "type": "Vitreospina Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -4740,6 +5846,14 @@
     "imageName": "vitreospina-4d9237695a.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Acquaintance",
+        "type": "Vitreospina Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -4760,6 +5874,14 @@
     "imageName": "vitreospina-c6c179e43d.png",
     "category": "Fish",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Daughter), Acquaintance",
+        "type": "Vitreospina Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -4792,6 +5914,12 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Yogwun Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Yogwun Stomach",
@@ -4859,6 +5987,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Yogwun Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper",
         "type": "Yogwun Stomach",
         "chance": 16.68,
@@ -4924,6 +6058,12 @@
     "category": "Fish",
     "tradable": true,
     "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Offworlder",
+        "type": "Yogwun Trophy Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Yogwun Stomach",

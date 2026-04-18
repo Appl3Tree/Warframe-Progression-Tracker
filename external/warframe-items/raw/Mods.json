@@ -34,6 +34,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Abating Link (Trinity)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Abating Link (Trinity)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -97,6 +111,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, General",
+        "type": "Abundant Mutation (Nidus)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Abundant Mutation (Nidus)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/AbundantMutationMod.png?f757b",
     "wikiaUrl": "https://wiki.warframe.com/w/Abundant_Mutation",
@@ -441,6 +469,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Accumulating Whipclaw (Khora)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Accumulating Whipclaw (Khora)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.8",
@@ -1019,6 +1061,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Adept Surge",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -1535,6 +1585,14 @@
     "imageName": "aerial-bond-d2d30022b7.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Aerial Bond (companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/AerialBondMod.png?65846",
     "wikiaUrl": "https://wiki.warframe.com/w/Aerial_Bond",
@@ -2280,6 +2338,26 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Afterburn (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Conclave, Tempest",
+        "type": "Afterburn",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Afterburn (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -2513,6 +2591,12 @@
     "category": "Mods",
     "tradable": true,
     "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Agile Aim",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Archimedean Itzam",
         "type": "Agile Aim",
@@ -2795,6 +2879,12 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "Conclave, Mistral",
+        "type": "Air Recon",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Battalyst",
         "type": "Air Recon",
         "chance": 7.64,
@@ -2909,6 +2999,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Air Thrusters",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 18.4.10 & Tactial Alert: Divine Will",
@@ -2970,6 +3068,14 @@
     "imageName": "air-time-c9bac83a7a.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Glinty",
+        "type": "Air Time",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.0.9",
@@ -3034,6 +3140,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Airburst Rounds (Zephyr)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Airburst Rounds (Zephyr)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of War: Banshee & Mirage Prime Vault: Hotfix 31.1.8",
@@ -4278,6 +4398,12 @@
     "isAugment": true,
     "tradable": true,
     "drops": [
+      {
+        "location": "Cephalon Simaris, Ambush\n",
+        "type": "Ambush",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Neptune/Cephalon Capture (Conclave), Rotation A",
         "type": "Ambush Optics",
@@ -7363,6 +7489,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Anchored Glide (Zephyr)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Anchored Glide (Zephyr)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/AnchoredGlideMod.png?4128a",
     "wikiaUrl": "https://wiki.warframe.com/w/Anchored_Glide",
@@ -7616,6 +7756,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Anti-Flak Plating",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Silver Grove",
@@ -7912,6 +8060,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Anticipation",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -8008,6 +8164,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Antimatter Absorb (Nova)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Antimatter Absorb (Nova)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 17.4.2",
@@ -8071,6 +8241,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Antimatter Mine",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Silver Grove: U2",
@@ -8548,6 +8726,14 @@
     "imageName": "apex-predator-619fa41266.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Apex Predator",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ApexPredatorMod.png?36c7e",
     "wikiaUrl": "https://wiki.warframe.com/w/Apex_Predator",
@@ -9165,6 +9351,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Continuity",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Hotfix 32.0.3",
@@ -9273,6 +9467,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Flow",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of Veilbreaker: Update 32.1",
@@ -9381,6 +9583,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Intensify",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Hotfix 32.0.7",
@@ -9497,6 +9707,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Stretch",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Hotfix 32.0.5",
@@ -9605,6 +9823,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Vitality",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Revenant Prime: Hotfix 32.0.9",
@@ -9653,6 +9879,14 @@
     "imageName": "argent-scourge-54ca16c398.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Argent Scourge",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -10046,6 +10280,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Armored Acrobatics",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -10207,6 +10449,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Armored Evade",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The War Within: Update 19.4.2 + 19.4.2.1",
@@ -10299,6 +10549,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Armored Recovery",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -11538,6 +11796,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Assimilate (Nyx)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Assimilate (Nyx)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Prime Resurgence: Hotfix 30.9.3",
@@ -11671,6 +11943,12 @@
         "type": "Astral Autopsy",
         "chance": 0.1,
         "rarity": "Rare"
+      },
+      {
+        "location": "Cephalon Simaris, Astral Autopsy\n",
+        "type": "Astral Autopsy",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -13527,6 +13805,14 @@
     "imageName": "avenging-truth-0b85aa8518.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Crusader",
+        "type": "Avenging Truth (Silva & Aegis)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 21: Chains of Harrow",
@@ -14160,6 +14446,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Axios Javelineers (Styanax)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Axios Javelineers (Styanax)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/AxiosJavelineersMod.png?cef48",
     "wikiaUrl": "https://wiki.warframe.com/w/Axios_Javelineers",
@@ -14265,6 +14565,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Balefire Surge (Hildryn)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Balefire Surge (Hildryn)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Empyrean: Kuva Lich Changes 27.1.0 + 27.1.0.1",
@@ -14393,6 +14707,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Ballistic Bullseye (Mesa)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Ballistic Bullseye (Mesa)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of Veilbreaker: Update 32.1",
@@ -17209,6 +17537,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Beguiling Lantern (Titania)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Beguiling Lantern (Titania)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Octavia’s Anthem: Hotfix 20.2.4",
@@ -18039,6 +18381,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Biting Frost (Frost)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Biting Frost (Frost)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/BitingFrostMod.png?aeadf",
     "wikiaUrl": "https://wiki.warframe.com/w/Biting_Frost",
@@ -18070,6 +18426,14 @@
     "imageName": "biting-piranha-81a959d170.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Biting Piranha",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Update 22.3.0",
@@ -18415,6 +18779,14 @@
     "imageName": "blade-of-truth-ec5aeadbc5.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Crusader",
+        "type": "Blade of Truth (Jaw Sword)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/BladeofTruthMod.png?99a87",
     "wikiaUrl": "https://wiki.warframe.com/w/Blade_of_Truth",
@@ -19000,6 +19372,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Blazing Pillage (Hildryn)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Blazing Pillage (Hildryn)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/BlazingPillageMod.png?227b8",
     "wikiaUrl": "https://wiki.warframe.com/w/Blazing_Pillage",
@@ -19403,6 +19789,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Blending Talons (Garuda)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Blending Talons (Garuda)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -19866,6 +20266,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Blinding Reave (Revenant)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Blinding Reave (Revenant)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Jovian Concord: Update 25",
@@ -20073,6 +20487,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Blood Forge (Garuda)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Blood Forge (Garuda)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/BloodForgeMod.png?ea553",
     "wikiaUrl": "https://wiki.warframe.com/w/Blood_Forge",
@@ -21076,6 +21504,14 @@
     "imageName": "bomb-the-landin'-d5d1741f31.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Logical",
+        "type": "Bomb The Landin'",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/BombTheLandin%27Mod.png?23317",
     "wikiaUrl": "https://wiki.warframe.com/w/Bomb_The_Landin'",
@@ -21678,6 +22114,14 @@
     "imageName": "botanist-e85854d0c3.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Botanist\n",
+        "type": "Botanist",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Hotfix 29.1.2 + Hotfix 29.1.2.1",
@@ -21805,6 +22249,14 @@
     "imageName": "bounty-hunter-9ca30eb6dd.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Bounty Hunter",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Nora’s Mix Vol.2: Hotfix 31.6.4",
@@ -22294,6 +22746,14 @@
     "imageName": "bright-purity-f5efbd6b1a.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Pure",
+        "type": "Bright Purity (Skana)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 15.5.1",
@@ -22426,6 +22886,12 @@
         "type": "Broad Eye",
         "chance": 1.53,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "Conclave, Mistral",
+        "type": "Broad Eye",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Battalyst",
@@ -23241,6 +23707,12 @@
         "type": "Butcher's Revelry",
         "chance": 0.1,
         "rarity": "Rare"
+      },
+      {
+        "location": "Operational Supply, Champion",
+        "type": "Butcher's Revelry",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "isPrime": false,
@@ -23658,6 +24130,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Calculated Spring",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -23748,6 +24228,14 @@
     "imageName": "calculated-victory-8e3415a739.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Calculated Victory",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Octavia's Anthem: Update 20",
@@ -23811,6 +24299,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Calm & Frenzy (Equinox)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Calm & Frenzy (Equinox)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 19: The War Within",
@@ -23943,6 +24445,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Capacitance (Volt)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Capacitance (Volt)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Railjack Revisited (Part 1): Update 27.4",
@@ -24584,6 +25100,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Cataclysmic Continuum (Limbo)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Cataclysmic Continuum (Limbo)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon Remaster: Update 24.6.0",
@@ -24857,6 +25387,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Catapult (Grendel)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Catapult (Grendel)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Scarlet Spear: TennoGen 27.3.10",
@@ -24926,6 +25470,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Cathode Current (Gyre)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Cathode Current (Gyre)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaUrl": "https://wiki.warframe.com/w/Cathode_Current",
     "transmutable": false,
@@ -25155,6 +25713,14 @@
     "imageName": "celestial-nightfall-255ae7f59f.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Celestial Nightfall",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Silver Grove",
@@ -25226,6 +25792,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Celestial Stomp (Wukong)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Celestial Stomp (Wukong)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of War: Banshee & Mirage Prime Vault: Hotfix 31.1.5",
@@ -25343,6 +25923,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Champion's Blessing (Trinity)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Champion's Blessing (Trinity)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaUrl": "https://wiki.warframe.com/w/Champion's_Blessing",
     "transmutable": false,
@@ -25394,6 +25988,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Chaos Sphere (Nyx)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Chaos Sphere (Nyx)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Chimera: Update 23.10",
@@ -26890,6 +27498,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Chilling Globe (Frost)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Chilling Globe (Frost)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ChillingGlobeMod.png?997ab",
     "wikiaUrl": "https://wiki.warframe.com/w/Chilling_Globe",
@@ -27614,6 +28236,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Chromatic Blade (Excalibur)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Chromatic Blade (Excalibur)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -29942,6 +30578,14 @@
     "imageName": "cold-arrival-c960a31087.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Primo",
+        "type": "Cold Arrival",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ColdArrivalMod.png?46c09",
     "wikiaUrl": "https://wiki.warframe.com/w/Cold_Arrival",
@@ -31179,6 +31823,14 @@
     "imageName": "comet-rounds-880e716373.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Comet Rounds",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/CometRoundsMod.png?00eed",
     "wikiaUrl": "https://wiki.warframe.com/w/Comet_Rounds",
@@ -31210,6 +31862,14 @@
     "imageName": "companion-weapon-riven-mod-2e9c91da23.jpg",
     "category": "Mods",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Companion Weapon Riven Mod\n",
+        "type": "Companion Weapon Riven Mod",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Corpus Proxima & The New Railjack: Hotfix 29.10.4",
@@ -31545,6 +32205,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Concentrated Arrow (Ivara)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Concentrated Arrow (Ivara)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Orphix Venom: Hotfix 29.6.2",
@@ -33466,6 +34140,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Conductor (Octavia)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Conductor (Octavia)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Mask of the Revenant: Chroma Prime 23.9.0 + 23.9.0.1",
@@ -33757,6 +34445,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Contagion Cloud (Saryn)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Contagion Cloud (Saryn)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Deadlock Protocol: Hotfix 28.0.6 + 28.0.6.1",
@@ -33853,6 +34555,14 @@
     "imageName": "contagious-bond-bfbc7df10b.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Son), Associate",
+        "type": "Contagious Bond (Companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ContagiousBondMod.png?92265",
     "wikiaUrl": "https://wiki.warframe.com/w/Contagious_Bond",
@@ -34562,6 +35272,12 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Continuity",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Deimos/Cambion Drift (Level 40 - 50 Arcana Isolation Vault), Rotation B",
         "type": "Necramech Continuity",
         "chance": 15,
@@ -34883,6 +35599,12 @@
         "type": "Necramech Continuity",
         "chance": 1.66,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Continuity",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Deimos/Cambion Drift (Level 40 - 50 Arcana Isolation Vault), Rotation B",
@@ -35278,6 +36000,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Controlled Slide (Nezha)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Controlled Slide (Nezha)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ControlledSlideMod.png?66910",
     "wikiaUrl": "https://wiki.warframe.com/w/Controlled_Slide",
@@ -37098,6 +37834,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Counter Pulse (Mag)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Counter Pulse (Mag)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/CounterPulseMod.png?775c6",
     "wikiaUrl": "https://wiki.warframe.com/w/Counter_Pulse",
@@ -37455,6 +38205,14 @@
     "imageName": "counterweight-12e8cef6cb.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Counterweight",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/CounterweightMod.png?e5679",
     "wikiaUrl": "https://wiki.warframe.com/w/Counterweight",
@@ -37518,6 +38276,14 @@
     "imageName": "covert-bond-6b9c40004e.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Master Teasonai), Trusted",
+        "type": "Covert Bond (Companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/CovertBondMod.png?940c0",
     "wikiaUrl": "https://wiki.warframe.com/w/Covert_Bond",
@@ -37802,6 +38568,14 @@
     "imageName": "crash-shot-49b9896530.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Crash Shot",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/CrashShotMod.png?8f406",
     "wikiaUrl": "https://wiki.warframe.com/w/Crash_Shot",
@@ -37834,6 +38608,14 @@
     "imageName": "crashing-havoc-f46feeafd3.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Crashing Havoc",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Index Preview",
@@ -37884,6 +38666,14 @@
     "imageName": "crashing-timber-fe86e1cc4c.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Crashing Timber",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -38044,6 +38834,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Creeping Terrify (Nekros)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Creeping Terrify (Nekros)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/CreepingTerrifyMod.png?b233c",
     "wikiaUrl": "https://wiki.warframe.com/w/Creeping_Terrify",
@@ -39026,6 +39830,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Critical Surge (Wisp)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Critical Surge (Wisp)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/CriticalSurgeMod.png?d8765",
     "wikiaUrl": "https://wiki.warframe.com/w/Critical_Surge",
@@ -40443,6 +41261,14 @@
     "imageName": "cunning-aspect-95b21ed246.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Cunning Aspect",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -40952,6 +41778,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Damage Decoy (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Damage Decoy (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/DamageDecoyMod.png?6b206",
     "wikiaUrl": "https://wiki.warframe.com/w/Damage_Decoy",
@@ -41013,6 +41853,14 @@
     "imageName": "damzav-vati-9ef8c34d74.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Father), Friend",
+        "type": "Damzav-Vati (Akbronco Prime)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Deimos: Arcana: Hotfix 29.5.7",
@@ -41401,6 +42249,14 @@
     "imageName": "deadly-sequence-f55b9284fb.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Senior Executive",
+        "type": "Deadly Sequence (Grinlok)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe: Archwing",
@@ -41594,6 +42450,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Deceptive Bond",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The War Within: Update 19.2.0",
@@ -42718,6 +43582,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Defiled Reckoning",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/DefiledReckoningMod.png?46660",
     "wikiaUrl": "https://wiki.warframe.com/w/Defiled_Reckoning",
@@ -43123,6 +43995,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Desiccation's Curse (Inaros)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Desiccation's Curse (Inaros)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/Desiccation%27sCurseMod.png?08eb3",
     "wikiaUrl": "https://wiki.warframe.com/w/Desiccation's_Curse",
@@ -43175,6 +44061,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Despoil (Nekros)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Despoil (Nekros)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Specters of the Rail: U2.1",
@@ -43232,6 +44132,14 @@
     "imageName": "detect-vulnerability-fcdd180200.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Detect Vulnerability\n",
+        "type": "Detect Vulnerability",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 29.5: Deimos Arcana",
@@ -44686,6 +45594,14 @@
     "imageName": "disarming-purity-957fc16e6b.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Pure",
+        "type": "Disarming Purity (Panthera)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 21: Chains of Harrow",
@@ -44804,6 +45720,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Discharge Strike",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -46021,6 +46945,14 @@
     "imageName": "dividing-blades-e731504711.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Dividing Blades",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 19: The War Within",
@@ -46093,6 +47025,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Divine Retribution (Nezha)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Divine Retribution (Nezha)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/DivineRetributionMod.png?880ee",
     "wikiaUrl": "https://wiki.warframe.com/w/Divine_Retribution",
@@ -46386,6 +47332,12 @@
         "type": "Double-Barrel Drift",
         "chance": 0.42,
         "rarity": "Rare"
+      },
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Double-Barrel Drift",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -46696,6 +47648,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Dread Ward (Garuda)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Dread Ward (Garuda)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Nora's Mix Volume 1: Update 31.2.0 + 31.2.0.1",
@@ -47192,6 +48158,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Duality (Equinox)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Duality (Equinox)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of Veilbreaker: Update 32.1",
@@ -47343,6 +48323,14 @@
     "imageName": "duplex-bond-514c4ae356.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Son), Associate",
+        "type": "Duplex Bond (Companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/DuplexBondMod.png?22e51",
     "wikiaUrl": "https://wiki.warframe.com/w/Duplex_Bond",
@@ -47841,6 +48829,12 @@
         "type": "Eject Magazine",
         "chance": 0.42,
         "rarity": "Rare"
+      },
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Eject Magazine",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -48239,6 +49233,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Elemental Sandstorm (Inaros)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Elemental Sandstorm (Inaros)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Nora's Mix Volume 1: Update 31.2.0 + 31.2.0.1",
@@ -48457,6 +49465,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Elusive Retribution (Baruuk)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Elusive Retribution (Baruuk)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ElusiveRetributionMod.png?78f2c",
     "wikiaUrl": "https://wiki.warframe.com/w/Elusive_Retribution",
@@ -49011,6 +50033,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Empowered Quiver (Ivara)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Empowered Quiver (Ivara)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "TennoGen & Nightwave Episode 5: Hotfix 25.7.7",
@@ -49081,6 +50117,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Endless Lullaby (Baruuk)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Endless Lullaby (Baruuk)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 31.5: Angels of the Zariman",
@@ -51168,6 +52218,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Energy Conversion\n",
+        "type": "Energy Conversion",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Scarlet Spear: 27.3.15 + 27.3.15.1",
@@ -51365,6 +52423,14 @@
     "imageName": "energy-generator-a971389a2c.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Energy Generator\n",
+        "type": "Energy Generator",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Chimera: Hotfix 23.10.5",
@@ -51929,6 +52995,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Energy Transfer (Equinox)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Energy Transfer (Equinox)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/EnergyTransferMod.png?33299",
     "wikiaUrl": "https://wiki.warframe.com/w/Energy_Transfer",
@@ -52381,6 +53461,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Enraged (Valkyr)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Enraged (Valkyr)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Prime Vault: Hotfix 27.5.6 + 27.5.6.1",
@@ -52454,6 +53548,14 @@
     "imageName": "entropy-burst-bdbfd5d4aa.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Wise",
+        "type": "Entropy Burst (Supra)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Shrine of the Eidolon: Hotfix 22.13.3",
@@ -52546,6 +53648,14 @@
     "imageName": "entropy-detonation-650ae3a42d.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Wise",
+        "type": "Entropy Detonation (Obex)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 21: Chains of Harrow",
@@ -52612,6 +53722,14 @@
     "imageName": "entropy-flight-2d4cf67bed.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Wise",
+        "type": "Entropy Flight (Kestrel)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe: Archwing",
@@ -52680,6 +53798,14 @@
     "imageName": "entropy-spike-1cdb473148.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Wise",
+        "type": "Entropy Spike (Bolto)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Nightwave Series 3: Glassmaker: Hotfix 27.5.3",
@@ -52761,6 +53887,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Enveloping Cloud (Wukong)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Enveloping Cloud (Wukong)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Mask of the Revenant: Hotfix 23.7.1",
@@ -53177,6 +54317,14 @@
     "imageName": "eroding-blight-52d3c7c429.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Revered",
+        "type": "Eroding Blight (Embolist)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ErodingBlightMod.png?09620",
     "wikiaUrl": "https://wiki.warframe.com/w/Eroding_Blight",
@@ -53270,6 +54418,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Escape Velocity (Nova)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Escape Velocity (Nova)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/EscapeVelocityMod.png?bd199",
     "wikiaUrl": "https://wiki.warframe.com/w/Escape_Velocity",
@@ -53502,6 +54664,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Eternal War (Valkyr)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Eternal War (Valkyr)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Buried Debts: Update 24.4.0",
@@ -53650,6 +54826,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Everlasting Ward (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Everlasting Ward (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/EverlastingWardMod.png?da94f",
     "wikiaUrl": "https://wiki.warframe.com/w/Everlasting_Ward",
@@ -53884,6 +55074,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Exothermic (Ember)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Exothermic (Ember)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ExothermicMod.png?7f632",
     "wikiaUrl": "https://wiki.warframe.com/w/Exothermic",
@@ -55009,6 +56213,14 @@
     "imageName": "explosive-demise-b29e4c69ff.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Explosive Demise",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 16.4.3 + Credit Reimbursement #2",
@@ -55074,6 +56286,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Explosive Legerdemain (Mirage)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Explosive Legerdemain (Mirage)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -55440,6 +56666,14 @@
     "imageName": "extreme-velocity-103e863ca5.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Logical",
+        "type": "Extreme Velocity",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ExtremeVelocityMod.png?7daa2",
     "wikiaUrl": "https://wiki.warframe.com/w/Extreme_Velocity",
@@ -58303,6 +59537,14 @@
     "imageName": "fateful-truth-50c993ba64.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Fateful Truth",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Update 22.10.0",
@@ -60444,6 +61686,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Fireball Frenzy (Ember)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Fireball Frenzy (Ember)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 16.5.3",
@@ -60989,6 +62245,12 @@
         "type": "Firewall",
         "chance": 10,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "Vox Solaris, Instrument",
+        "type": "Magus Firewall",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -61198,6 +62460,14 @@
     "imageName": "flak-shot-5fde46e44a.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Flak Shot",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/FlakShotMod.png?4658e",
     "wikiaUrl": "https://wiki.warframe.com/w/Flak_Shot",
@@ -62551,6 +63821,18 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Flow",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Flow",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Elite Exo Flak",
         "type": "Flow Burn",
         "chance": 2.27,
@@ -62990,6 +64272,18 @@
         "type": "Flow Burn",
         "chance": 1.66,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Flow",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Flow",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Elite Exo Flak",
@@ -64059,6 +65353,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Follow Through",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Sisters of Parvos: Hotfix 30.5.4",
@@ -64975,6 +66277,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Fracturing Crush (Mag)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Fracturing Crush (Mag)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -65256,6 +66572,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Freeze Force (Frost)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Freeze Force (Frost)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 25.6.3",
@@ -65798,6 +67128,14 @@
     "imageName": "full-capacity-5e81c26200.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Full Capacity",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/FullCapacityMod.png?620b2",
     "wikiaUrl": "https://wiki.warframe.com/w/Full_Capacity",
@@ -65933,6 +67271,12 @@
         "type": "Fulmination",
         "chance": 1.49,
         "rarity": "Rare"
+      },
+      {
+        "location": "Operational Supply, Neutral",
+        "type": "Fulmination",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -66030,6 +67374,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Funnel Clouds (Zephyr)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Funnel Clouds (Zephyr)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 18.13.2",
@@ -66100,6 +67458,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Furious Javelin (Excalibur)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Furious Javelin (Excalibur)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 30.5: Sisters of Parvos",
@@ -66994,6 +68366,24 @@
         "type": "Grim Fury",
         "chance": 10.08,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "Conclave, Mistral",
+        "type": "Piercing Fury",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Martial Fury",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Quills, Adherent",
+        "type": "Virtuos Fury",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Eidolon Hydrolyst (Capture)",
@@ -68291,6 +69681,24 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "Conclave, Mistral",
+        "type": "Piercing Fury",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Martial Fury",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Quills, Adherent",
+        "type": "Virtuos Fury",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Eidolon Hydrolyst (Capture)",
         "type": "Arcane Fury",
         "chance": 11.24,
@@ -68973,6 +70381,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Fused Reservoir (Wisp)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Fused Reservoir (Wisp)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 30.9.0: Prime Resurgence",
@@ -70816,6 +72238,12 @@
         "type": "Ghost",
         "chance": 0.76,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "The Quills, Architect",
+        "type": "Virtuos Ghost",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -70989,6 +72417,14 @@
     "imageName": "gilded-truth-fc4524c1f9.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Crusader",
+        "type": "Gilded Truth (Burston Prime)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 15.2.1 +15.2.2",
@@ -71961,6 +73397,14 @@
     "imageName": "gleaming-blight-94e4188526.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Revered",
+        "type": "Gleaming Blight (Dark Dagger)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Recurring Nightmares",
@@ -72330,6 +73774,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Gourmand (Grendel)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Gourmand (Grendel)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/GourmandMod.png?6adc5",
     "wikiaUrl": "https://wiki.warframe.com/w/Gourmand",
@@ -72576,6 +74034,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Greedy Pull (Mag)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Greedy Pull (Mag)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Derelict Shift: Update 28.3.0",
@@ -73299,6 +74771,18 @@
         "rarity": "Rare"
       },
       {
+        "location": "Cephalon Suda, Genius",
+        "type": "Guardian Armor (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Guardian Armor (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Eidolon Gantulyst (Capture)",
         "type": "Arcane Guardian",
         "chance": 11.92,
@@ -73697,6 +75181,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Guardian Armor (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Guardian Armor (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/GuardianArmorMod.png?40fc1",
     "wikiaUrl": "https://wiki.warframe.com/w/Guardian_Armor",
@@ -74406,6 +75904,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Guided Effigy (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Guided Effigy (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Zephyr & Chroma Prime Vault: Hotfix 31.5.10 + 31.5.10.1",
@@ -74627,6 +76139,12 @@
         "type": "Gun Glide",
         "chance": 0.42,
         "rarity": "Rare"
+      },
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Gun Glide",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -75176,6 +76694,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Hall of Malevolence (Mirage)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Hall of Malevolence (Mirage)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/HallofMalevolenceMod.png?64f79",
     "wikiaUrl": "https://wiki.warframe.com/w/Hall_of_Malevolence",
@@ -75231,6 +76763,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Hallowed Eruption (Oberon)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Hallowed Eruption (Oberon)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -75342,6 +76888,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Hallowed Reckoning (Oberon)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Hallowed Reckoning (Oberon)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of the Zariman: Update 31.6",
@@ -77427,6 +78987,14 @@
     "imageName": "hata-satya-eae87ec619.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Father), Friend",
+        "type": "Hata-Satya (Soma Prime)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29.1.0",
@@ -78225,6 +79793,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Healing Flame (Ember)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Healing Flame (Ember)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Hotfix 32.0.7",
@@ -78428,6 +80010,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Health Conversion\n",
+        "type": "Health Conversion",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -78558,6 +80148,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Health Conversion\n",
+        "type": "Health Conversion",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -78665,6 +80263,14 @@
     "imageName": "heartseeker-cf5d44dee9.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Heartseeker",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Update 22.3.0",
@@ -78768,6 +80374,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Hearty Nourishment (Grendel)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Hearty Nourishment (Grendel)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/HeartyNourishmentMod.png?8ca95",
     "wikiaUrl": "https://wiki.warframe.com/w/Hearty_Nourishment",
@@ -86812,6 +88432,12 @@
         "type": "Hunt",
         "chance": 0.01,
         "rarity": "Legendary"
+      },
+      {
+        "location": "Ostron (Hok), Kin",
+        "type": "Exodia Hunt",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -88241,6 +89867,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Hushed Invisibility (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Hushed Invisibility (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Sisters of Parvos: Hotfix 30.5.1",
@@ -89115,6 +90755,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Hysterical Assault (Valkyr)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Hysterical Assault (Valkyr)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Buried Debts: Hotfix 24.5.5",
@@ -89195,6 +90849,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Hysterical Fixation",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/HystericalFixationMod.png?a2679",
     "wikiaUrl": "https://wiki.warframe.com/w/Hysterical_Fixation",
@@ -89563,6 +91225,26 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Ice Wave Impedance (Frost)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Conclave, Tempest",
+        "type": "Ice Wave Impedance",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Ice Wave Impedance (Frost)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 21: Chains of Harrow",
@@ -89642,6 +91324,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Icy Avalanche (Frost)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Icy Avalanche (Frost)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/IcyAvalancheMod.png?09aca",
     "wikiaUrl": "https://wiki.warframe.com/w/Icy_Avalanche",
@@ -89695,6 +91391,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Immolated Radiance (Ember)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Immolated Radiance (Ember)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ImmolatedRadianceMod.png?d367c",
     "wikiaUrl": "https://wiki.warframe.com/w/Immolated_Radiance",
@@ -89890,6 +91600,14 @@
     "imageName": "impaler-munitions-4eca4462e8.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Impaler Munitions",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ImpalerMunitionsMod.png?b9218",
     "wikiaUrl": "https://wiki.warframe.com/w/Impaler_Munitions",
@@ -89947,6 +91665,14 @@
     "imageName": "impenetrable-offense-92b01294b4.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Impenetrable Offense",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 18.4.7",
@@ -91599,6 +93325,14 @@
     "imageName": "inertia-dampeners-2a2cd32cf5.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Proper Felon",
+        "type": "Inertia Dampeners",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 30.5: Sisters of Parvos",
@@ -94031,6 +95765,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Infiltrate (Ivara)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Infiltrate (Ivara)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of War: Hotfix 31.1.1",
@@ -94308,6 +96056,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, General",
+        "type": "Insatiable (Nidus)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Insatiable (Nidus)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Nidus Prime & Plague Star: Hotfix 30.7.1 + 30.7.1.1",
@@ -94866,6 +96628,18 @@
         "rarity": "Rare"
       },
       {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Intensify",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Intensify",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Alad V",
         "type": "Intensify",
         "chance": 2.01,
@@ -95257,6 +97031,18 @@
         "type": "Intensify",
         "chance": 1.84,
         "rarity": "Rare"
+      },
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Intensify",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Intensify",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Alad V",
@@ -95686,6 +97472,18 @@
         "type": "Intensify",
         "chance": 1.84,
         "rarity": "Rare"
+      },
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Intensify",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Intensify",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Alad V",
@@ -96186,6 +97984,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Intrepid Stand (Styanax)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Intrepid Stand (Styanax)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/IntrepidStandMod.png?28836",
     "wikiaUrl": "https://wiki.warframe.com/w/Intrepid_Stand",
@@ -97207,6 +99019,26 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Iron Shrapnel",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Iron Shrapnel (Rhino)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Iron Shrapnel (Rhino)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Angels of the Zariman: Hotfix 31.5.2",
@@ -97294,6 +99126,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, General",
+        "type": "Ironclad Charge (Rhino)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Ironclad Charge (Rhino)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 15.10.0",
@@ -97368,6 +99214,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Ironclad Flight (Titania)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Ironclad Flight (Titania)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Operation: Scarlet Spear: TennoGen 27.3.8 + 27.3.8.1 + 27.3.8.2",
@@ -97571,6 +99431,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Irradiating Disarm (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Irradiating Disarm (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Index Preview",
@@ -98688,6 +100562,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Jet Stream (Zephyr)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Jet Stream (Zephyr)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 31.5: Angels of the Zariman",
@@ -99230,6 +101118,14 @@
     "imageName": "juice-02cd61b08f.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Logical",
+        "type": "Juice",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 29.5: Deimos Arcana",
@@ -99305,6 +101201,14 @@
     "imageName": "justice-blades-90e52b08d8.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, Protector",
+        "type": "Justice Blades (Dual Cleavers)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe: Archwing",
@@ -100061,6 +101965,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Kinetic Collision",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/KineticCollisionMod.png?a2679",
     "wikiaUrl": "https://wiki.warframe.com/w/Kinetic_Collision",
@@ -100218,6 +102130,14 @@
     "imageName": "kinetic-friction-7c59564ad4.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Proper Felon",
+        "type": "Kinetic Friction",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/KineticFrictionMod.png?97834",
     "wikiaUrl": "https://wiki.warframe.com/w/Kinetic_Friction",
@@ -110862,6 +112782,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, General",
+        "type": "Larva Burst (Nidus)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Larva Burst (Nidus)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Update 22.11.0",
@@ -111012,6 +112946,14 @@
     "imageName": "lashing-coil-b9500b6597.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Lashing Coil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -111272,6 +113214,14 @@
     "imageName": "last-herald-5fb9174bb4.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Last Herald",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Silver Grove",
@@ -111344,6 +113294,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Lasting Covenant (Harrow)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Lasting Covenant (Harrow)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/LastingCovenantMod.png?78e7d",
     "wikiaUrl": "https://wiki.warframe.com/w/Lasting_Covenant",
@@ -111400,6 +113364,14 @@
     "imageName": "lasting-purity-0fcf031fdb.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Pure",
+        "type": "Lasting Purity (Vulkar)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe: Archwing",
@@ -111946,6 +113918,14 @@
     "imageName": "lie-in-wait-04a43f9e19.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Lie In Wait",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 17.2",
@@ -113813,6 +115793,14 @@
     "imageName": "loaded-capacity-4976d4586c.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Loaded Capacity",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/LoadedCapacityMod.png?e7b29",
     "wikiaUrl": "https://wiki.warframe.com/w/Loaded_Capacity",
@@ -113920,6 +115908,12 @@
         "type": "Lock And Load",
         "chance": 1.49,
         "rarity": "Rare"
+      },
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Lock and Load",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "wikiAvailable": true,
@@ -114236,6 +116230,14 @@
     "imageName": "loose-chamber-a113523bb2.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Loose Chamber",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 17.0.3",
@@ -114314,6 +116316,14 @@
     "imageName": "loose-hatch-8b7110bb98.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Loose Hatch",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/LooseHatchMod.png?40620",
     "wikiaUrl": "https://wiki.warframe.com/w/Loose_Hatch",
@@ -114382,6 +116392,14 @@
     "imageName": "loose-magazine-127e98d96c.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Loose Magazine",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/LooseMagazineMod.png?50787",
     "wikiaUrl": "https://wiki.warframe.com/w/Loose_Magazine",
@@ -114539,6 +116557,14 @@
     "imageName": "looter-e104d561d7.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Looter\n",
+        "type": "Looter",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 30.7: Nidus Prime & Plague Star",
@@ -114838,6 +116864,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Loyal Merulina (Yareli)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Loyal Merulina (Yareli)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/LoyalMerulinaMod.png?dd217",
     "wikiaUrl": "https://wiki.warframe.com/w/Loyal_Merulina",
@@ -115101,6 +117141,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Mach Crash (Gauss)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Mach Crash (Gauss)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 32.2.0: Lua’s Prey",
@@ -115181,6 +117235,14 @@
     "imageName": "mad-stack-6b7f7adfb6.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Primo",
+        "type": "Mad Stack",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/MadStackMod.png?3a4ff",
     "wikiaUrl": "https://wiki.warframe.com/w/Mad_Stack",
@@ -115212,6 +117274,14 @@
     "imageName": "madurai-transmute-core-e5b0c94943.jpg",
     "category": "Mods",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Madurai Transmute Core\n",
+        "type": "Madurai Transmute Core",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/MaduraiTransmuteCoreMod.png?05e6c",
     "wikiaUrl": "https://wiki.warframe.com/w/Madurai_Transmute_Core",
@@ -115245,6 +117315,14 @@
     "imageName": "mafic-rain-36886aa071.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Mafic Rain",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -115318,6 +117396,14 @@
     "imageName": "mag-locks-57e601cc36.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Glinty",
+        "type": "Mag Locks",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/MagLocksMod.png?9dc8b",
     "wikiaUrl": "https://wiki.warframe.com/w/Mag_Locks",
@@ -118080,6 +120166,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Magnetized Discharge (Mag)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Magnetized Discharge (Mag)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 31: The New War",
@@ -118778,6 +120878,14 @@
     "imageName": "manifold-bond-bb1425960f.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Master Teasonai), Trusted",
+        "type": "Manifold Bond (Robotic)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ManifoldBondMod.png?9d735",
     "wikiaUrl": "https://wiki.warframe.com/w/Manifold_Bond",
@@ -118988,6 +121096,14 @@
     "imageName": "martial-fury-91f8071aa1.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Martial Fury",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 30.5: Sisters of Parvos",
@@ -119106,6 +121222,14 @@
     "imageName": "martyr-symbiosis-8f8910e08a.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Son), Friend",
+        "type": "Martyr Symbiosis (Vulpaphyla)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Star Days: Update 29.8.0",
@@ -120677,6 +122801,14 @@
     "imageName": "maximum-capacity-9602e8c2a3.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Maximum Capacity",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 17.0.3",
@@ -135038,6 +137170,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Mending Splinters (Gara)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Mending Splinters (Gara)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Railjack Revisited (Part 1): Update 27.4",
@@ -135264,6 +137410,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Merulina Guardian (Yareli)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Merulina Guardian (Yareli)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/MerulinaGuardianMod.png?4e4ea",
     "wikiaUrl": "https://wiki.warframe.com/w/Merulina_Guardian",
@@ -135317,6 +137477,26 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Mesa's Waltz",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Mesa's Waltz (Mesa)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Mesa's Waltz (Mesa)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/Mesa%27sWaltzMod.png?c1250",
     "wikiaUrl": "https://wiki.warframe.com/w/Mesa's_Waltz",
@@ -135371,6 +137551,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Mesmer Shield (Revenant)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Mesmer Shield (Revenant)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/MesmerShieldMod.png?4e4ea",
     "wikiaUrl": "https://wiki.warframe.com/w/Mesmer_Shield",
@@ -137773,6 +139967,14 @@
     "imageName": "meteor-munitions-64a0e666e4.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Meteor Munitions",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/MeteorMunitionsMod.png?c33fd",
     "wikiaUrl": "https://wiki.warframe.com/w/Meteor_Munitions",
@@ -137942,6 +140144,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Mind Freak (Nyx)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Mind Freak (Nyx)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/MindFreakMod.png?36efb",
     "wikiaUrl": "https://wiki.warframe.com/w/Mind_Freak",
@@ -138516,6 +140732,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Molecular Fission (Nova)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Molecular Fission (Nova)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/MolecularFissionMod.png?8c095",
     "wikiaUrl": "https://wiki.warframe.com/w/Molecular_Fission",
@@ -140306,6 +142536,14 @@
     "imageName": "momentary-pause-4416510ca1.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Momentary Pause",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Octavia's Anthem: Update 20",
@@ -140378,6 +142616,14 @@
     "imageName": "momentous-bond-cdee480138.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Momentous Bond (companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/MomentousBondMod.png?370a6",
     "wikiaUrl": "https://wiki.warframe.com/w/Momentous_Bond",
@@ -141587,6 +143833,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Muzzle Flash (Mesa)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Muzzle Flash (Mesa)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -141659,6 +143919,14 @@
     "imageName": "mystic-bond-9b3244092b.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Master Teasonai), Trusted",
+        "type": "Mystic Bond (Companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/MysticBondMod.png?7e876",
     "wikiaUrl": "https://wiki.warframe.com/w/Mystic_Bond",
@@ -141874,6 +144142,14 @@
     "imageName": "naramon-transmute-core-9a5e0cc61a.jpg",
     "category": "Mods",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Naramon Transmute Core\n",
+        "type": "Naramon Transmute Core",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/NaramonTransmuteCoreMod.png?2af34",
     "wikiaUrl": "https://wiki.warframe.com/w/Naramon_Transmute_Core",
@@ -143035,6 +145311,12 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Drift",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Deimos/Cambion Drift (Level 40 - 50 Arcana Isolation Vault), Rotation C",
         "type": "Necramech Drift",
         "chance": 15,
@@ -143132,6 +145414,12 @@
     "category": "Mods",
     "tradable": true,
     "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Efficiency",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Deimos/Cambion Drift (Level 30 - 40 Arcana Isolation Vault), Rotation B",
         "type": "Necramech Efficiency",
@@ -143333,6 +145621,14 @@
     "imageName": "necramech-flow-6070912c28.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Flow",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/NecramechFlowMod.png?1dc28",
     "wikiaUrl": "https://wiki.warframe.com/w/Necramech_Flow",
@@ -143401,6 +145697,12 @@
         "type": "Necramech Friction",
         "chance": 0.74,
         "rarity": "Rare"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Friction",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Deimos/Cambion Drift (Level 50 - 60 Arcana Isolation Vault), Rotation C",
@@ -143725,6 +146027,14 @@
     "imageName": "necramech-intensify-4fea73e79b.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Intensify",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Lua’s Prey: Baruuk Prime: Hotfix 32.2.7",
@@ -143814,6 +146124,14 @@
     "imageName": "necramech-pressure-point-17811edd58.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Pressure Point",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Hotfix 29.0.8 + 29.0.8.1",
@@ -144344,6 +146662,14 @@
     "imageName": "necramech-refuel-a9b251b3a4.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Modus",
+        "type": "Necramech Refuel",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -145223,6 +147549,14 @@
     "imageName": "necramech-vitality-88a336d9f3.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Modus",
+        "type": "Necramech Vitality",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Hotfix 29.0.8 + 29.0.8.1",
@@ -145365,6 +147699,14 @@
     "imageName": "negate-884df972f9.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Negate\n",
+        "type": "Negate",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 29.5: Deimos Arcana",
@@ -145428,6 +147770,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Negation Armor (Inaros)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Negation Armor (Inaros)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/NegationArmorMod.png?6eea9",
     "wikiaUrl": "https://wiki.warframe.com/w/Negation_Armor",
@@ -145703,6 +148059,14 @@
     "imageName": "neutralizing-justice-514ef63ab4.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, Protector",
+        "type": "Neutralizing Justice (Miter)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: The Profit-Taker - Update 24.2",
@@ -145774,6 +148138,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Neutron Star (Nova)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Neutron Star (Nova)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Revenant Prime: Hotfix 32.0.9",
@@ -145934,6 +148312,14 @@
     "imageName": "night-stalker-e29de0ed8e.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Night Stalker",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/NightStalkerMod.png?131da",
     "wikiaUrl": "https://wiki.warframe.com/w/Night_Stalker",
@@ -146473,6 +148859,14 @@
     "imageName": "nitro-boost-027129e862.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Logical",
+        "type": "Nitro Boost",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/NitroBoostMod.png?fb752",
     "wikiaUrl": "https://wiki.warframe.com/w/Nitro_Boost",
@@ -146532,6 +148926,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "No Current Leap",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hydroid Prime: Update 21.6.0",
@@ -148666,6 +151068,14 @@
     "imageName": "noble-cadence-b12e2feb8e.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Noble Cadence",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -152173,6 +154583,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Ore Gaze (Atlas)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Ore Gaze (Atlas)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of the Zariman: Update 31.6",
@@ -153752,6 +156176,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Overcharge Detectors",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 17.0.4",
@@ -153826,6 +156258,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Overcharged",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Update 22.9.0",
@@ -154114,6 +156554,12 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "Conclave, Mistral",
+        "type": "Overview",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Battalyst",
         "type": "Overview",
         "chance": 7.64,
@@ -154260,6 +156706,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Pacifying Bolts (Nyx)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Pacifying Bolts (Nyx)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of the Zariman: Update 31.6",
@@ -154939,6 +157399,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, General",
+        "type": "Parasitic Vitality (Nidus)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Parasitic Vitality (Nidus)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ParasiticVitalityMod.png?7dc1f",
     "wikiaUrl": "https://wiki.warframe.com/w/Parasitic_Vitality",
@@ -156714,6 +159188,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Partitioned Mallet (Octavia)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Partitioned Mallet (Octavia)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/PartitionedMalletMod.png?acc7b",
     "wikiaUrl": "https://wiki.warframe.com/w/Partitioned_Mallet",
@@ -156880,6 +159368,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Path of Statues (Atlas)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Path of Statues (Atlas)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/PathofStatuesMod.png?c3fc2",
     "wikiaUrl": "https://wiki.warframe.com/w/Path_of_Statues",
@@ -157499,6 +160001,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Peaceful Provocation (Equinox)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Peaceful Provocation (Equinox)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/PeacefulProvocationMod.png?62c6e",
     "wikiaUrl": "https://wiki.warframe.com/w/Peaceful_Provocation",
@@ -157868,6 +160384,14 @@
     "imageName": "perfect-balance-3c22f4ce86.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Whozit",
+        "type": "Perfect Balance",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/PerfectBalanceMod.png?37694",
     "wikiaUrl": "https://wiki.warframe.com/w/Perfect_Balance",
@@ -158321,6 +160845,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Phoenix Renewal (Oberon)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Phoenix Renewal (Oberon)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Hotfix 32.0.7",
@@ -158585,6 +161123,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Photon Repeater (Vauban)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Photon Repeater (Vauban)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/PhotonRepeaterMod.png?bf64d",
     "wikiaUrl": "https://wiki.warframe.com/w/Photon_Repeater",
@@ -158837,6 +161389,14 @@
     "imageName": "piercing-fury-4598349aa9.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Piercing Fury",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -159742,6 +162302,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Piercing Navigator (Ivara)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Piercing Navigator (Ivara)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Octavia’s Anthem: Hotfix 20.2.4",
@@ -159813,6 +162387,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, General",
+        "type": "Piercing Roar (Rhino)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Piercing Roar (Rhino)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -160002,6 +162590,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Pilfering Strangledome (Khora)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Pilfering Strangledome (Khora)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Angels of the Zariman: Hotfix 31.5.6",
@@ -160081,6 +162683,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Pilfering Swarm (Hydroid)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Pilfering Swarm (Hydroid)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Angels of the Zariman: Hotfix 31.5.6",
@@ -175652,6 +178268,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Pool Of Life (Trinity)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Pool Of Life (Trinity)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/PoolofLifeMod.png?7c12e",
     "wikiaUrl": "https://wiki.warframe.com/w/Pool_of_Life",
@@ -175716,6 +178346,14 @@
     "imageName": "pop-top-b438f30bb3.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Whozit",
+        "type": "Pop Top",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Orphix Venom: Hotfix 29.6.4",
@@ -175778,6 +178416,14 @@
     "imageName": "poppin'-vert-16ce4920c8.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Whozit",
+        "type": "Poppin' Vert",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/Poppin%27VertMod.png?c68d6",
     "wikiaUrl": "https://wiki.warframe.com/w/Poppin'_Vert",
@@ -176167,6 +178813,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Power of Three",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Update 22.1.0",
@@ -177432,6 +180086,12 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "Conclave, Mistral",
+        "type": "Apex Predator",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Kosma Cutter",
         "type": "Predator",
         "chance": 3.44,
@@ -178145,6 +180805,12 @@
         "type": "Pressure Point",
         "chance": 1.9,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Pressure Point",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Earth/Cetus (Level 5 - 15 Cetus Bounty), Rotation B",
@@ -179104,6 +181770,12 @@
         "type": "Pressure Point",
         "chance": 1.9,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Pressure Point",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Earth/Cetus (Level 5 - 15 Cetus Bounty), Rotation B",
@@ -180100,6 +182772,12 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "NecraLoid (Loid), Clearance Odima",
+        "type": "Necramech Pressure Point",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Earth/Cetus (Level 5 - 15 Cetus Bounty), Rotation B",
         "type": "Pressure Point",
         "chance": 15.18,
@@ -180681,6 +183359,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Primal Rage (Wukong)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Primal Rage (Wukong)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 18.14.2",
@@ -187117,6 +189809,14 @@
     "imageName": "primo-flair-30ba33b04e.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Logical",
+        "type": "Primo Flair",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",
@@ -187181,6 +189881,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Prism Guard",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -187338,6 +190046,14 @@
     "imageName": "prize-kill-8b8a5e84a2.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Prize Kill",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Octavia's Anthem: Update 20",
@@ -187498,6 +190214,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Prolonged Paralysis (Valkyr)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Prolonged Paralysis (Valkyr)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 19: The War Within",
@@ -189326,6 +192056,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Purging Slash",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/PurgingSlashMod.png?f0e88",
     "wikiaUrl": "https://wiki.warframe.com/w/Purging_Slash",
@@ -189381,6 +192119,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Purifying Flames",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/PurifyingFlamesMod.png?4b50f",
     "wikiaUrl": "https://wiki.warframe.com/w/Purifying_Flames",
@@ -189434,6 +192180,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Push & Pull",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Beasts of the Sanctuary: Hotfix 22.20.7",
@@ -189504,6 +192258,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Pyroclastic Flow (Nezha)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Pyroclastic Flow (Nezha)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Prime Vault: Hotfix 25.7.4 + 25.7.4.1",
@@ -189560,6 +192328,14 @@
     "imageName": "quaking-hand-7220e6ff45.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Quaking Hand",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -189745,6 +192521,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Quick Charge",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.2.0",
@@ -189888,6 +192672,14 @@
     "imageName": "quick-escape-1ee4f9b192.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Primo",
+        "type": "Quick Escape",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.2.15",
@@ -191554,6 +194346,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Radiant Finish (Excalibur)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Radiant Finish (Excalibur)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaUrl": "https://wiki.warframe.com/w/Radiant_Finish",
     "transmutable": false,
@@ -193187,6 +195993,14 @@
     "imageName": "rail-guards-4846282f1a.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Glinty",
+        "type": "Rail Guards",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaUrl": "https://wiki.warframe.com/w/Rail_Guards",
     "transmutable": false,
@@ -194949,6 +197763,14 @@
     "imageName": "razor-munitions-881fa9f008.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Razor Munitions",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaUrl": "https://wiki.warframe.com/w/Razor_Munitions",
     "transmutable": false,
@@ -195501,6 +198323,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Razorwing Blitz (Titania)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Razorwing Blitz (Titania)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/RazorwingBlitzMod.png?74403",
     "wikiaUrl": "https://wiki.warframe.com/w/Razorwing_Blitz",
@@ -195856,6 +198692,12 @@
         "location": "Raptor Rv",
         "type": "Reach",
         "chance": 1.9,
+        "rarity": "Common"
+      },
+      {
+        "location": "Conclave, Tempest",
+        "type": "Sapping Reach",
+        "chance": 100,
         "rarity": "Common"
       },
       {
@@ -196618,6 +199460,12 @@
         "rarity": "Common"
       },
       {
+        "location": "Conclave, Tempest",
+        "type": "Sapping Reach",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Coolant Raknoid",
         "type": "Reach",
         "chance": 11.62,
@@ -197098,6 +199946,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Reactive Storm (Baruuk)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Reactive Storm (Baruuk)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of War: Banshee & Mirage Prime Vault: Hotfix 31.1.5",
@@ -197263,6 +200125,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Reaping Chakram (Nezha)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Reaping Chakram (Nezha)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Beasts of the Sanctuary: Hotfix 22.20.5",
@@ -197590,6 +200466,14 @@
     "imageName": "reawaken-8a833121a6.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Reawaken\n",
+        "type": "Reawaken",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Deadlock Protocol: Hotfix 28.0.7",
@@ -197802,6 +200686,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Recharge Barrier",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Silver Grove",
@@ -197870,6 +200762,14 @@
     "imageName": "recover-161b03e236.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Recover",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The New War: Hotfix 31.0.4",
@@ -198085,6 +200985,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Recrystalize (Citrine)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Recrystalize (Citrine)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/RecrystalizeMod.png?f41b8",
     "wikiaUrl": "https://wiki.warframe.com/w/Recrystalize",
@@ -198140,6 +201054,14 @@
     "imageName": "recuperate-052893ba9f.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Recuperate",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Octavia's Anthem: Update 20",
@@ -203865,6 +206787,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Conclave, Mistral",
+        "type": "Reflex Draw",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Archimedean Itzam",
         "type": "Reflex Draw",
         "chance": 2.29,
@@ -204522,6 +207450,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Regenerative Molt (Saryn)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Regenerative Molt (Saryn)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Hotfix 32.0.7",
@@ -204602,6 +207544,14 @@
     "imageName": "reinforced-bond-2d9e159c6b.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Reinforced Bond (companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ReinforcedBondMod.png?7e876",
     "wikiaUrl": "https://wiki.warframe.com/w/Reinforced_Bond",
@@ -204703,6 +207653,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, General",
+        "type": "Reinforcing Stomp (Rhino)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Reinforcing Stomp (Rhino)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ReinforcingStompMod.png?93839",
     "wikiaUrl": "https://wiki.warframe.com/w/Reinforcing_Stomp",
@@ -204906,6 +207870,14 @@
     "imageName": "relentless-assault-db643a007b.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Relentless Assault",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Silver Grove",
@@ -205340,6 +208312,14 @@
     "imageName": "rending-wind-bef8dd3eb5.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Rending Wind",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -205405,6 +208385,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Repair Dispensary (Protea)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Repair Dispensary (Protea)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/RepairDispensaryMod.png?a20e8",
     "wikiaUrl": "https://wiki.warframe.com/w/Repair_Dispensary",
@@ -205912,6 +208906,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Resonance (Banshee)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Resonance (Banshee)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Deadlock Protocol: Hotfix 28.0.6 + 28.0.6.1",
@@ -206031,6 +209039,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Resonating Quake (Banshee)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Resonating Quake (Banshee)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Buried Debts: Update 24.5.0",
@@ -206182,6 +209204,14 @@
     "imageName": "restorative-bond-bee85eb16a.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Master Teasonai), Trusted",
+        "type": "Restorative Bond (Companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/RestorativeBondMod.png?9a758",
     "wikiaUrl": "https://wiki.warframe.com/w/Restorative_Bond",
@@ -207692,6 +210722,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Revealing Spores (Saryn)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Revealing Spores (Saryn)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/RevealingSporesMod.png?e29c6",
     "wikiaUrl": "https://wiki.warframe.com/w/Revealing_Spores",
@@ -220041,6 +223085,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Rift Haven (Limbo)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Rift Haven (Limbo)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Buried Debts: Update 24.4.0",
@@ -220186,6 +223244,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Rift Torrent (Limbo)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Rift Torrent (Limbo)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Scarlet Spear: 27.3.14",
@@ -220368,6 +223440,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Rime Vault",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 17.5: The Jordas Precept. + Hotfix 17.5.1",
@@ -220576,6 +223656,14 @@
     "imageName": "ripper-rounds-ece02cee49.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Ripper Rounds",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/RipperRoundsMod.png?46a88",
     "wikiaUrl": "https://wiki.warframe.com/w/Ripper_Rounds",
@@ -221103,6 +224191,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Rising Skill",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -221168,6 +224264,14 @@
     "imageName": "rising-steel-c41755b7c3.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Rising Steel",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -221232,6 +224336,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Rising Storm (Ash)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Rising Storm (Ash)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Saint of Altra: Update 25.7.0",
@@ -221401,6 +224519,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Rousing Plunder (Hydroid)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Rousing Plunder (Hydroid)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/CurativeUndertowMod.png?5202f",
     "wikiaUrl": "https://wiki.warframe.com/w/Curative_Undertow",
@@ -221456,6 +224588,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Rubble Heap (Atlas)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Rubble Heap (Atlas)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -221821,6 +224967,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Rumbled",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Railjack Revisited (Part 1): Hotfix 27.4.4",
@@ -225213,6 +228367,14 @@
     "imageName": "sacrifice-f1802f7c7d.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Operational Supply, Neutral",
+        "type": "Sacrifice",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Lua’s Prey: Baruuk Prime: Hotfix 32.2.5",
@@ -225966,6 +229128,14 @@
     "imageName": "sacrificial-pressure-f653049ad6.jpg",
     "category": "Mods",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Complete The Sacrifice",
+        "type": "Sacrificial Pressure",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -226080,6 +229250,14 @@
     "imageName": "sacrificial-steel-0dfda4f719.jpg",
     "category": "Mods",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Complete The Sacrifice",
+        "type": "Sacrificial Steel",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -226152,6 +229330,32 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Safeguard Switch (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Safeguard (Nezha)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Safeguard Switch (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Safeguard (Nezha)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Buried Debts: Update 24.4.0",
@@ -226231,6 +229435,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Safeguard Switch (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Safeguard Switch (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/SafeguardSwitchMod.png?7c6c5",
     "wikiaUrl": "https://wiki.warframe.com/w/Safeguard_Switch",
@@ -226398,6 +229616,12 @@
         "type": "Sanctuary",
         "chance": 0.02,
         "rarity": "Legendary"
+      },
+      {
+        "location": "Cephalon Simaris, Sanctuary Conduit Scene\n",
+        "type": "Sanctuary Conduit Scene",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -227088,6 +230312,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Sapping Reach",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Banshee Prime: Hotfix 19.11.5 + 19.11.6",
@@ -227153,6 +230385,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Savage Silence (Banshee)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Savage Silence (Banshee)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Mesa Update",
@@ -227323,6 +230569,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Savior Decoy (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Savior Decoy (Loki)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/SaviorDecoyMod.png?6d701",
     "wikiaUrl": "https://wiki.warframe.com/w/Savior_Decoy",
@@ -228188,6 +231448,14 @@
     "imageName": "scarlet-hurricane-9d606f4248.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Scarlet Hurricane",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -228255,6 +231523,14 @@
     "imageName": "scattered-justice-c34318d3e4.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, Protector",
+        "type": "Scattered Justice (Hek)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe: Archwing",
@@ -228901,6 +232177,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Searing Leap",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Specters of the Rail: U1.1",
@@ -229487,6 +232771,12 @@
         "rarity": "Rare"
       },
       {
+        "location": "Solaris United (Rude Zuud), Old Mate",
+        "type": "Pax Seeker",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Exo Cutter",
         "type": "Seeker Volley",
         "chance": 13.75,
@@ -229881,6 +233171,12 @@
         "rarity": "Rare"
       },
       {
+        "location": "Solaris United (Rude Zuud), Old Mate",
+        "type": "Pax Seeker",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Exo Cutter",
         "type": "Seeker Volley",
         "chance": 13.75,
@@ -230232,6 +233528,12 @@
         "type": "Seeker",
         "chance": 1.49,
         "rarity": "Rare"
+      },
+      {
+        "location": "Solaris United (Rude Zuud), Old Mate",
+        "type": "Pax Seeker",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Exo Cutter",
@@ -231163,6 +234465,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Seeking Shuriken (Ash)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Seeking Shuriken (Ash)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Hotfix 22.10.2",
@@ -231235,6 +234551,14 @@
     "imageName": "seismic-bond-04bb158d01.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Son), Associate",
+        "type": "Seismic Bond (Companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/SeismicBondMod.png?aa408",
     "wikiaUrl": "https://wiki.warframe.com/w/Seismic_Bond",
@@ -232317,6 +235641,14 @@
     "imageName": "sequence-burn-ab1e970920.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Senior Executive",
+        "type": "Sequence Burn (Spectra)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 30.5: Sisters of Parvos",
@@ -232389,6 +235721,14 @@
     "imageName": "serrated-edges-218094067f.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Serrated Edges",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/SerratedEdgesMod.png?8a410",
     "wikiaUrl": "https://wiki.warframe.com/w/Serrated_Edges",
@@ -232442,6 +235782,14 @@
     "imageName": "serrated-rounds-53d092227a.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Serrated Rounds",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/SerratedRoundsMod.png?d40ad",
     "wikiaUrl": "https://wiki.warframe.com/w/Serrated_Rounds",
@@ -234532,6 +237880,14 @@
     "imageName": "shadow-harvest-ab41dda5ae.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Shadow Harvest",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -234596,6 +237952,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Shadow Haze (Sevagoth)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Shadow Haze (Sevagoth)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ShadowHazeMod.png?69c1b",
     "wikiaUrl": "https://wiki.warframe.com/w/Shadow_Haze",
@@ -234647,6 +238017,14 @@
     "imageName": "sharpened-blade-71f1092f42.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Sharpened Blade",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/SharpenedBladeMod.png?56317",
     "wikiaUrl": "https://wiki.warframe.com/w/Sharpened_Blade",
@@ -235193,6 +238571,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Shattered Storm (Gara)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Shattered Storm (Gara)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ShatteredStormMod.png?78e77",
     "wikiaUrl": "https://wiki.warframe.com/w/Shattered_Storm",
@@ -235345,6 +238737,14 @@
     "imageName": "shattering-justice-83c5864099.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, Protector",
+        "type": "Shattering Justice (Sobek)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Operation: Scarlet Spear: 27.3.0",
@@ -236682,6 +240082,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Shield of Shadows (Nekros)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Shield of Shadows (Nekros)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ShieldofShadowsMod.png?3a976",
     "wikiaUrl": "https://wiki.warframe.com/w/Shield_of_Shadows",
@@ -236735,6 +240149,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Shield Overload",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ShieldOverloadMod.png?fd62f",
     "wikiaUrl": "https://wiki.warframe.com/w/Shield_Overload",
@@ -237543,6 +240965,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Shock Trooper (Volt)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Shock Trooper (Volt)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 25.6.3",
@@ -237726,6 +241162,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Shocking Speed (Volt)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Shocking Speed (Volt)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -252673,6 +256123,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Conclave, Mistral",
+        "type": "Shred Shot",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Nightmare Mode Rewards, Rotation B",
         "type": "Shred",
         "chance": 15.49,
@@ -252817,6 +256273,14 @@
     "imageName": "shred-shot-a48ce0227e.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Shred Shot",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ShredShotMod.png?6e1a8",
     "wikiaUrl": "https://wiki.warframe.com/w/Shred_Shot",
@@ -254217,6 +257681,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Signal Flare",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/SignalFlareMod.png?c1ebb",
     "wikiaUrl": "https://wiki.warframe.com/w/Signal_Flare",
@@ -254437,6 +257909,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Singularity",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Shrine of the Eidolon: Hotfix 22.15.1",
@@ -255063,6 +258543,14 @@
     "imageName": "slay-board-fcf7fa2626.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Proper Felon",
+        "type": "Slay Board",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/SlayBoardMod.png?fb752",
     "wikiaUrl": "https://wiki.warframe.com/w/Slay_Board",
@@ -256910,6 +260398,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Smite Infusion (Oberon)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Smite Infusion (Oberon)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Oberon Prime: Update 20.7.0",
@@ -257165,6 +260667,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Smoke Shadow (Ash)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Smoke Shadow (Ash)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Sisters of Parvos: Hotfix 30.5.5",
@@ -257263,6 +260779,12 @@
     "category": "Mods",
     "tradable": true,
     "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Snap Shot",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Archimedean Itzam",
         "type": "Snap Shot",
@@ -258244,6 +261766,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Conclave, Mistral",
+        "type": "Soft Hands",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Archimedean Itzam",
         "type": "Soft Hands",
         "chance": 2.29,
@@ -258392,6 +261920,14 @@
     "imageName": "sonic-boost-5f2dfbc9c2.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Logical",
+        "type": "Sonic Boost",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Nightwave Series 3: Glassmaker: Hotfix 27.5.2",
@@ -258503,6 +262039,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Sonic Fracture (Banshee)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Sonic Fracture (Banshee)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -258590,6 +262140,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Soul Survivor (Nekros)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Soul Survivor (Nekros)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 16.4",
@@ -259085,6 +262649,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Spectrosiphon (Gara)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Spectrosiphon (Gara)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/SpectrosiphonMod.png?3dd87",
     "wikiaUrl": "https://wiki.warframe.com/w/Spectrosiphon",
@@ -260206,6 +263784,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Exalted",
+        "type": "Spellbound Harvest (Titania)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Spellbound Harvest (Titania)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/SpellboundHarvestMod.png?7017b",
     "wikiaUrl": "https://wiki.warframe.com/w/Spellbound_Harvest",
@@ -262443,6 +266035,12 @@
         "type": "Spring-Loaded Broadhead",
         "chance": 0.42,
         "rarity": "Rare"
+      },
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Spring-Loaded Broadhead",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -262703,6 +266301,12 @@
     "category": "Mods",
     "tradable": true,
     "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Spry Sights",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Archimedean Itzam",
         "type": "Spry Sights",
@@ -263557,6 +267161,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Staggering Shield (Mesa)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Staggering Shield (Mesa)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 16.8.0",
@@ -264592,6 +268210,14 @@
     "imageName": "stand-ground-e5154036a2.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Stand Ground",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/StandGroundMod.png?b4a32",
     "wikiaUrl": "https://wiki.warframe.com/w/Stand_Ground",
@@ -264704,6 +268330,14 @@
     "imageName": "star-divide-df36637990.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Star Divide",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -266857,6 +270491,14 @@
     "imageName": "stinging-truth-c718f46be9.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Crusader",
+        "type": "Stinging Truth (Viper)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe: Archwing",
@@ -266925,6 +270567,14 @@
     "imageName": "stockpiled-blight-c418befb08.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Revered",
+        "type": "Stockpiled Blight (Kunai)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 21: Chains of Harrow",
@@ -267912,6 +271562,12 @@
         "type": "Strafing Slide",
         "chance": 0.42,
         "rarity": "Rare"
+      },
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Strafing Slide",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -270286,6 +273942,12 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Stretch",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Raptor",
         "type": "Stretch",
         "chance": 11.06,
@@ -271315,6 +274977,12 @@
         "type": "Stretch",
         "chance": 10.26,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Stretch",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Raptor",
@@ -272382,6 +276050,12 @@
         "type": "Stretch",
         "chance": 10.26,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Stretch",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Raptor",
@@ -274841,6 +278515,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Surging Blades (Yareli)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Surging Blades (Yareli)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 31.5: Angels of the Zariman",
@@ -274912,6 +278600,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Surging Dash (Excalibur)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Surging Dash (Excalibur)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Hotfix 22.8.2",
@@ -274984,6 +278686,20 @@
     "imageName": "surging-dash-9e564bf15b.jpg",
     "category": "Mods",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Surging Dash (Excalibur)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Surging Dash (Excalibur)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Hotfix 22.8.2",
@@ -275079,6 +278795,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Surplus Diverters",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Hotfix 22.3.5",
@@ -275362,6 +279086,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Swift Bite (Lavos)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Swift Bite (Lavos)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "isPrime": false,
     "masterable": false
   },
@@ -275547,6 +279285,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Swing Line (Valkyr)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Swing Line (Valkyr)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 32.2.0: Lua’s Prey",
@@ -275941,6 +279693,14 @@
     "imageName": "sword-alone-bdd9e1d1dc.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Sword Alone",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Buried Debts: Hotfix 24.4.2",
@@ -277109,6 +280869,12 @@
         "type": "Tactical Reload",
         "chance": 0.42,
         "rarity": "Rare"
+      },
+      {
+        "location": "Conclave, Whirlwind",
+        "type": "Tactical Reload",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -277432,6 +281198,14 @@
     "imageName": "tainted-hydra-5d4d715a0c.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Tainted Hydra",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -277816,6 +281590,14 @@
     "imageName": "tandem-bond-7a99230cf6.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Master Teasonai), Trusted",
+        "type": "Tandem Bond (Beast)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/TandemBondMod.png?20efc",
     "wikiaUrl": "https://wiki.warframe.com/w/Tandem_Bond",
@@ -278988,6 +282770,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Target Fixation (Zephyr)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Target Fixation (Zephyr)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -279235,6 +283031,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Tear Gas",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/TearGasMod.png?edfe4",
     "wikiaUrl": "https://wiki.warframe.com/w/Tear_Gas",
@@ -279290,6 +283094,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Tectonic Fracture (Atlas)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Tectonic Fracture (Atlas)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/TectonicFractureMod.png?2fe35",
     "wikiaUrl": "https://wiki.warframe.com/w/Tectonic_Fracture",
@@ -279342,6 +283160,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, General",
+        "type": "Teeming Virulence (Nidus)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Teeming Virulence (Nidus)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/TeemingVirulenceMod.png?181fd",
     "wikiaUrl": "https://wiki.warframe.com/w/Teeming_Virulence",
@@ -280045,6 +283877,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Tempered Bound",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -280362,6 +284202,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Temporal Erosion (Protea)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Temporal Erosion (Protea)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/TemporalErosionMod.png?3604f",
     "wikiaUrl": "https://wiki.warframe.com/w/Temporal_Erosion",
@@ -280470,6 +284324,14 @@
     "imageName": "tenacious-bond-5359229f2d.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Doer",
+        "type": "Tenacious Bond (companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/TenaciousBondMod.png?20efc",
     "wikiaUrl": "https://wiki.warframe.com/w/Tenacious_Bond",
@@ -280816,6 +284678,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Tesla Bank (Vauban)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Tesla Bank (Vauban)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/TeslaBankMod.png?588d5",
     "wikiaUrl": "https://wiki.warframe.com/w/Tesla_Bank",
@@ -281516,6 +285392,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "The Relentless Lost (Xaku)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "The Relentless Lost (Xaku)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 32.2.0: Lua’s Prey",
@@ -281732,6 +285622,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Thermal Transfer (Gauss)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Thermal Transfer (Gauss)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ThermalTransferMod.png?59f8c",
     "wikiaUrl": "https://wiki.warframe.com/w/Thermal_Transfer",
@@ -282658,6 +286562,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Thrall Pact (Revenant)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Thrall Pact (Revenant)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ThrallPactMod.png?c5d19",
     "wikiaUrl": "https://wiki.warframe.com/w/Thrall_Pact",
@@ -282710,6 +286628,14 @@
     "imageName": "thrash-landing-dabbf43395.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Logical",
+        "type": "Thrash Landing",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ThrashLandingMod.png?1f1b9",
     "wikiaUrl": "https://wiki.warframe.com/w/Thrash_Landing",
@@ -283874,6 +287800,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Tidal Impunity (Hydroid)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Tidal Impunity (Hydroid)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 31.5: Angels of the Zariman",
@@ -283961,6 +287901,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Titanic Rumbler (Atlas)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Titanic Rumbler (Atlas)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Zephyr & Chroma Prime Vault: Hotfix 31.5.10 + 31.5.10.1",
@@ -284055,6 +288009,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Total Eclipse (Mirage)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Total Eclipse (Mirage)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Nezha Prime: 29.3.0 + 29.3.0.1",
@@ -284209,6 +288177,14 @@
     "imageName": "toxic-blight-d7828d0f5b.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Revered",
+        "type": "Toxic Blight (Mire)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe: Archwing",
@@ -284460,6 +288436,14 @@
     "imageName": "toxic-sequence-bb97ec060d.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Senior Executive",
+        "type": "Toxic Sequence (Acrid)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe: Archwing",
@@ -284707,6 +288691,14 @@
     "imageName": "trail-blazer-6ab2590543.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Glinty",
+        "type": "Trail Blazer",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.2.15",
@@ -285118,6 +289110,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Transistor Shield (Volt)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Transistor Shield (Volt)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Sisters of Parvos: Hotfix 30.5.5",
@@ -285175,6 +289181,26 @@
     "imageName": "transmute-core-14f259be0f.jpg",
     "category": "Mods",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Madurai Transmute Core\n",
+        "type": "Madurai Transmute Core",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Simaris, Naramon Transmute Core\n",
+        "type": "Naramon Transmute Core",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Cephalon Simaris, Vazarin Transmute Core\n",
+        "type": "Vazarin Transmute Core",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "isPrime": false,
     "masterable": false
   },
@@ -285213,6 +289239,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Tribunal (Harrow)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Tribunal (Harrow)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/TribunalMod.png?eb8c4",
     "wikiaUrl": "https://wiki.warframe.com/w/Tribunal",
@@ -289184,6 +293224,12 @@
     "tradable": true,
     "drops": [
       {
+        "location": "Conclave, Mistral",
+        "type": "Twitch",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Archimedean Itzam",
         "type": "Twitch",
         "chance": 2.29,
@@ -289585,6 +293631,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Ulfrun's Endurance (Voruna)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Ulfrun's Endurance (Voruna)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/Ulfrun%27sEnduranceMod.png?69c1b",
     "wikiaUrl": "https://wiki.warframe.com/w/Ulfrun's_Endurance",
@@ -289688,6 +293748,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Complete The Sacrifice",
+        "type": "Umbral Fiber",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -289803,6 +293871,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Complete The Sacrifice",
+        "type": "Umbral Intensify",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -289918,6 +293994,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Complete The Sacrifice",
+        "type": "Umbral Vitality",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -291730,6 +295814,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Valence Formation (Lavos)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Valence Formation (Lavos)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ValenceFormationMod.png?d3b7b",
     "wikiaUrl": "https://wiki.warframe.com/w/Valence_Formation",
@@ -291782,6 +295880,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Vampire Leech (Trinity)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Vampire Leech (Trinity)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/VampireLeechMod.png?b29ac",
     "wikiaUrl": "https://wiki.warframe.com/w/Vampire_Leech",
@@ -291835,6 +295947,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Vampiric Grasp (Xaku)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Vampiric Grasp (Xaku)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of Veilbreaker: Update 32.1",
@@ -291886,6 +296012,14 @@
     "imageName": "vanquished-prey-8f8b09b8f9.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Vanquished Prey",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Octavia's Anthem: Update 20",
@@ -291983,6 +296117,14 @@
     "imageName": "vapor-trail-951dda1a05.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Logical",
+        "type": "Vapor Trail",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Orphix Venom: Hotfix 29.6.4",
@@ -292194,6 +296336,14 @@
     "imageName": "vazarin-transmute-core-7d7ce49aae.jpg",
     "category": "Mods",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Vazarin Transmute Core\n",
+        "type": "Vazarin Transmute Core",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/VazarinTransmuteCoreMod.png?4ca21",
     "wikiaUrl": "https://wiki.warframe.com/w/Vazarin_Transmute_Core",
@@ -292310,6 +296460,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Venari Bodyguard (Khora)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Venari Bodyguard (Khora)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Hotfix 24.2.10",
@@ -292381,6 +296545,14 @@
     "imageName": "venerdo-hoverdrive-11e444e021.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ventkids, Proper Felon",
+        "type": "Venerdo Hoverdrive",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/VenerdoHoverdriveMod.png?1f1b9",
     "wikiaUrl": "https://wiki.warframe.com/w/Venerdo_Hoverdrive",
@@ -292570,6 +296742,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Venom Dose (Saryn)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Venom Dose (Saryn)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Arbitrations Revisited: Hotfix 25.7.6",
@@ -292872,6 +297058,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Venomous Rise",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 17.5: The Jordas Precept. + Hotfix 17.5.1",
@@ -293010,6 +297204,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Vexing Retaliation (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Vexing Retaliation (Chroma)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -293096,6 +297304,14 @@
     "imageName": "vicious-approach-37ab393ed8.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Mistral",
+        "type": "Vicious Approach",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update: Specters of the Rail",
@@ -293169,6 +297385,14 @@
     "imageName": "vicious-bond-56422c8c97.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Son), Associate",
+        "type": "Vicious Bond (Companion)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/ViciousBondMod.png?c8a40",
     "wikiaUrl": "https://wiki.warframe.com/w/Vicious_Bond",
@@ -294208,6 +298432,18 @@
         "rarity": "Rare"
       },
       {
+        "location": "The Holdfasts (Cavalero), Fallen",
+        "type": "Molt Vigor",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Quills, Mote",
+        "type": "Magus Vigor",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Nightmare Mode Rewards, Rotation C",
         "type": "Vigor",
         "chance": 15.49,
@@ -294954,6 +299190,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Viral Tempest (Hydroid)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "New Loka, Flawless",
+        "type": "Viral Tempest (Hydroid)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/CorrodingBarrageMod.png?c9bd6",
     "wikiaUrl": "https://wiki.warframe.com/w/Corroding_Barrage",
@@ -297564,6 +301814,18 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Vitality",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Modus",
+        "type": "Necramech Vitality",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Another Betrayer, Rotation A",
         "type": "Vitality",
         "chance": 15.18,
@@ -298629,6 +302891,18 @@
         "type": "Vitality",
         "chance": 10.84,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Vitality",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Modus",
+        "type": "Necramech Vitality",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Another Betrayer, Rotation A",
@@ -299707,6 +303981,18 @@
         "type": "Vitality",
         "chance": 10.84,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "Kahl's Garrison (Chipper), Fort",
+        "type": "Archon Vitality",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "NecraLoid (Loid), Clearance Modus",
+        "type": "Necramech Vitality",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Another Betrayer, Rotation A",
@@ -301353,6 +305639,14 @@
     "imageName": "volatile-parasite-0ac65a0406.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Son), Friend",
+        "type": "Volatile Parasite (Predasite)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/VolatileParasiteMod.png?c6e92",
     "wikiaUrl": "https://wiki.warframe.com/w/Volatile_Parasite",
@@ -301856,6 +306150,14 @@
     "imageName": "voltage-sequence-9d23ceeb2f.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Senior Executive",
+        "type": "Voltage Sequence (Lanka)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Shrine of the Eidolon: Update 22.16.0",
@@ -301952,6 +306254,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Hurricane",
+        "type": "Voltaic Lance",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 17.5: The Jordas Precept. + Hotfix 17.5.1",
@@ -302791,6 +307101,14 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Conclave, Tempest",
+        "type": "Ward Recovery",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 18.5: Sands of Inaros",
@@ -302854,6 +307172,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Warding Thurible (Harrow)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Warding Thurible (Harrow)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Railjack Revisited (Part 1): Update 27.4",
@@ -303644,6 +307976,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Warrior's Rest (Excalibur Umbra)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Warrior's Rest (Excalibur Umbra)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/Warrior%27sRestMod.png?da4f9",
     "wikiaUrl": "https://wiki.warframe.com/w/Warrior's_Rest",
@@ -304777,6 +309123,14 @@
     "imageName": "winds-of-purity-ca8a2a1262.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Pure",
+        "type": "Winds of Purity (Furis)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/WindsofPurityMod.png?493d0",
     "wikiaUrl": "https://wiki.warframe.com/w/Winds_of_Purity",
@@ -305167,6 +309521,20 @@
     "category": "Mods",
     "isAugment": true,
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Wrath of Ukko (Kullervo)",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Steel Meridian, General",
+        "type": "Wrath of Ukko (Kullervo)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "wikiaThumbnail": "https://wiki.warframe.com/images/WrathofUkkoMod.png?15511",
     "wikiaUrl": "https://wiki.warframe.com/w/Wrath_of_Ukko",
@@ -315936,6 +320304,14 @@
     "imageName": "zazvat-kar-9be0696161.jpg",
     "category": "Mods",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Father), Friend",
+        "type": "Zazvat-Kar (Akstiletto Prime)",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Heart of Deimos: Update 29",

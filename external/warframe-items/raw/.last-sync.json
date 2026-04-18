@@ -1,13 +1,12 @@
 {
   "dataset": "warframe-items",
-  "syncedAt": "2026-04-12T18:44:39.528Z",
+  "syncedAt": "2026-04-18T00:20:39.695Z",
   "changedFiles": [
     "All.json",
     "Arcanes.json",
     "Arch-Gun.json",
     "Arch-Melee.json",
     "Archwing.json",
-    "Enemy.json",
     "Fish.json",
     "Gear.json",
     "Glyphs.json",
@@ -18,7 +17,6 @@
     "Pets.json",
     "Primary.json",
     "Quests.json",
-    "Railjack.json",
     "Relics.json",
     "Resources.json",
     "Secondary.json",

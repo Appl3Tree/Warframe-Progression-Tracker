@@ -841,7 +841,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Complete The Archwing (Quest)",
+            "type": "Odonata Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Circuits",
@@ -861,8 +868,15 @@
         "itemCount": 1,
         "imageName": "odonata-harness.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Complete The Archwing (Quest)",
+            "type": "Odonata Harness Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/ArchwingRecipes/StandardArchwing/StandardArchwingSystemsComponent",
@@ -871,8 +885,15 @@
         "itemCount": 1,
         "imageName": "odonata-systems.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Complete The Archwing (Quest)",
+            "type": "Odonata Systems Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/ArchwingRecipes/StandardArchwing/StandardArchwingWingsComponent",
@@ -881,8 +902,15 @@
         "itemCount": 1,
         "imageName": "odonata-wings.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Complete The Archwing (Quest)",
+            "type": "Odonata Wings Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ],
+        "masterable": false
       }
     ],
     "type": "Archwing",

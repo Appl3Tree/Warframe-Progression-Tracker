@@ -2414,8 +2414,8 @@
         "itemCount": 1,
         "imageName": "cabochon-embolos-261ef228d9.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/Weapons/WeaponParts/InfWarFanGuard",
@@ -2572,8 +2572,8 @@
         "itemCount": 1,
         "imageName": "trapezium-xenorhast-a14b3b3c56.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Melee",
@@ -3262,6 +3262,12 @@
     "tradable": false,
     "drops": [
       {
+        "location": "Ostron (Hok), Neutral",
+        "type": "Balla Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
         "type": "Balla Blueprint",
         "chance": 3.57,
@@ -3463,6 +3469,12 @@
         "tradable": false,
         "drops": [
           {
+            "location": "Ostron (Old Man Suumbaat), Neutral",
+            "type": "Pyrotic Alloy x20 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "10X Pyrotic Alloy",
             "chance": 3.16,
@@ -3485,6 +3497,12 @@
         "imageName": "tear-azurite-397c0a4ebc.png",
         "tradable": false,
         "drops": [
+          {
+            "location": "Ostron (Old Man Suumbaat), Neutral",
+            "type": "Tear Azurite x10 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "10X Tear Azurite",
@@ -8376,7 +8394,14 @@
         "disposition": 5,
         "releaseDate": "2014-08-28",
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Conclave, Typhoon",
+            "type": "Kronen Conclave Skin",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       }
     ],
     "type": "Melee",
@@ -8660,7 +8685,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Complete The War Within",
+            "type": "Broken Scepter Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Kuva",
@@ -13603,6 +13635,12 @@
     "tradable": false,
     "drops": [
       {
+        "location": "Ostron (Hok), Neutral",
+        "type": "Cyath Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
         "type": "Cyath Blueprint",
         "chance": 3.57,
@@ -13847,6 +13885,12 @@
         "tradable": false,
         "drops": [
           {
+            "location": "Ostron (Old Man Suumbaat), Visitor",
+            "type": "Fersteel Alloy x20 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "6X Fersteel Alloy",
             "chance": 5.53,
@@ -13892,6 +13936,12 @@
         "imageName": "marquise-veridos-217877dacf.png",
         "tradable": false,
         "drops": [
+          {
+            "location": "Ostron (Old Man Suumbaat), Visitor",
+            "type": "Marquise Veridos x10 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "6X Marquise Veridos",
@@ -15054,6 +15104,12 @@
             "type": "Dual Skana Blueprint",
             "chance": 1.03,
             "rarity": "Rare"
+          },
+          {
+            "location": "Conclave, Typhoon",
+            "type": "Dual Skana Conclave Skin",
+            "chance": 100,
+            "rarity": "Common"
           }
         ],
         "wikiAvailable": true,
@@ -15558,6 +15614,12 @@
     "tradable": false,
     "drops": [
       {
+        "location": "Ostron (Hok), Neutral",
+        "type": "Dehtat Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
         "type": "Dehtat Blueprint",
         "chance": 3.57,
@@ -15624,6 +15686,12 @@
         "imageName": "fersteel-alloy-c11c0e2d3c.png",
         "tradable": false,
         "drops": [
+          {
+            "location": "Ostron (Old Man Suumbaat), Visitor",
+            "type": "Fersteel Alloy x20 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "6X Fersteel Alloy",
@@ -15753,6 +15821,12 @@
         "imageName": "marquise-veridos-217877dacf.png",
         "tradable": false,
         "drops": [
+          {
+            "location": "Ostron (Old Man Suumbaat), Visitor",
+            "type": "Marquise Veridos x10 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "6X Marquise Veridos",
@@ -17378,7 +17452,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Dokrahm Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
@@ -17833,6 +17914,14 @@
         },
         "imageName": "nikana-f266948d7b.png",
         "tradable": false,
+        "drops": [
+          {
+            "location": "Conclave, Typhoon",
+            "type": "Nikana Conclave Skin",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ],
         "wikiAvailable": true,
         "attacks": [
           {
@@ -17906,8 +17995,7 @@
         },
         "disposition": 3,
         "releaseDate": "2014-04-09",
-        "masterable": false,
-        "drops": []
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/OxiumAlloy",
@@ -22529,7 +22617,7 @@
             "type": "Dual Zoren Prime Blade",
             "chance": 10,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Neo D9 Relic (Radiant)",
@@ -22543,7 +22631,7 @@
             "type": "Dual Zoren Prime Blade",
             "chance": 2,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Neo D9 Relic",
@@ -22557,7 +22645,7 @@
             "type": "Dual Zoren Prime Blade",
             "chance": 4,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Neo D9 Relic (Exceptional)",
@@ -22571,7 +22659,7 @@
             "type": "Dual Zoren Prime Blade",
             "chance": 6,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Neo D9 Relic (Flawless)",
@@ -22614,7 +22702,7 @@
             "type": "Dual Zoren Prime Blueprint",
             "chance": 11,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso X1 Relic",
@@ -22642,7 +22730,7 @@
             "type": "Dual Zoren Prime Blueprint",
             "chance": 13,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso X1 Relic (Exceptional)",
@@ -22670,7 +22758,7 @@
             "type": "Dual Zoren Prime Blueprint",
             "chance": 17,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso X1 Relic (Flawless)",
@@ -22698,7 +22786,7 @@
             "type": "Dual Zoren Prime Blueprint",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso X1 Relic (Radiant)",
@@ -22730,7 +22818,7 @@
             "type": "Dual Zoren Prime Handle",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Lith E2 Relic (Radiant)",
@@ -22744,7 +22832,7 @@
             "type": "Dual Zoren Prime Handle",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo T10 Relic (Radiant)",
@@ -22765,7 +22853,7 @@
             "type": "Dual Zoren Prime Handle",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Lith E2 Relic (Flawless)",
@@ -22779,7 +22867,7 @@
             "type": "Dual Zoren Prime Handle",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo T10 Relic (Flawless)",
@@ -22800,7 +22888,7 @@
             "type": "Dual Zoren Prime Handle",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Lith E2 Relic (Exceptional)",
@@ -22814,7 +22902,7 @@
             "type": "Dual Zoren Prime Handle",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo T10 Relic (Exceptional)",
@@ -22835,7 +22923,7 @@
             "type": "Dual Zoren Prime Handle",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Lith E2 Relic",
@@ -22849,7 +22937,7 @@
             "type": "Dual Zoren Prime Handle",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo T10 Relic",
@@ -23462,6 +23550,12 @@
         "masterable": false,
         "drops": [
           {
+            "location": "Ostron (Hok), Trusted",
+            "type": "Ekwana II Jai Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Ekwana Ii Jai Blueprint",
             "chance": 3.57,
@@ -23568,6 +23662,12 @@
         "masterable": false,
         "drops": [
           {
+            "location": "Ostron (Hok), Trusted",
+            "type": "Ekwana II Ruhang Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Ekwana Ii Ruhang Blueprint",
             "chance": 3.57,
@@ -23673,6 +23773,12 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Visitor",
+            "type": "Ekwana Jai Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Ekwana Jai Blueprint",
@@ -23790,6 +23896,12 @@
         "masterable": false,
         "drops": [
           {
+            "location": "Ostron (Hok), Surah",
+            "type": "Ekwana Jai II Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Ekwana Jai Ii Blueprint",
             "chance": 3.57,
@@ -23885,6 +23997,12 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Visitor",
+            "type": "Ekwana Ruhang Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Ekwana Ruhang Blueprint",
@@ -24001,6 +24119,12 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Surah",
+            "type": "Ekwana Ruhang II Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Ekwana Ruhang Ii Blueprint",
@@ -24442,7 +24566,20 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Unlock through Stolen Dreams",
+            "type": "Ether Daggers Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Operational Supply, Collaborator",
+            "type": "Ether Daggers Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Ferrite",
@@ -26128,7 +26265,7 @@
             "type": "Fang Prime Blade",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo S7 Relic (Radiant)",
@@ -26429,7 +26566,7 @@
             "type": "Fang Prime Blade",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo S7 Relic (Flawless)",
@@ -26730,7 +26867,7 @@
             "type": "Fang Prime Blade",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo S7 Relic (Exceptional)",
@@ -27031,7 +27168,7 @@
             "type": "Fang Prime Blade",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo S7 Relic",
@@ -27137,7 +27274,7 @@
             "type": "Fang Prime Blueprint",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Axi Y1 Relic (Radiant)",
@@ -27438,7 +27575,7 @@
             "type": "Fang Prime Blueprint",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Axi Y1 Relic (Flawless)",
@@ -27739,7 +27876,7 @@
             "type": "Fang Prime Blueprint",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Axi Y1 Relic (Exceptional)",
@@ -28019,7 +28156,7 @@
             "type": "Fang Prime Blueprint",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Axi Y1 Relic",
@@ -33212,8 +33349,15 @@
         "itemCount": 1,
         "imageName": "blade.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Operational Supply, Champion",
+            "type": "Ghoulsaw Blade Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/Weapons/GrnGhoulSawBlueprint",
@@ -33223,7 +33367,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Operational Supply, Champion",
+            "type": "Ghoulsaw Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/Weapons/WeaponParts/GrnGhoulSawChassis",
@@ -33232,8 +33383,15 @@
         "itemCount": 1,
         "imageName": "chassis.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Operational Supply, Champion",
+            "type": "Ghoulsaw Chassis Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/Weapons/WeaponParts/GrnGhoulSawEngine",
@@ -33242,8 +33400,15 @@
         "itemCount": 1,
         "imageName": "engine.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Operational Supply, Champion",
+            "type": "Ghoulsaw Engine Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/Weapons/WeaponParts/GrnGhoulSawHandle",
@@ -33252,8 +33417,15 @@
         "itemCount": 1,
         "imageName": "grip.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Operational Supply, Champion",
+            "type": "Ghoulsaw Grip Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ],
+        "masterable": false
       }
     ],
     "type": "Melee",
@@ -40430,7 +40602,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris",
+            "type": "Heliocor Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "name": "Gammacor",
@@ -41632,7 +41811,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "The Holdfasts (Cavalero), Fallen",
+            "type": "Innodem Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/Zariman/Resources/ZarimanMiscItemB",
@@ -41869,6 +42055,36 @@
         "masterable": false,
         "drops": [
           {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Jai Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Trusted",
+            "type": "Vargeet II Jai Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Trusted",
+            "type": "Ekwana II Jai Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Visitor",
+            "type": "Vargeet Jai Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Visitor",
+            "type": "Ekwana Jai Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Jai Blueprint",
             "chance": 3.57,
@@ -42048,6 +42264,24 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Offworlder",
+            "type": "Jai Ii Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Surah",
+            "type": "Vargeet Jai II Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Surah",
+            "type": "Ekwana Jai II Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Jai Ii Blueprint",
@@ -43032,6 +43266,12 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Jayap Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Jayap Blueprint",
@@ -44568,7 +44808,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Entrati (Father), Neutral",
+            "type": "Keratinos Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/Weapons/WeaponParts/InfTransformClawsWeaponGlove",
@@ -44577,8 +44824,15 @@
         "itemCount": 2,
         "imageName": "gauntlet.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Entrati (Father), Neutral",
+            "type": "Keratinos Gauntlet Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ],
+        "masterable": false
       }
     ],
     "type": "Melee",
@@ -45478,7 +45732,7 @@
             "type": "Kestrel Prime Blade",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Lith D7 Relic (Radiant)",
@@ -45492,7 +45746,7 @@
             "type": "Kestrel Prime Blade",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Lith D7 Relic (Flawless)",
@@ -45506,7 +45760,7 @@
             "type": "Kestrel Prime Blade",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Lith D7 Relic (Exceptional)",
@@ -45520,7 +45774,7 @@
             "type": "Kestrel Prime Blade",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Lith D7 Relic",
@@ -45556,7 +45810,7 @@
             "type": "Kestrel Prime Blueprint",
             "chance": 11,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Meso P17 Relic (Exceptional)",
@@ -45570,7 +45824,7 @@
             "type": "Kestrel Prime Blueprint",
             "chance": 13,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Meso P17 Relic (Flawless)",
@@ -45584,7 +45838,7 @@
             "type": "Kestrel Prime Blueprint",
             "chance": 17,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Meso P17 Relic (Radiant)",
@@ -45598,7 +45852,7 @@
             "type": "Kestrel Prime Blueprint",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           }
         ]
       },
@@ -46938,7 +47192,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Korb Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishOilItem",
@@ -47378,8 +47639,8 @@
         "itemCount": 6,
         "imageName": "radiant-zodian-0b4daa36b7.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Rubedo",
@@ -47637,8 +47898,8 @@
         "itemCount": 25,
         "imageName": "star-amarast-303ac88720.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Melee",
@@ -49278,6 +49539,12 @@
     "tradable": false,
     "drops": [
       {
+        "location": "Ostron (Hok), Neutral",
+        "type": "Kronsh Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
         "type": "Kronsh Blueprint",
         "chance": 3.57,
@@ -49363,6 +49630,12 @@
         "tradable": false,
         "drops": [
           {
+            "location": "Ostron (Old Man Suumbaat), Offworlder",
+            "type": "Coprite Alloy x20 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Narmer Thumper",
             "type": "Coprite Alloy",
             "chance": 16.68,
@@ -49421,6 +49694,12 @@
         "imageName": "esher-devar-7ea467cba3.png",
         "tradable": false,
         "drops": [
+          {
+            "location": "Ostron (Old Man Suumbaat), Offworlder",
+            "type": "Esher Devar x10 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "10X Esher Devar",
@@ -49650,6 +49929,12 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Kroostra Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Kroostra Blueprint",
@@ -50056,6 +50341,12 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Kwath Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Kwath Blueprint",
@@ -50483,6 +50774,12 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Laka Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Laka Blueprint",
@@ -51501,7 +51798,14 @@
         "disposition": 5,
         "releaseDate": "2015-01-08",
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Conclave, Typhoon",
+            "type": "Tipedo Conclave Skin",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       }
     ],
     "type": "Melee",
@@ -51685,7 +51989,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Unlock through Daily Tribute",
+            "type": "Machete Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Gallium",
@@ -53566,6 +53877,12 @@
     "tradable": false,
     "drops": [
       {
+        "location": "Ostron (Hok), Neutral",
+        "type": "Mewan Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
         "type": "Mewan Blueprint",
         "chance": 3.57,
@@ -53671,6 +53988,18 @@
             "type": "Cetus Wisp",
             "chance": 10.13,
             "rarity": "Uncommon"
+          },
+          {
+            "location": "Operational Supply, Neutral",
+            "type": "Cetus Wisp",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "The Quills, Architect",
+            "type": "Cetus Wisp",
+            "chance": 100,
+            "rarity": "Common"
           },
           {
             "location": "Earth/Cetus (Level 100 - 100 Cetus Bounty), Rotation A",
@@ -53900,6 +54229,12 @@
         "tradable": false,
         "drops": [
           {
+            "location": "Ostron (Old Man Suumbaat), Visitor",
+            "type": "Fersteel Alloy x20 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "6X Fersteel Alloy",
             "chance": 5.53,
@@ -53945,6 +54280,12 @@
         "imageName": "marquise-veridos-217877dacf.png",
         "tradable": false,
         "drops": [
+          {
+            "location": "Ostron (Old Man Suumbaat), Visitor",
+            "type": "Marquise Veridos x10 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "6X Marquise Veridos",
@@ -60387,6 +60728,12 @@
     "tradable": false,
     "drops": [
       {
+        "location": "Ostron (Hok), Neutral",
+        "type": "Ooltha Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
         "type": "Ooltha Blueprint",
         "chance": 3.57,
@@ -60501,6 +60848,12 @@
             "rarity": "Common"
           },
           {
+            "location": "Ostron (Old Man Suumbaat), Surah",
+            "type": "Iradite Nugget",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Earth/Cetus (Level 5 - 15 Cetus Bounty), Rotation A",
             "type": "15X Iradite",
             "chance": 15.18,
@@ -60578,6 +60931,12 @@
         "tradable": false,
         "drops": [
           {
+            "location": "Ostron (Old Man Suumbaat), Neutral",
+            "type": "Pyrotic Alloy x20 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "10X Pyrotic Alloy",
             "chance": 3.16,
@@ -60600,6 +60959,12 @@
         "imageName": "tear-azurite-397c0a4ebc.png",
         "tradable": false,
         "drops": [
+          {
+            "location": "Ostron (Old Man Suumbaat), Neutral",
+            "type": "Tear Azurite x10 Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation A",
             "type": "10X Tear Azurite",
@@ -61046,7 +61411,7 @@
             "type": "Orthos Prime Blade",
             "chance": 11,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Axi T10 Relic",
@@ -61151,7 +61516,7 @@
             "type": "Orthos Prime Blade",
             "chance": 13,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Axi T10 Relic (Exceptional)",
@@ -61256,7 +61621,7 @@
             "type": "Orthos Prime Blade",
             "chance": 17,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Axi T10 Relic (Flawless)",
@@ -61361,7 +61726,7 @@
             "type": "Orthos Prime Blade",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Axi T10 Relic (Radiant)",
@@ -61516,7 +61881,7 @@
             "type": "Orthos Prime Blueprint",
             "chance": 11,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Axi V3 Relic",
@@ -61649,7 +62014,7 @@
             "type": "Orthos Prime Blueprint",
             "chance": 13,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Axi V3 Relic (Exceptional)",
@@ -61782,7 +62147,7 @@
             "type": "Orthos Prime Blueprint",
             "chance": 17,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Axi V3 Relic (Flawless)",
@@ -61915,7 +62280,7 @@
             "type": "Orthos Prime Blueprint",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Axi V3 Relic (Radiant)",
@@ -62129,7 +62494,7 @@
             "type": "Orthos Prime Handle",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso B1 Relic (Radiant)",
@@ -62367,7 +62732,7 @@
             "type": "Orthos Prime Handle",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso B1 Relic (Flawless)",
@@ -62605,7 +62970,7 @@
             "type": "Orthos Prime Handle",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso B1 Relic (Exceptional)",
@@ -62843,7 +63208,7 @@
             "type": "Orthos Prime Handle",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso B1 Relic",
@@ -63208,7 +63573,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Complete The War Within",
+            "type": "Orvius Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/Weapons/WeaponParts/TeshinGlaiveDisc",
@@ -65778,6 +66150,12 @@
         "masterable": false,
         "drops": [
           {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Peye Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Peye Blueprint",
             "chance": 3.57,
@@ -65882,7 +66260,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Operational Supply, Champion",
+            "type": "Plague Akwin Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Eidolon/FishParts/EidolonFishScalesItem",
@@ -65992,7 +66377,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Operational Supply, Champion",
+            "type": "Plague Bokwin Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
@@ -66102,7 +66494,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Operational Supply, Champion",
+            "type": "Plague Keewar Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Eidolon/CommonOreBAlloyBItem",
@@ -66252,6 +66651,14 @@
     "category": "Melee",
     "slot": 5,
     "tradable": false,
+    "drops": [
+      {
+        "location": "Operational Supply, Champion",
+        "type": "Plague Keewar Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Revenant Prime: Hotfix 32.0.9",
@@ -66329,7 +66736,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Operational Supply, Champion",
+            "type": "Plague Kripath Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Nanospores",
@@ -66479,6 +66893,14 @@
     "category": "Melee",
     "slot": 5,
     "tradable": false,
+    "drops": [
+      {
+        "location": "Operational Supply, Champion",
+        "type": "Plague Kripath Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Revenant Prime: Hotfix 32.0.9",
@@ -66810,7 +67232,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "The Holdfasts (Cavalero), Seraph",
+            "type": "Praedos Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Ferrite",
@@ -68328,8 +68757,8 @@
         "itemCount": 60,
         "imageName": "devolved-namalon-8e85fb663c.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Nanospores",
@@ -68787,8 +69216,8 @@
         "itemCount": 60,
         "imageName": "devolved-namalon-8e85fb663c.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/EntratiWispItem",
@@ -68807,8 +69236,8 @@
         "itemCount": 1,
         "imageName": "seriglass-shard-3317de0afe.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Deimos/FishParts/DeimosOrokinFishBPartItem",
@@ -69164,7 +69593,7 @@
             "type": "Quassus Prime Blueprint",
             "chance": 11,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Neo A15 Relic",
@@ -69199,7 +69628,7 @@
             "type": "Quassus Prime Blueprint",
             "chance": 13,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Neo A15 Relic (Exceptional)",
@@ -69234,7 +69663,7 @@
             "type": "Quassus Prime Blueprint",
             "chance": 17,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Neo A15 Relic (Flawless)",
@@ -69269,7 +69698,7 @@
             "type": "Quassus Prime Blueprint",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Neo A15 Relic (Radiant)",
@@ -69322,7 +69751,7 @@
             "type": "Quassus Prime Handle",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Meso A8 Relic (Radiant)",
@@ -69364,7 +69793,7 @@
             "type": "Quassus Prime Handle",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Meso A8 Relic (Flawless)",
@@ -69406,7 +69835,7 @@
             "type": "Quassus Prime Handle",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Meso A8 Relic (Exceptional)",
@@ -69448,7 +69877,7 @@
             "type": "Quassus Prime Handle",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Meso A8 Relic",
@@ -69548,7 +69977,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Rabvee Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Eidolon/CommonGemBCutAItem",
@@ -69756,6 +70192,14 @@
     "imageName": "rakta-dark-dagger-e9aed7b23f.png",
     "category": "Melee",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Red Veil, Exalted",
+        "type": "Rakta Dark Dagger",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Operation: Scarlet Spear: 27.3.0",
@@ -70566,6 +71010,12 @@
             "type": "Dual Skana Blueprint",
             "chance": 1.03,
             "rarity": "Rare"
+          },
+          {
+            "location": "Conclave, Typhoon",
+            "type": "Dual Skana Conclave Skin",
+            "chance": 100,
+            "rarity": "Common"
           }
         ],
         "wikiAvailable": true,
@@ -70821,7 +71271,14 @@
         "disposition": 5,
         "releaseDate": "2013-07-26",
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Conclave, Typhoon",
+            "type": "Vasto Conclave Skin",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       }
     ],
     "type": "Melee",
@@ -72900,6 +73357,36 @@
         "masterable": false,
         "drops": [
           {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Ruhang Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Trusted",
+            "type": "Vargeet II Ruhang Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Trusted",
+            "type": "Ekwana II Ruhang Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Visitor",
+            "type": "Vargeet Ruhang Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Visitor",
+            "type": "Ekwana Ruhang Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Ruhang Blueprint",
             "chance": 3.57,
@@ -73039,6 +73526,24 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Offworlder",
+            "type": "Ruhang Ii Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Surah",
+            "type": "Vargeet Ruhang II Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
+            "location": "Ostron (Hok), Surah",
+            "type": "Ekwana Ruhang II Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Ruhang Ii Blueprint",
@@ -73183,6 +73688,14 @@
     "imageName": "rumblejack-35af025562.png",
     "category": "Melee",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Cephalon Simaris, Complete The New War",
+        "type": "Rumblejack",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "wikiAvailable": true,
     "attacks": [
       {
@@ -73736,6 +74249,14 @@
     "imageName": "sancti-magistar-2910f0ef82.png",
     "category": "Melee",
     "tradable": true,
+    "drops": [
+      {
+        "location": "New Loka, Flawless",
+        "type": "Sancti Magistar",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Railjack Revisited (Part 1): Update 27.4",
@@ -74138,28 +74659,28 @@
             "type": "Sarofang Prime Blade",
             "chance": 10,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Axi S20 Relic",
             "type": "Sarofang Prime Blade",
             "chance": 2,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Axi S20 Relic (Exceptional)",
             "type": "Sarofang Prime Blade",
             "chance": 4,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Axi S20 Relic (Flawless)",
             "type": "Sarofang Prime Blade",
             "chance": 6,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze"
           }
         ],
         "masterable": false,
@@ -74181,28 +74702,28 @@
             "type": "Sarofang Prime Blueprint",
             "chance": 11,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Meso E7 Relic (Exceptional)",
             "type": "Sarofang Prime Blueprint",
             "chance": 13,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Meso E7 Relic (Flawless)",
             "type": "Sarofang Prime Blueprint",
             "chance": 17,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Meso E7 Relic (Radiant)",
             "type": "Sarofang Prime Blueprint",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBBronze"
           }
         ]
       },
@@ -74220,28 +74741,28 @@
             "type": "Sarofang Prime Handle",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo S20 Relic (Flawless)",
             "type": "Sarofang Prime Handle",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo S20 Relic (Exceptional)",
             "type": "Sarofang Prime Handle",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze"
           },
           {
             "location": "Neo S20 Relic",
             "type": "Sarofang Prime Handle",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze"
           }
         ],
         "masterable": false,
@@ -74580,7 +75101,14 @@
         "disposition": 3,
         "releaseDate": "2014-02-05",
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Conclave, Typhoon",
+            "type": "Akstiletto Conclave Skin",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/Weapons/TnoGunbladeAutomaticBlueprint",
@@ -76085,6 +76613,14 @@
     "imageName": "secura-lecta-ca3385188e.png",
     "category": "Melee",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Perrin Sequence, Partner",
+        "type": "Secura Lecta",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Chains of Harrow: Hotfix 21.0.4",
@@ -76226,6 +76762,12 @@
         "masterable": false,
         "drops": [
           {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Seekalla Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Seekalla Blueprint",
             "chance": 3.57,
@@ -76331,7 +76873,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Sepfahn Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/Eidolon/Resources/BirdOfPreyPartItem",
@@ -77393,7 +77942,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Ostron (Hok), Neutral",
+            "type": "Shtung Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Ferrite",
@@ -77974,7 +78530,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Unlock through Daily Tribute",
+            "type": "Sigma & Octantis Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Circuits",
@@ -80351,7 +80914,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Kahl's Garrison (Chipper), Encampment",
+            "type": "Slaytra Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Kuva",
@@ -82018,6 +82588,14 @@
     "imageName": "synoid-heliocor-647b470e3d.png",
     "category": "Melee",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Cephalon Suda, Genius",
+        "type": "Synoid Heliocor",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Hotfix 25.4.1 + 25.4.1.1",
@@ -82517,8 +83095,8 @@
         "itemCount": 100,
         "imageName": "hespazym-alloy-ebcdeeba7a.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Kuva",
@@ -84792,6 +85370,14 @@
     "imageName": "telos-boltace-61b5d71708.png",
     "category": "Melee",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Arbiters of Hexis, Maxim",
+        "type": "Telos Boltace",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 32.2.0: Lua’s Prey",
@@ -89112,6 +89698,12 @@
         "masterable": false,
         "drops": [
           {
+            "location": "Ostron (Hok), Trusted",
+            "type": "Vargeet II Jai Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Vargeet Ii Jai Blueprint",
             "chance": 3.57,
@@ -89218,6 +89810,12 @@
         "masterable": false,
         "drops": [
           {
+            "location": "Ostron (Hok), Trusted",
+            "type": "Vargeet II Ruhang Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Vargeet Ii Ruhang Blueprint",
             "chance": 3.57,
@@ -89323,6 +89921,12 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Visitor",
+            "type": "Vargeet Jai Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Vargeet Jai Blueprint",
@@ -89440,6 +90044,12 @@
         "masterable": false,
         "drops": [
           {
+            "location": "Ostron (Hok), Surah",
+            "type": "Vargeet Jai II Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Vargeet Jai Ii Blueprint",
             "chance": 3.57,
@@ -89535,6 +90145,12 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Visitor",
+            "type": "Vargeet Ruhang Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Vargeet Ruhang Blueprint",
@@ -89651,6 +90267,12 @@
         "tradable": false,
         "masterable": false,
         "drops": [
+          {
+            "location": "Ostron (Hok), Surah",
+            "type": "Vargeet Ruhang II Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "Saturn/Variant Team Annihilation (Conclave), Rotation C",
             "type": "Vargeet Ruhang Ii Blueprint",
@@ -89954,6 +90576,14 @@
     "imageName": "vaykor-sydon-e298fb49c4.png",
     "category": "Melee",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Steel Meridian, General",
+        "type": "Vaykor Sydon",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 31.5: Angels of the Zariman",
@@ -90149,8 +90779,8 @@
         "itemCount": 5,
         "imageName": "exceptional-sentient-core-ac214d9a92.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/Eidolon/Resources/IraditeItem",
@@ -90503,14 +91133,14 @@
             "type": "Venato Prime Handle",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Neo N24 Relic (Radiant)",
             "type": "Venato Prime Handle",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Meso G9 Relic (Flawless)",
@@ -90531,14 +91161,14 @@
             "type": "Venato Prime Handle",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Neo N24 Relic (Flawless)",
             "type": "Venato Prime Handle",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Meso G9 Relic (Exceptional)",
@@ -90559,14 +91189,14 @@
             "type": "Venato Prime Handle",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Neo N24 Relic (Exceptional)",
             "type": "Venato Prime Handle",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Meso G9 Relic",
@@ -90587,14 +91217,14 @@
             "type": "Venato Prime Handle",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDBronze"
           },
           {
             "location": "Neo N24 Relic",
             "type": "Venato Prime Handle",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           }
         ],
         "masterable": false,
@@ -91926,8 +92556,8 @@
         "itemCount": 6,
         "imageName": "star-amarast-303ac88720.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Melee",
@@ -92285,7 +92915,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Defeat the Glassmaker",
+            "type": "Vitrica Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/OrokinCell",
@@ -92316,8 +92953,8 @@
         "itemCount": 10,
         "imageName": "purified-heciphron-e06b524f7a.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Deimos/DeimosCommonOreBAlloyItem",
@@ -92326,8 +92963,8 @@
         "itemCount": 60,
         "imageName": "tempered-bapholite-f058935e24.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Melee",
@@ -99332,6 +99969,12 @@
         "tradable": false,
         "drops": [
           {
+            "location": "Cephalon Simaris, Unlock through The Deadlock Protocol",
+            "type": "Xoris Blade",
+            "chance": 100,
+            "rarity": "Common"
+          },
+          {
             "location": "The Xoris, Rotation C",
             "type": "Xoris Blade",
             "chance": 100,
@@ -99348,7 +99991,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Unlock through The Deadlock Protocol",
+            "type": "Xoris Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/Weapons/WeaponParts/CrpGhostCatcherGlaivePartCore",
@@ -99358,6 +100008,12 @@
         "imageName": "core.png",
         "tradable": false,
         "drops": [
+          {
+            "location": "Cephalon Simaris, Unlock through The Deadlock Protocol",
+            "type": "Xoris Core",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "The Xoris, Rotation B",
             "type": "Xoris Core",
@@ -99375,6 +100031,12 @@
         "imageName": "handle.png",
         "tradable": false,
         "drops": [
+          {
+            "location": "Cephalon Simaris, Unlock through The Deadlock Protocol",
+            "type": "Xoris Handle",
+            "chance": 100,
+            "rarity": "Common"
+          },
           {
             "location": "The Xoris, Rotation A",
             "type": "Xoris Handle",
@@ -99690,7 +100352,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Cephalon Simaris, Unlock through Daily Tribute",
+            "type": "Zenistar Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Circuits",

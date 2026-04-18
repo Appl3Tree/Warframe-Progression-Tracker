@@ -626,7 +626,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Solaris United (Legs), Old Mate",
+            "type": "Cryotra Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Solaris/FishParts/OrokinFishSaganModuleItem",
@@ -665,8 +672,8 @@
         "itemCount": 10,
         "imageName": "heart-noctrul-1d8f552486.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Companion Weapon",
@@ -1482,7 +1489,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Solaris United (Legs), Old Mate",
+            "type": "Helstrum Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Solaris/FishParts/SolarisFishNeuralRelayItem",
@@ -1501,8 +1515,8 @@
         "itemCount": 10,
         "imageName": "star-amarast-303ac88720.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Eidolon/RareGemACutAItem",
@@ -1511,8 +1525,8 @@
         "itemCount": 10,
         "imageName": "star-crimzian-d9b1d2eb7b.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Solaris/FishParts/OrokinFishEcosynthAnalyzerItem",
@@ -2680,7 +2694,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Solaris United (Legs), Old Mate",
+            "type": "Tazicor Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Eidolon/CommonGemBCutAItem",
@@ -2719,8 +2740,8 @@
         "itemCount": 10,
         "imageName": "smooth-phasmin-a2cd1eb0b0.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Companion Weapon",
@@ -3088,7 +3109,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Solaris United (Legs), Old Mate",
+            "type": "Vulcax Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Solaris/SolarisUncommonGemACutItem",
@@ -3097,8 +3125,8 @@
         "itemCount": 10,
         "imageName": "goblite-tears-db33ec8568.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Solaris/FishParts/CorpusFishThermalLaserItem",

@@ -4445,6 +4445,85 @@
       ]
     }
   },
+  "/Lotus/Powersuits/Inkblot/Inkblot": {
+    "categories": [
+      "warframe"
+    ],
+    "id": 7635,
+    "name": "Follie",
+    "parent": "/Lotus/Powersuits/Inkblot/InkblotBaseSuit",
+    "parents": [
+      "/Lotus/Powersuits/Inkblot/InkblotBaseSuit",
+      "/Lotus/Types/Game/PowerSuits/PlayerPowerSuit",
+      "/Lotus/Types/Game/PowerSuit"
+    ],
+    "path": "/Lotus/Powersuits/Inkblot/Inkblot",
+    "storeData": {
+      "DisplayRecipe": "/Lotus/Types/Recipes/WarframeRecipes/FollieBlueprint",
+      "PremiumPrice": 370,
+      "ProductCategory": "Suits",
+      "RecipeHelpText": "/Lotus/Language/Recipes/InkblotRecipeHelpText",
+      "SearchTags": [
+        "/Lotus/Language/Loadout/LoadoutCat_Control",
+        "/Lotus/Language/Menu/Loadout_Warframe"
+      ],
+      "SellingPrice": 25000
+    },
+    "storeItemType": "/Lotus/StoreItems/Powersuits/Inkblot/Inkblot",
+    "tag": "Warframe",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Warframes/Inkblot.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Warframes/Inkblot.png",
+      "MarketMode": "MM_VISIBLE",
+      "PremiumPrice": 370,
+      "ProductCategory": "Suits",
+      "ArtifactSlots": [
+        "AP_TACTIC",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_DEFENSE",
+        "AP_DEFENSE",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL"
+      ]
+    }
+  },
+  "/Lotus/Powersuits/Inkblot/InkblotBaseSuit": {
+    "id": 7659,
+    "name": "Follie",
+    "parent": "/Lotus/Types/Game/PowerSuits/PlayerPowerSuit",
+    "parents": [
+      "/Lotus/Types/Game/PowerSuits/PlayerPowerSuit",
+      "/Lotus/Types/Game/PowerSuit"
+    ],
+    "path": "/Lotus/Powersuits/Inkblot/InkblotBaseSuit",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Warframes/Gara.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Warframes/Gara.png",
+      "MarketMode": "MM_NONE",
+      "PremiumPrice": 225,
+      "ProductCategory": "Suits",
+      "ArtifactSlots": [
+        "AP_TACTIC",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_DEFENSE",
+        "AP_DEFENSE",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL"
+      ]
+    }
+  },
   "/Lotus/Powersuits/IronFrame/BlastWeapon": {
     "categories": [
       "weapon",
@@ -15639,6 +15718,55 @@
       "MarketMode": "MM_HIDDEN"
     }
   },
+  "/Lotus/Types/Gameplay/Shadowgrapher/Resources/ShadowgrapherEventResource": {
+    "categories": [
+      "component"
+    ],
+    "id": 7643,
+    "name": "Nightmare Tatters",
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "parents": [
+      "/Lotus/Types/Items/MiscItems/MiscItemBase"
+    ],
+    "path": "/Lotus/Types/Gameplay/Shadowgrapher/Resources/ShadowgrapherEventResource",
+    "storeData": {
+      "Giftable": 0,
+      "ProductCategory": "MiscItems",
+      "ShowInMarket": 0,
+      "UseAlternateItemDisplay": 1
+    },
+    "storeItemType": "/Lotus/StoreItems/Types/Gameplay/Shadowgrapher/Resources/ShadowgrapherEventResource",
+    "tag": "Misc",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/Events/ShadowgrapherEventResource.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/Events/ShadowgrapherEventResource.png",
+      "MarketMode": "MM_HIDDEN"
+    }
+  },
+  "/Lotus/Types/Gameplay/Shadowgrapher/Resources/ShadowgrapherResource": {
+    "categories": [
+      "component"
+    ],
+    "id": 7644,
+    "name": "Atramentum",
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "parents": [
+      "/Lotus/Types/Items/MiscItems/MiscItemBase"
+    ],
+    "path": "/Lotus/Types/Gameplay/Shadowgrapher/Resources/ShadowgrapherResource",
+    "storeData": {
+      "Giftable": 0,
+      "ProductCategory": "MiscItems",
+      "ShowInMarket": 0
+    },
+    "storeItemType": "/Lotus/StoreItems/Types/Gameplay/Shadowgrapher/Resources/ShadowgrapherResource",
+    "tag": "Misc",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/ShadowgrapherResource.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/ShadowgrapherResource.png",
+      "MarketMode": "MM_HIDDEN"
+    }
+  },
   "/Lotus/Types/Gameplay/Tau/Resources/CoHResourceCommonItem": {
     "categories": [
       "component"
@@ -15690,15 +15818,12 @@
   },
   "/Lotus/Types/Gameplay/Tau/Resources/TwelveBossResourceDactolystItem": {
     "categories": [
-      "component",
-      "resource"
+      "component"
     ],
     "id": 7532,
     "name": "Ren Hypercore",
-    "parent": "/Lotus/Types/Gameplay/Zariman/Resources/VoidWraithItem",
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
     "parents": [
-      "/Lotus/Types/Gameplay/Zariman/Resources/VoidWraithItem",
-      "/Lotus/Types/Items/MiscItems/ResourceItem",
       "/Lotus/Types/Items/MiscItems/MiscItemBase"
     ],
     "path": "/Lotus/Types/Gameplay/Tau/Resources/TwelveBossResourceDactolystItem",
@@ -15718,15 +15843,12 @@
   },
   "/Lotus/Types/Gameplay/Tau/Resources/TwelveBossResourceHunhullusItem": {
     "categories": [
-      "component",
-      "resource"
+      "component"
     ],
     "id": 7533,
     "name": "Lyroic Bridge",
-    "parent": "/Lotus/Types/Gameplay/Zariman/Resources/VoidWraithItem",
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
     "parents": [
-      "/Lotus/Types/Gameplay/Zariman/Resources/VoidWraithItem",
-      "/Lotus/Types/Items/MiscItems/ResourceItem",
       "/Lotus/Types/Items/MiscItems/MiscItemBase"
     ],
     "path": "/Lotus/Types/Gameplay/Tau/Resources/TwelveBossResourceHunhullusItem",
@@ -15746,15 +15868,12 @@
   },
   "/Lotus/Types/Gameplay/Tau/Resources/TwelveBossResourcePrimesItem": {
     "categories": [
-      "component",
-      "resource"
+      "component"
     ],
     "id": 7534,
     "name": "Ascaris Prime",
-    "parent": "/Lotus/Types/Gameplay/Zariman/Resources/VoidWraithItem",
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
     "parents": [
-      "/Lotus/Types/Gameplay/Zariman/Resources/VoidWraithItem",
-      "/Lotus/Types/Items/MiscItems/ResourceItem",
       "/Lotus/Types/Items/MiscItems/MiscItemBase"
     ],
     "path": "/Lotus/Types/Gameplay/Tau/Resources/TwelveBossResourcePrimesItem",
@@ -20834,6 +20953,32 @@
       "Icon": "/Lotus/Interface/Icons/Objects/Venus/Theme/Fissureum.png",
       "MarketMode": "MM_HIDDEN",
       "PremiumPrice": 10
+    }
+  },
+  "/Lotus/Types/Items/MiscItems/FoilModUnlocker": {
+    "categories": [
+      "component"
+    ],
+    "id": 7645,
+    "name": "Chromatic Atramentum",
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "parents": [
+      "/Lotus/Types/Items/MiscItems/MiscItemBase"
+    ],
+    "path": "/Lotus/Types/Items/MiscItems/FoilModUnlocker",
+    "storeData": {
+      "Giftable": 0,
+      "ProductCategory": "MiscItems",
+      "RecipeHelpText": "/Lotus/Language/Weapons/BlueprintHintExilusAdapter",
+      "SellingPrice": 20000,
+      "ShowInMarket": 0
+    },
+    "storeItemType": "/Lotus/StoreItems/Types/Items/MiscItems/FoilModUnlocker",
+    "tag": "Misc",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/MiscItems/FoilModUnlocker.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/MiscItems/FoilModUnlocker.png",
+      "MarketMode": "MM_HIDDEN"
     }
   },
   "/Lotus/Types/Items/MiscItems/Forma": {
@@ -29706,7 +29851,7 @@
     "storeData": {
       "DisplayRecipe": "/Lotus/Types/Recipes/WarframeRecipes/BaruukPrimeHelmetBlueprint",
       "Giftable": 0,
-      "PrimeSellingPrice": 100,
+      "PrimeSellingPrice": 65,
       "ProductCategory": "MiscItems",
       "SellingPrice": 1000,
       "ShowInMarket": 0
@@ -32135,6 +32280,147 @@
     "storeItemType": "/Lotus/StoreItems/Types/Recipes/WarframeRecipes/FairySystemsComponent",
     "tag": "Misc",
     "texture": "/Lotus/Interface/Icons/Store/GenericWarframeSystem.png",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeSystem.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeSystem.png",
+      "MarketMode": "MM_HIDDEN"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/FollieBlueprint": {
+    "id": 7636,
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "parents": [
+      "/Lotus/Types/Game/RecipeItem"
+    ],
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieBlueprint",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Warframes/Inkblot.png",
+    "data": {
+      "MarketMode": "MM_HIDDEN",
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Powersuits/Inkblot/Inkblot",
+      "ResultItem": "/Lotus/StoreItems/Powersuits/Inkblot/Inkblot"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisBlueprint": {
+    "id": 7640,
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "parents": [
+      "/Lotus/Types/Game/RecipeItem"
+    ],
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisBlueprint",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeChassis.png",
+    "data": {
+      "MarketMode": "MM_HIDDEN",
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisComponent",
+      "ResultItem": "/Lotus/StoreItems/Types/Recipes/WarframeRecipes/FollieChassisComponent"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisComponent": {
+    "categories": [
+      "component"
+    ],
+    "id": 7639,
+    "name": "Follie Chassis",
+    "parent": "/Lotus/Types/Items/MiscItems/WarframeComponentItem",
+    "parents": [
+      "/Lotus/Types/Items/MiscItems/WarframeComponentItem",
+      "/Lotus/Types/Items/MiscItems/MiscItemBase"
+    ],
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisComponent",
+    "storeData": {
+      "DisplayRecipe": "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisBlueprint",
+      "Giftable": 0,
+      "ProductCategory": "MiscItems",
+      "SellingPrice": 1000,
+      "ShowInMarket": 0
+    },
+    "storeItemType": "/Lotus/StoreItems/Types/Recipes/WarframeRecipes/FollieChassisComponent",
+    "tag": "Misc",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeChassis.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeChassis.png",
+      "MarketMode": "MM_HIDDEN"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetBlueprint": {
+    "id": 7638,
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "parents": [
+      "/Lotus/Types/Game/RecipeItem"
+    ],
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetBlueprint",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeHelmet.png",
+    "data": {
+      "MarketMode": "MM_HIDDEN",
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent",
+      "ResultItem": "/Lotus/StoreItems/Types/Recipes/WarframeRecipes/FollieHelmetComponent"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent": {
+    "categories": [
+      "component"
+    ],
+    "id": 7637,
+    "name": "Follie Neuroptics",
+    "parent": "/Lotus/Types/Items/MiscItems/WarframeComponentItem",
+    "parents": [
+      "/Lotus/Types/Items/MiscItems/WarframeComponentItem",
+      "/Lotus/Types/Items/MiscItems/MiscItemBase"
+    ],
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent",
+    "storeData": {
+      "DisplayRecipe": "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetBlueprint",
+      "Giftable": 0,
+      "ProductCategory": "MiscItems",
+      "SellingPrice": 1000,
+      "ShowInMarket": 0
+    },
+    "storeItemType": "/Lotus/StoreItems/Types/Recipes/WarframeRecipes/FollieHelmetComponent",
+    "tag": "Misc",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeHelmet.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeHelmet.png",
+      "MarketMode": "MM_HIDDEN"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsBlueprint": {
+    "id": 7642,
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "parents": [
+      "/Lotus/Types/Game/RecipeItem"
+    ],
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsBlueprint",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeSystem.png",
+    "data": {
+      "MarketMode": "MM_HIDDEN",
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent",
+      "ResultItem": "/Lotus/StoreItems/Types/Recipes/WarframeRecipes/FollieSystemsComponent"
+    }
+  },
+  "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent": {
+    "categories": [
+      "component"
+    ],
+    "id": 7641,
+    "name": "Follie Systems",
+    "parent": "/Lotus/Types/Items/MiscItems/WarframeComponentItem",
+    "parents": [
+      "/Lotus/Types/Items/MiscItems/WarframeComponentItem",
+      "/Lotus/Types/Items/MiscItems/MiscItemBase"
+    ],
+    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent",
+    "storeData": {
+      "DisplayRecipe": "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsBlueprint",
+      "Giftable": 0,
+      "ProductCategory": "MiscItems",
+      "SellingPrice": 1000,
+      "ShowInMarket": 0
+    },
+    "storeItemType": "/Lotus/StoreItems/Types/Recipes/WarframeRecipes/FollieSystemsComponent",
+    "tag": "Misc",
     "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeSystem.png",
     "data": {
       "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericWarframeSystem.png",
@@ -35422,7 +35708,7 @@
     "texture": "/Lotus/Interface/Icons/Store/Khora.png",
     "texture_new": "/Lotus/Interface/Icons/StoreIcons/Warframes/Khora.png",
     "data": {
-      "MarketMode": "MM_HIDDEN",
+      "MarketMode": "MM_VISIBLE",
       "RegularPrice": 35000,
       "ProductCategory": "Recipes",
       "resultItemType": "/Lotus/Powersuits/Khora/Khora",
@@ -40801,7 +41087,7 @@
     "texture": "/Lotus/Interface/Icons/Store/Ranger.png",
     "texture_new": "/Lotus/Interface/Icons/StoreIcons/Warframes/Ivara.png",
     "data": {
-      "MarketMode": "MM_HIDDEN",
+      "MarketMode": "MM_VISIBLE",
       "RegularPrice": 35000,
       "ProductCategory": "Recipes",
       "resultItemType": "/Lotus/Powersuits/Ranger/Ranger",
@@ -44091,7 +44377,7 @@
     "storeData": {
       "DisplayRecipe": "/Lotus/Types/Recipes/WarframeRecipes/WispPrimeChassisBlueprint",
       "Giftable": 0,
-      "PrimeSellingPrice": 100,
+      "PrimeSellingPrice": 65,
       "ProductCategory": "MiscItems",
       "SellingPrice": 1000,
       "ShowInMarket": 0
@@ -47414,6 +47700,22 @@
       "ProductCategory": "Recipes",
       "resultItemType": "/Lotus/Weapons/Tenno/LongGuns/TnRifleErsatz/TnRifleErsatzWeapon",
       "ResultItem": "/Lotus/StoreItems/Weapons/Tenno/LongGuns/TnRifleErsatz/TnRifleErsatzWeapon"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/EnkausBlueprint": {
+    "id": 7652,
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "parents": [
+      "/Lotus/Types/Game/RecipeItem"
+    ],
+    "path": "/Lotus/Types/Recipes/Weapons/EnkausBlueprint",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Weapons/PrimaryWeapons/Weapons/TnInkRifleWeapon.png",
+    "data": {
+      "MarketMode": "MM_HIDDEN",
+      "RegularPrice": 40000,
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Weapons/Tenno/LongGuns/TnInkRifle/TnInkRifleWeapon",
+      "ResultItem": "/Lotus/StoreItems/Weapons/Tenno/LongGuns/TnInkRifle/TnInkRifleWeapon"
     }
   },
   "/Lotus/Types/Recipes/Weapons/EntFistIncarnonBlueprint": {
@@ -56224,6 +56526,132 @@
       "MarketMode": "MM_HIDDEN"
     }
   },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrel": {
+    "categories": [
+      "component"
+    ],
+    "id": 7653,
+    "name": "Enkaus Barrel",
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "parents": [
+      "/Lotus/Types/Items/MiscItems/MiscItemBase"
+    ],
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrel",
+    "storeData": {
+      "DisplayRecipe": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrelBlueprint",
+      "Giftable": 0,
+      "ProductCategory": "MiscItems",
+      "SellingPrice": 3500,
+      "ShowInMarket": 0,
+      "UseAlternateItemDisplay": 1
+    },
+    "storeItemType": "/Lotus/StoreItems/Types/Recipes/Weapons/WeaponParts/EnkausBarrel",
+    "tag": "Misc",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericGunBarrel.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericGunBarrel.png",
+      "MarketMode": "MM_HIDDEN"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrelBlueprint": {
+    "id": 7654,
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "parents": [
+      "/Lotus/Types/Game/RecipeItem"
+    ],
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrelBlueprint",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericGunBarrel.png",
+    "data": {
+      "MarketMode": "MM_HIDDEN",
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrel",
+      "ResultItem": "/Lotus/StoreItems/Types/Recipes/Weapons/WeaponParts/EnkausBarrel"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiver": {
+    "categories": [
+      "component"
+    ],
+    "id": 7655,
+    "name": "Enkaus Receiver",
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "parents": [
+      "/Lotus/Types/Items/MiscItems/MiscItemBase"
+    ],
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiver",
+    "storeData": {
+      "DisplayRecipe": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiverBlueprint",
+      "Giftable": 0,
+      "ProductCategory": "MiscItems",
+      "SellingPrice": 3500,
+      "ShowInMarket": 0,
+      "UseAlternateItemDisplay": 1
+    },
+    "storeItemType": "/Lotus/StoreItems/Types/Recipes/Weapons/WeaponParts/EnkausReceiver",
+    "tag": "Misc",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericGunReceiver.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericGunReceiver.png",
+      "MarketMode": "MM_HIDDEN"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiverBlueprint": {
+    "id": 7656,
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "parents": [
+      "/Lotus/Types/Game/RecipeItem"
+    ],
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiverBlueprint",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericGunReceiver.png",
+    "data": {
+      "MarketMode": "MM_HIDDEN",
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiver",
+      "ResultItem": "/Lotus/StoreItems/Types/Recipes/Weapons/WeaponParts/EnkausReceiver"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock": {
+    "categories": [
+      "component"
+    ],
+    "id": 7657,
+    "name": "Enkaus Stock",
+    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
+    "parents": [
+      "/Lotus/Types/Items/MiscItems/MiscItemBase"
+    ],
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock",
+    "storeData": {
+      "DisplayRecipe": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStockBlueprint",
+      "Giftable": 0,
+      "ProductCategory": "MiscItems",
+      "SellingPrice": 3500,
+      "ShowInMarket": 0,
+      "UseAlternateItemDisplay": 1
+    },
+    "storeItemType": "/Lotus/StoreItems/Types/Recipes/Weapons/WeaponParts/EnkausStock",
+    "tag": "Misc",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericGunStock.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericGunStock.png",
+      "MarketMode": "MM_HIDDEN"
+    }
+  },
+  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStockBlueprint": {
+    "id": 7658,
+    "parent": "/Lotus/Types/Game/RecipeItem",
+    "parents": [
+      "/Lotus/Types/Game/RecipeItem"
+    ],
+    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStockBlueprint",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Resources/CraftingComponents/GenericGunStock.png",
+    "data": {
+      "MarketMode": "MM_HIDDEN",
+      "ProductCategory": "Recipes",
+      "resultItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock",
+      "ResultItem": "/Lotus/StoreItems/Types/Recipes/Weapons/WeaponParts/EnkausStock"
+    }
+  },
   "/Lotus/Types/Recipes/Weapons/WeaponParts/EntFistIncarnonBlade": {
     "categories": [
       "component"
@@ -60441,7 +60869,7 @@
     "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/PhantasmaPrimeStock",
     "storeData": {
       "Giftable": 0,
-      "PrimeSellingPrice": 100,
+      "PrimeSellingPrice": 65,
       "ProductCategory": "MiscItems",
       "SellingPrice": 3500,
       "ShowInMarket": 0,
@@ -70775,6 +71203,61 @@
       ]
     }
   },
+  "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEQuanta/CrpBEQuanta": {
+    "categories": [
+      "weapon",
+      "primary",
+      "primary-rifle"
+    ],
+    "id": 7646,
+    "name": "Tenet Quanta",
+    "parent": "/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/CrpShockRifle",
+    "parents": [
+      "/Lotus/Weapons/Corpus/LongGuns/CrpShockRifle/CrpShockRifle",
+      "/Lotus/Weapons/Tenno/Rifle/LotusAssaultRifle",
+      "/Lotus/Weapons/Tenno/Rifle/LotusRifle",
+      "/Lotus/Weapons/Tenno/LotusLongGun",
+      "/Lotus/Weapons/Tenno/LotusBulletWeapon"
+    ],
+    "path": "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEQuanta/CrpBEQuanta",
+    "storeData": {
+      "DisplayRecipe": "",
+      "PremiumPrice": 150,
+      "ProductCategory": "LongGuns",
+      "SearchTags": [
+        "/Lotus/Language/Game/DT_ELECTRICITY_NoIcon",
+        "/Lotus/Language/Loadout/LoadoutCat_Beam"
+      ],
+      "SellingPrice": 7500,
+      "ShowInMarket": 0
+    },
+    "storeItemType": "/Lotus/StoreItems/Weapons/Corpus/BoardExec/Primary/CrpBEQuanta/CrpBEQuanta",
+    "tag": "Weapon",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Weapons/PrimaryWeapons/Weapons/TenetQuanta.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Weapons/PrimaryWeapons/Weapons/TenetQuanta.png",
+      "MarketMode": "MM_HIDDEN",
+      "PremiumPrice": 150,
+      "ProductCategory": "LongGuns",
+      "CompatibilityTags": [
+        "PROJECTILE",
+        "BEAM",
+        "ASSAULT_AMMO"
+      ],
+      "ArtifactSlots": [
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_TACTIC",
+        "AP_ATTACK",
+        "AP_DEFENSE",
+        "AP_TACTIC",
+        "AP_UNIVERSAL"
+      ]
+    }
+  },
   "/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBETetra/CrpBETetra": {
     "categories": [
       "weapon",
@@ -74798,6 +75281,58 @@
       ]
     }
   },
+  "/Lotus/Weapons/Grineer/KuvaLich/Melee/Ghoulsaw/KuvaGhoulSaw": {
+    "categories": [
+      "weapon",
+      "melee"
+    ],
+    "id": 7648,
+    "name": "Kuva Ghoulsaw",
+    "parent": "/Lotus/Weapons/Grineer/Melee/GrnGhoulSaw/GrnGhoulSawPlayer",
+    "parents": [
+      "/Lotus/Weapons/Grineer/Melee/GrnGhoulSaw/GrnGhoulSawPlayer",
+      "/Lotus/Weapons/Tenno/Melee/LotusSawBlade",
+      "/Lotus/Weapons/Tenno/Melee/PlayerMeleeWeapon",
+      "/Lotus/Types/Game/LotusMeleeWeapon"
+    ],
+    "path": "/Lotus/Weapons/Grineer/KuvaLich/Melee/Ghoulsaw/KuvaGhoulSaw",
+    "storeData": {
+      "DisplayRecipe": "",
+      "PremiumPrice": 245,
+      "ProductCategory": "Melee",
+      "SearchTags": [
+        "/Lotus/Language/Game/DT_SLASH_NoIcon",
+        "/Lotus/Language/Items/MeleeCategoryName"
+      ],
+      "SellingPrice": 5000,
+      "ShowInMarket": 0
+    },
+    "storeItemType": "/Lotus/StoreItems/Weapons/Grineer/KuvaLich/Melee/Ghoulsaw/KuvaGhoulSaw",
+    "tag": "Weapon",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Weapons/MeleeWeapons/Weapons/KuvaGhoulSaw.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Weapons/MeleeWeapons/Weapons/KuvaGhoulSaw.png",
+      "MarketMode": "MM_HIDDEN",
+      "PremiumPrice": 245,
+      "ProductCategory": "Melee",
+      "CompatibilityTags": [
+        "BLADESAW_STANCE"
+      ],
+      "ArtifactSlots": [
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_TACTIC",
+        "AP_ATTACK",
+        "AP_TACTIC",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL"
+      ]
+    }
+  },
   "/Lotus/Weapons/Grineer/KuvaLich/Secondaries/Brakk/KuvaBrakk": {
     "categories": [
       "weapon",
@@ -78626,6 +79161,59 @@
         "AP_UNIVERSAL",
         "AP_UNIVERSAL",
         "AP_UNIVERSAL",
+        "AP_ATTACK",
+        "AP_UNIVERSAL"
+      ]
+    }
+  },
+  "/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaBubonico/CodaBubonicoCannon": {
+    "categories": [
+      "weapon",
+      "primary",
+      "primary-shotgun"
+    ],
+    "id": 7650,
+    "name": "Coda Bubonico",
+    "parent": "/Lotus/Weapons/Infested/LongGuns/InfArmCannon/InfArmCannon",
+    "parents": [
+      "/Lotus/Weapons/Infested/LongGuns/InfArmCannon/InfArmCannon",
+      "/Lotus/Weapons/Tenno/Shotgun/LotusShotgun",
+      "/Lotus/Weapons/Tenno/LotusLongGun",
+      "/Lotus/Weapons/Tenno/LotusBulletWeapon"
+    ],
+    "path": "/Lotus/Weapons/Infested/InfestedLich/LongGuns/CodaBubonico/CodaBubonicoCannon",
+    "storeData": {
+      "PremiumPrice": 265,
+      "ProductCategory": "LongGuns",
+      "SearchTags": [
+        "/Lotus/Language/Loadout/LoadoutCat_Launcher",
+        "/Lotus/Language/Weapons/BatteryCategoryName"
+      ],
+      "SellingPrice": 8000,
+      "ShowInMarket": 0
+    },
+    "storeItemType": "/Lotus/StoreItems/Weapons/Infested/InfestedLich/LongGuns/CodaBubonico/CodaBubonicoCannon",
+    "tag": "Weapon",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Weapons/PrimaryWeapons/Weapons/CodaBubonico.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Weapons/PrimaryWeapons/Weapons/CodaBubonico.png",
+      "MarketMode": "MM_HIDDEN",
+      "PremiumPrice": 265,
+      "ProductCategory": "LongGuns",
+      "CompatibilityTags": [
+        "PROJECTILE",
+        "AOE",
+        "BATTERY"
+      ],
+      "ArtifactSlots": [
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_TACTIC",
+        "AP_ATTACK",
+        "AP_TACTIC",
         "AP_ATTACK",
         "AP_UNIVERSAL"
       ]
@@ -88960,6 +89548,58 @@
       ]
     }
   },
+  "/Lotus/Weapons/Tenno/LongGuns/TnInkRifle/TnInkRifleWeapon": {
+    "categories": [
+      "weapon",
+      "primary",
+      "primary-rifle"
+    ],
+    "id": 7651,
+    "name": "Enkaus",
+    "parent": "/Lotus/Weapons/Tenno/Rifle/LotusAssaultRifle",
+    "parents": [
+      "/Lotus/Weapons/Tenno/Rifle/LotusAssaultRifle",
+      "/Lotus/Weapons/Tenno/Rifle/LotusRifle",
+      "/Lotus/Weapons/Tenno/LotusLongGun",
+      "/Lotus/Weapons/Tenno/LotusBulletWeapon"
+    ],
+    "path": "/Lotus/Weapons/Tenno/LongGuns/TnInkRifle/TnInkRifleWeapon",
+    "storeData": {
+      "DisplayRecipe": "/Lotus/Types/Recipes/Weapons/EnkausBlueprint",
+      "PremiumPrice": 235,
+      "ProductCategory": "LongGuns",
+      "RecipeHelpText": "/Lotus/Language/Recipes/TnInkblotRifleRecipeHelpText",
+      "SearchTags": [
+        "/Lotus/Language/Game/DT_CORROSIVE_NoIcon",
+        "/Lotus/Language/Loadout/LoadoutCat_Beam"
+      ],
+      "SellingPrice": 7500
+    },
+    "storeItemType": "/Lotus/StoreItems/Weapons/Tenno/LongGuns/TnInkRifle/TnInkRifleWeapon",
+    "tag": "Weapon",
+    "texture_new": "/Lotus/Interface/Icons/StoreIcons/Weapons/PrimaryWeapons/Weapons/TnInkRifleWeapon.png",
+    "data": {
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Weapons/PrimaryWeapons/Weapons/TnInkRifleWeapon.png",
+      "MarketMode": "MM_VISIBLE",
+      "PremiumPrice": 235,
+      "ProductCategory": "LongGuns",
+      "CompatibilityTags": [
+        "BEAM"
+      ],
+      "ArtifactSlots": [
+        "AP_UNIVERSAL",
+        "AP_ATTACK",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_UNIVERSAL",
+        "AP_TACTIC",
+        "AP_UNIVERSAL"
+      ]
+    }
+  },
   "/Lotus/Weapons/Tenno/LongGuns/TnModQuestRifle/TnModQuestRifleWeapon": {
     "categories": [
       "weapon",
@@ -91322,8 +91962,9 @@
     ],
     "id": 7566,
     "name": "Kestrel Prime",
-    "parent": "/Lotus/Weapons/Tenno/Melee/LotusGlaiveWeapon",
+    "parent": "/Lotus/Weapons/Tenno/Melee/Glaives/Boomerang/BoomerangWeapon",
     "parents": [
+      "/Lotus/Weapons/Tenno/Melee/Glaives/Boomerang/BoomerangWeapon",
       "/Lotus/Weapons/Tenno/Melee/LotusGlaiveWeapon",
       "/Lotus/Weapons/Tenno/Melee/LotusGlaiveWeaponBase",
       "/Lotus/Weapons/Tenno/Melee/PlayerMeleeWeapon",
@@ -91331,7 +91972,6 @@
     ],
     "path": "/Lotus/Weapons/Tenno/Melee/Glaives/PrimeKestrel/PrimeKestrel",
     "storeData": {
-      "AvailableOnPvp": 1,
       "DisplayRecipe": "/Lotus/Types/Recipes/Weapons/KestrelPrimeBlueprint",
       "PremiumPrice": 150,
       "ProductCategory": "Melee",
@@ -98307,7 +98947,6 @@
     ],
     "path": "/Lotus/Weapons/Tenno/Melee/Whips/SpiderWhip/SpiderWhipWeapon",
     "storeData": {
-      "AvailableOnPvp": 1,
       "DisplayRecipe": "/Lotus/Types/Recipes/Weapons/SpinnerexBlueprint",
       "PremiumPrice": 170,
       "ProductCategory": "Melee",
@@ -106403,108 +107042,6 @@
       "type": "Misc"
     }
   },
-  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrel": {
-    "name": "Enkaus Barrel",
-    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrel",
-    "categories": [
-      "component"
-    ],
-    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrel",
-    "category": "Primary",
-    "data": {
-      "ProductCategory": "LongGuns",
-      "type": "Component"
-    }
-  },
-  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrelBlueprint": {
-    "name": "Enkaus Barrel Blueprint",
-    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrelBlueprint",
-    "categories": [
-      "blueprint"
-    ],
-    "parent": "/Lotus/Types/Game/RecipeItem",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrelBlueprint",
-    "category": "Primary",
-    "data": {
-      "ProductCategory": "Recipes",
-      "resultItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrel",
-      "type": "Primary"
-    }
-  },
-  "/Lotus/Types/Recipes/Weapons/EnkausBlueprint": {
-    "name": "Enkaus Blueprint",
-    "path": "/Lotus/Types/Recipes/Weapons/EnkausBlueprint",
-    "categories": [
-      "blueprint"
-    ],
-    "parent": "/Lotus/Types/Game/RecipeItem",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/EnkausBlueprint",
-    "category": "Primary",
-    "data": {
-      "ProductCategory": "Recipes",
-      "resultItemType": "/Lotus/Weapons/Tenno/LongGuns/TnInkRifle/TnInkRifleWeapon",
-      "type": "Primary"
-    }
-  },
-  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiver": {
-    "name": "Enkaus Receiver",
-    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiver",
-    "categories": [
-      "component"
-    ],
-    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiver",
-    "category": "Primary",
-    "data": {
-      "ProductCategory": "LongGuns",
-      "type": "Component"
-    }
-  },
-  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiverBlueprint": {
-    "name": "Enkaus Receiver Blueprint",
-    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiverBlueprint",
-    "categories": [
-      "blueprint"
-    ],
-    "parent": "/Lotus/Types/Game/RecipeItem",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiverBlueprint",
-    "category": "Primary",
-    "data": {
-      "ProductCategory": "Recipes",
-      "resultItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiver",
-      "type": "Primary"
-    }
-  },
-  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock": {
-    "name": "Enkaus Stock",
-    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock",
-    "categories": [
-      "component"
-    ],
-    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock",
-    "category": "Primary",
-    "data": {
-      "ProductCategory": "LongGuns",
-      "type": "Component"
-    }
-  },
-  "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStockBlueprint": {
-    "name": "Enkaus Stock Blueprint",
-    "path": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStockBlueprint",
-    "categories": [
-      "blueprint"
-    ],
-    "parent": "/Lotus/Types/Game/RecipeItem",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStockBlueprint",
-    "category": "Primary",
-    "data": {
-      "ProductCategory": "Recipes",
-      "resultItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock",
-      "type": "Primary"
-    }
-  },
   "/Lotus/Types/Recipes/ArmourAttachments/EosChestPlateBlueprint": {
     "name": "Eos Chest Plate Blueprint",
     "path": "/Lotus/Types/Recipes/ArmourAttachments/EosChestPlateBlueprint",
@@ -106931,108 +107468,6 @@
       "ProductCategory": "Recipes",
       "resultItemType": "/Lotus/Types/Restoratives/Consumable/MiningLaserB",
       "type": "Gear"
-    }
-  },
-  "/Lotus/Types/Recipes/WarframeRecipes/FollieBlueprint": {
-    "name": "Follie Blueprint",
-    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieBlueprint",
-    "categories": [
-      "blueprint"
-    ],
-    "parent": "/Lotus/Types/Game/RecipeItem",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/FollieBlueprint",
-    "category": "Warframes",
-    "data": {
-      "ProductCategory": "Recipes",
-      "resultItemType": "/Lotus/Powersuits/Inkblot/Inkblot",
-      "type": "Warframes"
-    }
-  },
-  "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisComponent": {
-    "name": "Follie Chassis",
-    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisComponent",
-    "categories": [
-      "component"
-    ],
-    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/FollieChassisComponent",
-    "category": "Warframes",
-    "data": {
-      "ProductCategory": "Suits",
-      "type": "Component"
-    }
-  },
-  "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisBlueprint": {
-    "name": "Follie Chassis Blueprint",
-    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisBlueprint",
-    "categories": [
-      "blueprint"
-    ],
-    "parent": "/Lotus/Types/Game/RecipeItem",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/FollieChassisBlueprint",
-    "category": "Warframes",
-    "data": {
-      "ProductCategory": "Recipes",
-      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/FollieChassisComponent",
-      "type": "Warframes"
-    }
-  },
-  "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent": {
-    "name": "Follie Neuroptics",
-    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent",
-    "categories": [
-      "component"
-    ],
-    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent",
-    "category": "Warframes",
-    "data": {
-      "ProductCategory": "Suits",
-      "type": "Component"
-    }
-  },
-  "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetBlueprint": {
-    "name": "Follie Neuroptics Blueprint",
-    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetBlueprint",
-    "categories": [
-      "blueprint"
-    ],
-    "parent": "/Lotus/Types/Game/RecipeItem",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetBlueprint",
-    "category": "Warframes",
-    "data": {
-      "ProductCategory": "Recipes",
-      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent",
-      "type": "Warframes"
-    }
-  },
-  "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent": {
-    "name": "Follie Systems",
-    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent",
-    "categories": [
-      "component"
-    ],
-    "parent": "/Lotus/Types/Items/MiscItems/MiscItemBase",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent",
-    "category": "Warframes",
-    "data": {
-      "ProductCategory": "Suits",
-      "type": "Component"
-    }
-  },
-  "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsBlueprint": {
-    "name": "Follie Systems Blueprint",
-    "path": "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsBlueprint",
-    "categories": [
-      "blueprint"
-    ],
-    "parent": "/Lotus/Types/Game/RecipeItem",
-    "storeItemType": "/Lotus/StoreItems/Types/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsBlueprint",
-    "category": "Warframes",
-    "data": {
-      "ProductCategory": "Recipes",
-      "resultItemType": "/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent",
-      "type": "Warframes"
     }
   },
   "/Lotus/Types/Recipes/Helmets/FollieAltHelmetBlueprint": {

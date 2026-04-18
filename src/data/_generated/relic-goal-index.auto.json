@@ -11128,10 +11128,6 @@
     "displayName": "Enkaus Barrel",
     "edges": []
   },
-  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausBarrelBlueprint": {
-    "displayName": "Enkaus Barrel Blueprint",
-    "edges": []
-  },
   "items:/Lotus/Types/Recipes/Weapons/EnkausBlueprint": {
     "displayName": "Enkaus Blueprint",
     "edges": [
@@ -11153,16 +11149,8 @@
     "displayName": "Enkaus Receiver",
     "edges": []
   },
-  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausReceiverBlueprint": {
-    "displayName": "Enkaus Receiver Blueprint",
-    "edges": []
-  },
   "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStock": {
     "displayName": "Enkaus Stock",
-    "edges": []
-  },
-  "items:/Lotus/Types/Recipes/Weapons/WeaponParts/EnkausStockBlueprint": {
-    "displayName": "Enkaus Stock Blueprint",
     "edges": []
   },
   "items:/Lotus/Types/Gameplay/Zariman/Resources/ZarimanMiscItemB": {
@@ -12654,27 +12642,6 @@
       }
     ]
   },
-  "items:/Lotus/Types/Recipes/WarframeRecipes/FollieChassisBlueprint": {
-    "displayName": "Follie Chassis Blueprint",
-    "edges": [
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/AlloyPlate",
-        "count": 800
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/ArgonCrystal",
-        "count": 2
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/Ferrite",
-        "count": 800
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/Salvage",
-        "count": 600
-      }
-    ]
-  },
   "items:/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetComponent": {
     "displayName": "Follie Neuroptics",
     "edges": [
@@ -12696,50 +12663,8 @@
       }
     ]
   },
-  "items:/Lotus/Types/Recipes/WarframeRecipes/FollieHelmetBlueprint": {
-    "displayName": "Follie Neuroptics Blueprint",
-    "edges": [
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/Neurode",
-        "count": 2
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/Gallium",
-        "count": 3
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/Cryotic",
-        "count": 150
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/NeuralSensor",
-        "count": 2
-      }
-    ]
-  },
   "items:/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsComponent": {
     "displayName": "Follie Systems",
-    "edges": [
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
-        "count": 250
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/PolymerBundle",
-        "count": 500
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/Morphic",
-        "count": 4
-      },
-      {
-        "catalogId": "items:/Lotus/Types/Items/MiscItems/OxiumAlloy",
-        "count": 50
-      }
-    ]
-  },
-  "items:/Lotus/Types/Recipes/WarframeRecipes/FollieSystemsBlueprint": {
-    "displayName": "Follie Systems Blueprint",
     "edges": [
       {
         "catalogId": "items:/Lotus/Types/Items/MiscItems/Circuits",
@@ -20923,12 +20848,7 @@
   },
   "items:/Lotus/Weapons/Grineer/KuvaLich/Melee/Ghoulsaw/KuvaGhoulSaw": {
     "displayName": "Kuva Ghoulsaw",
-    "edges": [
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/KuvaWeapons/KuvaGhoulSawBlueprint",
-        "count": 1
-      }
-    ]
+    "edges": []
   },
   "items:/Lotus/Types/Recipes/Weapons/KuvaWeapons/KuvaGhoulSawBlueprint": {
     "displayName": "Kuva Ghoulsaw Blueprint",
@@ -37727,12 +37647,7 @@
   },
   "items:/Lotus/Weapons/Corpus/BoardExec/Primary/CrpBEQuanta/CrpBEQuanta": {
     "displayName": "Tenet Quanta",
-    "edges": [
-      {
-        "catalogId": "items:/Lotus/Types/Recipes/Weapons/LawyerWeapons/CrpBEQuantaBlueprint",
-        "count": 1
-      }
-    ]
+    "edges": []
   },
   "items:/Lotus/Types/Recipes/Weapons/LawyerWeapons/CrpBEQuantaBlueprint": {
     "displayName": "Tenet Quanta Blueprint",

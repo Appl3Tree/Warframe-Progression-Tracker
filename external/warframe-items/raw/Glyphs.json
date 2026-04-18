@@ -1238,6 +1238,14 @@
     "imageName": "bonewidow-in-action-glyph-24d9a21955.png",
     "category": "Glyphs",
     "tradable": false,
+    "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Modus",
+        "type": "Bonewidow In Action Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Gara Prime: Hotfix 30.3.2",
@@ -2070,6 +2078,14 @@
     "imageName": "common-condroc-glyph-66f99b0701.png",
     "category": "Glyphs",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ostron (Master Teasonai), Kin",
+        "type": "Common Condroc Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -3613,6 +3629,14 @@
     "imageName": "delicate-pobber-glyph-c077e87f36.png",
     "category": "Glyphs",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Old Mate",
+        "type": "Delicate Pobber Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -5997,6 +6021,14 @@
     "imageName": "goblite-glyph-2fdfd8b576.png",
     "category": "Glyphs",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Solaris United (Smokefinger), Old Mate",
+        "type": "Goblite Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -6039,6 +6071,14 @@
     "imageName": "goopolla-glyph-0c153cfa93.png",
     "category": "Glyphs",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ostron (Fisher Hai-Luk), Kin",
+        "type": "Goopolla Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -12351,6 +12391,14 @@
     "imageName": "sapcaddy-glyph-6cfcf8ce43.png",
     "category": "Glyphs",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Solaris United (The Business), Old Mate",
+        "type": "Sapcaddy Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 28: The Deadlock Protocol",
@@ -15463,6 +15511,14 @@
     "imageName": "veridos-glyph-3807f7e52b.png",
     "category": "Glyphs",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Ostron (Old Man Suumbaat), Kin",
+        "type": "Veridos Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -15589,6 +15645,14 @@
     "imageName": "voidrig-in-action-glyph-e5f0f550c4.png",
     "category": "Glyphs",
     "tradable": false,
+    "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Modus",
+        "type": "Voidrig In Action Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Gara Prime: Hotfix 30.3.2",

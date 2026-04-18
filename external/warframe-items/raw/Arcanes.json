@@ -5710,6 +5710,12 @@
         "type": "Cascadia Accuracy",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Fallen",
+        "type": "Cascadia Accuracy",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "masterable": false
@@ -5778,6 +5784,12 @@
         "type": "Cascadia Empowered",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Guardian",
+        "type": "Cascadia Empowered",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -5872,6 +5884,12 @@
         "type": "Cascadia Flare",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Watcher",
+        "type": "Cascadia Flare",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "masterable": false
@@ -5940,6 +5958,12 @@
         "type": "Cascadia Overcharge",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Angel",
+        "type": "Cascadia Overcharge",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -6148,6 +6172,12 @@
         "type": "Emergence Dissipate",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Angel",
+        "type": "Emergence Dissipate",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -6234,6 +6264,12 @@
         "type": "Emergence Renewed",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Guardian",
+        "type": "Emergence Renewed",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "masterable": false
@@ -6302,6 +6338,12 @@
         "type": "Emergence Savior",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Fallen",
+        "type": "Emergence Savior",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -6388,6 +6430,12 @@
         "type": "Eternal Eradicate",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Fallen",
+        "type": "Eternal Eradicate",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "masterable": false
@@ -6456,6 +6504,12 @@
         "type": "Eternal Logistics",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Seraph",
+        "type": "Eternal Logistics",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "masterable": false
@@ -6524,6 +6578,12 @@
         "type": "Eternal Onslaught",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Watcher",
+        "type": "Eternal Onslaught",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "masterable": false
@@ -6558,6 +6618,14 @@
     "imageName": "exodia-brave-4b3507459f.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Hok), Kin",
+        "type": "Exodia Brave",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Sacrifice: Hotfix 23.0.2 + 23.0.2.1",
@@ -6600,6 +6668,14 @@
     "imageName": "exodia-contagion-2fbb91629e.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Operational Supply, Defender",
+        "type": "Exodia Contagion",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Revenant Prime: Hotfix 32.0.9",
@@ -6714,6 +6790,14 @@
     "imageName": "exodia-epidemic-3d8ebce90a.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Operational Supply, Defender",
+        "type": "Exodia Epidemic",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Revenant Prime: Hotfix 32.0.9",
@@ -6772,6 +6856,14 @@
     "imageName": "exodia-force-3bf4dc31cc.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Hok), Kin",
+        "type": "Exodia Force",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 32.2.0: Lua’s Prey",
@@ -6838,6 +6930,14 @@
     "imageName": "exodia-hunt-8c8708024a.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Hok), Kin",
+        "type": "Exodia Hunt",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Update 22.6.0 + Hotfix 22.6.0.1",
@@ -6880,6 +6980,14 @@
     "imageName": "exodia-might-e41c6c5827.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Hok), Kin",
+        "type": "Exodia Might",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Operation: Scarlet Spear: 27.3.0",
@@ -6922,6 +7030,14 @@
     "imageName": "exodia-triumph-7237f74286.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Hok), Kin",
+        "type": "Exodia Triumph",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Hotfix 22.2.5",
@@ -6964,6 +7080,14 @@
     "imageName": "exodia-valor-62d0587f6a.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Ostron (Hok), Kin",
+        "type": "Exodia Valor",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The Old Blood: Hotfix 26.0.7",
@@ -7056,6 +7180,12 @@
         "type": "Fractalized Reset",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Fallen",
+        "type": "Fractalized Reset",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "masterable": false
@@ -7173,6 +7303,14 @@
     "imageName": "magus-accelerant-f4b31fa9ce.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Shadow",
+        "type": "Magus Accelerant",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -7306,6 +7444,14 @@
     "imageName": "magus-anomaly-b583dfcc59.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Instrument",
+        "type": "Magus Anomaly",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "The New War: Hotfix 31.0.2",
@@ -7390,6 +7536,14 @@
     "imageName": "magus-cadence-7dbb2a1f2a.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Instrument",
+        "type": "Magus Cadence",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -7442,6 +7596,14 @@
     "imageName": "magus-cloud-2394adcaaa.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Instrument",
+        "type": "Magus Cloud",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -7494,6 +7656,14 @@
     "imageName": "magus-destruct-08e1ff363b.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Instrument",
+        "type": "Magus Destruct",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 31.5: Angels of the Zariman",
@@ -7553,6 +7723,14 @@
     "imageName": "magus-drive-edfc4d422e.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Instrument",
+        "type": "Magus Drive",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -7605,6 +7783,14 @@
     "imageName": "magus-elevate-3474bd78ef.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Architect",
+        "type": "Magus Elevate",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -7664,6 +7850,14 @@
     "imageName": "magus-firewall-3ae3f4fb03.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Instrument",
+        "type": "Magus Firewall",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -7724,6 +7918,14 @@
     "imageName": "magus-glitch-997ff49280.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Shadow",
+        "type": "Magus Glitch",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -7775,6 +7977,14 @@
     "imageName": "magus-husk-718c08141d.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Observer",
+        "type": "Magus Husk",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Angels of the Zariman: Hotfix 31.5.4",
@@ -7843,6 +8053,14 @@
     "imageName": "magus-lockdown-01607af649.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Instrument",
+        "type": "Magus Lockdown",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Scarlet Spear: 27.3.15 + 27.3.15.1",
@@ -7983,6 +8201,14 @@
     "imageName": "magus-melt-e46021d807.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Shadow",
+        "type": "Magus Melt",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -8035,6 +8261,14 @@
     "imageName": "magus-nourish-265f9bd2f1.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Architect",
+        "type": "Magus Nourish",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Echoes of the Zariman: Update 31.6",
@@ -8110,6 +8344,14 @@
     "imageName": "magus-overload-6afc80ebf0.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Shadow",
+        "type": "Magus Overload",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -8170,6 +8412,14 @@
     "imageName": "magus-repair-3a7cc4cae0.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Shadow",
+        "type": "Magus Repair",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -8254,6 +8504,14 @@
     "imageName": "magus-replenish-bf78f13e66.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Instrument",
+        "type": "Magus Replenish",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -8314,6 +8572,14 @@
     "imageName": "magus-revert-2b81eb1a01.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Shadow",
+        "type": "Magus Revert",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Warframe Revised: Update 27.2.0",
@@ -8381,6 +8647,14 @@
     "imageName": "magus-vigor-fc4e90f448.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Mote",
+        "type": "Magus Vigor",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Angels of the Zariman: Hotfix 31.5.4",
@@ -9168,6 +9442,12 @@
         "type": "Molt Augmented",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Angel",
+        "type": "Molt Augmented",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -9257,6 +9537,12 @@
         "type": "Molt Efficiency",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Guardian",
+        "type": "Molt Efficiency",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -9338,6 +9624,12 @@
         "type": "Molt Reconstruct",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Seraph",
+        "type": "Molt Reconstruct",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "patchlogs": [
@@ -9419,6 +9711,12 @@
         "type": "Molt Vigor",
         "chance": 1.67,
         "rarity": "Rare"
+      },
+      {
+        "location": "The Holdfasts (Cavalero), Fallen",
+        "type": "Molt Vigor",
+        "chance": 100,
+        "rarity": "Common"
       }
     ],
     "masterable": false
@@ -9783,6 +10081,14 @@
     "imageName": "pax-seeker-c48e8010c9.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Solaris United (Rude Zuud), Old Mate",
+        "type": "Pax Seeker",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Veilbreaker: Update 32",
@@ -12937,6 +13243,14 @@
     "imageName": "virtuos-forge-4cda16e8a4.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Hand",
+        "type": "Virtuos Forge",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -12969,6 +13283,14 @@
     "imageName": "virtuos-fury-020b8e3873.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Adherent",
+        "type": "Virtuos Fury",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Update 22.1.0",
@@ -13011,6 +13333,14 @@
     "imageName": "virtuos-ghost-7873577085.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Architect",
+        "type": "Virtuos Ghost",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Plains of Eidolon: Hotfix 22.0.7",
@@ -13052,6 +13382,14 @@
     "imageName": "virtuos-null-6788dfa747.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Mote",
+        "type": "Virtuos Null",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -13084,6 +13422,14 @@
     "imageName": "virtuos-shadow-2981df6026.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Architect",
+        "type": "Virtuos Shadow",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Wukong Deluxe: Hotfix 25.5.4",
@@ -13133,6 +13479,14 @@
     "imageName": "virtuos-spike-2a802a68f6.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Agent",
+        "type": "Virtuos Spike",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -13165,6 +13519,14 @@
     "imageName": "virtuos-strike-18ed8199a5.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Instrument",
+        "type": "Virtuos Strike",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -13196,6 +13558,14 @@
     "imageName": "virtuos-surge-55877a8416.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Agent",
+        "type": "Virtuos Surge",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -13227,6 +13597,14 @@
     "imageName": "virtuos-tempo-d2d1a36699.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "The Quills, Observer",
+        "type": "Virtuos Tempo",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -13259,6 +13637,14 @@
     "imageName": "virtuos-trojan-07ab808d70.png",
     "category": "Arcanes",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Vox Solaris, Hand",
+        "type": "Virtuos Trojan",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   }
 ]

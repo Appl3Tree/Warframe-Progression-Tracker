@@ -112,8 +112,7 @@
     "description": "Sinewy and metallic, possessed of great elastic strength.\n\nLocation: Cambion Drift (Deimos) from Yellow Mining Lesions, Spitia Infested Cysts, and Rolizor Infested Cysts.",
     "itemCount": 20,
     "parents": [
-      "Adramal Alloy",
-      "Xaku Kintsu Helmet"
+      "Adramal Alloy"
     ],
     "type": "Gem",
     "imageName": "adramalium-03bd190fdb.png",
@@ -775,6 +774,12 @@
         "rarity": "Uncommon"
       },
       {
+        "location": "Vox Solaris, Agent",
+        "type": "Atmo Systems",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Venus/Orb Vallis (Level 50 - 60 PROFIT-TAKER - PHASE 4), Rotation C",
         "type": "5X Atmo Systems",
         "chance": 11.43,
@@ -1340,7 +1345,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Modus",
+            "type": "Bonewidow Capsule Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechPartSystemsItem",
@@ -1349,8 +1361,8 @@
         "itemCount": 1,
         "imageName": "damaged-necramech-pod.png",
         "tradable": true,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/EntratiWispItem",
@@ -1369,8 +1381,8 @@
         "itemCount": 6,
         "imageName": "star-crimzian-d9b1d2eb7b.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Resource",
@@ -1401,7 +1413,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Modus",
+            "type": "Bonewidow Casing Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechPartChassisItem",
@@ -1410,8 +1429,8 @@
         "itemCount": 1,
         "imageName": "damaged-necramech-casing.png",
         "tradable": true,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Solaris/SolarisUncommonGemACutItem",
@@ -1420,8 +1439,8 @@
         "itemCount": 15,
         "imageName": "goblite-tears-db33ec8568.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Deimos/DeimosCommonOreBAlloyItem",
@@ -1430,8 +1449,8 @@
         "itemCount": 100,
         "imageName": "tempered-bapholite-f058935e24.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Deimos/DeimosRareOreAAlloyItem",
@@ -1440,8 +1459,8 @@
         "itemCount": 20,
         "imageName": "thaumic-distillate-67fd1aac54.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Resource",
@@ -1471,8 +1490,8 @@
         "itemCount": 120,
         "imageName": "adramal-alloy-8b552026ef.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/DeimosRecipes/Mechs/ThanotechPartEngineBlueprint",
@@ -1482,7 +1501,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Modus",
+            "type": "Bonewidow Engine Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Deimos/FishParts/DeimosOrokinFishCPartItem",
@@ -1501,8 +1527,8 @@
         "itemCount": 1,
         "imageName": "damaged-necramech-engine.png",
         "tradable": true,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/RailjackMiscItems/TitaniumRailjackItem",
@@ -1543,7 +1569,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Modus",
+            "type": "Bonewidow Weapon Pod Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechPartWeaponPodItem",
@@ -1552,8 +1585,8 @@
         "itemCount": 1,
         "imageName": "damaged-necramech-weapon-pod.png",
         "tradable": true,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Deimos/DeimosUncommonOreAAlloyItem",
@@ -1562,8 +1595,8 @@
         "itemCount": 80,
         "imageName": "devolved-namalon-8e85fb663c.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Solaris/FishParts/GenericFishScrapItem",
@@ -1726,18 +1759,8 @@
     "parents": [
       "Dissic Scaffold",
       "Exard Scaffold",
-      "Haztech Apparel",
-      "Haztech Cuirass",
-      "Kubrodon Ventkid Apparel",
-      "Kubrodon Ventkid Cuirass",
-      "Outrider Cuirass",
       "Propa Scaffold",
-      "Smelter Apparel",
-      "Smelter Cuirass",
-      "Urga Bracket",
-      "Vent Pobber Ventkid Apparel",
-      "Vent Pobber Ventkid Cuirass",
-      "Vent Rat Cuirass"
+      "Urga Bracket"
     ],
     "type": "Resource",
     "imageName": "calda-toroid-652e0532d3.png",
@@ -1811,8 +1834,7 @@
     "description": "Resilient components used to reinforce the plated sheets of metal strapped to Grineer Ships.\n\nLocation: Eximus units in the Grineer Shipyard Tileset, and Railjack missions in Earth, Saturn, and Veil Proximas",
     "itemCount": 800,
     "parents": [
-      "Basmu",
-      "Protea Telema Helmet"
+      "Basmu"
     ],
     "buildPrice": 1000,
     "buildTime": 120,
@@ -1974,12 +1996,7 @@
       "Pencha Scaffold",
       "Shraksun Scaffold",
       "Vargeet Jai Ii",
-      "Vargeet Ruhang Ii",
-      "Zauba Apparel",
-      "Zauba Cuirass",
-      "Zauba Greaves",
-      "Zauba Mask",
-      "Zauba Pauldrons"
+      "Vargeet Ruhang Ii"
     ],
     "type": "Resource",
     "imageName": "cetus-wisp-0681ca5991.png",
@@ -2015,6 +2032,18 @@
         "type": "Cetus Wisp",
         "chance": 10.13,
         "rarity": "Uncommon"
+      },
+      {
+        "location": "Operational Supply, Neutral",
+        "type": "Cetus Wisp",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "The Quills, Architect",
+        "type": "Cetus Wisp",
+        "chance": 100,
+        "rarity": "Common"
       },
       {
         "location": "Earth/Cetus (Level 100 - 100 Cetus Bounty), Rotation A",
@@ -2383,7 +2412,6 @@
       "Ekwana Ruhang Ii",
       "Jai",
       "Jai Ii",
-      "Naberus Ephemera",
       "Sepfahn"
     ],
     "type": "Resource",
@@ -2650,8 +2678,8 @@
         "itemCount": 80,
         "imageName": "adramal-alloy-8b552026ef.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/DeimosRecipes/Mechs/ThanotechArchGunBarrelBlueprint",
@@ -2661,7 +2689,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Modus",
+            "type": "Cortege Barrel Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechWeaponBarrelItem",
@@ -2722,7 +2757,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Modus",
+            "type": "Cortege Receiver Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechWeaponReceiverItem",
@@ -2741,8 +2783,8 @@
         "itemCount": 80,
         "imageName": "devolved-namalon-8e85fb663c.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Solaris/FishParts/SolarisFishDissipatorCoilItem",
@@ -2761,8 +2803,8 @@
         "itemCount": 10,
         "imageName": "trapezium-xenorhast-a14b3b3c56.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Resource",
@@ -2803,7 +2845,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Modus",
+            "type": "Cortege Stock Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Deimos/DeimosEidolonGemBCutItem",
@@ -2812,8 +2861,8 @@
         "itemCount": 10,
         "imageName": "cabochon-embolos-261ef228d9.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechWeaponStockItem",
@@ -2843,8 +2892,8 @@
         "itemCount": 80,
         "imageName": "tempered-bapholite-f058935e24.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Resource",
@@ -3143,6 +3192,14 @@
     "imageName": "damaged-necramech-casing.png",
     "category": "Resources",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Father), Neutral",
+        "type": "Damaged Necramech Casing",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3153,23 +3210,32 @@
     "imageName": "damaged-necramech-engine.png",
     "category": "Resources",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Father), Neutral",
+        "type": "Damaged Necramech Engine",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
     "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechPartSystemsItem",
     "name": "Damaged Necramech Pod",
     "description": "A modular component for a Necramech. It's damaged and in need of repair.\n\nLocation: Enemy Necramechs found in Isolation Vault Bounties on the Cambion Drift (Deimos), and purchased from Loid in the Necralisk (Deimos) after completing The War Within quest",
-    "itemCount": 1,
-    "parents": [
-      "Loid Sentinel Mask",
-      "Loid Sentinel Skin",
-      "Loid Sentinel Tail",
-      "Loid Sentinel Wing"
-    ],
     "type": "Resource",
     "imageName": "damaged-necramech-pod.png",
     "category": "Resources",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Father), Neutral",
+        "type": "Damaged Necramech Pod",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3181,6 +3247,12 @@
     "category": "Resources",
     "tradable": true,
     "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Agnesis",
+        "type": "Damaged Necramech Weapon Barrel",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Deimos/Cambion Drift (Level 30 - 40 Arcana Isolation Vault), Rotation A",
         "type": "Damaged Necramech Weapon Barrel",
@@ -3246,6 +3318,14 @@
     "imageName": "damaged-necramech-weapon-pod.png",
     "category": "Resources",
     "tradable": true,
+    "drops": [
+      {
+        "location": "Entrati (Father), Neutral",
+        "type": "Damaged Necramech Weapon Pod",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -3257,6 +3337,12 @@
     "category": "Resources",
     "tradable": true,
     "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Agnesis",
+        "type": "Damaged Necramech Weapon Receiver",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Deimos/Cambion Drift (Level 30 - 40 Arcana Isolation Vault), Rotation B",
         "type": "Damaged Necramech Weapon Receiver",
@@ -3323,6 +3409,12 @@
     "category": "Resources",
     "tradable": true,
     "drops": [
+      {
+        "location": "NecraLoid (Loid), Clearance Agnesis",
+        "type": "Damaged Necramech Weapon Stock",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Deimos/Cambion Drift (Level 30 - 40 Arcana Isolation Vault), Rotation C",
         "type": "Damaged Necramech Weapon Stock",
@@ -4128,9 +4220,7 @@
       "Grimoire",
       "Innodem",
       "Onos",
-      "Phenmor",
-      "Raptwing Ephemera",
-      "Seraphayre Ephemera"
+      "Phenmor"
     ],
     "type": "Resource",
     "imageName": "entrati-lanthorn-3ee4c5dafc.png",
@@ -4389,8 +4479,8 @@
         "itemCount": 1,
         "imageName": "heart-nyth-08221d363b.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/Eidolon/Resources/QuillsDogTag",
@@ -4409,8 +4499,8 @@
         "itemCount": 1,
         "imageName": "radian-sentirum-cddffa1970.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Resource",
@@ -5395,6 +5485,20 @@
     "imageName": "goblite-57f20e67ee.png",
     "category": "Resources",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Solaris United (Smokefinger), Old Mate",
+        "type": "Goblite Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Solaris United (Smokefinger), Outworlder",
+        "type": "Goblite Tears X10 Blueprint",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Fortuna: Update 24.0",
@@ -5419,7 +5523,6 @@
       "Lambeo Moa",
       "Nychus Moa",
       "Phazor Gyro",
-      "Puppeteer",
       "Rattleguts",
       "Slap",
       "Two-Sloops",
@@ -5810,6 +5913,12 @@
     "tradable": false,
     "drops": [
       {
+        "location": "Vox Solaris, Operative",
+        "type": "Gyromag Systems",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Venus/Orb Vallis (Level 40 - 60 PROFIT-TAKER - PHASE 1), Rotation C",
         "type": "5X Gyromag Systems",
         "chance": 25,
@@ -5868,14 +5977,8 @@
     "description": "Polished and cut to perfection.\n\nBlueprint sold by Old Man Suumbaat in Cetus on Earth.",
     "itemCount": 1,
     "parents": [
-      "Caliban Cranion Helmet",
       "Exceptional Sentient Core",
-      "Phahd Scaffold",
-      "Vahd Apparel",
-      "Vahd Cuirass",
-      "Vahd Greaves",
-      "Vahd Mask",
-      "Vahd Pauldrons"
+      "Phahd Scaffold"
     ],
     "buildPrice": 10000,
     "buildTime": 60,
@@ -5969,28 +6072,15 @@
       "Dissic Scaffold",
       "Exard Scaffold",
       "Frak Stabilizer",
-      "Haztech Greaves",
-      "Haztech Mask",
       "Highbrow",
       "Hothead",
-      "Kubrodon Ventkid Greaves",
-      "Kubrodon Ventkid Mask",
       "Lehan Core",
       "Needlenose",
-      "Outrider Greaves",
-      "Outrider Mask",
       "Propa Scaffold",
       "Runway",
-      "Smelter Greaves",
-      "Smelter Mask",
       "Stitch",
-      "Styanax Gerousic Helmet",
       "Tatsu",
-      "Thunderdrum",
-      "Vent Pobber Ventkid Greaves",
-      "Vent Pobber Ventkid Mask",
-      "Vent Rat Greaves",
-      "Vent Rat Mask"
+      "Thunderdrum"
     ],
     "buildPrice": 1000,
     "buildTime": 60,
@@ -6311,6 +6401,12 @@
       {
         "location": "Iradite Formation",
         "type": "Iradite",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Ostron (Old Man Suumbaat), Surah",
+        "type": "Iradite Nugget",
         "chance": 100,
         "rarity": "Common"
       },
@@ -6696,10 +6792,6 @@
     "uniqueName": "/Lotus/Types/Items/RailjackMiscItems/KommsRailjackItem",
     "name": "Komms",
     "description": "A component used in secure Grineer communication networks.\n\nLocation: Railjack missions in Earth, Saturn, and Veil Proximas",
-    "itemCount": 4,
-    "parents": [
-      "Protea Telema Helmet"
-    ],
     "buildPrice": 1000,
     "buildTime": 120,
     "skipBuildTimePrice": 5,
@@ -7227,7 +7319,6 @@
     "description": "This carnivorous plant can be found growing in the wilderness on Lua. \n\nLocation: Obtained by gathering Lunar Pitcher plants that grow on Lua",
     "itemCount": 6,
     "parents": [
-      "Seeding Step Ephemera",
       "Twilight Apothic"
     ],
     "type": "Plant",
@@ -7436,10 +7527,6 @@
       "Dokrahm",
       "Flutterfire",
       "Granmu Prism",
-      "Loid Sentinel Mask",
-      "Loid Sentinel Skin",
-      "Loid Sentinel Tail",
-      "Loid Sentinel Wing",
       "Mewan",
       "Shwaak Prism",
       "Sunpoint Plasma Drill",
@@ -7602,7 +7689,7 @@
     "uniqueName": "/Lotus/Types/Items/Plants/MiscItems/UnCommonNightPlantItem",
     "name": "Moonlight Dragonlily",
     "description": "This uncommon plant can only be found at night. \n\nLocation: Obtained by gathering Moonlight Dragonlily plants that grow on Earth",
-    "itemCount": 10,
+    "itemCount": 6,
     "parents": [
       "Lapis Antitoxin",
       "Nightfall Apothic",
@@ -7671,8 +7758,8 @@
         "itemCount": 80,
         "imageName": "adramal-alloy-8b552026ef.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/DeimosRecipes/Mechs/ThanotechGrenadeLauncherBarrelBlueprint",
@@ -7682,7 +7769,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Modus",
+            "type": "Morgha Barrel Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechWeaponBarrelItem",
@@ -7744,7 +7838,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Modus",
+            "type": "Morgha Receiver Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechWeaponReceiverItem",
@@ -7763,8 +7864,8 @@
         "itemCount": 80,
         "imageName": "devolved-namalon-8e85fb663c.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Solaris/FishParts/SolarisFishDissipatorCoilItem",
@@ -7783,8 +7884,8 @@
         "itemCount": 10,
         "imageName": "trapezium-xenorhast-a14b3b3c56.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Resource",
@@ -7816,7 +7917,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Modus",
+            "type": "Morgha Stock Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Deimos/DeimosEidolonGemBCutItem",
@@ -7825,8 +7933,8 @@
         "itemCount": 10,
         "imageName": "cabochon-embolos-261ef228d9.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechWeaponStockItem",
@@ -7856,8 +7964,8 @@
         "itemCount": 80,
         "imageName": "tempered-bapholite-f058935e24.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Resource",
@@ -8163,7 +8271,6 @@
       "Deepbreath",
       "Drimper Bracket",
       "Fatboys",
-      "Hang Tenno",
       "Harpen Gyro",
       "Hona Bracket",
       "Kreska",
@@ -8532,8 +8639,7 @@
     "itemCount": 1,
     "parents": [
       "Basmu",
-      "Nautilus",
-      "Protea Mavv Helmet"
+      "Nautilus"
     ],
     "type": "Resource",
     "imageName": "nullstones-bcb7543ba8.png",
@@ -8828,6 +8934,12 @@
     "category": "Resources",
     "tradable": false,
     "drops": [
+      {
+        "location": "Operational Supply, Neutral",
+        "type": "Heart Nyth",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper Bull",
         "type": "Nyth",
@@ -9827,13 +9939,7 @@
     "itemCount": 1,
     "parents": [
       "Anspatha Brace",
-      "Ceno Apparel",
-      "Ceno Cuirass",
-      "Ceno Greaves",
-      "Ceno Helmet",
-      "Ceno Pauldrons",
       "Dorma Hound",
-      "Eidolon Ephemera",
       "Exceptional Sentient Core"
     ],
     "buildPrice": 10000,
@@ -10033,6 +10139,12 @@
     "tradable": false,
     "drops": [
       {
+        "location": "Vox Solaris, Hand",
+        "type": "Repeller Systems",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Venus/Orb Vallis (Level 40 - 60 PROFIT-TAKER - PHASE 1), Rotation C",
         "type": "3X Repeller Systems",
         "chance": 7.5,
@@ -10221,10 +10333,6 @@
       "Arcroid",
       "Bonewidow Capsule",
       "Catabolyst",
-      "Loid Sentinel Mask",
-      "Loid Sentinel Skin",
-      "Loid Sentinel Tail",
-      "Loid Sentinel Wing",
       "Macro Arcroid",
       "Macro Thymoid",
       "Quassus",
@@ -10558,6 +10666,12 @@
     "tradable": false,
     "drops": [
       {
+        "location": "Operational Supply, Neutral",
+        "type": "Radian Sentirum",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
         "location": "Narmer Thumper Bull",
         "type": "Sentirum",
         "chance": 25,
@@ -10608,6 +10722,14 @@
     "imageName": "seriglass-shard-3317de0afe.png",
     "category": "Resources",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Entrati (Grandmother)",
+        "type": "Seriglass Shard",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "masterable": false
   },
   {
@@ -10804,14 +10926,8 @@
     "parents": [
       "Cela Bracket",
       "Certus Brace",
-      "Haztech Greaves",
-      "Kubrodon Ventkid Greaves",
-      "Outrider Greaves",
       "Plaga Brace",
-      "Smelter Greaves",
-      "Suo Brace",
-      "Vent Pobber Ventkid Greaves",
-      "Vent Rat Greaves"
+      "Suo Brace"
     ],
     "type": "Resource",
     "imageName": "sola-toroid-54f209afd3.png",
@@ -10918,8 +11034,7 @@
       "Bonewidow Capsule",
       "Granmu Prism",
       "Helstrum",
-      "Ramflare",
-      "Styanax Agogean Helmet"
+      "Ramflare"
     ],
     "buildPrice": 5000,
     "buildTime": 60,
@@ -11305,7 +11420,7 @@
     "uniqueName": "/Lotus/Types/Items/Plants/MiscItems/UnCommonDayPlantItem",
     "name": "Sunlight Dragonlily",
     "description": "This uncommon plant can only be found during the day. \n\nLocation: Obtained by gathering Sunlight Dragonlily plants that grow on Earth",
-    "itemCount": 10,
+    "itemCount": 4,
     "parents": [
       "Citrine Antitoxin",
       "Lapis Antitoxin",
@@ -11922,11 +12037,9 @@
       "Bellows",
       "Drimper Bracket",
       "Flatbelly",
-      "Greedy Milk",
       "Needlenose",
       "Ocucor",
       "Oloro Moa",
-      "Puppeteer",
       "Runway",
       "Tombfinger",
       "Trux Gyro",
@@ -12023,13 +12136,9 @@
     "parents": [
       "Aeolak",
       "Alternox",
-      "Gyre Automaton Helmet",
       "Hespar",
       "Innodem",
-      "Praedos",
-      "Raptwing Ephemera",
-      "Seraphayre Ephemera",
-      "Styanax Gerousic Helmet"
+      "Praedos"
     ],
     "type": "Resource",
     "imageName": "thrax-plasm-acf664e015.png",
@@ -12579,8 +12688,7 @@
     "itemCount": 750,
     "parents": [
       "Basmu",
-      "Bonewidow Engine",
-      "Protea Mavv Helmet"
+      "Bonewidow Engine"
     ],
     "type": "Resource",
     "imageName": "titanium-71f5c8ab72.png",
@@ -13360,14 +13468,8 @@
     "itemCount": 3,
     "parents": [
       "Cantic Prism",
-      "Haztech Pauldrons",
       "Klamora Prism",
-      "Kubrodon Ventkid Pauldrons",
       "Lega Prism",
-      "Outrider Pauldrons",
-      "Smelter Pauldrons",
-      "Vent Pobber Ventkid Pauldrons",
-      "Vent Rat Pauldrons",
       "Zubb Bracket"
     ],
     "type": "Resource",
@@ -13456,33 +13558,17 @@
       "Flatbelly",
       "Gauth Bracket",
       "Gaze",
-      "Haztech Apparel",
-      "Haztech Cuirass",
-      "Haztech Pauldrons",
       "Hona Bracket",
       "Krisys Core",
-      "Kubrodon Ventkid Apparel",
-      "Kubrodon Ventkid Cuirass",
-      "Kubrodon Ventkid Pauldrons",
       "Lambeo Moa",
       "Larkspur",
       "Lehan Core",
       "Nychus Moa",
       "Ocucor",
-      "Outrider Cuirass",
-      "Outrider Pauldrons",
       "Rattleguts",
-      "Smelter Apparel",
-      "Smelter Cuirass",
-      "Smelter Pauldrons",
       "Sparkfire",
       "Step Tens",
-      "Thugs",
-      "Vent Pobber Ventkid Apparel",
-      "Vent Pobber Ventkid Cuirass",
-      "Vent Pobber Ventkid Pauldrons",
-      "Vent Rat Cuirass",
-      "Vent Rat Pauldrons"
+      "Thugs"
     ],
     "buildPrice": 1000,
     "buildTime": 60,
@@ -13587,6 +13673,12 @@
     "category": "Resources",
     "tradable": false,
     "drops": [
+      {
+        "location": "Ostron (Old Man Suumbaat), Kin",
+        "type": "Veridos Glyph",
+        "chance": 100,
+        "rarity": "Common"
+      },
       {
         "location": "Narmer Thumper",
         "type": "Veridos",
@@ -13715,10 +13807,7 @@
     "itemCount": 30,
     "parents": [
       "Felarx",
-      "Gyre Automaton Helmet",
-      "Laetum",
-      "Raptwing Ephemera",
-      "Seraphayre Ephemera"
+      "Laetum"
     ],
     "type": "Resource",
     "imageName": "voidgel-orb-479e1ce26c.png",
@@ -13848,9 +13937,7 @@
       "Innodem",
       "Laetum",
       "Phenmor",
-      "Praedos",
-      "Raptwing Ephemera",
-      "Seraphayre Ephemera"
+      "Praedos"
     ],
     "type": "Resource",
     "imageName": "voidplume-pinion-ddb17aa071.png",
@@ -13962,7 +14049,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Agnesis",
+            "type": "Voidrig Capsule Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechPartSystemsItem",
@@ -13971,8 +14065,8 @@
         "itemCount": 1,
         "imageName": "damaged-necramech-pod.png",
         "tradable": true,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Deimos/DeimosUncommonOreAAlloyItem",
@@ -13981,8 +14075,8 @@
         "itemCount": 50,
         "imageName": "devolved-namalon-8e85fb663c.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/Morphic",
@@ -14051,8 +14145,8 @@
         "itemCount": 60,
         "imageName": "adramal-alloy-8b552026ef.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/DeimosRecipes/Mechs/NecromechPartChassisBlueprint",
@@ -14062,7 +14156,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Agnesis",
+            "type": "Voidrig Casing Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechPartChassisItem",
@@ -14071,8 +14172,8 @@
         "itemCount": 1,
         "imageName": "damaged-necramech-casing.png",
         "tradable": true,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Deimos/DeimosCommonGemACutItem",
@@ -14081,8 +14182,8 @@
         "itemCount": 30,
         "imageName": "faceted-tiametrite-566329217b.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/OrbStoneItem",
@@ -14141,7 +14242,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Agnesis",
+            "type": "Voidrig Engine Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechPartEngineItem",
@@ -14150,8 +14258,8 @@
         "itemCount": 1,
         "imageName": "damaged-necramech-engine.png",
         "tradable": true,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/MiscItems/OrokinCell",
@@ -14181,8 +14289,8 @@
         "itemCount": 50,
         "imageName": "tempered-bapholite-f058935e24.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Resource",
@@ -14241,7 +14349,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "NecraLoid (Loid), Clearance Agnesis",
+            "type": "Voidrig Weapon Pod Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Gameplay/InfestedMicroplanet/Resources/Mechs/DamagedMechPartWeaponPodItem",
@@ -14250,8 +14365,8 @@
         "itemCount": 1,
         "imageName": "damaged-necramech-weapon-pod.png",
         "tradable": true,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Deimos/DeimosCommonGemBCutItem",
@@ -14260,8 +14375,8 @@
         "itemCount": 30,
         "imageName": "purged-dagonic-abe38c9af0.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Deimos/DeimosUncommonGemACutItem",
@@ -14270,8 +14385,8 @@
         "itemCount": 40,
         "imageName": "purified-heciphron-e06b524f7a.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       }
     ],
     "type": "Resource",

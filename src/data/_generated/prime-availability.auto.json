@@ -3607,16 +3607,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionGyrePrimeASilver": {
-    "name": "Axi A20 Exceptional"
+    "name": "Axi A20 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionGyrePrimeAGold": {
-    "name": "Axi A20 Flawless"
+    "name": "Axi A20 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionGyrePrimeABronze": {
-    "name": "Axi A20 Intact"
+    "name": "Axi A20 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionGyrePrimeAPlatinum": {
-    "name": "Axi A20 Radiant"
+    "name": "Axi A20 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionMiragePrimeBSilver": {
     "name": "Axi A3 Exceptional",
@@ -3891,32 +3895,32 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeCSilver": {
-    "name": "Axi C10 Exceptional"
+    "name": "Axi C10 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeCGold": {
-    "name": "Axi C10 Flawless"
+    "name": "Axi C10 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeCBronze": {
-    "name": "Axi C10 Intact"
+    "name": "Axi C10 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeCPlatinum": {
-    "name": "Axi C10 Radiant"
+    "name": "Axi C10 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCSilver": {
-    "name": "Axi C11 Exceptional",
-    "vaulted": true
+    "name": "Axi C11 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCGold": {
-    "name": "Axi C11 Flawless",
-    "vaulted": true
+    "name": "Axi C11 Flawless"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCBronze": {
-    "name": "Axi C11 Intact",
-    "vaulted": true
+    "name": "Axi C11 Intact"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeCPlatinum": {
-    "name": "Axi C11 Radiant",
-    "vaulted": true
+    "name": "Axi C11 Radiant"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionUSilver": {
     "name": "Axi C2 Exceptional",
@@ -4127,20 +4131,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBSilver": {
-    "name": "Axi D6 Exceptional",
-    "vaulted": true
+    "name": "Axi D6 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBGold": {
-    "name": "Axi D6 Flawless",
-    "vaulted": true
+    "name": "Axi D6 Flawless"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBBronze": {
-    "name": "Axi D6 Intact",
-    "vaulted": true
+    "name": "Axi D6 Intact"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeBPlatinum": {
-    "name": "Axi D6 Radiant",
-    "vaulted": true
+    "name": "Axi D6 Radiant"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionQSilver": {
     "name": "Axi E1 Exceptional",
@@ -5087,16 +5087,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionYareliPrimeBSilver": {
-    "name": "Axi N13 Exceptional"
+    "name": "Axi N13 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionYareliPrimeBGold": {
-    "name": "Axi N13 Flawless"
+    "name": "Axi N13 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionYareliPrimeBBronze": {
-    "name": "Axi N13 Intact"
+    "name": "Axi N13 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionYareliPrimeBPlatinum": {
-    "name": "Axi N13 Radiant"
+    "name": "Axi N13 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionGSilver": {
     "name": "Axi N2 Exceptional",
@@ -5435,16 +5439,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionLavosPrimeASilver": {
-    "name": "Axi P8 Exceptional"
+    "name": "Axi P8 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionLavosPrimeAGold": {
-    "name": "Axi P8 Flawless"
+    "name": "Axi P8 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionLavosPrimeABronze": {
-    "name": "Axi P8 Intact"
+    "name": "Axi P8 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionLavosPrimeAPlatinum": {
-    "name": "Axi P8 Radiant"
+    "name": "Axi P8 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionLavosPrimeESilver": {
     "name": "Axi P9 Exceptional",
@@ -5674,16 +5682,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeASilver": {
-    "name": "Axi S18 Exceptional"
+    "name": "Axi S18 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeAGold": {
-    "name": "Axi S18 Flawless"
+    "name": "Axi S18 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeABronze": {
-    "name": "Axi S18 Intact"
+    "name": "Axi S18 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionCalibanPrimeAPlatinum": {
-    "name": "Axi S18 Radiant"
+    "name": "Axi S18 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionWispHildrynVaultBSilver": {
     "name": "Axi S19 Exceptional",
@@ -5718,20 +5730,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDSilver": {
-    "name": "Axi S20 Exceptional",
-    "vaulted": true
+    "name": "Axi S20 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDGold": {
-    "name": "Axi S20 Flawless",
-    "vaulted": true
+    "name": "Axi S20 Flawless"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDBronze": {
-    "name": "Axi S20 Intact",
-    "vaulted": true
+    "name": "Axi S20 Intact"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeDPlatinum": {
-    "name": "Axi S20 Radiant",
-    "vaulted": true
+    "name": "Axi S20 Radiant"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionRhinoNyxVaultASilver": {
     "name": "Axi S3 Exceptional",
@@ -6122,20 +6130,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeESilver": {
-    "name": "Axi V14 Exceptional",
-    "vaulted": true
+    "name": "Axi V14 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEGold": {
-    "name": "Axi V14 Flawless",
-    "vaulted": true
+    "name": "Axi V14 Flawless"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEBronze": {
-    "name": "Axi V14 Intact",
-    "vaulted": true
+    "name": "Axi V14 Intact"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeEPlatinum": {
-    "name": "Axi V14 Radiant",
-    "vaulted": true
+    "name": "Axi V14 Radiant"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionFSilver": {
     "name": "Axi V2 Exceptional",
@@ -6358,20 +6362,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeASilver": {
-    "name": "Axi Y3 Exceptional",
-    "vaulted": true
+    "name": "Axi Y3 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeAGold": {
-    "name": "Axi Y3 Flawless",
-    "vaulted": true
+    "name": "Axi Y3 Flawless"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeABronze": {
-    "name": "Axi Y3 Intact",
-    "vaulted": true
+    "name": "Axi Y3 Intact"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionVorunaPrimeAPlatinum": {
-    "name": "Axi Y3 Radiant",
-    "vaulted": true
+    "name": "Axi Y3 Radiant"
   },
   "/Lotus/Types/Game/Projections/T4VoidProjectionNezhaPrimeASilver": {
     "name": "Axi Z1 Exceptional",
@@ -26989,20 +26989,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeASilver": {
-    "name": "Lith C14 Exceptional",
-    "vaulted": true
+    "name": "Lith C14 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeAGold": {
-    "name": "Lith C14 Flawless",
-    "vaulted": true
+    "name": "Lith C14 Flawless"
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeABronze": {
-    "name": "Lith C14 Intact",
-    "vaulted": true
+    "name": "Lith C14 Intact"
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeAPlatinum": {
-    "name": "Lith C14 Radiant",
-    "vaulted": true
+    "name": "Lith C14 Radiant"
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionMiragePrimeASilver": {
     "name": "Lith C2 Exceptional",
@@ -27225,16 +27221,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionGyrePrimeASilver": {
-    "name": "Lith D7 Exceptional"
+    "name": "Lith D7 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionGyrePrimeAGold": {
-    "name": "Lith D7 Flawless"
+    "name": "Lith D7 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionGyrePrimeABronze": {
-    "name": "Lith D7 Intact"
+    "name": "Lith D7 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionGyrePrimeAPlatinum": {
-    "name": "Lith D7 Radiant"
+    "name": "Lith D7 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionEmberRhinoVaultASilver": {
     "name": "Lith E1 Exceptional",
@@ -27993,16 +27993,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionGyrePrimeBSilver": {
-    "name": "Lith L7 Exceptional"
+    "name": "Lith L7 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionGyrePrimeBGold": {
-    "name": "Lith L7 Flawless"
+    "name": "Lith L7 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionGyrePrimeBBronze": {
-    "name": "Lith L7 Intact"
+    "name": "Lith L7 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionGyrePrimeBPlatinum": {
-    "name": "Lith L7 Radiant"
+    "name": "Lith L7 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionFSilver": {
     "name": "Lith M1 Exceptional",
@@ -28321,20 +28325,16 @@
     "name": "Lith N18 Radiant"
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBSilver": {
-    "name": "Lith N19 Exceptional",
-    "vaulted": true
+    "name": "Lith N19 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBGold": {
-    "name": "Lith N19 Flawless",
-    "vaulted": true
+    "name": "Lith N19 Flawless"
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBBronze": {
-    "name": "Lith N19 Intact",
-    "vaulted": true
+    "name": "Lith N19 Intact"
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBPlatinum": {
-    "name": "Lith N19 Radiant",
-    "vaulted": true
+    "name": "Lith N19 Radiant"
   },
   "/Lotus/Types/Game/Projections/T1VoidProjectionRSilver": {
     "name": "Lith N2 Exceptional",
@@ -31960,20 +31960,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeESilver": {
-    "name": "Meso A10 Exceptional",
-    "vaulted": true
+    "name": "Meso A10 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEGold": {
-    "name": "Meso A10 Flawless",
-    "vaulted": true
+    "name": "Meso A10 Flawless"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze": {
-    "name": "Meso A10 Intact",
-    "vaulted": true
+    "name": "Meso A10 Intact"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEPlatinum": {
-    "name": "Meso A10 Radiant",
-    "vaulted": true
+    "name": "Meso A10 Radiant"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGaussGrendelVaultASilver": {
     "name": "Meso A11 Exceptional",
@@ -32548,20 +32544,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCSilver": {
-    "name": "Meso D8 Exceptional",
-    "vaulted": true
+    "name": "Meso D8 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCGold": {
-    "name": "Meso D8 Flawless",
-    "vaulted": true
+    "name": "Meso D8 Flawless"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCBronze": {
-    "name": "Meso D8 Intact",
-    "vaulted": true
+    "name": "Meso D8 Intact"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeCPlatinum": {
-    "name": "Meso D8 Radiant",
-    "vaulted": true
+    "name": "Meso D8 Radiant"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionELFVaultASilver": {
     "name": "Meso E1 Exceptional",
@@ -32660,20 +32652,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBSilver": {
-    "name": "Meso E7 Exceptional",
-    "vaulted": true
+    "name": "Meso E7 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBGold": {
-    "name": "Meso E7 Flawless",
-    "vaulted": true
+    "name": "Meso E7 Flawless"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBBronze": {
-    "name": "Meso E7 Intact",
-    "vaulted": true
+    "name": "Meso E7 Intact"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeBPlatinum": {
-    "name": "Meso E7 Radiant",
-    "vaulted": true
+    "name": "Meso E7 Radiant"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionKSilver": {
     "name": "Meso F1 Exceptional",
@@ -33236,20 +33224,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeASilver": {
-    "name": "Meso L4 Exceptional",
-    "vaulted": true
+    "name": "Meso L4 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeAGold": {
-    "name": "Meso L4 Flawless",
-    "vaulted": true
+    "name": "Meso L4 Flawless"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeABronze": {
-    "name": "Meso L4 Intact",
-    "vaulted": true
+    "name": "Meso L4 Intact"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeAPlatinum": {
-    "name": "Meso L4 Radiant",
-    "vaulted": true
+    "name": "Meso L4 Radiant"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionYSilver": {
     "name": "Meso M1 Exceptional",
@@ -33824,16 +33808,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeBSilver": {
-    "name": "Meso P17 Exceptional"
+    "name": "Meso P17 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeBGold": {
-    "name": "Meso P17 Flawless"
+    "name": "Meso P17 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeBBronze": {
-    "name": "Meso P17 Intact"
+    "name": "Meso P17 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeBPlatinum": {
-    "name": "Meso P17 Radiant"
+    "name": "Meso P17 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionInarosPrimeASilver": {
     "name": "Meso P2 Exceptional",
@@ -34463,28 +34451,36 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionCalibanPrimeBSilver": {
-    "name": "Meso V11 Exceptional"
+    "name": "Meso V11 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionCalibanPrimeBGold": {
-    "name": "Meso V11 Flawless"
+    "name": "Meso V11 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionCalibanPrimeBBronze": {
-    "name": "Meso V11 Intact"
+    "name": "Meso V11 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionCalibanPrimeBPlatinum": {
-    "name": "Meso V11 Radiant"
+    "name": "Meso V11 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionCalibanPrimeCSilver": {
-    "name": "Meso V12 Exceptional"
+    "name": "Meso V12 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionCalibanPrimeCGold": {
-    "name": "Meso V12 Flawless"
+    "name": "Meso V12 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionCalibanPrimeCBronze": {
-    "name": "Meso V12 Intact"
+    "name": "Meso V12 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionCalibanPrimeCPlatinum": {
-    "name": "Meso V12 Radiant"
+    "name": "Meso V12 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeASilver": {
     "name": "Meso V13 Exceptional"
@@ -34499,32 +34495,32 @@
     "name": "Meso V13 Radiant"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeCSilver": {
-    "name": "Meso V14 Exceptional"
+    "name": "Meso V14 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeCGold": {
-    "name": "Meso V14 Flawless"
+    "name": "Meso V14 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeCBronze": {
-    "name": "Meso V14 Intact"
+    "name": "Meso V14 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeCPlatinum": {
-    "name": "Meso V14 Radiant"
+    "name": "Meso V14 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDSilver": {
-    "name": "Meso V15 Exceptional",
-    "vaulted": true
+    "name": "Meso V15 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDGold": {
-    "name": "Meso V15 Flawless",
-    "vaulted": true
+    "name": "Meso V15 Flawless"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDBronze": {
-    "name": "Meso V15 Intact",
-    "vaulted": true
+    "name": "Meso V15 Intact"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeDPlatinum": {
-    "name": "Meso V15 Radiant",
-    "vaulted": true
+    "name": "Meso V15 Radiant"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionDSilver": {
     "name": "Meso V2 Exceptional",
@@ -34747,16 +34743,20 @@
     "name": "Meso X1 Radiant"
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeDSilver": {
-    "name": "Meso Y1 Exceptional"
+    "name": "Meso Y1 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeDGold": {
-    "name": "Meso Y1 Flawless"
+    "name": "Meso Y1 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeDBronze": {
-    "name": "Meso Y1 Intact"
+    "name": "Meso Y1 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionGyrePrimeDPlatinum": {
-    "name": "Meso Y1 Radiant"
+    "name": "Meso Y1 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T2VoidProjectionLimboPrimeBSilver": {
     "name": "Meso Z1 Exceptional",
@@ -37155,16 +37155,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionLavosPrimeASilver": {
-    "name": "Neo C6 Exceptional"
+    "name": "Neo C6 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionLavosPrimeAGold": {
-    "name": "Neo C6 Flawless"
+    "name": "Neo C6 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionLavosPrimeABronze": {
-    "name": "Neo C6 Intact"
+    "name": "Neo C6 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionLavosPrimeAPlatinum": {
-    "name": "Neo C6 Radiant"
+    "name": "Neo C6 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGyrePrimeCSilver": {
     "name": "Neo C7 Exceptional"
@@ -37323,16 +37327,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionLavosPrimeDSilver": {
-    "name": "Neo D9 Exceptional"
+    "name": "Neo D9 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionLavosPrimeDGold": {
-    "name": "Neo D9 Flawless"
+    "name": "Neo D9 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionLavosPrimeDBronze": {
-    "name": "Neo D9 Intact"
+    "name": "Neo D9 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionLavosPrimeDPlatinum": {
-    "name": "Neo D9 Radiant"
+    "name": "Neo D9 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionELFVaultBSilver": {
     "name": "Neo E1 Exceptional",
@@ -38275,20 +38283,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeASilver": {
-    "name": "Neo N24 Exceptional",
-    "vaulted": true
+    "name": "Neo N24 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeAGold": {
-    "name": "Neo N24 Flawless",
-    "vaulted": true
+    "name": "Neo N24 Flawless"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze": {
-    "name": "Neo N24 Intact",
-    "vaulted": true
+    "name": "Neo N24 Intact"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeAPlatinum": {
-    "name": "Neo N24 Radiant",
-    "vaulted": true
+    "name": "Neo N24 Radiant"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionISilver": {
     "name": "Neo N3 Exceptional",
@@ -38435,16 +38439,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGyrePrimeDSilver": {
-    "name": "Neo O3 Exceptional"
+    "name": "Neo O3 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGyrePrimeDGold": {
-    "name": "Neo O3 Flawless"
+    "name": "Neo O3 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGyrePrimeDBronze": {
-    "name": "Neo O3 Intact"
+    "name": "Neo O3 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGyrePrimeDPlatinum": {
-    "name": "Neo O3 Radiant"
+    "name": "Neo O3 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionTitaniaPrimeBSilver": {
     "name": "Neo P1 Exceptional",
@@ -38463,20 +38471,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBSilver": {
-    "name": "Neo P10 Exceptional",
-    "vaulted": true
+    "name": "Neo P10 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBGold": {
-    "name": "Neo P10 Flawless",
-    "vaulted": true
+    "name": "Neo P10 Flawless"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBBronze": {
-    "name": "Neo P10 Intact",
-    "vaulted": true
+    "name": "Neo P10 Intact"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBPlatinum": {
-    "name": "Neo P10 Radiant",
-    "vaulted": true
+    "name": "Neo P10 Radiant"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionOctaviaPrimeCSilver": {
     "name": "Neo P2 Exceptional",
@@ -38591,16 +38595,20 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGyrePrimeBSilver": {
-    "name": "Neo P9 Exceptional"
+    "name": "Neo P9 Exceptional",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGyrePrimeBGold": {
-    "name": "Neo P9 Flawless"
+    "name": "Neo P9 Flawless",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGyrePrimeBBronze": {
-    "name": "Neo P9 Intact"
+    "name": "Neo P9 Intact",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGyrePrimeBPlatinum": {
-    "name": "Neo P9 Radiant"
+    "name": "Neo P9 Radiant",
+    "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionXakuPrimeBSilver": {
     "name": "Neo Q1 Exceptional",
@@ -38894,20 +38902,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCSilver": {
-    "name": "Neo S20 Exceptional",
-    "vaulted": true
+    "name": "Neo S20 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCGold": {
-    "name": "Neo S20 Flawless",
-    "vaulted": true
+    "name": "Neo S20 Flawless"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCBronze": {
-    "name": "Neo S20 Intact",
-    "vaulted": true
+    "name": "Neo S20 Intact"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeCPlatinum": {
-    "name": "Neo S20 Radiant",
-    "vaulted": true
+    "name": "Neo S20 Radiant"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionGSilver": {
     "name": "Neo S3 Exceptional",
@@ -39194,20 +39198,16 @@
     "vaulted": true
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDSilver": {
-    "name": "Neo V11 Exceptional",
-    "vaulted": true
+    "name": "Neo V11 Exceptional"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDGold": {
-    "name": "Neo V11 Flawless",
-    "vaulted": true
+    "name": "Neo V11 Flawless"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDBronze": {
-    "name": "Neo V11 Intact",
-    "vaulted": true
+    "name": "Neo V11 Intact"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeDPlatinum": {
-    "name": "Neo V11 Radiant",
-    "vaulted": true
+    "name": "Neo V11 Radiant"
   },
   "/Lotus/Types/Game/Projections/T3VoidProjectionJSilver": {
     "name": "Neo V2 Exceptional",

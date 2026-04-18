@@ -4685,7 +4685,7 @@
             "type": "Nautilus Prime Blueprint",
             "chance": 10,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Lith N17 Relic",
@@ -4713,7 +4713,7 @@
             "type": "Nautilus Prime Blueprint",
             "chance": 2,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Lith N17 Relic (Exceptional)",
@@ -4741,7 +4741,7 @@
             "type": "Nautilus Prime Blueprint",
             "chance": 4,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           },
           {
             "location": "Lith N17 Relic (Flawless)",
@@ -4769,7 +4769,7 @@
             "type": "Nautilus Prime Blueprint",
             "chance": 6,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeABronze"
           }
         ]
       },
@@ -4822,7 +4822,7 @@
             "type": "Nautilus Prime Carapace",
             "chance": 16.67,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Neo W2 Relic (Radiant)",
@@ -4871,7 +4871,7 @@
             "type": "Nautilus Prime Carapace",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Neo W2 Relic (Flawless)",
@@ -4920,7 +4920,7 @@
             "type": "Nautilus Prime Carapace",
             "chance": 23.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Neo W2 Relic (Exceptional)",
@@ -4969,7 +4969,7 @@
             "type": "Nautilus Prime Carapace",
             "chance": 25.33,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T3VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Neo W2 Relic",
@@ -5017,7 +5017,7 @@
             "type": "Nautilus Prime Cerebrum",
             "chance": 10,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Axi N13 Relic",
@@ -5045,7 +5045,7 @@
             "type": "Nautilus Prime Cerebrum",
             "chance": 2,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Axi N13 Relic (Exceptional)",
@@ -5073,7 +5073,7 @@
             "type": "Nautilus Prime Cerebrum",
             "chance": 4,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBBronze"
           },
           {
             "location": "Axi N13 Relic (Flawless)",
@@ -5101,7 +5101,7 @@
             "type": "Nautilus Prime Cerebrum",
             "chance": 6,
             "rarity": "Rare",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T1VoidProjectionVorunaPrimeBBronze"
           }
         ],
         "masterable": false,
@@ -5153,7 +5153,7 @@
             "type": "Nautilus Prime Systems",
             "chance": 11,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso V11 Relic",
@@ -5195,7 +5195,7 @@
             "type": "Nautilus Prime Systems",
             "chance": 13,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso V11 Relic (Exceptional)",
@@ -5237,7 +5237,7 @@
             "type": "Nautilus Prime Systems",
             "chance": 17,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso V11 Relic (Flawless)",
@@ -5279,7 +5279,7 @@
             "type": "Nautilus Prime Systems",
             "chance": 20,
             "rarity": "Uncommon",
-            "uniqueName": ""
+            "uniqueName": "/Lotus/Types/Game/Projections/T2VoidProjectionVorunaPrimeEBronze"
           },
           {
             "location": "Meso V11 Relic (Radiant)",
@@ -5353,8 +5353,8 @@
         "itemCount": 45,
         "imageName": "axidrol-alloy-1c1aae73ee.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Recipes/SentinelRecipes/RadarSentinelBlueprint",
@@ -5364,7 +5364,14 @@
         "imageName": "blueprint.png",
         "tradable": false,
         "masterable": false,
-        "drops": []
+        "drops": [
+          {
+            "location": "Solaris United (The Business), Old Mate",
+            "type": "Oxylus Blueprint",
+            "chance": 100,
+            "rarity": "Common"
+          }
+        ]
       },
       {
         "uniqueName": "/Lotus/Types/Items/Gems/Solaris/SolarisUncommonGemACutItem",
@@ -5373,8 +5380,8 @@
         "itemCount": 15,
         "imageName": "goblite-tears-db33ec8568.png",
         "tradable": false,
-        "masterable": false,
-        "drops": []
+        "drops": [],
+        "masterable": false
       },
       {
         "uniqueName": "/Lotus/Types/Items/Fish/Solaris/FishParts/SolarisFishLatheCoogulantItem",

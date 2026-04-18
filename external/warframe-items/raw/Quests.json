@@ -5131,6 +5131,38 @@
     "imageName": "vox-solaris-8eceaf1013.png",
     "category": "Quests",
     "tradable": false,
+    "drops": [
+      {
+        "location": "Vox Solaris, Agent",
+        "type": "Vox Solaris Agent Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Vox Solaris, Hand",
+        "type": "Vox Solaris Hand Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Vox Solaris, Instrument",
+        "type": "Vox Solaris Instrument Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Vox Solaris, Operative",
+        "type": "Vox Solaris Operative Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      },
+      {
+        "location": "Vox Solaris, Shadow",
+        "type": "Vox Solaris Shadow Sigil",
+        "chance": 100,
+        "rarity": "Common"
+      }
+    ],
     "patchlogs": [
       {
         "name": "Update 32.2.0: Lua’s Prey",
