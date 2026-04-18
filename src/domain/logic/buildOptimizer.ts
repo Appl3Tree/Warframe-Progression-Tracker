@@ -9,7 +9,7 @@
 // Phase 3 — Post-check: if the assigned build is still over capacity, drop the
 //            most expensive mod one at a time until it fits.
 
-import { usesMeleeDamageModel, type WeaponEntry, type WeaponAttack } from "../catalog/weaponCatalog";
+import { selectedAttackUsesIncarnonForm, usesMeleeDamageModel, type WeaponEntry, type WeaponAttack } from "../catalog/weaponCatalog";
 import type { ConditionalEffect, ModEntry, ModEffect } from "../catalog/modCatalog";
 import { emptyEffect, getModsForWeapon } from "../catalog/modCatalog";
 import type { ArcaneEntry } from "../catalog/arcaneCatalog";
@@ -656,6 +656,7 @@ function conditionalFactorForGoal(
 
 function makeWeaponForAttack(weapon: WeaponEntry, atk: WeaponAttack | null | undefined): WeaponEntry {
     if (!atk) return weapon;
+    const selectedAttackIdx = weapon.attacks.findIndex((attack) => attack === atk);
     return {
         ...weapon,
         damage:        atk.damage,
@@ -664,6 +665,10 @@ function makeWeaponForAttack(weapon: WeaponEntry, atk: WeaponAttack | null | und
         statusChance:  atk.statusChance,
         fireRate:      atk.speed || weapon.fireRate,
         chargeTime:    atk.chargeTime ?? null,
+        selectedAttackName: atk.name,
+        selectedAttackIsIncarnon: selectedAttackIdx >= 0
+            ? selectedAttackUsesIncarnonForm(weapon, selectedAttackIdx)
+            : /incarnon/i.test(String(atk.name ?? "")),
     };
 }
 

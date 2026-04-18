@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
     getWeaponCatalog,
     isGroundMeleeCategory,
+    selectedAttackUsesIncarnonForm,
     supportsStanceMods,
     usesMeleeDamageModel,
     type WeaponCategory,
@@ -710,6 +711,8 @@ function makeSelectedAttackWeapon(
         statusChance: selectedAttack.statusChance,
         fireRate: selectedAttack.speed || weapon.fireRate,
         chargeTime: selectedAttack.chargeTime ?? null,
+        selectedAttackName: selectedAttack.name,
+        selectedAttackIsIncarnon: selectedAttackUsesIncarnonForm(weapon, selectedAttackIdx),
     };
 }
 
@@ -927,7 +930,7 @@ function buildMathBreakdown(
     const totals = sumEffects(effects);
     const result = calculateBuild(weapon, effects, targetFaction);
     const stats = result.modded;
-    const ignoresReloadAndMagazine = !!weapon.isExalted;
+    const ignoresReloadAndMagazine = !!weapon.isExalted || !!weapon.selectedAttackIsIncarnon;
     const baseDamage = weapon.damage.total;
     const baseDamageMultiplier = 1 + totals.damageBonus;
     const moddedBaseDamage = baseDamage * baseDamageMultiplier;
@@ -1042,7 +1045,7 @@ function buildMathBreakdown(
                 ...fireRateExplanation,
                 `Burst DPS = ${avgDamageLabel} ${fmt(stats.averageShotDamage, 5)} × ${rateLabel} ${fmt(stats.fireRate, 5)} = ${fmt(result.burstDPS, 5)}`,
                 ignoresReloadAndMagazine
-                    ? `Sustained DPS = burst DPS for exalted weapons because reload/magazine are ignored = ${fmt(result.sustainedDPS, 5)}`
+                    ? `Sustained DPS = burst DPS because reload/magazine are ignored for exalted or Incarnon-form attacks = ${fmt(result.sustainedDPS, 5)}`
                     : `Sustained DPS = burst DPS × ((shotsPerMag ÷ fireRate) ÷ ((shotsPerMag ÷ fireRate) + reload)) = ${fmt(result.burstDPS, 5)} × ((${fmt(stats.shotsPerMag, 5)} ÷ ${fmt(stats.fireRate, 5)}) ÷ ((${fmt(stats.shotsPerMag, 5)} ÷ ${fmt(stats.fireRate, 5)}) + ${fmt(moddedReload, 5)})) = ${fmt(result.sustainedDPS, 5)}`,
             ],
         },

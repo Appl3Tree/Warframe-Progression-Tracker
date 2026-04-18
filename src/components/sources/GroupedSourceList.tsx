@@ -199,9 +199,12 @@ export function classifySourceFamilyFromCatalog(sourceId: string, label: string)
     if (sid.startsWith("data:vendor/") || normalized.startsWith("syndicate vendor:")) return "vendor";
     if (sid.startsWith("data:market/")) return "market";
     if (sid.startsWith("data:quest/")) return "quest";
+    if (sid === "data:conclave" || sid.startsWith("data:conclave/") || normalized.includes("conclave")) return "activity";
     if (sid.startsWith("data:cache:") || sid.startsWith("data:caches/") || normalized.includes("cache")) return "cache";
     if (
         sid.startsWith("data:missionreward/") ||
+        sid.includes("missionreward/") ||
+        sid.includes("missionreward:") ||
         sid.startsWith("data:node/") ||
         sid.startsWith("data:drop:node:") ||
         sid.startsWith("data:bounty/") ||
@@ -228,7 +231,19 @@ export function classifySourceFamilyFromCatalog(sourceId: string, label: string)
     ) {
         return "activity";
     }
-    if (sid.startsWith("src:") || sid.startsWith("data:enemy/")) return "enemy";
+    if (
+        sid.startsWith("src:") ||
+        sid.startsWith("data:enemy/") ||
+        sid.startsWith("data:enemyitem/") ||
+        sid.startsWith("data:resourcebyavatar/") ||
+        normalized.startsWith("resource drop (avatar):") ||
+        normalized.startsWith("additional drop (avatar):") ||
+        normalized.startsWith("enemy item drop:") ||
+        normalized.startsWith("enemy drop:") ||
+        normalized.startsWith("enemy:")
+    ) {
+        return "enemy";
+    }
     if (!normalized.includes("/") && !normalized.includes(",") && !normalized.includes(":")) return "enemy";
     return "other";
 }
@@ -240,6 +255,7 @@ export function classifySourceFamilyFromDropLocation(location: string): Exclude<
     if (!normalized) return "other";
     if (lower.includes("cache")) return "cache";
     if (normalized.includes("Relic")) return "relic";
+    if (lower.includes("conclave")) return "activity";
     if (
         lower.includes("bounty") ||
         lower.includes("rotation ") ||
@@ -259,7 +275,6 @@ export function classifySourceFamilyFromDropLocation(location: string): Exclude<
 
     if (
         lower.includes("sortie") ||
-        lower.includes("conclave") ||
         lower.includes("sanctuary") ||
         lower.includes("arbitration") ||
         lower.includes("circuit")
@@ -483,57 +498,106 @@ export function GroupedSourceList(props: {
                                             rowPadding,
                                         )}
                                     >
-                                        <div className={joinClasses("flex flex-wrap items-start justify-between", compact ? "gap-2" : "gap-3")}>
-                                            <div className="min-w-0 flex-1">
-                                                {!compact || activeFamily === "all" ? (
-                                                    <div className={joinClasses("font-semibold uppercase tracking-[0.16em] text-slate-500", compact ? "mb-0.5 text-[9px]" : "mb-1 text-[10px]")}>
+                                        {compact ? (
+                                            <div className="space-y-1.5">
+                                                {activeFamily === "all" ? (
+                                                    <div className="mb-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                                                         {FAMILY_META[entry.family].label}
                                                     </div>
                                                 ) : null}
-                                                {entry.href ? (
-                                                    <a
-                                                        href={entry.href}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className={joinClasses(
-                                                            "block min-w-0 font-medium text-slate-100 transition-colors hover:text-cyan-200 hover:underline",
-                                                            titleClassName,
-                                                        )}
-                                                    >
-                                                        {entry.title}
-                                                    </a>
-                                                ) : (
-                                                    <div className={joinClasses("min-w-0 font-medium text-slate-100", titleClassName)}>{entry.title}</div>
-                                                )}
-                                                {entry.subtitle ? <div className={joinClasses(compact ? "mt-0.5 leading-snug text-slate-500" : "mt-1 max-w-[52ch] leading-relaxed text-slate-400", subtitleClassName)}>{entry.subtitle}</div> : null}
-                                            </div>
-
-                                            <div className={joinClasses("flex shrink-0 flex-wrap items-center justify-end", compact ? "gap-1 self-center" : "gap-1.5")}>
-                                                {entry.badges?.map((badge, index) => (
-                                                    <span
-                                                        key={`${entry.id}-badge-${index}`}
-                                                        title={badge.title}
-                                                        className={joinClasses(
-                                                            compact
-                                                                ? "rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em]"
-                                                                : "rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
-                                                            BADGE_TONE_CLASSNAMES[badge.tone ?? "neutral"],
-                                                        )}
-                                                    >
-                                                        {badge.label}
-                                                    </span>
-                                                ))}
-                                                {entry.meta ? (
-                                                    <span className={joinClasses(
-                                                        "rounded-full border font-mono text-slate-300",
-                                                        compact ? "px-1.5 py-0.5 text-[9px]" : "px-2 py-1 text-[10px]",
-                                                        compact ? "border-slate-700/60 bg-slate-900" : "border-slate-700/70 bg-slate-950/75",
-                                                    )}>
-                                                        {entry.meta}
-                                                    </span>
+                                                <div className="min-w-0">
+                                                    {entry.href ? (
+                                                        <a
+                                                            href={entry.href}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className={joinClasses(
+                                                                "block min-w-0 break-words font-medium leading-snug text-slate-100 transition-colors hover:text-cyan-200 hover:underline",
+                                                                titleClassName,
+                                                            )}
+                                                        >
+                                                            {entry.title}
+                                                        </a>
+                                                    ) : (
+                                                        <div className={joinClasses("min-w-0 break-words font-medium leading-snug text-slate-100", titleClassName)}>
+                                                            {entry.title}
+                                                        </div>
+                                                    )}
+                                                    {entry.subtitle ? (
+                                                        <div className="mt-0.5 leading-snug text-[11px] text-slate-500">
+                                                            {entry.subtitle}
+                                                        </div>
+                                                    ) : null}
+                                                </div>
+                                                {entry.badges?.length || entry.meta ? (
+                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                        {entry.badges?.map((badge, index) => (
+                                                            <span
+                                                                key={`${entry.id}-badge-${index}`}
+                                                                title={badge.title}
+                                                                className={joinClasses(
+                                                                    "rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em]",
+                                                                    BADGE_TONE_CLASSNAMES[badge.tone ?? "neutral"],
+                                                                )}
+                                                            >
+                                                                {badge.label}
+                                                            </span>
+                                                        ))}
+                                                        {entry.meta ? (
+                                                            <span className="rounded-full border border-slate-700/60 bg-slate-900 px-1.5 py-0.5 font-mono text-[9px] text-slate-300">
+                                                                {entry.meta}
+                                                            </span>
+                                                        ) : null}
+                                                    </div>
                                                 ) : null}
                                             </div>
-                                        </div>
+                                        ) : (
+                                            <div className="flex flex-wrap items-start justify-between gap-3">
+                                                <div className="min-w-0 flex-1">
+                                                    {activeFamily === "all" ? (
+                                                        <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                                            {FAMILY_META[entry.family].label}
+                                                        </div>
+                                                    ) : null}
+                                                    {entry.href ? (
+                                                        <a
+                                                            href={entry.href}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className={joinClasses(
+                                                                "block min-w-0 font-medium text-slate-100 transition-colors hover:text-cyan-200 hover:underline",
+                                                                titleClassName,
+                                                            )}
+                                                        >
+                                                            {entry.title}
+                                                        </a>
+                                                    ) : (
+                                                        <div className={joinClasses("min-w-0 font-medium text-slate-100", titleClassName)}>{entry.title}</div>
+                                                    )}
+                                                    {entry.subtitle ? <div className={joinClasses("mt-1 max-w-[52ch] leading-relaxed text-slate-400", subtitleClassName)}>{entry.subtitle}</div> : null}
+                                                </div>
+
+                                                <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                                                    {entry.badges?.map((badge, index) => (
+                                                        <span
+                                                            key={`${entry.id}-badge-${index}`}
+                                                            title={badge.title}
+                                                            className={joinClasses(
+                                                                "rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
+                                                                BADGE_TONE_CLASSNAMES[badge.tone ?? "neutral"],
+                                                            )}
+                                                        >
+                                                            {badge.label}
+                                                        </span>
+                                                    ))}
+                                                    {entry.meta ? (
+                                                        <span className="rounded-full border border-slate-700/70 bg-slate-950/75 px-2 py-1 font-mono text-[10px] text-slate-300">
+                                                            {entry.meta}
+                                                        </span>
+                                                    ) : null}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>

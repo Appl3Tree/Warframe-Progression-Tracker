@@ -82,6 +82,10 @@ export interface WeaponEntry {
     tags: string[];
     /** True for progenitor weapons that can carry a Valence Bonus (Kuva/Tenet/Coda). */
     isProgenitorWeapon?: boolean;
+    /** Selected attack context carried into calculator/optimizer scoring. */
+    selectedAttackName?: string;
+    /** True when the selected attack is part of the weapon's Incarnon form. */
+    selectedAttackIsIncarnon?: boolean;
 }
 
 export function isGroundMeleeCategory(category: WeaponCategory): boolean {
@@ -94,6 +98,27 @@ export function usesMeleeDamageModel(category: WeaponCategory): boolean {
 
 export function supportsStanceMods(category: WeaponCategory): boolean {
     return category === "Melee";
+}
+
+function isNamedIncarnonAttack(name: string | undefined): boolean {
+    return /incarnon/i.test(String(name ?? ""));
+}
+
+export function selectedAttackUsesIncarnonForm(weapon: WeaponEntry, selectedAttackIdx: number): boolean {
+    const selectedAttack = weapon.attacks[selectedAttackIdx] ?? weapon.attacks[0];
+    if (!selectedAttack) return false;
+    if (isNamedIncarnonAttack(selectedAttack.name)) return true;
+
+    const firstIncarnonIdx = weapon.attacks.findIndex((attack) => isNamedIncarnonAttack(attack.name));
+    if (firstIncarnonIdx < 0) return false;
+
+    const selectedName = String(selectedAttack.name ?? "").toLowerCase();
+    if (/^normal\b/.test(selectedName) || /\buntransformed\b/.test(selectedName)) return false;
+
+    // WFCD sometimes emits supplementary Incarnon-mode attacks like "Auto Radial Attack"
+    // without the word "Incarnon" in the name. Those attacks are grouped after the first
+    // explicit Incarnon-form entry in the same attack list, so treat them as Incarnon scope.
+    return selectedAttackIdx >= firstIncarnonIdx;
 }
 
 /** Kuva/Tenet/Coda weapons can rank to 40 */

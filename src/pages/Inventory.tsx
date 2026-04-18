@@ -16,7 +16,17 @@ import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { formatSourceDisplayLabel } from "../utils/sourceLabels";
 import ALL_RAW from "../data/_generated/warframe-items-all-lean.auto.json";
+import ITEM_DROPS_DERIVED from "../data/_generated/item-drops-derived.byUniqueName.auto.json";
 import missionRewardsJson from "../../external/warframe-drop-data/raw/missionRewards.json";
+import resourceByAvatarJson from "../../external/warframe-drop-data/raw/resourceByAvatar.json";
+import additionalItemByAvatarJson from "../../external/warframe-drop-data/raw/additionalItemByAvatar.json";
+import miscItemsJson from "../../external/warframe-drop-data/raw/miscItems.json";
+import solarisBountyRewardsJson from "../../external/warframe-drop-data/raw/solarisBountyRewards.json";
+import cetusBountyRewardsJson from "../../external/warframe-drop-data/raw/cetusBountyRewards.json";
+import deimosRewardsJson from "../../external/warframe-drop-data/raw/deimosRewards.json";
+import entratiLabRewardsJson from "../../external/warframe-drop-data/raw/entratiLabRewards.json";
+import hexRewardsJson from "../../external/warframe-drop-data/raw/hexRewards.json";
+import zarimanRewardsJson from "../../external/warframe-drop-data/raw/zarimanRewards.json";
 import { getRelicByKey } from "../domain/catalog/relicCatalog";
 import { getPrimeAvailabilityStatus, getRelicAvailabilityStatus } from "../domain/catalog/vaultedItems";
 import { useWorldStateData } from "../lib/useWorldStateData";
@@ -41,13 +51,14 @@ import {
 } from "../components/collection/CollectionLedgerShell";
 import { getAllWikiBlueprintReferencedCatalogIds, getWikiBlueprintRequirements } from "../catalog/items/wikiBlueprintRequirements";
 import { getEntityImageUrl } from "../utils/entityImage";
-import { getSyndicateVendorPrice, parseSyndicateVendorLabel } from "../catalog/sources/syndicateVendorPricing";
+import { getSyndicateVendorOffer, getSyndicateVendorPrice, parseSyndicateVendorLabel } from "../catalog/sources/syndicateVendorPricing";
 import {
   GroupedSourceList,
   classifySourceFamilyFromCatalog,
   classifySourceFamilyFromDropLocation,
   dedupeGroupedSourceEntries,
   extractInlinePriceMeta,
+  type SourceFamily,
   type GroupedSourceBadge,
   type GroupedSourceEntry,
 } from "../components/sources/GroupedSourceList";
@@ -133,7 +144,7 @@ type InventorySourceDrop = {
   type?: string;
 };
 
-function normalizeCacheKey(value: string): string | null {
+export function normalizeCacheKey(value: string): string | null {
   const normalized = String(value ?? "").trim();
   if (!normalized) return null;
 
@@ -142,7 +153,7 @@ function normalizeCacheKey(value: string): string | null {
     return `cache:${dropMatch[1].trim().toLowerCase()}/${dropMatch[2].trim().toLowerCase()}`;
   }
 
-  const labelMatch = normalized.match(/^Caches:\s+(.+?)\s+-\s+(.+)$/i);
+  const labelMatch = normalized.match(/^Caches:\s+(.+?)\s*(?:\/|-)\s*(.+)$/i);
   if (labelMatch) {
     return `cache:${labelMatch[1].trim().toLowerCase()}/${labelMatch[2].trim().toLowerCase()}`;
   }
@@ -155,7 +166,305 @@ function normalizeCacheKey(value: string): string | null {
   return null;
 }
 
-function buildInventorySourceEntries(args: {
+function normalizeEnemyKey(value: string): string | null {
+  const normalized = String(value ?? "").trim();
+  if (!normalized) return null;
+
+  const prefixedMatch = normalized.match(
+    /^(?:Enemy(?:\s+Item)?\s+Drop|Resource\s+Drop\s+\(Avatar\)|Additional\s+Drop\s+\(Avatar\)|Enemy|Avatar\s+Drop):\s+(.+)$/i,
+  );
+  const enemyName = prefixedMatch?.[1]?.trim() ?? normalized;
+  if (!enemyName) return null;
+
+  return `enemy:${enemyName.toLowerCase()}`;
+}
+
+type NormalizedMissionNode = {
+  nodeKey: string;
+  rotation?: string;
+  isCacheNode: boolean;
+  title?: string;
+};
+
+type ParsedMissionLabel = {
+  planet: string;
+  node: string;
+  rotation?: string;
+  isCacheNode: boolean;
+  title: string;
+};
+
+function rememberRicherMissionTitle(store: Map<string, string>, nodeKey: string, candidate?: string) {
+  const normalizedNodeKey = String(nodeKey ?? "").trim();
+  const normalizedCandidate = String(candidate ?? "").trim();
+  if (!normalizedNodeKey || !normalizedCandidate) return;
+
+  const current = store.get(normalizedNodeKey);
+  if (!current || normalizedCandidate.length > current.length) {
+    store.set(normalizedNodeKey, normalizedCandidate);
+  }
+}
+
+function normalizeMissionNodeFromSourceId(sourceId: string): NormalizedMissionNode | null {
+  const normalized = String(sourceId ?? "").trim().toLowerCase();
+  if (!normalized) return null;
+
+  const cacheMatch = normalized.match(/^data:caches\/([^/]+)\/(.+)$/);
+  if (cacheMatch) {
+    return {
+      nodeKey: `${cacheMatch[1]}/${cacheMatch[2]}`,
+      isCacheNode: true,
+    };
+  }
+
+  const nodeCacheMatch = normalized.match(/^data:node\/([^/]+)\/(.+)-caches$/);
+  if (nodeCacheMatch) {
+    return {
+      nodeKey: `${nodeCacheMatch[1]}/${nodeCacheMatch[2]}`,
+      isCacheNode: true,
+    };
+  }
+
+  const missionMatch = normalized.match(/^data:missionreward\/([^/]+)\/([^/]+)(?:\/rotation([abc]))?$/);
+  if (missionMatch) {
+    return {
+      nodeKey: `${missionMatch[1]}/${missionMatch[2]}`,
+      rotation: missionMatch[3]?.toUpperCase(),
+      isCacheNode: false,
+    };
+  }
+
+  const embeddedMissionMatch = normalized.match(/missionreward[/:]([^/:]+)[/:]([^/:]+)(?:[/:]rotation([abc]))?$/);
+  if (embeddedMissionMatch) {
+    return {
+      nodeKey: `${embeddedMissionMatch[1]}/${embeddedMissionMatch[2]}`,
+      rotation: embeddedMissionMatch[3]?.toUpperCase(),
+      isCacheNode: false,
+    };
+  }
+
+  const dropNodeMatch = normalized.match(/^data:drop:node:([^:]+):(.+)$/);
+  if (dropNodeMatch) {
+    return {
+      nodeKey: `${dropNodeMatch[1]}/${dropNodeMatch[2]}`,
+      isCacheNode: false,
+    };
+  }
+
+  return null;
+}
+
+function normalizeMissionNodeFromDropLocation(location: string): NormalizedMissionNode | null {
+  const normalized = String(location ?? "").trim();
+  if (!normalized) return null;
+
+  const cacheMatch = normalized.match(/^([^/]+)\/([^,(]+)\s+\(Caches\)(?:,\s*Rotation\s+([ABC]))?$/i);
+  if (cacheMatch) {
+    return {
+      nodeKey: `${cacheMatch[1].trim().toLowerCase()}/${cacheMatch[2].trim().toLowerCase()}`,
+      rotation: cacheMatch[3]?.toUpperCase(),
+      isCacheNode: true,
+      title: `${cacheMatch[1].trim()}/${cacheMatch[2].trim()} (Caches)`,
+    };
+  }
+
+  const rotationMatch = normalized.match(/,\s*Rotation\s+([ABC])\s*$/i);
+  const title = rotationMatch ? normalized.slice(0, normalized.length - rotationMatch[0].length).trim() : normalized;
+  const missionMatch = title.match(/^([^/]+)\/([^,(]+)(?:\s+\([^)]*\))?$/i);
+  if (missionMatch) {
+    return {
+      nodeKey: `${missionMatch[1].trim().toLowerCase()}/${missionMatch[2].trim().toLowerCase()}`,
+      rotation: rotationMatch?.[1]?.toUpperCase(),
+      isCacheNode: false,
+      title,
+    };
+  }
+
+  return null;
+}
+
+function parseMissionLabelParts(rawLabel: string): ParsedMissionLabel | null {
+  const normalized = String(rawLabel ?? "").trim();
+  if (!normalized) return null;
+
+  const label = normalized
+    .replace(/^Mission Reward:\s*/i, "")
+    .replace(/^Missionreward\s*-\s*/i, "")
+    .trim();
+  if (!label) return null;
+
+  const technicalRotationMatch = label.match(/^(.+?)\s+-\s+(.+?)\s+-\s+Rotation\s+([ABC])$/i);
+  if (technicalRotationMatch) {
+    return {
+      planet: technicalRotationMatch[1].trim(),
+      node: technicalRotationMatch[2].trim(),
+      rotation: technicalRotationMatch[3].toUpperCase(),
+      isCacheNode: false,
+      title: `${technicalRotationMatch[1].trim()}/${technicalRotationMatch[2].trim()}`,
+    };
+  }
+
+  const slashMatch = label.match(/^([^/]+)\/(.+)$/);
+  const dashMatch = label.match(/^(.+?)\s+-\s+(.+)$/);
+  const planet = slashMatch?.[1] ?? dashMatch?.[1];
+  const rawRest = slashMatch?.[2] ?? dashMatch?.[2];
+  if (!planet || !rawRest) return null;
+
+  const rest = rawRest.trim();
+  const parenMatches = Array.from(rest.matchAll(/\(([^)]+)\)/g)).map((match) => match[1].trim());
+  const rotationToken = parenMatches.find((token) => /^rotation\s+[abc]$/i.test(token));
+  const rotation = rotationToken?.match(/^rotation\s+([abc])$/i)?.[1]?.toUpperCase();
+  const isCacheNode = parenMatches.some((token) => /^caches$/i.test(token));
+  const hasSteelPath = parenMatches.some((token) => /^steel path$/i.test(token));
+  const mode = parenMatches.find((token) => !/^rotation\s+[abc]$/i.test(token) && !/^caches$/i.test(token) && !/^steel path$/i.test(token));
+  const node = rest.replace(/\s*\([^)]*\)/g, "").trim();
+  if (!node) return null;
+
+  const titleSuffixes = [
+    hasSteelPath ? "Steel Path" : null,
+    mode ?? null,
+    isCacheNode ? "Caches" : null,
+  ].filter(Boolean);
+
+  return {
+    planet: planet.trim(),
+    node,
+    rotation,
+    isCacheNode,
+    title: `${planet.trim()}/${node}${titleSuffixes.length > 0 ? ` (${titleSuffixes.join(") (")})` : ""}`,
+  };
+}
+
+function normalizeMissionNodeFromCatalogLabel(label: string): NormalizedMissionNode | null {
+  const parsed = parseMissionLabelParts(label);
+  if (!parsed) return null;
+
+  return {
+    nodeKey: `${parsed.planet.toLowerCase()}/${parsed.node.toLowerCase()}`,
+    rotation: parsed.rotation,
+    isCacheNode: parsed.isCacheNode,
+    title: parsed.title,
+  };
+}
+
+function normalizeSemanticSourceToken(value: string): string {
+  return String(value ?? "")
+    .toLowerCase()
+    .replace(/^(?:mission reward|wfitems location|transient reward):\s*/i, "")
+    .replace(/\brotation\s+[abc]\b/gi, "")
+    .replace(/[():,/-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function collectSemanticSourceKeys(args: {
+  family: Exclude<SourceFamily, "all">;
+  title: string;
+  sourceId?: string;
+}): string[] {
+  const title = String(args.title ?? "").trim();
+  const sourceId = String(args.sourceId ?? "").trim().toLowerCase();
+  const keys = new Set<string>();
+  if (!title) return [];
+
+  const push = (value?: string | null) => {
+    const normalized = normalizeSemanticSourceToken(String(value ?? ""));
+    if (normalized) keys.add(normalized);
+  };
+
+  push(title);
+
+  const colonIndex = title.indexOf(": ");
+  if (colonIndex > 0) {
+    push(title.slice(colonIndex + 2));
+  }
+
+  const parenMatches = Array.from(title.matchAll(/\(([^)]+)\)/g));
+  for (const match of parenMatches) {
+    push(match[1]);
+  }
+
+  const slashModeMatch = title.match(/^[^/]+\/[^()]+\s+\(([^)]+)\)$/);
+  if (slashModeMatch) {
+    push(slashModeMatch[1]);
+  }
+
+  if (sourceId.startsWith("data:bounty/")) {
+    push(sourceId.split("/").slice(2).join(" "));
+  }
+
+  if (sourceId.startsWith("data:transient/")) {
+    push(sourceId.split("/").slice(1).join(" "));
+  }
+
+  if (sourceId.startsWith("data:wfitems:loc:")) {
+    push(sourceId.replace(/^data:wfitems:loc:/, ""));
+  }
+
+  return [...keys];
+}
+
+function buildSemanticFallbackDedupeKey(args: {
+  family: Exclude<SourceFamily, "all">;
+  title: string;
+  sourceId?: string;
+}): string | null {
+  const ranked = collectSemanticSourceKeys(args)
+    .map((value) => normalizeSemanticSourceToken(value))
+    .filter((value) => value.split(" ").length >= 3)
+    .sort((a, b) => a.length - b.length || a.localeCompare(b));
+  const best = ranked[0];
+  return best ? `${args.family}:${best}` : null;
+}
+
+type SemanticDropClusterMeta = {
+  minChance: number;
+  maxChance: number;
+  rarities: Set<string>;
+  rotations: Set<string>;
+};
+
+function normalizeActivityDomainToken(value: string): string | null {
+  const normalized = normalizeSemanticSourceToken(value);
+  if (!normalized) return null;
+  if (normalized.includes("conclave")) return "conclave";
+  if (normalized.includes("circuit")) return "circuit";
+  if (normalized.includes("sortie")) return "sortie";
+  if (normalized.includes("sanctuary")) return "sanctuary";
+  if (normalized.includes("arbitration")) return "arbitration";
+  if (normalized.includes("invasion")) return "invasion";
+  return null;
+}
+
+function buildActivityDedupeKey(args: {
+  title: string;
+  sourceId?: string;
+  normalizedNode?: NormalizedMissionNode | null;
+}): string | null {
+  const sourceId = String(args.sourceId ?? "").trim().toLowerCase();
+  const normalizedNode = args.normalizedNode;
+
+  if (normalizedNode) {
+    return `activity:${normalizedNode.nodeKey}${normalizedNode.rotation ? `:rot${normalizedNode.rotation}` : ""}`;
+  }
+
+  if (sourceId === "data:conclave" || sourceId.startsWith("data:conclave/")) {
+    return sourceId === "data:conclave"
+      ? "activity:conclave"
+      : `activity:${sourceId.replace(/^data:/, "")}`;
+  }
+
+  const semanticKeys = collectSemanticSourceKeys({ family: "activity", title: args.title, sourceId: args.sourceId });
+  const domainToken =
+    semanticKeys.map((value) => normalizeActivityDomainToken(value)).find(Boolean)
+    ?? normalizeActivityDomainToken(sourceId.replace(/^data:/, "").replace(/[/:]+/g, " "));
+  if (domainToken) return `activity:${domainToken}`;
+
+  const fallback = semanticKeys[0];
+  return fallback ? `activity:${fallback}` : null;
+}
+
+export function buildInventorySourceEntries(args: {
   itemName?: string | string[] | null;
   sourceIds?: string[];
   drops?: InventorySourceDrop[];
@@ -170,38 +479,48 @@ function buildInventorySourceEntries(args: {
   const marketCreditsPrice = args.marketCreditsPrice ?? null;
   const marketPlatinumPrice = args.marketPlatinumPrice ?? null;
 
-  const catalogEntries: GroupedSourceEntry[] = sourceIds
-    .filter((sourceId) => sourceId !== "data:crafting")
-    .map((sourceId) => {
-      const label = formatSourceDisplayLabel(SOURCE_INDEX[sourceId as keyof typeof SOURCE_INDEX]?.label ?? sourceId);
-      const syndicateVendor = parseSyndicateVendorLabel(label);
-      const marketMeta =
-        sourceId === "data:market/credits" && marketCreditsPrice && Number.isFinite(marketCreditsPrice)
-          ? `${marketCreditsPrice.toLocaleString()} Credits`
-          : sourceId === "data:market/platinum" && marketPlatinumPrice && Number.isFinite(marketPlatinumPrice)
-            ? `${marketPlatinumPrice.toLocaleString()} Platinum`
-            : null;
-      const syndicateStanding =
-        itemName && label.toLowerCase().startsWith("syndicate vendor:")
-          ? getSyndicateVendorPrice(itemName, label)
-          : null;
-      const cacheDedupeKey = classifySourceFamilyFromCatalog(sourceId, label) === "cache"
-        ? normalizeCacheKey(label)
-        : null;
-      return {
-        id: `catalog:${sourceId}`,
-        family: classifySourceFamilyFromCatalog(sourceId, label),
-        dedupeKey: syndicateVendor?.vendorName ? `vendor:${syndicateVendor.vendorName}` : cacheDedupeKey ?? undefined,
-        title: syndicateVendor?.vendorName ?? label,
-        subtitle: syndicateVendor?.rankName
-          ? `Rank ${syndicateVendor.rankNumber ?? "?"} · ${syndicateVendor.rankName}`
-          : undefined,
-        meta: syndicateStanding != null
-          ? `${syndicateStanding.toLocaleString()} Standing`
-          : marketMeta ?? extractInlinePriceMeta(label) ?? undefined,
-        sortValue: undefined,
-      };
-    });
+  const knownCacheNodes = new Set<string>();
+  const knownMissionRotationKeys = new Set<string>();
+  const knownMissionTitles = new Map<string, string>();
+  let hasDetailedConclaveActivityDrops = false;
+
+  for (const sourceId of sourceIds) {
+    const sourceLabel = formatSourceDisplayLabel(SOURCE_INDEX[sourceId as keyof typeof SOURCE_INDEX]?.label ?? sourceId);
+    const normalizedNodeFromSourceId = normalizeMissionNodeFromSourceId(sourceId);
+    const normalizedNodeFromLabel = normalizeMissionNodeFromCatalogLabel(sourceLabel);
+    const normalizedNode = normalizedNodeFromSourceId
+      ? { ...normalizedNodeFromSourceId, title: normalizedNodeFromSourceId.title ?? normalizedNodeFromLabel?.title }
+      : normalizedNodeFromLabel;
+    if (!normalizedNode) continue;
+    if (normalizedNode.isCacheNode) {
+      knownCacheNodes.add(normalizedNode.nodeKey);
+    }
+    if (normalizedNode.rotation) {
+      knownMissionRotationKeys.add(`mission:${normalizedNode.nodeKey}:rot${normalizedNode.rotation}`);
+    }
+    if (!normalizedNode.isCacheNode) {
+      rememberRicherMissionTitle(knownMissionTitles, normalizedNode.nodeKey, normalizedNode.title);
+    }
+  }
+
+  for (const drop of drops) {
+    if (classifySourceFamilyFromDropLocation(drop.location) === "activity" && /\bconclave\b/i.test(drop.location)) {
+      hasDetailedConclaveActivityDrops = true;
+    }
+    const normalizedNode = normalizeMissionNodeFromDropLocation(drop.location);
+    if (!normalizedNode) continue;
+    if (normalizedNode.isCacheNode) {
+      knownCacheNodes.add(normalizedNode.nodeKey);
+    }
+    if (normalizedNode.rotation) {
+      knownMissionRotationKeys.add(`mission:${normalizedNode.nodeKey}:rot${normalizedNode.rotation}`);
+    }
+    if (!normalizedNode.isCacheNode) {
+      rememberRicherMissionTitle(knownMissionTitles, normalizedNode.nodeKey, normalizedNode.title);
+    }
+  }
+
+  const semanticDropMetaByKey = new Map<string, SemanticDropClusterMeta>();
 
   const dropEntries: GroupedSourceEntry[] = drops.map((drop) => {
     const family = classifySourceFamilyFromDropLocation(drop.location);
@@ -222,13 +541,13 @@ function buildInventorySourceEntries(args: {
       }
     }
 
-    if (family === "mission") {
+    if (family === "mission" || family === "activity") {
       const rotationMatch = drop.location.match(/,\s*Rotation\s+([ABC])\s*$/i);
       if (rotationMatch) {
         title = drop.location.slice(0, drop.location.length - rotationMatch[0].length).trim();
         badges.push({ label: `Rot ${rotationMatch[1].toUpperCase()}`, tone: "mission" });
       }
-      if (isSteelPathDrop(drop)) {
+      if (family === "mission" && isSteelPathDrop(drop)) {
         badges.push({
           label: "Steel Path",
           tone: "warning",
@@ -255,11 +574,51 @@ function buildInventorySourceEntries(args: {
 
     if (rarity && family !== "vendor") badges.push({ label: rarity, tone: "neutral" });
     const cacheDedupeKey = family === "cache" ? normalizeCacheKey(drop.location) : null;
+    const missionDedupeKey = family === "mission"
+      ? (() => {
+          const normalizedNode = normalizeMissionNodeFromDropLocation(drop.location);
+          return normalizedNode
+            ? `mission:${normalizedNode.nodeKey}${normalizedNode.rotation ? `:rot${normalizedNode.rotation}` : ""}`
+            : null;
+        })()
+      : null;
+    const activityDedupeKey = family === "activity"
+      ? buildActivityDedupeKey({
+          title,
+          normalizedNode: normalizeMissionNodeFromDropLocation(drop.location),
+        })
+      : null;
+    const enemyDedupeKey = family === "enemy" ? normalizeEnemyKey(title) : null;
+    const semanticFallbackDedupeKey =
+      cacheDedupeKey || missionDedupeKey || activityDedupeKey || enemyDedupeKey
+        ? null
+        : buildSemanticFallbackDedupeKey({ family, title });
+
+    if (family === "mission" || family === "cache" || family === "activity") {
+      const rotationBadge = badges.find((badge) => /^Rot\s+[ABC]$/i.test(badge.label))?.label;
+      const rarityLabel = badges.find((badge) => badge.tone === "neutral")?.label;
+      for (const key of collectSemanticSourceKeys({ family, title })) {
+        const existing = semanticDropMetaByKey.get(key);
+        if (existing) {
+          existing.minChance = Math.min(existing.minChance, drop.chance);
+          existing.maxChance = Math.max(existing.maxChance, drop.chance);
+          if (rarityLabel) existing.rarities.add(rarityLabel);
+          if (rotationBadge) existing.rotations.add(rotationBadge);
+        } else {
+          semanticDropMetaByKey.set(key, {
+            minChance: drop.chance,
+            maxChance: drop.chance,
+            rarities: new Set(rarityLabel ? [rarityLabel] : []),
+            rotations: new Set(rotationBadge ? [rotationBadge] : []),
+          });
+        }
+      }
+    }
 
     return {
       id: `drop:${drop.location}:${drop.chance}:${drop.rarity ?? ""}`,
       family,
-      dedupeKey: cacheDedupeKey ?? undefined,
+      dedupeKey: cacheDedupeKey ?? missionDedupeKey ?? activityDedupeKey ?? enemyDedupeKey ?? semanticFallbackDedupeKey ?? undefined,
       title,
       subtitle,
       meta,
@@ -269,13 +628,121 @@ function buildInventorySourceEntries(args: {
     };
   });
 
-  const seen = new Set<string>();
-  return [...catalogEntries, ...dropEntries].filter((entry) => {
-    const key = `${entry.family}:${entry.title}:${entry.subtitle ?? ""}:${entry.meta ?? ""}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const catalogEntries: GroupedSourceEntry[] = sourceIds
+    .filter((sourceId) => sourceId !== "data:crafting")
+    .flatMap((sourceId) => {
+      const label = formatSourceDisplayLabel(SOURCE_INDEX[sourceId as keyof typeof SOURCE_INDEX]?.label ?? sourceId);
+      const normalizedNodeFromSourceId = normalizeMissionNodeFromSourceId(sourceId);
+      const normalizedNodeFromLabel = normalizeMissionNodeFromCatalogLabel(label);
+      const normalizedNode = normalizedNodeFromSourceId
+        ? { ...normalizedNodeFromSourceId, title: normalizedNodeFromSourceId.title ?? normalizedNodeFromLabel?.title }
+        : normalizedNodeFromLabel;
+      const effectiveFamily =
+        normalizedNode?.isCacheNode || (normalizedNode && knownCacheNodes.has(normalizedNode.nodeKey))
+          ? "cache"
+          : classifySourceFamilyFromCatalog(sourceId, label);
+      if (effectiveFamily === "activity" && sourceId === "data:conclave" && hasDetailedConclaveActivityDrops) {
+        return [];
+      }
+      const syndicateVendor = parseSyndicateVendorLabel(label);
+      const vendorOffer =
+        itemName && effectiveFamily === "vendor"
+          ? getSyndicateVendorOffer(itemName, syndicateVendor?.vendorName ?? label.replace(/^Buy from\s+/i, "").trim())
+          : null;
+      const marketMeta =
+        sourceId === "data:market/credits" && marketCreditsPrice && Number.isFinite(marketCreditsPrice)
+          ? `${marketCreditsPrice.toLocaleString()} Credits`
+          : sourceId === "data:market/platinum" && marketPlatinumPrice && Number.isFinite(marketPlatinumPrice)
+            ? `${marketPlatinumPrice.toLocaleString()} Platinum`
+            : null;
+      const syndicateStanding =
+        itemName && label.toLowerCase().startsWith("syndicate vendor:")
+          ? getSyndicateVendorPrice(itemName, label)
+          : null;
+      const cacheDedupeKey = effectiveFamily === "cache"
+        ? (normalizedNode?.nodeKey ? `cache:${normalizedNode.nodeKey}` : normalizeCacheKey(label))
+        : null;
+      const missionDedupeKey = effectiveFamily === "mission" && normalizedNode
+        ? `mission:${normalizedNode.nodeKey}${normalizedNode.rotation ? `:rot${normalizedNode.rotation}` : ""}`
+        : null;
+      const enemyDedupeKey = effectiveFamily === "enemy" ? normalizeEnemyKey(label) : null;
+      const semanticFallbackDedupeKey =
+        cacheDedupeKey || missionDedupeKey || enemyDedupeKey
+          ? null
+          : buildSemanticFallbackDedupeKey({ family: effectiveFamily, title: label, sourceId });
+      const enemyTitle = effectiveFamily === "enemy"
+        ? label.replace(/^(?:Enemy(?:\s+Item)?\s+Drop|Resource\s+Drop\s+\(Avatar\)|Additional\s+Drop\s+\(Avatar\)|Enemy|Avatar\s+Drop):\s+/i, "").trim()
+        : null;
+      const missionBadges: GroupedSourceBadge[] = [];
+
+      if (effectiveFamily === "mission" && normalizedNode?.rotation) {
+        missionBadges.push({ label: `Rot ${normalizedNode.rotation}`, tone: "mission" });
+      }
+
+      const title = syndicateVendor?.vendorName
+        ?? vendorOffer?.vendorName
+        ?? enemyTitle
+        ?? (effectiveFamily === "mission" ? knownMissionTitles.get(normalizedNode?.nodeKey ?? "") ?? normalizedNode?.title : null)
+        ?? label.replace(/^Buy from\s+/i, "");
+      const subtitle = syndicateVendor?.rankName
+        ? `Rank ${syndicateVendor.rankNumber ?? "?"} · ${syndicateVendor.rankName}`
+        : vendorOffer?.rankName
+          ? `Rank ${vendorOffer.rankNumber ?? "?"} · ${vendorOffer.rankName}`
+          : vendorOffer?.place && vendorOffer.place.includes(",")
+            ? vendorOffer.place.split(",").slice(1).join(",").trim()
+            : undefined;
+      let meta = syndicateStanding != null
+        ? `${syndicateStanding.toLocaleString()} Standing`
+        : vendorOffer && vendorOffer.standing > 0
+          ? `${vendorOffer.standing.toLocaleString()} Standing`
+          : marketMeta ?? extractInlinePriceMeta(label) ?? undefined;
+      const badges = [...missionBadges];
+      let activityDedupeKey = effectiveFamily === "activity"
+        ? buildActivityDedupeKey({ title: label, sourceId, normalizedNode })
+        : null;
+
+      if (!meta && (effectiveFamily === "mission" || effectiveFamily === "cache" || effectiveFamily === "activity")) {
+        const semanticMatch = collectSemanticSourceKeys({ family: effectiveFamily, title, sourceId })
+          .map((key) => semanticDropMetaByKey.get(key))
+          .find(Boolean);
+
+        if (semanticMatch) {
+          meta = semanticMatch.minChance === semanticMatch.maxChance
+            ? formatDropPercent(semanticMatch.maxChance)
+            : `${formatDropPercent(semanticMatch.minChance)}-${formatDropPercent(semanticMatch.maxChance)}`;
+          if (!badges.some((badge) => /^Rot\s+[ABC]$/i.test(badge.label)) && semanticMatch.rotations.size === 1) {
+            const inferredRotation = [...semanticMatch.rotations][0];
+            badges.push({ label: inferredRotation, tone: "mission" });
+            if (effectiveFamily === "activity" && normalizedNode && !normalizedNode.rotation) {
+              const rotationLetter = inferredRotation.match(/^Rot\s+([ABC])$/i)?.[1]?.toUpperCase();
+              if (rotationLetter) {
+                activityDedupeKey = `activity:${normalizedNode.nodeKey}:rot${rotationLetter}`;
+              }
+            }
+          }
+          if (!badges.some((badge) => badge.tone === "neutral") && semanticMatch.rarities.size === 1) {
+            badges.push({ label: [...semanticMatch.rarities][0], tone: "neutral" });
+          }
+        }
+      }
+
+      return [{
+        id: `catalog:${sourceId}`,
+        family: effectiveFamily,
+        dedupeKey: syndicateVendor?.vendorName
+          ? `vendor:${syndicateVendor.vendorName}`
+          : vendorOffer?.vendorName
+            ? `vendor:${vendorOffer.vendorName}`
+            : cacheDedupeKey ?? missionDedupeKey ?? activityDedupeKey ?? enemyDedupeKey ?? semanticFallbackDedupeKey ?? undefined,
+        title,
+        subtitle,
+        meta,
+        sortValue: undefined,
+        badges,
+      }];
+    });
+
+  return [...catalogEntries, ...dropEntries];
 }
 
 function getKnownMarketPrices(rawData: Record<string, unknown> | null | undefined, fallbackCredits?: number | null) {
@@ -607,8 +1074,221 @@ interface AllItemEntry {
   standing?: number;
 }
 
+type DerivedDropIndex = Record<string, InventorySourceDrop[]>;
+
 const ALL_BY_UNIQUE: Record<string, AllItemEntry> = {};
 const ALL_BY_NAME: Record<string, AllItemEntry> = {};
+const DERIVED_DROPS_BY_UNIQUE = ITEM_DROPS_DERIVED as DerivedDropIndex;
+
+function foldDropEvidenceDiacritics(value: string): string {
+  return String(value ?? "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function normalizeDropEvidenceName(value: string): string {
+  return foldDropEvidenceDiacritics(String(value ?? ""))
+    .replace(/^\s*\d[\d,]*\s*[xX]\s*/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildUniqueNamesByNormalizedNameIndex(): Map<string, Set<string>> {
+  const out = new Map<string, Set<string>>();
+  for (const raw of ALL_RAW as AllItemEntry[]) {
+    if (!raw?.uniqueName || !raw?.name) continue;
+    const key = normalizeDropEvidenceName(raw.name);
+    if (!key) continue;
+    if (!out.has(key)) out.set(key, new Set<string>());
+    out.get(key)!.add(raw.uniqueName);
+  }
+  return out;
+}
+
+function pushFallbackDrop(
+  out: Map<string, InventorySourceDrop[]>,
+  uniqueNameIndex: Map<string, Set<string>>,
+  itemName: string,
+  drop: InventorySourceDrop,
+) {
+  const key = normalizeDropEvidenceName(itemName);
+  if (!key) return;
+  const uniqueNames = [...(uniqueNameIndex.get(key) ?? [])];
+  if (uniqueNames.length !== 1) return;
+  const uniqueName = uniqueNames[0];
+  const existing = out.get(uniqueName) ?? [];
+  if (
+    existing.some((entry) =>
+      entry.location === drop.location &&
+      entry.chance === drop.chance &&
+      (entry.rarity ?? "") === (drop.rarity ?? ""),
+    )
+  ) {
+    return;
+  }
+  out.set(uniqueName, [...existing, drop]);
+}
+
+function collectRewardEntries(node: unknown): Array<{ itemName: string; rarity: string; chance: number }> {
+  const out: Array<{ itemName: string; rarity: string; chance: number }> = [];
+  const visit = (value: unknown) => {
+    if (Array.isArray(value)) {
+      for (const entry of value) visit(entry);
+      return;
+    }
+    if (!value || typeof value !== "object") return;
+
+    const record = value as Record<string, unknown>;
+    const itemName =
+      typeof record.itemName === "string"
+        ? record.itemName
+        : typeof record.item === "string"
+          ? record.item
+          : null;
+    const chance = typeof record.chance === "number" ? record.chance : null;
+    if (itemName && chance != null) {
+      out.push({
+        itemName,
+        rarity: typeof record.rarity === "string" ? record.rarity : "",
+        chance,
+      });
+    }
+
+    for (const nested of Object.values(record)) visit(nested);
+  };
+
+  visit(node);
+  return out;
+}
+
+function buildFallbackDropsByUniqueIndex(): DerivedDropIndex {
+  const out = new Map<string, InventorySourceDrop[]>();
+  const uniqueNameIndex = buildUniqueNamesByNormalizedNameIndex();
+
+  const resourceRows = (resourceByAvatarJson as any)?.resourceByAvatar ?? resourceByAvatarJson;
+  if (Array.isArray(resourceRows)) {
+    for (const row of resourceRows) {
+      const source = typeof row?.source === "string" ? row.source.trim() : "";
+      if (!source) continue;
+      for (const item of Array.isArray(row?.items) ? row.items : []) {
+        if (typeof item?.item !== "string" || typeof item?.chance !== "number") continue;
+        pushFallbackDrop(out, uniqueNameIndex, item.item, {
+          location: `Resource Drop (Avatar): ${source}`,
+          chance: item.chance,
+          rarity: typeof item?.rarity === "string" ? item.rarity : "",
+          type: item.item,
+        });
+      }
+    }
+  }
+
+  const additionalRows = (additionalItemByAvatarJson as any)?.additionalItemByAvatar ?? additionalItemByAvatarJson;
+  if (Array.isArray(additionalRows)) {
+    for (const row of additionalRows) {
+      const source = typeof row?.source === "string" ? row.source.trim() : "";
+      if (!source) continue;
+      for (const item of Array.isArray(row?.items) ? row.items : []) {
+        if (typeof item?.item !== "string" || typeof item?.chance !== "number") continue;
+        pushFallbackDrop(out, uniqueNameIndex, item.item, {
+          location: `Additional Drop (Avatar): ${source}`,
+          chance: item.chance,
+          rarity: typeof item?.rarity === "string" ? item.rarity : "",
+          type: item.item,
+        });
+      }
+    }
+  }
+
+  const miscRows = (miscItemsJson as any)?.miscItems ?? miscItemsJson;
+  if (Array.isArray(miscRows)) {
+    for (const row of miscRows) {
+      const enemyName = typeof row?.enemyName === "string" ? row.enemyName.trim() : "";
+      if (!enemyName) continue;
+      for (const item of Array.isArray(row?.items) ? row.items : []) {
+        if (typeof item?.itemName !== "string" || typeof item?.chance !== "number") continue;
+        pushFallbackDrop(out, uniqueNameIndex, item.itemName, {
+          location: `Enemy Item Drop: ${enemyName}`,
+          chance: item.chance,
+          rarity: typeof item?.rarity === "string" ? item.rarity : "",
+          type: item.itemName,
+        });
+      }
+    }
+  }
+
+  const bountyDatasets: Array<{ root: unknown; key: string; label: string }> = [
+    { root: solarisBountyRewardsJson, key: "solarisBountyRewards", label: "Solaris Bounty" },
+    { root: cetusBountyRewardsJson, key: "cetusBountyRewards", label: "Cetus Bounty" },
+    { root: deimosRewardsJson, key: "deimosRewards", label: "Deimos Bounty" },
+    { root: entratiLabRewardsJson, key: "entratiLabRewards", label: "Entrati Lab Bounty" },
+    { root: hexRewardsJson, key: "hexRewards", label: "Hex Bounty" },
+    { root: zarimanRewardsJson, key: "zarimanRewards", label: "Zariman Bounty" },
+  ];
+  for (const dataset of bountyDatasets) {
+    const rows = (dataset.root as any)?.[dataset.key] ?? dataset.root;
+    if (!Array.isArray(rows)) continue;
+    for (const row of rows) {
+      const bountyLabel =
+        typeof row?.bountyLevel === "string"
+          ? row.bountyLevel.trim()
+          : typeof row?.bountyName === "string"
+            ? row.bountyName.trim()
+            : typeof row?.objectiveName === "string"
+              ? row.objectiveName.trim()
+              : typeof row?.name === "string"
+                ? row.name.trim()
+                : "";
+      if (!bountyLabel) continue;
+      const rewards = row?.rewards;
+      if (!rewards || typeof rewards !== "object") continue;
+      for (const [rotation, entries] of Object.entries(rewards as Record<string, unknown>)) {
+        const rewardsForRotation = collectRewardEntries(entries);
+        for (const reward of rewardsForRotation) {
+          pushFallbackDrop(out, uniqueNameIndex, reward.itemName, {
+            location: `${dataset.label}: ${bountyLabel}, Rotation ${String(rotation).toUpperCase()}`,
+            chance: reward.chance,
+            rarity: reward.rarity,
+            type: reward.itemName,
+          });
+        }
+      }
+    }
+  }
+
+  const missionRewardRoot = (missionRewardsJson as any)?.missionRewards ?? missionRewardsJson;
+  if (missionRewardRoot && typeof missionRewardRoot === "object" && !Array.isArray(missionRewardRoot)) {
+    for (const [planetName, planetObj] of Object.entries(missionRewardRoot as Record<string, any>)) {
+      if (!planetObj || typeof planetObj !== "object") continue;
+      for (const [nodeNameRaw, nodeObj] of Object.entries(planetObj as Record<string, any>)) {
+        if (!nodeObj || typeof nodeObj !== "object") continue;
+        const rewards = (nodeObj as any)?.rewards;
+        if (!rewards || typeof rewards !== "object") continue;
+        const gameMode = typeof (nodeObj as any)?.gameMode === "string" ? (nodeObj as any).gameMode.trim() : "";
+        const nodeName = String(nodeNameRaw ?? "").replace(/\s*\(Extra\)\s*$/i, " (Steel Path)").trim();
+        for (const [rotation, entries] of Object.entries(rewards as Record<string, unknown>)) {
+          const rewardsForRotation = collectRewardEntries(entries);
+          for (const reward of rewardsForRotation) {
+            pushFallbackDrop(out, uniqueNameIndex, reward.itemName, {
+              location: `${planetName}/${nodeName}${gameMode ? ` (${gameMode})` : ""}, Rotation ${String(rotation).toUpperCase()}`,
+              chance: reward.chance,
+              rarity: reward.rarity,
+              type: reward.itemName,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  const finalized: DerivedDropIndex = {};
+  for (const [uniqueName, drops] of out.entries()) {
+    finalized[uniqueName] = [...drops].sort((a, b) => b.chance - a.chance || a.location.localeCompare(b.location));
+  }
+  return finalized;
+}
+
+const FALLBACK_DROPS_BY_UNIQUE = buildFallbackDropsByUniqueIndex();
+
 for (const raw of ALL_RAW as AllItemEntry[]) {
   if (raw.uniqueName) {
     if (!ALL_BY_UNIQUE[raw.uniqueName]) ALL_BY_UNIQUE[raw.uniqueName] = raw;
@@ -631,6 +1311,27 @@ function getAllEntry(
   return null;
 }
 
+function resolveDropsForUniqueName(uniqueName?: string): InventorySourceDrop[] {
+  if (!uniqueName) return [];
+  const directDrops = getAllEntry(uniqueName)?.drops ?? [];
+  if (directDrops.length > 0) return directDrops;
+  const derivedDrops = DERIVED_DROPS_BY_UNIQUE[uniqueName] ?? [];
+  if (derivedDrops.length > 0) return derivedDrops;
+  return FALLBACK_DROPS_BY_UNIQUE[uniqueName] ?? [];
+}
+
+export function resolveComponentDrops(component: {
+  uniqueName?: string;
+  name: string;
+  drops?: InventorySourceDrop[];
+}): InventorySourceDrop[] {
+  if (Array.isArray(component.drops) && component.drops.length > 0) {
+    return component.drops;
+  }
+
+  return resolveDropsForUniqueName(component.uniqueName);
+}
+
 function fmtBuildTime(seconds: number): string {
   if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
   if (seconds < 86400) return `${(seconds / 3600).toFixed(0)}h`;
@@ -643,6 +1344,19 @@ function fmtPct(v: number): string {
 function fmtMult(v: number): string {
   return `${v.toFixed(1)}x`;
 }
+
+const SOURCE_FAMILY_LABELS: Record<Exclude<SourceFamily, "all">, string> = {
+  vendor: "Vendor",
+  mission: "Mission",
+  cache: "Cache",
+  relic: "Relic",
+  enemy: "Enemy",
+  activity: "Activity",
+  market: "Market",
+  quest: "Quest",
+  crafting: "Crafting",
+  other: "Other",
+};
 
 const DISPOSITION_DOTS: Record<number, string> = {
   1: "●○○○○",
@@ -1771,6 +2485,7 @@ export default function Inventory() {
   const [selectedDetailId, setSelectedDetailId] = useState<CatalogId | null>(
     null,
   );
+  const [selectedComponentKey, setSelectedComponentKey] = useState<string | null>(null);
 
   const [primaryTab, setPrimaryTab] = useState<PrimaryTab>("all");
 
@@ -1798,6 +2513,10 @@ export default function Inventory() {
       JSON.stringify(visibleColumns),
     );
   }, [visibleColumns]);
+
+  useEffect(() => {
+    setSelectedComponentKey(null);
+  }, [selectedDetailId]);
 
   function selectPrimaryTab(next: PrimaryTab) {
     setPrimaryTab(next);
@@ -3750,11 +4469,66 @@ export default function Inventory() {
           const itemSourceEntries = buildInventorySourceEntries({
             itemName: name,
             sourceIds: sources,
-            drops: allE?.drops ?? [],
+            drops: resolveDropsForUniqueName(uniqueName),
             worldState,
             marketCreditsPrice,
             marketPlatinumPrice,
           });
+          const componentModels = (allE?.components ?? []).map((comp, i) => {
+            const componentKey = `${comp.uniqueName ?? comp.name}:${i}`;
+            const resolvedCompDrops = resolveComponentDrops(comp);
+            const compCatalogId = comp.uniqueName
+              ? (`items:${comp.uniqueName}` as import("../domain/catalog/loadFullCatalog").CatalogId)
+              : null;
+            const compAcq = compCatalogId
+              ? getAcquisitionByCatalogId(compCatalogId)
+              : null;
+            const compRecord = compCatalogId ? FULL_CATALOG.recordsById[compCatalogId] : null;
+            const compRecordRaw = (compRecord?.raw as Record<string, unknown> | undefined) ?? null;
+            const compLotusData =
+              (compRecordRaw?.rawLotus as { data?: Record<string, unknown> } | undefined)?.data
+              ?? (compRecordRaw?.data as Record<string, unknown> | undefined)
+              ?? null;
+            const { marketCreditsPrice: componentMarketCreditsPrice, marketPlatinumPrice: componentMarketPlatinumPrice } =
+              getKnownMarketPrices(
+                compLotusData,
+                typeof (comp as { marketCost?: unknown }).marketCost === "number"
+                  ? Number((comp as { marketCost?: number }).marketCost)
+                  : null,
+              );
+            const sourceEntries = buildInventorySourceEntries({
+              itemName: [comp.name, `${name} ${comp.name}`, `${name} ${comp.name} Blueprint`],
+              sourceIds: compAcq?.sources ?? [],
+              drops: resolvedCompDrops,
+              worldState,
+              marketCreditsPrice: componentMarketCreditsPrice,
+              marketPlatinumPrice: componentMarketPlatinumPrice,
+            });
+            const dedupedEntries = dedupeGroupedSourceEntries(sourceEntries);
+            const familyCounts = dedupedEntries.reduce((map, entry) => {
+              map.set(entry.family, (map.get(entry.family) ?? 0) + 1);
+              return map;
+            }, new Map<Exclude<SourceFamily, "all">, number>());
+            const familySummary = [...familyCounts.entries()]
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 3)
+              .map(([family, count]) => `${SOURCE_FAMILY_LABELS[family]} ${count}`)
+              .join(" · ");
+
+            return {
+              key: componentKey,
+              component: comp,
+              entries: dedupedEntries,
+              acquisitionCount: dedupedEntries.length,
+              familySummary,
+              sourceIds: compAcq?.sources ?? [],
+              hasDrops: resolvedCompDrops.length > 0,
+            };
+          });
+          const activeComponent =
+            componentModels.find((component) => component.key === selectedComponentKey)
+            ?? componentModels[0]
+            ?? null;
           const avail = determineItemAvailability(
             selectedDetailId,
             completedPrereqs,
@@ -4336,103 +5110,108 @@ export default function Inventory() {
                   <div className="flex flex-wrap items-end justify-between gap-3">
                     <div>
                       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Components</div>
-                      <div className="mt-1 text-sm text-slate-400">Each component gets its own lane so source details expand downward without turning into one long column.</div>
+                      <div className="mt-1 text-sm text-slate-400">Scan the crafting pieces up top, then inspect one shared acquisition panel below instead of parsing a mini source browser in every card.</div>
                     </div>
                   </div>
                   <div className="mt-5">
-                      {allE?.components && allE.components.length > 0 ? (
-                        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
-                          {allE.components.map((comp, i) => {
-                            const hasDrops = comp.drops && comp.drops.length > 0;
-                            const compCatalogId = comp.uniqueName
-                              ? (`items:${comp.uniqueName}` as import("../domain/catalog/loadFullCatalog").CatalogId)
-                              : null;
-                            const compAcq = compCatalogId
-                              ? getAcquisitionByCatalogId(compCatalogId)
-                              : null;
-                            const compRecord = compCatalogId ? FULL_CATALOG.recordsById[compCatalogId] : null;
-                            const compRecordRaw = (compRecord?.raw as Record<string, unknown> | undefined) ?? null;
-                            const compLotusData =
-                              (compRecordRaw?.rawLotus as { data?: Record<string, unknown> } | undefined)?.data
-                              ?? (compRecordRaw?.data as Record<string, unknown> | undefined)
-                              ?? null;
-                            const { marketCreditsPrice: componentMarketCreditsPrice, marketPlatinumPrice: componentMarketPlatinumPrice } =
-                              getKnownMarketPrices(
-                                compLotusData,
-                                typeof (comp as { marketCost?: unknown }).marketCost === "number"
-                                  ? Number((comp as { marketCost?: number }).marketCost)
-                                  : null,
-                              );
-                            const compSourceEntries = buildInventorySourceEntries({
-                              itemName: [comp.name, `${name} ${comp.name}`, `${name} ${comp.name} Blueprint`],
-                              sourceIds: compAcq?.sources ?? [],
-                              drops: comp.drops ?? [],
-                              worldState,
-                              marketCreditsPrice: componentMarketCreditsPrice,
-                              marketPlatinumPrice: componentMarketPlatinumPrice,
-                            });
-                            const dedupedCompSourceEntries = dedupeGroupedSourceEntries(compSourceEntries);
-                            return (
-                              <div
-                                key={i}
-                                className="rounded-[24px] border border-slate-800/60 bg-[rgba(5,10,20,0.38)] px-4 py-4 align-start"
-                              >
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="min-w-0">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-base font-semibold text-slate-100">
-                                        {comp.name}
-                                      </span>
-                                      {comp.itemCount && comp.itemCount > 1 && (
-                                        <span className="rounded-full border border-slate-700/70 bg-slate-950/70 px-1.5 py-0.5 text-[9px] font-medium text-slate-400">
-                                          ×{comp.itemCount}
-                                        </span>
-                                      )}
-                                      {comp.uniqueName && /\/Recipes\//.test(comp.uniqueName) ? (
-                                        <a href={wikiUrl(name) + "#Acquisition"} target="_blank" rel="noopener noreferrer"
-                                          title={`Find ${comp.name} on the ${name} wiki page`}
-                                          className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors">
-                                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                            <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
-                                          </svg>
-                                        </a>
-                                      ) : (
-                                        <WikiLink name={comp.name} />
-                                      )}
+                      {componentModels.length > 0 ? (
+                        <div className="space-y-5">
+                          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+                            {componentModels.map((model) => {
+                              const comp = model.component;
+                              const isActive = activeComponent?.key === model.key;
+                              return (
+                                <button
+                                  key={model.key}
+                                  type="button"
+                                  onClick={() => setSelectedComponentKey(model.key)}
+                                  className={[
+                                    "text-left rounded-[22px] border px-4 py-4 transition-colors",
+                                    isActive
+                                      ? "border-cyan-400/45 bg-[rgba(10,20,34,0.9)] shadow-[0_0_0_1px_rgba(56,189,248,0.12)]"
+                                      : "border-slate-800/60 bg-[rgba(5,10,20,0.28)] hover:border-slate-600/70 hover:bg-[rgba(8,14,26,0.52)]",
+                                  ].join(" ")}
+                                >
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <div className="flex items-center gap-2">
+                                        <span className="truncate text-lg font-semibold text-slate-100">{comp.name}</span>
+                                        {comp.itemCount && comp.itemCount > 1 ? (
+                                          <span className="rounded-full border border-slate-700/70 bg-slate-950/70 px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+                                            ×{comp.itemCount}
+                                          </span>
+                                        ) : null}
+                                        {comp.uniqueName && /\/Recipes\//.test(comp.uniqueName) ? (
+                                          <a
+                                            href={wikiUrl(name) + "#Acquisition"}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            title={`Find ${comp.name} on the ${name} wiki page`}
+                                            onClick={(event) => event.stopPropagation()}
+                                            className="shrink-0 text-slate-600 hover:text-slate-300 transition-colors"
+                                          >
+                                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                              <polyline points="15 3 21 3 21 9" />
+                                              <line x1="10" y1="14" x2="21" y2="3" />
+                                            </svg>
+                                          </a>
+                                        ) : (
+                                          <span onClick={(event) => event.stopPropagation()}>
+                                            <WikiLink name={comp.name} />
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="mt-1 text-sm text-slate-500">
+                                        {model.acquisitionCount > 0
+                                          ? `${model.acquisitionCount} acquisition path${model.acquisitionCount === 1 ? "" : "s"}`
+                                          : "No structured acquisition data"}
+                                      </div>
                                     </div>
-                                    <div className="mt-1 text-xs text-slate-500">
-                                    {dedupedCompSourceEntries.length > 0
-                                      ? `${dedupedCompSourceEntries.length} acquisition path${dedupedCompSourceEntries.length === 1 ? "" : "s"}`
+                                  </div>
+                                  <div className="mt-4 border-t border-slate-800/60 pt-3">
+                                    <div className="text-[12px] leading-relaxed text-slate-400">
+                                      {model.familySummary || "Wiki-only or unstructured source data"}
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {activeComponent ? (
+                            <div className="rounded-[24px] border border-slate-800/65 bg-[rgba(4,10,19,0.56)]">
+                              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800/70 px-5 py-4">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="text-lg font-semibold text-slate-100">{activeComponent.component.name}</div>
+                                    {activeComponent.component.itemCount && activeComponent.component.itemCount > 1 ? (
+                                      <span className="rounded-full border border-slate-700/70 bg-slate-950/70 px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+                                        ×{activeComponent.component.itemCount}
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                  <div className="mt-1 text-sm text-slate-400">
+                                    {activeComponent.acquisitionCount > 0
+                                      ? `${activeComponent.acquisitionCount} acquisition path${activeComponent.acquisitionCount === 1 ? "" : "s"}`
                                       : "No structured acquisition data"}
                                   </div>
-                                  </div>
-                                  <div className="ml-2 flex shrink-0 items-center gap-2">
-                                  {!hasDrops && compSourceEntries.length === 0 ? (
-                                    <a
-                                      href={comp.uniqueName && /\/Recipes\//.test(comp.uniqueName)
-                                        ? wikiUrl(name) + "#Acquisition"
-                                        : wikiUrl(comp.name) + "#Acquisition"}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="ml-auto text-[10px] text-slate-600 hover:text-slate-300 transition-colors"
-                                    >
-                                      Where to farm ↗
-                                    </a>
-                                  ) : null}
-                                  </div>
                                 </div>
-                                {dedupedCompSourceEntries.length > 0 ? (
-                                  <div className="mt-4 border-t border-slate-800/60 pt-4">
-                                    <GroupedSourceList
-                                      entries={dedupedCompSourceEntries}
-                                      compact
-                                    />
-                                  </div>
-                                ) : null}
+                                <div className="max-w-[32rem] text-right text-sm text-slate-500">
+                                  {activeComponent.familySummary || "Wiki-only or unstructured source data"}
+                                </div>
                               </div>
-                            );
-                          })}
+                              <div className="px-4 py-4">
+                                {activeComponent.entries.length > 0 ? (
+                                  <GroupedSourceList entries={activeComponent.entries} maxHeightClassName="max-h-[28rem]" />
+                                ) : (
+                                  <div className="rounded-[20px] border border-dashed border-slate-800/60 px-4 py-6 text-sm text-slate-500">
+                                    No structured source data available for this component.
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ) : null}
                         </div>
                       ) : (
                         <div className="rounded-[24px] border border-dashed border-slate-800/60 px-4 py-6 text-sm text-slate-500">

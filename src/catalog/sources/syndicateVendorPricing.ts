@@ -35,6 +35,14 @@ type SyndicateVendorEntry = {
     standing: number;
 };
 
+type VendorOfferMatch = {
+    vendorName: string;
+    place: string;
+    standing: number;
+    rankName: string | null;
+    rankNumber: number | null;
+};
+
 function normalizeRankLabel(value: string): string {
     return normalize(String(value ?? "").replace(/^rank\s*\d+\s*[:\-\u00a0 ]\s*/i, ""));
 }
@@ -82,6 +90,45 @@ const SYNDICATE_VENDOR_PRICE_BY_ITEM_AND_PLACE = (() => {
     return out;
 })();
 
+const SYNDICATE_VENDOR_OFFERS_BY_ITEM = (() => {
+    const out = new Map<string, VendorOfferMatch[]>();
+    const root = (syndicatesJson as any)?.syndicates ?? (syndicatesJson as any);
+    if (!root || typeof root !== "object") return out;
+
+    for (const [vendorName, entries] of Object.entries(root as Record<string, unknown>)) {
+        if (!Array.isArray(entries)) continue;
+        for (const row of entries as SyndicateVendorEntry[]) {
+            const item = normalize(row.item);
+            const place = String(row.place ?? "").trim();
+            const standing = Number(row.standing ?? 0);
+            if (!item || !place || !Number.isFinite(standing) || standing < 0) continue;
+
+            const rankName = place.includes(",")
+                ? place.split(",").map((part) => part.trim()).filter(Boolean).at(-1) ?? null
+                : null;
+            const rawRankNumber = rankName
+                ? (SYNDICATE_RANK_ORDER.get(`${normalize(vendorName)}|${normalizeRankLabel(rankName)}`) ?? null)
+                : null;
+            const rankNumber = rawRankNumber != null && rawRankNumber <= 6 ? rawRankNumber : null;
+            const normalizedRankName = rankNumber != null ? rankName : null;
+
+            const match: VendorOfferMatch = {
+                vendorName,
+                place,
+                standing,
+                rankName: normalizedRankName,
+                rankNumber,
+            };
+
+            const existing = out.get(item) ?? [];
+            existing.push(match);
+            out.set(item, existing);
+        }
+    }
+
+    return out;
+})();
+
 export function parseSyndicateVendorPlace(label: string): string | null {
     const match = String(label ?? "").match(/Syndicate Vendor:\s*[^()]+\(([^)]+)\)/i);
     if (!match) return null;
@@ -123,6 +170,25 @@ export function getSyndicateVendorPrice(itemName: string | string[], label: stri
     for (const variant of itemNameVariants(itemName)) {
         const standing = SYNDICATE_VENDOR_PRICE_BY_ITEM_AND_PLACE.get(`${variant}|${normalizedPlace}`);
         if (standing != null) return standing;
+    }
+
+    return null;
+}
+
+export function getSyndicateVendorOffer(itemName: string | string[], vendorName?: string | null): VendorOfferMatch | null {
+    const normalizedVendor = normalize(vendorName ?? "");
+
+    for (const variant of itemNameVariants(itemName)) {
+        const offers = SYNDICATE_VENDOR_OFFERS_BY_ITEM.get(variant) ?? [];
+        if (offers.length === 0) continue;
+
+        const exactVendorMatch =
+            normalizedVendor.length > 0
+                ? offers.find((offer) => normalize(offer.vendorName) === normalizedVendor)
+                : null;
+
+        if (exactVendorMatch) return exactVendorMatch;
+        if (!normalizedVendor && offers[0]) return offers[0];
     }
 
     return null;

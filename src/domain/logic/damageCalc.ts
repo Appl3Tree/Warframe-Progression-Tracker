@@ -269,7 +269,7 @@ export function calculateBuild(
     mods: (ModEffect | null)[],
     targetFaction = "",
 ): DamageMetrics {
-    const ignoresReloadAndMagazine = !!weapon.isExalted;
+    const ignoresReloadAndMagazine = !!weapon.isExalted || !!weapon.selectedAttackIsIncarnon;
     let damageBonus = 0;
     let impactBonus = 0;
     let punctureBonus = 0;

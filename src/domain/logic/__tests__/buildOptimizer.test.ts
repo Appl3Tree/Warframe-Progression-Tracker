@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getArcanesByWeaponCategory } from "../../catalog/arcaneCatalog";
 import { getModsForWeapon, getStancesForWeapon } from "../../catalog/modCatalog";
-import { getWeaponCatalog } from "../../catalog/weaponCatalog";
+import { getWeaponCatalog, selectedAttackUsesIncarnonForm } from "../../catalog/weaponCatalog";
 import type { WeaponEntry } from "../../catalog/weaponCatalog";
 import { emptyEffect } from "../../catalog/modCatalog";
 import { debugScoreBuild, optimizeBuild } from "../buildOptimizer";
@@ -851,5 +851,41 @@ describe("damage calculation ramp interactions", () => {
         const candidatePool = getModsForWeapon(thalys!);
 
         expect(candidatePool.some((mod) => mod.uniqueName === "/Lotus/Upgrades/Mods/Melee/WeaponMeleeDamageOnHeavyKillMod")).toBe(false);
+    });
+
+    it("treats Laetum Auto Radial Attack as Incarnon scope", () => {
+        const laetum = getWeaponCatalog().find((weapon) => weapon.name === "Laetum");
+        expect(laetum).toBeTruthy();
+
+        expect(selectedAttackUsesIncarnonForm(laetum!, 2)).toBe(true);
+    });
+
+    it("ignores reload downtime for Incarnon-form selected attacks", () => {
+        const laetum = getWeaponCatalog().find((weapon) => weapon.name === "Laetum");
+        expect(laetum).toBeTruthy();
+
+        const attack = laetum!.attacks[2];
+        expect(attack).toBeTruthy();
+
+        const selectedAttackWeapon: WeaponEntry = {
+            ...laetum!,
+            damage: attack.damage,
+            critChance: attack.critChance,
+            critMultiplier: attack.critMultiplier,
+            statusChance: attack.statusChance,
+            fireRate: attack.speed || laetum!.fireRate,
+            chargeTime: attack.chargeTime ?? null,
+            selectedAttackName: attack.name,
+            selectedAttackIsIncarnon: true,
+        };
+        const quickdraw = getModsForWeapon(laetum!).find((mod) => mod.name === "Quickdraw");
+        expect(quickdraw).toBeTruthy();
+
+        const noReloadBuild = calculateBuild(selectedAttackWeapon, [], "");
+        const quickdrawBuild = calculateBuild(selectedAttackWeapon, [quickdraw!.effect], "");
+
+        expect(noReloadBuild.sustainedDPS).toBeCloseTo(noReloadBuild.burstDPS, 6);
+        expect(quickdrawBuild.sustainedDPS).toBeCloseTo(quickdrawBuild.burstDPS, 6);
+        expect(quickdrawBuild.sustainedDPS).toBeCloseTo(noReloadBuild.sustainedDPS, 6);
     });
 });

@@ -1,5 +1,5 @@
 import INCARNON_RAW from "../../data/_generated/incarnon-evolutions.auto.json";
-import type { WeaponAttack, WeaponDamage, WeaponEntry } from "./weaponCatalog";
+import { selectedAttackUsesIncarnonForm, type WeaponAttack, type WeaponDamage, type WeaponEntry } from "./weaponCatalog";
 import { emptyEffect, type ConditionalEffect, type ModEffect } from "./modCatalog";
 
 export type IncarnonTier = 1 | 2 | 3 | 4 | 5;
@@ -391,8 +391,7 @@ function syncWeaponTopLevelFromAttack(weapon: WeaponEntry, attacks: WeaponAttack
 }
 
 function activeScopeForSelectedAttack(weapon: WeaponEntry, selectedAttackIdx: number): IncarnonAttackScope {
-    const selectedAttack = weapon.attacks[selectedAttackIdx] ?? weapon.attacks[0];
-    return selectedAttack && isIncarnonAttack(selectedAttack) ? "incarnon" : "normal";
+    return selectedAttackUsesIncarnonForm(weapon, selectedAttackIdx) ? "incarnon" : "normal";
 }
 
 export function resolveIncarnonState(
