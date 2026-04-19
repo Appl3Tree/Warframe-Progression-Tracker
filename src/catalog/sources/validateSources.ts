@@ -81,15 +81,29 @@ function isActionableLabel(label: string): boolean {
     return actionTokens.some((x) => t.includes(x));
 }
 
-/**
- * These are “concept buckets” that you do NOT want used as leaf acquisition actions.
- * If you keep these source IDs, they should only exist as taxonomy and never appear in item sources.
- */
-function isClearlyNonActionableId(sourceId: string): boolean {
+function isClearlyNonActionableId(_sourceId: string): boolean {
+    return false;
+}
+
+function isExpectedUnusedCuratedLeaf(sourceId: string): boolean {
     return (
-        sourceId === "data:pets/kavat" ||
-        sourceId === "data:pets/kubrow" ||
-        sourceId === "data:pets/helminth-charger"
+        sourceId === "data:system/starter" ||
+        sourceId === "data:vendor/duviri/acrithis" ||
+        sourceId === "data:vendor/cetus/ostron" ||
+        sourceId === "data:vendor/fortuna/solaris-united" ||
+        sourceId === "data:vendor/deimos/entrati" ||
+        sourceId === "data:vendor/deimos/mother" ||
+        sourceId === "data:vendor/zariman/holdfasts" ||
+        sourceId === "data:vendor/zariman/cavalero" ||
+        sourceId === "data:vendor/zariman/yonta" ||
+        sourceId === "data:vendor/sanctum/cavia" ||
+        sourceId === "data:vendor/kahl-garrison/chipper" ||
+        sourceId === "data:vendor/darvo" ||
+        sourceId === "data:vendor/iron-wake/palladino" ||
+        sourceId === "data:vendor/relay/varzia" ||
+        sourceId === "data:vendor/relay/legs" ||
+        sourceId === "data:vendor/marie-leroux/la-cathedrale" ||
+        sourceId.startsWith("data:duviri/endless/tier-")
     );
 }
 
@@ -170,7 +184,7 @@ export function validateSources(): { issues: ValidationIssue[] } {
     // 5) Unused curated leaves: allow, but surface them clearly (you decide whether to delete or fill)
     for (const sid of leaves) {
         const count = used.get(sid) ?? 0;
-        if (count === 0) {
+        if (count === 0 && !isExpectedUnusedCuratedLeaf(sid)) {
             issues.push({
                 code: "curated_leaf_unused",
                 sourceId: sid,

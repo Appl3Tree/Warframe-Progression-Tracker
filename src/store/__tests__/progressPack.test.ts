@@ -39,7 +39,7 @@ describe("progress pack inventory serialization", () => {
         });
         expect(merged.inventory.arcaneRanks).toEqual({
             "/Lotus/Upgrades/Mods/ExistingArcane": { "1": 1 },
-            "/Lotus/Upgrades/Mods/NewArcane": { "0": 2, "5": 1 },
+            "/Lotus/Upgrades/Mods/NewArcane": { "5": 1 },
         });
     });
 
@@ -94,7 +94,7 @@ describe("progress pack inventory serialization", () => {
             "/Lotus/Upgrades/Mods/Serration": 10,
         });
         expect(migrated?.inventory.arcaneRanks).toEqual({
-            "/Lotus/Upgrades/Mods/ArcaneMerciless": { "3": 2, "5": 1 },
+            "/Lotus/Upgrades/Mods/ArcaneMerciless": { "5": 1 },
         });
     });
 });

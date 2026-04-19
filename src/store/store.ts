@@ -41,6 +41,7 @@ import {
     ensureUiExpansion,
     mergeProgressPackIntoState,
 } from "./progressPack";
+import { setHighestOwnedArcaneRank } from "../domain/logic/arcaneInventory";
 import {
     normalizeSyndicatePatch,
     upsertSyndicateIntoList,
@@ -293,8 +294,7 @@ export const useTrackerStore = create<TrackerStore>()(
             setArcaneRankCount: (path, rank, count) => {
                 set((s) => {
                     if (!s.state.inventory.arcaneRanks) s.state.inventory.arcaneRanks = {};
-                    if (!s.state.inventory.arcaneRanks[path]) s.state.inventory.arcaneRanks[path] = {};
-                    s.state.inventory.arcaneRanks[path][String(rank)] = Math.max(0, Number.isFinite(count) ? Math.floor(count) : 0);
+                    s.state.inventory.arcaneRanks[path] = setHighestOwnedArcaneRank(Number.isFinite(count) && count > 0 ? rank : null);
                     s.state.meta.updatedAtIso = nowIso();
                 });
             },

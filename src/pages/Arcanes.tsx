@@ -11,6 +11,11 @@ import {
   WorkspaceSection,
 } from "../components/workspace/WorkspaceChrome";
 import {
+  getHighestOwnedArcaneRank,
+  getHighestOwnedArcaneRankWithFallback,
+  hasOwnedArcane,
+} from "../domain/logic/arcaneInventory";
+import {
   COLLECTION_LEDGER_SHELL_CLASS,
   CollectionChipRail,
   CollectionRefineBand,
@@ -122,15 +127,6 @@ const ARCANE_CATEGORIES: { key: ArcaneCategory; label: string }[] = [
   { key: "kitguns", label: "Kitguns" },
   { key: "zaws", label: "Zaws" },
 ];
-
-const ARCANE_TOTAL_PER_RANK: Record<number, number> = {
-  0: 1,
-  1: 3,
-  2: 6,
-  3: 10,
-  4: 15,
-  5: 21,
-};
 
 const UPGRADE_TYPE_LABELS: Record<string, string> = {
   AVATAR_ABILITY_STRENGTH: "Ability Strength",
@@ -273,14 +269,6 @@ function getSortableReleaseDate(date: string | undefined, direction: "oldest" | 
 
 function formatDropPercent(chance: number): string {
   return `${chance.toFixed(2)}%`;
-}
-
-function arcaneEquiv(rank: number) {
-  return ARCANE_TOTAL_PER_RANK[rank] ?? 1;
-}
-
-function arcaneTotal(rankCounts: Record<string, number>) {
-  return Object.entries(rankCounts).reduce((sum, [rank, count]) => sum + arcaneEquiv(Number(rank)) * count, 0);
 }
 
 function decodeMaxRank(qa: string | undefined): number {
@@ -835,6 +823,7 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
   const rankCounts = arcaneRanks[entry.path] ?? {};
   const data = entry.data;
   const maxRank = decodeMaxRank(data?.FusionLimit);
+  const highestOwnedRank = getHighestOwnedArcaneRank(rankCounts);
   const upgrades = (data?.Upgrades ?? []).concat(data?.ExtraUpgrades ?? []);
   const allEntry = ALL_ARCANES_BY_PATH[entry.path] ?? ALL_ARCANES_BY_NAME[entry.name];
   const allDrops = allEntry?.drops ?? [];
@@ -930,50 +919,39 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
         </div>
 
         <div className="flex-1 space-y-4 overflow-y-auto p-5">
-          {(() => {
-            const target = ARCANE_TOTAL_PER_RANK[maxRank] ?? 21;
-            const total = arcaneTotal(rankCounts);
-            const stillNeeds = Math.max(0, target - total);
-            const ranks = Array.from({ length: maxRank + 1 }, (_, index) => index);
-            return (
-              <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Collection</span>
-                  <span className={["text-xs font-semibold", stillNeeds === 0 ? "text-emerald-400" : "text-slate-400"].join(" ")}>
-                    {total} / {target} equiv {stillNeeds === 0 ? "— Max rank ready!" : `— need ${stillNeeds} more R0 equiv`}
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {ranks.map((rank) => {
-                    const count = Number(rankCounts[String(rank)] ?? 0);
-                    return (
-                      <div key={rank} className="flex flex-col items-center gap-0.5">
-                        <span className="font-mono text-[9px] text-slate-500">R{rank}</span>
-                        <span className="text-[9px] text-slate-600">≡{arcaneEquiv(rank)}</span>
-                        <div className="flex items-center gap-0.5">
-                          <button
-                            className="flex h-5 w-5 items-center justify-center rounded bg-slate-800 text-xs font-bold text-slate-300 hover:bg-slate-700"
-                            onClick={() => setArcaneRankCount(entry.path, rank, Math.max(0, count - 1))}
-                          >
-                            −
-                          </button>
-                          <span className={["w-6 text-center text-xs font-semibold font-mono", count > 0 ? "text-emerald-400" : "text-slate-600"].join(" ")}>
-                            {count}
-                          </span>
-                          <button
-                            className="flex h-5 w-5 items-center justify-center rounded bg-slate-800 text-xs font-bold text-slate-300 hover:bg-slate-700"
-                            onClick={() => setArcaneRankCount(entry.path, rank, count + 1)}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })()}
+          <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-3">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Collection</span>
+              <span className={["text-xs font-semibold", highestOwnedRank !== null ? "text-emerald-400" : "text-slate-400"].join(" ")}>
+                {highestOwnedRank !== null ? `Owned up to R${highestOwnedRank}` : "Not owned"}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {Array.from({ length: maxRank + 1 }, (_, rank) => {
+                const isSelected = highestOwnedRank === rank;
+                return (
+                  <button
+                    key={rank}
+                    className={[
+                      "rounded-xl border px-3 py-2 text-xs font-semibold transition-colors",
+                      isSelected
+                        ? "border-emerald-700/60 bg-emerald-950/35 text-emerald-200"
+                        : "border-slate-800 bg-slate-900/70 text-slate-300 hover:border-slate-700 hover:bg-slate-800/70",
+                    ].join(" ")}
+                    onClick={() => setArcaneRankCount(entry.path, rank, isSelected ? 0 : 1)}
+                  >
+                    Rank {rank}
+                  </button>
+                );
+              })}
+              <button
+                className="rounded-xl border border-slate-800 bg-slate-950/70 px-3 py-2 text-xs font-semibold text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                onClick={() => setArcaneRankCount(entry.path, 0, 0)}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-[minmax(260px,0.9fr)_minmax(0,1.1fr)]">
             <div className="space-y-4">
@@ -1089,10 +1067,9 @@ export default function ArcanesPage() {
     if (q) list = list.filter((entry) => normalize(entry.name).includes(q));
 
     list = list.filter((entry) => {
-      const totalOwned =
-        arcaneTotal(counts[modKey(entry.path)] !== undefined ? { "0": counts[modKey(entry.path)] } : {}) +
-        arcaneTotal(arcaneRanksMap[entry.path] ?? {});
-      return matchesOwnershipFilter(totalOwned, ownershipFilter);
+      const fallbackCount = Number(counts[modKey(entry.path)] ?? counts[entry.path] ?? 0);
+      const isOwned = hasOwnedArcane(arcaneRanksMap[entry.path], fallbackCount);
+      return matchesOwnershipFilter(isOwned ? 1 : 0, ownershipFilter);
     });
 
     list.sort((left, right) => {
@@ -1197,7 +1174,7 @@ export default function ArcanesPage() {
                   >
                     <div>Item</div>
                     <div>Release</div>
-                    <div>Counts By Rank</div>
+                    <div>Highest Owned Rank</div>
                     <div />
                   </div>
                   <div className="relative" style={{ height: filteredArcanes.length * LEDGER_ROW_HEIGHT }}>
@@ -1208,7 +1185,8 @@ export default function ArcanesPage() {
                       {filteredArcanes.slice(windowState.start, windowState.end).map((entry) => {
                         const isSelected = selectedArcane?.path === entry.path;
                         const rankCounts = arcaneRanksMap[entry.path] ?? {};
-                        const totalEquiv = arcaneTotal(rankCounts);
+                        const fallbackCount = Number(counts[modKey(entry.path)] ?? counts[entry.path] ?? 0);
+                        const highestOwnedRank = getHighestOwnedArcaneRankWithFallback(rankCounts, fallbackCount);
                         return (
                           <div key={entry.path} className="mb-1 grid items-center gap-2" style={{ gridTemplateColumns: arcaneBrowseGridTemplate }}>
                             <button
@@ -1221,9 +1199,9 @@ export default function ArcanesPage() {
                               onClick={() => setSelectedArcane(isSelected ? null : entry)}
                             >
                               <span className="truncate font-medium">{entry.name}</span>
-                              {totalEquiv > 0 ? (
+                              {highestOwnedRank !== null ? (
                                 <span className="shrink-0 rounded-full border border-emerald-800/60 bg-emerald-950/25 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
-                                  ×{totalEquiv} eq
+                                  R{highestOwnedRank}
                                 </span>
                               ) : null}
                             </button>
@@ -1231,30 +1209,31 @@ export default function ArcanesPage() {
                               {formatReleaseDate(ALL_ARCANES_BY_NAME[entry.name]?.releaseDate) ?? "—"}
                             </div>
                             <div className="flex items-center gap-1.5 overflow-x-auto pr-1" onClick={(event) => event.stopPropagation()}>
-                              {[0, 1, 2, 3, 4, 5].map((rank) => {
-                                const rankCount = rankCounts[String(rank)] ?? 0;
+                              {Array.from({ length: decodeMaxRank(entry.data?.FusionLimit) + 1 }, (_, rank) => rank).map((rank) => {
+                                const isSelected = highestOwnedRank === rank;
                                 return (
-                                  <label
+                                  <button
                                     key={rank}
-                                    className="w-[68px] shrink-0 rounded-xl border border-slate-800 bg-slate-900/70 px-2 py-1.5 text-[11px] text-slate-300"
+                                    className={[
+                                      "w-[68px] shrink-0 rounded-xl border px-2 py-2 text-[11px] font-semibold transition-colors",
+                                      isSelected
+                                        ? "border-emerald-700/60 bg-emerald-950/35 text-emerald-200"
+                                        : "border-slate-800 bg-slate-900/70 text-slate-300 hover:border-slate-700 hover:bg-slate-800/70",
+                                    ].join(" ")}
+                                    onClick={() => setArcaneRankCount(entry.path, rank, isSelected ? 0 : 1)}
                                   >
-                                    <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                    <span className="block text-[10px] uppercase tracking-[0.14em] text-slate-500">
                                       R{rank}
                                     </span>
-                                    <input
-                                      className="w-full rounded-md border border-slate-700 bg-slate-950 px-1.5 py-1 text-center text-xs text-slate-100"
-                                      type="number"
-                                      min={0}
-                                      value={rankCount}
-                                      onChange={(event) => {
-                                        const parsed = Number(event.target.value);
-                                        const nextValue = Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
-                                        setArcaneRankCount(entry.path, rank, nextValue);
-                                      }}
-                                    />
-                                  </label>
+                                  </button>
                                 );
                               })}
+                              <button
+                                className="shrink-0 rounded-xl border border-slate-800 bg-slate-950/70 px-2 py-2 text-[11px] font-semibold text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                                onClick={() => setArcaneRankCount(entry.path, 0, 0)}
+                              >
+                                Clear
+                              </button>
                             </div>
                             <div className="flex justify-center gap-2">
                               <button

@@ -5,6 +5,7 @@ import type { PageKey, UserStateV2, WorldStateCategoryKey } from "../domain/mode
 import { SEED_INVENTORY, SEED_MASTERY, SEED_MISSIONS, SEED_SYNDICATES } from "../domain/seed";
 import { nowIso } from "./storeUtils";
 import { makeDefaultResetChecklistState, ensureResetChecklistState } from "./resetChecklist";
+import { normalizeArcaneRankMap } from "../domain/logic/arcaneInventory";
 
 export function makeDefaultState(): UserStateV2 {
     const iso = nowIso();
@@ -113,6 +114,17 @@ export function ensureUiExpansion(state: any): void {
     }
 }
 
+function normalizeArcaneRanksMap(value: unknown): Record<string, Record<string, number>> {
+    if (!value || typeof value !== "object") return {};
+    const normalized: Record<string, Record<string, number>> = {};
+    for (const [path, byRank] of Object.entries(value as Record<string, unknown>)) {
+        normalized[path] = normalizeArcaneRankMap(
+            byRank && typeof byRank === "object" ? (byRank as Record<string, number>) : {},
+        );
+    }
+    return normalized;
+}
+
 export function mergeProgressPackIntoState(current: UserStateV2, incoming: any): UserStateV2 {
     const next: UserStateV2 = {
         ...current,
@@ -178,8 +190,8 @@ export function mergeProgressPackIntoState(current: UserStateV2, incoming: any):
                 ...(incoming.inventory.modRanks ?? {})
             },
             arcaneRanks: {
-                ...(next.inventory.arcaneRanks ?? {}),
-                ...(incoming.inventory.arcaneRanks ?? {})
+                ...normalizeArcaneRanksMap(next.inventory.arcaneRanks ?? {}),
+                ...normalizeArcaneRanksMap(incoming.inventory.arcaneRanks ?? {})
             },
             customRivens: Array.isArray(incoming.inventory.customRivens)
                 ? incoming.inventory.customRivens

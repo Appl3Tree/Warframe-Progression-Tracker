@@ -362,8 +362,8 @@ export function calculateBuild(
             ["electricity", e.electricityBonus ?? 0],
             ["toxin", e.toxinBonus ?? 0],
         ];
-        for (const [type, value] of orderedEntries) {
-            if (value > 0) orderedPrimaryElementBonuses.push({ type, value, order: index });
+        for (const [entryIndex, [type, value]] of orderedEntries.entries()) {
+            if (value > 0) orderedPrimaryElementBonuses.push({ type, value, order: (-index * 10) + entryIndex });
         }
 
         directBonusBreakdown.blast += e.blastBonus ?? 0;

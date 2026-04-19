@@ -43,9 +43,9 @@ export interface Inventory {
     modRanks?: Record<string, number>;
 
     /**
-     * Per-rank arcane copy counts. Key is the raw Lotus path (without "mods:" prefix),
-     * value maps string rank ("0"–"5") to number of copies owned at that rank.
-     * Sparse: only present when the user has entered data.
+     * Highest owned arcane rank keyed by raw Lotus path (without "mods:" prefix).
+     * Stored as a sparse single-entry map for backward compatibility with older saves.
+     * Example: { "5": 1 } means the highest owned arcane is rank 5.
      */
     arcaneRanks?: Record<string, Record<string, number>>;
 

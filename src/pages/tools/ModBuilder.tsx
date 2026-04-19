@@ -30,6 +30,7 @@ import {
     maxWeaponRank, type CapacityConfig,
 } from "../../domain/logic/capacityCalc";
 import { useTrackerStore } from "../../store/store";
+import { getHighestOwnedArcaneRankWithFallback, hasOwnedArcane } from "../../domain/logic/arcaneInventory";
 import type { SavedBuild } from "../../domain/models/userState";
 import { WorkspacePanel, WorkspaceSegmented, WorkspaceSegmentedButton } from "../../components/workspace/WorkspaceChrome";
 
@@ -849,8 +850,9 @@ function roundQuantizedValue(value: number, quantum: number) {
 
 function buildCombinedRawBreakdown(
     weapon: WeaponEntry,
-    totals: ReturnType<typeof sumEffects>,
+    effects: (ModEffect | null)[],
 ) {
+    const totals = sumEffects(effects);
     const baseDamage = weapon.damage.total;
     const moddedBaseDamage = baseDamage * (1 + totals.damageBonus);
     const physicalRaw = {
@@ -859,11 +861,14 @@ function buildCombinedRawBreakdown(
         slash: weapon.damage.slash * (1 + totals.slashBonus) * (1 + totals.damageBonus),
     };
     const queue: Array<{ type: string; value: number; order: number }> = [];
-    let order = 0;
-    for (const key of BUILD_MATH_PRIMARY_ELEMENTS) {
-        const bonus = totals[`${key}Bonus` as const];
-        if (bonus) queue.push({ type: key, value: baseDamage * bonus * (1 + totals.damageBonus), order: order++ });
-    }
+    effects.forEach((effect, index) => {
+        if (!effect) return;
+        for (const [entryIndex, key] of BUILD_MATH_PRIMARY_ELEMENTS.entries()) {
+            const bonus = effect[`${key}Bonus` as const];
+            if (bonus) queue.push({ type: key, value: baseDamage * bonus * (1 + totals.damageBonus), order: (-index * 10) + entryIndex });
+        }
+    });
+    let order = 1;
     for (const key of ["magnetic", "radiation", "viral", "corrosive", "gas", "blast", "void", "tau", "true"] as const) {
         const bonus = totals[`${key}Bonus` as const];
         if (bonus) queue.push({ type: key, value: baseDamage * bonus * (1 + totals.damageBonus), order: order++ });
@@ -947,7 +952,7 @@ function buildMathBreakdown(
     const conditionalEntries = effects.flatMap((effect) => effect?.conditionalEffects ?? []);
     const baselineRateForConditionals = weapon.fireRate;
     const baseMagazineForConditionals = Math.max(1, Math.round(weapon.magazineSize || 1));
-    const rawBreakdown = buildCombinedRawBreakdown(weapon, totals);
+    const rawBreakdown = buildCombinedRawBreakdown(weapon, effects);
     const nonZeroRawEntries = Object.entries(rawBreakdown.combined).filter(([, value]) => value > 0);
     const quantizedLines = nonZeroRawEntries.map(([type, rawValue]) => {
         const ratio = quantScale > 0 ? rawValue / quantScale : 0;
@@ -2227,31 +2232,6 @@ function OwnedModsPanel({ availableMods }: { availableMods: ModEntry[] }) {
     );
 }
 
-const ARCANE_TOTAL_PER_RANK: Record<number, number> = {
-    0: 1,
-    1: 3,
-    2: 6,
-    3: 10,
-    4: 15,
-    5: 21,
-};
-
-function arcaneEquiv(rank: number): number {
-    return ARCANE_TOTAL_PER_RANK[rank] ?? 1;
-}
-
-function arcaneTotal(rankCounts: Record<string, number>): number {
-    return Object.entries(rankCounts).reduce((sum, [rank, count]) => sum + arcaneEquiv(Number(rank)) * (Number(count) || 0), 0);
-}
-
-function maxCraftableArcaneRank(rankCounts: Record<string, number>, maxRank: number): number {
-    const total = arcaneTotal(rankCounts);
-    for (let rank = maxRank; rank >= 0; rank--) {
-        if (total >= (ARCANE_TOTAL_PER_RANK[rank] ?? 1)) return rank;
-    }
-    return 0;
-}
-
 function OwnedArcanesPanel({ weapon }: { weapon: WeaponEntry | null }) {
     const inventoryArcaneRanks = useTrackerStore(s => s.state.inventory.arcaneRanks ?? EMPTY_ARCANE_RANKS);
     const inventoryCounts = useTrackerStore(s => s.state.inventory.counts ?? EMPTY_COUNTS);
@@ -2275,35 +2255,40 @@ function OwnedArcanesPanel({ weapon }: { weapon: WeaponEntry | null }) {
                 {filtered.map(arcane => {
                     const rankCounts = inventoryArcaneRanks[arcane.uniqueName] ?? {};
                     const fallbackCount = Number(inventoryCounts[`mods:${arcane.uniqueName}`] ?? inventoryCounts[arcane.uniqueName] ?? 0);
-                    const normalizedRankCounts = Object.keys(rankCounts).length > 0 ? rankCounts : (fallbackCount > 0 ? { "0": fallbackCount } : {});
-                    const totalEquiv = arcaneTotal(normalizedRankCounts);
-                    const craftableRank = maxCraftableArcaneRank(normalizedRankCounts, arcane.maxRank);
+                    const highestOwnedRank = getHighestOwnedArcaneRankWithFallback(rankCounts, fallbackCount);
                     return (
                         <div key={arcane.uniqueName} className="px-3 py-3 space-y-2">
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
                                     <div className="text-xs text-slate-200 truncate">{arcane.name}</div>
-                                    <div className="text-[10px] text-slate-500">{totalEquiv} R0 equiv · usable up to R{craftableRank}</div>
+                                    <div className="text-[10px] text-slate-500">{highestOwnedRank === null ? "Not owned" : `Highest owned rank: R${highestOwnedRank}`}</div>
                                 </div>
                                 <div className="shrink-0 text-[10px] text-slate-500">{arcane.rarity}</div>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {Array.from({ length: arcane.maxRank + 1 }, (_, rank) => {
-                                    const count = Number(normalizedRankCounts[String(rank)] ?? 0);
+                                    const isSelected = highestOwnedRank === rank;
                                     return (
-                                        <div key={rank} className="flex flex-col items-center gap-0.5 rounded-lg border border-slate-800 bg-slate-900/40 px-2 py-1.5">
-                                            <span className="text-[9px] text-slate-500 font-mono">R{rank}</span>
-                                            <span className="text-[9px] text-slate-600">≡{arcaneEquiv(rank)}</span>
-                                            <div className="flex items-center gap-1">
-                                                <button className="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center"
-                                                    onClick={() => setArcaneRankCount(arcane.uniqueName, rank, Math.max(0, count - 1))}>−</button>
-                                                <span className={["w-6 text-center text-xs font-mono font-semibold", count > 0 ? "text-emerald-400" : "text-slate-600"].join(" ")}>{count}</span>
-                                                <button className="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center"
-                                                    onClick={() => setArcaneRankCount(arcane.uniqueName, rank, count + 1)}>+</button>
-                                            </div>
-                                        </div>
+                                        <button
+                                            key={rank}
+                                            className={[
+                                                "rounded-lg border px-3 py-2 text-xs font-semibold transition-colors",
+                                                isSelected
+                                                    ? "border-emerald-700/60 bg-emerald-950/35 text-emerald-200"
+                                                    : "border-slate-800 bg-slate-900/40 text-slate-300 hover:border-slate-700 hover:bg-slate-800/60",
+                                            ].join(" ")}
+                                            onClick={() => setArcaneRankCount(arcane.uniqueName, rank, isSelected ? 0 : 1)}
+                                        >
+                                            R{rank}
+                                        </button>
                                     );
                                 })}
+                                <button
+                                    className="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-xs font-semibold text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                                    onClick={() => setArcaneRankCount(arcane.uniqueName, 0, 0)}
+                                >
+                                    Clear
+                                </button>
                             </div>
                         </div>
                     );
@@ -2547,21 +2532,22 @@ export default function ModBuilder() {
     }, [trackableMods, inventoryCounts, inventoryModRanks]);
     const ownedArcaneUniqueNames = useMemo(() => {
         const set = new Set<string>();
-        for (const [path, ranks] of Object.entries(inventoryArcaneRanks)) {
-            const totalByRanks = Object.values(ranks ?? {}).reduce((sum, count) => sum + (Number(count) || 0), 0);
-            const totalByCounts = Number(inventoryCounts[`mods:${path}`] ?? inventoryCounts[path] ?? 0);
-            if (totalByRanks > 0 || totalByCounts > 0) set.add(path);
+        for (const arcane of weaponArcanes) {
+            const totalByCounts = Number(inventoryCounts[`mods:${arcane.uniqueName}`] ?? inventoryCounts[arcane.uniqueName] ?? 0);
+            if (hasOwnedArcane(inventoryArcaneRanks[arcane.uniqueName], totalByCounts)) {
+                set.add(arcane.uniqueName);
+            }
         }
         return set;
-    }, [inventoryArcaneRanks, inventoryCounts]);
+    }, [weaponArcanes, inventoryArcaneRanks, inventoryCounts]);
     const ownedArcaneMaxRankByUniqueName = useMemo(() => {
         const out: Record<string, number> = {};
         for (const arcane of weaponArcanes) {
             const rankCounts = inventoryArcaneRanks[arcane.uniqueName] ?? {};
             const fallbackCount = Number(inventoryCounts[`mods:${arcane.uniqueName}`] ?? inventoryCounts[arcane.uniqueName] ?? 0);
-            const normalizedRankCounts = Object.keys(rankCounts).length > 0 ? rankCounts : (fallbackCount > 0 ? { "0": fallbackCount } : {});
-            if (arcaneTotal(normalizedRankCounts) > 0) {
-                out[arcane.uniqueName] = maxCraftableArcaneRank(normalizedRankCounts, arcane.maxRank);
+            const highestOwnedRank = getHighestOwnedArcaneRankWithFallback(rankCounts, fallbackCount);
+            if (highestOwnedRank !== null) {
+                out[arcane.uniqueName] = Math.min(arcane.maxRank, highestOwnedRank);
             }
         }
         return out;

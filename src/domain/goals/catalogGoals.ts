@@ -1,3 +1,4 @@
+import { getHighestOwnedArcaneRankWithFallback } from "../logic/arcaneInventory";
 import type { CatalogId } from "../catalog/loadFullCatalog";
 import { FULL_CATALOG } from "../catalog/loadFullCatalog";
 import type { UserGoalV1 } from "../models/userState";
@@ -38,10 +39,8 @@ export function getOwnedCountForCatalogId(catalogId: CatalogId | string, invento
 
     if (getGoalCatalogKindForCatalogId(key) !== "arcane") return flatCount;
     const rawPath = key.startsWith("mods:") ? key.slice("mods:".length) : key;
-    const ranks = inventory?.arcaneRanks?.[rawPath];
-    if (!ranks || typeof ranks !== "object") return flatCount;
-    const rankedTotal = Object.values(ranks).reduce((sum, value) => sum + safeInt(value ?? 0, 0), 0);
-    return Math.max(flatCount, rankedTotal);
+    const highestOwnedRank = getHighestOwnedArcaneRankWithFallback(inventory?.arcaneRanks?.[rawPath], flatCount);
+    return highestOwnedRank === null ? 0 : 1;
 }
 
 export function getOwnedCountForGoal(goal: Pick<UserGoalV1, "catalogId">, inventory: InventoryLike): number {

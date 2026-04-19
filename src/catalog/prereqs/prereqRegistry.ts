@@ -62,6 +62,10 @@ export interface PrereqDef {
         syndicateId: string;
         rank: number;
     };
+    validatedByAnySyndicate?: {
+        syndicateIds: string[];
+        rank: number;
+    };
 }
 
 export const PREREQ_REGISTRY: PrereqDef[] = [
@@ -77,6 +81,14 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         prerequisites: []
     },
     {
+        id: PR.THE_TEACHER,
+        showInPlanner: false,
+        label: "The Teacher",
+        category: "Quests",
+        description: "Post-Vor's Prize mod tutorial quest guided by Teshin. Tracked for quest reward availability.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
         id: PR.ONCE_AWAKE,
         label: "Once Awake",
         category: "Quests",
@@ -87,8 +99,8 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.ARCHWING,
         label: "The Archwing",
         category: "Quests",
-        description: "Unlocks Archwing gear and mission nodes. Required for Europa → Saturn junction.",
-        prerequisites: [PR.ONCE_AWAKE, PR.JUNCTION_VENUS_EARTH]
+        description: "Unlocks Archwing gear and mission nodes. Currently awarded from the Mars Junction path.",
+        prerequisites: [PR.JUNCTION_EARTH_MARS]
     },
     {
         id: PR.STOLEN_DREAMS,
@@ -102,7 +114,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "The New Strange",
         category: "Quests",
         description: "Required for Natah.",
-        prerequisites: [PR.STOLEN_DREAMS, PR.JUNCTION_MARS_CERES]
+        prerequisites: [PR.STOLEN_DREAMS, PR.JUNCTION_JUPITER_EUROPA]
     },
     {
         id: PR.NATAH,
@@ -299,16 +311,16 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         showInPlanner: false,
         label: "The Limbo Theorem",
         category: "SideQuests",
-        description: "Awards Limbo blueprint. Requires Void access.",
-        prerequisites: [PR.JUNCTION_EARTH_MARS]
+        description: "Awards Limbo blueprint. Requires an Archwing and the Jupiter → Europa junction.",
+        prerequisites: [PR.ARCHWING, PR.JUNCTION_JUPITER_EUROPA]
     },
     {
         id: PR.SILVER_GROVE,
         showInPlanner: false,
         label: "The Silver Grove",
         category: "SideQuests",
-        description: "Awards Titania blueprint. Requires Cetus access and MR7.",
-        prerequisites: [PR.HUB_CETUS, PR.HUB_RELAY],
+        description: "Awards Titania blueprint. Requires The Second Dream and MR7.",
+        prerequisites: [PR.SECOND_DREAM],
         conditions: [{ type: "mastery_rank", value: 7 }]
     },
     {
@@ -324,8 +336,8 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         showInPlanner: false,
         label: "Octavia's Anthem",
         category: "SideQuests",
-        description: "Awards Octavia blueprint. Requires Earth → Lua junction.",
-        prerequisites: [PR.JUNCTION_EARTH_LUA]
+        description: "Awards Octavia blueprint. Requires The Second Dream.",
+        prerequisites: [PR.SECOND_DREAM]
     },
     {
         id: PR.JORDAS_PRECEPT,
@@ -360,12 +372,20 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         prerequisites: [PR.JUNCTION_EUROPA_SATURN]
     },
     {
+        id: PR.WAVERIDER,
+        showInPlanner: false,
+        label: "The Waverider",
+        category: "SideQuests",
+        description: "Awards Yareli blueprint. Requires Vox Solaris.",
+        prerequisites: [PR.VOX_SOLARIS]
+    },
+    {
         id: PR.PATIENT_ZERO,
         showInPlanner: false,
         label: "Patient Zero",
         category: "SideQuests",
-        description: "Awards Mesa blueprint. Requires Eris access.",
-        prerequisites: [PR.JUNCTION_SEDNA_ERIS]
+        description: "Awards Mesa blueprint. Requires Once Awake and Eris access.",
+        prerequisites: [PR.ONCE_AWAKE, PR.JUNCTION_SEDNA_ERIS]
     },
 
     // =========================================================================
@@ -552,6 +572,163 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         description: "Access to Kahl's Garrison weekly missions in the Drifter's Camp.",
         prerequisites: [PR.NEW_WAR]
     },
+    {
+        id: PR.CLAN_DOJO,
+        label: "Clan Dojo Access",
+        category: "Systems",
+        description: "Join or create a Clan and access its Dojo. Required for dojo research, blueprint replication, and clan-only amenities.",
+        prerequisites: []
+    },
+    {
+        id: PR.ACTIVITY_STEEL_PATH,
+        showInPlanner: false,
+        label: "The Steel Path Unlocked",
+        category: "Systems",
+        description: "Talk to Teshin after clearing all nodes accessible prior to The New War on the connected Star Chart. This app does not yet auto-verify full node completion, so this milestone may need to be marked manually.",
+        prerequisites: [PR.HUB_RELAY]
+    },
+    {
+        id: PR.ACTIVITY_STEEL_PATH_HONORS,
+        showInPlanner: false,
+        label: "Teshin's Steel Path Honors",
+        category: "Systems",
+        description: "Access Teshin's Steel Path Honors shop in any Relay after unlocking The Steel Path.",
+        prerequisites: [PR.ACTIVITY_STEEL_PATH, PR.HUB_RELAY]
+    },
+    {
+        id: PR.ACTIVITY_CIRCUIT_STEEL_PATH,
+        showInPlanner: false,
+        label: "The Steel Path Circuit",
+        category: "Systems",
+        description: "Unlock the Steel Path version of The Circuit. Requires both The Duviri Paradox and The Steel Path.",
+        prerequisites: [PR.DUVIRI_PARADOX, PR.ACTIVITY_STEEL_PATH]
+    },
+    {
+        id: PR.ACTIVITY_NIGHTWAVE,
+        showInPlanner: false,
+        label: "Nightwave Access",
+        category: "Systems",
+        description: "Access Nightwave challenges, Cred offerings, and rank rewards. This is tracked as a manual milestone because season availability rotates and the app does not model every historical Nightwave reward path.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.ACTIVITY_SORTIES,
+        showInPlanner: false,
+        label: "Sorties",
+        category: "Systems",
+        description: "Unlock daily Sorties after The War Within. The game also requires Mastery Rank 5 and a rank-30 Warframe, but the frame-rank requirement is not modeled separately here.",
+        prerequisites: [PR.WAR_WITHIN],
+        conditions: [{ type: "mastery_rank", value: 5 }]
+    },
+    {
+        id: PR.ACTIVITY_GLASSMAKER,
+        showInPlanner: false,
+        label: "The Glassmaker Access",
+        category: "Systems",
+        description: "Access the Nihil / Glassmaker reward path tied to Nightwave content. This is tracked manually because it is not a permanent quest chain in the app's progression model.",
+        prerequisites: [PR.ACTIVITY_NIGHTWAVE]
+    },
+    {
+        id: PR.ACTIVITY_EIDOLON_TERALYST,
+        showInPlanner: false,
+        label: "Eidolon Teralyst Hunts",
+        category: "Systems",
+        description: "Hunt the Teralyst on the Plains of Eidolon at night. Requires Cetus access and The War Within for full Operator combat access.",
+        prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN]
+    },
+    {
+        id: PR.ACTIVITY_EIDOLON_TRIDOLON,
+        showInPlanner: false,
+        label: "Eidolon Tridolon Hunts",
+        category: "Systems",
+        description: "Capture the Teralyst, Gantulyst, and Hydrolyst in a full Tridolon run. Modeled as requiring basic Eidolon hunting access plus The Quills at Rank 1.",
+        prerequisites: [PR.ACTIVITY_EIDOLON_TERALYST, PR.SYNDICATE_QUILLS_RANK1]
+    },
+    {
+        id: PR.ACTIVITY_PROFIT_TAKER,
+        showInPlanner: false,
+        label: "Profit-Taker Heist",
+        category: "Systems",
+        description: "Unlock the Profit-Taker Orb heist in Orb Vallis. Requires Vox Solaris, Archwing mobility, and Vox Solaris Rank 5 (Old Mate).",
+        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS, PR.ARCHWING, PR.SYNDICATE_VOX_RANK5]
+    },
+    {
+        id: PR.ACTIVITY_ZARIMAN_BOUNTIES,
+        showInPlanner: false,
+        label: "Zariman Bounties",
+        category: "Systems",
+        description: "Run bounty-style missions from the Chrysalith on the Zariman. Requires Angels of the Zariman and Zariman hub access.",
+        prerequisites: [PR.HUB_ZARIMAN]
+    },
+    {
+        id: PR.ACTIVITY_NETRACELLS,
+        showInPlanner: false,
+        label: "Netracells",
+        category: "Systems",
+        description: "Access weekly Netracell runs in Sanctum Anatomica after Whispers in the Walls.",
+        prerequisites: [PR.HUB_SANCTUM]
+    },
+    {
+        id: PR.ACTIVITY_KUVA_LICH,
+        showInPlanner: false,
+        label: "Kuva Lich System",
+        category: "Systems",
+        description: "Meet the prerequisites to create and pursue a Kuva Lich. Requires The War Within, Rising Tide, and Mastery Rank 5.",
+        prerequisites: [PR.WAR_WITHIN, PR.RISING_TIDE],
+        conditions: [{ type: "mastery_rank", value: 5 }]
+    },
+    {
+        id: PR.ACTIVITY_SISTER_PARVOS,
+        showInPlanner: false,
+        label: "Sisters of Parvos System",
+        category: "Systems",
+        description: "Meet the prerequisites to create and pursue a Sister of Parvos. Requires The War Within, Call of the Tempestarii, and Mastery Rank 5.",
+        prerequisites: [PR.WAR_WITHIN, PR.CALL_TEMPESTARII],
+        conditions: [{ type: "mastery_rank", value: 5 }]
+    },
+    {
+        id: PR.ACTIVITY_ABYSSAL_ZONE,
+        showInPlanner: false,
+        label: "Abyssal Zone Access",
+        category: "Systems",
+        description: "Access the Abyssal Zone on Ceres. Requires Relay access and an Abyssal Beacon purchased from any pledged main Syndicate at Rank 2.",
+        prerequisites: [PR.HUB_RELAY],
+        validatedByAnySyndicate: {
+            syndicateIds: [
+                SY.STEEL_MERIDIAN,
+                SY.ARBITERS_OF_HEXIS,
+                SY.CEPHALON_SUDA,
+                SY.THE_PERRIN_SEQUENCE,
+                SY.NEW_LOKA,
+                SY.RED_VEIL
+            ],
+            rank: 2
+        }
+    },
+    {
+        id: PR.ACTIVITY_ARBITRATIONS,
+        showInPlanner: false,
+        label: "Arbitrations Unlocked",
+        category: "Systems",
+        description: "Unlock Arbitrations from the Pluto > Eris junction task. As of Update 39.0 on June 25, 2025, this no longer requires full star-chart completion. This app does not yet auto-track the exact junction task, so this milestone may need to be marked manually.",
+        prerequisites: [PR.HUB_RELAY]
+    },
+    {
+        id: PR.ACTIVITY_TECHNOCYTE_CODA,
+        showInPlanner: false,
+        label: "Technocyte Coda System",
+        category: "Systems",
+        description: "Meet the prerequisites to create and pursue a Technocyte Coda. Requires The Hex. The game also requires not having another active adversary, which is not modeled as a prerequisite here.",
+        prerequisites: [PR.THE_HEX]
+    },
+    {
+        id: PR.SYSTEM_DAILY_TRIBUTE,
+        showInPlanner: false,
+        label: "Daily Tribute Rewards",
+        category: "Systems",
+        description: "Progress far enough along the Daily Tribute login reward track to claim milestone weapons and similar rewards. This remains a manual milestone because the app does not track total login days.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
 
     // =========================================================================
     // ORBITER SEGMENTS
@@ -636,6 +813,22 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     // =========================================================================
     // SYNDICATE RANK MILESTONES (only ranks that gate Orbiter segments)
     // =========================================================================
+    {
+        id: PR.SYNDICATE_QUILLS_RANK1,
+        validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 1 },
+        label: "The Quills: Rank 1 (Observer)",
+        category: "Syndicates",
+        description: "Unlocks the first Quills standing tier and basic Amp progression used for early Eidolon hunting.",
+        prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN]
+    },
+    {
+        id: PR.SYNDICATE_VOX_RANK5,
+        validatedBySyndicate: { syndicateId: SY.VOX_SOLARIS, rank: 5 },
+        label: "Vox Solaris: Rank 5 (Old Mate)",
+        category: "Syndicates",
+        description: "Maximum Vox Solaris rank. Required to unlock the Profit-Taker heist.",
+        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS]
+    },
     {
         id: PR.SYNDICATE_ENTRATI_RANK3,
         validatedBySyndicate: { syndicateId: SY.ENTRATI, rank: 3 },

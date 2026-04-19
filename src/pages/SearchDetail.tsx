@@ -20,6 +20,7 @@ import { FULL_CATALOG } from "../domain/catalog/loadFullCatalog";
 import { getWeaponCatalog, type WeaponAttack, type WeaponDamage, type WeaponEntry } from "../domain/catalog/weaponCatalog";
 import { useTrackerStore } from "../store/store";
 import { formatSourceDisplayLabel } from "../utils/sourceLabels";
+import { getHighestOwnedArcaneRankWithFallback } from "../domain/logic/arcaneInventory";
 import {
     buildSearchDetailHash,
     getCatalogIdForPath,
@@ -78,6 +79,7 @@ type StepperControlProps = {
 const EMPTY_MOD_RANKS: Record<string, number> = {};
 const EMPTY_ARCANE_RANKS: Record<string, Record<string, number>> = {};
 const EMPTY_MASTERY: Record<string, boolean> = {};
+
 const _statusImgs = import.meta.glob<string>("../assets/statuses/*.png", {
     eager: true,
     import: "default",
@@ -766,17 +768,27 @@ export default function SearchDetail(props: {
     );
     const wikiUrl = getSearchEntityWikiUrl(entry, entity?.name);
     const countKey = detailRef?.kind === "item" ? catalogId : detailRef?.kind === "mod" ? `mods:${detailRef.id}` : null;
-    const maxRank = typeof entry?.fusionLimit === "number" ? entry.fusionLimit : 0;
+    const maxRank = useMemo(() => {
+        if (typeof entry?.fusionLimit === "number") return entry.fusionLimit;
+        if (detailRef?.kind === "arcane") {
+            if (Array.isArray(entry?.levelStats) && entry.levelStats.length > 0) {
+                return Math.max(0, entry.levelStats.length - 1);
+            }
+            const raw = catalogId ? (FULL_CATALOG.recordsById[catalogId]?.raw as { rawLotus?: { levelStats?: unknown[] } } | undefined) : undefined;
+            if (Array.isArray(raw?.rawLotus?.levelStats) && raw.rawLotus.levelStats.length > 0) {
+                return Math.max(0, raw.rawLotus.levelStats.length - 1);
+            }
+            return 5;
+        }
+        return 0;
+    }, [catalogId, detailRef?.kind, entry?.fusionLimit, entry?.levelStats]);
     const ownedCount = countKey ? Number(counts[countKey] ?? 0) : 0;
     const ownedRank = detailRef?.kind === "mod" ? Number(modRanks[detailRef.id] ?? 0) : null;
     const ownedArcaneRanks = detailRef?.kind === "arcane" ? arcaneRanks[detailRef.id] ?? {} : {};
-    const totalArcaneCopies = Object.values(ownedArcaneRanks).reduce((sum, value) => sum + Number(value ?? 0), 0);
+    const fallbackArcaneCount = detailRef?.kind === "arcane" ? Number(counts[`mods:${detailRef.id}`] ?? counts[detailRef.id] ?? 0) : 0;
+    const highestOwnedArcaneRank = detailRef?.kind === "arcane" ? getHighestOwnedArcaneRankWithFallback(ownedArcaneRanks, fallbackArcaneCount) : null;
     const isMastered = catalogId ? Boolean(mastered[catalogId]) : null;
-    const isOwned = detailRef?.kind === "arcane" ? totalArcaneCopies > 0 : ownedCount > 0;
-    const arcaneRankEntries = detailRef?.kind === "arcane" ? Array.from({ length: maxRank + 1 }, (_, rank) => ({
-        rank,
-        count: Number(ownedArcaneRanks[String(rank)] ?? 0),
-    })) : [];
+    const isOwned = detailRef?.kind === "arcane" ? highestOwnedArcaneRank !== null : ownedCount > 0;
 
     useEffect(() => {
         setShowAllCraftedWith(false);
@@ -862,12 +874,10 @@ export default function SearchDetail(props: {
     function toggleOwnedState() {
         if (!detailRef) return;
         if (detailRef.kind === "arcane") {
-            const ranksToClear = Object.keys(ownedArcaneRanks);
-            for (const rank of ranksToClear) {
-                setArcaneRankCount(detailRef.id, Number(rank), 0);
-            }
             if (!isOwned) {
                 setArcaneRankCount(detailRef.id, 0, 1);
+            } else {
+                setArcaneRankCount(detailRef.id, 0, 0);
             }
             return;
         }
@@ -927,13 +937,13 @@ export default function SearchDetail(props: {
                 }
                 stats={
                     <>
-                        <WorkspaceStat label="Owned" value={detailRef.kind === "arcane" ? totalArcaneCopies : ownedCount} hint={cleanCatalogSubtitle(entity.subtitle)} />
+                        <WorkspaceStat label="Owned" value={detailRef.kind === "arcane" ? formatBool(isOwned) : ownedCount} hint={cleanCatalogSubtitle(entity.subtitle)} />
                         <WorkspaceStat label="Mastered" value={formatBool(isMastered)} hint="Progress tracker" />
-                        <WorkspaceStat label="Max Rank" value={formatNumber(typeof entry.fusionLimit === "number" ? entry.fusionLimit : null)} hint={detailRef.kind === "item" ? "Upgradeable entries only" : "Catalog max rank"} />
+                        <WorkspaceStat label="Max Rank" value={formatNumber(maxRank > 0 || detailRef.kind === "arcane" ? maxRank : (typeof entry.fusionLimit === "number" ? entry.fusionLimit : null))} hint={detailRef.kind === "item" ? "Upgradeable entries only" : "Catalog max rank"} />
                         <WorkspaceStat
-                            label={detailRef.kind === "arcane" ? "Tracked Ranks" : "Tracked Rank"}
-                            value={detailRef.kind === "arcane" ? Object.keys(ownedArcaneRanks).length : formatNumber(ownedRank)}
-                            hint={detailRef.kind === "arcane" ? "Unique owned arcane ranks" : "Highest owned rank"}
+                            label="Tracked Rank"
+                            value={detailRef.kind === "arcane" ? (highestOwnedArcaneRank === null ? "—" : `R${highestOwnedArcaneRank}`) : formatNumber(ownedRank)}
+                            hint="Highest owned rank"
                         />
                     </>
                 }
@@ -945,7 +955,7 @@ export default function SearchDetail(props: {
 
             <WorkspaceSection
                 title="Collection"
-                subtitle={detailRef.kind === "arcane" ? "Track owned copies by arcane rank directly from the inspector." : "Update owned state and collection progress without leaving the panel."}
+                subtitle={detailRef.kind === "arcane" ? "Track the highest owned arcane rank directly from the inspector." : "Update owned state and collection progress without leaving the panel."}
             >
                 {detailRef.kind === "arcane" ? (
                     <div className="space-y-4">
@@ -953,22 +963,38 @@ export default function SearchDetail(props: {
                             <div>
                                 <div className="text-[11px] uppercase tracking-[0.16em] text-[color:var(--wf-text-dim)]">Ownership</div>
                                 <div className="mt-2 text-lg font-medium text-[color:var(--wf-text-strong)]">{isOwned ? "Owned" : "Not owned"}</div>
-                                <div className="mt-1 text-sm text-[color:var(--wf-text-muted)]">{totalArcaneCopies} total copies across {Object.keys(ownedArcaneRanks).length} tracked ranks</div>
+                                <div className="mt-1 text-sm text-[color:var(--wf-text-muted)]">
+                                    {highestOwnedArcaneRank === null ? "No owned rank tracked yet." : `Highest owned rank: R${highestOwnedArcaneRank}`}
+                                </div>
                             </div>
-                            <WorkspaceAction onClick={toggleOwnedState}>{isOwned ? "Clear Collection" : "Add 1 at Rank 0"}</WorkspaceAction>
+                            <WorkspaceAction onClick={toggleOwnedState}>{isOwned ? "Mark Unowned" : "Mark Owned at Rank 0"}</WorkspaceAction>
                         </div>
-                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                            {arcaneRankEntries.map((entryAtRank) => (
-                                <StepperControl
-                                    key={entryAtRank.rank}
-                                    label={`Rank ${entryAtRank.rank}`}
-                                    value={entryAtRank.count}
-                                    hint="Owned copies"
-                                    onDecrease={() => setArcaneRankCount(detailRef.id, entryAtRank.rank, Math.max(0, entryAtRank.count - 1))}
-                                    onIncrease={() => setArcaneRankCount(detailRef.id, entryAtRank.rank, entryAtRank.count + 1)}
-                                    decreaseDisabled={entryAtRank.count <= 0}
-                                />
-                            ))}
+                        <div className="flex items-center gap-1.5 overflow-x-auto pr-1">
+                            {Array.from({ length: maxRank + 1 }, (_, rank) => {
+                                const isSelected = highestOwnedArcaneRank === rank;
+                                return (
+                                    <button
+                                        key={rank}
+                                        className={[
+                                            "w-[68px] shrink-0 rounded-xl border px-2 py-2 text-[11px] font-semibold transition-colors",
+                                            isSelected
+                                                ? "border-emerald-700/60 bg-emerald-950/35 text-emerald-200"
+                                                : "border-[color:var(--wf-border-subtle)] bg-[color:var(--wf-surface-soft)] text-[color:var(--wf-text-muted)] hover:border-[color:var(--wf-border-strong)] hover:text-[color:var(--wf-text-strong)]",
+                                        ].join(" ")}
+                                        onClick={() => setArcaneRankCount(detailRef.id, rank, isSelected ? 0 : 1)}
+                                    >
+                                        <span className="block text-[10px] uppercase tracking-[0.14em] text-[color:var(--wf-text-dim)]">
+                                            R{rank}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                            <button
+                                className="shrink-0 rounded-xl border border-[color:var(--wf-border-subtle)] bg-transparent px-3 py-2 text-[11px] font-semibold text-[color:var(--wf-text-dim)] transition-colors hover:border-[color:var(--wf-border-strong)] hover:text-[color:var(--wf-text-strong)]"
+                                onClick={() => setArcaneRankCount(detailRef.id, 0, 0)}
+                            >
+                                Clear
+                            </button>
                         </div>
                     </div>
                 ) : (

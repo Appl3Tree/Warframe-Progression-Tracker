@@ -12,6 +12,7 @@ import {
   determineItemAvailability,
   getBlockingReasons,
 } from "../domain/logic/plannerEngine";
+import { deriveCompletedMap } from "../domain/logic/syndicatePrereqs";
 import { getAcquisitionByCatalogId } from "../catalog/items/itemAcquisition";
 import { SOURCE_INDEX } from "../catalog/sources/sourceCatalog";
 import { formatSourceDisplayLabel } from "../utils/sourceLabels";
@@ -2458,8 +2459,13 @@ export default function Inventory() {
   const completedPrereqs = useTrackerStore(
     (s) => s.state.prereqs?.completed ?? EMPTY_BOOL_RECORD,
   );
+  const syndicates = useTrackerStore((s) => s.state.syndicates ?? EMPTY_ARRAY);
   const masteryRank = useTrackerStore(
     (s) => s.state.player?.masteryRank ?? null,
+  );
+  const effectiveCompletedPrereqs = useMemo(
+    () => deriveCompletedMap(completedPrereqs, syndicates),
+    [completedPrereqs, syndicates],
   );
 
   const goals = useTrackerStore((s) => s.state.goals ?? EMPTY_ARRAY);
@@ -3167,7 +3173,7 @@ export default function Inventory() {
         result = result.filter((r) => {
           const avail = determineItemAvailability(
             r.id,
-            completedPrereqs,
+            effectiveCompletedPrereqs,
             masteryRank,
           );
           return avail === "available" || avail === "partial";
@@ -3193,7 +3199,7 @@ export default function Inventory() {
     if (tableAccessFilter !== "all") {
       result = result.filter(
         (r) =>
-          determineItemAvailability(r.id, completedPrereqs, masteryRank) ===
+          determineItemAvailability(r.id, effectiveCompletedPrereqs, masteryRank) ===
           tableAccessFilter,
       );
     }
@@ -3245,7 +3251,7 @@ export default function Inventory() {
     counts,
     mastered,
     overLevelMastered,
-    completedPrereqs,
+    effectiveCompletedPrereqs,
     masteryRank,
     tableTypeFilter,
     tableAccessFilter,
@@ -4194,7 +4200,7 @@ export default function Inventory() {
                   const rowAllE = ALL_BY_UNIQUE[r.path];
                   const availability = determineItemAvailability(
                     r.id,
-                    completedPrereqs,
+                    effectiveCompletedPrereqs,
                     masteryRank,
                   );
                   const availabilityLabel =
@@ -4555,14 +4561,14 @@ export default function Inventory() {
             ?? null;
           const avail = determineItemAvailability(
             selectedDetailId,
-            completedPrereqs,
+            effectiveCompletedPrereqs,
             masteryRank,
           );
           const blockingReasons =
             avail !== "available"
               ? getBlockingReasons(
                   selectedDetailId,
-                  completedPrereqs,
+                  effectiveCompletedPrereqs,
                   masteryRank,
                 )
               : [];

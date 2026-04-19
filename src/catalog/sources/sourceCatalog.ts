@@ -1,6 +1,7 @@
 // src/catalog/sources/sourceCatalog.ts
 
 import { normalizeSourceId, type SourceId } from "../../domain/ids/sourceIds";
+import { PR } from "../../domain/ids/prereqIds";
 import wfcdSourceLabels from "../../data/_generated/wfcd-source-label-map.auto.json";
 import { canonicalizeWfItemsLocation } from "./wfItemsLocCanonical";
 import { CURATED_SOURCES } from "./curatedSources";
@@ -42,6 +43,296 @@ export type RawSource = {
     type?: Source["type"];
     prereqIds?: string[];
 };
+
+const CURATED_SOURCE_BY_ID = new Map(
+    CURATED_SOURCES.map((source) => [normalizeSourceId(source.id), source] as const)
+);
+
+function getSyndicateVendorOverride(syndicateName: string): Pick<RawSource, "label" | "prereqIds"> | null {
+    const curatedEquivalentIdByName: Record<string, string> = {
+        "Cephalon Simaris": "data:vendor/simaris",
+        Entrati: "data:vendor/deimos/entrati",
+        "Kahl's Garrison": "data:vendor/kahl-garrison/chipper",
+        Ostron: "data:vendor/cetus/ostron",
+        "Solaris United": "data:vendor/fortuna/solaris-united",
+        "The Holdfasts": "data:vendor/zariman/holdfasts",
+        "The Quills": "data:vendor/cetus/quills",
+        Ventkids: "data:vendor/fortuna/ventkids",
+        "Vox Solaris": "data:vendor/fortuna/vox-solaris",
+        NecraLoid: "data:vendor/deimos/necraloid",
+        "Operational Supply": "data:events/plague-star",
+    };
+
+    const curatedId = curatedEquivalentIdByName[syndicateName];
+    if (curatedId) {
+        const curated = CURATED_SOURCE_BY_ID.get(normalizeSourceId(curatedId));
+        if (curated) {
+            return {
+                label: curated.label,
+                prereqIds: curated.prereqIds,
+            };
+        }
+    }
+
+    const relaySyndicates = new Set([
+        "Arbiters of Hexis",
+        "Cephalon Suda",
+        "Conclave",
+        "New Loka",
+        "Red Veil",
+        "Steel Meridian",
+        "The Perrin Sequence",
+    ]);
+
+    if (relaySyndicates.has(syndicateName)) {
+        return {
+            label: `Syndicate Vendor: ${syndicateName}`,
+            prereqIds: ["hub_relay"],
+        };
+    }
+
+    return null;
+}
+
+function inferExtraPrereqsFromSourceLabel(label: string, vendorName?: string): string[] {
+    const raw = safeString(label);
+    if (!raw) return [];
+
+    const out = new Set<string>();
+    const normalizedVendor = safeString(vendorName)?.toLowerCase();
+
+    if (normalizedVendor === "cephalon simaris") {
+        const labelToPrereqId: Array<[RegExp, string]> = [
+            [/Complete The Archwing/i, PR.ARCHWING],
+            [/Complete The Sacrifice/i, PR.SACRIFICE],
+            [/Complete Sands of Inaros/i, PR.SANDS_INAROS],
+            [/Complete The Silver Grove/i, PR.SILVER_GROVE],
+            [/Complete The Waverider/i, PR.WAVERIDER],
+            [/Complete The Limbo Theorem/i, PR.LIMBO_THEOREM],
+            [/Complete Hidden Messages/i, PR.HIDDEN_MESSAGES],
+            [/Complete The New War/i, PR.NEW_WAR],
+            [/Complete The War Within/i, PR.WAR_WITHIN],
+            [/Complete The Second Dream/i, PR.SECOND_DREAM],
+            [/Complete Chains of Harrow/i, PR.CHAINS_HARROW],
+            [/Complete Octavia's Anthem/i, PR.OCTAVIA_ANTHEM],
+            [/Complete The Glast Gambit/i, PR.GLAST_GAMBIT],
+            [/Complete The Jordas Precept/i, PR.JORDAS_PRECEPT],
+            [/Complete Mask of the Revenant/i, PR.MASK_REVENANT],
+            [/Complete The Deadlock Protocol/i, PR.DEADLOCK_PROTOCOL],
+            [/Complete Call of the Tempestarii/i, PR.CALL_TEMPESTARII],
+            [/Complete Heart of Deimos/i, PR.HEART_OF_DEIMOS],
+            [/Complete The Duviri Paradox/i, PR.DUVIRI_PARADOX],
+            [/Complete The New Strange/i, PR.NEW_STRANGE],
+            [/Complete Saya's Vigil/i, PR.SAYA_VIGIL],
+            [/Complete Chimera Prologue/i, PR.CHIMERA_PROLOGUE],
+            [/Complete Erra/i, PR.ERRA],
+            [/Complete Natah/i, PR.NATAH],
+            [/Complete Vox Solaris/i, PR.VOX_SOLARIS],
+            [/Unlock through The Deadlock Protocol/i, PR.DEADLOCK_PROTOCOL],
+            [/Unlock through Stolen Dreams/i, PR.STOLEN_DREAMS],
+            [/Unlock through Tenshin's Cave/i, PR.DUVIRI_PARADOX],
+            [/Unlock through Daily Tribute/i, PR.SYSTEM_DAILY_TRIBUTE],
+            [/Defeat the Glassmaker/i, PR.ACTIVITY_GLASSMAKER],
+            [/Complete Neptune Junction/i, PR.JUNCTION_URANUS_NEPTUNE],
+            [/Complete Pluto Junction/i, PR.JUNCTION_NEPTUNE_PLUTO],
+            [/Complete Uranus Junction/i, PR.JUNCTION_SATURN_URANUS],
+        ];
+
+        for (const [pattern, prereqId] of labelToPrereqId) {
+            if (pattern.test(raw)) out.add(prereqId);
+        }
+    }
+
+    return [...out];
+}
+
+function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | "prereqIds" | "type"> | null {
+    const raw = safeString(label);
+    if (!raw) return null;
+
+    const wfItemsVendorLike = raw.match(/^WFItems Location(?: \(Legacy\))?:\s*([^,(]+?)(?:\s*[,(].*|$)/i);
+    if (wfItemsVendorLike) {
+        const vendorName = wfItemsVendorLike[1]?.trim();
+        if (vendorName) {
+            const override = getSyndicateVendorOverride(vendorName);
+            if (override) {
+                return {
+                    label: raw,
+                    prereqIds: override.prereqIds,
+                    type: "vendor",
+                };
+            }
+        }
+    }
+
+    const syndicateVendor = raw.match(/^Syndicate Vendor:\s*([^()]+?)(?:\s*\(|\s*$)/i);
+    if (syndicateVendor) {
+        const vendorName = syndicateVendor[1]?.trim();
+        if (!vendorName) return null;
+
+        const override = getSyndicateVendorOverride(vendorName);
+        const extraPrereqs = inferExtraPrereqsFromSourceLabel(raw, vendorName);
+        return {
+            label: raw,
+            prereqIds: Array.from(new Set([...(override?.prereqIds ?? []), ...extraPrereqs])),
+            type: "vendor",
+        };
+    }
+
+    if (/^WFItems Location(?: \(Legacy\))?:/i.test(raw)) {
+        if (/Elite Sanctuary Onslaught|Sanctuary Onslaught/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: ["hub_relay", PR.NEW_STRANGE],
+                type: "drop",
+            };
+        }
+
+        if (/Void Storm/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.RAILJACK_CONSTRUCTED, PR.CALL_TEMPESTARII],
+                type: "drop",
+            };
+        }
+
+        if (/Profit-Taker/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_PROFIT_TAKER],
+                type: "drop",
+            };
+        }
+
+        if (/Eidolon Teralyst/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_EIDOLON_TERALYST],
+                type: "drop",
+            };
+        }
+
+        if (/Eidolon Gantulyst|Eidolon Hydrolyst/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_EIDOLON_TRIDOLON],
+                type: "drop",
+            };
+        }
+
+        if (/Derelict Vault/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.CLAN_DOJO, PR.JUNCTION_MARS_DEIMOS],
+                type: "drop",
+            };
+        }
+
+        if (/Duviri Circuit/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.DUVIRI_PARADOX],
+                type: "drop",
+            };
+        }
+
+        if (/Duviri Full Experience|Duviri Experience|Duviri Lone Story|Kullervo's Hold/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.DUVIRI_PARADOX],
+                type: "drop",
+            };
+        }
+
+        if (/H[öo]llvania .*WF1999 Bounty|Hallowed Flame/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_HOLLVANIA],
+                type: "drop",
+            };
+        }
+
+        if (/Zariman Ten Zero .* Zariman Bounty/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_ZARIMAN_BOUNTIES],
+                type: "drop",
+            };
+        }
+
+        if (/Entrati Netracell Coffer/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_NETRACELLS],
+                type: "drop",
+            };
+        }
+
+        if (/Abyssal Beacon/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_ABYSSAL_ZONE],
+                type: "drop",
+            };
+        }
+
+        if (/Arbitration Shield Drone|Arbitrations/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_ARBITRATIONS],
+                type: "drop",
+            };
+        }
+
+        if (/Sorties/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_SORTIES],
+                type: "drop",
+            };
+        }
+
+        if (/Condroc|Kuaka|Mergoo|Grokdrul Drum|Iradite Formation|Archimedean Itzam/i.test(raw)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_CETUS],
+                type: "drop",
+            };
+        }
+
+        if (/The Descendia|Dark Refractory/i.test(raw)) {
+            const prereqIds: string[] = [PR.THE_OLD_PEACE];
+            if (/Steel Path/i.test(raw)) prereqIds.push(PR.ACTIVITY_STEEL_PATH);
+            return {
+                label: raw,
+                prereqIds,
+                type: "drop",
+            };
+        }
+
+        if (/Another Betrayer|Family Reunion|Hot Mess|Recover the Orokin Archive|Sunkiller|Table for Two|The Aftermath|Times Up|Faceoff/i.test(raw)) {
+            const prereqIds: string[] = [PR.THE_HEX];
+            if (/Steel Path/i.test(raw)) prereqIds.push(PR.ACTIVITY_STEEL_PATH);
+            return {
+                label: raw,
+                prereqIds,
+                type: "drop",
+            };
+        }
+    }
+
+    const wfItemsSimaris = raw.match(/^WFItems Location(?: \(Legacy\))?:\s*Cephalon Simaris\s*,?\s*(.*)$/i);
+    if (wfItemsSimaris) {
+        const extraPrereqs = inferExtraPrereqsFromSourceLabel(raw, "Cephalon Simaris");
+        return {
+            label: raw,
+            prereqIds: Array.from(new Set(["hub_relay", PR.NEW_STRANGE, ...extraPrereqs])),
+            type: "vendor",
+        };
+    }
+
+    return null;
+}
 
 function safeString(v: unknown): string | null {
     return typeof v === "string" && v.trim().length > 0 ? v.trim() : null;
@@ -116,7 +407,14 @@ function buildWfcdDropSources(): RawSource[] {
     const seen = new Set<string>();
 
     for (const [sid, label] of Object.entries(wfcdSourceLabels as Record<string, string>)) {
-        pushUnique(out, seen, sid, label, "drop");
+        const inferred = inferSourceMetadataFromLabel(label);
+        pushUnique(out, seen, sid, inferred?.label ?? label, inferred?.type ?? "drop");
+        if (inferred?.prereqIds?.length) {
+            out[out.length - 1] = {
+                ...out[out.length - 1],
+                prereqIds: inferred.prereqIds,
+            };
+        }
     }
 
     out.sort((a, b) => a.label.localeCompare(b.label));
@@ -316,7 +614,7 @@ function buildWfItemsCacheSources(): RawSource[] {
  */
 function buildWfItemsLocSources(): RawSource[] {
     const out: RawSource[] = [];
-    const seen = new Set<string>();
+    const seen = new Set<string>(CURATED_SOURCES.map((src) => normalizeSourceId(src.id)));
 
     const locs = new Set<string>();
 
@@ -372,17 +670,51 @@ function buildWfItemsLocSources(): RawSource[] {
 
     for (const loc of Array.from(locs.values())) {
         const { canonicalSourceId, canonicalLabel, legacySourceId } = canonicalizeWfItemsLocation(loc);
+        const canonicalCurated = CURATED_SOURCE_BY_ID.get(normalizeSourceId(canonicalSourceId));
+        const canonicalType = canonicalCurated?.type ?? "drop";
 
         const isRelicCanonical = canonicalSourceId.startsWith("data:relic/");
+        const isRawSyndicateVendorCanonical = canonicalSourceId.startsWith("data:vendor/syndicate/");
 
         // For relics, canonical ids already come from relics.json (buildDropDataSupplementSources),
         // so we only keep the legacy wfitems alias to avoid duplicate SourceIds.
-        if (!isRelicCanonical) {
-            pushUnique(out, seen, canonicalSourceId, canonicalLabel, "drop");
+        if (!isRelicCanonical && !isRawSyndicateVendorCanonical) {
+            const canonicalMeta = inferSourceMetadataFromLabel(canonicalLabel);
+            pushUnique(
+                out,
+                seen,
+                canonicalSourceId,
+                canonicalMeta?.label ?? canonicalLabel,
+                canonicalMeta?.type ?? canonicalType,
+            );
+            const canonicalPrereqs = canonicalMeta?.prereqIds ?? canonicalCurated?.prereqIds;
+            if (canonicalPrereqs?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: canonicalPrereqs,
+                };
+            }
         }
 
         if (legacySourceId !== canonicalSourceId) {
-            pushUnique(out, seen, legacySourceId, `WFItems Location (Legacy): ${loc}`, "drop");
+            const legacyLabel = `WFItems Location (Legacy): ${loc}`;
+            const legacyMeta = inferSourceMetadataFromLabel(legacyLabel);
+            const canonicalMeta = inferSourceMetadataFromLabel(canonicalLabel);
+            const inheritedPrereqs =
+                legacyMeta?.prereqIds ??
+                canonicalMeta?.prereqIds ??
+                canonicalCurated?.prereqIds;
+            const inheritedType =
+                legacyMeta?.type ??
+                canonicalMeta?.type ??
+                canonicalType;
+            pushUnique(out, seen, legacySourceId, legacyMeta?.label ?? legacyLabel, inheritedType);
+            if (inheritedPrereqs?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inheritedPrereqs,
+                };
+            }
         }
     }
 
@@ -566,8 +898,14 @@ function buildDropDataSupplementSources(): RawSource[] {
     if (synRoot && typeof synRoot === "object" && !Array.isArray(synRoot)) {
         for (const synName of Object.keys(synRoot as Record<string, any>)) {
             const id = dataId(["vendor", "syndicate", synName]);
-            const label = `Syndicate Vendor: ${synName}`;
-            pushUnique(out, seen, id, label, "vendor");
+            const override = getSyndicateVendorOverride(synName);
+            pushUnique(out, seen, id, override?.label ?? `Syndicate Vendor: ${synName}`, "vendor");
+            if (override?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: override.prereqIds,
+                };
+            }
         }
     }
 

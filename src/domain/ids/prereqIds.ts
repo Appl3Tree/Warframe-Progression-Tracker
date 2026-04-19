@@ -114,6 +114,7 @@ export const PR = {
     GLAST_GAMBIT:           "quest_the_glast_gambit",       // Nidus BP; req. Eris + Infested Salvage access
     MASK_REVENANT:          "quest_mask_of_the_revenant",   // Revenant BP; req. Cetus + Quills rank 1 (Observer)
     HIDDEN_MESSAGES:        "quest_hidden_messages",        // Mirage BP; req. Saturn access
+    WAVERIDER:             "quest_the_waverider",          // Yareli BP; req. Vox Solaris / Fortuna access
     PATIENT_ZERO:           "quest_patient_zero",           // Infested Salvage node + Mesa BP; req. Eris access
 
     // =========================================================================
@@ -150,6 +151,7 @@ export const PR = {
     HUB_HOLLVANIA:          "hub_hollvania",                // 1999 hub; req. The Hex
     HUB_RELAY:              "hub_relay",                    // Any Relay; gates Cephalon Simaris, Syndicates, Conclave
     HUB_DRIFTERS_CAMP:      "hub_drifters_camp",            // Drifter's Camp; gates Kahl's Garrison; req. New War
+    CLAN_DOJO:              "system_clan_dojo_access",      // Join or create a Clan and access its Dojo; gates clan research and dojo replication
 
     // =========================================================================
     // ORBITER SEGMENTS
@@ -251,6 +253,8 @@ export const PR = {
 
     // ---- Daily ----
     ACTIVITY_SORTIES:               "activity_sorties",                 // Daily 3-mission Sortie; req. War Within + MR5 + rank-30 frame
+    ACTIVITY_NIGHTWAVE:             "activity_nightwave",               // Nightwave system active/unlocked enough to earn Creds and rank rewards
+    ACTIVITY_GLASSMAKER:            "activity_glassmaker",              // Access to Nihil / The Glassmaker reward path via Nightwave content
     ACTIVITY_EIDOLON_TERALYST:      "activity_eidolon_teralyst",        // Eidolon Teralyst (1-cap); req. Plains of Eidolon at night;
                                                                         //   effective hunting req. good Amp (T2+) + Operator arcanes
     ACTIVITY_EIDOLON_TRIDOLON:      "activity_eidolon_tridolon",        // Full Tridolon (3-cap: Tera + Gant + Hydro);
@@ -264,6 +268,7 @@ export const PR = {
     ACTIVITY_NETRACELLS:            "activity_netracells",              // 5x weekly Netracell runs; req. Whispers in the Walls
     ACTIVITY_ARBITRATIONS:          "activity_arbitrations",            // Arbitration rotation; req. Pluto-Eris junction task (Update 39+);
                                                                         //   rank-30 frame required; instant-death on down
+    ACTIVITY_ABYSSAL_ZONE:          "activity_abyssal_zone",            // Abyssal Zone mission access; req. Relay access + any pledged main Syndicate at Rank 2
     ACTIVITY_DEEP_ARCHIMEDEA:       "activity_deep_archimedea",         // Elite endgame activity; req. Whispers + Cavia rank 5 (Family)
 
     // ---- Open World Bounties ----
@@ -292,6 +297,7 @@ export const PR = {
     // ---- Nemesis Systems ----
     ACTIVITY_KUVA_LICH:             "activity_kuva_lich",               // Kuva Lich nemesis; req. War Within + MR5 + Rising Tide
     ACTIVITY_SISTER_PARVOS:         "activity_sister_of_parvos",        // Sister of Parvos nemesis; req. Call of Tempestarii + Deadlock Protocol
+    ACTIVITY_TECHNOCYTE_CODA:       "activity_technocyte_coda",         // Technocyte Coda nemesis; req. The Hex
 
     // ---- Zariman activities ----
     ACTIVITY_VOID_ANGELS:           "activity_void_angels",             // Void Angel fights in Zariman missions; req. Angels of Zariman
@@ -302,6 +308,9 @@ export const PR = {
     // ---- The Circuit (Duviri) ----
     ACTIVITY_CIRCUIT:               "activity_the_circuit",             // Circuit run mode; req. Duviri Paradox
     ACTIVITY_CIRCUIT_STEEL_PATH_2:  "activity_circuit_sp",              // Steel Path Circuit; req. Duviri + Steel Path
+
+    // ---- Account / login progression ----
+    SYSTEM_DAILY_TRIBUTE:           "system_daily_tribute_rewards",     // Login milestone reward track used for Daily Tribute weapons and cosmetics
 
     // =========================================================================
     // SYNDICATE RANK MILESTONES

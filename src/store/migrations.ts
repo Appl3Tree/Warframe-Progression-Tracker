@@ -10,6 +10,7 @@ import {
     getCurrentWeeklyMondayResetKey,
     getCurrentWeeklyFridayResetKey,
 } from "./storeUtils";
+import { normalizeArcaneRankMap } from "../domain/logic/arcaneInventory";
 
 const LegacyPayloadSchema = z
     .object({
@@ -143,7 +144,7 @@ function normalizeInventory(raw: any): any {
             if (!Number.isFinite(n)) continue;
             normalizedByRank[String(rank)] = Math.max(0, Math.floor(n));
         }
-        arcaneRanks[path] = normalizedByRank;
+        arcaneRanks[path] = normalizeArcaneRankMap(normalizedByRank);
     }
 
     const customRivens = Array.isArray((inv as any).customRivens)

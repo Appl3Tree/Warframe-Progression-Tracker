@@ -13,7 +13,8 @@ import type { SyndicateState } from "../types";
 
 /**
  * Returns a merged completedMap that includes auto-derived completions
- * for any prereq whose `validatedBySyndicate` condition is satisfied by
+ * for any prereq whose `validatedBySyndicate` or `validatedByAnySyndicate`
+ * condition is satisfied by
  * the player's current syndicate ranks.
  *
  * Manual completions in the base map are always preserved.
@@ -33,13 +34,20 @@ export function deriveCompletedMap(
     const merged: Record<string, boolean> = { ...baseCompletedMap };
 
     for (const def of PREREQ_REGISTRY) {
-        if (!def.validatedBySyndicate) continue;
+        if (def.validatedBySyndicate) {
+            const { syndicateId, rank: requiredRank } = def.validatedBySyndicate;
+            const currentRank = rankBySyndicateId[syndicateId] ?? -1;
 
-        const { syndicateId, rank: requiredRank } = def.validatedBySyndicate;
-        const currentRank = rankBySyndicateId[syndicateId] ?? -1;
+            if (currentRank >= requiredRank) {
+                merged[def.id] = true;
+            }
+        }
 
-        if (currentRank >= requiredRank) {
-            merged[def.id] = true;
+        if (def.validatedByAnySyndicate) {
+            const { syndicateIds, rank: requiredRank } = def.validatedByAnySyndicate;
+            if (syndicateIds.some((syndicateId) => (rankBySyndicateId[syndicateId] ?? -1) >= requiredRank)) {
+                merged[def.id] = true;
+            }
         }
         // Note: we never set merged[def.id] = false here — if the player manually
         // marked it complete but their rank dropped, we trust the manual mark.
@@ -55,6 +63,6 @@ export function deriveCompletedMap(
  */
 export function isValidatedBySyndicate(prereqId: string): boolean {
     return PREREQ_REGISTRY.some(
-        (d) => d.id === prereqId && !!d.validatedBySyndicate
+        (d) => d.id === prereqId && (!!d.validatedBySyndicate || !!d.validatedByAnySyndicate)
     );
 }

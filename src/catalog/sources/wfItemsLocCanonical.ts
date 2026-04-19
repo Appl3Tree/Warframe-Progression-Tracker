@@ -150,6 +150,50 @@ export function canonicalizeWfItemsLocation(location: string): CanonicalWfItemsL
     // - the-quills-architect
     // ----------------------------
     {
+        // arbiters-of-hexis-<rank>
+        const m = token.match(/^arbiters-of-hexis-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/syndicate/arbiters-of-hexis",
+                canonicalLabel: "Syndicate Vendor: Arbiters of Hexis",
+                legacySourceId
+            };
+        }
+    }
+    {
+        // cephalon-suda-<rank>
+        const m = token.match(/^cephalon-suda-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/syndicate/cephalon-suda",
+                canonicalLabel: "Syndicate Vendor: Cephalon Suda",
+                legacySourceId
+            };
+        }
+    }
+    {
+        // new-loka-<rank>
+        const m = token.match(/^new-loka-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/syndicate/new-loka",
+                canonicalLabel: "Syndicate Vendor: New Loka",
+                legacySourceId
+            };
+        }
+    }
+    {
+        // red-veil-<rank>
+        const m = token.match(/^red-veil-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/syndicate/red-veil",
+                canonicalLabel: "Syndicate Vendor: Red Veil",
+                legacySourceId
+            };
+        }
+    }
+    {
         // steel-meridian-<rank>
         const m = token.match(/^steel-meridian-([a-z0-9-]+)$/);
         if (m) {
@@ -179,6 +223,27 @@ export function canonicalizeWfItemsLocation(location: string): CanonicalWfItemsL
         if (m) {
             const vendor = m[1];
             const rank = m[2];
+            if (vendor === "hombask") {
+                return {
+                    canonicalSourceId: "data:vendor/zariman/holdfasts",
+                    canonicalLabel: "Buy from the Holdfasts (Zariman)",
+                    legacySourceId
+                };
+            }
+            if (vendor === "cavalero") {
+                return {
+                    canonicalSourceId: "data:vendor/zariman/cavalero",
+                    canonicalLabel: "Buy from Cavalero (Zariman)",
+                    legacySourceId
+                };
+            }
+            if (vendor === "yonta") {
+                return {
+                    canonicalSourceId: "data:vendor/zariman/yonta",
+                    canonicalLabel: "Buy from Archimedean Yonta (Zariman)",
+                    legacySourceId
+                };
+            }
             return {
                 canonicalSourceId: `data:syndicate/holdfasts/${vendor}/${rank}`,
                 canonicalLabel: `The Holdfasts (${titleCaseWords(vendor)}): ${titleCaseWords(rank)}`,
@@ -190,10 +255,165 @@ export function canonicalizeWfItemsLocation(location: string): CanonicalWfItemsL
         // the-quills-<rank>
         const m = token.match(/^the-quills-([a-z0-9-]+)$/);
         if (m) {
-            const rank = m[1];
             return {
-                canonicalSourceId: `data:syndicate/quills/${rank}`,
-                canonicalLabel: `The Quills: ${titleCaseWords(rank)}`,
+                canonicalSourceId: "data:vendor/cetus/quills",
+                canonicalLabel: "Buy from The Quills (Cetus)",
+                legacySourceId
+            };
+        }
+    }
+
+    // ----------------------------
+    // Curated vendor families from WFItems vendor labels.
+    // Collapse rank-specific vendor strings onto the curated vendor source ids
+    // that the rest of the app understands for availability gating.
+    // ----------------------------
+    {
+        const m = token.match(/^ostron-hok-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/cetus/hok",
+                canonicalLabel: "Buy from Hok (Cetus)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^ostron-fisher-hai-luk-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/cetus/hai-luk",
+                canonicalLabel: "Buy from Hai-Luk (Cetus)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^ostron-old-man-suumbaat-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/cetus/suumbaat",
+                canonicalLabel: "Buy from Old Man Suumbaat (Cetus)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^ostron-master-teasonai-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/cetus/teasonai",
+                canonicalLabel: "Buy from Master Teasonai (Cetus)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^ostron-nakak-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/cetus/nakak",
+                canonicalLabel: "Buy from Nakak (Cetus)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^solaris-united-legs-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/fortuna/legs",
+                canonicalLabel: "Buy from Legs (Fortuna)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^solaris-united-the-business-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/fortuna/business",
+                canonicalLabel: "Buy from The Business (Fortuna)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^solaris-united-rude-zuud-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/fortuna/rude-zuud",
+                canonicalLabel: "Buy from Rude Zuud (Fortuna)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^solaris-united-smokefinger-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/fortuna/smokefinger",
+                canonicalLabel: "Buy from Smokefinger (Fortuna)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^ventkids-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/fortuna/ventkids",
+                canonicalLabel: "Buy from Ventkids (Fortuna)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^entrati-daughter-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/deimos/daughter",
+                canonicalLabel: "Buy from Daughter (Deimos)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^entrati-grandmother$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/deimos/entrati",
+                canonicalLabel: "Buy from the Entrati Family (Deimos)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^entrati-son-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/deimos/son",
+                canonicalLabel: "Buy from Son (Deimos)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^entrati-father-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/deimos/father",
+                canonicalLabel: "Buy from Father (Deimos)",
+                legacySourceId
+            };
+        }
+    }
+    {
+        const m = token.match(/^kahls-garrison-chipper-([a-z0-9-]+)$/);
+        if (m) {
+            return {
+                canonicalSourceId: "data:vendor/kahl-garrison/chipper",
+                canonicalLabel: "Buy from Chipper (Kahl's Garrison)",
                 legacySourceId
             };
         }
