@@ -2,9 +2,11 @@
 // Weapon data catalog built from All.json for the mod builder.
 
 import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
+import OVERFRAME_ITEMS_RAW from "../../../external/overframe-gg/items.json";
 import { ITEMS_CATALOG } from "./itemsCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];
+const OVERFRAME_ITEMS = OVERFRAME_ITEMS_RAW as Record<string, Record<string, unknown>>;
 
 export type WeaponCategory = "Primary" | "Secondary" | "Melee" | "Arch-Gun" | "Arch-Melee" | "Companion";
 export type ModCompatName = "Rifle" | "Sniper" | "Shotgun" | "Pistol" | "Bow" | "Melee" | "Archgun" | "Archmelee";
@@ -100,6 +102,11 @@ export function supportsStanceMods(category: WeaponCategory): boolean {
     return category === "Melee";
 }
 
+export function supportsStanceLikeMods(weapon: Pick<WeaponEntry, "category" | "tags"> | null | undefined): boolean {
+    if (!weapon) return false;
+    return weapon.category === "Melee" || (weapon.category === "Companion" && weapon.tags.includes("BEAST_WEAPON"));
+}
+
 function isNamedIncarnonAttack(name: string | undefined): boolean {
     return /incarnon/i.test(String(name ?? ""));
 }
@@ -165,6 +172,13 @@ function inferCompanionWeaponFamily(item: Record<string, unknown>): { weaponType
     const uniqueName = String(item.uniqueName ?? "").toLowerCase();
     const description = String(item.description ?? "").toLowerCase();
 
+    if (
+        uniqueName.includes("meleeweapon") ||
+        description.includes("melee attack") ||
+        description.includes("melee attacks")
+    ) {
+        return { weaponType: "Melee", modCompat: "Melee" };
+    }
     if (uniqueName.includes("glaive") || description.includes("glaive")) {
         return { weaponType: "Melee", modCompat: "Melee" };
     }
@@ -298,8 +312,26 @@ function inferWeaponTags(item: Record<string, unknown>, isExalted: boolean): str
     const trigger = String(item.trigger ?? "").toLowerCase();
     const description = String(item.description ?? "").toLowerCase();
     const type = String(item.type ?? "").toLowerCase();
+    const itemsRaw = ITEMS_CATALOG.byKey[String(item.uniqueName ?? "")]?.raw as
+        | {
+            data?: {
+                CompatibilityTags?: unknown[];
+                WeaponTypes?: Array<{ CompatibilityTags?: unknown[] }>;
+            };
+        }
+        | undefined;
 
     if (isExalted) tags.add("POWER_WEAPON");
+    for (const tag of itemsRaw?.data?.CompatibilityTags ?? []) {
+        const normalized = String(tag ?? "").trim();
+        if (normalized) tags.add(normalized);
+    }
+    for (const variant of itemsRaw?.data?.WeaponTypes ?? []) {
+        for (const tag of variant?.CompatibilityTags ?? []) {
+            const normalized = String(tag ?? "").trim();
+            if (normalized) tags.add(normalized);
+        }
+    }
     if (trigger.includes("semi")) tags.add("SEMI_AUTO");
     if (description.includes("beam") || description.includes("continuous")) tags.add("BEAM");
     if (description.includes("projectile") || type.includes("bow") || uniqueName.includes("/bows/")) tags.add("PROJECTILE");
@@ -391,6 +423,9 @@ function mapArtifactSlotToPolarity(slot: unknown): string {
             return "naramon";
         case "AP_POWER":
             return "zenurik";
+        case "AP_PRECEPT":
+        case "AP_PENJAGA":
+            return "penjaga";
         default:
             return "";
     }
@@ -411,6 +446,18 @@ function inferMainPolaritiesFromItems(uniqueName: string): string[] {
         .slice(0, 8)
         .map(mapArtifactSlotToPolarity)
         .filter((polarity): polarity is string => polarity.length > 0);
+}
+
+function inferArtifactSlotPolarity(uniqueName: string, index: number): string {
+    const raw = ITEMS_CATALOG.byKey[uniqueName]?.raw as
+        | {
+            data?: {
+                ArtifactSlots?: unknown[];
+            };
+        }
+        | undefined;
+    const artifactSlots = Array.isArray(raw?.data?.ArtifactSlots) ? raw.data.ArtifactSlots : [];
+    return mapArtifactSlotToPolarity(artifactSlots[index]);
 }
 
 function inferStanceClassFallback(item: Record<string, unknown>, isExalted: boolean): string | undefined {
@@ -474,6 +521,11 @@ function inferStanceClassFallback(item: Record<string, unknown>, isExalted: bool
 function inferStanceClasses(item: Record<string, unknown>, isExalted: boolean): string[] {
     if (isExalted) return [];
     const uniqueName = String(item.uniqueName ?? "");
+    const raw = ITEMS_CATALOG.byKey[uniqueName]?.raw as { data?: { CompatibilityTags?: unknown[] } } | undefined;
+    const compatibilityTags = raw?.data?.CompatibilityTags?.map((tag) => String(tag ?? "")) ?? [];
+    if (uniqueName.includes("/BeastWeapons/") || compatibilityTags.includes("BEAST_WEAPON")) {
+        return ["Claws"];
+    }
     const fromItems = inferStanceClassesFromItems(uniqueName);
     if (fromItems.length > 0) return fromItems;
     if (typeof item.stancePolarity !== "string") return [];
@@ -502,10 +554,141 @@ function parseDamageRecord(input: unknown): WeaponDamage {
     return out;
 }
 
+function mapOverframeDamageType(rawType: string): keyof WeaponDamage | null {
+    switch (rawType) {
+        case "DT_IMPACT": return "impact";
+        case "DT_PUNCTURE": return "puncture";
+        case "DT_SLASH": return "slash";
+        case "DT_FIRE": return "heat";
+        case "DT_FREEZE": return "cold";
+        case "DT_ELECTRICITY": return "electricity";
+        case "DT_POISON": return "toxin";
+        case "DT_EXPLOSION": return "blast";
+        case "DT_RADIATION": return "radiation";
+        case "DT_GAS": return "gas";
+        case "DT_MAGNETIC": return "magnetic";
+        case "DT_VIRAL": return "viral";
+        case "DT_CORROSIVE": return "corrosive";
+        case "DT_VOID": return "void";
+        case "DT_TAU": return "tau";
+        case "DT_TRUE": return "true";
+        default: return null;
+    }
+}
+
+function parseOverframeAttackDamage(attackData: Record<string, unknown> | undefined): WeaponDamage {
+    const out: WeaponDamage = {
+        total: 0, impact: 0, puncture: 0, slash: 0, heat: 0, cold: 0,
+        electricity: 0, toxin: 0, blast: 0, radiation: 0, gas: 0,
+        magnetic: 0, viral: 0, corrosive: 0, void: 0, tau: 0, true: 0,
+    };
+    if (!attackData) return out;
+
+    const amount = n(attackData.Amount);
+    const explicitPairs: Array<[string, keyof WeaponDamage]> = [
+        ["DT_IMPACT", "impact"],
+        ["DT_PUNCTURE", "puncture"],
+        ["DT_SLASH", "slash"],
+        ["DT_FIRE", "heat"],
+        ["DT_FREEZE", "cold"],
+        ["DT_ELECTRICITY", "electricity"],
+        ["DT_POISON", "toxin"],
+        ["DT_EXPLOSION", "blast"],
+        ["DT_RADIATION", "radiation"],
+        ["DT_GAS", "gas"],
+        ["DT_MAGNETIC", "magnetic"],
+        ["DT_VIRAL", "viral"],
+        ["DT_CORROSIVE", "corrosive"],
+        ["DT_VOID", "void"],
+        ["DT_TAU", "tau"],
+        ["DT_TRUE", "true"],
+    ];
+
+    let assigned = 0;
+    for (const [rawKey, key] of explicitPairs) {
+        const ratio = n(attackData[rawKey]);
+        if (ratio <= 0) continue;
+        out[key] = amount * ratio;
+        assigned += out[key];
+    }
+
+    if (assigned <= 0) {
+        const singleKey = mapOverframeDamageType(String(attackData.Type ?? ""));
+        if (singleKey) {
+            out[singleKey] = amount;
+            assigned = amount;
+        }
+    }
+
+    out.total = assigned;
+    return out;
+}
+
+function buildOverframeBeastWeaponEntry(uniqueName: string): WeaponEntry | null {
+    const item = OVERFRAME_ITEMS[uniqueName];
+    if (!item) return null;
+
+    const name = String(item.name ?? "");
+    if (!name) return null;
+    const data = (item.data as Record<string, unknown> | undefined) ?? {};
+    const tags = (data.CompatibilityTags as unknown[] | undefined)?.map((tag) => String(tag ?? "")) ?? [];
+    if (!tags.includes("BEAST_WEAPON")) return null;
+
+    const behavior = Array.isArray(data.Behaviors) ? (data.Behaviors[0] as Record<string, unknown> | undefined) : undefined;
+    const impactBehavior = (behavior?.["impact:WeaponImpactBehavior"] as Record<string, unknown> | undefined) ?? {};
+    const stateBehavior = (behavior?.["state:WeaponMeleeStateBehavior"] as Record<string, unknown> | undefined) ?? {};
+    const attackData = (impactBehavior.AttackData as Record<string, unknown> | undefined) ?? {};
+    const damage = parseOverframeAttackDamage(attackData);
+    if (damage.total <= 0) return null;
+
+    const rawFireRate = n(stateBehavior.fireRate);
+    const normalizedFireRate = rawFireRate > 10 ? rawFireRate / 60 : (rawFireRate || 1);
+    const pseudoItem = {
+        ...item,
+        uniqueName,
+        description: String(item.description ?? ""),
+        trigger: "Auto",
+        type: "Companion Weapon",
+    };
+    const stanceClasses = inferStanceClasses(pseudoItem, false);
+
+    return {
+        uniqueName,
+        name,
+        category: "Companion",
+        weaponType: "Melee",
+        modCompat: "Melee",
+        damage,
+        critChance: n(impactBehavior.criticalHitChance),
+        critMultiplier: n(impactBehavior.criticalHitDamageMultiplier) || 1.5,
+        statusChance: n(attackData.ProcChance),
+        fireRate: normalizedFireRate,
+        magazineSize: 1,
+        ammoCostPerShot: 1,
+        hasExplicitMagazineSize: false,
+        reloadTime: 0,
+        multishot: 1,
+        trigger: "Auto",
+        chargeTime: null,
+        polarities: inferMainPolaritiesFromItems(uniqueName),
+        canOverLevel: false,
+        baseSlotCount: 8,
+        disposition: 1,
+        attacks: [],
+        isExalted: false,
+        stancePolarity: inferArtifactSlotPolarity(uniqueName, 8),
+        stanceClass: stanceClasses[0],
+        stanceClasses,
+        tags: inferWeaponTags(pseudoItem, false),
+        isProgenitorWeapon: false,
+    };
+}
+
 export function getWeaponCatalog(): WeaponEntry[] {
     if (_cache) return _cache;
 
     const entries: WeaponEntry[] = [];
+    const seenUniqueNames = new Set<string>();
 
     for (const item of ALL) {
         const exaltedType = String(item.type ?? "") === "Exalted Weapon";
@@ -548,7 +731,7 @@ export function getWeaponCatalog(): WeaponEntry[] {
             : inferMainPolaritiesFromItems(uniqueName);
 
         const stanceClasses = inferStanceClasses(item, exaltedType);
-        entries.push({
+        const entry = {
             uniqueName,
             name,
             category: cat,
@@ -579,7 +762,18 @@ export function getWeaponCatalog(): WeaponEntry[] {
             stanceClasses,
             tags: inferWeaponTags(item, exaltedType),
             isProgenitorWeapon: isProgenitorWeapon(name, uniqueName),
-        });
+        };
+        entries.push(entry);
+        seenUniqueNames.add(uniqueName);
+    }
+
+    for (const [uniqueName] of Object.entries(OVERFRAME_ITEMS)) {
+        if (seenUniqueNames.has(uniqueName)) continue;
+        if (!uniqueName.includes("/BeastWeapons/")) continue;
+        const fallback = buildOverframeBeastWeaponEntry(uniqueName);
+        if (!fallback) continue;
+        entries.push(fallback);
+        seenUniqueNames.add(uniqueName);
     }
 
     entries.sort((a, b) => a.name.localeCompare(b.name));

@@ -10,7 +10,7 @@ import {
     getWeaponCatalog,
     isGroundMeleeCategory,
     selectedAttackUsesIncarnonForm,
-    supportsStanceMods,
+    supportsStanceLikeMods,
     usesMeleeDamageModel,
     type WeaponCategory,
     type WeaponEntry,
@@ -2337,7 +2337,7 @@ interface DragSlotRef {
 
 function maxOptimizerFormaForWeapon(weapon: WeaponEntry | null) {
     if (!weapon) return 9;
-    return supportsStanceMods(weapon.category) ? 10 : 9;
+    return supportsStanceLikeMods(weapon) ? 10 : 9;
 }
 
 export default function ModBuilder() {
@@ -2793,19 +2793,19 @@ export default function ModBuilder() {
 
     const allSlotsForCap = useMemo(() => {
         const s = [...slots];
-        if (weapon && supportsStanceMods(weapon.category) && stanceMod) s.unshift(stanceMod);
+        if (weapon && supportsStanceLikeMods(weapon) && stanceMod) s.unshift(stanceMod);
         if (hasExilus) s.push(exilusMod);
         return s;
     }, [slots, stanceMod, exilusMod, hasExilus, weapon]);
     const allPolsForCap  = useMemo(() => {
         const p = [...slotPols];
-        if (weapon && supportsStanceMods(weapon.category) && stanceMod) p.unshift(stancePol);
+        if (weapon && supportsStanceLikeMods(weapon) && stanceMod) p.unshift(stancePol);
         if (hasExilus) p.push(exilusPol);
         return p;
     }, [slotPols, stancePol, exilusPol, hasExilus, weapon, stanceMod]);
     const allRanksForCap = useMemo(() => {
         const r = [...ranks];
-        if (weapon && supportsStanceMods(weapon.category) && stanceMod) r.unshift(stanceRank);
+        if (weapon && supportsStanceLikeMods(weapon) && stanceMod) r.unshift(stanceRank);
         if (hasExilus) r.push(exilusRank);
         return r;
     }, [ranks, stanceMod, stanceRank, exilusRank, hasExilus, weapon]);
@@ -2878,7 +2878,7 @@ export default function ModBuilder() {
                 : maxFormaAllowed;
             let optimizerStanceMod = stanceMod;
             let optimizerStanceRank = stanceRank;
-            if (supportsStanceMods(weapon.category)) {
+            if (supportsStanceLikeMods(weapon)) {
                 if (!fillMode || !stanceMod) {
                     const candidateStances = onlyOwned
                         ? stanceMods.filter(mod => ownedSet.has(mod.uniqueName))
@@ -3017,7 +3017,7 @@ export default function ModBuilder() {
                     exilusPolarity:   exilusPol,
                     optimizeArcane:   optArcane,
                     buildForAttack:   atk,
-                    extraCapacitySlots: supportsStanceMods(weapon.category) && optimizerStanceMod
+                    extraCapacitySlots: supportsStanceLikeMods(weapon) && optimizerStanceMod
                         ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
                         : undefined,
                     preEquippedEffects: [...weaponState.activeIncarnonEffects, ...lockedExternalEffects],
@@ -3030,7 +3030,7 @@ export default function ModBuilder() {
 
                 let appliedResult = result;
                 let appliedCatalyst = buildCfg.hasCatalyst;
-                const baseExtraCapacitySlots = supportsStanceMods(weapon.category) && optimizerStanceMod
+                const baseExtraCapacitySlots = supportsStanceLikeMods(weapon) && optimizerStanceMod
                     ? [{ mod: optimizerStanceMod, rank: optimizerStanceRank, polarity: stancePol }]
                     : undefined;
 
@@ -3217,17 +3217,17 @@ export default function ModBuilder() {
 
             if (allowForma) {
                 const fullDefaultPols = [
-                    ...(supportsStanceMods(weapon.category) ? [stancePolToApply] : []),
+                    ...(supportsStanceLikeMods(weapon) ? [stancePolToApply] : []),
                     ...defaultMainPols,
                     ...(optExilus ? [exilusPolToApply] : []),
                 ];
                 const fullDefaultSlots = [
-                    ...(supportsStanceMods(weapon.category) && optimizerStanceMod ? [optimizerStanceMod] : []),
+                    ...(supportsStanceLikeMods(weapon) && optimizerStanceMod ? [optimizerStanceMod] : []),
                     ...appliedResult.slots,
                     ...(optExilus ? [appliedResult.exilusMod] : []),
                 ];
                 const fullDefaultRanks = [
-                    ...(supportsStanceMods(weapon.category) && optimizerStanceMod ? [optimizerStanceRank] : []),
+                    ...(supportsStanceLikeMods(weapon) && optimizerStanceMod ? [optimizerStanceRank] : []),
                     ...appliedResult.slotRanks,
                     ...(optExilus ? [appliedResult.exilusMod ? appliedResult.exilusRank : 0] : []),
                 ];
@@ -3883,7 +3883,7 @@ export default function ModBuilder() {
                                             <div>
                                                 <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Mod Configuration</div>
                                                 <div className="text-sm text-slate-300">
-                                                    {supportsStanceMods(weapon.category)
+                                                    {supportsStanceLikeMods(weapon)
                                                         ? "8 standard slots, plus stance/exilus/arcane support."
                                                         : "8 standard slots, plus exilus/arcane support where the weapon type allows it."}
                                                 </div>
@@ -3892,7 +3892,7 @@ export default function ModBuilder() {
                                         </div>
 
                                         <div className="space-y-3">
-                                            {supportsStanceMods(weapon.category) ? (
+                                            {supportsStanceLikeMods(weapon) ? (
                                                 <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
                                                     <div className="space-y-3">
                                                         <div className="grid grid-cols-2 2xl:grid-cols-4 gap-3">

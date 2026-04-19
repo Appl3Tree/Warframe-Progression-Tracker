@@ -66,11 +66,18 @@ interface AllModEntry {
   wikiaThumbnail?: string;
   wikiaUrl?: string;
 }
-const VANILLA_CUTOFF = "2013-03-25";
+const VANILLA_DATE = "2012-10-25";
 
 function formatReleaseDate(date: string | undefined): string | undefined {
   if (!date) return undefined;
-  if (date <= VANILLA_CUTOFF) return "Vanilla";
+  if (date === VANILLA_DATE) return "Vanilla";
+  return date;
+}
+
+function getSortableReleaseDate(date: string | undefined, direction: "oldest" | "newest"): string {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || date === "0000-00-00") {
+    return direction === "oldest" ? "9999-99-99" : "";
+  }
   return date;
 }
 
@@ -2573,8 +2580,8 @@ function ModsPage() {
 
     list.sort((a, b) => {
       if (sortKey === "release-newest" || sortKey === "release-oldest") {
-        const aRelease = (ALL_MODS_BY_PATH[a.path] ?? ALL_MODS_BY_NAME[a.name])?.releaseDate ?? "";
-        const bRelease = (ALL_MODS_BY_PATH[b.path] ?? ALL_MODS_BY_NAME[b.name])?.releaseDate ?? "";
+        const aRelease = getSortableReleaseDate((ALL_MODS_BY_PATH[a.path] ?? ALL_MODS_BY_NAME[a.name])?.releaseDate, sortKey === "release-oldest" ? "oldest" : "newest");
+        const bRelease = getSortableReleaseDate((ALL_MODS_BY_PATH[b.path] ?? ALL_MODS_BY_NAME[b.name])?.releaseDate, sortKey === "release-oldest" ? "oldest" : "newest");
         if (aRelease !== bRelease) return sortKey === "release-newest" ? (bRelease > aRelease ? 1 : -1) : (aRelease > bRelease ? 1 : -1);
       }
       if (sortKey === "rarity-asc" || sortKey === "rarity-desc") {

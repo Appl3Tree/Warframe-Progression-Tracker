@@ -14,7 +14,8 @@
 
 import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
 import MODS_RAW from "../../data/_generated/mods-lean.auto.json";
-import { supportsStanceMods, type ModCompatName, type WeaponEntry } from "./weaponCatalog";
+import { ITEMS_CATALOG } from "./itemsCatalog";
+import { supportsStanceLikeMods, type ModCompatName, type WeaponEntry } from "./weaponCatalog";
 
 const ALL = ALL_RAW as Record<string, unknown>[];
 const MODS_META = MODS_RAW as Record<string, {
@@ -25,6 +26,7 @@ const MODS_META = MODS_RAW as Record<string, {
     data?: {
         CompatibilityTags?: string[];
         IncompatibilityTags?: string[];
+        ItemCompatibility?: string;
     };
 }>;
 
@@ -202,6 +204,7 @@ export interface ModEntry {
     compatibilityTags: string[];
     incompatibilityTags: string[];
     triggerRestriction?: string;
+    itemCompatibilityPath?: string;
 }
 
 // ---- Stat string parser ----
@@ -588,6 +591,7 @@ let _modsMetaByPath: Map<string, {
     parents: string[];
     compatibilityTags: string[];
     incompatibilityTags: string[];
+    itemCompatibilityPath?: string;
 }> | null = null;
 
 const HIDDEN_INTERNAL_MOD_PATHS = new Set([
@@ -657,6 +661,7 @@ function getModsMetaByPath() {
         parents: string[];
         compatibilityTags: string[];
         incompatibilityTags: string[];
+        itemCompatibilityPath?: string;
     }>();
     for (const value of Object.values(MODS_META)) {
         if (!value?.path) continue;
@@ -666,6 +671,7 @@ function getModsMetaByPath() {
             parents: Array.isArray(value.parents) ? value.parents : [],
             compatibilityTags: Array.isArray(value.data?.CompatibilityTags) ? value.data!.CompatibilityTags! : [],
             incompatibilityTags: Array.isArray(value.data?.IncompatibilityTags) ? value.data!.IncompatibilityTags! : [],
+            itemCompatibilityPath: typeof value.data?.ItemCompatibility === "string" ? value.data.ItemCompatibility : undefined,
         });
     }
     _modsMetaByPath = map;
@@ -698,6 +704,28 @@ function matchesHiddenTags(weapon: WeaponEntry, mod: ModEntry): boolean {
     return true;
 }
 
+function weaponMatchesItemCompatibility(weapon: WeaponEntry, itemCompatibilityPath: string | undefined): boolean {
+    if (!itemCompatibilityPath) return true;
+    if (weapon.uniqueName === itemCompatibilityPath) return true;
+    const raw = ITEMS_CATALOG.byKey[weapon.uniqueName]?.raw as
+        | {
+            parent?: string;
+            parents?: string[];
+        }
+        | undefined;
+    if (raw?.parent === itemCompatibilityPath) return true;
+    return (raw?.parents ?? []).includes(itemCompatibilityPath);
+}
+
+function beastCompatKeysForWeapon(weapon: WeaponEntry): string[] {
+    if (!weapon.tags.includes("BEAST_WEAPON")) return [];
+    const keys = ["Claws"];
+    if (weapon.tags.includes("KAVAT_WEAPON")) keys.push("Kavat Claws");
+    if (weapon.tags.includes("KUBROW_WEAPON")) keys.push("Kubrow Claws");
+    if (weapon.tags.includes("HELMINTH_WEAPON")) keys.push("Helminth Claws");
+    return keys;
+}
+
 function buildCaches(): ModCaches {
     // Deduplicate: keep the entry whose fusionLimit best matches the expected
     // canonical rank for that mod name. This prevents legacy fl=10 entries from
@@ -711,7 +739,7 @@ function buildCaches(): ModCaches {
         const name = String(item.name ?? "");
         const fl = Number(item.fusionLimit ?? 0);
         const score = dedupScore(item);
-        const isStance = String(item.type ?? "") === "Stance Mod";
+        const isStance = String(item.type ?? "") === "Stance Mod" || String(item.type ?? "") === "Posture Mod";
 
         const bucket = COMPAT_MAP[rawCompat];
         if (bucket) {
@@ -747,7 +775,7 @@ function buildCaches(): ModCaches {
         const rawBaseDrain = Number(item.baseDrain ?? 2);
         const drain = rawBaseDrain + fl;
         const isAura = rawCompat === "AURA" || rawBaseDrain < 0;
-        const isStance = String(item.type ?? "") === "Stance Mod";
+        const isStance = String(item.type ?? "") === "Stance Mod" || String(item.type ?? "") === "Posture Mod";
         if ((!levelStats || levelStats.length === 0) && !isStance) return null;
         // Use the shared utility flag for weapon exilus mods, plus WFCD's native flag for Warframe exilus.
         const isWeaponUtility = !!item.isUtility && !isAura &&
@@ -816,6 +844,7 @@ function buildCaches(): ModCaches {
             compatibilityTags: meta?.compatibilityTags ?? [],
             incompatibilityTags: meta?.incompatibilityTags ?? [],
             triggerRestriction: detectTriggerRestriction(name),
+            itemCompatibilityPath: meta?.itemCompatibilityPath,
         };
     }
 
@@ -835,7 +864,7 @@ function buildCaches(): ModCaches {
 
     for (const { item } of bestAugment.values()) {
         const rawCompat = String((item._rawCompat as string | undefined) ?? item.compatName ?? "");
-        const isStance = String(item.type ?? "") === "Stance Mod";
+        const isStance = String(item.type ?? "") === "Stance Mod" || String(item.type ?? "") === "Posture Mod";
         const entry = parseEntry(item, isStance ? "Stance" : "Augment", rawCompat);
         if (!entry) continue;
         if (isStance) {
@@ -904,11 +933,17 @@ export function getModsForCompat(compat: ModCompatName): ModEntry[] {
  */
 export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
     const { byWeaponName } = getCaches();
-    const baseMods = getModsForCompat(weapon.modCompat);
+    const beastCompatKeys = beastCompatKeysForWeapon(weapon);
+    const baseMods = beastCompatKeys.length > 0
+        ? beastCompatKeys.flatMap((key) => byWeaponName.get(key) ?? [])
+        : getModsForCompat(weapon.modCompat);
 
     // Apply trigger restriction
     const trigger = weapon.trigger ?? "";
+    const seen = new Set<string>();
     const filtered = baseMods.filter(m =>
+        (!seen.has(m.uniqueName) ? (seen.add(m.uniqueName), true) : false) &&
+        weaponMatchesItemCompatibility(weapon, m.itemCompatibilityPath) &&
         (!m.triggerRestriction || m.triggerRestriction === trigger) &&
         matchesHiddenTags(weapon, m)
     );
@@ -927,6 +962,7 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
         // "Soma Prime"-exclusive mods because "soma prime".includes("soma") is true.
         if (weaponNameLower.includes(compatLower)) {
             for (const m of mods) {
+                if (!weaponMatchesItemCompatibility(weapon, m.itemCompatibilityPath)) continue;
                 if (!augSeen.has(m.uniqueName) && matchesHiddenTags(weapon, m)) {
                     augSeen.add(m.uniqueName);
                     augments.push(m);
@@ -941,7 +977,7 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
 }
 
 export function getStancesForWeapon(weapon: WeaponEntry): ModEntry[] {
-    if (!supportsStanceMods(weapon.category)) return [];
+    if (!supportsStanceLikeMods(weapon)) return [];
     const { byStanceCompat } = getCaches();
     const stanceClasses = weapon.stanceClasses?.length
         ? weapon.stanceClasses
@@ -954,6 +990,10 @@ export function getStancesForWeapon(weapon: WeaponEntry): ModEntry[] {
     const out: ModEntry[] = [];
     for (const stanceClass of stanceClasses) {
         for (const mod of byStanceCompat.get(stanceClass) ?? []) {
+            if (weapon.tags.includes("BEAST_WEAPON")) {
+                if (!mod.path.includes("/BeastWeapons/Stances/")) continue;
+                if (!weaponMatchesItemCompatibility(weapon, mod.itemCompatibilityPath)) continue;
+            }
             if (seen.has(mod.uniqueName)) continue;
             seen.add(mod.uniqueName);
             out.push(mod);

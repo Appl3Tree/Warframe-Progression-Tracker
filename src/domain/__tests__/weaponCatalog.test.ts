@@ -58,17 +58,53 @@ describe("weapon catalog stance inference", () => {
     it("classifies companion weapons by their actual mod family", () => {
         const sweeper = getWeaponCatalog().find((weapon) => weapon.name === "Sweeper");
         const deconstructor = getWeaponCatalog().find((weapon) => weapon.name === "Deconstructor");
+        const akaten = getWeaponCatalog().find((weapon) => weapon.name === "Akaten");
+        const hurasClaws = getWeaponCatalog().find((weapon) => weapon.name === "Huras Claws");
+        const shadowClaws = getWeaponCatalog().find((weapon) => weapon.name === "Shadow Claws");
         const vulklok = getWeaponCatalog().find((weapon) => weapon.name === "Vulklok");
 
         expect(sweeper?.category).toBe("Companion");
         expect(sweeper?.modCompat).toBe("Shotgun");
         expect(new Set(getModsForWeapon(sweeper!).map((mod) => mod.name)).has("Hell's Chamber")).toBe(true);
         expect(new Set(getModsForWeapon(sweeper!).map((mod) => mod.name)).has("Serration")).toBe(false);
+        expect(new Set(getModsForWeapon(sweeper!).map((mod) => mod.name)).has("Amalgam Shotgun Barrage")).toBe(false);
 
         expect(deconstructor?.category).toBe("Companion");
         expect(deconstructor?.modCompat).toBe("Melee");
         expect(getStancesForWeapon(deconstructor!).length).toBe(0);
         expect(new Set(getModsForWeapon(deconstructor!).map((mod) => mod.name)).has("Condition Overload")).toBe(true);
+        expect(new Set(getModsForWeapon(deconstructor!).map((mod) => mod.name)).has("Blood Rush")).toBe(false);
+
+        expect(akaten?.category).toBe("Companion");
+        expect(akaten?.modCompat).toBe("Melee");
+        expect(new Set(getModsForWeapon(akaten!).map((mod) => mod.name)).has("Pressure Point")).toBe(true);
+        expect(new Set(getModsForWeapon(akaten!).map((mod) => mod.name)).has("Serration")).toBe(false);
+        expect(new Set(getModsForWeapon(akaten!).map((mod) => mod.name)).has("Blood Rush")).toBe(false);
+
+        expect(hurasClaws?.category).toBe("Companion");
+        expect(hurasClaws?.modCompat).toBe("Melee");
+        expect(hurasClaws?.tags).toContain("BEAST_WEAPON");
+        expect(hurasClaws?.stanceClasses).toContain("Claws");
+        expect(hurasClaws?.stancePolarity).toBe("penjaga");
+        expect(new Set(getStancesForWeapon(hurasClaws!).map((mod) => mod.name))).toEqual(new Set([
+            "Assassin Posture",
+            "Balanced Posture",
+            "Elusive Posture",
+            "Frenzied Posture",
+            "Persistent Posture",
+            "Protector Posture",
+        ]));
+        expect(new Set(getModsForWeapon(hurasClaws!).map((mod) => mod.name)).has("Burning Claws")).toBe(true);
+        expect(new Set(getModsForWeapon(hurasClaws!).map((mod) => mod.name)).has("Shocking Claws")).toBe(true);
+        expect(new Set(getModsForWeapon(hurasClaws!).map((mod) => mod.name)).has("Maul")).toBe(true);
+        expect(new Set(getModsForWeapon(hurasClaws!).map((mod) => mod.name)).has("Mecha Overdrive")).toBe(true);
+        expect(new Set(getModsForWeapon(hurasClaws!).map((mod) => mod.name)).has("Pressure Point")).toBe(false);
+        expect(new Set(getModsForWeapon(hurasClaws!).map((mod) => mod.name)).has("Condition Overload")).toBe(false);
+
+        expect(new Set(getModsForWeapon(hurasClaws!).map((mod) => mod.name)).has("Swipe")).toBe(false);
+        expect(new Set(getModsForWeapon(getWeaponCatalog().find((weapon) => weapon.name === "Smeeta Claws")!).map((mod) => mod.name)).has("Swipe")).toBe(true);
+
+        expect(new Set(getModsForWeapon(shadowClaws!).map((mod) => mod.name)).has("Burning Claws")).toBe(false);
 
         expect(vulklok?.category).toBe("Companion");
         expect(vulklok?.modCompat).toBe("Sniper");

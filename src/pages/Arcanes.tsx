@@ -96,7 +96,7 @@ const EMPTY_COUNTS: Record<string, number> = {};
 const EMPTY_ARCANE_RANKS: Record<string, Record<string, number>> = {};
 const MODDESC_RAW: Record<string, { Ranks?: Record<string, string>[] }> = {};
 const MODDESC = MODDESC_RAW;
-const VANILLA_CUTOFF = "2013-03-25";
+const VANILLA_DATE = "2012-10-25";
 const LEDGER_ROW_HEIGHT = 56;
 const LEDGER_OVERSCAN = 8;
 
@@ -260,7 +260,14 @@ function normalize(value: string) {
 
 function formatReleaseDate(date: string | undefined): string | undefined {
   if (!date) return undefined;
-  if (date <= VANILLA_CUTOFF) return "Vanilla";
+  if (date === VANILLA_DATE) return "Vanilla";
+  return date;
+}
+
+function getSortableReleaseDate(date: string | undefined, direction: "oldest" | "newest"): string {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || date === "0000-00-00") {
+    return direction === "oldest" ? "9999-99-99" : "";
+  }
   return date;
 }
 
@@ -1090,8 +1097,8 @@ export default function ArcanesPage() {
 
     list.sort((left, right) => {
       if (sortKey === "release-newest" || sortKey === "release-oldest") {
-        const leftRelease = ALL_ARCANES_BY_NAME[left.name]?.releaseDate ?? "";
-        const rightRelease = ALL_ARCANES_BY_NAME[right.name]?.releaseDate ?? "";
+        const leftRelease = getSortableReleaseDate(ALL_ARCANES_BY_NAME[left.name]?.releaseDate, sortKey === "release-oldest" ? "oldest" : "newest");
+        const rightRelease = getSortableReleaseDate(ALL_ARCANES_BY_NAME[right.name]?.releaseDate, sortKey === "release-oldest" ? "oldest" : "newest");
         if (leftRelease !== rightRelease) {
           return sortKey === "release-newest" ? (rightRelease > leftRelease ? 1 : -1) : (leftRelease > rightRelease ? 1 : -1);
         }

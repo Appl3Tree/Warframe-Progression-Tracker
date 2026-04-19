@@ -52,7 +52,7 @@ import {
 import { getAllWikiBlueprintReferencedCatalogIds, getWikiBlueprintRequirements } from "../catalog/items/wikiBlueprintRequirements";
 import { getEntityImageUrl } from "../utils/entityImage";
 import { getSyndicateVendorOffer, getSyndicateVendorPrice, parseSyndicateVendorLabel } from "../catalog/sources/syndicateVendorPricing";
-import { withManualReleaseDateFallback } from "../catalog/items/manualReleaseDates";
+import { getManualReleaseDateFallback, withManualReleaseDateFallback } from "../catalog/items/manualReleaseDates";
 import {
   GroupedSourceList,
   classifySourceFamilyFromCatalog,
@@ -807,11 +807,18 @@ const DEFAULT_INVENTORY_COLUMNS: InventoryColumnKey[] = [
   "goal",
 ];
 
-const VANILLA_CUTOFF = "2013-03-25";
+const VANILLA_DATE = "2012-10-25";
 
 function formatReleaseDate(date: string | undefined): string | undefined {
   if (!date) return undefined;
-  if (date <= VANILLA_CUTOFF) return "Vanilla";
+  if (date === VANILLA_DATE) return "Vanilla";
+  return date;
+}
+
+function getSortableReleaseDate(date: string | undefined, direction: "oldest" | "newest"): string {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || date === "0000-00-00") {
+    return direction === "oldest" ? "9999-99-99" : "";
+  }
   return date;
 }
 
@@ -2713,6 +2720,45 @@ export default function Inventory() {
         return false;
       });
 
+    // Add Plexus as a synthetic row — it's not in the catalog but counts toward mastery
+    const PLEXUS_PATH = "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness";
+    const PLEXUS_ID = `items:${PLEXUS_PATH}` as CatalogId;
+    const plexusReleaseDate = getManualReleaseDateFallback({
+      uniqueName: PLEXUS_PATH,
+      category: "Warframes",
+    });
+    const plexusCls: Classification = {
+      groups: new Set(["warframesVehicles", "railjack"]),
+      warframesVehiclesSub: new Set(["warframes"]),
+      weaponClasses: new Set(),
+      weaponTypesByClass: {},
+      companionsSub: new Set(),
+      isResource: false,
+      isComponent: false,
+    };
+    const plexusQ = normalize(query);
+    if (
+      !plexusQ ||
+      "plexus".includes(plexusQ) ||
+      "railjack".includes(plexusQ)
+    ) {
+      base.push({
+        id: PLEXUS_ID,
+        label: "Plexus",
+        value: 0,
+        categories: ["warframes"],
+        cls: plexusCls,
+        path: PLEXUS_PATH,
+        isMasterable: true,
+        isOverLevel: false,
+        itemType: "Plexus",
+        releaseDate: plexusReleaseDate,
+        masteryReq: 0,
+        isPrime: false,
+        isVaulted: false,
+      });
+    }
+
     base.sort((a, b) => {
       const aCount = safeInt(counts[String(a.id)] ?? 0, 0);
       const bCount = safeInt(counts[String(b.id)] ?? 0, 0);
@@ -2763,14 +2809,14 @@ export default function Inventory() {
           break;
         }
         case "release-newest": {
-          const ad = ALL_BY_UNIQUE[a.path]?.releaseDate ?? "";
-          const bd = ALL_BY_UNIQUE[b.path]?.releaseDate ?? "";
+          const ad = getSortableReleaseDate(a.releaseDate, "newest");
+          const bd = getSortableReleaseDate(b.releaseDate, "newest");
           if (ad !== bd) return bd > ad ? 1 : -1;
           break;
         }
         case "release-oldest": {
-          const ad = ALL_BY_UNIQUE[a.path]?.releaseDate ?? "";
-          const bd = ALL_BY_UNIQUE[b.path]?.releaseDate ?? "";
+          const ad = getSortableReleaseDate(a.releaseDate, "oldest");
+          const bd = getSortableReleaseDate(b.releaseDate, "oldest");
           if (ad !== bd) return ad > bd ? 1 : -1;
           break;
         }
@@ -2791,41 +2837,6 @@ export default function Inventory() {
       }
       return a.label.localeCompare(b.label);
     });
-
-    // Add Plexus as a synthetic row — it's not in the catalog but counts toward mastery
-    const PLEXUS_PATH = "/Lotus/Types/Game/CrewShip/RailJack/DefaultHarness";
-    const PLEXUS_ID = `items:${PLEXUS_PATH}` as CatalogId;
-    const plexusCls: Classification = {
-      groups: new Set(["warframesVehicles", "railjack"]),
-      warframesVehiclesSub: new Set(["warframes"]),
-      weaponClasses: new Set(),
-      weaponTypesByClass: {},
-      companionsSub: new Set(),
-      isResource: false,
-      isComponent: false,
-    };
-    const plexusQ = normalize(query);
-    if (
-      !plexusQ ||
-      "plexus".includes(plexusQ) ||
-      "railjack".includes(plexusQ)
-    ) {
-      base.push({
-        id: PLEXUS_ID,
-        label: "Plexus",
-        value: 0,
-        categories: ["warframes"],
-        cls: plexusCls,
-        path: PLEXUS_PATH,
-        isMasterable: true,
-        isOverLevel: false,
-        itemType: "Plexus",
-        releaseDate: undefined,
-        masteryReq: 0,
-        isPrime: false,
-        isVaulted: false,
-      });
-    }
 
     const dedupedByLabel = new Map<string, Row>();
     for (const row of base) {
