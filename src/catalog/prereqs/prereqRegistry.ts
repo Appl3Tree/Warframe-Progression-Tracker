@@ -629,6 +629,22 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         prerequisites: [PR.ACTIVITY_NIGHTWAVE]
     },
     {
+        id: PR.ACTIVITY_VOID_FISSURES,
+        showInPlanner: false,
+        label: "Void Fissures",
+        category: "Systems",
+        description: "Access standard Void Relic fissure missions. Modeled as available after early star chart progression from Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.ACTIVITY_VOID_STORMS,
+        showInPlanner: false,
+        label: "Void Storms",
+        category: "Systems",
+        description: "Access Railjack Void Storm fissures. Requires a functional Railjack and Call of the Tempestarii-era Corpus Proxima access.",
+        prerequisites: [PR.RAILJACK_CONSTRUCTED, PR.CALL_TEMPESTARII]
+    },
+    {
         id: PR.ACTIVITY_EIDOLON_TERALYST,
         showInPlanner: false,
         label: "Eidolon Teralyst Hunts",
@@ -651,6 +667,22 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         category: "Systems",
         description: "Unlock the Profit-Taker Orb heist in Orb Vallis. Requires Vox Solaris, Archwing mobility, and Vox Solaris Rank 5 (Old Mate).",
         prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS, PR.ARCHWING, PR.SYNDICATE_VOX_RANK5]
+    },
+    {
+        id: PR.ACTIVITY_EXPLOITER_ORB,
+        showInPlanner: false,
+        label: "Exploiter Orb",
+        category: "Systems",
+        description: "Access the Exploiter Orb fight in Orb Vallis. Modeled as requiring Fortuna access and Vox Solaris progression, while the rotating Thermia condition remains outside the prerequisite model.",
+        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS]
+    },
+    {
+        id: PR.ACTIVITY_CIRCUIT,
+        showInPlanner: false,
+        label: "The Circuit",
+        category: "Systems",
+        description: "Access The Circuit in Duviri after completing The Duviri Paradox.",
+        prerequisites: [PR.DUVIRI_PARADOX]
     },
     {
         id: PR.ACTIVITY_ZARIMAN_BOUNTIES,
@@ -712,6 +744,14 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         category: "Systems",
         description: "Unlock Arbitrations from the Pluto > Eris junction task. As of Update 39.0 on June 25, 2025, this no longer requires full star-chart completion. This app does not yet auto-track the exact junction task, so this milestone may need to be marked manually.",
         prerequisites: [PR.HUB_RELAY]
+    },
+    {
+        id: PR.ACTIVITY_NIGHTMARE,
+        showInPlanner: false,
+        label: "Nightmare Missions Unlocked",
+        category: "Systems",
+        description: "Unlock Nightmare Mode on at least one planet by completing every mission node on that planet. The app does not yet track per-planet star-chart completion well enough to derive this automatically, so this milestone may need to be marked manually.",
+        prerequisites: [PR.VORS_PRIZE]
     },
     {
         id: PR.ACTIVITY_TECHNOCYTE_CODA,

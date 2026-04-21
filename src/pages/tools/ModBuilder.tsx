@@ -142,6 +142,65 @@ const STATUS_TIPS: Record<string, string> = {
     tau:         "Status Vulnerability: Tau effects increase the target's vulnerability to status.",
     true:        "True Damage: Direct damage that bypasses normal mitigation rules.",
 };
+const BASIC_STAT_TOOLTIPS: Record<string, string> = {
+    attackSpeed: "Modifies how fast the attack animation plays. Actual attacks per second vary by weapon type and stance.",
+    fireRate: "Maximum number of discrete attack events or damage instances performed per second.",
+    magazine: "The number of uses available before a reload or refill is required. Weapons without an explicit magazine are shown here as infinite.",
+    reload: "The time spent replenishing the weapon's available uses, determined by its reload animation speed and any reload speed modifiers.",
+    multishot: "The number of damage instances created by a single attack input without consuming additional ammo or uses. Each instance rolls crit and status independently.",
+    burstDps: "Burst DPS is a Tenno Hub derived stat: expected damage per second under continuous firing with no reload downtime.",
+    sustainedDps: "Sustained DPS is a Tenno Hub derived stat: expected damage per second after accounting for reload downtime where applicable.",
+    criticalChance: "Chance that an attack becomes a critical hit. At 50%, about half of hits crit. At 100%, every hit is at least a yellow crit. Above 100%, the extra amount becomes a chance for a stronger crit tier: 125% means every hit is yellow and 25% become orange; 250% means every hit is orange and 50% become red.",
+    criticalDamage: "Damage multiplier used when a hit crits. A yellow crit uses the listed multiplier, so 2.0x means double damage and 3.0x means triple. Orange and red crits are stronger tiers: orange uses 1 + 2 × (crit multiplier - 1), and red uses 1 + 3 × (crit multiplier - 1).",
+    statusChance: "The probability that each hit inflicts a status effect. Values over 100% can apply multiple status effects in one hit.",
+    totalDamage: "Arsenal total damage for this attack after damage construction and quantization, before crit weighting.",
+};
+
+function describeMultishot(multishot: number) {
+    const guaranteed = Math.floor(multishot);
+    const extraChance = Math.max(0, multishot - guaranteed);
+    if (multishot <= 1) return `This attack currently creates ${multishot.toFixed(2)} damage instances on average, so there are no additional guaranteed instances beyond the base hit.`;
+    if (extraChance <= 0.0001) return `This attack currently creates ${guaranteed} damage instances every time. Each instance rolls critical hits and status independently.`;
+    return `This attack currently creates ${guaranteed} guaranteed damage instance${guaranteed === 1 ? "" : "s"} with a ${(extraChance * 100).toFixed(1)}% chance to create one more. Each instance rolls critical hits and status independently.`;
+}
+
+function describeStatusChance(statusChance: number) {
+    if (statusChance < 1) {
+        return `Each damage instance currently has a ${(statusChance * 100).toFixed(1)}% chance to apply a status effect.`;
+    }
+    const guaranteed = Math.floor(statusChance);
+    const extraChance = statusChance - guaranteed;
+    if (extraChance <= 0.0001) {
+        return `Each damage instance currently applies ${guaranteed} guaranteed status effect${guaranteed === 1 ? "" : "s"}.`;
+    }
+    return `Each damage instance currently applies ${guaranteed} guaranteed status effect${guaranteed === 1 ? "" : "s"} with a ${(extraChance * 100).toFixed(1)}% chance to apply one additional status effect.`;
+}
+
+function describeCritChance(critChance: number) {
+    if (critChance < 1) {
+        return `Each damage instance currently has a ${(critChance * 100).toFixed(1)}% chance to be a yellow crit and a ${((1 - critChance) * 100).toFixed(1)}% chance to stay non-critical.`;
+    }
+    if (critChance < 2) {
+        return `Every damage instance is currently at least a yellow crit, with a ${((critChance - 1) * 100).toFixed(1)}% chance to upgrade to an orange crit.`;
+    }
+    if (critChance < 3) {
+        return `Every damage instance is currently at least an orange crit, with a ${((critChance - 2) * 100).toFixed(1)}% chance to upgrade to a red crit.`;
+    }
+    return `Every damage instance is currently at least a red crit, with a ${((critChance - Math.floor(critChance)) * 100).toFixed(1)}% chance to upgrade to the next crit tier.`;
+}
+
+function describeCritMultiplier(critChance: number, critMultiplier: number) {
+    const yellow = critMultiplier;
+    const orange = 1 + 2 * (critMultiplier - 1);
+    const red = 1 + 3 * (critMultiplier - 1);
+    if (critChance < 1) {
+        return `A yellow crit currently deals ${yellow.toFixed(2)}x normal damage. Because crit chance is below 100%, only some hits receive that multiplier.`;
+    }
+    if (critChance < 2) {
+        return `A yellow crit currently deals ${yellow.toFixed(2)}x normal damage. Since every hit is at least yellow, that is your baseline crit multiplier, and upgraded orange crits deal ${orange.toFixed(2)}x damage.`;
+    }
+    return `Orange crits currently deal ${orange.toFixed(2)}x normal damage, and red crits deal ${red.toFixed(2)}x.`;
+}
 const EMPTY_SAVED_BUILDS: SavedBuild[] = [];
 const EMPTY_COUNTS: Record<string, number> = {};
 const EMPTY_MOD_RANKS: Record<string, number> = {};
@@ -865,10 +924,10 @@ function buildCombinedRawBreakdown(
         if (!effect) return;
         for (const [entryIndex, key] of BUILD_MATH_PRIMARY_ELEMENTS.entries()) {
             const bonus = effect[`${key}Bonus` as const];
-            if (bonus) queue.push({ type: key, value: baseDamage * bonus * (1 + totals.damageBonus), order: (-index * 10) + entryIndex });
+            if (bonus) queue.push({ type: key, value: baseDamage * bonus * (1 + totals.damageBonus), order: (index * 10) + entryIndex });
         }
     });
-    let order = 1;
+    let order = effects.length * 10;
     for (const key of ["magnetic", "radiation", "viral", "corrosive", "gas", "blast", "void", "tau", "true"] as const) {
         const bonus = totals[`${key}Bonus` as const];
         if (bonus) queue.push({ type: key, value: baseDamage * bonus * (1 + totals.damageBonus), order: order++ });
@@ -925,6 +984,93 @@ function buildCombinedRawBreakdown(
     }
 
     return { moddedBaseDamage, physicalRaw, orderedElementQueue: ordered, combined };
+}
+
+function capitalizeDamageType(value: string) {
+    return value ? value[0].toUpperCase() + value.slice(1) : value;
+}
+
+function formatSourceList(values: string[]) {
+    const unique = [...new Set(values.filter(Boolean))];
+    if (unique.length === 0) return "this build";
+    if (unique.length === 1) return unique[0];
+    if (unique.length === 2) return `${unique[0]} and ${unique[1]}`;
+    return `${unique.slice(0, -1).join(", ")}, and ${unique[unique.length - 1]}`;
+}
+
+function sanitizeDamageSourceLabel(value: string) {
+    return value
+        .replace(/\s*\(slot \d+\)$/i, "")
+        .replace(/\s*\(exilus\)$/i, "")
+        .replace(/\s*\(arcane\)$/i, "")
+        .replace(/\s*\(stance\)$/i, "")
+        .replace(/\s*\(built-in\)$/i, "");
+}
+
+function buildDamageTypeSourceDescriptions(
+    weapon: WeaponEntry,
+    effects: (ModEffect | null)[],
+    sourceLabels: string[],
+) {
+    const totals = sumEffects(effects);
+    const baseDamage = weapon.damage.total;
+    const descriptions: Record<string, string> = {};
+    const primaryEntries: Array<{ type: string; value: number; order: number; sources: string[] }> = [];
+
+    effects.forEach((effect, index) => {
+        if (!effect) return;
+        const sourceLabel = sanitizeDamageSourceLabel(sourceLabels[index] ?? "this build");
+        for (const [entryIndex, key] of BUILD_MATH_PRIMARY_ELEMENTS.entries()) {
+            const bonus = effect[`${key}Bonus` as const];
+            if (bonus) {
+                primaryEntries.push({
+                    type: key,
+                    value: baseDamage * bonus * (1 + totals.damageBonus),
+                    order: (index * 10) + entryIndex,
+                    sources: [sourceLabel],
+                });
+            }
+        }
+        for (const key of ["magnetic", "radiation", "viral", "corrosive", "gas", "blast", "void", "tau", "true"] as const) {
+            const bonus = effect[`${key}Bonus` as const];
+            if (!bonus) continue;
+            descriptions[key] = `${capitalizeDamageType(key)} is added directly by ${sourceLabel}.`;
+        }
+    });
+
+    const collapsed = [...primaryEntries.reduce((map, entry) => {
+        const existing = map.get(entry.type);
+        if (existing) {
+            existing.value += entry.value;
+            existing.order = Math.min(existing.order, entry.order);
+            existing.sources.push(...entry.sources);
+        } else {
+            map.set(entry.type, { ...entry, sources: [...entry.sources] });
+        }
+        return map;
+    }, new Map<string, { type: string; value: number; order: number; sources: string[] }>()).values()].sort((a, b) => a.order - b.order);
+
+    let index = 0;
+    while (index < collapsed.length) {
+        const current = collapsed[index];
+        const next = collapsed[index + 1];
+        if (next) {
+            const combo = BUILD_MATH_COMBINED_ELEMENTS[`${current.type}+${next.type}`];
+            if (combo) {
+                descriptions[combo] = `${capitalizeDamageType(combo)} comes from ${capitalizeDamageType(current.type)} provided by ${formatSourceList(current.sources)} combining with ${capitalizeDamageType(next.type)} provided by ${formatSourceList(next.sources)}.`;
+                index += 2;
+                continue;
+            }
+        }
+        descriptions[current.type] = `${capitalizeDamageType(current.type)} is provided by ${formatSourceList(current.sources)}.`;
+        index += 1;
+    }
+
+    for (const key of ["impact", "puncture", "slash"] as const) {
+        if (weapon.damage[key] > 0) descriptions[key] = `${capitalizeDamageType(key)} comes from the weapon's base physical damage.`;
+    }
+
+    return descriptions;
 }
 
 function buildMathBreakdown(
@@ -1326,6 +1472,7 @@ interface SlotProps {
     onToggleExclude: (uniqueName: string) => void;
     effDrain: number;
     compactEmpty?: boolean;
+    locked?: boolean;
     draggable?: boolean;
     isDragOver?: boolean;
     onDragStartSlot?: () => void;
@@ -1335,7 +1482,7 @@ interface SlotProps {
 }
 
 function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups,
-    ownedUniqueNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onToggleExclude, effDrain, compactEmpty,
+    ownedUniqueNames, onlyOwned, isExilusSlot, excluded, onChange, onRankChange, onPolarityChange, onToggleExclude, effDrain, compactEmpty, locked,
     draggable, isDragOver, onDragStartSlot, onDragEndSlot, onDragOverSlot, onDropSlot }: SlotProps) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
@@ -1400,8 +1547,8 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
                     onDropSlot();
                 }}>
 
-                <div className={["p-3 flex items-start gap-2 cursor-pointer select-none", mod ? "min-h-[112px]" : compactEmpty ? "min-h-[84px]" : "min-h-[112px]"].join(" ")}
-                    onClick={() => { setOpen(x => !x); setQuery(""); }}>
+                <div className={["p-3 flex items-start gap-2 select-none", locked ? "cursor-default" : "cursor-pointer", mod ? "min-h-[112px]" : compactEmpty ? "min-h-[84px]" : "min-h-[112px]"].join(" ")}
+                    onClick={() => { if (locked) return; setOpen(x => !x); setQuery(""); }}>
                     {mod ? (
                         <>
                             <div
@@ -1445,8 +1592,11 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
                                 )}
                             </div>
                             <div className="flex flex-col items-end gap-1 shrink-0">
-                                <button className="text-slate-600 hover:text-slate-300 text-xs"
-                                    onClick={e => { e.stopPropagation(); onChange(index, null); }}>✕</button>
+                                {!locked && (
+                                    <button className="text-slate-600 hover:text-slate-300 text-xs"
+                                        onClick={e => { e.stopPropagation(); onChange(index, null); }}>✕</button>
+                                )}
+                                {locked && <span className="text-[9px] uppercase tracking-wide text-slate-600">Fixed</span>}
                                 <span className={["text-[9px] font-mono font-bold px-1 py-0.5 rounded",
                                     effDrain < 0 ? "text-green-300 bg-green-950/40" :
                                     polMatch    ? "text-green-400 bg-green-950/30" :
@@ -1508,7 +1658,7 @@ function ModSlot({ index, label, mod, rank, slotPolarity, compatMods, usedGroups
             </div>
 
             {/* Mod picker dropdown */}
-            {open && (
+            {open && !locked && (
                 <div className="absolute z-50 mt-1 w-80 rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
                     <div className="p-2 border-b border-slate-800">
                         <input ref={inputRef} type="text" placeholder="Search mods…" value={query}
@@ -2445,7 +2595,8 @@ export default function ModBuilder() {
         const pols = Array(SLOT_COUNT).fill("") as string[];
         w.polarities.forEach((p, i) => { if (i < SLOT_COUNT) pols[i] = p; });
         setSlotPols(pols);
-        setStanceMod(null); setStanceRank(0); setStancePol(w.stancePolarity ?? "");
+        const builtInStance = getStancesForWeapon(w).find((mod) => mod.isBuiltIn && mod.itemCompatibilityPath === w.uniqueName) ?? null;
+        setStanceMod(builtInStance); setStanceRank(builtInStance ? builtInStance.fusionLimit : 0); setStancePol(w.stancePolarity ?? "");
         setExilusMod(null); setExilusRank(0); setExilusPol(""); setHasExilus(false);
         setArcane1(null); setArcane1Rank(0);
         setSelectedAttackIdx(0);
@@ -2487,6 +2638,10 @@ export default function ModBuilder() {
         const mods = getStancesForWeapon(weapon);
         return mods.filter((mod) => !shouldHideBuilderExpertMod(mod, mods));
     }, [weapon]);
+    const fixedStanceMod = useMemo(() => {
+        if (!weapon) return null;
+        return stanceMods.find((mod) => mod.isBuiltIn && mod.itemCompatibilityPath === weapon.uniqueName) ?? null;
+    }, [weapon, stanceMods]);
     const weaponArcanes = useMemo(() => weapon ? getArcanesForWeapon(weapon) : [], [weapon]);
     const incarnonRecord = useMemo(() => getIncarnonRecordForWeapon(weapon), [weapon]);
     const selectedIncarnonTierCount = useMemo(
@@ -2669,6 +2824,13 @@ export default function ModBuilder() {
         setReasoningMath(null);
         setShowMathWindow(false);
     }
+
+    useEffect(() => {
+        if (!weapon || !fixedStanceMod) return;
+        if (stanceMod?.uniqueName === fixedStanceMod.uniqueName && stanceRank === fixedStanceMod.fusionLimit) return;
+        setStanceMod(fixedStanceMod);
+        setStanceRank(fixedStanceMod.fusionLimit);
+    }, [weapon, fixedStanceMod, stanceMod, stanceRank]);
     function handleRankChange(i: number, r: number) {
         setRanks(p => { const n = [...p]; n[i] = r; return n; });
         setReasoning(null);
@@ -2814,9 +2976,25 @@ export default function ModBuilder() {
         }
         return effects;
     }, [activeWeaponState, allSlotsForCap, allRanksForCap, includeArcaneStats, arcane1, arcane1Rank]);
+    const activeBuildEffectSourceLabels = useMemo(() => {
+        const labels = [
+            ...(activeWeaponState?.activeIncarnonEffects ?? []).map((_, index) => `selected Incarnon evolution ${index + 1}`),
+            ...allSlotsForCap.map((mod, i) => {
+                if (!mod) return `slot ${i + 1}`;
+                if (i < SLOT_COUNT) return `${getBuilderDisplayModName(mod)} (slot ${i + 1})`;
+                return `${getBuilderDisplayModName(mod)} (exilus)`;
+            }),
+        ];
+        if (includeArcaneStats && arcane1) labels.push(`${arcane1.name} (arcane)`);
+        return labels;
+    }, [activeWeaponState, allSlotsForCap, includeArcaneStats, arcane1]);
     const activeMetrics = useMemo(
         () => activeCalcWeapon ? calculateBuild(activeCalcWeapon, activeBuildEffects, factionOn ? faction : "") : null,
         [activeCalcWeapon, activeBuildEffects, factionOn, faction],
+    );
+    const activeDamageTypeSources = useMemo(
+        () => activeCalcWeapon ? buildDamageTypeSourceDescriptions(activeCalcWeapon, activeBuildEffects, activeBuildEffectSourceLabels) : {},
+        [activeCalcWeapon, activeBuildEffects, activeBuildEffectSourceLabels],
     );
 
     const capacity = useMemo(() => {
@@ -3779,17 +3957,43 @@ export default function ModBuilder() {
                                                             <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-yellow-300">Primary</div>
                                                             <div className="space-y-1.5 text-sm">
                                                                 {[
-                                                                    ["Attack Speed", `${activeMetrics.modded.fireRate.toFixed(2)}`],
-                                                                    ["Magazine", displayMagazineValue(weapon, activeMetrics.modded.magazineSize)],
-                                                                    ["Reload", `${activeMetrics.modded.reloadTime.toFixed(2)}s`],
-                                                                    ["Multishot", `${activeMetrics.modded.multishot.toFixed(2)}`],
-                                                                    ["Burst DPS", fmt(activeMetrics.burstDPS)],
-                                                                    ["Sustained DPS", fmt(activeMetrics.sustainedDPS)],
-                                                                ].map(([label, value]) => (
-                                                                    <div key={label} className="flex items-center justify-between gap-3">
-                                                                        <span className="text-sky-200/85">{label}</span>
-                                                                        <span className="font-mono text-right text-yellow-200">{value}</span>
-                                                                    </div>
+                                                                    {
+                                                                        label: usesHitTerminology(weapon.category) ? "Attack Speed" : "Fire Rate",
+                                                                        value: `${activeMetrics.modded.fireRate.toFixed(2)}`,
+                                                                        tooltip: `${usesHitTerminology(weapon.category) ? BASIC_STAT_TOOLTIPS.attackSpeed : BASIC_STAT_TOOLTIPS.fireRate} At the current value, this build performs about ${activeMetrics.modded.fireRate.toFixed(2)} ${usesHitTerminology(weapon.category) ? "attacks" : "attack events"} per second.`,
+                                                                    },
+                                                                    {
+                                                                        label: "Magazine",
+                                                                        value: displayMagazineValue(weapon, activeMetrics.modded.magazineSize),
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.magazine} The current effective value is ${displayMagazineValue(weapon, activeMetrics.modded.magazineSize)}.`,
+                                                                    },
+                                                                    {
+                                                                        label: "Reload",
+                                                                        value: `${activeMetrics.modded.reloadTime.toFixed(2)}s`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.reload} The current effective reload time is ${activeMetrics.modded.reloadTime.toFixed(2)}s.`,
+                                                                    },
+                                                                    {
+                                                                        label: "Multishot",
+                                                                        value: `${activeMetrics.modded.multishot.toFixed(2)}`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.multishot} ${describeMultishot(activeMetrics.modded.multishot)}`,
+                                                                    },
+                                                                    {
+                                                                        label: "Burst DPS",
+                                                                        value: fmt(activeMetrics.burstDPS),
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.burstDps} At the current values, burst DPS is ${fmt(activeMetrics.burstDPS)}.`,
+                                                                    },
+                                                                    {
+                                                                        label: "Sustained DPS",
+                                                                        value: fmt(activeMetrics.sustainedDPS),
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.sustainedDps} At the current values, sustained DPS is ${fmt(activeMetrics.sustainedDPS)}.`,
+                                                                    },
+                                                                ].map((row) => (
+                                                                    <InlineStatRow
+                                                                        key={row.label}
+                                                                        label={row.label}
+                                                                        value={row.value}
+                                                                        tooltip={row.tooltip}
+                                                                    />
                                                                 ))}
                                                             </div>
                                                         </div>
@@ -3798,38 +4002,70 @@ export default function ModBuilder() {
                                                             <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-yellow-300">Damage</div>
                                                             <div className="space-y-1.5 text-sm">
                                                                 {[
-                                                                    ["Critical Chance", `${fmt(activeMetrics.modded.critChance * 100, 1)}%`],
-                                                                    ["Critical Damage", `${activeMetrics.modded.critMultiplier.toFixed(1)}x`],
-                                                                    ["Status", `${fmt(activeMetrics.modded.statusChance * 100, 1)}%`],
-                                                                ].map(([label, value]) => (
-                                                                    <div key={label} className="flex items-center justify-between gap-3">
-                                                                        <span className="text-sky-200/85">{label}</span>
-                                                                        <span className="font-mono text-right text-yellow-200">{value}</span>
-                                                                    </div>
+                                                                    {
+                                                                        label: "Critical Chance",
+                                                                        value: `${fmt(activeMetrics.modded.critChance * 100, 1)}%`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.criticalChance} ${describeCritChance(activeMetrics.modded.critChance)}`,
+                                                                    },
+                                                                    {
+                                                                        label: "Critical Damage",
+                                                                        value: `${activeMetrics.modded.critMultiplier.toFixed(1)}x`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.criticalDamage} ${describeCritMultiplier(activeMetrics.modded.critChance, activeMetrics.modded.critMultiplier)}`,
+                                                                    },
+                                                                    {
+                                                                        label: "Status",
+                                                                        value: `${fmt(activeMetrics.modded.statusChance * 100, 1)}%`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.statusChance} ${describeStatusChance(activeMetrics.modded.statusChance)}`,
+                                                                    },
+                                                                ].map((row) => (
+                                                                    <InlineStatRow
+                                                                        key={row.label}
+                                                                        label={row.label}
+                                                                        value={row.value}
+                                                                        tooltip={row.tooltip}
+                                                                    />
                                                                 ))}
                                                                 {Object.entries(activeMetrics.modded.rawDamageBreakdown)
                                                                     .filter(([, value]) => value > 0)
                                                                     .sort((a, b) => b[1] - a[1])
-                                                                    .map(([type, value]) => (
-                                                                        <div key={type} className="flex items-center justify-between gap-3">
-                                                                            <span className={[
-                                                                                "capitalize",
-                                                                                type === "viral" ? "text-lime-300" :
-                                                                                type === "heat" ? "text-orange-300" :
-                                                                                type === "cold" ? "text-cyan-300" :
-                                                                                type === "electricity" ? "text-violet-300" :
-                                                                                type === "toxin" ? "text-emerald-300" :
-                                                                                type === "slash" ? "text-red-300" :
-                                                                                type === "puncture" ? "text-yellow-100" :
-                                                                                type === "impact" ? "text-blue-300" :
-                                                                                "text-sky-200/80",
-                                                                            ].join(" ")}>{type}</span>
-                                                                            <span className="font-mono text-right text-yellow-200">{fmt(value, 1)}</span>
-                                                                        </div>
-                                                                    ))}
-                                                                <div className="flex items-center justify-between gap-3 pt-1 text-base">
-                                                                    <span className="text-sky-100">Total</span>
-                                                                    <span className="font-mono text-right text-yellow-300">{fmt(activeMetrics.modded.arsenalDamage, 1)}</span>
+                                                                    .map(([type, value]) => {
+                                                                        const quantizedValue = activeMetrics.modded.damageBreakdown[type as keyof typeof activeMetrics.modded.damageBreakdown] ?? 0;
+                                                                        const damageShare = activeMetrics.modded.totalDamage > 0 ? quantizedValue / activeMetrics.modded.totalDamage : 0;
+                                                                        const actualProcChance = damageShare * activeMetrics.modded.statusChance;
+                                                                        const tooltip = [
+                                                                            `Actual proc chance: ${fmt(actualProcChance * 100, 1)}% (${fmt(activeMetrics.modded.statusChance * 100, 1)}% status chance × ${fmt(damageShare * 100, 1)}% damage share).`,
+                                                                            STATUS_TIPS[type] ?? `${capitalizeDamageType(type)} status effect.`,
+                                                                            activeDamageTypeSources[type] ?? `${capitalizeDamageType(type)} is present in the current damage mix.`,
+                                                                        ].join(" ");
+                                                                        return (
+                                                                            <InlineStatRow
+                                                                                key={type}
+                                                                                label={capitalizeDamageType(type)}
+                                                                                value={fmt(value, 1)}
+                                                                                sub={fmt(actualProcChance * 100, 1) + "%"}
+                                                                                tooltip={tooltip}
+                                                                                labelClassName={[
+                                                                                    "capitalize",
+                                                                                    type === "viral" ? "text-lime-300" :
+                                                                                    type === "heat" ? "text-orange-300" :
+                                                                                    type === "cold" ? "text-cyan-300" :
+                                                                                    type === "electricity" ? "text-violet-300" :
+                                                                                    type === "toxin" ? "text-emerald-300" :
+                                                                                    type === "slash" ? "text-red-300" :
+                                                                                    type === "puncture" ? "text-yellow-100" :
+                                                                                    type === "impact" ? "text-blue-300" :
+                                                                                    "text-sky-200/80",
+                                                                                ].join(" ")}
+                                                                            />
+                                                                        );
+                                                                    })}
+                                                                <div className="pt-1 text-base">
+                                                                    <InlineStatRow
+                                                                        label="Total"
+                                                                        value={fmt(activeMetrics.modded.arsenalDamage, 1)}
+                                                                        tooltip={BASIC_STAT_TOOLTIPS.totalDamage}
+                                                                        labelClassName="text-sky-100"
+                                                                    />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -3893,6 +4129,7 @@ export default function ModBuilder() {
                                                                         slotPolarity={stancePol} compatMods={stanceMods}
                                                                         usedGroups={usedGroups} ownedUniqueNames={ownedSet} onlyOwned={false}
                                                                         excluded={excluded}
+                                                                        locked={!!fixedStanceMod}
                                                                         onChange={(_, m) => { setStanceMod(m); setStanceRank(m ? m.fusionLimit : 0); }}
                                                                         onRankChange={(_, r) => setStanceRank(r)}
                                                                         onPolarityChange={(_, p) => setStancePol(p)}
@@ -3902,6 +4139,11 @@ export default function ModBuilder() {
                                                                 ) : (
                                                                     <div className="rounded-lg border border-dashed border-slate-700 px-3 py-6 text-center text-[11px] text-slate-600">
                                                                         No stance slot available.
+                                                                    </div>
+                                                                )}
+                                                                {fixedStanceMod && (
+                                                                    <div className="mt-2 text-[10px] text-slate-500">
+                                                                        This exalted weapon uses a permanent built-in stance.
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -4085,6 +4327,11 @@ export default function ModBuilder() {
                                     const r = allRanksForCap[i] ?? mod.fusionLimit;
                                     return mod.effectsByRank[r] ?? mod.effect;
                                 });
+                                const buildEffectSourceLabels = allSlotsForCap.map((mod, i) => {
+                                    if (!mod) return `slot ${i + 1}`;
+                                    if (i < SLOT_COUNT) return `${getBuilderDisplayModName(mod)} (slot ${i + 1})`;
+                                    return `${getBuilderDisplayModName(mod)} (exilus)`;
+                                });
                                 if (includeArcaneStats && arcane1) {
                                     const ae = arcane1.permanentEffectByRank[arcane1Rank];
                                     buildEffects.push({
@@ -4092,6 +4339,7 @@ export default function ModBuilder() {
                                         ...(ae ?? {}),
                                         conditionalEffects: [...(ae?.conditionalEffects ?? [])],
                                     });
+                                    buildEffectSourceLabels.push(`${arcane1.name} (arcane)`);
                                 }
 
                                 // Helper: compute metrics for any attack (or base weapon)
@@ -4109,7 +4357,6 @@ export default function ModBuilder() {
                                     };
                                     return calculateBuild(synth, buildEffects, factionOn ? faction : "");
                                 };
-
                                 // Damage type rows for a given damage object
                                 const dmgRows = (d: Record<string, number>) => [
                                     { k: "impact",      l: "Impact",   v: d.impact },
@@ -4550,6 +4797,37 @@ export default function ModBuilder() {
                             )}
 
                 </>
+            )}
+        </div>
+    );
+}
+
+function InlineStatRow({ label, value, sub, tooltip, labelClassName }: {
+    label: string;
+    value: string;
+    sub?: string;
+    tooltip?: string;
+    labelClassName?: string;
+}) {
+    const [show, setShow] = useState(false);
+    return (
+        <div
+            className={["relative flex items-center justify-between gap-3", tooltip ? "cursor-help" : ""].join(" ")}
+            onMouseEnter={() => tooltip && setShow(true)}
+            onMouseLeave={() => setShow(false)}
+        >
+            <span className={["flex items-center gap-1", labelClassName ?? "text-sky-200/85"].join(" ")}>
+                {label}
+                {tooltip && <span className="text-slate-700 text-[8px]">?</span>}
+            </span>
+            <div className="text-right">
+                <div className="font-mono text-yellow-200">{value}</div>
+                {sub && <div className="text-[10px] text-slate-500">{sub}</div>}
+            </div>
+            {show && tooltip && (
+                <div className="absolute bottom-full left-0 mb-1.5 z-50 w-60 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-[11px] text-slate-300 shadow-xl leading-relaxed pointer-events-none">
+                    {tooltip}
+                </div>
             )}
         </div>
     );

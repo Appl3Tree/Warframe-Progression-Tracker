@@ -363,7 +363,7 @@ export function calculateBuild(
             ["toxin", e.toxinBonus ?? 0],
         ];
         for (const [entryIndex, [type, value]] of orderedEntries.entries()) {
-            if (value > 0) orderedPrimaryElementBonuses.push({ type, value, order: (-index * 10) + entryIndex });
+            if (value > 0) orderedPrimaryElementBonuses.push({ type, value, order: (index * 10) + entryIndex });
         }
 
         directBonusBreakdown.blast += e.blastBonus ?? 0;

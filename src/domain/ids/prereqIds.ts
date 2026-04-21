@@ -253,6 +253,7 @@ export const PR = {
 
     // ---- Daily ----
     ACTIVITY_SORTIES:               "activity_sorties",                 // Daily 3-mission Sortie; req. War Within + MR5 + rank-30 frame
+    ACTIVITY_NIGHTMARE:            "activity_nightmare_missions",      // Nightmare mission access; req. all nodes complete on a planet
     ACTIVITY_NIGHTWAVE:             "activity_nightwave",               // Nightwave system active/unlocked enough to earn Creds and rank rewards
     ACTIVITY_GLASSMAKER:            "activity_glassmaker",              // Access to Nihil / The Glassmaker reward path via Nightwave content
     ACTIVITY_EIDOLON_TERALYST:      "activity_eidolon_teralyst",        // Eidolon Teralyst (1-cap); req. Plains of Eidolon at night;

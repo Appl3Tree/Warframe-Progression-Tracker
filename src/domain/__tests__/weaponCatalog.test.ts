@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getModsForWeapon, getStancesForWeapon } from "../catalog/modCatalog";
 import { getWeaponCatalog } from "../catalog/weaponCatalog";
+import { effectiveDrain } from "../logic/capacityCalc";
 import ITEMS_RAW from "../../data/_generated/items-lean.auto.json";
 
 const ITEMS = ITEMS_RAW as Record<string, {
@@ -41,6 +42,18 @@ describe("weapon catalog stance inference", () => {
         expect(thalys?.category).toBe("Melee");
         expect(thalys?.stanceClasses).toContain("Heavy Scythe");
         expect(new Set(getStancesForWeapon(thalys!).map((mod) => mod.name)).has("Galeforce Dawn")).toBe(true);
+    });
+
+    it("surfaces Iron Staff's built-in exalted stance without offering generic staff stances", () => {
+        const ironStaff = getWeaponCatalog().find((weapon) => weapon.name === "Iron Staff");
+
+        expect(ironStaff).toBeTruthy();
+        expect(ironStaff?.isExalted).toBe(true);
+        expect(ironStaff?.stancePolarity).toBe("zenurik");
+        expect(getStancesForWeapon(ironStaff!)).toHaveLength(1);
+        expect(getStancesForWeapon(ironStaff!)[0]?.name).toBe("Primal Fury");
+        expect(getStancesForWeapon(ironStaff!)[0]?.isBuiltIn).toBe(true);
+        expect(effectiveDrain(getStancesForWeapon(ironStaff!)[0]!, ironStaff!.stancePolarity ?? "", getStancesForWeapon(ironStaff!)[0]!.fusionLimit)).toBe(-10);
     });
 
     it("includes archguns with archgun-only mod compatibility", () => {

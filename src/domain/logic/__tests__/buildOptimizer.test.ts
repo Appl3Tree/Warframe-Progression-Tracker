@@ -82,7 +82,7 @@ function countFormaLikeUi(
 }
 
 describe("build optimizer scoring", () => {
-    it("combines elemental mods using the in-game slot precedence for status weighting", () => {
+    it("anchors duplicate primary elements to their first slot when resolving proc weights", () => {
         const weapon = makeWeapon({
             category: "Melee",
             weaponType: "Heavy Scythe",
@@ -127,13 +127,67 @@ describe("build optimizer scoring", () => {
             { ...emptyEffect(), heatBonus: 0.9 },
         ]).modded;
 
-        expect(stats.damageBreakdown.blast).toBeCloseTo(990, 5);
-        expect(stats.damageBreakdown.toxin).toBeCloseTo(391.875, 5);
+        expect(stats.damageBreakdown.heat).toBeCloseTo(598.125, 5);
+        expect(stats.damageBreakdown.viral).toBeCloseTo(783.75, 5);
         expect(stats.damageBreakdown.magnetic).toBeCloseTo(391.875, 5);
-        expect(stats.damageBreakdown.heat).toBe(0);
+        expect(stats.damageBreakdown.blast).toBe(0);
+        expect(stats.damageBreakdown.toxin).toBe(0);
+        expect(stats.procChanceByType.heat ?? 0).toBeCloseTo(0.2457627119, 5);
+        expect(stats.procChanceByType.viral ?? 0).toBeCloseTo(0.3220338983, 5);
+    });
+
+    it("treats all same-element bonuses as living in the first slot that introduced that element", () => {
+        const weapon = makeWeapon({
+            category: "Melee",
+            weaponType: "Staff",
+            modCompat: "Melee",
+            damage: {
+                total: 300,
+                impact: 204,
+                puncture: 0,
+                slash: 96,
+                heat: 0,
+                cold: 0,
+                electricity: 0,
+                toxin: 0,
+                blast: 0,
+                radiation: 0,
+                gas: 0,
+                magnetic: 0,
+                viral: 0,
+                corrosive: 0,
+                void: 0,
+                tau: 0,
+                true: 0,
+            },
+            critChance: 0.25,
+            critMultiplier: 2,
+            statusChance: 0.3,
+            fireRate: 1,
+            magazineSize: 1,
+            reloadTime: 0,
+            hasExplicitMagazineSize: false,
+            trigger: "Auto",
+        });
+
+        const stats = calculateBuild(weapon, [
+            { ...emptyEffect(), damageBonus: 1.2 },
+            { ...emptyEffect(), toxinBonus: 0.9 },
+            { ...emptyEffect(), heatBonus: 0.9 },
+            null,
+            null,
+            { ...emptyEffect(), toxinBonus: 0.6, statusChanceBonus: 0.6 },
+            { ...emptyEffect(), coldBonus: 0.6, statusChanceBonus: 0.6 },
+            { ...emptyEffect(), magneticBonus: 0.6, attackSpeedBonus: 0.2 },
+        ]).modded;
+
+        expect(stats.damageBreakdown.gas).toBeCloseTo(1588.125, 5);
+        expect(stats.damageBreakdown.cold).toBeCloseTo(391.875, 5);
+        expect(stats.damageBreakdown.magnetic).toBeCloseTo(391.875, 5);
         expect(stats.damageBreakdown.viral).toBe(0);
-        expect(stats.procChanceByType.blast ?? 0).toBeCloseTo(0.406779661, 5);
-        expect(stats.procChanceByType.toxin ?? 0).toBeCloseTo(0.1610169492, 5);
+        expect(stats.damageBreakdown.heat).toBe(0);
+        expect(stats.procChanceByType.gas ?? 0).toBeCloseTo(0.5238095238, 5);
+        expect(stats.procChanceByType.cold ?? 0).toBeCloseTo(0.1292517007, 5);
     });
 
     it("prefers front-loaded direct damage for burst over ramping status packages", () => {

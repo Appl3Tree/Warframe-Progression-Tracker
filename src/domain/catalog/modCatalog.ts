@@ -14,6 +14,7 @@
 
 import ALL_RAW from "../../data/_generated/warframe-items-all-lean.auto.json";
 import MODS_RAW from "../../data/_generated/mods-lean.auto.json";
+import OVERFRAME_MODS_RAW from "../../../external/overframe-gg/mods.json";
 import { ITEMS_CATALOG } from "./itemsCatalog";
 import { supportsStanceLikeMods, type ModCompatName, type WeaponEntry } from "./weaponCatalog";
 
@@ -26,6 +27,14 @@ const MODS_META = MODS_RAW as Record<string, {
     data?: {
         CompatibilityTags?: string[];
         IncompatibilityTags?: string[];
+        ItemCompatibility?: string;
+    };
+}>;
+const OVERFRAME_MODS = OVERFRAME_MODS_RAW as Record<string, {
+    name?: string;
+    path?: string;
+    data?: {
+        ArtifactPolarity?: string;
         ItemCompatibility?: string;
     };
 }>;
@@ -205,6 +214,7 @@ export interface ModEntry {
     incompatibilityTags: string[];
     triggerRestriction?: string;
     itemCompatibilityPath?: string;
+    isBuiltIn?: boolean;
 }
 
 // ---- Stat string parser ----
@@ -582,6 +592,7 @@ interface ModCaches {
      */
     byWeaponName: Map<string, ModEntry[]>;
     byStanceCompat: Map<string, ModEntry[]>;
+    byFixedStanceWeapon: Map<string, ModEntry[]>;
 }
 
 let _caches: ModCaches | null = null;
@@ -678,6 +689,24 @@ function getModsMetaByPath() {
     return map;
 }
 
+function mapArtifactPolarityTag(tag: string | undefined): string {
+    switch (tag) {
+        case "AP_ATTACK":
+            return "madurai";
+        case "AP_DEFENSE":
+            return "vazarin";
+        case "AP_TACTIC":
+            return "naramon";
+        case "AP_POWER":
+            return "zenurik";
+        case "AP_PRECEPT":
+        case "AP_PENJAGA":
+            return "penjaga";
+        default:
+            return "";
+    }
+}
+
 function resolveCanonicalParent(path: string): string {
     const meta = getModsMetaByPath().get(path);
     if (!meta) return path;
@@ -724,6 +753,60 @@ function beastCompatKeysForWeapon(weapon: WeaponEntry): string[] {
     if (weapon.tags.includes("KUBROW_WEAPON")) keys.push("Kubrow Claws");
     if (weapon.tags.includes("HELMINTH_WEAPON")) keys.push("Helminth Claws");
     return keys;
+}
+
+function isBuiltInMeleeTree(meta: {
+    path: string;
+    parent: string;
+    itemCompatibilityPath?: string;
+}): boolean {
+    if (meta.parent !== "/Lotus/Types/LotusMeleeTree/LotusMeleeTree") return false;
+    if (!meta.itemCompatibilityPath) return false;
+    if (meta.itemCompatibilityPath === "/Lotus/Weapons/Tenno/Melee/PlayerMeleeWeapon") return false;
+    if (meta.path.startsWith("/Lotus/Types/Friendly/Pets/BeastWeapons/Stances/")) return false;
+    return true;
+}
+
+function buildSyntheticBuiltInStance(meta: {
+    path: string;
+    parent: string;
+    compatibilityTags: string[];
+    incompatibilityTags: string[];
+    itemCompatibilityPath?: string;
+}): ModEntry | null {
+    if (!isBuiltInMeleeTree(meta)) return null;
+
+    const overframe = OVERFRAME_MODS[meta.path];
+    const itemCompatibilityPath = overframe?.data?.ItemCompatibility ?? meta.itemCompatibilityPath;
+    const name = overframe?.name ?? MODS_META[meta.path]?.name ?? "";
+    if (!itemCompatibilityPath || !name) return null;
+
+    return {
+        uniqueName: meta.path,
+        path: meta.path,
+        name,
+        compatBucket: "Stance",
+        rawCompatName: name,
+        polarity: mapArtifactPolarityTag(overframe?.data?.ArtifactPolarity),
+        rarity: "",
+        drain: 1,
+        baseDrain: -2,
+        fusionLimit: 3,
+        statsLabel: "Built-in stance",
+        statsTextByRank: ["Built-in stance"],
+        effectsByRank: [emptyEffect()],
+        effect: emptyEffect(),
+        hasDamageEffect: false,
+        isAura: false,
+        isExilus: false,
+        isStance: true,
+        incompatibilityGroup: resolveIncompatibilityGroup(meta.path),
+        compatibilityTags: meta.compatibilityTags,
+        incompatibilityTags: meta.incompatibilityTags,
+        triggerRestriction: undefined,
+        itemCompatibilityPath,
+        isBuiltIn: true,
+    };
 }
 
 function buildCaches(): ModCaches {
@@ -851,6 +934,7 @@ function buildCaches(): ModCaches {
     const byBucket = new Map<string, ModEntry[]>();
     const byWeaponName = new Map<string, ModEntry[]>();
     const byStanceCompat = new Map<string, ModEntry[]>();
+    const byFixedStanceWeapon = new Map<string, ModEntry[]>();
 
     for (const { item, fl: _ } of bestGeneric.values()) {
         const rawCompat = String(item.compatName ?? "");
@@ -876,12 +960,22 @@ function buildCaches(): ModCaches {
         byWeaponName.get(rawCompat)!.push(entry);
     }
 
+    for (const meta of getModsMetaByPath().values()) {
+        const entry = buildSyntheticBuiltInStance(meta);
+        if (!entry?.itemCompatibilityPath) continue;
+        if (!byFixedStanceWeapon.has(entry.itemCompatibilityPath)) byFixedStanceWeapon.set(entry.itemCompatibilityPath, []);
+        const existing = byFixedStanceWeapon.get(entry.itemCompatibilityPath)!;
+        if (existing.some((mod) => mod.uniqueName === entry.uniqueName)) continue;
+        existing.push(entry);
+    }
+
     // Sort each list alphabetically
     for (const list of byBucket.values()) list.sort((a, b) => a.name.localeCompare(b.name));
     for (const list of byWeaponName.values()) list.sort((a, b) => a.name.localeCompare(b.name));
     for (const list of byStanceCompat.values()) list.sort((a, b) => a.name.localeCompare(b.name));
+    for (const list of byFixedStanceWeapon.values()) list.sort((a, b) => a.name.localeCompare(b.name));
 
-    return { byBucket, byWeaponName, byStanceCompat };
+    return { byBucket, byWeaponName, byStanceCompat, byFixedStanceWeapon };
 }
 
 function getCaches(): ModCaches {
@@ -978,7 +1072,12 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
 
 export function getStancesForWeapon(weapon: WeaponEntry): ModEntry[] {
     if (!supportsStanceLikeMods(weapon)) return [];
-    const { byStanceCompat } = getCaches();
+    const { byStanceCompat, byFixedStanceWeapon } = getCaches();
+    const fixedStances = (byFixedStanceWeapon.get(weapon.uniqueName) ?? [])
+        .filter((mod) => weaponMatchesItemCompatibility(weapon, mod.itemCompatibilityPath) && matchesHiddenTags(weapon, mod));
+    if (fixedStances.length > 0) {
+        return fixedStances.sort((a, b) => a.name.localeCompare(b.name));
+    }
     const stanceClasses = weapon.stanceClasses?.length
         ? weapon.stanceClasses
         : weapon.stanceClass

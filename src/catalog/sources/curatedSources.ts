@@ -77,7 +77,7 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     { id: "data:variants/tenet", label: "Tenet variant series", type: "other" },
 
     // Conclave (single buckets, no aliases)
-    { id: "data:conclave", label: "Play Conclave (PvP)", type: "other" },
+    { id: "data:conclave", label: "Play Conclave (PvP)", type: "other", prereqIds: ["hub_relay"] },
     { id: "data:events/plague-star", label: "Play Plague Star (event)", type: "other", prereqIds: ["hub_cetus"] },
 
     // Open-world vendors
@@ -214,6 +214,6 @@ export const CURATED_SOURCES: CuratedRawSource[] = [
     // Legacy missionreward ids (kept as-is because other layers may emit them)
     { id: "data:missionreward/deimos/albrechts-laboratories", label: "Legacy: Albrecht’s Laboratories bounty", type: "drop" },
     { id: "data:missionreward/deimos/albrechts-laboratories/rotationc", label: "Legacy: Albrecht’s Laboratories bounty (Rotation C)", type: "drop" },
-    { id: "data:missionreward/saturn/lunaro", label: "Legacy: Lunaro mission reward", type: "other" },
-    { id: "data:missionreward/saturn/lunaro/rotationb", label: "Legacy: Lunaro mission reward (Rotation B)", type: "other" },
+    { id: "data:missionreward/saturn/lunaro", label: "Legacy: Lunaro mission reward", type: "other", prereqIds: ["hub_relay"] },
+    { id: "data:missionreward/saturn/lunaro/rotationb", label: "Legacy: Lunaro mission reward (Rotation B)", type: "other", prereqIds: ["hub_relay"] },
 ];

@@ -48,6 +48,30 @@ const CURATED_SOURCE_BY_ID = new Map(
     CURATED_SOURCES.map((source) => [normalizeSourceId(source.id), source] as const)
 );
 
+const SYNDICATE_VENDOR_ALIASES: Array<{ prefix: string; canonicalName: string }> = [
+    { prefix: "Cephalon Simaris", canonicalName: "Cephalon Simaris" },
+    { prefix: "Kahl's Garrison", canonicalName: "Kahl's Garrison" },
+    { prefix: "The Perrin Sequence", canonicalName: "The Perrin Sequence" },
+    { prefix: "Perrin Sequence", canonicalName: "The Perrin Sequence" },
+    { prefix: "Steel Meridian", canonicalName: "Steel Meridian" },
+    { prefix: "Arbiters of Hexis", canonicalName: "Arbiters of Hexis" },
+    { prefix: "Arbiter Of Hexis", canonicalName: "Arbiters of Hexis" },
+    { prefix: "Arbiters", canonicalName: "Arbiters of Hexis" },
+    { prefix: "Cephalon Suda", canonicalName: "Cephalon Suda" },
+    { prefix: "New Loka", canonicalName: "New Loka" },
+    { prefix: "Red Veil", canonicalName: "Red Veil" },
+    { prefix: "Solaris United", canonicalName: "Solaris United" },
+    { prefix: "The Holdfasts", canonicalName: "The Holdfasts" },
+    { prefix: "The Quills", canonicalName: "The Quills" },
+    { prefix: "Vox Solaris", canonicalName: "Vox Solaris" },
+    { prefix: "NecraLoid", canonicalName: "NecraLoid" },
+    { prefix: "Conclave", canonicalName: "Conclave" },
+    { prefix: "Ventkids", canonicalName: "Ventkids" },
+    { prefix: "Ostron", canonicalName: "Ostron" },
+    { prefix: "Entrati", canonicalName: "Entrati" },
+    { prefix: "Operational Supply", canonicalName: "Operational Supply" },
+] as const;
+
 function getSyndicateVendorOverride(syndicateName: string): Pick<RawSource, "label" | "prereqIds"> | null {
     const curatedEquivalentIdByName: Record<string, string> = {
         "Cephalon Simaris": "data:vendor/simaris",
@@ -149,19 +173,141 @@ function inferExtraPrereqsFromSourceLabel(label: string, vendorName?: string): s
 function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | "prereqIds" | "type"> | null {
     const raw = safeString(label);
     if (!raw) return null;
+    const quantityNormalized = raw.replace(
+        /^WFItems Location(?: \(Legacy\))?:\s*\d+[xX]\s+/i,
+        "WFItems Location: "
+    );
 
-    const wfItemsVendorLike = raw.match(/^WFItems Location(?: \(Legacy\))?:\s*([^,(]+?)(?:\s*[,(].*|$)/i);
-    if (wfItemsVendorLike) {
-        const vendorName = wfItemsVendorLike[1]?.trim();
-        if (vendorName) {
-            const override = getSyndicateVendorOverride(vendorName);
-            if (override) {
-                return {
-                    label: raw,
-                    prereqIds: override.prereqIds,
-                    type: "vendor",
-                };
-            }
+    if (/Shadow Stalker/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.SECOND_DREAM],
+            type: "drop",
+        };
+    }
+
+    if (/Protector Stalker/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JADE_SHADOWS],
+            type: "drop",
+        };
+    }
+
+    if (/Aerodynamic/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_ARBITRATIONS],
+            type: "vendor",
+        };
+    }
+
+    if (/Aero Agility/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_CERES_JUPITER],
+            type: "drop",
+        };
+    }
+
+    if (/Aero Periphery|Aero Vantage/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_CERES_JUPITER],
+            type: "drop",
+        };
+    }
+
+    if (/Aerial Commander/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_CETUS],
+            type: "drop",
+        };
+    }
+
+    if (/Play Conclave|\(Conclave\)/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_RELAY],
+            type: "drop",
+        };
+    }
+
+    if (/Primary Bulwark/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.THE_OLD_PEACE],
+            type: "drop",
+        };
+    }
+
+    if (/Animal Instinct/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_NIGHTMARE],
+            type: "drop",
+        };
+    }
+
+    if (/Nightmare Mode Rewards|Nightmare Mode Rescue/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_NIGHTMARE],
+            type: "drop",
+        };
+    }
+
+    if (/Nightmare Tatters/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.CHAINS_HARROW],
+            type: "drop",
+        };
+    }
+
+    if (/(^| )Thrax Plasm/i.test(quantityNormalized) && !/Lua Thrax Plasm/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ANGELS_ZARIMAN],
+            type: "drop",
+        };
+    }
+
+    if (/(Aerial|Momentous|Reinforced|Tenacious) Bond/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_FORTUNA],
+            type: "vendor",
+        };
+    }
+
+    if (/(Contagious|Duplex|Seismic|Vicious) Bond/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_NECRALISK],
+            type: "vendor",
+        };
+    }
+
+    if (/(Covert|Manifold|Mystic|Restorative|Tandem) Bond/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_CETUS],
+            type: "vendor",
+        };
+    }
+
+    const wfItemsBody = quantityNormalized.replace(/^WFItems Location(?: \(Legacy\))?:\s*/i, "");
+    const syndicateVendorAlias = SYNDICATE_VENDOR_ALIASES.find(({ prefix }) => wfItemsBody.startsWith(prefix));
+    if (syndicateVendorAlias) {
+        const override = getSyndicateVendorOverride(syndicateVendorAlias.canonicalName);
+        if (override) {
+            return {
+                label: raw,
+                prereqIds: override.prereqIds,
+                type: "vendor",
+            };
         }
     }
 
@@ -179,8 +325,8 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
         };
     }
 
-    if (/^WFItems Location(?: \(Legacy\))?:/i.test(raw)) {
-        if (/Elite Sanctuary Onslaught|Sanctuary Onslaught/i.test(raw)) {
+    if (/^WFItems Location(?: \(Legacy\))?:/i.test(quantityNormalized)) {
+        if (/Elite Sanctuary Onslaught|Sanctuary Onslaught/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: ["hub_relay", PR.NEW_STRANGE],
@@ -188,7 +334,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Void Storm/i.test(raw)) {
+        if (/Void Storm/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.RAILJACK_CONSTRUCTED, PR.CALL_TEMPESTARII],
@@ -196,7 +342,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Profit-Taker/i.test(raw)) {
+        if (/Profit-Taker/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.ACTIVITY_PROFIT_TAKER],
@@ -204,7 +350,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Eidolon Teralyst/i.test(raw)) {
+        if (/Eidolon Teralyst/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.ACTIVITY_EIDOLON_TERALYST],
@@ -212,7 +358,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Eidolon Gantulyst|Eidolon Hydrolyst/i.test(raw)) {
+        if (/Eidolon Gantulyst|Eidolon Hydrolyst/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.ACTIVITY_EIDOLON_TRIDOLON],
@@ -220,7 +366,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Derelict Vault/i.test(raw)) {
+        if (/Derelict Vault/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.CLAN_DOJO, PR.JUNCTION_MARS_DEIMOS],
@@ -228,7 +374,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Duviri Circuit/i.test(raw)) {
+        if (/Duviri Circuit/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.DUVIRI_PARADOX],
@@ -236,7 +382,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Duviri Full Experience|Duviri Experience|Duviri Lone Story|Kullervo's Hold/i.test(raw)) {
+        if (/Duviri Full Experience|Duviri Experience|Duviri Lone Story|Kullervo's Hold/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.DUVIRI_PARADOX],
@@ -244,7 +390,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/H[öo]llvania .*WF1999 Bounty|Hallowed Flame/i.test(raw)) {
+        if (/H[öo]llvania .*WF1999 Bounty|Hallowed Flame/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.HUB_HOLLVANIA],
@@ -252,7 +398,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Zariman Ten Zero .* Zariman Bounty/i.test(raw)) {
+        if (/Zariman Ten Zero .* Zariman Bounty/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.ACTIVITY_ZARIMAN_BOUNTIES],
@@ -260,7 +406,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Entrati Netracell Coffer/i.test(raw)) {
+        if (/Entrati Netracell Coffer/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.ACTIVITY_NETRACELLS],
@@ -268,7 +414,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Abyssal Beacon/i.test(raw)) {
+        if (/Abyssal Beacon/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.ACTIVITY_ABYSSAL_ZONE],
@@ -276,7 +422,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Arbitration Shield Drone|Arbitrations/i.test(raw)) {
+        if (/Arbitration Shield Drone|Arbitrations|Vitus Essence/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.ACTIVITY_ARBITRATIONS],
@@ -284,7 +430,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Sorties/i.test(raw)) {
+        if (/Sorties/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.ACTIVITY_SORTIES],
@@ -292,10 +438,253 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Condroc|Kuaka|Mergoo|Grokdrul Drum|Iradite Formation|Archimedean Itzam/i.test(raw)) {
+        if (/Exploiter Orb|Atmo Systems|Gyromag Systems|Repeller Systems/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_EXPLOITER_ORB],
+                type: "drop",
+            };
+        }
+
+        if (/Duviri Murmur Invasion Rewards/i.test(quantityNormalized)) {
+            const prereqIds: string[] = [PR.DUVIRI_PARADOX];
+            if (/Steel Path|Hard/i.test(quantityNormalized)) prereqIds.push(PR.ACTIVITY_STEEL_PATH);
+            return {
+                label: raw,
+                prereqIds,
+                type: "drop",
+            };
+        }
+
+        if (/Duviri\/Endless/i.test(quantityNormalized)) {
+            const prereqIds = [/Hard/i.test(quantityNormalized) ? PR.ACTIVITY_CIRCUIT_STEEL_PATH : PR.ACTIVITY_CIRCUIT];
+            return {
+                label: raw,
+                prereqIds,
+                type: "drop",
+            };
+        }
+
+        if (/Tusk Thumper/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.HUB_CETUS],
+                type: "drop",
+            };
+        }
+
+        if (/Narmer Thumper/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.NEW_WAR, PR.HUB_CETUS],
+                type: "drop",
+            };
+        }
+
+        if (/The Sergeant/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.JUNCTION_MARS_PHOBOS],
+                type: "drop",
+            };
+        }
+
+        if (/Wolf Of Saturn Six/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_NIGHTWAVE],
+                type: "drop",
+            };
+        }
+
+        if (/Zealoid Prelate/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HEART_OF_DEIMOS],
+                type: "drop",
+            };
+        }
+
+        if (/Arcane |Breath Of The Eidolon|Orokin Animus Matrix|Orokin Ballistics Matrix|Orokin Orientation Matrix/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_EIDOLON_TERALYST],
+                type: "drop",
+            };
+        }
+
+        if (/Calda Toroid|Sola Toroid|Vega Toroid/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_FORTUNA],
+                type: "drop",
+            };
+        }
+
+        if (/Corrupted Holokey/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_VOID_STORMS],
+                type: "drop",
+            };
+        }
+
+        if (/Void Traces/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_VOID_FISSURES],
+                type: "drop",
+            };
+        }
+
+        if (/Condroc|Kuaka|Mergoo|Grokdrul|Iradite|Cetus Wisp|Maprico|Nistlepod|Fish Scales|Goopolla Spleen|Khut-Khut Venom Sac|Mawfish Bones|Archimedean Itzam/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_CETUS],
+                type: "drop",
+            };
+        }
+
+        if (/Charc Electroplax|Thermal Sludge|Hexenon|Asterite|Atmo Systems|Gyromag Systems|Repeller Systems/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_FORTUNA],
+                type: "drop",
+            };
+        }
+
+        if (/Coprite Alloy|Pyrotic Alloy|Esher Devar|Fersteel Alloy|Marquise Veridos|Tear Azurite/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_CETUS],
+                type: "drop",
+            };
+        }
+
+        if (/Agnovidisc|Atramentum|Ganglion|Gorgaricus Spore|Lucent Teroglobe|Mytocardia Spore|Necracoil|Pustulite|Scintillant|Fass Residue|Vome Residue|Yogwun Stomach/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_NECRALISK],
+                type: "drop",
+            };
+        }
+
+        if (/H[öo]llvanian Pitchweave Fragment|Techrot Chitin|Techrot Motherboard|Temporal Dust|Saggen Pearl|Aggristone|Servoris|Efervon Sample|Ignia/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_HOLLVANIA],
+                type: "drop",
+            };
+        }
+
+        if (/Connla Sprout|Dracroot|Eevani|Kovnik|Ueymag|Yao Shrub|Laudavi|Fergolyte|Kullervo's Bane/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.DUVIRI_PARADOX],
+                type: "drop",
+            };
+        }
+
+        if (/Mortus Horn|Tralok Eyes/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_CETUS],
+                type: "drop",
+            };
+        }
+
+        if (/Steel Essence/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_STEEL_PATH],
+                type: "drop",
+            };
+        }
+
+        if (/Narmer Isoplast/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.NEW_WAR],
+                type: "drop",
+            };
+        }
+
+        if (/Experimental Arc-Relay|Scuttler Husk|002-Er|Enigma Gyrum/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_HOLLVANIA],
+                type: "drop",
+            };
+        }
+
+        if (/Maphica/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.THE_OLD_PEACE],
+                type: "drop",
+            };
+        }
+
+        if (/Stela/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_HOLLVANIA],
+                type: "drop",
+            };
+        }
+
+        if (/Vainthorn/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_ABYSSAL_ZONE],
+                type: "drop",
+            };
+        }
+
+        if (/Lua Thrax Plasm|Voidgel Orb/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ANGELS_ZARIMAN],
+                type: "drop",
+            };
+        }
+
+        if (/Advances Debt-Bond|Familial Debt-Bond|Medical Debt-Bond|Shelter Debt-Bond|Training Debt-Bond/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_FORTUNA],
+                type: "drop",
+            };
+        }
+
+        if (/Conclave Skin/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_RELAY],
+                type: "vendor",
+            };
+        }
+
+        if (/Adaptation/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.ACTIVITY_ARBITRATIONS],
+                type: "drop",
+            };
+        }
+
+        if (/Alad V/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.JUNCTION_CERES_JUPITER],
+                type: "drop",
+            };
+        }
+
+        if (/Ambulas/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.JUNCTION_NEPTUNE_PLUTO],
                 type: "drop",
             };
         }
@@ -444,8 +833,14 @@ function buildMissionNodeSources(): RawSource[] {
             // (Extra) = Steel Path variant — replace in the display label only; ID stays stable.
             const nodeNameDisplay = String(nodeName).replace(/\s*\(Extra\)\s*$/i, " (Steel Path)");
             const label = gameMode ? `${planetName} - ${nodeNameDisplay} (${gameMode})` : `${planetName} - ${nodeNameDisplay}`;
-
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -493,7 +888,14 @@ function buildMissionRewardSources(): RawSource[] {
             // Canonical ids (match what your jq script expects: data:missionreward/<planet>/<baseNode>)
             const baseId = dataId(["missionreward", String(planetName), nodeNameBase]);
             const baseLabel = `Mission Reward: ${planetName} / ${nodeNameDisplay}`;
-            pushUnique(out, seen, baseId, baseLabel, "drop");
+            const baseInferred = inferSourceMetadataFromLabel(baseLabel);
+            pushUnique(out, seen, baseId, baseInferred?.label ?? baseLabel, baseInferred?.type ?? "drop");
+            if (baseInferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: baseInferred.prereqIds,
+                };
+            }
 
             const rewards = (nodeObj as any)?.rewards;
             if (!rewards || typeof rewards !== "object" || Array.isArray(rewards)) continue;
@@ -502,9 +904,39 @@ function buildMissionRewardSources(): RawSource[] {
             const hasB = Object.prototype.hasOwnProperty.call(rewards, "B");
             const hasC = Object.prototype.hasOwnProperty.call(rewards, "C");
 
-            if (hasA) pushUnique(out, seen, dataId(["missionreward", planetName, nodeNameBase, "rotationa"]), `${baseLabel} (Rotation A)`, "drop");
-            if (hasB) pushUnique(out, seen, dataId(["missionreward", planetName, nodeNameBase, "rotationb"]), `${baseLabel} (Rotation B)`, "drop");
-            if (hasC) pushUnique(out, seen, dataId(["missionreward", planetName, nodeNameBase, "rotationc"]), `${baseLabel} (Rotation C)`, "drop");
+            if (hasA) {
+                const label = `${baseLabel} (Rotation A)`;
+                const inferred = inferSourceMetadataFromLabel(label);
+                pushUnique(out, seen, dataId(["missionreward", planetName, nodeNameBase, "rotationa"]), inferred?.label ?? label, inferred?.type ?? "drop");
+                if (inferred?.prereqIds?.length) {
+                    out[out.length - 1] = {
+                        ...out[out.length - 1],
+                        prereqIds: inferred.prereqIds,
+                    };
+                }
+            }
+            if (hasB) {
+                const label = `${baseLabel} (Rotation B)`;
+                const inferred = inferSourceMetadataFromLabel(label);
+                pushUnique(out, seen, dataId(["missionreward", planetName, nodeNameBase, "rotationb"]), inferred?.label ?? label, inferred?.type ?? "drop");
+                if (inferred?.prereqIds?.length) {
+                    out[out.length - 1] = {
+                        ...out[out.length - 1],
+                        prereqIds: inferred.prereqIds,
+                    };
+                }
+            }
+            if (hasC) {
+                const label = `${baseLabel} (Rotation C)`;
+                const inferred = inferSourceMetadataFromLabel(label);
+                pushUnique(out, seen, dataId(["missionreward", planetName, nodeNameBase, "rotationc"]), inferred?.label ?? label, inferred?.type ?? "drop");
+                if (inferred?.prereqIds?.length) {
+                    out[out.length - 1] = {
+                        ...out[out.length - 1],
+                        prereqIds: inferred.prereqIds,
+                    };
+                }
+            }
 
             // Optional: legacy aliases (only if older code ever emitted these)
             // - nodeNameRaw includes "(Caches)" -> tokenizes to "<node>-caches"
@@ -512,27 +944,67 @@ function buildMissionRewardSources(): RawSource[] {
             //
             // If you want zero-risk compatibility, keep these aliases.
             const legacyBaseId1 = dataId(["mission-reward", String(planetName), String(nodeNameRaw)]);
-            if (legacyBaseId1 !== baseId) pushUnique(out, seen, legacyBaseId1, baseLabel, "drop");
+            if (legacyBaseId1 !== baseId) {
+                pushUnique(out, seen, legacyBaseId1, baseInferred?.label ?? baseLabel, baseInferred?.type ?? "drop");
+                if (baseInferred?.prereqIds?.length) {
+                    out[out.length - 1] = {
+                        ...out[out.length - 1],
+                        prereqIds: baseInferred.prereqIds,
+                    };
+                }
+            }
 
             const legacyBaseId2 = dataId(["missionreward", String(planetName), String(nodeNameRaw)]);
-            if (legacyBaseId2 !== baseId) pushUnique(out, seen, legacyBaseId2, baseLabel, "drop");
+            if (legacyBaseId2 !== baseId) {
+                pushUnique(out, seen, legacyBaseId2, baseInferred?.label ?? baseLabel, baseInferred?.type ?? "drop");
+                if (baseInferred?.prereqIds?.length) {
+                    out[out.length - 1] = {
+                        ...out[out.length - 1],
+                        prereqIds: baseInferred.prereqIds,
+                    };
+                }
+            }
 
             if (hasA) {
                 const legacyRotA1 = dataId(["mission-reward", planetName, nodeNameRaw, "rotationa"]);
                 if (legacyRotA1 !== dataId(["missionreward", planetName, nodeNameBase, "rotationa"])) {
-                    pushUnique(out, seen, legacyRotA1, `${baseLabel} (Rotation A)`, "drop");
+                    const label = `${baseLabel} (Rotation A)`;
+                    const inferred = inferSourceMetadataFromLabel(label);
+                    pushUnique(out, seen, legacyRotA1, inferred?.label ?? label, inferred?.type ?? "drop");
+                    if (inferred?.prereqIds?.length) {
+                        out[out.length - 1] = {
+                            ...out[out.length - 1],
+                            prereqIds: inferred.prereqIds,
+                        };
+                    }
                 }
             }
             if (hasB) {
                 const legacyRotB1 = dataId(["mission-reward", planetName, nodeNameRaw, "rotationb"]);
                 if (legacyRotB1 !== dataId(["missionreward", planetName, nodeNameBase, "rotationb"])) {
-                    pushUnique(out, seen, legacyRotB1, `${baseLabel} (Rotation B)`, "drop");
+                    const label = `${baseLabel} (Rotation B)`;
+                    const inferred = inferSourceMetadataFromLabel(label);
+                    pushUnique(out, seen, legacyRotB1, inferred?.label ?? label, inferred?.type ?? "drop");
+                    if (inferred?.prereqIds?.length) {
+                        out[out.length - 1] = {
+                            ...out[out.length - 1],
+                            prereqIds: inferred.prereqIds,
+                        };
+                    }
                 }
             }
             if (hasC) {
                 const legacyRotC1 = dataId(["mission-reward", planetName, nodeNameRaw, "rotationc"]);
                 if (legacyRotC1 !== dataId(["missionreward", planetName, nodeNameBase, "rotationc"])) {
-                    pushUnique(out, seen, legacyRotC1, `${baseLabel} (Rotation C)`, "drop");
+                    const label = `${baseLabel} (Rotation C)`;
+                    const inferred = inferSourceMetadataFromLabel(label);
+                    pushUnique(out, seen, legacyRotC1, inferred?.label ?? label, inferred?.type ?? "drop");
+                    if (inferred?.prereqIds?.length) {
+                        out[out.length - 1] = {
+                            ...out[out.length - 1],
+                            prereqIds: inferred.prereqIds,
+                        };
+                    }
                 }
             }
         }
@@ -750,7 +1222,14 @@ function buildDropDataSupplementSources(): RawSource[] {
                 if (!enemyName) continue;
                 const id = dataId(["enemy-drop", enemyName]);
                 const label = `Enemy Drop: ${enemyName}`;
-                pushUnique(out, seen, id, label, "drop");
+                const inferred = inferSourceMetadataFromLabel(label);
+                pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+                if (inferred?.prereqIds?.length) {
+                    out[out.length - 1] = {
+                        ...out[out.length - 1],
+                        prereqIds: inferred.prereqIds,
+                    };
+                }
             }
         }
     }
@@ -762,7 +1241,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!enemyName) continue;
             const id = dataId(["enemy-drop", enemyName]);
             const label = `Enemy Drop: ${enemyName}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -776,7 +1262,14 @@ function buildDropDataSupplementSources(): RawSource[] {
                 if (!enemyName) continue;
                 const id = dataId(["enemy-mod", enemyName]);
                 const label = `Enemy Mod Drop: ${enemyName}`;
-                pushUnique(out, seen, id, label, "drop");
+                const inferred = inferSourceMetadataFromLabel(label);
+                pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+                if (inferred?.prereqIds?.length) {
+                    out[out.length - 1] = {
+                        ...out[out.length - 1],
+                        prereqIds: inferred.prereqIds,
+                    };
+                }
             }
         }
     }
@@ -792,7 +1285,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!enemyName) continue;
             const id = dataId(["enemy-mod", enemyName]);
             const label = `Enemy Mod Drop: ${enemyName}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -804,7 +1304,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!objectiveName) continue;
             const id = dataId(["transient", objectiveName]);
             const label = `Transient Reward: ${objectiveName}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -917,7 +1424,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!enemyName) continue;
             const id = dataId(["enemy-item", enemyName]);
             const label = `Enemy Item Drop: ${enemyName}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -929,7 +1443,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!srcName) continue;
             const id = dataId(["resource-by-avatar", srcName]);
             const label = `Resource Drop (Avatar): ${srcName}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -941,7 +1462,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!srcName) continue;
             const id = dataId(["additional-item-by-avatar", srcName]);
             const label = `Additional Drop (Avatar): ${srcName}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -966,7 +1494,14 @@ function buildDropDataRuntimeSrcSources(): RawSource[] {
 
             const id = srcId(["enemyitem", enemyName]);
             const label = `Enemy: ${enemyName}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -979,7 +1514,14 @@ function buildDropDataRuntimeSrcSources(): RawSource[] {
 
             const id = srcId(["resourcebyavatar", srcName]);
             const label = `Avatar Drop: ${srcName}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
