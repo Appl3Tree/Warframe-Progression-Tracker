@@ -80,6 +80,9 @@ export interface ModdedWeaponStats {
     /** AoE elemental status spread chance (0–1). Melee Influence-type arcane effect. */
     aoeElementalStatusSpreadChance: number;
     aoeElementalStatusSpreadRadius: number;
+    directDamagePerStatusBonus: number;
+    directDamageStatusTypes: number;
+    directDamagePerStatusMultiplier: number;
 }
 
 const AIMING_UPTIME_ASSUMPTION = 0.75;
@@ -90,6 +93,7 @@ const ON_HIT_UPTIME_ASSUMPTION = 0.85;
 const WEAK_POINT_HIT_UPTIME_ASSUMPTION = 0.55;
 const HIT_RATE_ASSUMPTION = 0.75;
 const WEAK_POINT_HIT_RATE_ASSUMPTION = 0.45;
+const DIRECT_DAMAGE_STATUS_STACK_THRESHOLD = 0.25;
 
 function shouldAssumeFullyStacked(conditional: ConditionalEffect): boolean {
     switch (conditional.trigger) {
@@ -179,6 +183,15 @@ function scaleForStacks(stacks: number, first: number, additional: number, cap: 
 function scaleLinearCap(stacks: number, perStack: number, cap: number): number {
     if (stacks <= 0) return 0;
     return Math.min(cap, stacks * perStack);
+}
+
+function countDirectDamageStatusTypes(expectedStacksByType: Partial<Record<DamageKey, number>>): number {
+    return Math.max(
+        0,
+        Object.entries(expectedStacksByType).reduce((count, [, stacks]) => {
+            return (stacks ?? 0) >= DIRECT_DAMAGE_STATUS_STACK_THRESHOLD ? count + 1 : count;
+        }, 0),
+    );
 }
 
 export function estimateConditionalUptime(
@@ -306,6 +319,7 @@ export function calculateBuild(
     let critAppliesSlashChance = 0;
     let aoeElementalStatusSpreadChance = 0;
     let aoeElementalStatusSpreadRadius = 0;
+    let directDamagePerStatusBonus = 0;
     const conditionalEffects: ConditionalEffect[] = [];
 
     const orderedPrimaryElementBonuses: Array<{ type: DamageKey; value: number; order: number }> = [];
@@ -350,6 +364,7 @@ export function calculateBuild(
         critAppliesSlashChance += e.critAppliesSlashChance ?? 0;
         aoeElementalStatusSpreadChance = Math.max(aoeElementalStatusSpreadChance, e.aoeElementalStatusSpreadChance ?? 0);
         aoeElementalStatusSpreadRadius = Math.max(aoeElementalStatusSpreadRadius, e.aoeElementalStatusSpreadRadius ?? 0);
+        directDamagePerStatusBonus += e.directDamagePerStatusBonus ?? 0;
         conditionalEffects.push(...(e.conditionalEffects ?? []));
 
         if (targetFaction && e.targetFaction && e.targetFaction.toLowerCase() === targetFaction.toLowerCase()) {
@@ -389,6 +404,7 @@ export function calculateBuild(
     let conditionalMultishotBonus = 0;
     let conditionalFireRateBonus = 0;
     let conditionalReloadSpeedBonus = 0;
+    let conditionalDirectDamagePerStatusBonus = 0;
     const conditionalDirectBonusBreakdown = emptyBreakdown();
     for (const conditional of conditionalEffects) {
         const factor =
@@ -402,6 +418,7 @@ export function calculateBuild(
         conditionalStatusChanceBonus += (conditional.stats.statusChanceBonus ?? 0) * factor;
         conditionalMultishotBonus += (conditional.stats.multishotBonus ?? 0) * factor;
         conditionalFireRateBonus += (conditional.stats.fireRateBonus ?? 0) * factor;
+        conditionalDirectDamagePerStatusBonus += (conditional.stats.directDamagePerStatusBonus ?? 0) * factor;
         if (!ignoresReloadAndMagazine) {
             conditionalReloadSpeedBonus += (conditional.stats.reloadSpeedBonus ?? 0) * factor;
         }
@@ -425,6 +442,7 @@ export function calculateBuild(
     multishotBonus += conditionalMultishotBonus;
     fireRateBonus += conditionalFireRateBonus;
     reloadSpeedBonus += conditionalReloadSpeedBonus;
+    directDamagePerStatusBonus += conditionalDirectDamagePerStatusBonus;
 
     const projectedMultishot = weapon.multishot * (1 + multishotBonus);
     const expectedHitsPerMag = baselineMagazineSize * projectedMultishot * HIT_RATE_ASSUMPTION;
@@ -489,16 +507,7 @@ export function calculateBuild(
         rawBreakdown[key] += totalBase * (directBonusBreakdown[key] + conditionalDirectBonusBreakdown[key]);
     }
 
-    const quantumScale = totalBase / 32;
-    const damageBreakdown = emptyBreakdown();
-    for (const key of DAMAGE_KEYS) {
-        damageBreakdown[key] = roundQuantized(rawBreakdown[key], quantumScale);
-    }
-
-    const totalDamage = totalDamageOf(damageBreakdown);
     const moddedMultishot = weapon.multishot * (1 + multishotBonus);
-    const arsenalDamage = totalDamage * moddedMultishot;
-
     const critChance = weapon.critChance * (1 + critChanceBonus) + finalCritChanceBonus;
     const critMultiplier = weapon.critMultiplier * (1 + critMultBonus) + finalCritMultiplierBonus;
     const averageCritTier = Math.max(0, critChance);
@@ -517,14 +526,19 @@ export function calculateBuild(
     const reloadTime = ignoresReloadAndMagazine
         ? weapon.reloadTime
         : weapon.reloadTime / (1 + reloadSpeedBonus);
-    const averageShotDamage = arsenalDamage * avgCritMultiplier(critChance, critMultiplier);
     const shotsPerMag = magazineSize / Math.max(0.0001, weapon.ammoCostPerShot ?? 1);
 
+    const quantizedRawScale = totalBase / 32;
+    const procWeightBreakdown = emptyBreakdown();
+    for (const key of DAMAGE_KEYS) {
+        procWeightBreakdown[key] = roundQuantized(rawBreakdown[key], quantizedRawScale);
+    }
+
     const procChanceByType: Partial<Record<DamageKey, number>> = {};
-    const baseDamageTotal = totalDamageOf(damageBreakdown);
+    const baseDamageTotal = totalDamageOf(procWeightBreakdown);
     if (baseDamageTotal > 0) {
         for (const key of DAMAGE_KEYS) {
-            if (damageBreakdown[key] > 0) procChanceByType[key] = damageBreakdown[key] / baseDamageTotal;
+            if (procWeightBreakdown[key] > 0) procChanceByType[key] = procWeightBreakdown[key] / baseDamageTotal;
         }
     }
     const baseProcsPerShot = moddedMultishot * statusChance;
@@ -628,6 +642,28 @@ export function calculateBuild(
     expectedStacksByType.viral = expectedStacks("viral", 6, 10);
     expectedStacksByType.tau = expectedStacks("tau", 8, 10);
 
+    const directDamageStatusTypes = countDirectDamageStatusTypes(expectedStacksByType);
+    const directDamagePerStatusWeight = directDamagePerStatusBonus * directDamageStatusTypes;
+    const damageBracket = Math.max(0.0001, 1 + damageBonus);
+    const directDamagePerStatusMultiplier = directDamagePerStatusWeight > 0
+        ? (damageBracket + directDamagePerStatusWeight) / damageBracket
+        : 1;
+
+    const directRawBreakdown = emptyBreakdown();
+    for (const key of DAMAGE_KEYS) {
+        directRawBreakdown[key] = rawBreakdown[key] * directDamagePerStatusMultiplier;
+    }
+
+    const damageBreakdown = emptyBreakdown();
+    const quantizedScale = quantizedRawScale * directDamagePerStatusMultiplier;
+    for (const key of DAMAGE_KEYS) {
+        damageBreakdown[key] = roundQuantized(directRawBreakdown[key], quantizedScale);
+    }
+
+    const totalDamage = totalDamageOf(damageBreakdown);
+    const arsenalDamage = totalDamage * moddedMultishot;
+    const averageShotDamage = arsenalDamage * avgCritMultiplier(critChance, critMultiplier);
+
     const coldStacks = expectedStacksByType.cold ?? 0;
     const heatStacks = expectedStacksByType.heat ?? 0;
     const viralStacks = expectedStacksByType.viral ?? 0;
@@ -666,7 +702,7 @@ export function calculateBuild(
     const tauStatusVulnerability = scaleLinearCap(tauStacks, 0.1, 1.0);
 
     const modded: ModdedWeaponStats = {
-        rawDamageBreakdown: rawBreakdown,
+        rawDamageBreakdown: directRawBreakdown,
         arsenalDamage,
         totalDamageBonus: damageBonus,
         averageShotDamage,
@@ -705,6 +741,9 @@ export function calculateBuild(
         tauStatusVulnerability,
         aoeElementalStatusSpreadChance,
         aoeElementalStatusSpreadRadius,
+        directDamagePerStatusBonus,
+        directDamageStatusTypes,
+        directDamagePerStatusMultiplier,
     };
 
     const burstDPS = averageShotDamage * fireRate;

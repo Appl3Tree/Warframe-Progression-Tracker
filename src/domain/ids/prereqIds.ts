@@ -253,7 +253,11 @@ export const PR = {
 
     // ---- Daily ----
     ACTIVITY_SORTIES:               "activity_sorties",                 // Daily 3-mission Sortie; req. War Within + MR5 + rank-30 frame
+    ACTIVITY_INVASIONS:            "activity_invasions",               // Invasion missions available
     ACTIVITY_NIGHTMARE:            "activity_nightmare_missions",      // Nightmare mission access; req. all nodes complete on a planet
+    ACTIVITY_STALKER:              "activity_stalker_mark",            // Stalker death mark available
+    ACTIVITY_GRUSTRAG:             "activity_grustrag_three_mark",     // Grustrag Three death mark available
+    ACTIVITY_ZANUKA:               "activity_zanuka_hunter_mark",      // Zanuka Hunter death mark available
     ACTIVITY_NIGHTWAVE:             "activity_nightwave",               // Nightwave system active/unlocked enough to earn Creds and rank rewards
     ACTIVITY_GLASSMAKER:            "activity_glassmaker",              // Access to Nihil / The Glassmaker reward path via Nightwave content
     ACTIVITY_EIDOLON_TERALYST:      "activity_eidolon_teralyst",        // Eidolon Teralyst (1-cap); req. Plains of Eidolon at night;
@@ -262,6 +266,7 @@ export const PR = {
                                                                         //   req. Eidolon Teralyst experience + strong Amp (T4+)
     ACTIVITY_ROPALOLYST:            "activity_ropalolyst",              // Jupiter assassination boss node;
                                                                         //   req. New Strange + Jupiter junction clear
+    ACTIVITY_INDEX:                 "activity_the_index",               // The Index arena on Neptune
 
     // ---- Weekly ----
     ACTIVITY_ARCHON_HUNTS:          "activity_archon_hunts",            // Weekly 3-stage Archon fight; req. Veilbreaker + rank-30 frame
@@ -276,6 +281,8 @@ export const PR = {
     ACTIVITY_CETUS_BOUNTIES:        "activity_cetus_bounties",          // Plains bounty missions; req. Cetus access
     ACTIVITY_FORTUNA_BOUNTIES:      "activity_fortuna_bounties",        // Vallis bounty missions; req. Fortuna access
     ACTIVITY_DEIMOS_BOUNTIES:       "activity_deimos_bounties",         // Cambion Drift bounties; req. Necralisk
+    ACTIVITY_ISOLATION_VAULTS:      "activity_isolation_vaults",        // Deimos Isolation Vault bounties; req. Cambion Drift / Mother access
+    ACTIVITY_ARCANA_ISO_VAULTS:     "activity_arcana_isolation_vaults", // Deimos Arcana Isolation Vault bounties; req. first Isolation Vault completion
     ACTIVITY_ZARIMAN_BOUNTIES:      "activity_zariman_bounties",        // Zariman Chrysalith missions; req. Angels of Zariman
     ACTIVITY_CAVIA_BOUNTIES:        "activity_cavia_bounties",          // Sanctum Anatomica bounties; req. Whispers in the Walls
 
@@ -323,6 +330,13 @@ export const PR = {
     SYNDICATE_QUILLS_RANK2:         "syndicate_quills_rank2",           // Adherent — T2 Amp parts + Amp gilding
     SYNDICATE_QUILLS_RANK3:         "syndicate_quills_rank3",           // Instrument — T3 Amp parts
     SYNDICATE_QUILLS_RANK4:         "syndicate_quills_rank4",           // Architect — T4 Amp parts (best from Quills)
+
+    // The Holdfasts (Zariman) — gates Chrysalith vendor inventory:
+    SYNDICATE_HOLDFASTS_RANK1:      "syndicate_holdfasts_rank1",        // Watcher
+    SYNDICATE_HOLDFASTS_RANK2:      "syndicate_holdfasts_rank2",        // Guardian
+    SYNDICATE_HOLDFASTS_RANK3:      "syndicate_holdfasts_rank3",        // Fallen
+    SYNDICATE_HOLDFASTS_RANK4:      "syndicate_holdfasts_rank4",        // Seraph
+    SYNDICATE_HOLDFASTS_RANK5:      "syndicate_holdfasts_rank5",        // Angel
 
     // Entrati (Necralisk) — gates Helminth:
     SYNDICATE_ENTRATI_RANK3:        "syndicate_entrati_rank3",          // Associate (rank 3) — Helminth Segment BP (also req. MR8)

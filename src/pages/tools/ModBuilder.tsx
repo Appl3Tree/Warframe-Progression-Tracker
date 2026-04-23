@@ -42,6 +42,43 @@ const _polImgs = import.meta.glob<string>("../../assets/polarities/*.svg", {
 const _polSvgRaw = import.meta.glob<string>("../../assets/polarities/*.svg", {
     eager: true, query: "?raw", import: "default",
 });
+
+// ── Status/damage-type icons ──────────────────────────────────────────────────
+
+const _statusImgs = import.meta.glob<string>("../../assets/statuses/*.png", {
+    eager: true, query: "?url", import: "default",
+});
+const _STATUS_FILE_MAP: Record<string, string> = {
+    slash:       "SlashSymbol",
+    impact:      "ImpactSymbol",
+    puncture:    "PunctureSymbol",
+    heat:        "HeatSymbol",
+    cold:        "ColdSymbol",
+    electricity: "ElectricitySymbol",
+    toxin:       "ToxinSymbol",
+    blast:       "BlastSymbol",
+    radiation:   "RadiationSymbol",
+    gas:         "GasSymbol",
+    magnetic:    "MagneticSymbol",
+    viral:       "ViralSymbol",
+    corrosive:   "CorrosiveSymbol",
+    void:        "VoidSymbol",
+};
+const DAMAGE_TYPE_ICON: Record<string, string> = {};
+for (const [path, url] of Object.entries(_statusImgs)) {
+    const base = path.split("/").pop()!.replace(".png", "");
+    for (const [dmgType, file] of Object.entries(_STATUS_FILE_MAP)) {
+        if (base === file) DAMAGE_TYPE_ICON[dmgType] = url as string;
+    }
+}
+const COMBINED_ELEMENT_PARENTS: Record<string, [string, string]> = {
+    blast:     ["heat", "cold"],
+    radiation: ["heat", "electricity"],
+    gas:       ["heat", "toxin"],
+    magnetic:  ["cold", "electricity"],
+    viral:     ["cold", "toxin"],
+    corrosive: ["electricity", "toxin"],
+};
 const POL_IMG: Record<string, string> = {};
 const POL_SVG_RAW: Record<string, string> = {};
 for (const [p, url] of Object.entries(_polImgs)) {
@@ -351,6 +388,38 @@ interface BuildExportPayload {
         optimizeIncarnonSelections?: boolean;
         includeArcaneStats: boolean;
         selectedAttackIdx: number;
+    };
+    optimizer: {
+        mode: OptimizeMode;
+        options: {
+            respectCapacity: boolean;
+            allowNonMaxRank: boolean;
+            ownedOnly: boolean;
+            factionFocus: boolean;
+            allowCatalyst: boolean;
+            allowForma: boolean;
+            maxFormaAllowed: number;
+            optimizeExilus: boolean;
+            optimizeArcane: boolean;
+        };
+        pools: {
+            compatibleMods: number;
+            compatibleArcanes: number;
+            ownedMods?: Array<{
+                name: string;
+                uniqueName: string;
+                ownedMaxRank: number;
+            }>;
+            ownedArcanes?: Array<{
+                name: string;
+                uniqueName: string;
+                ownedMaxRank: number;
+            }>;
+            excludedMods?: Array<{
+                name: string;
+                uniqueName: string;
+            }>;
+        };
     };
     build: {
         stance: {
@@ -761,7 +830,7 @@ function makeSelectedAttackWeapon(
     weapon: WeaponEntry,
     selectedAttackIdx: number,
 ): WeaponEntry {
-    const selectedAttack = weapon.attacks.length > 1 ? weapon.attacks[selectedAttackIdx] ?? null : null;
+    const selectedAttack = weapon.attacks[selectedAttackIdx] ?? null;
     if (!selectedAttack) return weapon;
     return {
         ...weapon,
@@ -1085,7 +1154,7 @@ function buildMathBreakdown(
     const baseDamage = weapon.damage.total;
     const baseDamageMultiplier = 1 + totals.damageBonus;
     const moddedBaseDamage = baseDamage * baseDamageMultiplier;
-    const quantScale = moddedBaseDamage / 32;
+    const quantScale = (moddedBaseDamage / 32) * (stats.directDamagePerStatusMultiplier || 1);
     const fireRateBonus = usesMeleeDamageModel(weapon.category) ? totals.attackSpeedBonus : totals.fireRateBonus;
     const moddedReload = ignoresReloadAndMagazine
         ? weapon.reloadTime
@@ -1099,7 +1168,7 @@ function buildMathBreakdown(
     const baselineRateForConditionals = weapon.fireRate;
     const baseMagazineForConditionals = Math.max(1, Math.round(weapon.magazineSize || 1));
     const rawBreakdown = buildCombinedRawBreakdown(weapon, effects);
-    const nonZeroRawEntries = Object.entries(rawBreakdown.combined).filter(([, value]) => value > 0);
+    const nonZeroRawEntries = Object.entries(stats.rawDamageBreakdown).filter(([, value]) => value > 0);
     const quantizedLines = nonZeroRawEntries.map(([type, rawValue]) => {
         const ratio = quantScale > 0 ? rawValue / quantScale : 0;
         const roundedUnits = Math.round(ratio);
@@ -1163,7 +1232,7 @@ function buildMathBreakdown(
                 `Damage bonus = ${fmt(totals.damageBonus * 100, 3)}% | impact bonus = ${fmt(totals.impactBonus * 100, 3)}% | puncture bonus = ${fmt(totals.punctureBonus * 100, 3)}% | slash bonus = ${fmt(totals.slashBonus * 100, 3)}%`,
                 `Primary element bonuses = heat ${fmt(totals.heatBonus * 100, 3)}%, cold ${fmt(totals.coldBonus * 100, 3)}%, electricity ${fmt(totals.electricityBonus * 100, 3)}%, toxin ${fmt(totals.toxinBonus * 100, 3)}%`,
                 `Advanced element bonuses = magnetic ${fmt(totals.magneticBonus * 100, 3)}%, radiation ${fmt(totals.radiationBonus * 100, 3)}%, viral ${fmt(totals.viralBonus * 100, 3)}%, corrosive ${fmt(totals.corrosiveBonus * 100, 3)}%, void ${fmt(totals.voidBonus * 100, 3)}%, tau ${fmt(totals.tauBonus * 100, 3)}%, true ${fmt(totals.trueBonus * 100, 3)}%`,
-                `Status damage bonus = ${fmt(totals.statusDamageBonus * 100, 3)}% | status duration bonus = ${fmt(totals.statusDurationBonus * 100, 3)}% | faction damage bonus tracked here = ${fmt(totals.factionDamageBonus * 100, 3)}%`,
+                `Status damage bonus = ${fmt(totals.statusDamageBonus * 100, 3)}% | status duration bonus = ${fmt(totals.statusDurationBonus * 100, 3)}% | faction damage bonus tracked here = ${fmt(totals.factionDamageBonus * 100, 3)}% | direct damage per status = ${fmt(stats.directDamagePerStatusBonus * 100, 3)}%`,
             ],
         },
         {
@@ -1173,12 +1242,15 @@ function buildMathBreakdown(
                 `Physical raw values before quantization = impact ${fmt(rawBreakdown.physicalRaw.impact, 5)}, puncture ${fmt(rawBreakdown.physicalRaw.puncture, 5)}, slash ${fmt(rawBreakdown.physicalRaw.slash, 5)}`,
                 `Element queue before combination = ${rawBreakdown.orderedElementQueue.map((entry) => `${entry.type} ${fmt(entry.value, 5)} (order ${entry.order})`).join(" | ") || "none"}`,
                 `Combined raw damage breakdown = ${nonZeroRawEntries.map(([type, value]) => `${type} ${fmt(value, 5)}`).join(", ") || "none"}`,
+                stats.directDamagePerStatusMultiplier !== 1
+                    ? `Direct-damage-only per-status multiplier = (damage bracket ${fmt(1 + stats.totalDamageBonus, 5)} + (${fmt(stats.directDamagePerStatusBonus, 5)} × ${stats.directDamageStatusTypes} status types)) ÷ damage bracket = ${fmt(stats.directDamagePerStatusMultiplier, 5)}`
+                    : "No direct-damage per-status multiplier applied",
             ],
         },
         {
             title: "Quantization",
             lines: [
-                `Scale = modded base damage ÷ 32 = ${fmt(moddedBaseDamage, 5)} ÷ 32 = ${fmt(quantScale, 5)}`,
+                `Scale = direct-hit modded base damage ÷ 32 = (${fmt(moddedBaseDamage, 5)} × ${fmt(stats.directDamagePerStatusMultiplier, 5)}) ÷ 32 = ${fmt(quantScale, 5)}`,
                 `Per-type quantization follows Round(raw ÷ scale) × scale`,
                 ...quantizedLines,
                 `Quantized final breakdown = ${Object.entries(stats.damageBreakdown).filter(([, value]) => (value as number) > 0).map(([type, value]) => `${type} ${fmt(value as number, 5)}`).join(", ") || "none"}`,
@@ -1241,10 +1313,29 @@ function buildExportPayload(args: {
     exilusPol: string;
     arcane: ArcaneEntry | null;
     arcaneRank: number;
+    optimizeMode: OptimizeMode;
+    respectCap: boolean;
+    allowNonMax: boolean;
+    onlyOwned: boolean;
+    factionOn: boolean;
+    allowCatalyst: boolean;
+    allowForma: boolean;
+    maxFormaAllowed: number;
+    optExilus: boolean;
+    optArcane: boolean;
+    compatMods: ModEntry[];
+    weaponArcanes: ArcaneEntry[];
+    ownedSet: Set<string>;
+    ownedModMaxRankByUniqueName: Record<string, number>;
+    ownedArcaneUniqueNames: Set<string>;
+    ownedArcaneMaxRankByUniqueName: Record<string, number>;
+    excluded: Set<string>;
 }): BuildExportPayload | null {
     const {
         weapon, selectedAttackIdx, goal, targetFaction, buildCfg, includeArcaneStats,
         slots, ranks, slotPols, stanceMod, stanceRank, stancePol, formaCount, exilusEnabled, exilusMod, exilusRank, exilusPol, arcane, arcaneRank,
+        optimizeMode, respectCap, allowNonMax, onlyOwned, factionOn, allowCatalyst, allowForma, maxFormaAllowed, optExilus, optArcane,
+        compatMods, weaponArcanes, ownedSet, ownedModMaxRankByUniqueName, ownedArcaneUniqueNames, ownedArcaneMaxRankByUniqueName, excluded,
     } = args;
     if (!weapon) return null;
 
@@ -1276,6 +1367,35 @@ function buildExportPayload(args: {
 
     const calculated = calculateBuild(calcWeapon, effects, targetFaction ?? "");
     const math = buildMathBreakdown(calcWeapon, effects, targetFaction ?? "");
+    const ownedModsForExport = onlyOwned
+        ? compatMods
+            .filter((mod) => ownedSet.has(mod.uniqueName))
+            .map((mod) => ({
+                name: mod.name,
+                uniqueName: mod.uniqueName,
+                ownedMaxRank: ownedModMaxRankByUniqueName[mod.uniqueName] ?? mod.fusionLimit,
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name) || a.uniqueName.localeCompare(b.uniqueName))
+        : undefined;
+    const ownedArcanesForExport = onlyOwned
+        ? weaponArcanes
+            .filter((arcane) => ownedArcaneUniqueNames.has(arcane.uniqueName))
+            .map((arcane) => ({
+                name: arcane.name,
+                uniqueName: arcane.uniqueName,
+                ownedMaxRank: ownedArcaneMaxRankByUniqueName[arcane.uniqueName] ?? arcane.maxRank,
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name) || a.uniqueName.localeCompare(b.uniqueName))
+        : undefined;
+    const excludedModsForExport = excluded.size > 0
+        ? compatMods
+            .filter((mod) => excluded.has(mod.uniqueName))
+            .map((mod) => ({
+                name: mod.name,
+                uniqueName: mod.uniqueName,
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name) || a.uniqueName.localeCompare(b.uniqueName))
+        : undefined;
 
     return {
         exportedAt: new Date().toISOString(),
@@ -1301,6 +1421,27 @@ function buildExportPayload(args: {
             optimizeIncarnonSelections: weaponState.incarnonRecord ? buildCfg.optimizeIncarnonSelections : undefined,
             includeArcaneStats,
             selectedAttackIdx,
+        },
+        optimizer: {
+            mode: optimizeMode,
+            options: {
+                respectCapacity: respectCap,
+                allowNonMaxRank: allowNonMax,
+                ownedOnly: onlyOwned,
+                factionFocus: factionOn,
+                allowCatalyst,
+                allowForma,
+                maxFormaAllowed,
+                optimizeExilus: optExilus,
+                optimizeArcane: optArcane,
+            },
+            pools: {
+                compatibleMods: compatMods.length,
+                compatibleArcanes: weaponArcanes.length,
+                ownedMods: ownedModsForExport,
+                ownedArcanes: ownedArcanesForExport,
+                excludedMods: excludedModsForExport,
+            },
         },
         build: {
             stance: {
@@ -1395,8 +1536,8 @@ function shouldAutoInstallCatalyst(
 
 // ── Stat Badge ────────────────────────────────────────────────────────────────
 
-function StatBadge({ label, value, sub, highlight, tooltip }: {
-    label: string; value: string; sub?: string; highlight?: boolean; tooltip?: string;
+function StatBadge({ label, value, sub, highlight, tooltip, icon }: {
+    label: string; value: string; sub?: string; highlight?: boolean; tooltip?: string; icon?: string;
 }) {
     const [show, setShow] = useState(false);
     return (
@@ -1406,12 +1547,13 @@ function StatBadge({ label, value, sub, highlight, tooltip }: {
             onMouseEnter={() => tooltip && setShow(true)}
             onMouseLeave={() => setShow(false)}>
             <div className="text-[10px] uppercase tracking-wide text-slate-500 flex items-center gap-1">
+                {icon && <img src={icon} alt="" className="w-3.5 h-3.5 shrink-0" />}
                 {label}{tooltip && <span className="text-slate-700 text-[8px]">?</span>}
             </div>
             <div className={["text-sm font-semibold mt-0.5", highlight ? "text-amber-300" : "text-slate-100"].join(" ")}>{value}</div>
             {sub && <div className="text-[10px] text-slate-500 mt-0.5">{sub}</div>}
             {show && tooltip && (
-                <div className="absolute bottom-full left-0 mb-1.5 z-50 w-60 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-[11px] text-slate-300 shadow-xl leading-relaxed pointer-events-none">
+                <div className="absolute bottom-full left-0 mb-1.5 z-50 w-60 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-[11px] text-slate-300 shadow-xl leading-relaxed pointer-events-none whitespace-pre-line">
                     {tooltip}
                 </div>
             )}
@@ -2595,7 +2737,7 @@ export default function ModBuilder() {
         const pols = Array(SLOT_COUNT).fill("") as string[];
         w.polarities.forEach((p, i) => { if (i < SLOT_COUNT) pols[i] = p; });
         setSlotPols(pols);
-        const builtInStance = getStancesForWeapon(w).find((mod) => mod.isBuiltIn && mod.itemCompatibilityPath === w.uniqueName) ?? null;
+        const builtInStance = getStancesForWeapon(w).find((mod) => mod.isBuiltIn) ?? null;
         setStanceMod(builtInStance); setStanceRank(builtInStance ? builtInStance.fusionLimit : 0); setStancePol(w.stancePolarity ?? "");
         setExilusMod(null); setExilusRank(0); setExilusPol(""); setHasExilus(false);
         setArcane1(null); setArcane1Rank(0);
@@ -2640,7 +2782,7 @@ export default function ModBuilder() {
     }, [weapon]);
     const fixedStanceMod = useMemo(() => {
         if (!weapon) return null;
-        return stanceMods.find((mod) => mod.isBuiltIn && mod.itemCompatibilityPath === weapon.uniqueName) ?? null;
+        return stanceMods.find((mod) => mod.isBuiltIn) ?? null;
     }, [weapon, stanceMods]);
     const weaponArcanes = useMemo(() => weapon ? getArcanesForWeapon(weapon) : [], [weapon]);
     const incarnonRecord = useMemo(() => getIncarnonRecordForWeapon(weapon), [weapon]);
@@ -2758,9 +2900,28 @@ export default function ModBuilder() {
         exilusPol,
         arcane: arcane1,
         arcaneRank: arcane1Rank,
+        optimizeMode,
+        respectCap,
+        allowNonMax,
+        onlyOwned,
+        factionOn,
+        allowCatalyst,
+        allowForma,
+        maxFormaAllowed,
+        optExilus,
+        optArcane,
+        compatMods,
+        weaponArcanes,
+        ownedSet,
+        ownedModMaxRankByUniqueName,
+        ownedArcaneUniqueNames,
+        ownedArcaneMaxRankByUniqueName,
+        excluded,
     }), [
         weapon, selectedAttackIdx, goal, factionOn, faction, buildCfg, includeArcaneStats,
         slots, ranks, slotPols, stanceMod, stanceRank, stancePol, formaCount, hasExilus, exilusMod, exilusRank, exilusPol, arcane1, arcane1Rank,
+        optimizeMode, respectCap, allowNonMax, onlyOwned, allowCatalyst, allowForma, maxFormaAllowed, optExilus, optArcane,
+        compatMods, weaponArcanes, ownedSet, ownedModMaxRankByUniqueName, ownedArcaneUniqueNames, ownedArcaneMaxRankByUniqueName, excluded,
     ]);
 
     const activeWeaponState = useMemo(() => {
@@ -3536,18 +3697,28 @@ export default function ModBuilder() {
                                     <div className="flex flex-wrap items-start gap-3 justify-between">
                                         <div className="min-w-0 flex-1">
                                             <div className="text-[11px] uppercase tracking-[0.24em] text-orange-300/90">Arsenal Modding</div>
-                                            <div className="mt-1 flex flex-wrap items-center gap-2">
-                                                <div className="w-[360px] max-w-full">
-                                                    <WeaponSelector selected={weapon} onSelect={handleSelectWeapon} />
-                                                </div>
+                                                <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                    <div className="w-[360px] max-w-full">
+                                                        <WeaponSelector selected={weapon} onSelect={handleSelectWeapon} />
+                                                    </div>
+                                                    {weapon && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setBuildCfg(p => ({ ...p, hasCatalyst: !p.hasCatalyst }))}
+                                                            className={[
+                                                                "rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-wide transition-colors",
+                                                                buildCfg.hasCatalyst
+                                                                    ? "border-amber-700/60 bg-amber-950/30 text-amber-300"
+                                                                    : "border-slate-700 bg-slate-900/70 text-slate-300 hover:border-slate-500 hover:text-slate-100",
+                                                            ].join(" ")}
+                                                            title="Marks whether this weapon already has an Orokin Catalyst installed."
+                                                        >
+                                                            Catalyst
+                                                        </button>
+                                                    )}
                                                 {weapon && formaCount > 0 && (
                                                     <span className="rounded-full border border-slate-700 bg-slate-900/70 px-2.5 py-1 text-[10px] uppercase tracking-wide text-slate-300">
                                                         {formaCount} forma
-                                                    </span>
-                                                )}
-                                                {weapon && buildCfg.hasCatalyst && (
-                                                    <span className="rounded-full border border-amber-700/60 bg-amber-950/30 px-2.5 py-1 text-[10px] uppercase tracking-wide text-amber-300">
-                                                        Catalyst
                                                     </span>
                                                 )}
                                             </div>
@@ -3703,7 +3874,7 @@ export default function ModBuilder() {
                                                 ))}
                                             </div>
                                             <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                                                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+                                                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                                                     <div>
                                                         <label className="text-[10px] uppercase tracking-wide text-slate-500 block mb-1.5">Weapon Rank</label>
                                                         <div className="flex items-center gap-2">
@@ -3719,29 +3890,6 @@ export default function ModBuilder() {
                                                                 onChange={e => setBuildCfg(p => ({ ...p, masteryRank: +e.target.value }))} className="flex-1 accent-sky-500" />
                                                             <span className="text-sm font-mono text-slate-200 w-7 text-right">{buildCfg.masteryRank}</span>
                                                         </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="text-[10px] uppercase tracking-wide text-slate-500 block mb-1.5">Installed</label>
-                                                        <button
-                                                            onClick={() => setBuildCfg(p => ({ ...p, hasCatalyst: !p.hasCatalyst }))}
-                                                            className={[
-                                                                "w-full rounded-lg border px-3 py-2 text-[11px] text-left transition-colors",
-                                                                buildCfg.hasCatalyst
-                                                                    ? "border-amber-600/60 bg-amber-950/25 text-amber-300"
-                                                                    : "border-slate-700 bg-slate-900/40 text-slate-400 hover:border-slate-600 hover:text-slate-200",
-                                                            ].join(" ")}
-                                                            title="Marks whether this weapon already has an Orokin Catalyst installed."
-                                                        >
-                                                            <div className="flex items-center gap-2">
-                                                                <span className={[
-                                                                    "w-3 h-3 rounded-full border flex items-center justify-center shrink-0",
-                                                                    buildCfg.hasCatalyst ? "border-amber-400 bg-amber-400" : "border-slate-600",
-                                                                ].join(" ")}>
-                                                                    {buildCfg.hasCatalyst && <span className="text-slate-900 text-[8px]">&#10003;</span>}
-                                                                </span>
-                                                                <span className="font-semibold">Catalyst Installed</span>
-                                                            </div>
-                                                        </button>
                                                     </div>
                                                     {weapon?.isProgenitorWeapon && (
                                                         <>
@@ -3960,32 +4108,32 @@ export default function ModBuilder() {
                                                                     {
                                                                         label: usesHitTerminology(weapon.category) ? "Attack Speed" : "Fire Rate",
                                                                         value: `${activeMetrics.modded.fireRate.toFixed(2)}`,
-                                                                        tooltip: `${usesHitTerminology(weapon.category) ? BASIC_STAT_TOOLTIPS.attackSpeed : BASIC_STAT_TOOLTIPS.fireRate} At the current value, this build performs about ${activeMetrics.modded.fireRate.toFixed(2)} ${usesHitTerminology(weapon.category) ? "attacks" : "attack events"} per second.`,
+                                                                        tooltip: `${usesHitTerminology(weapon.category) ? BASIC_STAT_TOOLTIPS.attackSpeed : BASIC_STAT_TOOLTIPS.fireRate}\n\nAt the current value, this build performs about ${activeMetrics.modded.fireRate.toFixed(2)} ${usesHitTerminology(weapon.category) ? "attacks" : "attack events"} per second.`,
                                                                     },
                                                                     {
                                                                         label: "Magazine",
                                                                         value: displayMagazineValue(weapon, activeMetrics.modded.magazineSize),
-                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.magazine} The current effective value is ${displayMagazineValue(weapon, activeMetrics.modded.magazineSize)}.`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.magazine}\n\nThe current effective value is ${displayMagazineValue(weapon, activeMetrics.modded.magazineSize)}.`,
                                                                     },
                                                                     {
                                                                         label: "Reload",
                                                                         value: `${activeMetrics.modded.reloadTime.toFixed(2)}s`,
-                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.reload} The current effective reload time is ${activeMetrics.modded.reloadTime.toFixed(2)}s.`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.reload}\n\nThe current effective reload time is ${activeMetrics.modded.reloadTime.toFixed(2)}s.`,
                                                                     },
                                                                     {
                                                                         label: "Multishot",
                                                                         value: `${activeMetrics.modded.multishot.toFixed(2)}`,
-                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.multishot} ${describeMultishot(activeMetrics.modded.multishot)}`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.multishot}\n\n${describeMultishot(activeMetrics.modded.multishot)}`,
                                                                     },
                                                                     {
                                                                         label: "Burst DPS",
                                                                         value: fmt(activeMetrics.burstDPS),
-                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.burstDps} At the current values, burst DPS is ${fmt(activeMetrics.burstDPS)}.`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.burstDps}\n\nAt the current values, burst DPS is ${fmt(activeMetrics.burstDPS)}.`,
                                                                     },
                                                                     {
                                                                         label: "Sustained DPS",
                                                                         value: fmt(activeMetrics.sustainedDPS),
-                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.sustainedDps} At the current values, sustained DPS is ${fmt(activeMetrics.sustainedDPS)}.`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.sustainedDps}\n\nAt the current values, sustained DPS is ${fmt(activeMetrics.sustainedDPS)}.`,
                                                                     },
                                                                 ].map((row) => (
                                                                     <InlineStatRow
@@ -4005,17 +4153,17 @@ export default function ModBuilder() {
                                                                     {
                                                                         label: "Critical Chance",
                                                                         value: `${fmt(activeMetrics.modded.critChance * 100, 1)}%`,
-                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.criticalChance} ${describeCritChance(activeMetrics.modded.critChance)}`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.criticalChance}\n\n${describeCritChance(activeMetrics.modded.critChance)}`,
                                                                     },
                                                                     {
                                                                         label: "Critical Damage",
                                                                         value: `${activeMetrics.modded.critMultiplier.toFixed(1)}x`,
-                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.criticalDamage} ${describeCritMultiplier(activeMetrics.modded.critChance, activeMetrics.modded.critMultiplier)}`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.criticalDamage}\n\n${describeCritMultiplier(activeMetrics.modded.critChance, activeMetrics.modded.critMultiplier)}`,
                                                                     },
                                                                     {
                                                                         label: "Status",
                                                                         value: `${fmt(activeMetrics.modded.statusChance * 100, 1)}%`,
-                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.statusChance} ${describeStatusChance(activeMetrics.modded.statusChance)}`,
+                                                                        tooltip: `${BASIC_STAT_TOOLTIPS.statusChance}\n\n${describeStatusChance(activeMetrics.modded.statusChance)}`,
                                                                     },
                                                                 ].map((row) => (
                                                                     <InlineStatRow
@@ -4033,14 +4181,30 @@ export default function ModBuilder() {
                                                                         const damageShare = activeMetrics.modded.totalDamage > 0 ? quantizedValue / activeMetrics.modded.totalDamage : 0;
                                                                         const actualProcChance = damageShare * activeMetrics.modded.statusChance;
                                                                         const tooltip = [
-                                                                            `Actual proc chance: ${fmt(actualProcChance * 100, 1)}% (${fmt(activeMetrics.modded.statusChance * 100, 1)}% status chance × ${fmt(damageShare * 100, 1)}% damage share).`,
                                                                             STATUS_TIPS[type] ?? `${capitalizeDamageType(type)} status effect.`,
-                                                                            activeDamageTypeSources[type] ?? `${capitalizeDamageType(type)} is present in the current damage mix.`,
-                                                                        ].join(" ");
+                                                                            `Actual proc chance: ${fmt(actualProcChance * 100, 1)}% (${fmt(activeMetrics.modded.statusChance * 100, 1)}% status chance × ${fmt(damageShare * 100, 1)}% damage share). ${activeDamageTypeSources[type] ?? `${capitalizeDamageType(type)} is present in the current damage mix.`}`,
+                                                                        ].join("\n\n");
+                                                                        const dmgIcon = DAMAGE_TYPE_ICON[type];
+                                                                        const parents = COMBINED_ELEMENT_PARENTS[type];
+                                                                        const dmgLabel = (
+                                                                            <span className="flex items-center gap-1">
+                                                                                {dmgIcon && <img src={dmgIcon} alt={type} className="w-4 h-4 shrink-0" />}
+                                                                                <span>{capitalizeDamageType(type)}</span>
+                                                                                {parents && (
+                                                                                    <span className="flex items-center gap-0.5 text-slate-500 opacity-70">
+                                                                                        <span>(</span>
+                                                                                        {DAMAGE_TYPE_ICON[parents[0]] && <img src={DAMAGE_TYPE_ICON[parents[0]]} alt={parents[0]} className="w-3.5 h-3.5" />}
+                                                                                        <span>+</span>
+                                                                                        {DAMAGE_TYPE_ICON[parents[1]] && <img src={DAMAGE_TYPE_ICON[parents[1]]} alt={parents[1]} className="w-3.5 h-3.5" />}
+                                                                                        <span>)</span>
+                                                                                    </span>
+                                                                                )}
+                                                                            </span>
+                                                                        );
                                                                         return (
                                                                             <InlineStatRow
                                                                                 key={type}
-                                                                                label={capitalizeDamageType(type)}
+                                                                                label={dmgLabel}
                                                                                 value={fmt(value, 1)}
                                                                                 sub={fmt(actualProcChance * 100, 1) + "%"}
                                                                                 tooltip={tooltip}
@@ -4458,7 +4622,7 @@ export default function ModBuilder() {
                                     ];
                                     const renderBadgeSection = (
                                         title: string,
-                                        items: Array<{ label: string; value: string; sub?: string; tooltip?: string; highlight?: boolean }>,
+                                        items: Array<{ label: string; value: string; sub?: string; tooltip?: string; highlight?: boolean; icon?: string }>,
                                         subtitle?: string,
                                     ) => {
                                         if (!items.length) return null;
@@ -4477,6 +4641,7 @@ export default function ModBuilder() {
                                                             sub={item.sub}
                                                             tooltip={item.tooltip}
                                                             highlight={item.highlight}
+                                                            icon={item.icon}
                                                         />
                                                     ))}
                                                 </div>
@@ -4515,7 +4680,8 @@ export default function ModBuilder() {
                                                                 <StatBadge key={e.k} label={e.l}
                                                                     value={fmt(e.v, 1)}
                                                                     sub={fmt((stats.procChanceByType[e.k as keyof typeof stats.procChanceByType] ?? (e.v / total)) * 100, 0) + "%"}
-                                                                    tooltip={STATUS_TIPS[e.k]} />
+                                                                    tooltip={STATUS_TIPS[e.k]}
+                                                                    icon={DAMAGE_TYPE_ICON[e.k]} />
                                                             ))}
                                                         </div>
                                                         <div className="text-[9px] text-slate-600 mt-1.5">
@@ -4531,6 +4697,7 @@ export default function ModBuilder() {
                                                     label: row.l,
                                                     value: fmt(row.v * 100, 1) + "%",
                                                     tooltip: STATUS_TIPS[row.k],
+                                                    icon: DAMAGE_TYPE_ICON[row.k],
                                                 })),
                                             )}
 
@@ -4540,6 +4707,7 @@ export default function ModBuilder() {
                                                     label: row.l,
                                                     value: fmt(row.v, 2) + "/s",
                                                     tooltip: STATUS_TIPS[row.k],
+                                                    icon: DAMAGE_TYPE_ICON[row.k],
                                                 })),
                                             )}
 
@@ -4549,6 +4717,7 @@ export default function ModBuilder() {
                                                     label: row.l,
                                                     value: fmt(row.v, 2),
                                                     tooltip: STATUS_TIPS[row.k],
+                                                    icon: DAMAGE_TYPE_ICON[row.k],
                                                 })),
                                             )}
 
@@ -4559,6 +4728,7 @@ export default function ModBuilder() {
                                                     value: fmt(row.v),
                                                     sub: `${fmt(dotShotRows.find((entry) => entry.k === row.k)?.v ?? 0)} / ${damageUnit}`,
                                                     tooltip: STATUS_TIPS[row.k],
+                                                    icon: DAMAGE_TYPE_ICON[row.k],
                                                 })),
                                                 "(value = DPS)",
                                             )}
@@ -4570,6 +4740,7 @@ export default function ModBuilder() {
                                                     value: fmt(row.v, 2),
                                                     sub: `extra per ${damageUnit}`,
                                                     tooltip: STATUS_TIPS[row.k],
+                                                    icon: DAMAGE_TYPE_ICON[row.k],
                                                 })),
                                             )}
 
@@ -4803,7 +4974,7 @@ export default function ModBuilder() {
 }
 
 function InlineStatRow({ label, value, sub, tooltip, labelClassName }: {
-    label: string;
+    label: React.ReactNode;
     value: string;
     sub?: string;
     tooltip?: string;
@@ -4825,7 +4996,7 @@ function InlineStatRow({ label, value, sub, tooltip, labelClassName }: {
                 {sub && <div className="text-[10px] text-slate-500">{sub}</div>}
             </div>
             {show && tooltip && (
-                <div className="absolute bottom-full left-0 mb-1.5 z-50 w-60 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-[11px] text-slate-300 shadow-xl leading-relaxed pointer-events-none">
+                <div className="absolute bottom-full left-0 mb-1.5 z-50 w-60 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-[11px] text-slate-300 shadow-xl leading-relaxed pointer-events-none whitespace-pre-line">
                     {tooltip}
                 </div>
             )}

@@ -36,6 +36,11 @@ import { deriveOperatorArmorBlueprintFamilyAcquisitionByCatalogId } from "./acqu
 import { deriveQuestKeyBlueprintAcquisitionByCatalogId } from "./acquisitionFromQuestKeyBlueprints";
 import { deriveSynthicatorBlueprintAcquisitionByCatalogId } from "./acquisitionFromSynthicatorBlueprints";
 import { deriveWarframeSkinBlueprintFamilyAcquisitionByCatalogId } from "./acquisitionFromWarframeSkinBlueprintFamilies";
+import { deriveIncarnonGenesisAcquisitionByCatalogId } from "./acquisitionFromIncarnonGenesis";
+import { deriveNightwaveFamilyAcquisitionByCatalogId } from "./acquisitionFromNightwaveFamilies";
+import { deriveResourceAndTagFamilyAcquisitionByCatalogId } from "./acquisitionFromResourceAndTagFamilies";
+import { deriveRestorativeFamilyAcquisitionByCatalogId } from "./acquisitionFromRestorativeFamilies";
+import { deriveModAndArcaneFamilyAcquisitionByCatalogId } from "./acquisitionFromModAndArcaneFamilies";
 
 import { getItemRequirements } from "./itemRequirements";
 
@@ -77,6 +82,11 @@ const OPERATOR_ARMOR_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deri
 const QUEST_KEY_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveQuestKeyBlueprintAcquisitionByCatalogId();
 const SYNTHICATOR_BLUEPRINT_ACQ: Record<string, AcquisitionDef> = deriveSynthicatorBlueprintAcquisitionByCatalogId();
 const WARFRAME_SKIN_BLUEPRINT_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveWarframeSkinBlueprintFamilyAcquisitionByCatalogId();
+const INCARNON_GENESIS_ACQ: Record<string, AcquisitionDef> = deriveIncarnonGenesisAcquisitionByCatalogId();
+const NIGHTWAVE_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveNightwaveFamilyAcquisitionByCatalogId();
+const RESOURCE_AND_TAG_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveResourceAndTagFamilyAcquisitionByCatalogId();
+const RESTORATIVE_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveRestorativeFamilyAcquisitionByCatalogId();
+const MOD_AND_ARCANE_FAMILY_ACQ: Record<string, AcquisitionDef> = deriveModAndArcaneFamilyAcquisitionByCatalogId();
 
 const RECIPE_CATALOG_ID_PREFIX = "items:/Lotus/Types/Recipes/";
 
@@ -120,6 +130,38 @@ const RECIPE_IDS_BY_PARENT_PATH: Record<string, string[]> = (() => {
             const key = stripItemsPrefix(p); // normalize to "/Lotus/..."
             if (!key) continue;
 
+            if (!out[key]) out[key] = new Set<string>();
+            out[key].add(String(id));
+        }
+    }
+
+    const finalized: Record<string, string[]> = Object.create(null);
+    for (const [k, set] of Object.entries(out)) {
+        finalized[k] = Array.from(set.values()).sort((a, b) => a.localeCompare(b));
+    }
+    return finalized;
+})();
+
+const RECIPE_IDS_BY_RESULT_PATH: Record<string, string[]> = (() => {
+    const out: Record<string, Set<string>> = Object.create(null);
+
+    const recordsById: Record<string, any> = (FULL_CATALOG as any).recordsById ?? {};
+    for (const [id, rec] of Object.entries(recordsById)) {
+        if (!isRecipeCatalogIdString(id)) continue;
+
+        const rawLotus: any = rec?.raw?.rawLotus ?? rec?.raw ?? null;
+        if (!rawLotus || typeof rawLotus !== "object") continue;
+
+        const resultCandidates = [
+            safeString(rawLotus?.data?.resultItemType),
+            safeString(rawLotus?.data?.ResultItem),
+            safeString(rawLotus?.resultItemType),
+            safeString(rawLotus?.ResultItem),
+        ].filter((value): value is string => typeof value === "string" && value.length > 0);
+
+        for (const rawPath of resultCandidates) {
+            const key = stripItemsPrefix(rawPath);
+            if (!key || !key.startsWith("/Lotus/")) continue;
             if (!out[key]) out[key] = new Set<string>();
             out[key].add(String(id));
         }
@@ -334,6 +376,105 @@ function maybeCraftedFromRecipeIngredients(catalogId: CatalogId): boolean {
     return Array.isArray(reqs) && reqs.length > 0;
 }
 
+function getRecipeIdsByResultPath(catalogId: CatalogId): string[] {
+    const rec: any = (FULL_CATALOG as any).recordsById?.[String(catalogId)] ?? null;
+
+    const candidatePaths = new Set<string>();
+    const addPath = (value: unknown) => {
+        const path = safeString(value);
+        if (!path) return;
+        const normalized = stripItemsPrefix(path);
+        if (!normalized.startsWith("/Lotus/")) return;
+        candidatePaths.add(normalized);
+    };
+
+    addPath(rec?.path);
+    addPath(String(catalogId).replace(/^items:/, ""));
+    addPath(rec?.raw?.path);
+    addPath(rec?.raw?.rawLotus?.path);
+    addPath(rec?.raw?.rawLotus?.storeItemType);
+
+    const recipeIds = new Set<string>();
+    for (const path of candidatePaths) {
+        for (const recipeId of RECIPE_IDS_BY_RESULT_PATH[path] ?? []) {
+            recipeIds.add(recipeId);
+        }
+    }
+
+    return Array.from(recipeIds.values()).sort((a, b) => a.localeCompare(b));
+}
+
+function getPowersuitAliasCatalogIds(catalogId: CatalogId): CatalogId[] {
+    const rec: any = (FULL_CATALOG as any).recordsById?.[String(catalogId)] ?? null;
+    const lotusPath = safeString(rec?.path) ?? stripItemsPrefix(String(catalogId));
+    if (!lotusPath.startsWith("/Lotus/Powersuits/")) return [];
+
+    const segments = lotusPath.split("/");
+    const tail = segments.pop() ?? "";
+    if (!tail) return [];
+
+    const candidateTails = new Set<string>();
+
+    if (tail.endsWith("BaseSuit")) {
+        candidateTails.add(tail.slice(0, -8));
+    }
+    if (tail.endsWith("BaseClaws")) {
+        candidateTails.add(`${tail.slice(0, -9)}Claws`);
+    }
+    if (tail.endsWith("Base")) {
+        candidateTails.add(tail.slice(0, -4));
+    }
+    if (tail.startsWith("Base") && tail.length > 4) {
+        candidateTails.add(tail.slice(4));
+    }
+
+    const out: CatalogId[] = [];
+    for (const candidateTail of candidateTails) {
+        if (!candidateTail || candidateTail === tail) continue;
+        const candidatePath = [...segments, candidateTail].join("/");
+        const candidateCatalogId = `items:${candidatePath}` as CatalogId;
+        if (candidateCatalogId === catalogId) continue;
+        if ((FULL_CATALOG as any).recordsById?.[String(candidateCatalogId)]) {
+            out.push(candidateCatalogId);
+        }
+    }
+
+    return out.sort((a, b) => String(a).localeCompare(String(b)));
+}
+
+function getPowersuitParentCatalogIds(catalogId: CatalogId): CatalogId[] {
+    const rec: any = (FULL_CATALOG as any).recordsById?.[String(catalogId)] ?? null;
+    const lotusPath = safeString(rec?.path) ?? stripItemsPrefix(String(catalogId));
+    if (!lotusPath.startsWith("/Lotus/Powersuits/")) return [];
+
+    const segments = lotusPath.split("/");
+    if (segments.length < 5) return [];
+
+    const folder = segments[segments.length - 2];
+    if (!folder) return [];
+
+    const baseSegments = segments.slice(0, -1);
+    const out: CatalogId[] = [];
+    for (const tail of [folder, `${folder}BaseSuit`]) {
+        const candidatePath = [...baseSegments, tail].join("/");
+        const candidateCatalogId = `items:${candidatePath}` as CatalogId;
+        if (candidateCatalogId === catalogId) continue;
+        if ((FULL_CATALOG as any).recordsById?.[String(candidateCatalogId)]) {
+            out.push(candidateCatalogId);
+        }
+    }
+
+    return out.sort((a, b) => String(a).localeCompare(String(b)));
+}
+
+const POWERSUIT_ALIAS_EXCEPTIONS: Record<string, CatalogId[]> = {
+    "items:/Lotus/Powersuits/AntiMatter/NovaBaseSuit": ["items:/Lotus/Powersuits/AntiMatter/Anti" as CatalogId],
+    "items:/Lotus/Powersuits/EntratiMech/BaseMechSuit": [
+        "items:/Lotus/Powersuits/EntratiMech/NechroTech" as CatalogId,
+        "items:/Lotus/Powersuits/EntratiMech/ThanoTech" as CatalogId,
+    ],
+};
+
 function gatherDirectSources(catalogId: CatalogId): string[] {
     const key = String(catalogId);
 
@@ -370,6 +511,11 @@ function gatherDirectSources(catalogId: CatalogId): string[] {
     const qk = QUEST_KEY_BLUEPRINT_ACQ[key];
     const sb = SYNTHICATOR_BLUEPRINT_ACQ[key];
     const wsb = WARFRAME_SKIN_BLUEPRINT_FAMILY_ACQ[key];
+    const ig = INCARNON_GENESIS_ACQ[key];
+    const nw = NIGHTWAVE_FAMILY_ACQ[key];
+    const rtf = RESOURCE_AND_TAG_FAMILY_ACQ[key];
+    const rf = RESTORATIVE_FAMILY_ACQ[key];
+    const maf = MOD_AND_ARCANE_FAMILY_ACQ[key];
 
     return unionSources(
         wfcd?.sources,
@@ -404,7 +550,12 @@ function gatherDirectSources(catalogId: CatalogId): string[] {
         oa?.sources,
         qk?.sources,
         sb?.sources,
-        wsb?.sources
+        wsb?.sources,
+        ig?.sources,
+        nw?.sources,
+        rtf?.sources,
+        rf?.sources,
+        maf?.sources
     );
 }
 
@@ -511,6 +662,60 @@ function getAcquisitionByCatalogIdInternal(catalogId: CatalogId, seen: Set<strin
                 );
                 break;
             }
+        }
+    }
+
+    // 7.1) Recipe result backreference:
+    // Some built outputs do not expose DisplayRecipe or parent links cleanly, but recipe records
+    // still declare the resultItemType/result item path. Use that to inherit the blueprint source.
+    {
+        const shouldBackfillFromRecipeResult =
+            sources.length === 0 ||
+            (sources.length === 1 && sources[0] === "data:market/platinum");
+
+        if (shouldBackfillFromRecipeResult) {
+            for (const rid of getRecipeIdsByResultPath(catalogId)) {
+                const recipeAcq = getAcquisitionByCatalogIdInternal(rid as CatalogId, seen);
+                if (!recipeAcq?.sources?.length) continue;
+
+                sources = unionSources(
+                    sources.filter((s) => s !== BLUEPRINT_UNCLASSIFIED),
+                    recipeAcq.sources,
+                );
+            }
+        }
+    }
+
+    // 7.2) PowerSuit alias backreference:
+    // Many player-facing Warframes and exalted items have duplicate Base/BaseSuit records
+    // that should inherit the real source from their canonical sibling entry.
+    if (sources.length === 0) {
+        for (const exceptionCatalogId of POWERSUIT_ALIAS_EXCEPTIONS[key] ?? []) {
+            const exceptionAcq = getAcquisitionByCatalogIdInternal(exceptionCatalogId, seen);
+            if (!exceptionAcq?.sources?.length) continue;
+            sources = unionSources(exceptionAcq.sources);
+            break;
+        }
+    }
+
+    if (sources.length === 0) {
+        for (const aliasCatalogId of getPowersuitAliasCatalogIds(catalogId)) {
+            const aliasAcq = getAcquisitionByCatalogIdInternal(aliasCatalogId, seen);
+            if (!aliasAcq?.sources?.length) continue;
+            sources = unionSources(aliasAcq.sources);
+            break;
+        }
+    }
+
+    // 7.3) PowerSuit parent fallback:
+    // Exalted/companion power entries often live beside their owning Warframe and should
+    // inherit that Warframe's acquisition when they do not have an independent source.
+    if (sources.length === 0) {
+        for (const parentCatalogId of getPowersuitParentCatalogIds(catalogId)) {
+            const parentAcq = getAcquisitionByCatalogIdInternal(parentCatalogId, seen);
+            if (!parentAcq?.sources?.length) continue;
+            sources = unionSources(parentAcq.sources);
+            break;
         }
     }
 

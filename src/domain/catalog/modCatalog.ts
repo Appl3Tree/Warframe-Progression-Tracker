@@ -809,6 +809,57 @@ function buildSyntheticBuiltInStance(meta: {
     };
 }
 
+const MANUAL_BUILT_IN_STANCES: Array<{
+    uniqueName: string;
+    path: string;
+    name: string;
+    polarity: string;
+    itemCompatibilityPath: string;
+}> = [
+    {
+        uniqueName: "/Lotus/Weapons/Tenno/Melee/MeleeTrees/FairySwordMeleeTree",
+        path: "/Lotus/Weapons/Tenno/Melee/MeleeTrees/FairySwordMeleeTree",
+        name: "Razorwing",
+        polarity: "zenurik",
+        itemCompatibilityPath: "/Lotus/Powersuits/Fairy/BaseFlightSword",
+    },
+];
+
+function buildManualBuiltInStance(meta: {
+    uniqueName: string;
+    path: string;
+    name: string;
+    polarity: string;
+    itemCompatibilityPath: string;
+}): ModEntry {
+    return {
+        uniqueName: meta.uniqueName,
+        path: meta.path,
+        name: meta.name,
+        compatBucket: "Stance",
+        rawCompatName: meta.name,
+        polarity: meta.polarity,
+        rarity: "",
+        drain: 1,
+        baseDrain: -2,
+        fusionLimit: 3,
+        statsLabel: "Built-in stance",
+        statsTextByRank: ["Built-in stance"],
+        effectsByRank: [emptyEffect()],
+        effect: emptyEffect(),
+        hasDamageEffect: false,
+        isAura: false,
+        isExilus: false,
+        isStance: true,
+        incompatibilityGroup: resolveIncompatibilityGroup(meta.path),
+        compatibilityTags: [],
+        incompatibilityTags: [],
+        triggerRestriction: undefined,
+        itemCompatibilityPath: meta.itemCompatibilityPath,
+        isBuiltIn: true,
+    };
+}
+
 function buildCaches(): ModCaches {
     // Deduplicate: keep the entry whose fusionLimit best matches the expected
     // canonical rank for that mod name. This prevents legacy fl=10 entries from
@@ -969,6 +1020,13 @@ function buildCaches(): ModCaches {
         existing.push(entry);
     }
 
+    for (const manual of MANUAL_BUILT_IN_STANCES) {
+        if (!byFixedStanceWeapon.has(manual.itemCompatibilityPath)) byFixedStanceWeapon.set(manual.itemCompatibilityPath, []);
+        const existing = byFixedStanceWeapon.get(manual.itemCompatibilityPath)!;
+        if (existing.some((mod) => mod.uniqueName === manual.uniqueName)) continue;
+        existing.push(buildManualBuiltInStance(manual));
+    }
+
     // Sort each list alphabetically
     for (const list of byBucket.values()) list.sort((a, b) => a.name.localeCompare(b.name));
     for (const list of byWeaponName.values()) list.sort((a, b) => a.name.localeCompare(b.name));
@@ -1073,7 +1131,9 @@ export function getModsForWeapon(weapon: WeaponEntry): ModEntry[] {
 export function getStancesForWeapon(weapon: WeaponEntry): ModEntry[] {
     if (!supportsStanceLikeMods(weapon)) return [];
     const { byStanceCompat, byFixedStanceWeapon } = getCaches();
-    const fixedStances = (byFixedStanceWeapon.get(weapon.uniqueName) ?? [])
+    const fixedStances = [...byFixedStanceWeapon.entries()]
+        .filter(([itemCompatibilityPath]) => weaponMatchesItemCompatibility(weapon, itemCompatibilityPath))
+        .flatMap(([, mods]) => mods)
         .filter((mod) => weaponMatchesItemCompatibility(weapon, mod.itemCompatibilityPath) && matchesHiddenTags(weapon, mod));
     if (fixedStances.length > 0) {
         return fixedStances.sort((a, b) => a.name.localeCompare(b.name));

@@ -56,6 +56,32 @@ describe("weapon catalog stance inference", () => {
         expect(effectiveDrain(getStancesForWeapon(ironStaff!)[0]!, ironStaff!.stancePolarity ?? "", getStancesForWeapon(ironStaff!)[0]!.fusionLimit)).toBe(-10);
     });
 
+    it("treats Diwata as a melee exalted weapon with its permanent Razorwing stance", () => {
+        const diwata = getWeaponCatalog().find((weapon) => weapon.name === "Diwata");
+
+        expect(diwata).toBeTruthy();
+        expect(diwata?.category).toBe("Melee");
+        expect(diwata?.modCompat).toBe("Melee");
+        expect(diwata?.stancePolarity).toBe("zenurik");
+        expect(getStancesForWeapon(diwata!)).toHaveLength(1);
+        expect(getStancesForWeapon(diwata!)[0]?.name).toBe("Razorwing");
+        expect(getStancesForWeapon(diwata!)[0]?.isBuiltIn).toBe(true);
+        expect(effectiveDrain(getStancesForWeapon(diwata!)[0]!, diwata!.stancePolarity ?? "", getStancesForWeapon(diwata!)[0]!.fusionLimit)).toBe(-10);
+    });
+
+    it("inherits built-in exalted stances for prime and variant weapon paths", () => {
+        const desertWindPrime = getWeaponCatalog().find((weapon) => weapon.name === "Desert Wind Prime");
+        const exaltedUmbraBlade = getWeaponCatalog().find((weapon) => weapon.name === "Exalted Umbra Blade");
+        const diwataPrime = getWeaponCatalog().find((weapon) => weapon.name === "Diwata Prime");
+
+        expect(getStancesForWeapon(desertWindPrime!)[0]?.name).toBe("Serene Storm");
+        expect(getStancesForWeapon(desertWindPrime!)[0]?.isBuiltIn).toBe(true);
+        expect(getStancesForWeapon(exaltedUmbraBlade!)[0]?.name).toBe("Exalted Blade");
+        expect(getStancesForWeapon(exaltedUmbraBlade!)[0]?.isBuiltIn).toBe(true);
+        expect(getStancesForWeapon(diwataPrime!)[0]?.name).toBe("Razorwing");
+        expect(getStancesForWeapon(diwataPrime!)[0]?.isBuiltIn).toBe(true);
+    });
+
     it("includes archguns with archgun-only mod compatibility", () => {
         const mausolon = getWeaponCatalog().find((weapon) => weapon.name === "Mausolon");
 

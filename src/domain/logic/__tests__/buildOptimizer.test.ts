@@ -82,6 +82,63 @@ function countFormaLikeUi(
 }
 
 describe("build optimizer scoring", () => {
+    it("uses named single-attack exalted stats instead of the stale top-level weapon record", () => {
+        const dexPixia = getWeaponCatalog().find((entry) => entry.uniqueName === "/Lotus/Powersuits/Fairy/FlightPistols");
+
+        expect(dexPixia).toBeTruthy();
+        expect(dexPixia?.attacks).toHaveLength(1);
+
+        const attack = dexPixia!.attacks[0]!;
+        expect(attack.damage.total).toBeGreaterThan(dexPixia!.damage.total);
+
+        const attackWeapon: WeaponEntry = {
+            ...dexPixia!,
+            damage: attack.damage,
+            critChance: attack.critChance,
+            critMultiplier: attack.critMultiplier,
+            statusChance: attack.statusChance,
+            fireRate: attack.speed || dexPixia!.fireRate,
+            chargeTime: attack.chargeTime ?? null,
+            selectedAttackName: attack.name,
+        };
+
+        const fromTopLevel = calculateBuild(dexPixia!, []).modded;
+        const fromAttack = calculateBuild(attackWeapon, []).modded;
+
+        expect(fromTopLevel.totalDamage).toBe(50);
+        expect(fromAttack.totalDamage).toBe(160);
+    });
+
+    it("prefers standard mod variants over flawed ones when both are available", () => {
+        const weapon = getWeaponCatalog().find((entry) => entry.name === "Iron Staff");
+        expect(weapon).toBeTruthy();
+
+        const feverVariants = getModsForWeapon(weapon!).filter((mod) => mod.name === "Fever Strike");
+        const standard = feverVariants.find((mod) => !/\/Beginner\//.test(mod.path));
+        const flawed = feverVariants.find((mod) => /\/Beginner\//.test(mod.path));
+
+        expect(standard).toBeTruthy();
+        expect(flawed).toBeTruthy();
+
+        const result = optimizeBuild(
+            weapon!,
+            [standard!, flawed!],
+            "burst",
+            1,
+            {
+                ownedModUniqueNames: new Set([standard!.uniqueName, flawed!.uniqueName]),
+                ownedModMaxRankByUniqueName: {
+                    [standard!.uniqueName]: standard!.fusionLimit,
+                    [flawed!.uniqueName]: flawed!.fusionLimit,
+                },
+                allowNonMaxRank: true,
+            },
+        );
+
+        expect(result.mods).toHaveLength(1);
+        expect(result.mods[0]?.uniqueName).toBe(standard!.uniqueName);
+    });
+
     it("anchors duplicate primary elements to their first slot when resolving proc weights", () => {
         const weapon = makeWeapon({
             category: "Melee",
@@ -259,6 +316,86 @@ describe("build optimizer scoring", () => {
         const threeStackScore = debugScoreBuild(weapon, [primerPackage, threeStacks], "scaling", "grineer");
 
         expect(threeStackScore).toBeGreaterThan(oneStackScore);
+    });
+
+    it("applies direct damage per status bonuses to displayed direct-hit damage", () => {
+        const weapon = makeWeapon({
+            damage: {
+                total: 100,
+                impact: 0,
+                puncture: 0,
+                slash: 0,
+                heat: 0,
+                cold: 0,
+                electricity: 0,
+                toxin: 100,
+                blast: 0,
+                radiation: 0,
+                gas: 0,
+                magnetic: 0,
+                viral: 0,
+                corrosive: 0,
+                void: 0,
+                tau: 0,
+                true: 0,
+            },
+            statusChance: 1,
+            critChance: 0,
+            critMultiplier: 1,
+            fireRate: 10,
+        });
+
+        const stats = calculateBuild(weapon, [{ ...emptyEffect(), directDamagePerStatusBonus: 0.4 }]).modded;
+
+        expect(stats.directDamageStatusTypes).toBe(1);
+        expect(stats.directDamagePerStatusMultiplier).toBeCloseTo(1.4, 6);
+        expect(stats.totalDamage).toBeCloseTo(140, 6);
+        expect(stats.averageShotDamage).toBeCloseTo(140, 6);
+    });
+
+    it("applies stacked conditional direct damage per status bonuses to displayed direct-hit damage", () => {
+        const weapon = makeWeapon({
+            damage: {
+                total: 100,
+                impact: 0,
+                puncture: 0,
+                slash: 0,
+                heat: 0,
+                cold: 0,
+                electricity: 0,
+                toxin: 100,
+                blast: 0,
+                radiation: 0,
+                gas: 0,
+                magnetic: 0,
+                viral: 0,
+                corrosive: 0,
+                void: 0,
+                tau: 0,
+                true: 0,
+            },
+            statusChance: 1,
+            critChance: 0,
+            critMultiplier: 1,
+            fireRate: 10,
+        });
+
+        const stats = calculateBuild(weapon, [{
+            ...emptyEffect(),
+            conditionalEffects: [{
+                trigger: "onKill" as const,
+                durationSeconds: 20,
+                requiresAiming: false,
+                maxStacks: 3,
+                stats: { directDamagePerStatusBonus: 0.4 },
+            }],
+        }]).modded;
+
+        expect(stats.directDamageStatusTypes).toBe(1);
+        expect(stats.directDamagePerStatusBonus).toBeCloseTo(1.2, 6);
+        expect(stats.directDamagePerStatusMultiplier).toBeCloseTo(2.2, 6);
+        expect(stats.totalDamage).toBeCloseTo(220, 6);
+        expect(stats.averageShotDamage).toBeCloseTo(220, 6);
     });
 
     it("assumes ramping headshot conditionals are fully online for scaling but not burst", () => {

@@ -27,6 +27,7 @@ import {
   extractInlinePriceMeta,
   type GroupedSourceEntry,
 } from "../components/sources/GroupedSourceList";
+import { buildCatalogSourceEntries } from "../components/sources/catalogSourceEntries";
 
 import MOD_LOCATIONS_RAW from "../../external/warframe-drop-data/raw/modLocations.json";
 
@@ -40,6 +41,7 @@ interface AllModDrop {
   type: string;
 }
 interface AllModEntry {
+  catalogId?: string;
   uniqueName: string;
   name: string;
   category?: string;
@@ -83,6 +85,10 @@ function getSortableReleaseDate(date: string | undefined, direction: "oldest" | 
 
 function formatDropPercent(chance: number): string {
   return `${chance.toFixed(2)}%`;
+}
+
+function isLegacyFocusNodePath(path: string | undefined): boolean {
+  return typeof path === "string" && path.startsWith("/Lotus/Upgrades/Focus/");
 }
 
 function getSupplementalRivenWeapons() {
@@ -1177,9 +1183,11 @@ const ALL_MODS_SUPPLEMENT: ModEntry[] = (ALL_RAW as any[])
       item.name &&
       item.name !== "Unfused Artifact" &&
       item.type !== "Arcane" &&
+      item.type !== "Focus Way" &&
       item.type !== "Mod Set Mod" &&
       !String(item.type ?? "").includes("Riven") &&
       item.compatName !== "Operator" &&
+      !isLegacyFocusNodePath(String(item.uniqueName ?? "")) &&
       !isHiddenModPath(String(item.uniqueName ?? "")) &&
       !MODS_BASE_PATHS.has(item.uniqueName),
   )
@@ -2087,6 +2095,14 @@ function DropsSection({ drops, name }: { drops: AllModDrop[]; name: string }) {
   );
 }
 
+function CatalogAcquisitionSection({ catalogId, fallbackDrops, name }: { catalogId?: string; fallbackDrops: AllModDrop[]; name: string }) {
+  const entries = buildCatalogSourceEntries(catalogId);
+  if (entries.length > 0) {
+    return <GroupedSourceList entries={entries} maxHeightClassName="max-h-72" />;
+  }
+  return <DropsSection drops={fallbackDrops} name={name} />;
+}
+
 // ─── Drop Locations (legacy — uses modLocations.json enemy data) ───────────────
 
 /** Build a Warframe wiki URL for any item/mod/arcane name */
@@ -2366,7 +2382,7 @@ function ModModal({
                 {availabilityNote}
               </div>
             )}
-            <DropsSection drops={drops} name={entry.name} />
+            <CatalogAcquisitionSection catalogId={allEntry?.catalogId ?? `items:${entry.path}`} fallbackDrops={drops} name={entry.name} />
           </div>
             </div>
           </div>

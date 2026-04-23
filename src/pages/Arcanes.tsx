@@ -24,6 +24,8 @@ import {
   CollectionUtilityPanel,
 } from "../components/collection/CollectionLedgerShell";
 import { getEntityImageUrl } from "../utils/entityImage";
+import { GroupedSourceList } from "../components/sources/GroupedSourceList";
+import { buildCatalogSourceEntries } from "../components/sources/catalogSourceEntries";
 
 type TagFilterState = "include" | "exclude";
 type OwnershipFilter = "all" | "owned" | "unowned";
@@ -51,6 +53,7 @@ interface AllModDrop {
 }
 
 interface AllModEntry {
+  catalogId?: string;
   uniqueName: string;
   name: string;
   category?: string;
@@ -572,6 +575,14 @@ function DropsSection({ drops, name }: { drops: AllModDrop[]; name: string }) {
   );
 }
 
+function CatalogAcquisitionSection({ catalogId, fallbackDrops, name }: { catalogId?: string; fallbackDrops: AllModDrop[]; name: string }) {
+  const entries = buildCatalogSourceEntries(catalogId);
+  if (entries.length > 0) {
+    return <GroupedSourceList entries={entries} maxHeightClassName="max-h-72" />;
+  }
+  return <DropsSection drops={fallbackDrops} name={name} />;
+}
+
 function classifyArcaneCategory(entry: ModEntry): ArcaneCategory | null {
   const compat = entry.data?.ItemCompatibility ?? "";
   if (compat.includes("PlayerPowerSuit")) return "warframe";
@@ -1029,7 +1040,7 @@ function ArcaneDetail({ entry, onClose }: { entry: ModEntry; onClose: () => void
             </div>
 
             <div>
-              <DropsSection drops={drops} name={entry.name} />
+              <CatalogAcquisitionSection catalogId={allEntry?.catalogId ?? `items:${entry.path}`} fallbackDrops={drops} name={entry.name} />
             </div>
           </div>
         </div>

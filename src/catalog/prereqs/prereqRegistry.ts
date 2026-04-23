@@ -754,6 +754,46 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         prerequisites: [PR.VORS_PRIZE]
     },
     {
+        id: PR.ACTIVITY_INVASIONS,
+        showInPlanner: false,
+        label: "Invasions Available",
+        category: "Systems",
+        description: "Have access to Invasion missions and battle pay. Invasions begin appearing early in the star chart and are closely tied to Mars-era progression, but the app does not currently model their availability exactly, so this milestone may need to be marked manually.",
+        prerequisites: [PR.JUNCTION_EARTH_MARS]
+    },
+    {
+        id: PR.ACTIVITY_STALKER,
+        showInPlanner: false,
+        label: "Stalker Death Mark",
+        category: "Systems",
+        description: "Have an active Stalker death mark from defeating a boss. The app does not currently track death marks, so this milestone may need to be marked manually.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.ACTIVITY_GRUSTRAG,
+        showInPlanner: false,
+        label: "Grustrag Three Death Mark",
+        category: "Systems",
+        description: "Have an active Grustrag Three death mark, typically earned by supporting the Corpus in Invasions against the Grineer. The app does not currently track death marks, so this milestone may need to be marked manually.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.ACTIVITY_ZANUKA,
+        showInPlanner: false,
+        label: "Zanuka Hunter Death Mark",
+        category: "Systems",
+        description: "Have an active Zanuka Hunter death mark, typically earned by supporting the Grineer in Invasions against the Corpus. The app does not currently track death marks, so this milestone may need to be marked manually.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.ACTIVITY_INDEX,
+        showInPlanner: false,
+        label: "The Index",
+        category: "Systems",
+        description: "Access The Index arena on Neptune.",
+        prerequisites: [PR.JUNCTION_URANUS_NEPTUNE]
+    },
+    {
         id: PR.ACTIVITY_TECHNOCYTE_CODA,
         showInPlanner: false,
         label: "Technocyte Coda System",
@@ -768,6 +808,46 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         category: "Systems",
         description: "Progress far enough along the Daily Tribute login reward track to claim milestone weapons and similar rewards. This remains a manual milestone because the app does not track total login days.",
         prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.ACTIVITY_CETUS_BOUNTIES,
+        showInPlanner: false,
+        label: "Cetus Bounties",
+        category: "Systems",
+        description: "Access Konzu's Cetus bounties after proving yourself with the introductory bounty in Cetus.",
+        prerequisites: [PR.HUB_CETUS]
+    },
+    {
+        id: PR.ACTIVITY_FORTUNA_BOUNTIES,
+        showInPlanner: false,
+        label: "Fortuna / Orb Vallis Bounties",
+        category: "Systems",
+        description: "Unlock Orb Vallis bounties by completing Vox Solaris.",
+        prerequisites: [PR.VOX_SOLARIS]
+    },
+    {
+        id: PR.ACTIVITY_DEIMOS_BOUNTIES,
+        showInPlanner: false,
+        label: "Cambion Drift Bounties",
+        category: "Systems",
+        description: "Access Mother's bounties from the Necralisk or Cambion Drift.",
+        prerequisites: [PR.HUB_NECRALISK]
+    },
+    {
+        id: PR.ACTIVITY_ISOLATION_VAULTS,
+        showInPlanner: false,
+        label: "Isolation Vault Access",
+        category: "Systems",
+        description: "Start Isolation Vault bounties from Mother in the Necralisk or Cambion Drift.",
+        prerequisites: [PR.ACTIVITY_DEIMOS_BOUNTIES]
+    },
+    {
+        id: PR.ACTIVITY_ARCANA_ISO_VAULTS,
+        showInPlanner: false,
+        label: "Arcana Isolation Vault Access",
+        category: "Systems",
+        description: "Unlock Arcana Isolation Vault bounties by completing the initial Isolation Vault bounty for that vault tier.",
+        prerequisites: [PR.ACTIVITY_ISOLATION_VAULTS]
     },
 
     // =========================================================================
@@ -860,6 +940,70 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         category: "Syndicates",
         description: "Unlocks the first Quills standing tier and basic Amp progression used for early Eidolon hunting.",
         prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN]
+    },
+    {
+        id: PR.SYNDICATE_QUILLS_RANK2,
+        validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 2 },
+        label: "The Quills: Rank 2 (Adherent)",
+        category: "Syndicates",
+        description: "Unlocks higher-tier Quills offerings, including stronger Amp progression and gilding access.",
+        prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK1]
+    },
+    {
+        id: PR.SYNDICATE_QUILLS_RANK3,
+        validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 3 },
+        label: "The Quills: Rank 3 (Instrument)",
+        category: "Syndicates",
+        description: "Unlocks late-tier Quills Amp offerings from Onkko.",
+        prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK2]
+    },
+    {
+        id: PR.SYNDICATE_QUILLS_RANK4,
+        validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 4 },
+        label: "The Quills: Rank 4 (Architect)",
+        category: "Syndicates",
+        description: "Unlocks the final Quills standing tier and top-end Cetus Amp offerings.",
+        prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK3]
+    },
+    {
+        id: PR.SYNDICATE_HOLDFASTS_RANK1,
+        validatedBySyndicate: { syndicateId: SY.THE_HOLDFASTS, rank: 1 },
+        label: "The Holdfasts: Rank 1 (Watcher)",
+        category: "Syndicates",
+        description: "Unlocks the first Holdfasts standing tier in the Chrysalith.",
+        prerequisites: [PR.HUB_ZARIMAN]
+    },
+    {
+        id: PR.SYNDICATE_HOLDFASTS_RANK2,
+        validatedBySyndicate: { syndicateId: SY.THE_HOLDFASTS, rank: 2 },
+        label: "The Holdfasts: Rank 2 (Guardian)",
+        category: "Syndicates",
+        description: "Unlocks additional Holdfasts vendor stock in the Chrysalith.",
+        prerequisites: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK1]
+    },
+    {
+        id: PR.SYNDICATE_HOLDFASTS_RANK3,
+        validatedBySyndicate: { syndicateId: SY.THE_HOLDFASTS, rank: 3 },
+        label: "The Holdfasts: Rank 3 (Fallen)",
+        category: "Syndicates",
+        description: "Unlocks mid-tier Holdfasts vendor stock in the Chrysalith.",
+        prerequisites: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK2]
+    },
+    {
+        id: PR.SYNDICATE_HOLDFASTS_RANK4,
+        validatedBySyndicate: { syndicateId: SY.THE_HOLDFASTS, rank: 4 },
+        label: "The Holdfasts: Rank 4 (Seraph)",
+        category: "Syndicates",
+        description: "Unlocks advanced Holdfasts vendor stock in the Chrysalith.",
+        prerequisites: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK3]
+    },
+    {
+        id: PR.SYNDICATE_HOLDFASTS_RANK5,
+        validatedBySyndicate: { syndicateId: SY.THE_HOLDFASTS, rank: 5 },
+        label: "The Holdfasts: Rank 5 (Angel)",
+        category: "Syndicates",
+        description: "Unlocks the final Holdfasts standing tier and full Chrysalith vendor stock.",
+        prerequisites: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK4]
     },
     {
         id: PR.SYNDICATE_VOX_RANK5,

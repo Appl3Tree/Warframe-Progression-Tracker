@@ -75,6 +75,13 @@ for (const [p, url] of Object.entries(_statusImgs)) {
 const EXCLUDED_INVENTORY_PATHS = new Set<string>([
   "/Lotus/Powersuits/PowersuitAbilities/Helminth",
   "/Lotus/Types/Game/KubrowPet/InfestedKubrowPetPowerSuit",
+  "/Lotus/Types/Items/ShipFeatureItems/AdvancedOrdisFeatureItem",
+  "/Lotus/Types/Items/ShipFeatureItems/FoundryConcurrentBuildFormaFeatureItem",
+  "/Lotus/Types/Items/ShipFeatureItems/MarketTierOneFeatureItem",
+  "/Lotus/Types/Items/ShipFeatureItems/MarketTierTwoFeatureItem",
+  "/Lotus/Types/Items/ShipFeatureItems/ShipFeatureItem",
+  "/Lotus/Types/Items/Research/DataMassPlus",
+  "/Lotus/Types/Items/Research/DojoColors/GenericDojoColorPigment",
 ]);
 
 // ── Steel Path drop annotation ────────────────────────────────────────────────

@@ -3,6 +3,7 @@
 import { normalizeSourceId, type SourceId } from "../../domain/ids/sourceIds";
 import { PR } from "../../domain/ids/prereqIds";
 import wfcdSourceLabels from "../../data/_generated/wfcd-source-label-map.auto.json";
+import itemAcquisitionJson from "../../data/_generated/item-acquisition.byCatalogId.auto.json";
 import { canonicalizeWfItemsLocation } from "./wfItemsLocCanonical";
 import { CURATED_SOURCES } from "./curatedSources";
 
@@ -70,6 +71,34 @@ const SYNDICATE_VENDOR_ALIASES: Array<{ prefix: string; canonicalName: string }>
     { prefix: "Ostron", canonicalName: "Ostron" },
     { prefix: "Entrati", canonicalName: "Entrati" },
     { prefix: "Operational Supply", canonicalName: "Operational Supply" },
+] as const;
+
+const STAR_CHART_REGION_PREREQS: Array<{ prefix: string; prereqIds: string[] }> = [
+    { prefix: "Mercury", prereqIds: [PR.VORS_PRIZE] },
+    { prefix: "Venus", prereqIds: [PR.JUNCTION_MERCURY_VENUS] },
+    { prefix: "Earth", prereqIds: [PR.VORS_PRIZE] },
+    { prefix: "Mars", prereqIds: [PR.JUNCTION_EARTH_MARS] },
+    { prefix: "Phobos", prereqIds: [PR.JUNCTION_MARS_PHOBOS] },
+    { prefix: "Ceres", prereqIds: [PR.JUNCTION_MARS_CERES] },
+    { prefix: "Deimos", prereqIds: [PR.JUNCTION_MARS_DEIMOS] },
+    { prefix: "Jupiter", prereqIds: [PR.JUNCTION_CERES_JUPITER] },
+    { prefix: "Europa", prereqIds: [PR.JUNCTION_JUPITER_EUROPA] },
+    { prefix: "Saturn", prereqIds: [PR.JUNCTION_EUROPA_SATURN] },
+    { prefix: "Uranus", prereqIds: [PR.JUNCTION_SATURN_URANUS] },
+    { prefix: "Neptune", prereqIds: [PR.JUNCTION_URANUS_NEPTUNE] },
+    { prefix: "Pluto", prereqIds: [PR.JUNCTION_NEPTUNE_PLUTO] },
+    { prefix: "Sedna", prereqIds: [PR.JUNCTION_PLUTO_SEDNA] },
+    { prefix: "Eris", prereqIds: [PR.JUNCTION_SEDNA_ERIS] },
+    { prefix: "Lua", prereqIds: [PR.JUNCTION_EARTH_LUA] },
+    { prefix: "Kuva Fortress", prereqIds: [PR.JUNCTION_ERIS_KUVA_FORTRESS] },
+    { prefix: "Void", prereqIds: [PR.JUNCTION_MARS_PHOBOS] },
+    { prefix: "Sanctuary", prereqIds: [PR.HUB_RELAY, PR.NEW_STRANGE] },
+    { prefix: "Veil Proxima", prereqIds: [PR.RAILJACK_CONSTRUCTED] },
+    { prefix: "Zariman", prereqIds: [PR.HUB_ZARIMAN] },
+    { prefix: "Sanctum Anatomica", prereqIds: [PR.HUB_SANCTUM] },
+    { prefix: "Höllvania", prereqIds: [PR.HUB_HOLLVANIA] },
+    { prefix: "Duviri", prereqIds: [PR.DUVIRI_PARADOX] },
+    { prefix: "Dark Refractory, Deimos", prereqIds: [PR.THE_OLD_PEACE] },
 ] as const;
 
 function getSyndicateVendorOverride(syndicateName: string): Pick<RawSource, "label" | "prereqIds"> | null {
@@ -177,6 +206,202 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
         /^WFItems Location(?: \(Legacy\))?:\s*\d+[xX]\s+/i,
         "WFItems Location: "
     );
+    const prefixStripped = quantityNormalized
+        .replace(/^Transient Reward:\s*/i, "")
+        .replace(/^Key Rewards:\s*/i, "")
+        .replace(/^Sortie Rewards$/i, "Sorties");
+
+    if (/^Sortie Rewards$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_SORTIES],
+            type: "drop",
+        };
+    }
+
+    if (/^Key Rewards:\s*(Another Betrayer|Family Reunion|Hot Mess|Recover the Orokin Archive|Sunkiller|Table for Two|The Aftermath|Time'?s Up|Faceoff)/i.test(quantityNormalized)) {
+        const prereqIds: string[] = [PR.THE_HEX];
+        if (/Steel Path/i.test(quantityNormalized)) prereqIds.push(PR.ACTIVITY_STEEL_PATH);
+        return {
+            label: raw,
+            prereqIds,
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Key Rewards|WFItems Location(?: \(Legacy\))?):\s*Enter Nihil'?s Oubliette(?:,\s*Rotation [A-Z])?$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_NIGHTWAVE],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Transient Reward|WFItems Location(?: \(Legacy\))?):\s*Arbitrations$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_ARBITRATIONS],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Transient Reward|WFItems Location(?: \(Legacy\))?):\s*Derelict Vault$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.CLAN_DOJO, PR.JUNCTION_MARS_DEIMOS],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Transient Reward|WFItems Location(?: \(Legacy\))?):\s*Duviri Static Undercroft Portal/i.test(quantityNormalized)) {
+        const prereqIds: string[] = [PR.DUVIRI_PARADOX];
+        if (/Steel Path/i.test(quantityNormalized)) prereqIds.push(PR.ACTIVITY_STEEL_PATH);
+        return {
+            label: raw,
+            prereqIds,
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Transient Reward|WFItems Location(?: \(Legacy\))?):\s*The Descendia:/i.test(quantityNormalized)) {
+        const prereqIds: string[] = [PR.THE_OLD_PEACE];
+        if (/Steel Path/i.test(quantityNormalized)) prereqIds.push(PR.ACTIVITY_STEEL_PATH);
+        return {
+            label: raw,
+            prereqIds,
+            type: "drop",
+        };
+    }
+
+    if (/^Cetus Bounty:/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_CETUS_BOUNTIES],
+            type: "drop",
+        };
+    }
+
+    if (/^Solaris Bounty:/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_FORTUNA_BOUNTIES],
+            type: "drop",
+        };
+    }
+
+    if (/^Deimos Bounty:\s*.*Arcana Isolation Vault/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_ARCANA_ISO_VAULTS],
+            type: "drop",
+        };
+    }
+
+    if (/^Deimos Bounty:\s*.*Isolation Vault/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_ISOLATION_VAULTS],
+            type: "drop",
+        };
+    }
+
+    if (/^Deimos Bounty:/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_DEIMOS_BOUNTIES],
+            type: "drop",
+        };
+    }
+
+    if (/^Hex Reward:/i.test(quantityNormalized)) {
+        const prereqIds: string[] = [PR.THE_HEX];
+        if (/Steel Path/i.test(quantityNormalized)) prereqIds.push(PR.ACTIVITY_STEEL_PATH);
+        return {
+            label: raw,
+            prereqIds,
+            type: "drop",
+        };
+    }
+
+    if (/^Transient Reward:\s*Razorback$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_INVASIONS],
+            type: "drop",
+        };
+    }
+
+    if (/^Transient Reward:\s*Fomorian Sabotage$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_INVASIONS, PR.ARCHWING],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Area|WFItems Location(?: \(Legacy\))?|Enemy Mod Drop|Resource Drop \(Avatar\)|Avatar Drop):\s*Orb Vallis\s*-\s*.+Enemies$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_FORTUNA],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Enemy|Enemy Drop|Enemy Mod Drop|Resource Drop \(Avatar\)|Additional Drop \(Avatar\)|Avatar Drop|WFItems Location(?: \(Legacy\))?):\s*Drekar (Trooper|Eviscerator|Hellion|Heavy Gunner)$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_SATURN_URANUS],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Enemy|Enemy Drop|Enemy Mod Drop|Resource Drop \(Avatar\)|Additional Drop \(Avatar\)|Avatar Drop|WFItems Location(?: \(Legacy\))?):\s*Deimos (Carnis|Jugulus|Saxum|Leaping Thrasher)$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_NECRALISK],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Enemy|Enemy Drop|Enemy Mod Drop|Resource Drop \(Avatar\)|Additional Drop \(Avatar\)|Avatar Drop|WFItems Location(?: \(Legacy\))?):\s*Deimos (Ancient Healer|Swarm Mutalist Moa)$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_NECRALISK],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Enemy|Enemy Drop|Enemy Mod Drop|Resource Drop \(Avatar\)|Additional Drop \(Avatar\)|Avatar Drop|WFItems Location(?: \(Legacy\))?):\s*(Armis Ulta|Auditor|Azoth|Derim Zahn|Dru Pesfor|Jad Teran|Jen Dro|Lockjaw & Sol|M-W\.A\.M\.|Nako Xol|Pelna Cade|Rana Del|Raptor Rx|Tia Mayn|Ved Xol)$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_INDEX],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Enemy|Enemy Drop|Enemy Mod Drop|Resource Drop \(Avatar\)|Additional Drop \(Avatar\)|Avatar Drop|WFItems Location(?: \(Legacy\))?):\s*Lumbering Fragment$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_SANCTUM],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Enemy|Enemy Drop|Enemy Mod Drop|Resource Drop \(Avatar\)|Additional Drop \(Avatar\)|Avatar Drop|WFItems Location(?: \(Legacy\))?):\s*Techrot Scaart$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_HOLLVANIA],
+            type: "drop",
+        };
+    }
+
+    if (/^(?:Enemy|Enemy Drop|Enemy Mod Drop|Resource Drop \(Avatar\)|Additional Drop \(Avatar\)|Avatar Drop|WFItems Location(?: \(Legacy\))?):\s*(Angst|Malice|Mania|Misery|Torment|Violence)(?:\s*\(Level 0 - 100\))?$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_STEEL_PATH],
+            type: "drop",
+        };
+    }
 
     if (/Shadow Stalker/i.test(quantityNormalized)) {
         return {
@@ -226,6 +451,232 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
         };
     }
 
+    if (/Juno Sapper MOA/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JADE_SHADOWS],
+            type: "drop",
+        };
+    }
+
+    if (/\bPrimm\b|\bVERD-IE\b/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_ZARIMAN],
+            type: "drop",
+        };
+    }
+
+    if (/Sargas Ruk Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_EUROPA_SATURN],
+            type: "drop",
+        };
+    }
+
+    if (/Tyl Regor Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_SATURN_URANUS],
+            type: "drop",
+        };
+    }
+
+    if (/Raptor Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_JUPITER_EUROPA],
+            type: "drop",
+        };
+    }
+
+    if (/Vay Hek Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.MR_5],
+            type: "drop",
+        };
+    }
+
+    if (/Vor Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_MERCURY_VENUS],
+            type: "drop",
+        };
+    }
+
+    if (/Jackal Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_VENUS_EARTH],
+            type: "drop",
+        };
+    }
+
+    if (/Hyena Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_URANUS_NEPTUNE],
+            type: "drop",
+        };
+    }
+
+    if (/Lech Kril Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_EARTH_MARS],
+            type: "drop",
+        };
+    }
+
+    if (/Holdfasts (Angel|Fallen|Guardian|Seraph|Watcher) Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_ZARIMAN],
+            type: "vendor",
+        };
+    }
+
+    if (/Quills (Adherent|Architect|Instrument|Mote|Observer) Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.SAYA_VIGIL, PR.WAR_WITHIN],
+            type: "vendor",
+        };
+    }
+
+    if (/Necraloid (Agnesis|Modus|Odima) Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HEART_OF_DEIMOS, PR.WAR_WITHIN],
+            type: "vendor",
+        };
+    }
+
+    if (/Teralyst Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_EIDOLON_TERALYST],
+            type: "drop",
+        };
+    }
+
+    if (/Gantulyst Sigil|Hydrolyst Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_EIDOLON_TRIDOLON],
+            type: "drop",
+        };
+    }
+
+    if (/Lephantis Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_MARS_DEIMOS],
+            type: "drop",
+        };
+    }
+
+    if (/Bloodshed Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_PROFIT_TAKER],
+            type: "drop",
+        };
+    }
+
+    if (/Leaping Thrasher Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_MARS_DEIMOS],
+            type: "drop",
+        };
+    }
+
+    if ((/\bStalker Sigil\b|\bStalker\b/i.test(quantityNormalized)) && !/Shadow Stalker|Protector Stalker|Night Stalker/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_STALKER],
+            type: "drop",
+        };
+    }
+
+    if (/Grustrag Sigil/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_GRUSTRAG],
+            type: "drop",
+        };
+    }
+
+    if (/Zanuka Hunter|Zanuka Sigil|Zanuka Arena Simulacrum/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_ZANUKA],
+            type: "drop",
+        };
+    }
+
+    const wfItemsBody = quantityNormalized.replace(/^WFItems Location(?: \(Legacy\))?:\s*/i, "");
+
+    if (/^(Defiance|Armada|Vigilance|Uprising|Protectorate|Freedom Fighter|Armored|Rebellion|Unyielding|Champion) Sigil$/i.test(wfItemsBody)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_RELAY],
+            type: "vendor",
+        };
+    }
+
+    if (/^(Guiding Path|Bending Will|Discipline|Will|Choice|Grasp|Potential|Succession|Surpassing|Truth) Sigil$/i.test(wfItemsBody)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_RELAY],
+            type: "vendor",
+        };
+    }
+
+    if (/^(Query|Searching|Pattern Match|Atomic|Manifold|Fractal|Multivariate|Labyrinth|Hexan|Oracle) Sigil$/i.test(wfItemsBody)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_RELAY],
+            type: "vendor",
+        };
+    }
+
+    if (/^(Progress|Opportunity|Calculating|Synergy|Directives|Strategy|Tessellations|Optimum|Capital|Chairman) Sigil$/i.test(wfItemsBody)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_RELAY],
+            type: "vendor",
+        };
+    }
+
+    if (/^(Blades|Cull|Threat|Maelstrom|Lesion|Ruin|Viscera|Malevolent|Covert|Assassin) Sigil$/i.test(wfItemsBody)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_RELAY],
+            type: "vendor",
+        };
+    }
+
+    if (/^(Sacrifice|Seed|Rebirth|Growth|Clarity|Bloom|Purity|Gaia|Bounty|Humanity) Sigil$/i.test(wfItemsBody)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_RELAY],
+            type: "vendor",
+        };
+    }
+
+    if (/^(Awakening|Perception|Awareness|Revelation|Diligence|Prudence|Discretion|Ambition|Volition|Freedom|Enlightenment|Discovery|Accord|Insight|Empathy) Sigil$/i.test(wfItemsBody)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_RELAY],
+            type: "vendor",
+        };
+    }
+
     if (/Play Conclave|\(Conclave\)/i.test(quantityNormalized)) {
         return {
             label: raw,
@@ -266,6 +717,141 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
         };
     }
 
+    if (/^Duviri Endless: Tier \d+ \(Normal\)$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.DUVIRI_PARADOX],
+            type: "drop",
+        };
+    }
+
+    if (/^Duviri Endless: Tier \d+ \(Hard\)$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.DUVIRI_PARADOX, PR.ACTIVITY_STEEL_PATH],
+            type: "drop",
+        };
+    }
+
+    if (/^Duviri: Murmur Invasion rewards \(Rotation [A-Z]\)$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.DUVIRI_PARADOX],
+            type: "drop",
+        };
+    }
+
+    if (/^Duviri: Murmur Invasion rewards \(Steel Path, Rotation [A-Z]\)$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.DUVIRI_PARADOX, PR.ACTIVITY_STEEL_PATH],
+            type: "drop",
+        };
+    }
+
+    if (/^Enemy: Exploiter Orb$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_EXPLOITER_ORB],
+            type: "drop",
+        };
+    }
+
+    if (/^Enemy: The Sergeant$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_MARS_PHOBOS],
+            type: "drop",
+        };
+    }
+
+    if (/^Enemy: Tusk Thumper(?: Bull| Doma)?$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_CETUS],
+            type: "drop",
+        };
+    }
+
+    if (/^Enemy: Narmer Thumper(?: Bull| Doma)?$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_CETUS, PR.NEW_WAR],
+            type: "drop",
+        };
+    }
+
+    if (/Phorid Sigil|Blood For Ammo/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.ACTIVITY_INVASIONS],
+            type: "drop",
+        };
+    }
+
+    if (/Legacy: Albrecht[’']s Laboratories bounty/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_SANCTUM],
+            type: "drop",
+        };
+    }
+
+    if (/Albrecht[’']s Laboratories|Entrati Lab Bounty/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_SANCTUM],
+            type: "drop",
+        };
+    }
+
+    if (/Open Zariman reinforced carrypods/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_ZARIMAN],
+            type: "drop",
+        };
+    }
+
+    if (/^WFItems Location(?: \(Legacy\))?:\s*Sanctuary$/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_RELAY, PR.NEW_STRANGE],
+            type: "drop",
+        };
+    }
+
+    if (/Run Narmer bounties/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.NEW_WAR],
+            type: "drop",
+        };
+    }
+
+    if (/Play Naberus event content/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.HUB_NECRALISK],
+            type: "drop",
+        };
+    }
+
+    for (const { prefix, prereqIds } of STAR_CHART_REGION_PREREQS) {
+        const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        if (
+            new RegExp(`^(?:Mission:\\s*)?${escapedPrefix}\\s+-\\s+`, "i").test(quantityNormalized) ||
+            new RegExp(`^(Mission Reward|Caches):\\s*${escapedPrefix}\\s*/\\s*`, "i").test(quantityNormalized) ||
+            new RegExp(`^WFItems Location(?: \\(Legacy\\))?:\\s*${escapedPrefix}\\s*/\\s*`, "i").test(quantityNormalized)
+        ) {
+            return {
+                label: raw,
+                prereqIds,
+                type: "drop",
+            };
+        }
+    }
+
     if (/(^| )Thrax Plasm/i.test(quantityNormalized) && !/Lua Thrax Plasm/i.test(quantityNormalized)) {
         return {
             label: raw,
@@ -298,7 +884,6 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
         };
     }
 
-    const wfItemsBody = quantityNormalized.replace(/^WFItems Location(?: \(Legacy\))?:\s*/i, "");
     const syndicateVendorAlias = SYNDICATE_VENDOR_ALIASES.find(({ prefix }) => wfItemsBody.startsWith(prefix));
     if (syndicateVendorAlias) {
         const override = getSyndicateVendorOverride(syndicateVendorAlias.canonicalName);
@@ -326,6 +911,86 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
     }
 
     if (/^WFItems Location(?: \(Legacy\))?:/i.test(quantityNormalized)) {
+        if (/Arcane Boiler/i.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.STOLEN_DREAMS],
+                type: "drop",
+            };
+        }
+
+        if (/\bTerra\b/.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_FORTUNA],
+                type: "drop",
+            };
+        }
+
+        if (/\bVapos\b/.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.JUNCTION_CERES_JUPITER],
+                type: "drop",
+            };
+        }
+
+        if (/\bNarmer\b/.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.NEW_WAR],
+                type: "drop",
+            };
+        }
+
+        if (/\bArid\b/.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.JUNCTION_EARTH_MARS],
+                type: "drop",
+            };
+        }
+
+        if (/\bFrontier\b/.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.VORS_PRIZE],
+                type: "drop",
+            };
+        }
+
+        if (/\bTusk\b/.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_CETUS],
+                type: "drop",
+            };
+        }
+
+        if (/\bKuva\b/.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.WAR_WITHIN],
+                type: "drop",
+            };
+        }
+
+        if (/\b(Axio|Taro|Vorac|Orm|Aurax)\b/.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.RAILJACK_CONSTRUCTED],
+                type: "drop",
+            };
+        }
+
+        if (/\bScrofa\b/.test(quantityNormalized)) {
+            return {
+                label: raw,
+                prereqIds: [PR.HUB_FORTUNA, PR.NEW_WAR],
+                type: "drop",
+            };
+        }
+
         if (/Elite Sanctuary Onslaught|Sanctuary Onslaught/i.test(quantityNormalized)) {
             return {
                 label: raw,
@@ -430,7 +1095,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Sorties/i.test(quantityNormalized)) {
+        if (/Sorties/i.test(prefixStripped)) {
             return {
                 label: raw,
                 prereqIds: [PR.ACTIVITY_SORTIES],
@@ -505,7 +1170,7 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Arcane |Breath Of The Eidolon|Orokin Animus Matrix|Orokin Ballistics Matrix|Orokin Orientation Matrix/i.test(quantityNormalized)) {
+        if (/Breath Of The Eidolon|Orokin Animus Matrix|Orokin Ballistics Matrix|Orokin Orientation Matrix/i.test(quantityNormalized)) {
             return {
                 label: raw,
                 prereqIds: [PR.ACTIVITY_EIDOLON_TERALYST],
@@ -681,13 +1346,45 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Ambulas/i.test(quantityNormalized)) {
-            return {
-                label: raw,
-                prereqIds: [PR.JUNCTION_NEPTUNE_PLUTO],
-                type: "drop",
-            };
-        }
+    if (/Ambulas/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_NEPTUNE_PLUTO],
+            type: "drop",
+        };
+    }
+
+    if (/Kela De Thaym/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_PLUTO_SEDNA],
+            type: "drop",
+        };
+    }
+
+    if (/Jackal/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_VENUS_EARTH],
+            type: "drop",
+        };
+    }
+
+    if (/Hyena(?: Pack| Ln2| Ng| Pb| Th)?/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JUNCTION_URANUS_NEPTUNE],
+            type: "drop",
+        };
+    }
+
+    if (/Sister Of Parvos \(Ascension(?: Hard)? Mode\)/i.test(quantityNormalized)) {
+        return {
+            label: raw,
+            prereqIds: [PR.JADE_SHADOWS],
+            type: "drop",
+        };
+    }
 
         if (/The Descendia|Dark Refractory/i.test(raw)) {
             const prereqIds: string[] = [PR.THE_OLD_PEACE];
@@ -699,9 +1396,9 @@ function inferSourceMetadataFromLabel(label: string): Pick<RawSource, "label" | 
             };
         }
 
-        if (/Another Betrayer|Family Reunion|Hot Mess|Recover the Orokin Archive|Sunkiller|Table for Two|The Aftermath|Times Up|Faceoff/i.test(raw)) {
+        if (/Another Betrayer|Family Reunion|Hot Mess|Recover the Orokin Archive|Sunkiller|Table for Two|The Aftermath|Times Up|Faceoff/i.test(prefixStripped)) {
             const prereqIds: string[] = [PR.THE_HEX];
-            if (/Steel Path/i.test(raw)) prereqIds.push(PR.ACTIVITY_STEEL_PATH);
+            if (/Steel Path/i.test(prefixStripped)) prereqIds.push(PR.ACTIVITY_STEEL_PATH);
             return {
                 label: raw,
                 prereqIds,
@@ -743,6 +1440,38 @@ function normalizeNameNoPunct(s: string): string {
 
 function toToken(s: string): string {
     return normalizeNameNoPunct(s).replace(/\s+/g, "-");
+}
+
+function slugifyDropNodeToken(s: string): string {
+    return String(s ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/['"]/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .slice(0, 80);
+}
+
+function titleCaseTokenWords(s: string): string {
+    return String(s ?? "")
+        .split(/[_-]+/g)
+        .filter(Boolean)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+}
+
+function humanizeDropNodePlanet(token: string): string {
+    const normalized = String(token ?? "").trim().toLowerCase();
+    const specialCases: Record<string, string> = {
+        "kuva-fortress": "Kuva Fortress",
+        "veil-proxima": "Veil Proxima",
+        "earth-proxima": "Earth Proxima",
+        "saturn-proxima": "Saturn Proxima",
+        "venus-proxima": "Venus Proxima",
+        "neptune-proxima": "Neptune Proxima",
+        hollvania: "Höllvania",
+    };
+    return specialCases[normalized] ?? titleCaseTokenWords(normalized);
 }
 
 /**
@@ -841,6 +1570,123 @@ function buildMissionNodeSources(): RawSource[] {
                     prereqIds: inferred.prereqIds,
                 };
             }
+        }
+    }
+
+    out.sort((a, b) => a.label.localeCompare(b.label));
+    return out;
+}
+
+function buildMissionDropNodeAliasSources(): RawSource[] {
+    const out: RawSource[] = [];
+    const seen = new Set<string>();
+
+    const mrRoot = (missionRewardsJson as any)?.missionRewards ?? (missionRewardsJson as any);
+    if (!mrRoot || typeof mrRoot !== "object") return out;
+
+    for (const [planetNameRaw, planetObj] of Object.entries(mrRoot as Record<string, any>)) {
+        if (!planetObj || typeof planetObj !== "object") continue;
+
+        const planetName = String(planetNameRaw ?? "").trim();
+        const planetToken = slugifyDropNodeToken(planetName);
+        if (!planetName || !planetToken) continue;
+
+        for (const [nodeNameRaw, nodeObj] of Object.entries(planetObj as Record<string, any>)) {
+            if (!nodeObj || typeof nodeObj !== "object") continue;
+
+            const nodeName = String(nodeNameRaw ?? "").trim();
+            const nodeToken = slugifyDropNodeToken(nodeName);
+            if (!nodeName || !nodeToken) continue;
+
+            const gameMode = safeString((nodeObj as any)?.gameMode);
+            const nodeNameDisplay = nodeName.replace(/\s*\(Extra\)\s*$/i, " (Steel Path)");
+            const label = gameMode
+                ? `Mission: ${planetName} - ${nodeNameDisplay} (${gameMode})`
+                : `Mission: ${planetName} - ${nodeNameDisplay}`;
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, `data:drop:node:${planetToken}:${nodeToken}`, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
+        }
+    }
+
+    const sourcePool = Array.isArray((itemAcquisitionJson as any)?.sourcePool)
+        ? ((itemAcquisitionJson as any).sourcePool as unknown[])
+        : [];
+
+    for (const rawSourceId of sourcePool) {
+        if (typeof rawSourceId !== "string" || !rawSourceId.startsWith("data:drop:node:")) continue;
+
+        const match = rawSourceId.match(/^data:drop:node:([^:]+):(.+)$/);
+        if (!match) continue;
+
+        const [, planetToken, nodeToken] = match;
+        const label = `Mission: ${humanizeDropNodePlanet(planetToken)} - ${titleCaseTokenWords(nodeToken)}`;
+        const inferred = inferSourceMetadataFromLabel(label);
+        pushUnique(out, seen, rawSourceId, inferred?.label ?? label, inferred?.type ?? "drop");
+        if (inferred?.prereqIds?.length) {
+            out[out.length - 1] = {
+                ...out[out.length - 1],
+                prereqIds: inferred.prereqIds,
+            };
+        }
+    }
+
+    out.sort((a, b) => a.label.localeCompare(b.label));
+    return out;
+}
+
+function buildRankedSyndicateSources(): RawSource[] {
+    const out: RawSource[] = [];
+    const seen = new Set<string>();
+
+    const quillsRanks: Array<{ token: string; label: string; prereqIds: string[] }> = [
+        { token: "mote", label: "Buy from The Quills (Mote rank)", prereqIds: [PR.SAYA_VIGIL, PR.WAR_WITHIN] },
+        { token: "observer", label: "Buy from The Quills (Observer rank)", prereqIds: [PR.SAYA_VIGIL, PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK1] },
+        { token: "adherent", label: "Buy from The Quills (Adherent rank)", prereqIds: [PR.SAYA_VIGIL, PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK2] },
+        { token: "instrument", label: "Buy from The Quills (Instrument rank)", prereqIds: [PR.SAYA_VIGIL, PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK3] },
+        { token: "architect", label: "Buy from The Quills (Architect rank)", prereqIds: [PR.SAYA_VIGIL, PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK4] },
+    ];
+
+    for (const rank of quillsRanks) {
+        pushUnique(out, seen, `data:syndicate/quills/${rank.token}`, rank.label, "vendor");
+        out[out.length - 1] = {
+            ...out[out.length - 1],
+            prereqIds: rank.prereqIds,
+        };
+    }
+
+    const holdfastRankInfo: Record<string, { label: string; prereqIds: string[] }> = {
+        neutral: { label: "Neutral rank", prereqIds: [PR.HUB_ZARIMAN] },
+        watcher: { label: "Watcher rank", prereqIds: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK1] },
+        guardian: { label: "Guardian rank", prereqIds: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK2] },
+        fallen: { label: "Fallen rank", prereqIds: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK3] },
+        seraph: { label: "Seraph rank", prereqIds: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK4] },
+        angel: { label: "Angel rank", prereqIds: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK5] },
+    };
+
+    const holdfastVendors: Record<string, string> = {
+        cavalero: "Cavalero",
+        hombask: "Hombask",
+    };
+
+    for (const [vendorToken, vendorLabel] of Object.entries(holdfastVendors)) {
+        for (const [rankToken, rankInfo] of Object.entries(holdfastRankInfo)) {
+            pushUnique(
+                out,
+                seen,
+                `data:syndicate/holdfasts/${vendorToken}/${rankToken}`,
+                `Buy from ${vendorLabel} (${rankInfo.label})`,
+                "vendor",
+            );
+            out[out.length - 1] = {
+                ...out[out.length - 1],
+                prereqIds: rankInfo.prereqIds,
+            };
         }
     }
 
@@ -1072,7 +1918,14 @@ function buildWfItemsCacheSources(): RawSource[] {
 
         const id = dataId(["caches", planet, node]);
         const label = `Caches: ${planet} / ${node}`;
-        pushUnique(out, seen, id, label, "drop");
+        const inferred = inferSourceMetadataFromLabel(label);
+        pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+        if (inferred?.prereqIds?.length) {
+            out[out.length - 1] = {
+                ...out[out.length - 1],
+                prereqIds: inferred.prereqIds,
+            };
+        }
     }
 
     out.sort((a, b) => a.label.localeCompare(b.label));
@@ -1318,7 +2171,15 @@ function buildDropDataSupplementSources(): RawSource[] {
     // ---- Sortie ----
     const srArr = (sortieRewardsJson as any)?.sortieRewards ?? (sortieRewardsJson as any);
     if (Array.isArray(srArr) && srArr.length > 0) {
-        pushUnique(out, seen, dataId(["sortie"]), "Sortie Rewards", "drop");
+        const label = "Sortie Rewards";
+        const inferred = inferSourceMetadataFromLabel(label);
+        pushUnique(out, seen, dataId(["sortie"]), inferred?.label ?? label, inferred?.type ?? "drop");
+        if (inferred?.prereqIds?.length) {
+            out[out.length - 1] = {
+                ...out[out.length - 1],
+                prereqIds: inferred.prereqIds,
+            };
+        }
     }
 
     // ---- Key rewards ----
@@ -1329,7 +2190,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!keyName) continue;
             const id = dataId(["key", keyName]);
             const label = `Key Rewards: ${keyName}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -1341,7 +2209,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!bountyLevel) continue;
             const id = dataId(["bounty", "cetus", bountyLevel]);
             const label = `Cetus Bounty: ${bountyLevel}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -1352,7 +2227,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!bountyLevel) continue;
             const id = dataId(["bounty", "solaris", bountyLevel]);
             const label = `Solaris Bounty: ${bountyLevel}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -1363,7 +2245,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!bountyLevel) continue;
             const id = dataId(["bounty", "deimos", bountyLevel]);
             const label = `Deimos Bounty: ${bountyLevel}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -1385,7 +2274,14 @@ function buildDropDataSupplementSources(): RawSource[] {
             if (!bountyLevel) continue;
             const id = dataId(["bounty", "hex", bountyLevel]);
             const label = `Hex Reward: ${bountyLevel}`;
-            pushUnique(out, seen, id, label, "drop");
+            const inferred = inferSourceMetadataFromLabel(label);
+            pushUnique(out, seen, id, inferred?.label ?? label, inferred?.type ?? "drop");
+            if (inferred?.prereqIds?.length) {
+                out[out.length - 1] = {
+                    ...out[out.length - 1],
+                    prereqIds: inferred.prereqIds,
+                };
+            }
         }
     }
 
@@ -1534,7 +2430,9 @@ export const SOURCE_CATALOG: RawSource[] = [
     ...(CURATED_SOURCES as unknown as RawSource[]),
     ...buildWfcdDropSources(),
     ...buildMissionNodeSources(),
+    ...buildMissionDropNodeAliasSources(),
     ...buildMissionRewardSources(),
+    ...buildRankedSyndicateSources(),
     ...buildWfItemsCacheSources(),
     ...buildWfItemsLocSources(),
     ...buildDropDataSupplementSources(),

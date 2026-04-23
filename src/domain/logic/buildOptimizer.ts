@@ -844,11 +844,13 @@ function scoreEffects(
             return sum + share * typeMultiplier;
         }, 0)
         : 1;
-    const adjustedBurstDirectDps = burstDPS *
+    const baselineBurstDirectDps = burstDPS / Math.max(0.0001, modded.directDamagePerStatusMultiplier || 1);
+    const baselineSustainedDirectDps = sustainedDPS / Math.max(0.0001, modded.directDamagePerStatusMultiplier || 1);
+    const adjustedBurstDirectDps = baselineBurstDirectDps *
         Math.max(0, 1 + factionDamageBonus) *
         Math.max(0.1, targetAdjustedDirectMultiplier) *
         directDamagePerStatusMultiplier;
-    const adjustedDirectDps = sustainedDPS *
+    const adjustedDirectDps = baselineSustainedDirectDps *
         Math.max(0, 1 + factionDamageBonus) *
         Math.max(0.1, targetAdjustedDirectMultiplier) *
         directDamagePerStatusMultiplier;
@@ -1046,8 +1048,31 @@ function bestPolarity(mod: ModEntry): string {
 
 interface Candidate { mod: ModEntry; rank: number; }
 
+function normalizeOptimizerVariantPath(path: string): string {
+    return path
+        .replace(/\/(Beginner|Intermediate|Expert)\//g, "/")
+        .replace(/(Beginner|Intermediate|Expert)$/g, "");
+}
+
+function getOptimizerVariantTier(path: string): "flawed" | "standard" {
+    return /\/beginner\//i.test(path) || /Beginner$/i.test(path) ? "flawed" : "standard";
+}
+
 function buildCandidates(allMods: ModEntry[], opts: OptimizerOptions): Candidate[] {
     const { ownedModUniqueNames, ownedModMaxRankByUniqueName, excludedModUniqueNames, allowNonMaxRank, targetFaction = "", lockedIncompatibilityGroups, lockedUniqueNames } = opts;
+    const familyHasStandard = new Set<string>();
+    for (const mod of allMods) {
+        if (mod.isAura) continue;
+        if (excludedModUniqueNames?.has(mod.uniqueName)) continue;
+        if (ownedModUniqueNames && !ownedModUniqueNames.has(mod.uniqueName)) continue;
+        if (lockedIncompatibilityGroups?.has(mod.incompatibilityGroup)) continue;
+        if (lockedUniqueNames?.has(mod.uniqueName)) continue;
+        if (mod.effect.targetFaction && !targetFaction) continue;
+        if (mod.effect.targetFaction &&
+            mod.effect.targetFaction.toLowerCase() !== targetFaction.toLowerCase()) continue;
+        if (getOptimizerVariantTier(mod.path) !== "standard") continue;
+        familyHasStandard.add(normalizeOptimizerVariantPath(mod.path));
+    }
     const out: Candidate[] = [];
     for (const mod of allMods) {
         if (mod.isAura) continue; // auras go in the aura slot, not regular slots
@@ -1058,6 +1083,8 @@ function buildCandidates(allMods: ModEntry[], opts: OptimizerOptions): Candidate
         if (mod.effect.targetFaction && !targetFaction) continue;
         if (mod.effect.targetFaction &&
             mod.effect.targetFaction.toLowerCase() !== targetFaction.toLowerCase()) continue;
+        const familyKey = normalizeOptimizerVariantPath(mod.path);
+        if (getOptimizerVariantTier(mod.path) === "flawed" && familyHasStandard.has(familyKey)) continue;
         const maxAllowedRank = Math.max(
             0,
             Math.min(
