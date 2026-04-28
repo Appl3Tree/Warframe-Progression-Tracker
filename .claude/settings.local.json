@@ -9,7 +9,13 @@
       "WebSearch",
       "WebFetch(domain:view.genially.com)",
       "WebFetch(domain:forums.warframe.com)",
-      "WebFetch(domain:progametalk.com)"
+      "WebFetch(domain:progametalk.com)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "mcp__Claude_in_Chrome__read_page",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__read_console_messages",
+      "mcp__Claude_in_Chrome__javascript_tool"
     ]
   }
 }

@@ -1,12 +1,19 @@
 // ===== FILE: src/components/ProgressionNextStepsPanel.tsx =====
 import { useMemo } from "react";
 import { useTrackerStore } from "../store/store";
+import { useShallow } from "zustand/react/shallow";
 import { buildProgressionPlan } from "../domain/logic/plannerEngine";
 import { buildPrereqIndex } from "../domain/logic/prereqEngine";
 import { PREREQ_REGISTRY } from "../catalog/prereqs/prereqRegistry";
 import { computeUnlockGraphSnapshot } from "../domain/logic/unlockGraph";
-import { deriveCompletedMap, isValidatedBySyndicate } from "../domain/logic/syndicatePrereqs";
+import { deriveCompletedMap, isAutoTrackedPrereq } from "../domain/logic/syndicatePrereqs";
 import type { PrereqId } from "../domain/ids/prereqIds";
+import type { SyndicateState } from "../domain/types";
+
+const EMPTY_COMPLETED: Record<string, boolean> = {};
+const EMPTY_SYNDICATES: SyndicateState[] = [];
+const EMPTY_NODE_COMPLETED: Record<string, boolean> = {};
+const EMPTY_INVENTORY_COUNTS: Record<string, number> = {};
 
 function PrereqsLink() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
@@ -21,31 +28,43 @@ function PrereqsLink() {
 }
 
 export default function ProgressionNextStepsPanel({ embedded = false }: { embedded?: boolean }) {
-    const completedMap       = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
     const setPrereqCompleted = useTrackerStore((s) => s.setPrereqCompleted);
-    const syndicates         = useTrackerStore((s) => s.state.syndicates ?? []);
+    const { completedMap, syndicates, masteryRank, nodeCompletedMap, inventoryCounts } = useTrackerStore(
+        useShallow((s) => ({
+            completedMap:     s.state.prereqs?.completed ?? EMPTY_COMPLETED,
+            syndicates:       s.state.syndicates ?? EMPTY_SYNDICATES,
+            masteryRank:      s.state.player?.masteryRank ?? null,
+            nodeCompletedMap: s.state.missions?.nodeCompleted ?? EMPTY_NODE_COMPLETED,
+            inventoryCounts:  s.state.inventory.counts ?? EMPTY_INVENTORY_COUNTS,
+        }))
+    );
 
     const mergedMap = useMemo(
-        () => deriveCompletedMap(completedMap, syndicates),
-        [completedMap, syndicates]
+        () => deriveCompletedMap(completedMap, syndicates, masteryRank, nodeCompletedMap),
+        [completedMap, syndicates, masteryRank, nodeCompletedMap]
+    );
+
+    const evalContext = useMemo(
+        () => ({ masteryRank, nodeCompletedMap, inventoryCounts }),
+        [masteryRank, nodeCompletedMap, inventoryCounts],
     );
 
     const prereqIndex = useMemo(() => buildPrereqIndex(PREREQ_REGISTRY), []);
-    const steps = useMemo(() => {
+    const enrichedSteps = useMemo(() => {
         try {
-            return (buildProgressionPlan(mergedMap).steps ?? [])
+            return (buildProgressionPlan(mergedMap, evalContext).steps ?? [])
                 .filter((s: any) => s.id !== "planner_error_no_steps");
         } catch { return []; }
-    }, [mergedMap]);
+    }, [mergedMap, evalContext]);
 
     const unlockImpactByStepId = useMemo(() => {
         const result: Record<string, string[]> = {};
-        const currentSnap = computeUnlockGraphSnapshot(mergedMap, PREREQ_REGISTRY);
+        const currentSnap = computeUnlockGraphSnapshot(mergedMap, PREREQ_REGISTRY, evalContext);
         const currentActionableIds = new Set(currentSnap.actionable.map((s) => s.id));
 
-        for (const step of steps) {
+        for (const step of enrichedSteps) {
             const simMap  = { ...mergedMap, [step.prereqId]: true };
-            const simSnap = computeUnlockGraphSnapshot(simMap, PREREQ_REGISTRY);
+            const simSnap = computeUnlockGraphSnapshot(simMap, PREREQ_REGISTRY, evalContext);
             const newlyActionable = simSnap.actionable
                 .map((s) => s.id)
                 .filter((id) => !currentActionableIds.has(id) && id !== step.prereqId)
@@ -54,12 +73,11 @@ export default function ProgressionNextStepsPanel({ embedded = false }: { embedd
             if (newlyActionable.length > 0) result[step.id] = newlyActionable;
         }
         return result;
-    }, [completedMap, steps, prereqIndex]);
+    }, [enrichedSteps, evalContext, mergedMap, prereqIndex]);
 
-    function labelFor(id: string) { const def = prereqIndex[id]; return def ? def.label : id; }
     function isComplete(id: string) { return mergedMap[id] === true; }
 
-    if (steps.length === 0) return null;
+    if (enrichedSteps.length === 0) return null;
 
     return (
         <div
@@ -82,13 +100,13 @@ export default function ProgressionNextStepsPanel({ embedded = false }: { embedd
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                     <PrereqsLink />
-                    <span className="text-xs text-slate-600 font-mono">{steps.length} remaining</span>
+                    <span className="text-xs text-slate-600 font-mono">{enrichedSteps.length} remaining</span>
                 </div>
             </div>
 
             {/* ── Scrollable list ── */}
             <div className={["flex-1 overflow-y-auto flex flex-col gap-2", embedded ? "px-0 py-0" : "px-4 py-3"].join(" ")}>
-                {steps.map((step) => {
+                {enrichedSteps.map((step) => {
                     const completed = isComplete(step.prereqId);
                     return (
                         <div
@@ -126,11 +144,11 @@ export default function ProgressionNextStepsPanel({ embedded = false }: { embedd
                                         </div>
                                     )}
                                 </div>
-                                {isValidatedBySyndicate(step.prereqId) ? (
+                                {isAutoTrackedPrereq(step.prereqId) ? (
                                     <div className="shrink-0 text-right">
                                         <div className="text-[10px] text-slate-500 leading-tight">Auto-tracked</div>
                                         <div className="text-[11px] text-slate-400 leading-tight mt-0.5">
-                                            Update in <span className="text-sky-400 font-medium">Syndicates</span>
+                                            Update from your <span className="text-sky-400 font-medium">profile or trackers</span>
                                         </div>
                                     </div>
                                 ) : (
@@ -146,11 +164,11 @@ export default function ProgressionNextStepsPanel({ embedded = false }: { embedd
                             </div>
 
                             {/* Missing prereqs */}
-                            {step.missingPrereqs?.length > 0 && !completed && (
+                            {step.missingLabels?.length > 0 && !completed && (
                                 <div className="mt-2 rounded-lg border border-amber-900/40 bg-amber-950/20 px-2 py-1.5">
                                     <div className="text-[11px] font-semibold text-amber-300">Blocked by:</div>
                                     <ul className="mt-0.5 list-disc pl-4 text-[11px] text-amber-200 space-y-0.5">
-                                        {step.missingPrereqs.map((m: string) => <li key={m}>{labelFor(m)}</li>)}
+                                        {step.missingLabels.map((label: string) => <li key={label}>{label}</li>)}
                                     </ul>
                                 </div>
                             )}

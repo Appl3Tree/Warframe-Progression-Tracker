@@ -66,6 +66,7 @@ export interface PrereqDef {
         syndicateIds: string[];
         rank: number;
     };
+    validatedByMasteryRank?: number;
 }
 
 export const PREREQ_REGISTRY: PrereqDef[] = [
@@ -92,36 +93,22 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.ONCE_AWAKE,
         label: "Once Awake",
         category: "Quests",
-        description: "Mercury Grineer story arc. Required to unlock The Archwing quest.",
-        prerequisites: [PR.VORS_PRIZE]
+        description: "Early Infested main-story quest in Arc 1. The wiki chronology places it before Heart of Deimos and The Archwing.",
+        prerequisites: [PR.JUNCTION_MERCURY_VENUS]
     },
     {
         id: PR.ARCHWING,
         label: "The Archwing",
         category: "Quests",
-        description: "Unlocks Archwing gear and mission nodes. Currently awarded from the Mars Junction path.",
+        description: "Unlocks Archwing gear and Empyrean access. Requires the Earth → Mars Junction.",
         prerequisites: [PR.JUNCTION_EARTH_MARS]
-    },
-    {
-        id: PR.STOLEN_DREAMS,
-        label: "Stolen Dreams",
-        category: "Quests",
-        description: "Unlocks Cephalon Simaris relay scanner. Required for The New Strange.",
-        prerequisites: [PR.JUNCTION_EARTH_MARS]
-    },
-    {
-        id: PR.NEW_STRANGE,
-        label: "The New Strange",
-        category: "Quests",
-        description: "Required for Natah.",
-        prerequisites: [PR.STOLEN_DREAMS, PR.JUNCTION_JUPITER_EUROPA]
     },
     {
         id: PR.NATAH,
         label: "Natah",
         category: "Quests",
-        description: "Gatekeeper to The Second Dream. Requires Pluto access.",
-        prerequisites: [PR.NEW_STRANGE, PR.JUNCTION_NEPTUNE_PLUTO]
+        description: "Gatekeeper to The Second Dream. The quest page requires Uranus Junction, and its chronology lists The Archwing as the previous quest.",
+        prerequisites: [PR.ARCHWING, PR.JUNCTION_SATURN_URANUS]
     },
 
     // =========================================================================
@@ -132,14 +119,14 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "The Second Dream",
         category: "Quests",
         description: "Unlocks Operator mode and the Focus system. Required for the War Within chain and Lua junction.",
-        prerequisites: [PR.NATAH]
+        prerequisites: [PR.NATAH, PR.JUNCTION_URANUS_NEPTUNE]
     },
     {
         id: PR.WAR_WITHIN,
         label: "The War Within",
         category: "Quests",
         description: "Expands Operator to full Transference. Unlocks Kuva Fortress, Sorties, Rising Tide, and the full Focus tree. Required for the main arc chain.",
-        prerequisites: [PR.SECOND_DREAM, PR.JUNCTION_PLUTO_SEDNA],
+        prerequisites: [PR.SECOND_DREAM, PR.JUNCTION_NEPTUNE_PLUTO],
         conditions: [{ type: "mastery_rank", value: 5 }]
     },
     {
@@ -147,7 +134,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "Chains of Harrow",
         category: "Quests",
         description: "Required for Apostasy Prologue.",
-        prerequisites: [PR.WAR_WITHIN]
+        prerequisites: [PR.AMP_MOTE]
     },
     {
         id: PR.APOSTASY,
@@ -198,8 +185,8 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.NEW_WAR,
         label: "The New War",
         category: "Quests",
-        description: "Major story milestone. Requires Railjack and a Necramech. Unlocks Angels of the Zariman, Veilbreaker, and the full endgame.",
-        prerequisites: [PR.PRELUDE_TO_WAR, PR.RAILJACK_CONSTRUCTED, PR.NECRAMECH_UNLOCKED]
+        description: "Major story milestone. Requires Prelude to War, an owned Railjack, and an Amp. Unlocks Angels of the Zariman, Veilbreaker, and the full endgame.",
+        prerequisites: [PR.PRELUDE_TO_WAR, PR.RAILJACK_CONSTRUCTED, PR.AMP_MOTE]
     },
 
     // =========================================================================
@@ -224,7 +211,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "Whispers in the Walls",
         category: "Quests",
         description: "Unlocks Sanctum Anatomica and Cavia syndicate. Required for The Lotus Eaters and Melee Upgrade segment.",
-        prerequisites: [PR.ANGELS_ZARIMAN, PR.HEART_OF_DEIMOS]
+        prerequisites: [PR.NEW_WAR, PR.HEART_OF_DEIMOS]
     },
     {
         id: PR.THE_LOTUS_EATERS,
@@ -260,19 +247,39 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     // SIDE QUESTS — Feature Gates
     // =========================================================================
     {
+        id: PR.HOWL_KUBROW,
+        label: "Howl of the Kubrow",
+        category: "SideQuests",
+        description: "Unlocks Kubrow incubation and breeding. Awards the Incubator Segment after the first early junction path.",
+        prerequisites: [PR.JUNCTION_MERCURY_VENUS]
+    },
+    {
+        id: PR.STOLEN_DREAMS,
+        label: "Stolen Dreams",
+        category: "SideQuests",
+        description: "Side quest starring Maroo. Requires the Phobos Junction and unlocks the weekly Ayatan Treasure Hunt.",
+        prerequisites: [PR.JUNCTION_MARS_PHOBOS]
+    },
+    {
         id: PR.SAYA_VIGIL,
-        showInPlanner: false,
         label: "Saya's Vigil",
         category: "SideQuests",
         description: "Unlocks Gara blueprint. Available in Cetus. Tracked for quest completion.",
         prerequisites: [PR.HUB_CETUS]
     },
     {
+        id: PR.VOX_SOLARIS,
+        label: "Vox Solaris",
+        category: "SideQuests",
+        description: "Unlocks Solaris United bounty progression and Ventkids access in Fortuna / Orb Vallis.",
+        prerequisites: [PR.HUB_FORTUNA]
+    },
+    {
         id: PR.HEART_OF_DEIMOS,
         label: "Heart of Deimos",
         category: "SideQuests",
         description: "Unlocks Necralisk, Cambion Drift, and Entrati syndicate. Required for Whispers in the Walls and Necramech system.",
-        prerequisites: [PR.JUNCTION_MARS_DEIMOS]
+        prerequisites: [PR.JUNCTION_EARTH_MARS]
     },
     {
         id: PR.RISING_TIDE,
@@ -292,15 +299,24 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.CALL_TEMPESTARII,
         label: "Call of the Tempestarii",
         category: "SideQuests",
-        description: "Unlocks Sisters of Parvos and Corpus Proxima Railjack nodes. Requires Rising Tide.",
-        prerequisites: [PR.RISING_TIDE]
+        description: "Unlocks Sisters of Parvos and Corpus Proxima Railjack nodes. Requires a completed Railjack, The Deadlock Protocol, and MR4.",
+        prerequisites: [PR.RAILJACK_CONSTRUCTED, PR.DEADLOCK_PROTOCOL],
+        conditions: [{ type: "mastery_rank", value: 4 }]
     },
     {
         id: PR.DEADLOCK_PROTOCOL,
         label: "The Deadlock Protocol",
         category: "SideQuests",
-        description: "Awards Protea blueprint. Required for Sisters of Parvos eligibility. Requires Corpus Ship Granum Void access.",
-        prerequisites: [PR.JUNCTION_CERES_JUPITER]
+        description: "Awards Protea blueprint. Required for Sisters of Parvos eligibility. Requires Saturn Junction completion and MR4.",
+        prerequisites: [PR.JUNCTION_EUROPA_SATURN],
+        conditions: [{ type: "mastery_rank", value: 4 }]
+    },
+    {
+        id: PR.NEW_STRANGE,
+        label: "The New Strange",
+        category: "SideQuests",
+        description: "Side quest for Cephalon Simaris and Chroma progression. Requires Stolen Dreams and the Jupiter → Europa Junction.",
+        prerequisites: [PR.STOLEN_DREAMS, PR.JUNCTION_JUPITER_EUROPA]
     },
 
     // =========================================================================
@@ -308,7 +324,6 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     // =========================================================================
     {
         id: PR.LIMBO_THEOREM,
-        showInPlanner: false,
         label: "The Limbo Theorem",
         category: "SideQuests",
         description: "Awards Limbo blueprint. Requires an Archwing and the Jupiter → Europa junction.",
@@ -316,7 +331,6 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
     {
         id: PR.SILVER_GROVE,
-        showInPlanner: false,
         label: "The Silver Grove",
         category: "SideQuests",
         description: "Awards Titania blueprint. Requires The Second Dream and MR7.",
@@ -325,15 +339,14 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
     {
         id: PR.SANDS_INAROS,
-        showInPlanner: false,
         label: "Sands of Inaros",
         category: "SideQuests",
-        description: "Awards Inaros blueprint. Quest beacon purchased from Baro Ki'Teer.",
-        prerequisites: [PR.HUB_RELAY]
+        description: "Awards Inaros blueprint. Quest beacon purchased from Baro Ki'Teer. Requires MR5.",
+        prerequisites: [PR.HUB_RELAY],
+        conditions: [{ type: "mastery_rank", value: 5 }]
     },
     {
         id: PR.OCTAVIA_ANTHEM,
-        showInPlanner: false,
         label: "Octavia's Anthem",
         category: "SideQuests",
         description: "Awards Octavia blueprint. Requires The Second Dream.",
@@ -341,47 +354,42 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
     {
         id: PR.JORDAS_PRECEPT,
-        showInPlanner: false,
         label: "The Jordas Precept",
         category: "SideQuests",
-        description: "Awards Atlas blueprint. Requires Archwing and Eris access.",
-        prerequisites: [PR.ARCHWING, PR.JUNCTION_SEDNA_ERIS]
-    },
-    {
-        id: PR.GLAST_GAMBIT,
-        showInPlanner: false,
-        label: "The Glast Gambit",
-        category: "SideQuests",
-        description: "Awards Nidus blueprint. Requires Eris access.",
+        description: "Awards Atlas blueprint. Requires Pluto → Eris junction completion.",
         prerequisites: [PR.JUNCTION_SEDNA_ERIS]
     },
     {
+        id: PR.GLAST_GAMBIT,
+        label: "The Glast Gambit",
+        category: "SideQuests",
+        description: "Awards Nidus blueprint. Requires The War Within and speaking to Ergo Glast in a Relay.",
+        prerequisites: [PR.WAR_WITHIN, PR.HUB_RELAY]
+    },
+    {
         id: PR.MASK_REVENANT,
-        showInPlanner: false,
         label: "Mask of the Revenant",
         category: "SideQuests",
-        description: "Awards Revenant blueprint. Talk to Nakak in Cetus to start.",
-        prerequisites: [PR.HUB_CETUS]
+        description: "Awards Revenant blueprint. Start from Nakak in Cetus after reaching Observer with The Quills.",
+        prerequisites: [PR.HUB_CETUS, PR.SYNDICATE_QUILLS_RANK2]
     },
     {
         id: PR.HIDDEN_MESSAGES,
-        showInPlanner: false,
         label: "Hidden Messages",
         category: "SideQuests",
-        description: "Awards Mirage blueprint. Requires Saturn access.",
-        prerequisites: [PR.JUNCTION_EUROPA_SATURN]
+        description: "Awards Mirage blueprint. Requires Sedna access (missions on Mars, Saturn, and Sedna).",
+        prerequisites: [PR.JUNCTION_PLUTO_SEDNA]
     },
     {
         id: PR.WAVERIDER,
-        showInPlanner: false,
         label: "The Waverider",
         category: "SideQuests",
-        description: "Awards Yareli blueprint. Requires Vox Solaris.",
-        prerequisites: [PR.VOX_SOLARIS]
+        description: "Awards Yareli blueprint. Requires completed Vox Solaris and MR3.",
+        prerequisites: [PR.VOX_SOLARIS],
+        conditions: [{ type: "mastery_rank", value: 3 }]
     },
     {
         id: PR.PATIENT_ZERO,
-        showInPlanner: false,
         label: "Patient Zero",
         category: "SideQuests",
         description: "Awards Mesa blueprint. Requires Once Awake and Eris access.",
@@ -396,7 +404,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "Junction: Mercury → Venus",
         category: "Systems",
         description: "Unlocks Venus and early Corpus content.",
-        prerequisites: []
+        prerequisites: [PR.VORS_PRIZE]
     },
     {
         id: PR.JUNCTION_VENUS_EARTH,
@@ -468,7 +476,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "Junction: Saturn → Uranus",
         category: "Systems",
         description: "Unlocks Uranus. Required for The Duviri Paradox.",
-        prerequisites: [PR.JUNCTION_EUROPA_SATURN, PR.NEW_STRANGE]
+        prerequisites: [PR.JUNCTION_EUROPA_SATURN]
     },
     {
         id: PR.JUNCTION_URANUS_NEPTUNE,
@@ -488,15 +496,15 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.JUNCTION_PLUTO_SEDNA,
         label: "Junction: Pluto → Sedna",
         category: "Systems",
-        description: "Unlocks Sedna. Required for The War Within.",
-        prerequisites: [PR.JUNCTION_NEPTUNE_PLUTO]
+        description: "Unlocks Sedna. Junction tasks include completing The War Within.",
+        prerequisites: [PR.JUNCTION_NEPTUNE_PLUTO, PR.WAR_WITHIN]
     },
     {
         id: PR.JUNCTION_SEDNA_ERIS,
         label: "Junction: Sedna → Eris",
         category: "Systems",
-        description: "Unlocks Eris and Infested content. Required for Atlas and Nidus quests.",
-        prerequisites: [PR.JUNCTION_PLUTO_SEDNA, PR.NEW_STRANGE]
+        description: "Unlocks Eris and Infested content. Junction tasks include Rising Tide and a Railjack mission (Sover Strait).",
+        prerequisites: [PR.JUNCTION_PLUTO_SEDNA, PR.RAILJACK_CONSTRUCTED]
     },
     {
         id: PR.JUNCTION_EARTH_LUA,
@@ -527,15 +535,15 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.HUB_CETUS,
         label: "Cetus (Plains of Eidolon) Access",
         category: "Hubs",
-        description: "You can enter Cetus and the Plains of Eidolon. Required for Saya's Vigil, The Quills, and Mask of the Revenant.",
-        prerequisites: [PR.VORS_PRIZE]
+        description: "You can enter Cetus and the Plains of Eidolon. Requires completing The Teacher. Required for Saya's Vigil, The Quills, and Mask of the Revenant.",
+        prerequisites: [PR.THE_TEACHER]
     },
     {
         id: PR.HUB_FORTUNA,
         label: "Fortuna (Orb Vallis) Access",
         category: "Hubs",
         description: "You can enter Fortuna and Orb Vallis. Required for Solaris United standing progression.",
-        prerequisites: [PR.JUNCTION_VENUS_EARTH]
+        prerequisites: [PR.JUNCTION_MERCURY_VENUS]
     },
     {
         id: PR.HUB_NECRALISK,
@@ -577,19 +585,17 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         label: "Clan Dojo Access",
         category: "Systems",
         description: "Join or create a Clan and access its Dojo. Required for dojo research, blueprint replication, and clan-only amenities.",
-        prerequisites: []
+        prerequisites: [PR.VORS_PRIZE]
     },
     {
         id: PR.ACTIVITY_STEEL_PATH,
-        showInPlanner: false,
         label: "The Steel Path Unlocked",
         category: "Systems",
-        description: "Talk to Teshin after clearing all nodes accessible prior to The New War on the connected Star Chart. This app does not yet auto-verify full node completion, so this milestone may need to be marked manually.",
+        description: "Speak to Teshin in a Relay after completing all nodes accessible prior to The New War on the connected Star Chart. This is auto-derived from tracked normal-mode node completion, excluding Mutalist Alad V, Jordas Golem, and Brutus exactly as listed on the wiki.",
         prerequisites: [PR.HUB_RELAY]
     },
     {
         id: PR.ACTIVITY_STEEL_PATH_HONORS,
-        showInPlanner: false,
         label: "Teshin's Steel Path Honors",
         category: "Systems",
         description: "Access Teshin's Steel Path Honors shop in any Relay after unlocking The Steel Path.",
@@ -597,11 +603,18 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
     {
         id: PR.ACTIVITY_CIRCUIT_STEEL_PATH,
-        showInPlanner: false,
         label: "The Steel Path Circuit",
         category: "Systems",
         description: "Unlock the Steel Path version of The Circuit. Requires both The Duviri Paradox and The Steel Path.",
         prerequisites: [PR.DUVIRI_PARADOX, PR.ACTIVITY_STEEL_PATH]
+    },
+    {
+        id: PR.ACTIVITY_CIRCUIT_STEEL_PATH_2,
+        showInPlanner: false,
+        label: "The Steel Path Circuit (Alias)",
+        category: "Systems",
+        description: "Compatibility alias for the Steel Path version of The Circuit.",
+        prerequisites: [PR.ACTIVITY_CIRCUIT_STEEL_PATH]
     },
     {
         id: PR.ACTIVITY_NIGHTWAVE,
@@ -613,7 +626,6 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
     {
         id: PR.ACTIVITY_SORTIES,
-        showInPlanner: false,
         label: "Sorties",
         category: "Systems",
         description: "Unlock daily Sorties after The War Within. The game also requires Mastery Rank 5 and a rank-30 Warframe, but the frame-rank requirement is not modeled separately here.",
@@ -621,97 +633,50 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         conditions: [{ type: "mastery_rank", value: 5 }]
     },
     {
-        id: PR.ACTIVITY_GLASSMAKER,
-        showInPlanner: false,
-        label: "The Glassmaker Access",
-        category: "Systems",
-        description: "Access the Nihil / Glassmaker reward path tied to Nightwave content. This is tracked manually because it is not a permanent quest chain in the app's progression model.",
-        prerequisites: [PR.ACTIVITY_NIGHTWAVE]
-    },
-    {
         id: PR.ACTIVITY_VOID_FISSURES,
-        showInPlanner: false,
         label: "Void Fissures",
         category: "Systems",
-        description: "Access standard Void Relic fissure missions. Modeled as available after early star chart progression from Vor's Prize.",
-        prerequisites: [PR.VORS_PRIZE]
+        description: "Access standard Void Relic fissure missions after installing the Void Relic Segment. Individual fissure missions still require their normal Star Chart node to be unlocked.",
+        prerequisites: [PR.SEGMENT_VOID_RELIC]
     },
     {
         id: PR.ACTIVITY_VOID_STORMS,
-        showInPlanner: false,
         label: "Void Storms",
         category: "Systems",
         description: "Access Railjack Void Storm fissures. Requires a functional Railjack and Call of the Tempestarii-era Corpus Proxima access.",
         prerequisites: [PR.RAILJACK_CONSTRUCTED, PR.CALL_TEMPESTARII]
     },
     {
-        id: PR.ACTIVITY_EIDOLON_TERALYST,
-        showInPlanner: false,
-        label: "Eidolon Teralyst Hunts",
-        category: "Systems",
-        description: "Hunt the Teralyst on the Plains of Eidolon at night. Requires Cetus access and The War Within for full Operator combat access.",
-        prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN]
-    },
-    {
-        id: PR.ACTIVITY_EIDOLON_TRIDOLON,
-        showInPlanner: false,
-        label: "Eidolon Tridolon Hunts",
-        category: "Systems",
-        description: "Capture the Teralyst, Gantulyst, and Hydrolyst in a full Tridolon run. Modeled as requiring basic Eidolon hunting access plus The Quills at Rank 1.",
-        prerequisites: [PR.ACTIVITY_EIDOLON_TERALYST, PR.SYNDICATE_QUILLS_RANK1]
-    },
-    {
-        id: PR.ACTIVITY_PROFIT_TAKER,
-        showInPlanner: false,
-        label: "Profit-Taker Heist",
-        category: "Systems",
-        description: "Unlock the Profit-Taker Orb heist in Orb Vallis. Requires Vox Solaris, Archwing mobility, and Vox Solaris Rank 5 (Old Mate).",
-        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS, PR.ARCHWING, PR.SYNDICATE_VOX_RANK5]
-    },
-    {
-        id: PR.ACTIVITY_EXPLOITER_ORB,
-        showInPlanner: false,
-        label: "Exploiter Orb",
-        category: "Systems",
-        description: "Access the Exploiter Orb fight in Orb Vallis. Modeled as requiring Fortuna access and Vox Solaris progression, while the rotating Thermia condition remains outside the prerequisite model.",
-        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS]
-    },
-    {
         id: PR.ACTIVITY_CIRCUIT,
-        showInPlanner: false,
         label: "The Circuit",
         category: "Systems",
         description: "Access The Circuit in Duviri after completing The Duviri Paradox.",
         prerequisites: [PR.DUVIRI_PARADOX]
     },
     {
-        id: PR.ACTIVITY_ZARIMAN_BOUNTIES,
-        showInPlanner: false,
-        label: "Zariman Bounties",
-        category: "Systems",
-        description: "Run bounty-style missions from the Chrysalith on the Zariman. Requires Angels of the Zariman and Zariman hub access.",
-        prerequisites: [PR.HUB_ZARIMAN]
-    },
-    {
         id: PR.ACTIVITY_NETRACELLS,
-        showInPlanner: false,
         label: "Netracells",
         category: "Systems",
         description: "Access weekly Netracell runs in Sanctum Anatomica after Whispers in the Walls.",
         prerequisites: [PR.HUB_SANCTUM]
     },
     {
+        id: PR.ACTIVITY_DEEP_ARCHIMEDEA,
+        label: "Deep Archimedea",
+        category: "Systems",
+        description: "Access Deep Archimedea by speaking to Necraloid in Sanctum Anatomica. The wiki requires Whispers in the Walls, Cavia Rank 5 (Illuminate), and at least one completed Netracell mission.",
+        prerequisites: [PR.WHISPERS_WALL, PR.SYNDICATE_CAVIA_RANK5, PR.ACTIVITY_NETRACELLS]
+    },
+    {
         id: PR.ACTIVITY_KUVA_LICH,
-        showInPlanner: false,
         label: "Kuva Lich System",
         category: "Systems",
-        description: "Meet the prerequisites to create and pursue a Kuva Lich. Requires The War Within, Rising Tide, and Mastery Rank 5.",
-        prerequisites: [PR.WAR_WITHIN, PR.RISING_TIDE],
+        description: "Meet the prerequisites to create and pursue a Kuva Lich. Requires The War Within, an owned Railjack, and Mastery Rank 5.",
+        prerequisites: [PR.WAR_WITHIN, PR.RAILJACK_CONSTRUCTED],
         conditions: [{ type: "mastery_rank", value: 5 }]
     },
     {
         id: PR.ACTIVITY_SISTER_PARVOS,
-        showInPlanner: false,
         label: "Sisters of Parvos System",
         category: "Systems",
         description: "Meet the prerequisites to create and pursue a Sister of Parvos. Requires The War Within, Call of the Tempestarii, and Mastery Rank 5.",
@@ -739,117 +704,60 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     },
     {
         id: PR.ACTIVITY_ARBITRATIONS,
-        showInPlanner: false,
         label: "Arbitrations Unlocked",
         category: "Systems",
-        description: "Unlock Arbitrations from the Pluto > Eris junction task. As of Update 39.0 on June 25, 2025, this no longer requires full star-chart completion. This app does not yet auto-track the exact junction task, so this milestone may need to be marked manually.",
-        prerequisites: [PR.HUB_RELAY]
+        description: "Unlock Arbitrations after gaining access to Pluto and completing the Eris Junction task to equip a Focus Lens. The app models this through Eris Junction completion plus Focus unlock.",
+        prerequisites: [PR.JUNCTION_SEDNA_ERIS, PR.FOCUS_UNLOCKED]
     },
     {
         id: PR.ACTIVITY_NIGHTMARE,
-        showInPlanner: false,
         label: "Nightmare Missions Unlocked",
         category: "Systems",
-        description: "Unlock Nightmare Mode on at least one planet by completing every mission node on that planet. The app does not yet track per-planet star-chart completion well enough to derive this automatically, so this milestone may need to be marked manually.",
+        description: "Unlock Nightmare Mode on a planet by completing every mission node on that planet. This is auto-derived from tracked normal-mode node completion.",
         prerequisites: [PR.VORS_PRIZE]
     },
     {
+        id: PR.ACTIVITY_THERMIA_FRACTURES,
+        label: "Thermia Fractures",
+        category: "Systems",
+        description: "Access Thermia Fractures in Orb Vallis and earn Diluted Thermia, which is required to start the Exploiter Orb fight.",
+        prerequisites: [PR.VOX_SOLARIS]
+    },
+    {
         id: PR.ACTIVITY_INVASIONS,
-        showInPlanner: false,
         label: "Invasions Available",
         category: "Systems",
         description: "Have access to Invasion missions and battle pay. Invasions begin appearing early in the star chart and are closely tied to Mars-era progression, but the app does not currently model their availability exactly, so this milestone may need to be marked manually.",
         prerequisites: [PR.JUNCTION_EARTH_MARS]
     },
     {
-        id: PR.ACTIVITY_STALKER,
-        showInPlanner: false,
-        label: "Stalker Death Mark",
-        category: "Systems",
-        description: "Have an active Stalker death mark from defeating a boss. The app does not currently track death marks, so this milestone may need to be marked manually.",
-        prerequisites: [PR.VORS_PRIZE]
-    },
-    {
-        id: PR.ACTIVITY_GRUSTRAG,
-        showInPlanner: false,
-        label: "Grustrag Three Death Mark",
-        category: "Systems",
-        description: "Have an active Grustrag Three death mark, typically earned by supporting the Corpus in Invasions against the Grineer. The app does not currently track death marks, so this milestone may need to be marked manually.",
-        prerequisites: [PR.VORS_PRIZE]
-    },
-    {
-        id: PR.ACTIVITY_ZANUKA,
-        showInPlanner: false,
-        label: "Zanuka Hunter Death Mark",
-        category: "Systems",
-        description: "Have an active Zanuka Hunter death mark, typically earned by supporting the Grineer in Invasions against the Corpus. The app does not currently track death marks, so this milestone may need to be marked manually.",
-        prerequisites: [PR.VORS_PRIZE]
-    },
-    {
         id: PR.ACTIVITY_INDEX,
-        showInPlanner: false,
         label: "The Index",
         category: "Systems",
         description: "Access The Index arena on Neptune.",
         prerequisites: [PR.JUNCTION_URANUS_NEPTUNE]
     },
     {
+        id: PR.ACTIVITY_ROPALOLYST,
+        label: "Ropalolyst Assassination",
+        category: "Systems",
+        description: "Unlock the Ropalolyst fight on Jupiter after Chimera Prologue.",
+        prerequisites: [PR.CHIMERA_PROLOGUE, PR.JUNCTION_CERES_JUPITER]
+    },
+    {
+        id: PR.ACTIVITY_DEFECTION,
+        label: "Defection Missions",
+        category: "Systems",
+        description: "Access Defection missions, including Memphis on Phobos where Grineer Manics can be reliably farmed.",
+        prerequisites: [PR.JUNCTION_MARS_PHOBOS]
+    },
+    {
         id: PR.ACTIVITY_TECHNOCYTE_CODA,
-        showInPlanner: false,
         label: "Technocyte Coda System",
         category: "Systems",
-        description: "Meet the prerequisites to create and pursue a Technocyte Coda. Requires The Hex. The game also requires not having another active adversary, which is not modeled as a prerequisite here.",
-        prerequisites: [PR.THE_HEX]
+        description: "Meet the prerequisites to create and pursue a Technocyte Coda. Requires The Hex and an owned Railjack for the final Earth Proxima confrontation. The game also requires not having another active adversary, which is not modeled as a prerequisite here.",
+        prerequisites: [PR.THE_HEX, PR.RAILJACK_CONSTRUCTED]
     },
-    {
-        id: PR.SYSTEM_DAILY_TRIBUTE,
-        showInPlanner: false,
-        label: "Daily Tribute Rewards",
-        category: "Systems",
-        description: "Progress far enough along the Daily Tribute login reward track to claim milestone weapons and similar rewards. This remains a manual milestone because the app does not track total login days.",
-        prerequisites: [PR.VORS_PRIZE]
-    },
-    {
-        id: PR.ACTIVITY_CETUS_BOUNTIES,
-        showInPlanner: false,
-        label: "Cetus Bounties",
-        category: "Systems",
-        description: "Access Konzu's Cetus bounties after proving yourself with the introductory bounty in Cetus.",
-        prerequisites: [PR.HUB_CETUS]
-    },
-    {
-        id: PR.ACTIVITY_FORTUNA_BOUNTIES,
-        showInPlanner: false,
-        label: "Fortuna / Orb Vallis Bounties",
-        category: "Systems",
-        description: "Unlock Orb Vallis bounties by completing Vox Solaris.",
-        prerequisites: [PR.VOX_SOLARIS]
-    },
-    {
-        id: PR.ACTIVITY_DEIMOS_BOUNTIES,
-        showInPlanner: false,
-        label: "Cambion Drift Bounties",
-        category: "Systems",
-        description: "Access Mother's bounties from the Necralisk or Cambion Drift.",
-        prerequisites: [PR.HUB_NECRALISK]
-    },
-    {
-        id: PR.ACTIVITY_ISOLATION_VAULTS,
-        showInPlanner: false,
-        label: "Isolation Vault Access",
-        category: "Systems",
-        description: "Start Isolation Vault bounties from Mother in the Necralisk or Cambion Drift.",
-        prerequisites: [PR.ACTIVITY_DEIMOS_BOUNTIES]
-    },
-    {
-        id: PR.ACTIVITY_ARCANA_ISO_VAULTS,
-        showInPlanner: false,
-        label: "Arcana Isolation Vault Access",
-        category: "Systems",
-        description: "Unlock Arcana Isolation Vault bounties by completing the initial Isolation Vault bounty for that vault tier.",
-        prerequisites: [PR.ACTIVITY_ISOLATION_VAULTS]
-    },
-
     // =========================================================================
     // ORBITER SEGMENTS
     // =========================================================================
@@ -859,6 +767,46 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         category: "Segments",
         description: "Awarded by The War Within. Required to trigger Apostasy Prologue.",
         prerequisites: [PR.WAR_WITHIN]
+    },
+    {
+        id: PR.SEGMENT_ARSENAL,
+        showInPlanner: false,
+        label: "Orbiter: Arsenal Segment",
+        category: "Segments",
+        description: "Base Orbiter function installed during Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.SEGMENT_COMMUNICATIONS,
+        showInPlanner: false,
+        label: "Orbiter: Communications Segment",
+        category: "Segments",
+        description: "Base Orbiter communication function installed during Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.SEGMENT_CODEX_SCANNER,
+        showInPlanner: false,
+        label: "Orbiter: Codex Scanner Segment",
+        category: "Segments",
+        description: "Base Codex scanning function installed during Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.SEGMENT_FOUNDRY,
+        showInPlanner: false,
+        label: "Orbiter: Foundry Segment",
+        category: "Segments",
+        description: "Base Foundry access installed during Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.SEGMENT_MODDING,
+        showInPlanner: false,
+        label: "Orbiter: Modding Segment",
+        category: "Segments",
+        description: "Base modding station installed during Vor's Prize.",
+        prerequisites: [PR.VORS_PRIZE]
     },
     {
         id: PR.SEGMENT_VOID_RELIC,
@@ -871,8 +819,8 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.SEGMENT_INCUBATOR,
         label: "Orbiter: Incubator Segment",
         category: "Segments",
-        description: "Required for Kubrow and Kavat companion breeding. Granted by a Junction reward.",
-        prerequisites: [PR.JUNCTION_EARTH_MARS]
+        description: "Required for Kubrow and Kavat companion breeding. Awarded by completing Howl of the Kubrow.",
+        prerequisites: [PR.HOWL_KUBROW]
     },
     {
         id: PR.SEGMENT_MELEE_UPGRADE,
@@ -919,8 +867,24 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         id: PR.NECRAMECH_UNLOCKED,
         label: "Necramech: System Unlocked",
         category: "Necramech",
-        description: "You can deploy a Necramech in open worlds and Railjack missions. Craft Voidrig or Bonewidow via Necraloid standing. Required for The New War.",
+        description: "You can deploy a Necramech in open worlds and Railjack missions. Craft Voidrig or Bonewidow via Necraloid standing.",
         prerequisites: [PR.HEART_OF_DEIMOS, PR.HUB_NECRALISK]
+    },
+    {
+        id: PR.NECRAMECH_VOIDRIG,
+        showInPlanner: false,
+        label: "Necramech: Voidrig Built",
+        category: "Necramech",
+        description: "Build Voidrig through Necramech progression in the Necralisk.",
+        prerequisites: [PR.NECRAMECH_UNLOCKED]
+    },
+    {
+        id: PR.NECRAMECH_BONEWIDOW,
+        showInPlanner: false,
+        label: "Necramech: Bonewidow Built",
+        category: "Necramech",
+        description: "Build Bonewidow through Necramech progression in the Necralisk.",
+        prerequisites: [PR.NECRAMECH_UNLOCKED]
     },
     {
         id: PR.RAILJACK_CONSTRUCTED,
@@ -929,6 +893,229 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         description: "Your Railjack is built and ready for missions. Required for The New War.",
         prerequisites: [PR.RISING_TIDE]
     },
+    {
+        id: PR.RAILJACK_INTRINSICS,
+        showInPlanner: false,
+        label: "Railjack: Intrinsics Unlocked",
+        category: "Railjack",
+        description: "Access the Railjack Intrinsics tree after completing your first Railjack mission.",
+        prerequisites: [PR.RAILJACK_CONSTRUCTED]
+    },
+    {
+        id: PR.RAILJACK_CORPUS_NODES,
+        showInPlanner: false,
+        label: "Railjack: Corpus Proxima Access",
+        category: "Railjack",
+        description: "Unlock Corpus Proxima Railjack nodes after Call of the Tempestarii.",
+        prerequisites: [PR.CALL_TEMPESTARII]
+    },
+    {
+        id: PR.RAILJACK_VOID_STORMS,
+        showInPlanner: false,
+        label: "Railjack: Void Storm Access",
+        category: "Railjack",
+        description: "Unlock Railjack Void Storm fissures after Corpus Proxima access.",
+        prerequisites: [PR.RAILJACK_CORPUS_NODES]
+    },
+    {
+        id: PR.AMP_MOTE,
+        label: "Operator: Mote Amp Acquired",
+        category: "Systems",
+        description: "Receive your first Amp from Onkko in Cetus after The War Within and Saya's Vigil. This is an explicit main-story prerequisite for Chains of Harrow and The New War.",
+        prerequisites: [PR.WAR_WITHIN, PR.SAYA_VIGIL]
+    },
+    {
+        id: PR.FOCUS_UNLOCKED,
+        showInPlanner: false,
+        label: "Focus System Unlocked",
+        category: "Systems",
+        description: "Unlock the Focus system by completing The Second Dream.",
+        prerequisites: [PR.SECOND_DREAM]
+    },
+    {
+        id: PR.FOCUS_FULL,
+        showInPlanner: false,
+        label: "Focus Schools Fully Accessible",
+        category: "Systems",
+        description: "Unlock the full Focus school progression after The War Within and access to The Quills.",
+        prerequisites: [PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK1]
+    },
+    {
+        id: PR.FOCUS_SCHOOL_ZENURIK,
+        showInPlanner: false,
+        label: "Focus School: Zenurik",
+        category: "Systems",
+        description: "Zenurik Focus school is available after unlocking Focus.",
+        prerequisites: [PR.FOCUS_UNLOCKED]
+    },
+    {
+        id: PR.FOCUS_SCHOOL_VAZARIN,
+        showInPlanner: false,
+        label: "Focus School: Vazarin",
+        category: "Systems",
+        description: "Vazarin Focus school is available after unlocking Focus.",
+        prerequisites: [PR.FOCUS_UNLOCKED]
+    },
+    {
+        id: PR.FOCUS_SCHOOL_NARAMON,
+        showInPlanner: false,
+        label: "Focus School: Naramon",
+        category: "Systems",
+        description: "Naramon Focus school is available after unlocking Focus.",
+        prerequisites: [PR.FOCUS_UNLOCKED]
+    },
+    {
+        id: PR.FOCUS_SCHOOL_UNAIRU,
+        showInPlanner: false,
+        label: "Focus School: Unairu",
+        category: "Systems",
+        description: "Unairu Focus school is available after unlocking Focus.",
+        prerequisites: [PR.FOCUS_UNLOCKED]
+    },
+    {
+        id: PR.FOCUS_SCHOOL_MADURAI,
+        showInPlanner: false,
+        label: "Focus School: Madurai",
+        category: "Systems",
+        description: "Madurai Focus school is available after unlocking Focus.",
+        prerequisites: [PR.FOCUS_UNLOCKED]
+    },
+    {
+        id: PR.AMP_SIROCCO,
+        showInPlanner: false,
+        label: "Operator: Sirocco Acquired",
+        category: "Systems",
+        description: "Receive the built Sirocco Amp from The New War.",
+        prerequisites: [PR.NEW_WAR]
+    },
+    {
+        id: PR.AMP_TIER1,
+        showInPlanner: false,
+        label: "Amp Parts: Tier 1",
+        category: "Systems",
+        description: "Unlock Tier 1 Amp parts from The Quills.",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK1]
+    },
+    {
+        id: PR.AMP_TIER2,
+        showInPlanner: false,
+        label: "Amp Parts: Tier 2",
+        category: "Systems",
+        description: "Unlock Tier 2 Amp parts from The Quills.",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK2]
+    },
+    {
+        id: PR.AMP_TIER3,
+        showInPlanner: false,
+        label: "Amp Parts: Tier 3",
+        category: "Systems",
+        description: "Unlock Tier 3 Amp parts from The Quills.",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK3]
+    },
+    {
+        id: PR.AMP_TIER4,
+        showInPlanner: false,
+        label: "Amp Parts: Tier 4",
+        category: "Systems",
+        description: "Unlock Tier 4 Amp parts from The Quills.",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK4]
+    },
+    {
+        id: PR.AMP_TIER5,
+        showInPlanner: false,
+        label: "Amp Parts: Tier 5",
+        category: "Systems",
+        description: "Unlock Tier 5 Amp parts from Vox Solaris.",
+        prerequisites: [PR.SYNDICATE_VOX_RANK1]
+    },
+    {
+        id: PR.AMP_TIER6,
+        showInPlanner: false,
+        label: "Amp Parts: Tier 6",
+        category: "Systems",
+        description: "Unlock Tier 6 Amp parts from Vox Solaris.",
+        prerequisites: [PR.SYNDICATE_VOX_RANK2]
+    },
+    {
+        id: PR.AMP_TIER7,
+        showInPlanner: false,
+        label: "Amp Parts: Tier 7",
+        category: "Systems",
+        description: "Unlock Tier 7 Amp parts from Vox Solaris.",
+        prerequisites: [PR.SYNDICATE_VOX_RANK3]
+    },
+    {
+        id: PR.AMP_GILDING,
+        showInPlanner: false,
+        label: "Amp Gilding Unlocked",
+        category: "Systems",
+        description: "Unlock Amp gilding through advanced Quills or Vox Solaris rank progression.",
+        prerequisites: [PR.SYNDICATE_QUILLS_RANK3]
+    },
+    {
+        id: PR.COMPANION_KUBROW,
+        showInPlanner: false,
+        label: "Kubrow Breeding",
+        category: "Systems",
+        description: "Unlock Kubrow breeding through Howl of the Kubrow and the Incubator segment.",
+        prerequisites: [PR.HOWL_KUBROW, PR.SEGMENT_INCUBATOR]
+    },
+    {
+        id: PR.COMPANION_KAVAT,
+        showInPlanner: false,
+        label: "Kavat Breeding",
+        category: "Systems",
+        description: "Unlock Kavat breeding after obtaining the Incubator segment and Deimos access for Genetic Codes.",
+        prerequisites: [PR.SEGMENT_INCUBATOR, PR.HEART_OF_DEIMOS]
+    },
+    {
+        id: PR.COMPANION_HELMINTH_CHARGER,
+        showInPlanner: false,
+        label: "Helminth Charger Companion",
+        category: "Systems",
+        description: "Unlock Helminth Charger incubation through the Incubator segment and Helminth access.",
+        prerequisites: [PR.SEGMENT_INCUBATOR, PR.SEGMENT_HELMINTH]
+    },
+    {
+        id: PR.COMPANION_MOA,
+        showInPlanner: false,
+        label: "MOA Companion Assembly",
+        category: "Systems",
+        description: "Unlock MOA companion assembly in Fortuna after completing Vox Solaris.",
+        prerequisites: [PR.VOX_SOLARIS]
+    },
+    {
+        id: PR.COMPANION_HOUND,
+        showInPlanner: false,
+        label: "Hound Companion Access",
+        category: "Systems",
+        description: "Unlock Hound companions by accessing the Sisters of Parvos system.",
+        prerequisites: [PR.ACTIVITY_SISTER_PARVOS]
+    },
+    {
+        id: PR.COMPANION_PREDASITE,
+        showInPlanner: false,
+        label: "Predasite Companion Access",
+        category: "Systems",
+        description: "Unlock Predasite companions through Deimos companion conservation and revivification.",
+        prerequisites: [PR.HUB_NECRALISK]
+    },
+    {
+        id: PR.COMPANION_VULPAPHYLA,
+        showInPlanner: false,
+        label: "Vulpaphyla Companion Access",
+        category: "Systems",
+        description: "Unlock Vulpaphyla companions through Deimos companion conservation and revivification.",
+        prerequisites: [PR.HUB_NECRALISK]
+    },
+    {
+        id: PR.COMPANION_NAUTILUS,
+        showInPlanner: false,
+        label: "Nautilus Companion Access",
+        category: "Systems",
+        description: "Unlock the Nautilus Sentinel through Railjack progression.",
+        prerequisites: [PR.RAILJACK_CONSTRUCTED]
+    },
 
     // =========================================================================
     // SYNDICATE RANK MILESTONES (only ranks that gate Orbiter segments)
@@ -936,15 +1123,15 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     {
         id: PR.SYNDICATE_QUILLS_RANK1,
         validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 1 },
-        label: "The Quills: Rank 1 (Observer)",
+        label: "The Quills: Rank 1 (Mote)",
         category: "Syndicates",
         description: "Unlocks the first Quills standing tier and basic Amp progression used for early Eidolon hunting.",
-        prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN]
+        prerequisites: [PR.SAYA_VIGIL, PR.WAR_WITHIN]
     },
     {
         id: PR.SYNDICATE_QUILLS_RANK2,
         validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 2 },
-        label: "The Quills: Rank 2 (Adherent)",
+        label: "The Quills: Rank 2 (Observer)",
         category: "Syndicates",
         description: "Unlocks higher-tier Quills offerings, including stronger Amp progression and gilding access.",
         prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK1]
@@ -952,23 +1139,23 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     {
         id: PR.SYNDICATE_QUILLS_RANK3,
         validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 3 },
-        label: "The Quills: Rank 3 (Instrument)",
+        label: "The Quills: Rank 3 (Adherent)",
         category: "Syndicates",
-        description: "Unlocks late-tier Quills Amp offerings from Onkko.",
+        description: "Unlocks mid-tier Quills Amp offerings from Onkko.",
         prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK2]
     },
     {
         id: PR.SYNDICATE_QUILLS_RANK4,
         validatedBySyndicate: { syndicateId: SY.THE_QUILLS, rank: 4 },
-        label: "The Quills: Rank 4 (Architect)",
+        label: "The Quills: Rank 4 (Instrument)",
         category: "Syndicates",
-        description: "Unlocks the final Quills standing tier and top-end Cetus Amp offerings.",
+        description: "Unlocks higher-tier Quills Amp offerings from Onkko.",
         prerequisites: [PR.HUB_CETUS, PR.WAR_WITHIN, PR.SYNDICATE_QUILLS_RANK3]
     },
     {
         id: PR.SYNDICATE_HOLDFASTS_RANK1,
         validatedBySyndicate: { syndicateId: SY.THE_HOLDFASTS, rank: 1 },
-        label: "The Holdfasts: Rank 1 (Watcher)",
+        label: "The Holdfasts: Rank 1 (Fallen)",
         category: "Syndicates",
         description: "Unlocks the first Holdfasts standing tier in the Chrysalith.",
         prerequisites: [PR.HUB_ZARIMAN]
@@ -976,7 +1163,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     {
         id: PR.SYNDICATE_HOLDFASTS_RANK2,
         validatedBySyndicate: { syndicateId: SY.THE_HOLDFASTS, rank: 2 },
-        label: "The Holdfasts: Rank 2 (Guardian)",
+        label: "The Holdfasts: Rank 2 (Watcher)",
         category: "Syndicates",
         description: "Unlocks additional Holdfasts vendor stock in the Chrysalith.",
         prerequisites: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK1]
@@ -984,7 +1171,7 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     {
         id: PR.SYNDICATE_HOLDFASTS_RANK3,
         validatedBySyndicate: { syndicateId: SY.THE_HOLDFASTS, rank: 3 },
-        label: "The Holdfasts: Rank 3 (Fallen)",
+        label: "The Holdfasts: Rank 3 (Guardian)",
         category: "Syndicates",
         description: "Unlocks mid-tier Holdfasts vendor stock in the Chrysalith.",
         prerequisites: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK2]
@@ -1006,12 +1193,47 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         prerequisites: [PR.HUB_ZARIMAN, PR.SYNDICATE_HOLDFASTS_RANK4]
     },
     {
+        id: PR.SYNDICATE_SOLARIS_RANK5,
+        validatedBySyndicate: { syndicateId: SY.SOLARIS_UNITED, rank: 5 },
+        label: "Solaris United: Rank 5 (Old Mate)",
+        category: "Syndicates",
+        description: "Maximum Solaris United rank. Required to start Orb Vallis heists such as Profit-Taker and Exploiter.",
+        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS]
+    },
+    {
+        id: PR.SYNDICATE_VOX_RANK1,
+        validatedBySyndicate: { syndicateId: SY.VOX_SOLARIS, rank: 1 },
+        showInPlanner: false,
+        label: "Vox Solaris: Rank 1 (Operational)",
+        category: "Syndicates",
+        description: "Unlock the first Little Duck standing tier and early Vox Amp parts.",
+        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS]
+    },
+    {
+        id: PR.SYNDICATE_VOX_RANK2,
+        validatedBySyndicate: { syndicateId: SY.VOX_SOLARIS, rank: 2 },
+        showInPlanner: false,
+        label: "Vox Solaris: Rank 2 (Agent)",
+        category: "Syndicates",
+        description: "Unlock additional Little Duck offerings and Tier 6 Amp parts.",
+        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS, PR.SYNDICATE_VOX_RANK1]
+    },
+    {
+        id: PR.SYNDICATE_VOX_RANK3,
+        validatedBySyndicate: { syndicateId: SY.VOX_SOLARIS, rank: 3 },
+        showInPlanner: false,
+        label: "Vox Solaris: Rank 3 (Hand)",
+        category: "Syndicates",
+        description: "Unlock advanced Little Duck offerings, Tier 7 Amp parts, and Amp gilding.",
+        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS, PR.SYNDICATE_VOX_RANK2]
+    },
+    {
         id: PR.SYNDICATE_VOX_RANK5,
         validatedBySyndicate: { syndicateId: SY.VOX_SOLARIS, rank: 5 },
-        label: "Vox Solaris: Rank 5 (Old Mate)",
+        label: "Vox Solaris: Rank 5 (Shadow)",
         category: "Syndicates",
-        description: "Maximum Vox Solaris rank. Required to unlock the Profit-Taker heist.",
-        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS]
+        description: "Maximum Vox Solaris rank. Unlocks top-tier Little Duck offerings.",
+        prerequisites: [PR.HUB_FORTUNA, PR.VOX_SOLARIS, PR.SYNDICATE_VOX_RANK3]
     },
     {
         id: PR.SYNDICATE_ENTRATI_RANK3,
@@ -1042,9 +1264,9 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
     {
         id: PR.SYNDICATE_CAVIA_RANK5,
         validatedBySyndicate: { syndicateId: SY.CAVIA, rank: 5 },
-        label: "Cavia: Rank 5 (Family)",
+        label: "Cavia: Rank 5 (Illuminate)",
         category: "Syndicates",
-        description: "Maximum Cavia rank. Unlocks weekly Archon Shard purchasing from Cavalero.",
+        description: "Maximum Cavia rank. Unlocks the weekly Archon Shard purchase in Sanctum Anatomica.",
         prerequisites: [PR.SYNDICATE_CAVIA_RANK2]
     },
     {
@@ -1054,6 +1276,51 @@ export const PREREQ_REGISTRY: PrereqDef[] = [
         category: "Syndicates",
         description: "Maximum Hex rank. Required to access Temporal Archimedea.",
         prerequisites: [PR.HUB_HOLLVANIA]
+    },
+    {
+        id: PR.MR_5,
+        validatedByMasteryRank: 5,
+        showInPlanner: false,
+        label: "Mastery Rank 5",
+        category: "Systems",
+        description: "Automatically tracked from your profile. Used by several mid-game gates such as Sorties-era content.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.MR_8,
+        validatedByMasteryRank: 8,
+        showInPlanner: false,
+        label: "Mastery Rank 8",
+        category: "Systems",
+        description: "Automatically tracked from your profile. Used by Helminth segment access and similar gates.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.MR_10,
+        validatedByMasteryRank: 10,
+        showInPlanner: false,
+        label: "Mastery Rank 10",
+        category: "Systems",
+        description: "Automatically tracked from your profile for MR10-gated items and systems.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.MR_15,
+        validatedByMasteryRank: 15,
+        showInPlanner: false,
+        label: "Mastery Rank 15",
+        category: "Systems",
+        description: "Automatically tracked from your profile for MR15-gated items and purchases.",
+        prerequisites: [PR.VORS_PRIZE]
+    },
+    {
+        id: PR.MR_30,
+        validatedByMasteryRank: 30,
+        showInPlanner: false,
+        label: "Mastery Rank 30",
+        category: "Systems",
+        description: "Automatically tracked from your profile for MR30-gated features and rewards.",
+        prerequisites: [PR.VORS_PRIZE]
     },
 
 ];

@@ -2470,9 +2470,12 @@ export default function Inventory() {
   const masteryRank = useTrackerStore(
     (s) => s.state.player?.masteryRank ?? null,
   );
+  const nodeCompletedMap = useTrackerStore(
+    (s) => s.state.missions?.nodeCompleted ?? EMPTY_BOOL_RECORD,
+  );
   const effectiveCompletedPrereqs = useMemo(
-    () => deriveCompletedMap(completedPrereqs, syndicates),
-    [completedPrereqs, syndicates],
+    () => deriveCompletedMap(completedPrereqs, syndicates, masteryRank, nodeCompletedMap),
+    [completedPrereqs, masteryRank, nodeCompletedMap, syndicates],
   );
 
   const goals = useTrackerStore((s) => s.state.goals ?? EMPTY_ARRAY);

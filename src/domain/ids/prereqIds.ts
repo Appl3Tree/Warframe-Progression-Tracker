@@ -39,11 +39,11 @@ export const PR = {
     // -------------------------------------------------------------------------
     VORS_PRIZE:             "quest_vors_prize",             // Forced tutorial; installs all base Orbiter segments
     THE_TEACHER:            "quest_the_teacher",            // Modding tutorial (Update 40, Oct 2025)
-    ONCE_AWAKE:             "quest_once_awake",             // Mercury Grineer arc; req. Vors Prize
-    ARCHWING:               "quest_the_archwing",           // Unlocks Archwing gear + missions; req. Once Awake + Earth junc.
-    STOLEN_DREAMS:          "quest_stolen_dreams",          // Unlocks Cephalon Simaris relay scanner; req. Mars access
+    ONCE_AWAKE:             "quest_once_awake",             // Mercury Grineer arc; req. Mercury Junction
+    ARCHWING:               "quest_the_archwing",           // Unlocks Archwing gear + missions; current wiki page lists Mars Junction
+    STOLEN_DREAMS:          "quest_stolen_dreams",          // Unlocks Cephalon Simaris relay scanner; req. Phobos Junction
     NEW_STRANGE:            "quest_the_new_strange",        // Unlocks Simaris standing + Chroma BP; req. Stolen Dreams
-    NATAH:                  "quest_natah",                  // Gatekeeper to Second Dream; req. Pluto access
+    NATAH:                  "quest_natah",                  // Gatekeeper to Second Dream; req. Uranus Junction
 
     // -------------------------------------------------------------------------
     // Arc 2 — The Second Dream / War Within
@@ -52,8 +52,8 @@ export const PR = {
     WAR_WITHIN:             "quest_the_war_within",         // Upgrades Operator to full Transference + Void powers;
                                                             //   unlocks Kuva Fortress, Sorties, Kuva Lich;
                                                             //   gates full Focus tree + Quills access;
-                                                            //   req. Second Dream + Sedna access
-    CHAINS_HARROW:          "quest_chains_of_harrow",       // Harrow BP; req. Sedna access
+                                                            //   req. Second Dream + Pluto access + MR5
+    CHAINS_HARROW:          "quest_chains_of_harrow",       // Harrow BP; req. War Within + obtaining Mote Amp from Onkko
     APOSTASY:               "quest_apostasy_prologue",      // Short cinematic; req. War Within + Personal Quarters segment
     SACRIFICE:              "quest_the_sacrifice",          // Excalibur Umbra; req. Apostasy Prologue
 
@@ -64,7 +64,7 @@ export const PR = {
     ERRA:                   "quest_erra",                   // Short cinematic; req. Chimera Prologue
     PRELUDE_TO_WAR:         "quest_prelude_to_war",         // Compilation of miniquests; req. Erra
     NEW_WAR:                "quest_the_new_war",            // Major story gate; unlocks Zariman, Veilbreaker, Jade Shadows;
-                                                            //   req. Prelude to War + Railjack + Necramech
+                                                            //   req. Prelude to War + Railjack + Amp
     JADE_SHADOWS:           "quest_jade_shadows",           // Jade Warframe; req. New War
 
     // -------------------------------------------------------------------------
@@ -85,22 +85,21 @@ export const PR = {
 
     // -------------------------------------------------------------------------
     // Arc 6 — The Old Peace (Update 41, Dec 2025)
-    // ⚠️  Verify exact prerequisite chain against wiki before adding to registry
     // -------------------------------------------------------------------------
-    THE_OLD_PEACE:          "quest_the_old_peace",          // Dark Refractory / Descendia content; req. The Lotus Eaters (tentative)
+    THE_OLD_PEACE:          "quest_the_old_peace",          // Dark Refractory / Descendia content; req. The Lotus Eaters
 
     // =========================================================================
     // SIDE QUESTS — Feature Gates
     // =========================================================================
 
-    HOWL_KUBROW:            "quest_howl_of_the_kubrow",     // Unlocks Kubrow incubation & breeding; no hard quest prereq
+    HOWL_KUBROW:            "quest_howl_of_the_kubrow",     // Unlocks Kubrow incubation & breeding; req. Mercury Junction path
     SAYA_VIGIL:             "quest_sayas_vigil",            // Gara BP; combined with War Within unlocks The Quills; req. one Cetus Bounty
     VOX_SOLARIS:            "quest_vox_solaris",            // Unlocks Vox Solaris syndicate; auto-starts on first Fortuna visit
-    HEART_OF_DEIMOS:        "quest_heart_of_deimos",        // Unlocks Necralisk / Cambion Drift / Entrati; req. Mars-Deimos junction
+    HEART_OF_DEIMOS:        "quest_heart_of_deimos",        // Unlocks Necralisk / Cambion Drift / Entrati; req. Earth->Mars Junction
     RISING_TIDE:            "quest_rising_tide",            // Unlocks Railjack construction; req. War Within
     VEILBREAKER:            "quest_veilbreaker",            // Unlocks Kahl's Garrison + Archon Hunts; req. New War
-    CALL_TEMPESTARII:       "quest_call_of_the_tempestarii",// Unlocks Sisters of Parvos + Railjack Corpus nodes; req. Rising Tide
-    DEADLOCK_PROTOCOL:      "quest_the_deadlock_protocol",  // Protea BP; Sisters of Parvos eligibility; req. Corpus Ship Granum Void
+    CALL_TEMPESTARII:       "quest_call_of_the_tempestarii",// Unlocks Sisters of Parvos + Railjack Corpus nodes; req. Railjack + Deadlock Protocol + MR4
+    DEADLOCK_PROTOCOL:      "quest_the_deadlock_protocol",  // Protea BP; Sisters of Parvos eligibility; req. Saturn Junction + MR4
 
     // =========================================================================
     // SIDE QUESTS — Warframe Blueprint Quests
@@ -110,11 +109,11 @@ export const PR = {
     SILVER_GROVE:           "quest_the_silver_grove",       // Titania BP; req. Cetus + MR7 + New Loka relay talk
     SANDS_INAROS:           "quest_sands_of_inaros",        // Inaros BP; beacon purchased from Baro Ki'Teer
     OCTAVIA_ANTHEM:         "quest_octavias_anthem",        // Octavia BP; req. Lua access (Earth-Lua junction)
-    JORDAS_PRECEPT:         "quest_the_jordas_precept",     // Atlas BP; req. Archwing + Eris access
-    GLAST_GAMBIT:           "quest_the_glast_gambit",       // Nidus BP; req. Eris + Infested Salvage access
-    MASK_REVENANT:          "quest_mask_of_the_revenant",   // Revenant BP; req. Cetus + Quills rank 1 (Observer)
+    JORDAS_PRECEPT:         "quest_the_jordas_precept",     // Atlas BP; req. Pluto->Eris Junction
+    GLAST_GAMBIT:           "quest_the_glast_gambit",       // Nidus BP; req. War Within
+    MASK_REVENANT:          "quest_mask_of_the_revenant",   // Revenant BP; req. Cetus + Quills rank 2 (Observer)
     HIDDEN_MESSAGES:        "quest_hidden_messages",        // Mirage BP; req. Saturn access
-    WAVERIDER:             "quest_the_waverider",          // Yareli BP; req. Vox Solaris / Fortuna access
+    WAVERIDER:             "quest_the_waverider",          // Yareli BP; req. Vox Solaris + MR3
     PATIENT_ZERO:           "quest_patient_zero",           // Infested Salvage node + Mesa BP; req. Eris access
 
     // =========================================================================
@@ -165,7 +164,7 @@ export const PR = {
     SEGMENT_MODDING:                "segment_modding_table",
 
     // Obtained via Junctions or Quests:
-    SEGMENT_INCUBATOR:              "segment_incubator",                // Companion incubation; granted via a junction
+    SEGMENT_INCUBATOR:              "segment_incubator",                // Companion incubation; granted by Howl of the Kubrow
     SEGMENT_VOID_RELIC:             "segment_void_relic",               // Void fissures & relics
     SEGMENT_PERSONAL_QUARTERS:      "segment_personal_quarters",        // War Within quest reward; REQUIRED for Apostasy Prologue
     SEGMENT_MELEE_UPGRADE:          "segment_melee_upgrade",            // Melee Arcanes + Exilus slots; Whispers in the Walls reward
@@ -255,70 +254,41 @@ export const PR = {
     ACTIVITY_SORTIES:               "activity_sorties",                 // Daily 3-mission Sortie; req. War Within + MR5 + rank-30 frame
     ACTIVITY_INVASIONS:            "activity_invasions",               // Invasion missions available
     ACTIVITY_NIGHTMARE:            "activity_nightmare_missions",      // Nightmare mission access; req. all nodes complete on a planet
-    ACTIVITY_STALKER:              "activity_stalker_mark",            // Stalker death mark available
-    ACTIVITY_GRUSTRAG:             "activity_grustrag_three_mark",     // Grustrag Three death mark available
-    ACTIVITY_ZANUKA:               "activity_zanuka_hunter_mark",      // Zanuka Hunter death mark available
+    ACTIVITY_THERMIA_FRACTURES:    "activity_thermia_fractures",       // Orb Vallis event; req. Vox Solaris quest
     ACTIVITY_NIGHTWAVE:             "activity_nightwave",               // Nightwave system active/unlocked enough to earn Creds and rank rewards
-    ACTIVITY_GLASSMAKER:            "activity_glassmaker",              // Access to Nihil / The Glassmaker reward path via Nightwave content
-    ACTIVITY_EIDOLON_TERALYST:      "activity_eidolon_teralyst",        // Eidolon Teralyst (1-cap); req. Plains of Eidolon at night;
-                                                                        //   effective hunting req. good Amp (T2+) + Operator arcanes
-    ACTIVITY_EIDOLON_TRIDOLON:      "activity_eidolon_tridolon",        // Full Tridolon (3-cap: Tera + Gant + Hydro);
-                                                                        //   req. Eidolon Teralyst experience + strong Amp (T4+)
     ACTIVITY_ROPALOLYST:            "activity_ropalolyst",              // Jupiter assassination boss node;
                                                                         //   req. New Strange + Jupiter junction clear
     ACTIVITY_INDEX:                 "activity_the_index",               // The Index arena on Neptune
+    ACTIVITY_DEFECTION:             "activity_defection",               // Defection missions
 
     // ---- Weekly ----
-    ACTIVITY_ARCHON_HUNTS:          "activity_archon_hunts",            // Weekly 3-stage Archon fight; req. Veilbreaker + rank-30 frame
-    ACTIVITY_KAHL_BREAK_NARMER:     "activity_kahl_break_narmer",       // Kahl weekly missions; req. Veilbreaker quest
     ACTIVITY_NETRACELLS:            "activity_netracells",              // 5x weekly Netracell runs; req. Whispers in the Walls
-    ACTIVITY_ARBITRATIONS:          "activity_arbitrations",            // Arbitration rotation; req. Pluto-Eris junction task (Update 39+);
+    ACTIVITY_ARBITRATIONS:          "activity_arbitrations",            // Arbitration rotation; req. Eris Junction task "Equip a Focus Lens" (Update 39+)
                                                                         //   rank-30 frame required; instant-death on down
     ACTIVITY_ABYSSAL_ZONE:          "activity_abyssal_zone",            // Abyssal Zone mission access; req. Relay access + any pledged main Syndicate at Rank 2
     ACTIVITY_DEEP_ARCHIMEDEA:       "activity_deep_archimedea",         // Elite endgame activity; req. Whispers + Cavia rank 5 (Family)
 
     // ---- Open World Bounties ----
-    ACTIVITY_CETUS_BOUNTIES:        "activity_cetus_bounties",          // Plains bounty missions; req. Cetus access
-    ACTIVITY_FORTUNA_BOUNTIES:      "activity_fortuna_bounties",        // Vallis bounty missions; req. Fortuna access
-    ACTIVITY_DEIMOS_BOUNTIES:       "activity_deimos_bounties",         // Cambion Drift bounties; req. Necralisk
-    ACTIVITY_ISOLATION_VAULTS:      "activity_isolation_vaults",        // Deimos Isolation Vault bounties; req. Cambion Drift / Mother access
-    ACTIVITY_ARCANA_ISO_VAULTS:     "activity_arcana_isolation_vaults", // Deimos Arcana Isolation Vault bounties; req. first Isolation Vault completion
-    ACTIVITY_ZARIMAN_BOUNTIES:      "activity_zariman_bounties",        // Zariman Chrysalith missions; req. Angels of Zariman
-    ACTIVITY_CAVIA_BOUNTIES:        "activity_cavia_bounties",          // Sanctum Anatomica bounties; req. Whispers in the Walls
-
-    // ---- Open World Bosses ----
-    ACTIVITY_PROFIT_TAKER:          "activity_profit_taker",            // Orb Vallis heist boss; req. Vox Solaris rank 5 (Old Mate) + Archwing
-    ACTIVITY_EXPLOITER_ORB:         "activity_exploiter_orb",           // Orb Vallis thermia fight; req. Fortuna + Thermia Fractures active
-
     // ---- Steel Path ----
     ACTIVITY_STEEL_PATH:            "activity_steel_path",              // Steel Path star chart toggle;
-                                                                        //   req. all nodes cleared up to The New War
-                                                                        //   (Zariman/Sanctum/Hollvania nodes NOT required as of Hotfix 38.5.3)
+                                                                        //   req. all pre-New-War connected nodes cleared
+                                                                        //   (excluding Jordas Golem, Mutalist Alad V, Brutus, and post-New-War tilesets)
     ACTIVITY_STEEL_PATH_HONORS:     "activity_steel_path_honors",       // Teshin's shop for Steel Essence; req. Steel Path + any Relay
     ACTIVITY_CIRCUIT_STEEL_PATH:    "activity_circuit_steel_path",      // Steel Path Circuit (Incarnon Genesis adapters);
                                                                         //   req. Duviri Paradox + Steel Path
 
     // ---- Void Fissures ----
-    ACTIVITY_VOID_FISSURES:         "activity_void_fissures",           // Void Relic cracking; req. Void Relic segment
+    ACTIVITY_VOID_FISSURES:         "activity_void_fissures",           // Void Relic cracking; req. Void Relic segment + unlocked target node
     ACTIVITY_VOID_STORMS:           "activity_void_storms",             // Railjack Void Fissures; req. Railjack + Call of Tempestarii
 
     // ---- Nemesis Systems ----
-    ACTIVITY_KUVA_LICH:             "activity_kuva_lich",               // Kuva Lich nemesis; req. War Within + MR5 + Rising Tide
+    ACTIVITY_KUVA_LICH:             "activity_kuva_lich",               // Kuva Lich nemesis; req. War Within + MR5 + Railjack
     ACTIVITY_SISTER_PARVOS:         "activity_sister_of_parvos",        // Sister of Parvos nemesis; req. Call of Tempestarii + Deadlock Protocol
-    ACTIVITY_TECHNOCYTE_CODA:       "activity_technocyte_coda",         // Technocyte Coda nemesis; req. The Hex
-
-    // ---- Zariman activities ----
-    ACTIVITY_VOID_ANGELS:           "activity_void_angels",             // Void Angel fights in Zariman missions; req. Angels of Zariman
-    ACTIVITY_CONJUNCTION_SURVIVAL:  "activity_conjunction_survival",    // Zariman Conjunction Survival missions; req. Angels of Zariman
-    ACTIVITY_VOID_FLOOD:            "activity_void_flood",              // Zariman Void Flood missions; req. Angels of Zariman
-    ACTIVITY_MIRROR_DEFENSE:        "activity_mirror_defense",          // Zariman Mirror Defense missions; req. Angels of Zariman
+    ACTIVITY_TECHNOCYTE_CODA:       "activity_technocyte_coda",         // Technocyte Coda nemesis; req. The Hex + Railjack final confrontation
 
     // ---- The Circuit (Duviri) ----
     ACTIVITY_CIRCUIT:               "activity_the_circuit",             // Circuit run mode; req. Duviri Paradox
     ACTIVITY_CIRCUIT_STEEL_PATH_2:  "activity_circuit_sp",              // Steel Path Circuit; req. Duviri + Steel Path
-
-    // ---- Account / login progression ----
-    SYSTEM_DAILY_TRIBUTE:           "system_daily_tribute_rewards",     // Login milestone reward track used for Daily Tribute weapons and cosmetics
 
     // =========================================================================
     // SYNDICATE RANK MILESTONES
@@ -326,15 +296,15 @@ export const PR = {
     // =========================================================================
 
     // The Quills (Cetus) — gates Amp tiers and Mask of the Revenant:
-    SYNDICATE_QUILLS_RANK1:         "syndicate_quills_rank1",           // Observer — T1 Amps + Mask of Revenant quest trigger
-    SYNDICATE_QUILLS_RANK2:         "syndicate_quills_rank2",           // Adherent — T2 Amp parts + Amp gilding
-    SYNDICATE_QUILLS_RANK3:         "syndicate_quills_rank3",           // Instrument — T3 Amp parts
-    SYNDICATE_QUILLS_RANK4:         "syndicate_quills_rank4",           // Architect — T4 Amp parts (best from Quills)
+    SYNDICATE_QUILLS_RANK1:         "syndicate_quills_rank1",           // Mote — T1 Amp parts
+    SYNDICATE_QUILLS_RANK2:         "syndicate_quills_rank2",           // Observer — T2 Amp parts + Mask of the Revenant
+    SYNDICATE_QUILLS_RANK3:         "syndicate_quills_rank3",           // Adherent — T3 Amp parts
+    SYNDICATE_QUILLS_RANK4:         "syndicate_quills_rank4",           // Instrument — T4 Amp parts (highest tracked Quills rank here)
 
     // The Holdfasts (Zariman) — gates Chrysalith vendor inventory:
-    SYNDICATE_HOLDFASTS_RANK1:      "syndicate_holdfasts_rank1",        // Watcher
-    SYNDICATE_HOLDFASTS_RANK2:      "syndicate_holdfasts_rank2",        // Guardian
-    SYNDICATE_HOLDFASTS_RANK3:      "syndicate_holdfasts_rank3",        // Fallen
+    SYNDICATE_HOLDFASTS_RANK1:      "syndicate_holdfasts_rank1",        // Fallen
+    SYNDICATE_HOLDFASTS_RANK2:      "syndicate_holdfasts_rank2",        // Watcher
+    SYNDICATE_HOLDFASTS_RANK3:      "syndicate_holdfasts_rank3",        // Guardian
     SYNDICATE_HOLDFASTS_RANK4:      "syndicate_holdfasts_rank4",        // Seraph
     SYNDICATE_HOLDFASTS_RANK5:      "syndicate_holdfasts_rank5",        // Angel
 
@@ -344,7 +314,8 @@ export const PR = {
 
     // Cavia (Sanctum Anatomica) — gates Coalescent + Deep Archimedea:
     SYNDICATE_CAVIA_RANK2:          "syndicate_cavia_rank2",            // Researcher — Helminth Coalescent Segment BP (Bird 3)
-    SYNDICATE_CAVIA_RANK5:          "syndicate_cavia_rank5",            // Family — Deep Archimedea + weekly Archon Shard purchase
+    SYNDICATE_CAVIA_RANK5:          "syndicate_cavia_rank5",            // Illuminate — weekly Archon Shard purchase
+    SYNDICATE_SOLARIS_RANK5:        "syndicate_solaris_united_rank5",   // Old Mate — required for Orb Vallis heists
 
     // The Hex (Höllvania / 1999) — gates Temporal Archimedea:
     SYNDICATE_HEX_RANK5:            "syndicate_hex_rank5",              // Pizza Party (rank 5) — Temporal Archimedea access
@@ -353,7 +324,7 @@ export const PR = {
     SYNDICATE_VOX_RANK1:            "syndicate_vox_rank1",              // Little Duck contact — T5 Amp parts
     SYNDICATE_VOX_RANK2:            "syndicate_vox_rank2",              // Neutral — T6 Amp parts
     SYNDICATE_VOX_RANK3:            "syndicate_vox_rank3",              // Mistral — T7 Amp parts + Amp gilding
-    SYNDICATE_VOX_RANK5:            "syndicate_vox_rank5",              // Old Mate — Profit-Taker Orb heist
+    SYNDICATE_VOX_RANK5:            "syndicate_vox_rank5",              // Shadow — top-tier Little Duck offerings
 
     // =========================================================================
     // MASTERY RANK THRESHOLDS

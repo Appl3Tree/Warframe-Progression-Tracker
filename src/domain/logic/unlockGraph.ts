@@ -1,13 +1,15 @@
 // ===== FILE: src/domain/logic/unlockGraph.ts =====
-import type { PrereqDef } from "../../catalog/prereqs/prereqRegistry";
+import { describePrereqCondition, type PrereqCondition, type PrereqDef } from "../../catalog/prereqs/prereqRegistry";
 import { PREREQ_REGISTRY } from "../../catalog/prereqs/prereqRegistry";
 import type { PrereqId } from "../ids/prereqIds";
+import { getMissingConditions, type PrereqEvaluationContext } from "./prereqEngine";
 
 export interface UnlockNodeStatus {
     id: PrereqId;
     completed: boolean;
     unlocked: boolean;          // all prereqs completed
     missing: PrereqId[];        // prereqs not completed
+    missingConditions: PrereqCondition[];
 }
 
 export interface UnlockGraphSnapshot {
@@ -22,6 +24,17 @@ export interface UnlockGraphSnapshot {
     actionable: UnlockNodeStatus[]; // not complete, unlocked
     blocked: UnlockNodeStatus[];    // not complete, locked
     completed: UnlockNodeStatus[];  // complete
+}
+
+export function describeUnlockNodeMissingLabels(
+    status: Pick<UnlockNodeStatus, "missing" | "missingConditions">,
+    index: Record<string, PrereqDef>,
+): string[] {
+    const prereqLabels = status.missing.map((id) => index[id]?.label ?? id);
+    const conditionLabels = status.missingConditions.map((cond) =>
+        describePrereqCondition(cond, (id) => index[id]?.label ?? id),
+    );
+    return [...prereqLabels, ...conditionLabels];
 }
 
 /**
@@ -98,7 +111,8 @@ function computeRankById(index: Record<string, PrereqDef>, defs: PrereqDef[]): R
 
 export function computeUnlockGraphSnapshot(
     completedMap: Record<string, boolean>,
-    defs: PrereqDef[] = PREREQ_REGISTRY
+    defs: PrereqDef[] = PREREQ_REGISTRY,
+    context: PrereqEvaluationContext = {},
 ): UnlockGraphSnapshot {
     const index = buildPrereqIndex(defs);
     const rankById = computeRankById(index, defs);
@@ -114,11 +128,14 @@ export function computeUnlockGraphSnapshot(
             }
         }
 
+        const missingConditions = getMissingConditions(d, completedMap, context);
+
         return {
             id: d.id,
             completed,
-            unlocked: missing.length === 0,
-            missing
+            unlocked: missing.length === 0 && missingConditions.length === 0,
+            missing,
+            missingConditions,
         };
     });
 
@@ -168,9 +185,10 @@ export function computeUnlockGraphSnapshot(
  */
 export function getActionablePrereqs(
     completedMap: Record<string, boolean>,
-    defs: PrereqDef[] = PREREQ_REGISTRY
+    defs: PrereqDef[] = PREREQ_REGISTRY,
+    context: PrereqEvaluationContext = {},
 ): PrereqDef[] {
-    const snap = computeUnlockGraphSnapshot(completedMap, defs);
+    const snap = computeUnlockGraphSnapshot(completedMap, defs, context);
     return snap.actionable
         .map((s) => snap.index[s.id])
         .filter(Boolean)
@@ -195,9 +213,10 @@ export function isPrereqComplete(completedMap: Record<string, boolean>, id: Prer
 export function isPrereqUnlocked(
     completedMap: Record<string, boolean>,
     id: PrereqId,
-    defs: PrereqDef[] = PREREQ_REGISTRY
+    defs: PrereqDef[] = PREREQ_REGISTRY,
+    context: PrereqEvaluationContext = {},
 ): boolean {
-    const snap = computeUnlockGraphSnapshot(completedMap, defs);
+    const snap = computeUnlockGraphSnapshot(completedMap, defs, context);
     const st = snap.byId[id];
     if (!st) {
         // Unknown prereq => treat as locked
@@ -205,4 +224,3 @@ export function isPrereqUnlocked(
     }
     return st.unlocked;
 }
-

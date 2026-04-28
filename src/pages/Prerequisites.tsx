@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { PREREQ_REGISTRY } from "../catalog/prereqs/prereqRegistry";
 import { computePrereqStatuses, buildPrereqIndex } from "../domain/logic/prereqEngine";
+import { describePrereqCondition } from "../catalog/prereqs/prereqRegistry";
 import { computeUnlockGraphSnapshot } from "../domain/logic/unlockGraph";
-import { deriveCompletedMap, isValidatedBySyndicate } from "../domain/logic/syndicatePrereqs";
+import { deriveCompletedMap, isAutoTrackedPrereq } from "../domain/logic/syndicatePrereqs";
 import { useTrackerStore } from "../store/store";
 import { WorkspaceAction, WorkspaceFilterBar, WorkspaceFilterGroup, WorkspaceHero, WorkspaceSection, WorkspaceSegmented, WorkspaceSegmentedButton, WorkspaceStat } from "../components/workspace/WorkspaceChrome";
 
@@ -44,22 +45,30 @@ export default function Prerequisites() {
     const completedMap       = useTrackerStore((s) => s.state.prereqs?.completed ?? {});
     const setPrereqCompleted = useTrackerStore((s) => s.setPrereqCompleted);
     const syndicates         = useTrackerStore((s) => s.state.syndicates ?? []);
+    const masteryRank        = useTrackerStore((s) => s.state.player?.masteryRank ?? null);
+    const nodeCompletedMap   = useTrackerStore((s) => s.state.missions?.nodeCompleted ?? {});
+    const inventoryCounts    = useTrackerStore((s) => s.state.inventory.counts ?? {});
 
     const [search, setSearch]             = useState("");
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
     const [collapsed, setCollapsed]       = useState<Record<string, boolean>>({});
 
     const mergedMap = useMemo(
-        () => deriveCompletedMap(completedMap, syndicates),
-        [completedMap, syndicates],
+        () => deriveCompletedMap(completedMap, syndicates, masteryRank, nodeCompletedMap),
+        [completedMap, syndicates, masteryRank, nodeCompletedMap],
+    );
+
+    const evalContext = useMemo(
+        () => ({ masteryRank, nodeCompletedMap, inventoryCounts }),
+        [masteryRank, nodeCompletedMap, inventoryCounts],
     );
 
     const index    = useMemo(() => buildPrereqIndex(PREREQ_REGISTRY), []);
-    const statuses = useMemo(() => computePrereqStatuses(PREREQ_REGISTRY, mergedMap), [mergedMap]);
-    const snap     = useMemo(() => computeUnlockGraphSnapshot(mergedMap, PREREQ_REGISTRY), [mergedMap]);
+    const statuses = useMemo(() => computePrereqStatuses(PREREQ_REGISTRY, mergedMap, evalContext), [mergedMap, evalContext]);
+    const snap     = useMemo(() => computeUnlockGraphSnapshot(mergedMap, PREREQ_REGISTRY, evalContext), [mergedMap, evalContext]);
 
     const statusById = useMemo(() => {
-        const map: Record<string, { completed: boolean; isUnlocked: boolean; missingPrereqs: string[] }> = {};
+        const map: Record<string, { completed: boolean; isUnlocked: boolean; missingPrereqs: string[]; missingConditions: import("../catalog/prereqs/prereqRegistry").PrereqCondition[] }> = {};
         for (const s of statuses) map[s.id] = s;
         return map;
     }, [statuses]);
@@ -227,9 +236,13 @@ export default function Prerequisites() {
                         {isOpen && (
                             <div className="px-4 pb-3 flex flex-col gap-1.5">
                                 {defs.map((d) => {
-                                    const st          = statusById[d.id] ?? { completed: false, isUnlocked: false, missingPrereqs: [] };
+                                    const st          = statusById[d.id] ?? { completed: false, isUnlocked: false, missingPrereqs: [], missingConditions: [] };
                                     const locked      = !st.isUnlocked;
-                                    const autoTracked = isValidatedBySyndicate(d.id);
+                                    const autoTracked = isAutoTrackedPrereq(d.id);
+                                    const missingConditionLabels = st.missingConditions.map((cond) =>
+                                        describePrereqCondition(cond, (id) => labelFor(id)),
+                                    );
+                                    const missingLabels = [...st.missingPrereqs.map((m) => labelFor(m)), ...missingConditionLabels];
 
                                     return (
                                         <div
@@ -302,9 +315,9 @@ export default function Prerequisites() {
                                                     )}
 
                                                     {/* Missing prereqs — compact inline */}
-                                                    {locked && !st.completed && st.missingPrereqs.length > 0 && (
+                                                    {locked && !st.completed && missingLabels.length > 0 && (
                                                         <div className="mt-1 text-[11px] text-amber-500/70">
-                                                            Needs: {st.missingPrereqs.map((m) => labelFor(m)).join(", ")}
+                                                            Needs: {missingLabels.join(", ")}
                                                         </div>
                                                     )}
 

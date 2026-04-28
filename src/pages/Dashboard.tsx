@@ -1,5 +1,12 @@
 // src/pages/Dashboard.tsx
 import { useMemo } from "react";
+
+const EMPTY_COMPLETED: Record<string, boolean> = {};
+const EMPTY_SYNDICATES: never[] = [];
+const EMPTY_GOALS: never[] = [];
+const EMPTY_DAILY_TASKS: never[] = [];
+const EMPTY_NODE_COMPLETED: Record<string, boolean> = {};
+const EMPTY_INVENTORY_COUNTS: Record<string, number> = {};
 import WarframeResetTracker from "../components/WarframeResetTracker";
 import ProgressionNextStepsPanel from "../components/ProgressionNextStepsPanel";
 import DailyChecklist from "../components/DailyChecklist";
@@ -11,28 +18,30 @@ import { WorkspaceAction, WorkspacePanel } from "../components/workspace/Workspa
 
 export default function Dashboard() {
     const setActivePage = useTrackerStore((s) => s.setActivePage);
-    const { completedMap, syndicates, masteryRank, goals, dailyTasks } = useTrackerStore(
+    const { completedMap, syndicates, masteryRank, goals, dailyTasks, nodeCompletedMap, inventoryCounts } = useTrackerStore(
         useShallow((s) => ({
-            completedMap: s.state.prereqs?.completed ?? {},
-            syndicates: s.state.syndicates ?? [],
+            completedMap: s.state.prereqs?.completed ?? EMPTY_COMPLETED,
+            syndicates: s.state.syndicates ?? EMPTY_SYNDICATES,
             masteryRank: s.state.player?.masteryRank,
-            goals: s.state.goals ?? [],
-            dailyTasks: s.state.dailyTasks ?? [],
+            goals: s.state.goals ?? EMPTY_GOALS,
+            dailyTasks: s.state.dailyTasks ?? EMPTY_DAILY_TASKS,
+            nodeCompletedMap: s.state.missions?.nodeCompleted ?? EMPTY_NODE_COMPLETED,
+            inventoryCounts: s.state.inventory.counts ?? EMPTY_INVENTORY_COUNTS,
         }))
     );
 
     const mergedMap = useMemo(
-        () => deriveCompletedMap(completedMap, syndicates),
-        [completedMap, syndicates]
+        () => deriveCompletedMap(completedMap, syndicates, masteryRank, nodeCompletedMap),
+        [completedMap, syndicates, masteryRank, nodeCompletedMap]
     );
 
     const progressionSteps = useMemo(() => {
         try {
-            return (buildProgressionPlan(mergedMap).steps ?? []).filter((s: any) => s.id !== "planner_error_no_steps");
+            return (buildProgressionPlan(mergedMap, { masteryRank, nodeCompletedMap, inventoryCounts }).steps ?? []).filter((s: any) => s.id !== "planner_error_no_steps");
         } catch {
             return [];
         }
-    }, [mergedMap]);
+    }, [inventoryCounts, masteryRank, mergedMap, nodeCompletedMap]);
 
     const hasProgressionSteps = progressionSteps.length > 0;
     const isNewPlayer = masteryRank == null && syndicates.length === 0 && Object.keys(completedMap).length === 0;

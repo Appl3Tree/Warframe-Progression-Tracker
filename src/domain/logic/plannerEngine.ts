@@ -3,8 +3,10 @@
 import { PR } from "../ids/prereqIds";
 import type { PrereqId } from "../ids/prereqIds";
 import { PREREQ_REGISTRY } from "../../catalog/prereqs/prereqRegistry";
-import { computeUnlockGraphSnapshot } from "./unlockGraph";
+import { computeUnlockGraphSnapshot, describeUnlockNodeMissingLabels } from "./unlockGraph";
 import { computeMilestones } from "./milestoneEngine";
+import type { PrereqEvaluationContext } from "./prereqEngine";
+import { isAutoTrackedPrereq } from "./syndicatePrereqs";
 
 import { FULL_CATALOG, type CatalogId } from "../catalog/loadFullCatalog";
 import { SOURCE_INDEX } from "../../catalog/sources/sourceCatalog";
@@ -28,6 +30,7 @@ export interface ProgressionStep {
 
     blocked: boolean;
     missingPrereqs: PrereqId[];
+    missingLabels: string[];
 
     tags: string[];
 }
@@ -41,9 +44,10 @@ export interface ProgressionPlan {
  * - “Next steps” must never be empty unless everything is completed.
  */
 export function buildProgressionPlan(
-    completedMap: Record<string, boolean>
+    completedMap: Record<string, boolean>,
+    context: PrereqEvaluationContext = {},
 ): ProgressionPlan {
-    const snap = computeUnlockGraphSnapshot(completedMap, PREREQ_REGISTRY);
+    const snap = computeUnlockGraphSnapshot(completedMap, PREREQ_REGISTRY, context);
     const milestones = computeMilestones({ completedPrereqs: completedMap });
 
     const milestoneIds = new Set(milestones.map((m) => m.id));
@@ -72,6 +76,7 @@ export function buildProgressionPlan(
                     "This prerequisite is referenced but not defined in the registry.",
                 blocked: false,
                 missingPrereqs: st?.missing ?? [],
+                missingLabels: st ? describeUnlockNodeMissingLabels(st, snap.index) : [],
                 tags: ["Unlock", "Unknown", tag]
             };
         }
@@ -83,6 +88,7 @@ export function buildProgressionPlan(
             description: def.description,
             blocked: false,
             missingPrereqs: st?.missing ?? [],
+            missingLabels: st ? describeUnlockNodeMissingLabels(st, snap.index) : [],
             tags: [
                 "Unlock",
                 def.category,
@@ -112,7 +118,10 @@ export function buildProgressionPlan(
             return a.localeCompare(b);
         });
 
-    for (const id of actionable) {
+    const manualActionable = actionable.filter((id) => !isAutoTrackedPrereq(id));
+    const autoActionable = actionable.filter((id) => isAutoTrackedPrereq(id));
+
+    for (const id of manualActionable) {
         steps.push(makeStep(id, "Frontier"));
     }
 
@@ -145,6 +154,10 @@ export function buildProgressionPlan(
 
         const nextSteps = Array.from(nextIds)
             .sort((a, b) => {
+                const aAuto = isAutoTrackedPrereq(a);
+                const bAuto = isAutoTrackedPrereq(b);
+                if (aAuto !== bAuto) return aAuto ? 1 : -1;
+
                 const aIsMilestone = milestoneIds.has(a);
                 const bIsMilestone = milestoneIds.has(b);
                 if (aIsMilestone !== bIsMilestone) {
@@ -162,6 +175,10 @@ export function buildProgressionPlan(
         if (nextSteps.length > 0) {
             return { steps: nextSteps };
         }
+    }
+
+    if (autoActionable.length > 0) {
+        return { steps: autoActionable.map((id) => makeStep(id, "Frontier")) };
     }
 
     const anyIncomplete = snap.statuses
@@ -190,6 +207,7 @@ export function buildProgressionPlan(
                     "No next steps could be computed. Check prereq registry integrity.",
                 blocked: false,
                 missingPrereqs: [],
+                missingLabels: [],
                 tags: ["Error"]
             }
         ]

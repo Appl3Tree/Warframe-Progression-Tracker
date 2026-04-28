@@ -9,7 +9,9 @@
 // Syndicates tracker already reflects the required rank.
 
 import { PREREQ_REGISTRY } from "../../catalog/prereqs/prereqRegistry";
+import { PR } from "../ids/prereqIds";
 import type { SyndicateState } from "../types";
+import { isNightmareUnlockedFromNodeCompletion, isSteelPathUnlockedFromNodeCompletion } from "./starChartProgression";
 
 /**
  * Returns a merged completedMap that includes auto-derived completions
@@ -21,7 +23,9 @@ import type { SyndicateState } from "../types";
  */
 export function deriveCompletedMap(
     baseCompletedMap: Record<string, boolean>,
-    syndicates: SyndicateState[]
+    syndicates: SyndicateState[],
+    masteryRank?: number | null,
+    nodeCompletedMap: Record<string, boolean> = {},
 ): Record<string, boolean> {
     // Build a fast rank lookup: syndicateId -> current rank
     const rankBySyndicateId: Record<string, number> = {};
@@ -32,6 +36,9 @@ export function deriveCompletedMap(
     }
 
     const merged: Record<string, boolean> = { ...baseCompletedMap };
+    const normalizedMasteryRank = typeof masteryRank === "number" && Number.isFinite(masteryRank)
+        ? Math.max(0, Math.floor(masteryRank))
+        : -1;
 
     for (const def of PREREQ_REGISTRY) {
         if (def.validatedBySyndicate) {
@@ -49,9 +56,21 @@ export function deriveCompletedMap(
                 merged[def.id] = true;
             }
         }
+
+        if (typeof def.validatedByMasteryRank === "number" && normalizedMasteryRank >= def.validatedByMasteryRank) {
+            merged[def.id] = true;
+        }
         // Note: we never set merged[def.id] = false here — if the player manually
         // marked it complete but their rank dropped, we trust the manual mark.
         // The Syndicates page is the canonical source for rank going forward.
+    }
+
+    if (isSteelPathUnlockedFromNodeCompletion(nodeCompletedMap)) {
+        merged[PR.ACTIVITY_STEEL_PATH] = true;
+    }
+
+    if (isNightmareUnlockedFromNodeCompletion(nodeCompletedMap)) {
+        merged[PR.ACTIVITY_NIGHTMARE] = true;
     }
 
     return merged;
@@ -64,5 +83,11 @@ export function deriveCompletedMap(
 export function isValidatedBySyndicate(prereqId: string): boolean {
     return PREREQ_REGISTRY.some(
         (d) => d.id === prereqId && (!!d.validatedBySyndicate || !!d.validatedByAnySyndicate)
+    );
+}
+
+export function isAutoTrackedPrereq(prereqId: string): boolean {
+    return PREREQ_REGISTRY.some(
+        (d) => d.id === prereqId && (!!d.validatedBySyndicate || !!d.validatedByAnySyndicate || typeof d.validatedByMasteryRank === "number")
     );
 }
